@@ -24,19 +24,22 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asPublisher
+import kotlinx.coroutines.reactive.awaitFirst
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.slf4j.LoggerFactory
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.stereotype.Repository
 import org.taktik.commons.uti.UTI
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.Attachment
 import org.taktik.couchdb.entity.ComplexKey
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.DocumentDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.asyncdao.cache.DocumentCache
 import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorage
 import org.taktik.icure.entities.Document
@@ -60,7 +63,7 @@ class DocumentDAOImpl(couchDbProperties: CouchDbProperties,
                       private val icureCloudStorage: IcureObjectStorage,
                       private val documentStorageProperties: DocumentStorageProperties) : GenericDAOImpl<Document>(couchDbProperties, Document::class.java, couchDbDispatcher, idGenerator), DocumentDAO {
 
-    companion object{
+    companion object {
         private val log = LoggerFactory.getLogger(DocumentDAOImpl::class.java)
     }
 
@@ -72,7 +75,7 @@ class DocumentDAOImpl(couchDbProperties: CouchDbProperties,
                         documentCacheService.store(newAttachmentId, document.attachment)
                         document.copy(objectStoreReference = newAttachmentId)
                     } else {
-                        beforeSaveSmallAttachment(newAttachmentId, document)
+                        embedAttachmentInCouchdbDatabase(newAttachmentId, document)
                     }
                 } else if (document.attachmentId != null && document.rev != null) {
                     document.copy(
@@ -81,14 +84,13 @@ class DocumentDAOImpl(couchDbProperties: CouchDbProperties,
                             isAttachmentDirty = false
                     )
                 } else if (document.objectStoreReference != null && document.rev != null) {
-                    icureCloudStorage.
-                    deleteAttachment(document.id)
+                    icureCloudStorage.deleteAttachment(document.id)
                     document.copy(objectStoreReference = null)
                 } else document
 
             }
 
-    private suspend fun beforeSaveSmallAttachment(newAttachmentId: String?, document: Document) =
+    private suspend fun embedAttachmentInCouchdbDatabase(newAttachmentId: String?, document: Document) =
             if (newAttachmentId != document.attachmentId && document.rev != null && document.attachmentId != null) {
                 document.attachments?.containsKey(document.attachmentId)?.takeIf { it }?.let {
                     document.copy(
@@ -140,8 +142,9 @@ class DocumentDAOImpl(couchDbProperties: CouchDbProperties,
                             attachmentFlow.writeTo(it)
                             it.toByteArray()
                         }
-                        if( documentStorageProperties.backlogToObjectStorage && documentStorageProperties.sizeLimit < attachment.size){
-                            val doc = document.copy(objectStoreReference = document.attachmentId, attachmentId = null, attachments = document.attachments ?: emptyMap<String, Attachment>() - document.attachmentId)
+                        if (documentStorageProperties.backlogToObjectStorage && documentStorageProperties.sizeLimit < attachment.size) {
+                            val doc = document.copy(objectStoreReference = document.attachmentId, attachmentId = null, attachments = document.attachments
+                                    ?: emptyMap<String, Attachment>() - document.attachmentId)
                             save(doc)
                             documentCacheService.store(document.attachmentId, attachment)
                             icureCloudStorage.storeAttachment(document.id, attachment)
@@ -154,9 +157,10 @@ class DocumentDAOImpl(couchDbProperties: CouchDbProperties,
                     }
                 } else if (document.objectStoreReference != null) {
                     (documentCacheService.read(document.objectStoreReference)
-                            ?: icureCloudStorage.readAttachment(document.id, document.objectStoreReference)?.also { documentCacheService.store(document.objectStoreReference, it) })
+                            ?: icureCloudStorage.readAttachment(document.id, document.objectStoreReference).also { documentCacheService.store(document.objectStoreReference, it) })
                             .let {
-                                document.copy(attachment = it)
+                                DataBufferUtils.join(it.asPublisher()).awaitFirst().asByteBuffer().array()
+                                        .let { document.copy(attachment = it) }
                             }
                 } else document
             }
