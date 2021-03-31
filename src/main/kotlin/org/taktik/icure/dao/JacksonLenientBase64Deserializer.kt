@@ -8,7 +8,7 @@ import java.util.Base64
 class JacksonLenientBase64Deserializer : JsonDeserializer<ByteArray>() {
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): ByteArray? {
         return if (p.currentToken()?.isScalarValue == true) {
-            p.readValueAs(String::class.java)?.let { Base64.getDecoder().decode(it) }
+            p.valueAsString?.let { Base64.getDecoder().decode(it) }
         } else null
     }
 }
