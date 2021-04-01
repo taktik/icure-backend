@@ -142,7 +142,7 @@ dependencies {
     implementation(group = "org.mapstruct", name = "mapstruct", version = "1.3.1.Final")
 
     //Krouch
-    implementation(group = "org.taktik.couchdb", name = "krouch", version = "jack211-1.0.2-41-g34e2d0b155")
+    implementation(group = "org.taktik.couchdb", name = "krouch", version = "jack211-1.0.2-42-ga934401c85")
 
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-mail", version = "2.4.0")
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-webflux", version = "2.4.0")
