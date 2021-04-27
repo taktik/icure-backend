@@ -17,7 +17,7 @@ buildscript {
 		classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
 		classpath('com.taktik.gradle:gradle-plugin-docker-java:1.2.0')
 
-		classpath('com.taktik.gradle:gradle-plugin-git-version:2.0.0')
+		classpath('com.taktik.gradle:gradle-plugin-git-version:2.0.1')
 		classpath('com.github.ben-manes:gradle-versions-plugin:0.21.0')
 	}
 }
@@ -286,8 +286,4 @@ publishing {
 			}
 		}
 	}
-}
-
-dockerJava {
-	tag = 'taktik/icure-backend'
 }
