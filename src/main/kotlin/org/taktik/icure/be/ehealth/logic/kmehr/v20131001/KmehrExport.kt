@@ -276,7 +276,7 @@ open class KmehrExport {
                     }
                 }
             }
-            isIsrelevant = ServiceStatus.isRelevant(he.status) || he.isRelevant || lifecycle.cd.value == CDLIFECYCLEvalues.ACTIVE  // FIXME: two way to store the relevant status
+            isIsrelevant = ServiceStatus.isRelevant(he.status) || he.isRelevant
             beginmoment = (he.valueDate ?: he.openingDate).let { Utils.makeMomentTypeFromFuzzyLong(it) }
             endmoment = he.closingDate?.let {
                 if(it == 0L) {
