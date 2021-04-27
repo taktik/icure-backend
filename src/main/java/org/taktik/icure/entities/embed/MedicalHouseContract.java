@@ -29,10 +29,16 @@ public class MedicalHouseContract {
 	private boolean kine;
 	private boolean gp;
 	private boolean nurse;
+	private boolean ptd;
 	private boolean noKine;
 	private boolean noGp;
 	private boolean noNurse;
 	private Integer unsubscriptionReasonId;
+
+	private Long ptdStart;
+    private Long ptdEnd;
+    private Long ptdLastInvoiced;
+    private Map<String, String> options = new HashMap<>();
 
     private MhcSignatureType signatureType;
     private Integer status;
@@ -212,6 +218,26 @@ public class MedicalHouseContract {
     public void setReceipts(Map<String, String> receipts) {
         this.receipts = receipts;
     }
+
+    public boolean isPtd() { return ptd; }
+
+    public void setPtd(boolean ptd) { this.ptd = ptd; }
+
+    public Long getPtdStart() { return ptdStart; }
+
+    public void setPtdStart(Long ptdStart) { this.ptdStart = ptdStart; }
+
+    public Long getPtdEnd() { return ptdEnd; }
+
+    public void setPtdEnd(Long ptdEnd) { this.ptdEnd = ptdEnd; }
+
+    public Long getPtdLastInvoiced() { return ptdLastInvoiced; }
+
+    public void setPtdLastInvoiced(Long ptdLastInvoiced) { this.ptdLastInvoiced = ptdLastInvoiced; }
+
+    public Map<String, String> getOptions() { return options; }
+
+    public void setOptions(Map<String, String> options) { this.options = options; }
 
     public void mergeFrom(MedicalHouseContract other) {
 		//TODO: implement
