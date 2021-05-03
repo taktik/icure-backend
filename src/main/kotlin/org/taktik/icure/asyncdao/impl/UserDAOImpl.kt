@@ -37,8 +37,8 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.User
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
-import org.taktik.icure.utils.createQuery
-import org.taktik.icure.utils.pagedViewQuery
+
+
 import java.net.URI
 import java.time.Instant
 import java.util.*
@@ -51,7 +51,7 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
     override fun getExpiredUsers(fromExpirationInstant: Instant, toExpirationInstant: Instant): Flow<User> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val users = client.queryViewIncludeDocs<String, String, User>(createQuery<User>("by_exp_date").startKey(fromExpirationInstant.toString()).endKey(toExpirationInstant.toString()).includeDocs(true)).map { it.doc }
+        val users = client.queryViewIncludeDocs<String, String, User>(createQuery("by_exp_date").startKey(fromExpirationInstant.toString()).endKey(toExpirationInstant.toString()).includeDocs(true)).map { it.doc }
 
         return users.filter { it.expirationDate != null && !it.expirationDate.isBefore(fromExpirationInstant) && !it.expirationDate.isAfter(toExpirationInstant) }
     }
@@ -60,19 +60,19 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findByUsername(searchString: String): Flow<User> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocsNoValue<String, User>(createQuery<User>("by_username").includeDocs(true).key(searchString)).mapNotNull { it.doc }
+        return client.queryViewIncludeDocsNoValue<String, User>(createQuery("by_username").includeDocs(true).key(searchString)).mapNotNull { it.doc }
     }
 
     @View(name = "by_email", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.email, null)}}")
     override fun findByEmail(searchString: String): Flow<User> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocsNoValue<String, User>(createQuery<User>("by_email").includeDocs(true).key(searchString)).mapNotNull { it.doc }
+        return client.queryViewIncludeDocsNoValue<String, User>(createQuery("by_email").includeDocs(true).key(searchString)).mapNotNull { it.doc }
     }
 
     override fun listByEmailOnFallbackDb(email: String): Flow<User> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.queryViewIncludeDocsNoValue<String, User>(createQuery<User>("by_email").includeDocs(true).key(email)).mapNotNull { it.doc }
+        return client.queryViewIncludeDocsNoValue<String, User>(createQuery("by_email").includeDocs(true).key(email)).mapNotNull { it.doc }
     }
 
     /**
@@ -102,20 +102,20 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
     override fun getUsersByPartialIdOnFallback(id: String): Flow<User> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocsNoValue<String, User>(createQuery<User>("by_id").includeDocs(true).key(id)).map { it.doc }
+        return client.queryViewIncludeDocsNoValue<String, User>(createQuery("by_id").includeDocs(true).key(id)).map { it.doc }
     }
 
     @View(name = "by_hcp_id", map = "classpath:js/user/by_hcp_id.js")
     override fun findByHcpId(hcPartyId: String): Flow<User> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocsNoValue<String,User>(createQuery<User>("by_hcp_id").key(hcPartyId).includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocsNoValue<String,User>(createQuery("by_hcp_id").key(hcPartyId).includeDocs(true)).map { it.doc }
     }
 
     override fun findByUsernameOnFallback(login: String): Flow<User> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocsNoValue<String,User>(createQuery<User>("by_username").includeDocs(true).key(login)).map { it.doc }
+        return client.queryViewIncludeDocsNoValue<String,User>(createQuery("by_username").includeDocs(true).key(login)).map { it.doc }
     }
 
     override suspend fun getUserOnUserDb(userId: String, bypassCache: Boolean): User {
@@ -151,7 +151,7 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
     override fun getUsersOnDb(dbInstanceUrl: URI): Flow<User> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocsNoValue<String, User>(createQuery<User>("all").includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocsNoValue<String, User>(createQuery("all").includeDocs(true)).map { it.doc }
     }
 
     override suspend fun evictFromCache(userIds: Flow<String>) {

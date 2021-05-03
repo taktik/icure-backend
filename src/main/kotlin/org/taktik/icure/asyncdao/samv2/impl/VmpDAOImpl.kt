@@ -38,8 +38,8 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
-import org.taktik.icure.utils.pagedViewQuery
+
+
 import java.net.URI
 
 @FlowPreview
@@ -117,7 +117,7 @@ class VmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val from = vmpgCode
         val to = vmpgCode
 
-        val viewQuery = createQuery<Vmp>("by_groupcode")
+        val viewQuery = createQuery("by_groupcode")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -132,7 +132,7 @@ class VmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val from = vmpgId
         val to = vmpgId
 
-        val viewQuery = createQuery<Vmp>("by_groupid")
+        val viewQuery = createQuery("by_groupid")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -153,7 +153,7 @@ class VmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
                 language ?: ComplexKey.emptyObject(),
                 if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
         )
-        val viewQuery = createQuery<Vmp>("by_language_label")
+        val viewQuery = createQuery("by_language_label")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -165,7 +165,7 @@ class VmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
-        val viewQuery = createQuery<Vmp>("by_vmpcode")
+        val viewQuery = createQuery("by_vmpcode")
                 .keys(vmpCodes)
                 .reduce(false)
                 .includeDocs(true)
@@ -176,7 +176,7 @@ class VmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
-        val viewQuery = createQuery<Vmp>("by_groupid")
+        val viewQuery = createQuery("by_groupid")
                 .keys(vmpgIds)
                 .reduce(false)
                 .includeDocs(true)

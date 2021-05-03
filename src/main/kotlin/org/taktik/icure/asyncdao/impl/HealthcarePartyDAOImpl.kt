@@ -39,8 +39,8 @@ import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
-import org.taktik.icure.utils.createQuery
-import org.taktik.icure.utils.pagedViewQuery
+
+
 import java.util.*
 
 /** Created by aduchate on 18/07/13, 13:36  */
@@ -57,7 +57,7 @@ internal class HealthcarePartyDAOImpl(couchDbProperties: CouchDbProperties,
             flowOf()
         } else {
             val key = if (nihii.length > 8) nihii.substring(0, 8) else nihii
-            client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery<HealthcareParty>("by_nihii").key(key).includeDocs(true)).map { it.doc }
+            client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery("by_nihii").key(key).includeDocs(true)).map { it.doc }
         }
     }
 
@@ -65,7 +65,7 @@ internal class HealthcarePartyDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findBySsin(ssin: String): Flow<HealthcareParty> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery<HealthcareParty>("by_ssin").key(ssin).includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery("by_ssin").key(ssin).includeDocs(true)).map { it.doc }
     }
 
     @View(name = "by_speciality_postcode", map = "classpath:js/healthcareparty/By_speciality_postcode.js")
@@ -90,7 +90,7 @@ internal class HealthcarePartyDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findByName(name: String): Flow<HealthcareParty> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery<HealthcareParty>("by_name").key(name).includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery("by_name").key(name).includeDocs(true)).map { it.doc }
     }
 
     @View(name = "by_ssin_or_nihii", map = "classpath:js/healthcareparty/By_Ssin_or_Nihii.js")
@@ -127,7 +127,7 @@ internal class HealthcarePartyDAOImpl(couchDbProperties: CouchDbProperties,
         val from = ComplexKey.of(r)
         val to = ComplexKey.of(r + "\ufff0")
 
-        return client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery<HealthcareParty>("by_hcParty_name").startKey(from).endKey(to).includeDocs(true).limit(limit + offset)).map { it.doc }
+        return client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery("by_hcParty_name").startKey(from).endKey(to).includeDocs(true).limit(limit + offset)).map { it.doc }
                 .withIndex().filter { it.index >= offset }.map { it.value }
     }
 
@@ -136,7 +136,7 @@ internal class HealthcarePartyDAOImpl(couchDbProperties: CouchDbProperties,
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         //Not transactional aware
-        val result = client.queryView<String, List<String>>(createQuery<HealthcareParty>("by_hcparty_delegate_keys").key(healthcarePartyId).includeDocs(false)).mapNotNull { it.value }
+        val result = client.queryView<String, List<String>>(createQuery("by_hcparty_delegate_keys").key(healthcarePartyId).includeDocs(false)).mapNotNull { it.value }
 
         val resultMap = HashMap<String, String>()
         result.collect {
@@ -149,6 +149,6 @@ internal class HealthcarePartyDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findByParentId(parentId: String): Flow<HealthcareParty> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery<HealthcareParty>("by_parent").key(parentId).includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery("by_parent").key(parentId).includeDocs(true)).map { it.doc }
     }
 }

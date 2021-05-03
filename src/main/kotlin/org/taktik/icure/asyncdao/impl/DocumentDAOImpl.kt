@@ -35,7 +35,6 @@ import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.Document
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.writeTo
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -113,7 +112,7 @@ class DocumentDAOImpl(couchDbProperties: CouchDbProperties,
     override fun listConflicts(): Flow<Document> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery<Document>("conflicts")
+        val viewQuery = createQuery("conflicts")
                 .limit(200)
                 .includeDocs(true)
 
@@ -126,7 +125,7 @@ class DocumentDAOImpl(couchDbProperties: CouchDbProperties,
 
         val keys = secretForeignKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val viewQuery = createQuery<Document>("by_hcparty_message")
+        val viewQuery = createQuery("by_hcparty_message")
                 .keys(keys)
                 .includeDocs(true)
 
@@ -137,7 +136,7 @@ class DocumentDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findDocumentsWithNoDelegations(limit: Int): Flow<Document> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery<Document>("without_delegations")
+        val viewQuery = createQuery("without_delegations")
                 .limit(limit)
                 .includeDocs(true)
 
@@ -150,7 +149,7 @@ class DocumentDAOImpl(couchDbProperties: CouchDbProperties,
 
         val keys = secretForeignKeys.map { fk -> ComplexKey.of(documentTypeCode, hcPartyId, fk) }
 
-        val viewQuery = createQuery<Document>("by_type_hcparty_message")
+        val viewQuery = createQuery("by_type_hcparty_message")
                 .keys(keys)
                 .includeDocs(true)
 
@@ -165,7 +164,7 @@ class DocumentDAOImpl(couchDbProperties: CouchDbProperties,
     override suspend fun getAllByExternalUuid(externalUuid: String): List<Document> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery<Document>("by_externalUuid")
+        val viewQuery = createQuery("by_externalUuid")
                 .key(externalUuid)
                 .includeDocs(true)
 

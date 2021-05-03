@@ -33,8 +33,8 @@ import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
-import org.taktik.icure.utils.pagedViewQuery
+
+
 import java.time.Instant
 
 @FlowPreview
@@ -73,7 +73,7 @@ class AccessLogDAOImpl(couchDbProperties: CouchDbProperties,
 
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val viewQuery = createQuery<AccessLog>("by_hcparty_patient").includeDocs(true).keys(keys)
+        val viewQuery = createQuery("by_hcparty_patient").includeDocs(true).keys(keys)
 
         return client.queryViewIncludeDocs<Array<String>, String, AccessLog>(viewQuery).map { it.doc }
     }

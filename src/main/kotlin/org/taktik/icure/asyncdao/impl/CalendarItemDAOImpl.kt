@@ -34,7 +34,7 @@ import org.taktik.icure.asyncdao.CalendarItemDAO
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.CalendarItem
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
+
 import org.taktik.icure.utils.distinctById
 
 @FlowPreview
@@ -56,7 +56,7 @@ class CalendarItemDAOImpl(couchDbProperties: CouchDbProperties,
                 endDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<CalendarItem>("by_hcparty_and_startdate")
+        val viewQuery = createQuery("by_hcparty_and_startdate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(true)
@@ -77,7 +77,7 @@ class CalendarItemDAOImpl(couchDbProperties: CouchDbProperties,
                 endDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<CalendarItem>("by_hcparty_and_enddate")
+        val viewQuery = createQuery("by_hcparty_and_enddate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(true)
@@ -105,7 +105,7 @@ class CalendarItemDAOImpl(couchDbProperties: CouchDbProperties,
                 endDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<CalendarItem>("by_agenda_and_startdate")
+        val viewQuery = createQuery("by_agenda_and_startdate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(true)
@@ -126,7 +126,7 @@ class CalendarItemDAOImpl(couchDbProperties: CouchDbProperties,
                 endDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<CalendarItem>("by_agenda_and_enddate")
+        val viewQuery = createQuery("by_agenda_and_enddate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(true)
@@ -145,7 +145,7 @@ class CalendarItemDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findByHcPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<CalendarItem> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
-        val viewQuery = createQuery<CalendarItem>("by_hcparty_patient").keys(keys).includeDocs(true)
+        val viewQuery = createQuery("by_hcparty_patient").keys(keys).includeDocs(true)
         return client.queryViewIncludeDocs<Array<String>, String, CalendarItem>(viewQuery).distinctUntilChangedBy { it.id }.map { it.doc }
     }
 }

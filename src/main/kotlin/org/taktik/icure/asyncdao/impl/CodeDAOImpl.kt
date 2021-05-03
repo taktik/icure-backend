@@ -39,9 +39,9 @@ import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
-import org.taktik.icure.utils.createQuery
+
 import org.taktik.icure.utils.firstOrNull
-import org.taktik.icure.utils.pagedViewQuery
+
 
 @Repository("codeDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.base.Code' && !doc.deleted) emit( null, doc._id )}")
@@ -52,7 +52,7 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findCodes(type: String?, code: String?, version: String?): Flow<Code> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         return client.queryViewIncludeDocsNoValue<Array<String>, Code>(
-                createQuery<Code>("by_type_code_version")
+                createQuery("by_type_code_version")
                         .includeDocs(true)
                         .reduce(false)
                         .startKey(ComplexKey.of(
@@ -70,7 +70,7 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findCodeTypes(type: String?): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         return client.queryView<String,String>(
-                createQuery<Code>("by_type_code_version")
+                createQuery("by_type_code_version")
                         .includeDocs(false)
                         .group(true)
                         .groupLevel(2)
@@ -82,7 +82,7 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findCodes(region: String?, type: String?, code: String?, version: String?): Flow<Code> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         return client.queryViewIncludeDocsNoValue<Array<String>, Code>(
-                createQuery<Code>("by_region_type_code_version")
+                createQuery("by_region_type_code_version")
                         .includeDocs(true)
                         .reduce(false)
                         .startKey(ComplexKey.of(
@@ -102,7 +102,7 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findCodeTypes(region: String?, type: String?): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         return client.queryView<List<String>,String>(
-                createQuery<Code>("by_region_type_code_version")
+                createQuery("by_region_type_code_version")
                         .includeDocs(false)
                         .group(true)
                         .groupLevel(2)
@@ -236,7 +236,7 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
                               )
 
         return client.queryView<String,String>(
-                createQuery<Code>("by_language_label")
+                createQuery("by_language_label")
                         .includeDocs(false)
                         .startKey(from)
                         .endKey(to)).mapNotNull { it.key }
@@ -260,7 +260,7 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
                               )
 
         return client.queryView<String,String>(
-                createQuery<Code>("by_language_type_label")
+                createQuery("by_language_type_label")
                         .includeDocs(false)
                         .startKey(from)
                         .endKey(to)).mapNotNull { it.id }
@@ -279,7 +279,7 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
         )
 
         return client.queryView<String,String>(
-                createQuery<Code>("by_qualifiedlink_id")
+                createQuery("by_qualifiedlink_id")
                         .includeDocs(false)
                         .startKey(from)
                         .endKey(to)).mapNotNull { it.id }
@@ -298,7 +298,7 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
         val sanitizedLabel= label.let { StringUtils.sanitizeString(it) }
         for (lang in labelLang) {
             val codeFlow = client.queryViewIncludeDocsNoValue<Array<String>, Code>(
-                    createQuery<Code>("by_region_type_code_version")
+                    createQuery("by_region_type_code_version")
                             .includeDocs(true)
                             .reduce(false)
                             .key(ComplexKey.of(

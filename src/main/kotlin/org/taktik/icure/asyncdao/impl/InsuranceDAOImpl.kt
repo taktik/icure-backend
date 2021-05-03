@@ -32,7 +32,7 @@ import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Insurance
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
+
 
 @Repository("insuranceDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Insurance' && !doc.deleted) emit( null, doc._id )}")
@@ -43,7 +43,7 @@ class InsuranceDAOImpl(couchDbProperties: CouchDbProperties,
     override fun listByCode(code: String): Flow<Insurance> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocs<String, String, Insurance>(createQuery<Insurance>("all_by_code").key(code).includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocs<String, String, Insurance>(createQuery("all_by_code").key(code).includeDocs(true)).map { it.doc }
     }
 
     @View(name = "all_by_name", map = "classpath:js/insurance/all_by_name_map.js")
@@ -52,7 +52,7 @@ class InsuranceDAOImpl(couchDbProperties: CouchDbProperties,
 
         val sanitizedName = StringUtils.sanitizeString(name)
 
-        val ids = client.queryView<Array<String>, String>(createQuery<Insurance>("all_by_name").startKey(ComplexKey.of(sanitizedName)).endKey(ComplexKey.of(sanitizedName + "\uFFF0")).includeDocs(false)).mapNotNull { it.value }
+        val ids = client.queryView<Array<String>, String>(createQuery("all_by_name").startKey(ComplexKey.of(sanitizedName)).endKey(ComplexKey.of(sanitizedName + "\uFFF0")).includeDocs(false)).mapNotNull { it.value }
         return getList(ids)
     }
 }

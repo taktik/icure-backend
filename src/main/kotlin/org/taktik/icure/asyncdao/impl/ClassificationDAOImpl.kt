@@ -31,7 +31,7 @@ import org.taktik.icure.asyncdao.ClassificationDAO
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.Classification
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
+
 
 /**
  * Created by dlm on 16-07-18
@@ -44,7 +44,7 @@ internal class ClassificationDAOImpl(couchDbProperties: CouchDbProperties,
 
     override fun findByPatient(patientId: String): Flow<Classification> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery<Classification>("all").includeDocs(true).key(patientId)
+        val viewQuery = createQuery("all").includeDocs(true).key(patientId)
         return client.queryViewIncludeDocs<String, String, Classification>(viewQuery).map { it.doc }
     }
 
@@ -57,7 +57,7 @@ internal class ClassificationDAOImpl(couchDbProperties: CouchDbProperties,
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val viewQuery = createQuery<Classification>("by_hcparty_patient").includeDocs(true).keys(keys)
+        val viewQuery = createQuery("by_hcparty_patient").includeDocs(true).keys(keys)
         return client.queryViewIncludeDocs<ComplexKey, String, Classification>(viewQuery).map { it.doc }.distinctUntilChangedBy { it.id }
     }
 }

@@ -34,7 +34,7 @@ import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.DocumentTemplate
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
-import org.taktik.icure.utils.createQuery
+
 import org.taktik.icure.utils.writeTo
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -54,7 +54,7 @@ class DocumentTemplateDAOImpl(couchDbProperties: CouchDbProperties,
 
         val from = ComplexKey.of(userId, "")
         val to = ComplexKey.of(userId, "\ufff0")
-        val viewQuery = createQuery<DocumentTemplate>("by_userId_and_guid").startKey(from).endKey(to).includeDocs(true)
+        val viewQuery = createQuery("by_userId_and_guid").startKey(from).endKey(to).includeDocs(true)
         val documentTemplates = client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
 
         // invoke postLoad()
@@ -69,12 +69,12 @@ class DocumentTemplateDAOImpl(couchDbProperties: CouchDbProperties,
 
         val documentTemplates = if (guid != null) {
             val key = ComplexKey.of(healthcarePartyId, guid)
-            val viewQuery = createQuery<DocumentTemplate>("by_specialty_code_and_guid").key(key).includeDocs(true)
+            val viewQuery = createQuery("by_specialty_code_and_guid").key(key).includeDocs(true)
             client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
         } else {
             val from = ComplexKey.of(healthcarePartyId, "")
             val to = ComplexKey.of(healthcarePartyId, "\ufff0")
-            val viewQuery = createQuery<DocumentTemplate>("by_specialty_code_and_guid").startKey(from).endKey(to).includeDocs(true)
+            val viewQuery = createQuery("by_specialty_code_and_guid").startKey(from).endKey(to).includeDocs(true)
             client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
         }
 
@@ -90,15 +90,15 @@ class DocumentTemplateDAOImpl(couchDbProperties: CouchDbProperties,
 
         val viewQuery = if (userId != null && guid != null) {
             val key = ComplexKey.of(documentTypeCode, userId, guid)
-            createQuery<DocumentTemplate>("by_document_type_code_and_user_id_and_guid").key(key).includeDocs(true)
+            createQuery("by_document_type_code_and_user_id_and_guid").key(key).includeDocs(true)
         } else if (userId != null) {
             val from = ComplexKey.of(documentTypeCode, userId, "")
             val to = ComplexKey.of(documentTypeCode, userId, "\ufff0")
-            createQuery<DocumentTemplate>("by_document_type_code_and_user_id_and_guid").startKey(from).endKey(to).includeDocs(true)
+            createQuery("by_document_type_code_and_user_id_and_guid").startKey(from).endKey(to).includeDocs(true)
         } else {
             val from = ComplexKey.of(documentTypeCode, "", "")
             val to = ComplexKey.of(documentTypeCode, "\ufff0", "\ufff0")
-            createQuery<DocumentTemplate>("by_document_type_code_and_user_id_and_guid").startKey(from).endKey(to).includeDocs(true)
+            createQuery("by_document_type_code_and_user_id_and_guid").startKey(from).endKey(to).includeDocs(true)
         }
         val documentTemplates = client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
 

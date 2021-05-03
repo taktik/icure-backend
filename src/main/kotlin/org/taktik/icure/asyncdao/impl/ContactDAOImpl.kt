@@ -42,9 +42,9 @@ import org.taktik.icure.domain.ContactIdServiceId
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
+
 import org.taktik.icure.utils.distinct
-import org.taktik.icure.utils.pagedViewQuery
+
 
 /**
  * Created by aduchate on 18/07/13, 13:36
@@ -100,7 +100,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     override fun listContactIds(hcPartyId: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery<Contact>("by_hcparty")
+        val viewQuery = createQuery("by_hcparty")
                 .startKey(hcPartyId)
                 .endKey(hcPartyId)
                 .includeDocs(false)
@@ -114,7 +114,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
 
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val viewQuery = createQuery<Contact>("by_hcparty_patientfk").keys(keys).includeDocs(true)
+        val viewQuery = createQuery("by_hcparty_patientfk").keys(keys).includeDocs(true)
 
         return client.queryViewIncludeDocs<Array<String>, String, Contact>(viewQuery).distinctUntilChangedBy { it.id }.map { it.doc }
     }
@@ -123,7 +123,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findByHcPartyFormId(hcPartyId: String, formId: String): Flow<Contact> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery<Contact>("by_hcparty_formid").key(ComplexKey.of(hcPartyId, formId)).includeDocs(true)
+        val viewQuery = createQuery("by_hcparty_formid").key(ComplexKey.of(hcPartyId, formId)).includeDocs(true)
         val result = client.queryViewIncludeDocs<Array<String>, String, Contact>(viewQuery).map { it.doc }
         return relink(result)
     }
@@ -131,7 +131,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findByHcPartyFormIds(hcPartyId: String, ids: List<String>): Flow<Contact> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery<Contact>("by_hcparty_formid")
+        val viewQuery = createQuery("by_hcparty_formid")
                 .includeDocs(false)
                 .keys(ids.map { k -> ComplexKey.of(hcPartyId, k) })
         val result = client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }.distinct()
@@ -145,7 +145,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     @View(name = "service_by_linked_id", map = "classpath:js/contact/Service_by_linked_id.js")
     override fun findServiceIdsByIdQualifiedLink(ids: List<String>, linkType: String?): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery<Contact>("service_by_linked_id")
+        val viewQuery = createQuery("service_by_linked_id")
                 .keys(ids)
                 .includeDocs(false)
         val res = client.queryView<String, Array<String>>(viewQuery)
@@ -179,7 +179,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                 endValueDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<Contact>("service_by_hcparty_tag")
+        val viewQuery = createQuery("service_by_hcparty_tag")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(false)
@@ -216,7 +216,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                     endValueDate ?: ComplexKey.emptyObject()
             )
 
-            val viewQuery = createQuery<Contact>("service_by_hcparty_patient_tag")
+            val viewQuery = createQuery("service_by_hcparty_patient_tag")
                     .startKey(from)
                     .endKey(to)
                     .includeDocs(false)
@@ -251,7 +251,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                 endValueDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<Contact>("service_by_hcparty_code")
+        val viewQuery = createQuery("service_by_hcparty_code")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -285,7 +285,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                 endValueDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<Contact>("by_hcparty_tag")
+        val viewQuery = createQuery("by_hcparty_tag")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -319,7 +319,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                 endValueDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<Contact>("by_hcparty_code")
+        val viewQuery = createQuery("by_hcparty_code")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -342,7 +342,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                 ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<Contact>("service_by_hcparty_code").startKey(from).endKey(to).includeDocs(false).reduce(true).group(true).groupLevel(3)
+        val viewQuery = createQuery("service_by_hcparty_code").startKey(from).endKey(to).includeDocs(false).reduce(true).group(true).groupLevel(3)
 
         return client.queryView<Array<String>, Long>(viewQuery).map { Pair(ComplexKey.of(it.key), it.value) }
     }
@@ -377,7 +377,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                     endValueDate ?: ComplexKey.emptyObject()
             )
 
-            val viewQuery = createQuery<Contact>("service_by_hcparty_patient_code")
+            val viewQuery = createQuery("service_by_hcparty_patient_code")
                     .startKey(from)
                     .endKey(to)
                     .includeDocs(false)
@@ -398,7 +398,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     override fun listIdsByServices(services: Collection<String>): Flow<ContactIdServiceId> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery<Contact>("by_service_emit_modified").keys(services).includeDocs(false)
+        val viewQuery = createQuery("by_service_emit_modified").keys(services).includeDocs(false)
         return client.queryView<String, ContactIdServiceId>(viewQuery).mapNotNull { it.value }
     }
 
@@ -425,7 +425,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     override fun listConflicts(): Flow<Contact> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery<Contact>("conflicts").includeDocs(true)
+        val viewQuery = createQuery("conflicts").includeDocs(true)
         return client.queryViewIncludeDocsNoValue<String, Contact>(viewQuery).map { it.doc }
     }
 }

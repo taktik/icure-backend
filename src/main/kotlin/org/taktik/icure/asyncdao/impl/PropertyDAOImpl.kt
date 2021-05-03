@@ -29,7 +29,7 @@ import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.Property
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
-import org.taktik.icure.utils.createQuery
+
 import org.taktik.icure.utils.firstOrNull
 
 @Repository("propertyDAO")
@@ -43,7 +43,7 @@ class PropertyDAOImpl(couchDbProperties: CouchDbProperties,
 
         val wrappedValue = getWrapperFromCache("PID:$propertyIdentifier")
         if (wrappedValue == null) {
-            val result = client.queryViewIncludeDocs<String, String, Property>(createQuery<Property>("by_identifier").includeDocs(true).key(propertyIdentifier)).map { it.doc }.firstOrNull()
+            val result = client.queryViewIncludeDocs<String, String, Property>(createQuery("by_identifier").includeDocs(true).key(propertyIdentifier)).map { it.doc }.firstOrNull()
             if (result?.id != null) {
                 putInCache(result.id, result)
             }

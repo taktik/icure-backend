@@ -27,7 +27,7 @@ import org.taktik.icure.asyncdao.EntityReferenceDAO
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.EntityReference
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
+
 import org.taktik.icure.utils.firstOrNull
 
 
@@ -39,7 +39,7 @@ class EntityReferenceDAOImpl(couchDbProperties: CouchDbProperties,
     override suspend fun getLatest(prefix: String): EntityReference? {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery<EntityReference>("all").startKey(prefix + "\ufff0").descending(true).includeDocs(true).limit(1)
+        val viewQuery = createQuery("all").startKey(prefix + "\ufff0").descending(true).includeDocs(true).limit(1)
         val entityReferences = client.queryViewIncludeDocsNoValue<String, EntityReference>(viewQuery).map { it.doc }
         return entityReferences.firstOrNull()
     }

@@ -45,10 +45,7 @@ import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Gender
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.distinct
-import org.taktik.icure.utils.pagedViewQuery
-import org.taktik.icure.utils.pagedViewQueryOfIds
 import java.util.*
 import kotlin.collections.set
 
@@ -87,13 +84,13 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     @View(name = "merged_by_date", map = "classpath:js/patient/Merged_by_date.js")
     override fun listOfMergesAfter(date: Long?): Flow<Patient> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery<Patient>("merged_by_date").startKey(date).includeDocs(true)
+        val viewQuery = createQuery("merged_by_date").startKey(date).includeDocs(true)
         return client.queryViewIncludeDocs<Long, String, Patient>(viewQuery).map { it.doc }
     }
 
     override suspend fun countByHcParty(healthcarePartyId: String): Int {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery<Patient>("by_hcparty_ssin").reduce(true).startKey(ComplexKey.of(healthcarePartyId, null)).endKey(ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject())).includeDocs(false)
+        val viewQuery = createQuery("by_hcparty_ssin").reduce(true).startKey(ComplexKey.of(healthcarePartyId, null)).endKey(ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject())).includeDocs(false)
         return try {
             client.queryView<Array<String>, Int>(viewQuery).first().value ?: 0
         } catch (e: NoSuchElementException) {
@@ -103,7 +100,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
 
     override suspend fun countOfHcParty(healthcarePartyId: String): Int {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery<Patient>("of_hcparty_ssin").reduce(true).startKey(ComplexKey.of(healthcarePartyId, null)).endKey(ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject())).includeDocs(false)
+        val viewQuery = createQuery("of_hcparty_ssin").reduce(true).startKey(ComplexKey.of(healthcarePartyId, null)).endKey(ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject())).includeDocs(false)
         return try {
             client.queryView<Array<String>, Int>(viewQuery).first().value ?: 0
         } catch (e: NoSuchElementException) {
@@ -113,7 +110,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
 
     override fun listIdsByHcParty(healthcarePartyId: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery<Patient>("by_hcparty_date_of_birth").startKey(ComplexKey.of(healthcarePartyId, null)).endKey(ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject())).includeDocs(false)
+        val viewQuery = createQuery("by_hcparty_date_of_birth").startKey(ComplexKey.of(healthcarePartyId, null)).endKey(ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject())).includeDocs(false)
         return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
     }
 
@@ -121,20 +118,20 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     @View(name = "by_hcparty_date_of_birth", map = "classpath:js/patient/By_hcparty_date_of_birth_map.js")
     override fun listIdsByHcPartyAndDateOfBirth(date: Int?, healthcarePartyId: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery<Patient>("by_hcparty_date_of_birth").key(ComplexKey.of(healthcarePartyId, date)).includeDocs(false)
+        val viewQuery = createQuery("by_hcparty_date_of_birth").key(ComplexKey.of(healthcarePartyId, date)).includeDocs(false)
         return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
     }
 
     override fun listIdsByHcPartyAndDateOfBirth(startDate: Int?, endDate: Int?, healthcarePartyId: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery<Patient>("by_hcparty_date_of_birth").startKey(ComplexKey.of(healthcarePartyId, startDate)).endKey(ComplexKey.of(healthcarePartyId, endDate)).includeDocs(false)
+        val viewQuery = createQuery("by_hcparty_date_of_birth").startKey(ComplexKey.of(healthcarePartyId, startDate)).endKey(ComplexKey.of(healthcarePartyId, endDate)).includeDocs(false)
         return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
     }
 
     @View(name = "by_hcparty_gender_education_profession", map = "classpath:js/patient/By_hcparty_gender_education_profession_map.js")
     override fun listIdsByHcPartyGenderEducationProfession(healthcarePartyId: String, gender: Gender?, education: String?, profession: String?): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery<Patient>("by_hcparty_gender_education_profession")
+        val viewQuery = createQuery("by_hcparty_gender_education_profession")
                 .startKey(ComplexKey.of(healthcarePartyId, gender?.name, education, profession))
                 .endKey(ComplexKey.of(healthcarePartyId, if (gender == null) ComplexKey.emptyObject() else gender.name, education
                         ?: ComplexKey.emptyObject(), profession ?: ComplexKey.emptyObject())).includeDocs(false)
@@ -144,7 +141,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     @View(name = "of_hcparty_date_of_birth", map = "classpath:js/patient/Of_hcparty_date_of_birth_map.js")
     override fun listIdsForHcPartyDateOfBirth(date: Int?, healthcarePartyId: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery<Patient>("of_hcparty_date_of_birth").key(ComplexKey.of(healthcarePartyId, date)).includeDocs(false)
+        val viewQuery = createQuery("of_hcparty_date_of_birth").key(ComplexKey.of(healthcarePartyId, date)).includeDocs(false)
         return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
     }
 
@@ -152,7 +149,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     override fun listIdsByHcPartyAndNameContainsFuzzy(searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val name = if (searchString != null) StringUtils.sanitizeString(searchString) else null
-        val viewQuery = createQuery<Patient>("by_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, if (name == null) ComplexKey.emptyObject() else name + "\ufff0")).also { q -> limit?.let { q.limit(it)} ?: q }.includeDocs(false)
+        val viewQuery = createQuery("by_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, if (name == null) ComplexKey.emptyObject() else name + "\ufff0")).also { q -> limit?.let { q.limit(it)} ?: q }.includeDocs(false)
         return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }.distinct()
     }
 
@@ -160,7 +157,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     override fun listIdsOfHcPartyNameContainsFuzzy(searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val name = if (searchString != null) StringUtils.sanitizeString(searchString) else null
-        val viewQuery = createQuery<Patient>("of_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, if (name == null) ComplexKey.emptyObject() else name + "\ufff0")).also { q -> limit?.let { q.limit(it)} ?: q }.includeDocs(false)
+        val viewQuery = createQuery("of_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, if (name == null) ComplexKey.emptyObject() else name + "\ufff0")).also { q -> limit?.let { q.limit(it)} ?: q }.includeDocs(false)
         return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }.distinct()
     }
 
@@ -180,7 +177,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
             endKey = ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject())
         }
 
-        val viewQuery = createQuery<Patient>(viewName).startKey(startKey).endKey(endKey).includeDocs(false)
+        val viewQuery = createQuery(viewName).startKey(startKey).endKey(endKey).includeDocs(false)
 
         return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
     }
@@ -199,21 +196,21 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
             endKey = ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject())
         }
 
-        val viewQuery = createQuery<Patient>(viewName).reduce(false).startKey(startKey).endKey(endKey).includeDocs(false)
+        val viewQuery = createQuery(viewName).reduce(false).startKey(startKey).endKey(endKey).includeDocs(false)
 
         return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
     }
 
     private fun listIdsForSsins(ssins: Collection<String>, healthcarePartyId: String, viewName: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery<Patient>(viewName).reduce(false).keys(ssins.map { ssin -> ComplexKey.of(healthcarePartyId, ssin) }).includeDocs(false)
+        val viewQuery = createQuery(viewName).reduce(false).keys(ssins.map { ssin -> ComplexKey.of(healthcarePartyId, ssin) }).includeDocs(false)
         return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
     }
 
     private fun listIdsForActive(active: Boolean, healthcarePartyId: String, viewName: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val onlyKey = ComplexKey.of(healthcarePartyId, if (active) 1 else 0)
-        val viewQuery = createQuery<Patient>(viewName).reduce(false).startKey(onlyKey).endKey(onlyKey).includeDocs(false)
+        val viewQuery = createQuery(viewName).reduce(false).startKey(onlyKey).endKey(onlyKey).includeDocs(false)
         return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
     }
 
@@ -233,7 +230,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
             endKey = ComplexKey.of(healthcarePartyId, "\ufff0")
         }
 
-        val viewQuery = createQuery<Patient>("by_hcparty_externalid").startKey(startKey).endKey(endKey).includeDocs(false)
+        val viewQuery = createQuery("by_hcparty_externalid").startKey(startKey).endKey(endKey).includeDocs(false)
 
         return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
     }
@@ -359,7 +356,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     override suspend fun findPatientsByUserId(id: String): Patient? {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val queryView = createQuery<Patient>("by_user_id").includeDocs(true).key(id)
+        val queryView = createQuery("by_user_id").includeDocs(true).key(id)
         return client.queryViewIncludeDocs<String, String, Patient>(queryView).firstOrNull()?.doc
     }
 
@@ -371,7 +368,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     override suspend fun getByExternalId(externalId: String): Patient? {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val queryView = createQuery<Patient>("by_external_id").includeDocs(true).key(externalId)
+        val queryView = createQuery("by_external_id").includeDocs(true).key(externalId)
         return client.queryViewIncludeDocs<String, String, Patient>(queryView).firstOrNull()?.doc
     }
 
@@ -409,7 +406,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
             endKey = ComplexKey.of(lastName + "\ufff0", firstName + "\ufff0")
         }
 
-        val queryView = createQuery<Patient>("deleted_by_names").startKey(startKey).endKey(endKey).includeDocs(true)
+        val queryView = createQuery("deleted_by_names").startKey(startKey).endKey(endKey).includeDocs(true)
         val deleted_by_names = client.queryViewIncludeDocsNoValue<Array<String>, Patient>(queryView).map { it.doc }
 
         return if (firstName == null || lastName == null) {
@@ -424,7 +421,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Patient' && !doc.deleted && doc._conflicts) emit(doc._id )}")
     override fun listConflicts(): Flow<Patient> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.queryViewIncludeDocsNoValue<String, Patient>(createQuery<Patient>("conflicts").includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocsNoValue<String, Patient>(createQuery("conflicts").includeDocs(true)).map { it.doc }
     }
 
     @View(name = "by_modification_date", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Patient' && doc.modified) emit(doc.modified)}")
@@ -443,7 +440,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val name = if (searchString != null) StringUtils.sanitizeString(searchString) else null
-        val viewQuery = createQuery<Patient>("by_hcparty_contains_name_delegate")
+        val viewQuery = createQuery("by_hcparty_contains_name_delegate")
                 .startKey(ComplexKey.of(healthcarePartyId, name))
                 .endKey(ComplexKey.of(healthcarePartyId, if (name == null) ComplexKey.emptyObject() else name + "\ufff0")).includeDocs(false)
         return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
@@ -452,7 +449,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     @View(name = "by_hcparty_delegate_keys", map = "classpath:js/patient/By_hcparty_delegate_keys_map.js")
     override suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String> {
         //Not transactional aware
-        val result = couchDbDispatcher.getClient(dbInstanceUrl).queryView<String, List<String>>(createQuery<Patient>("by_hcparty_delegate_keys")
+        val result = couchDbDispatcher.getClient(dbInstanceUrl).queryView<String, List<String>>(createQuery("by_hcparty_delegate_keys")
                 .includeDocs(false)
                 .key(healthcarePartyId))
 
@@ -489,7 +486,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
 
         val from = if (paginationOffset.startKey == null) ComplexKey.of(healthcarePartyId, "") else ComplexKey.of(*paginationOffset.startKey as Array<Any>)
         val to = ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject())
-        val viewQuery = createQuery<Patient>(viewName)
+        val viewQuery = createQuery(viewName)
                 .startKey(from)
                 .endKey(to)
                 .reduce(true)
@@ -500,7 +497,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         val keysWithDuplicates = viewResult.filter { it.value?.toIntOrNull()?.let { it > 1 } == true }.map { it.key }.toList()
 
         // TODO MB no reified
-        val duplicatePatients = client.queryViewIncludeDocs<ComplexKey, String, Patient>(createQuery<Patient>(viewName).keys(keysWithDuplicates).reduce(false).includeDocs(true))
+        val duplicatePatients = client.queryViewIncludeDocs<ComplexKey, String, Patient>(createQuery(viewName).keys(keysWithDuplicates).reduce(false).includeDocs(true))
                 .filter { it.doc.active }
                 .distinct()
         emitAll(duplicatePatients)

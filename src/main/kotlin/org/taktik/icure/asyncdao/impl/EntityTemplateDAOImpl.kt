@@ -33,7 +33,7 @@ import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.EntityTemplate
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
-import org.taktik.icure.utils.createQuery
+
 import org.taktik.icure.utils.distinctById
 
 @Repository("entityTemplateDAO")
@@ -45,7 +45,7 @@ class EntityTemplateDAOImpl(couchDbProperties: CouchDbProperties,
     @View(name = "by_user_type_descr", map = "classpath:js/entitytemplate/By_user_type_descr.js")
     override fun getByUserIdTypeDescr(userId: String, type: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate> {
         val descr = if (searchString != null) StringUtils.sanitizeString(searchString) else null
-        val viewQuery = createQuery<EntityTemplate>("by_user_type_descr").startKey(ComplexKey.of(userId, type, descr)).endKey(ComplexKey.of(userId, type, (descr
+        val viewQuery = createQuery("by_user_type_descr").startKey(ComplexKey.of(userId, type, descr)).endKey(ComplexKey.of(userId, type, (descr
                 ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
 
         return (if (viewQuery.isIncludeDocs)
@@ -57,7 +57,7 @@ class EntityTemplateDAOImpl(couchDbProperties: CouchDbProperties,
     @View(name = "by_type_descr", map = "classpath:js/entitytemplate/By_type_descr.js")
     override fun getByTypeDescr(type: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate> {
         val descr = if (searchString != null) StringUtils.sanitizeString(searchString) else null
-        val viewQuery = createQuery<EntityTemplate>("by_type_descr").startKey(ComplexKey.of(type, descr)).endKey(ComplexKey.of(type, (descr
+        val viewQuery = createQuery("by_type_descr").startKey(ComplexKey.of(type, descr)).endKey(ComplexKey.of(type, (descr
                 ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
 
         return (if (viewQuery.isIncludeDocs)
@@ -73,7 +73,7 @@ class EntityTemplateDAOImpl(couchDbProperties: CouchDbProperties,
         keyword: String?,
         includeEntities: Boolean?
     ): Flow<EntityTemplate> {
-        val viewQuery = createQuery<EntityTemplate>("by_user_type_descr").startKey(ComplexKey.of(userId, type, keyword)).endKey(ComplexKey.of(userId, type, (keyword
+        val viewQuery = createQuery("by_user_type_descr").startKey(ComplexKey.of(userId, type, keyword)).endKey(ComplexKey.of(userId, type, (keyword
                 ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
 
         return (if (viewQuery.isIncludeDocs)
@@ -84,7 +84,7 @@ class EntityTemplateDAOImpl(couchDbProperties: CouchDbProperties,
 
     @View(name = "by_type_keyword", map = "classpath:js/entitytemplate/By_type_keyword.js")
     override fun getByTypeKeyword(type: String?, keyword: String?, includeEntities: Boolean?): Flow<EntityTemplate> {
-        val viewQuery = createQuery<EntityTemplate>("by_type_descr").startKey(ComplexKey.of(type, keyword)).endKey(ComplexKey.of(type, (keyword
+        val viewQuery = createQuery("by_type_descr").startKey(ComplexKey.of(type, keyword)).endKey(ComplexKey.of(type, (keyword
                 ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
 
         return (if (viewQuery.isIncludeDocs)

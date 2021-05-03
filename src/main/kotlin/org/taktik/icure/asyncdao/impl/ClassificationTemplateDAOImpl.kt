@@ -31,8 +31,8 @@ import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.ClassificationTemplate
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
-import org.taktik.icure.utils.pagedViewQuery
+
+
 import org.taktik.icure.utils.subsequentDistinctById
 import java.util.*
 
@@ -53,7 +53,7 @@ internal class ClassificationTemplateDAOImpl(couchDbProperties: CouchDbPropertie
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val keys = secretPatientKeys.map { ComplexKey.of(hcPartyId, it) }
 
-        val viewQuery = createQuery<ClassificationTemplate>("by_hcparty_patient").includeDocs(true).keys(keys)
+        val viewQuery = createQuery("by_hcparty_patient").includeDocs(true).keys(keys)
         return client.queryViewIncludeDocs<ComplexKey, String, ClassificationTemplate>(viewQuery).map { it.doc }.subsequentDistinctById()
     }
 

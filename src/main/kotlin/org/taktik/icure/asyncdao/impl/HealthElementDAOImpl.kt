@@ -37,7 +37,7 @@ import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
+
 import org.taktik.icure.utils.firstOrNull
 
 /**
@@ -52,7 +52,7 @@ internal class HealthElementDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findByPatient(patientId: String): Flow<HealthElement> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocs<String, String, HealthElement>(createQuery<HealthElement>("all").key(patientId).includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocs<String, String, HealthElement>(createQuery("all").key(patientId).includeDocs(true)).map { it.doc }
     }
 
     @View(name = "by_patient_and_codes", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted) {\n" +
@@ -63,27 +63,27 @@ internal class HealthElementDAOImpl(couchDbProperties: CouchDbProperties,
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val keys = codes.map { c -> ComplexKey.of(patientId, c.toString()) }
-        return client.queryViewIncludeDocs<ComplexKey, String, HealthElement>(createQuery<HealthElement>("by_patient_and_codes").keys(keys).includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocs<ComplexKey, String, HealthElement>(createQuery("by_patient_and_codes").keys(keys).includeDocs(true)).map { it.doc }
     }
 
     @View(name = "by_hcparty_and_codes", map = "classpath:js/healthelement/By_hcparty_code_map.js")
     override fun findByHCPartyAndCodes(healthCarePartyId: String, codeType: String, codeNumber: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryView<Array<String>, String>(createQuery<HealthElement>("by_hcparty_and_codes").key(ComplexKey.of(healthCarePartyId, "$codeType:$codeNumber")).includeDocs(false)).mapNotNull { it.value }
+        return client.queryView<Array<String>, String>(createQuery("by_hcparty_and_codes").key(ComplexKey.of(healthCarePartyId, "$codeType:$codeNumber")).includeDocs(false)).mapNotNull { it.value }
     }
 
     @View(name = "by_hcparty_and_tags", map = "classpath:js/healthelement/By_hcparty_tag_map.js")
     override fun findByHCPartyAndTags(healthCarePartyId: String, tagType: String, tagCode: String) = flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        emitAll(client.queryView<Array<String>, String>(createQuery<HealthElement>("by_hcparty_and_tags").key(ComplexKey.of(healthCarePartyId, "$tagType:$tagCode")).includeDocs(false)).mapNotNull { it.value })
+        emitAll(client.queryView<Array<String>, String>(createQuery("by_hcparty_and_tags").key(ComplexKey.of(healthCarePartyId, "$tagType:$tagCode")).includeDocs(false)).mapNotNull { it.value })
    }
 
     @View(name = "by_hcparty_and_status", map = "classpath:js/healthelement/By_hcparty_status_map.js")
     override fun findByHCPartyAndStatus(healthCarePartyId: String, status: Int?): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryView<Array<String>, String>(createQuery<HealthElement>("by_hcparty_and_status").key(ComplexKey.of(healthCarePartyId, status)).includeDocs(false)).mapNotNull { it.value }
+        return client.queryView<Array<String>, String>(createQuery("by_hcparty_and_status").key(ComplexKey.of(healthCarePartyId, status)).includeDocs(false)).mapNotNull { it.value }
     }
 
     @View(name = "by_planOfActionId", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted) {\n" +
@@ -94,7 +94,7 @@ internal class HealthElementDAOImpl(couchDbProperties: CouchDbProperties,
     override suspend fun findHealthElementByPlanOfActionId(planOfActionId: String): HealthElement? {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocs<ComplexKey, String, HealthElement>(createQuery<HealthElement>("by_planOfActionId").key(planOfActionId).includeDocs(true)).map { it.doc }.firstOrNull()
+        return client.queryViewIncludeDocs<ComplexKey, String, HealthElement>(createQuery("by_planOfActionId").key(planOfActionId).includeDocs(true)).map { it.doc }.firstOrNull()
     }
 
     override suspend fun getHealthElement(healthElementId: String): HealthElement? {
@@ -107,7 +107,7 @@ internal class HealthElementDAOImpl(couchDbProperties: CouchDbProperties,
 
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val result = client.queryViewIncludeDocs<Array<String>, String, HealthElement>(createQuery<HealthElement>("by_hcparty_patient").keys(keys).includeDocs(true)).map { it.doc }
+        val result = client.queryViewIncludeDocs<Array<String>, String, HealthElement>(createQuery("by_hcparty_patient").keys(keys).includeDocs(true)).map { it.doc }
         return result.distinctUntilChangedBy { it.id }
     }
 
@@ -115,6 +115,6 @@ internal class HealthElementDAOImpl(couchDbProperties: CouchDbProperties,
     override fun listConflicts(): Flow<HealthElement> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocsNoValue<ComplexKey, HealthElement>(createQuery<HealthElement>("conflicts").includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocsNoValue<ComplexKey, HealthElement>(createQuery("conflicts").includeDocs(true)).map { it.doc }
     }
 }

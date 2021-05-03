@@ -37,8 +37,8 @@ import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.SamVersion
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
-import org.taktik.icure.utils.pagedViewQuery
+
+
 import java.net.URI
 
 @ExperimentalCoroutinesApi
@@ -54,7 +54,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val from = dmppCode
         val to = dmppCode
 
-        val viewQuery = createQuery<Amp>("by_dmppcode")
+        val viewQuery = createQuery("by_dmppcode")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(true)
@@ -129,7 +129,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val from = vmpgCode
         val to = vmpgCode
 
-        val viewQuery = createQuery<Amp>("by_groupcode")
+        val viewQuery = createQuery("by_groupcode")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -144,7 +144,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val from = vmpgId
         val to = vmpgId
 
-        val viewQuery = createQuery<Amp>("by_groupid")
+        val viewQuery = createQuery("by_groupid")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -159,7 +159,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val from = vmpCode
         val to = vmpCode
 
-        val viewQuery = createQuery<Amp>("by_code")
+        val viewQuery = createQuery("by_code")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -174,7 +174,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val from = vmpId
         val to = vmpId
 
-        val viewQuery = createQuery<Amp>("by_id")
+        val viewQuery = createQuery("by_id")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -226,7 +226,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
                 language ?: ComplexKey.emptyObject(),
                 if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
         )
-        val viewQuery = createQuery<Amp>("by_language_label")
+        val viewQuery = createQuery("by_language_label")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -238,7 +238,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
-        val viewQuery = createQuery<Amp>("by_groupcode")
+        val viewQuery = createQuery("by_groupcode")
                 .keys(vmpgCodes)
                 .reduce(false)
                 .includeDocs(true)
@@ -249,7 +249,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
-        val viewQuery = createQuery<Amp>("by_groupcode")
+        val viewQuery = createQuery("by_groupcode")
                 .keys(dmppCodes)
                 .reduce(false)
                 .includeDocs(true)
@@ -260,7 +260,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
-        val viewQuery = createQuery<Amp>("by_groupcid")
+        val viewQuery = createQuery("by_groupcid")
                 .keys(vmpGroupIds)
                 .reduce(false)
                 .includeDocs(true)
@@ -271,7 +271,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
-        val viewQuery = createQuery<Amp>("by_vmpcode")
+        val viewQuery = createQuery("by_vmpcode")
                 .keys(vmpCodes)
                 .reduce(false)
                 .includeDocs(true)
@@ -282,7 +282,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
-        val viewQuery = createQuery<Amp>("by_vmpid")
+        val viewQuery = createQuery("by_vmpid")
                 .keys(vmpIds)
                 .reduce(false)
                 .includeDocs(true)

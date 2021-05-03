@@ -51,8 +51,8 @@ import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.exceptions.PersistenceException
 import org.taktik.couchdb.exception.UpdateConflictException
+import org.taktik.icure.asyncdao.VersionnedDesignDocumentQueries
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
 import java.net.URI
 import java.nio.ByteBuffer
 import java.util.*
@@ -60,8 +60,8 @@ import java.util.*
 @FlowPreview
 @ExperimentalCoroutinesApi
 abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProperties,
-                                                  protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator
-) : GenericDAO<T> {
+                                                  protected override val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator
+) : GenericDAO<T>, VersionnedDesignDocumentQueries<T>(entityClass) {
     private val log = LoggerFactory.getLogger(this.javaClass)
     protected val dbInstanceUrl = URI(couchDbProperties.url)
 
@@ -333,13 +333,15 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
     }
 
     override suspend fun forceInitStandardDesignDocument(client: Client, updateIfExists: Boolean) {
-        val designDocId = designDocName(this.entityClass)
-        val fromDatabase = client.get(designDocId, DesignDocument::class.java)
-        val generated = StdDesignDocumentFactory().generateFrom(designDocId, this)
-        val (merged, changed) = fromDatabase?.mergeWith(generated, true) ?: generated to true
-        if (changed && (updateIfExists || fromDatabase == null)) {
-            client.update(fromDatabase?.let { merged.copy(rev = it.rev) } ?: merged)
+        val baseId = designDocName(this.entityClass)
+        val generated = StdDesignDocumentFactory().generateFrom(baseId, this)
+        val fromDatabase = client.get(generated.id, DesignDocument::class.java)
+                ?: client.get(baseId, DesignDocument::class.java)
+        val (_, changed) = fromDatabase?.mergeWith(generated, true) ?: generated to true
+        if (changed && updateIfExists) {
+            client.update(generated)
         }
+        updateUsedDesignDocument(client, generated.id)
     }
 
     override suspend fun initSystemDocumentIfAbsent(dbInstanceUrl: URI) {

@@ -36,7 +36,7 @@ import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.entities.FormTemplate
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
-import org.taktik.icure.utils.createQuery
+
 import org.taktik.icure.utils.writeTo
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -56,7 +56,7 @@ internal class FormTemplateDAOImpl(couchDbProperties: CouchDbProperties,
 
         val from = ComplexKey.of(userId, guid ?: "")
         val to = ComplexKey.of(userId, guid ?: "\ufff0")
-        val formTemplates = client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery<FormTemplate>("by_userId_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
+        val formTemplates = client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery("by_userId_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
 
         // invoke postLoad()
         return if (loadLayout) {
@@ -70,7 +70,7 @@ internal class FormTemplateDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findByGuid(guid: String, loadLayout: Boolean): Flow<FormTemplate> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val formTemplates = client.queryViewIncludeDocsNoValue<String, FormTemplate>(createQuery<FormTemplate>("by_guid").key(guid).includeDocs(true)).map { it.doc }
+        val formTemplates = client.queryViewIncludeDocsNoValue<String, FormTemplate>(createQuery("by_guid").key(guid).includeDocs(true)).map { it.doc }
 
         return if (loadLayout) {
             formTemplates.map {
@@ -85,11 +85,11 @@ internal class FormTemplateDAOImpl(couchDbProperties: CouchDbProperties,
 
         val formTemplates = if (guid != null) {
             val key = ComplexKey.of(specialityCode, guid)
-            client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery<FormTemplate>("by_specialty_code_and_guid").key(key).includeDocs(true)).map { it.doc }
+            client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery("by_specialty_code_and_guid").key(key).includeDocs(true)).map { it.doc }
         } else {
             val from = ComplexKey.of(specialityCode, null)
             val to = ComplexKey.of(specialityCode, ComplexKey.emptyObject())
-            client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery<FormTemplate>("by_specialty_code_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
+            client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery("by_specialty_code_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
         }
 
         return if (loadLayout) {

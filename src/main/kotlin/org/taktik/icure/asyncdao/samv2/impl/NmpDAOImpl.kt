@@ -36,8 +36,8 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.samv2.Nmp
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
-import org.taktik.icure.utils.pagedViewQuery
+
+
 import java.net.URI
 
 @FlowPreview
@@ -81,7 +81,7 @@ class NmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
                 language ?: ComplexKey.emptyObject(),
                 if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
         )
-        val viewQuery = createQuery<Nmp>("by_language_label")
+        val viewQuery = createQuery("by_language_label")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -94,7 +94,7 @@ class NmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
-        val viewQuery = createQuery<Nmp>("by_cnk")
+        val viewQuery = createQuery("by_cnk")
                 .keys(cnks)
                 .reduce(false)
                 .includeDocs(true)

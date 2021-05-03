@@ -35,8 +35,8 @@ import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Form
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
-import org.taktik.icure.utils.pagedViewQuery
+
+
 
 /**
  * Created by aduchate on 02/02/13, 15:24
@@ -53,7 +53,7 @@ internal class FormDAOImpl(couchDbProperties: CouchDbProperties,
 
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val result = client.queryViewIncludeDocs<Array<String>, String, Form>(createQuery<Form>("by_hcparty_patientfk").keys(keys).includeDocs(true)).map { it.doc }
+        val result = client.queryViewIncludeDocs<Array<String>, String, Form>(createQuery("by_hcparty_patientfk").keys(keys).includeDocs(true)).map { it.doc }
         return result.distinctUntilChangedBy { it.id }
     }
 
@@ -61,7 +61,7 @@ internal class FormDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findByHcPartyParentId(hcPartyId: String, formId: String): Flow<Form> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocs<Array<String>, String, Form>(createQuery<Form>("by_hcparty_parentId").key(ComplexKey.of(hcPartyId, formId)).includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocs<Array<String>, String, Form>(createQuery("by_hcparty_parentId").key(ComplexKey.of(hcPartyId, formId)).includeDocs(true)).map { it.doc }
     }
 
     override fun findAll(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
@@ -74,14 +74,14 @@ internal class FormDAOImpl(couchDbProperties: CouchDbProperties,
     override fun listConflicts(): Flow<Form> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocsNoValue<String, Form>(createQuery<Form>("conflicts").includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocsNoValue<String, Form>(createQuery("conflicts").includeDocs(true)).map { it.doc }
     }
 
     @View(name = "by_externalUuid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Form' && !doc.deleted && doc.externalUuid) emit( doc.externalUuid, doc._id )}")
     override suspend fun getAllByExternalUuid(externalUuid: String): List<Form> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery<Form>("by_externalUuid")
+        val viewQuery = createQuery("by_externalUuid")
                 .key(externalUuid)
                 .includeDocs(true)
 

@@ -28,7 +28,7 @@ import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.MedicalLocationDAO
 import org.taktik.icure.entities.MedicalLocation
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
+
 
 @Repository("MedicalLocationDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.MedicalLocation' && !doc.deleted) emit( null, doc._id )}")
@@ -38,6 +38,6 @@ class MedicalLocationDAOImpl(couchDbProperties: CouchDbProperties,
     @View(name = "by_post_code", map = "classpath:js/medicallocation/By_post_code_map.js")
     override fun byPostCode(postCode: String): Flow<MedicalLocation> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.queryViewIncludeDocs<String, String, MedicalLocation>(createQuery<MedicalLocation>("by_post_code").includeDocs(true).key(postCode)).map { it.doc }
+        return client.queryViewIncludeDocs<String, String, MedicalLocation>(createQuery("by_post_code").includeDocs(true).key(postCode)).map { it.doc }
     }
 }

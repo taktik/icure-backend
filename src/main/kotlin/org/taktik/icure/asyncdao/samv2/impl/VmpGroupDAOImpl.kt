@@ -36,8 +36,8 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.samv2.VmpGroup
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
-import org.taktik.icure.utils.pagedViewQuery
+
+
 import java.net.URI
 
 @FlowPreview
@@ -60,7 +60,7 @@ class VmpGroupDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouc
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
-        val viewQuery = createQuery<VmpGroup>("by_groupcode")
+        val viewQuery = createQuery("by_groupcode")
                 .keys(vmpgCodes)
                 .reduce(false)
                 .includeDocs(true)
@@ -113,7 +113,7 @@ class VmpGroupDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouc
                 language ?: ComplexKey.emptyObject(),
                 if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
         )
-        val viewQuery = createQuery<VmpGroup>("by_language_label")
+        val viewQuery = createQuery("by_language_label")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)

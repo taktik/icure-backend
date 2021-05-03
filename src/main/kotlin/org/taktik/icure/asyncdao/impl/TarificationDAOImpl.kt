@@ -32,8 +32,8 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Tarification
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
-import org.taktik.icure.utils.pagedViewQuery
+
+
 
 @Repository("tarificationDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Tarification' && !doc.deleted) emit( null, doc._id )}")
@@ -43,7 +43,7 @@ class TarificationDAOImpl(couchDbProperties: CouchDbProperties,
     @View(name = "by_type_code_version", map = "classpath:js/tarif/By_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
     override fun findTarifications(type: String?, code: String?, version: String?): Flow<Tarification> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.queryViewIncludeDocs<ComplexKey, String, Tarification>(createQuery<Tarification>("by_type_code_version")
+        return client.queryViewIncludeDocs<ComplexKey, String, Tarification>(createQuery("by_type_code_version")
                 .includeDocs(true)
                 .reduce(false)
                 .startKey(ComplexKey.of(
@@ -62,7 +62,7 @@ class TarificationDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findTarifications(region: String?, type: String?, code: String?, version: String?): Flow<Tarification> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         return client.queryViewIncludeDocs<Array<String>, String, Tarification>(
-                createQuery<Tarification>("by_region_type_code_version")
+                createQuery("by_region_type_code_version")
                         .includeDocs(true)
                         .reduce(false)
                         .startKey(ComplexKey.of(
