@@ -39,7 +39,7 @@ import java.net.URI
 
 @ExperimentalCoroutinesApi
 @FlowPreview
-open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T>, val couchDbProperties: CouchDbProperties, val couchDbDispatcher: CouchDbDispatcher, val idGenerator: IDGenerator) : InternalDAO<T>, VersionnedDesignDocumentQueries<T>(entityClass) {
+open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T>, val couchDbProperties: CouchDbProperties, val couchDbDispatcher: CouchDbDispatcher, val idGenerator: IDGenerator) : InternalDAO<T>, VersionnedDesignDocumentQueries<T>(entityClass, couchDbProperties) {
     private val log = LoggerFactory.getLogger(javaClass)
     private val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
 
@@ -141,6 +141,5 @@ open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T
         if (changed && updateIfExists) {
             client.update(generated)
         }
-        updateUsedDesignDocument(client, generated.id)
     }
 }

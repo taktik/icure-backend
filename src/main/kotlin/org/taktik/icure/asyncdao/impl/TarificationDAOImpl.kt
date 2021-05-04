@@ -19,6 +19,8 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -41,45 +43,50 @@ class TarificationDAOImpl(couchDbProperties: CouchDbProperties,
                           @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Tarification>(couchDbProperties, Tarification::class.java, couchDbDispatcher, idGenerator), TarificationDAO {
 
     @View(name = "by_type_code_version", map = "classpath:js/tarif/By_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
-    override fun findTarifications(type: String?, code: String?, version: String?): Flow<Tarification> {
+    override fun findTarifications(type: String?, code: String?, version: String?): Flow<Tarification> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.queryViewIncludeDocs<ComplexKey, String, Tarification>(createQuery("by_type_code_version")
-                .includeDocs(true)
-                .reduce(false)
-                .startKey(ComplexKey.of(
-                        type ?: "\u0000",
-                        code ?: "\u0000",
-                        version ?: "\u0000"
-                ))
-                .endKey(ComplexKey.of(
-                        type ?: ComplexKey.emptyObject(),
-                        code ?: ComplexKey.emptyObject(),
-                        version ?: ComplexKey.emptyObject()
-                ))).map { it.doc }
-    }
-
-    @View(name = "by_region_type_code_version", map = "classpath:js/tarif/By_region_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
-    override fun findTarifications(region: String?, type: String?, code: String?, version: String?): Flow<Tarification> {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.queryViewIncludeDocs<Array<String>, String, Tarification>(
-                createQuery("by_region_type_code_version")
+        emitAll(
+                client.queryViewIncludeDocs<ComplexKey, String, Tarification>(createQuery(client, "by_type_code_version")
                         .includeDocs(true)
                         .reduce(false)
                         .startKey(ComplexKey.of(
-                                region ?: "\u0000",
                                 type ?: "\u0000",
                                 code ?: "\u0000",
                                 version ?: "\u0000"
                         ))
                         .endKey(ComplexKey.of(
-                                region ?: ComplexKey.emptyObject(),
                                 type ?: ComplexKey.emptyObject(),
                                 code ?: ComplexKey.emptyObject(),
                                 version ?: ComplexKey.emptyObject()
                         ))).map { it.doc }
+
+        )
     }
 
-    override fun findTarifications(region: String?, type: String?, code: String?, version: String?, pagination: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
+    @View(name = "by_region_type_code_version", map = "classpath:js/tarif/By_region_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
+    override fun findTarifications(region: String?, type: String?, code: String?, version: String?): Flow<Tarification> = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        emitAll(
+                client.queryViewIncludeDocs<Array<String>, String, Tarification>(
+                        createQuery(client, "by_region_type_code_version")
+                                .includeDocs(true)
+                                .reduce(false)
+                                .startKey(ComplexKey.of(
+                                        region ?: "\u0000",
+                                        type ?: "\u0000",
+                                        code ?: "\u0000",
+                                        version ?: "\u0000"
+                                ))
+                                .endKey(ComplexKey.of(
+                                        region ?: ComplexKey.emptyObject(),
+                                        type ?: ComplexKey.emptyObject(),
+                                        code ?: ComplexKey.emptyObject(),
+                                        version ?: ComplexKey.emptyObject()
+                                ))).map { it.doc }
+        )
+    }
+
+    override fun findTarifications(region: String?, type: String?, code: String?, version: String?, pagination: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val from = ComplexKey.of(
                         region ?: "\u0000",
@@ -93,13 +100,13 @@ class TarificationDAOImpl(couchDbProperties: CouchDbProperties,
                 code?.let { it + "" } ?: ComplexKey.emptyObject(),
                 version?.let { it + "" } ?: ComplexKey.emptyObject()
         )
-        val viewQuery = pagedViewQuery<Tarification, ComplexKey>("by_region_type_code_version", from, to, pagination.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
-        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Tarification::class.java)
+        val viewQuery = pagedViewQuery<Tarification, ComplexKey>(client, "by_region_type_code_version", from, to, pagination.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
+        emitAll(client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Tarification::class.java))
 
     }
 
     @View(name = "by_language_label", map = "classpath:js/tarif/By_language_label.js")
-    override fun findTarificationsByLabel(region: String?, language: String?, label: String?, pagination: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
+    override fun findTarificationsByLabel(region: String?, language: String?, label: String?, pagination: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val label = label?.let { StringUtils.sanitizeString(it) }
@@ -117,12 +124,12 @@ class TarificationDAOImpl(couchDbProperties: CouchDbProperties,
                 if (language == null) ComplexKey.emptyObject() else if (label == null) language + "\ufff0" else language,
                 if (label == null) ComplexKey.emptyObject() else label + "\ufff0"
         )
-        val viewQuery = pagedViewQuery<Tarification, ComplexKey>("by_language_label", from, to, pagination.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
-        return client.queryView(viewQuery, Array<String>::class.java, Integer::class.java, Tarification::class.java)
+        val viewQuery = pagedViewQuery<Tarification, ComplexKey>(client, "by_language_label", from, to, pagination.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
+        emitAll(client.queryView(viewQuery, Array<String>::class.java, Integer::class.java, Tarification::class.java))
     }
 
     @View(name = "by_language_type_label", map = "classpath:js/tarif/By_language_label.js")
-    override fun findTarificationsByLabel(region: String?, language: String?, type: String?, label: String?, pagination: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
+    override fun findTarificationsByLabel(region: String?, language: String?, type: String?, label: String?, pagination: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val label = label?.let { StringUtils.sanitizeString(it) }
@@ -142,7 +149,7 @@ class TarificationDAOImpl(couchDbProperties: CouchDbProperties,
                 if (type == null) ComplexKey.emptyObject() else if (label == null) type + "\ufff0" else language,
                 if (label == null) ComplexKey.emptyObject() else label + "\ufff0"
         )
-        val viewQuery = pagedViewQuery<Tarification, ComplexKey>("by_language_label", from, to, pagination.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
-        return client.queryView(viewQuery, Array<String>::class.java, Integer::class.java, Tarification::class.java)
+        val viewQuery = pagedViewQuery<Tarification, ComplexKey>(client, "by_language_label", from, to, pagination.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
+        emitAll(client.queryView(viewQuery, Array<String>::class.java, Integer::class.java, Tarification::class.java))
     }
 }

@@ -29,6 +29,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.net.URI
 import java.nio.ByteBuffer
+import java.time.Duration
 import java.util.function.Consumer
 
 class SpringWebfluxWebClient(val reactorClientHttpConnector: ReactorClientHttpConnector? = null, val filters: Consumer<MutableList<ExchangeFilterFunction>>? = null) : WebClient {
@@ -46,7 +47,7 @@ class SpringWebfluxRequest(
         private val headers: HttpHeaders = DefaultHttpHeaders(),
         private val bodyPublisher: Flow<ByteBuffer>? = null
 ) : Request {
-    override fun method(method: HttpMethod): Request = SpringWebfluxRequest(client, uri, method, headers, bodyPublisher)
+    override fun method(method: HttpMethod, timeoutDuration: Duration?): Request = SpringWebfluxRequest(client, uri, method, headers, bodyPublisher)
     override fun header(name: String, value: String): Request = SpringWebfluxRequest(client, uri, method, headers.add(name, value), bodyPublisher)
     override fun body(producer: Flow<ByteBuffer>): Request = SpringWebfluxRequest(client, uri, method, headers, producer)
     override fun retrieve() = SpringWebfluxResponse(headers.entries().fold(client.method(method.toSpringMethod()).uri(uri)) { acc, (name, value) -> acc.header(name, value) }.let {

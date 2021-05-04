@@ -19,6 +19,8 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -41,7 +43,7 @@ class FrontEndMigrationDAOImpl(couchDbProperties: CouchDbProperties,
             "            emit([doc.userId, doc.name],doc._id);\n" +
             "}\n" +
             "}")
-    override fun getByUserIdName(userId: String, name: String?): Flow<FrontEndMigration> {
+    override fun getByUserIdName(userId: String, name: String?): Flow<FrontEndMigration> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val viewQuery = if (name == null) {
@@ -49,11 +51,11 @@ class FrontEndMigrationDAOImpl(couchDbProperties: CouchDbProperties,
             val startKey = ComplexKey.of(userId)
             val endKey = ComplexKey.of(userId, ComplexKey.emptyObject())
 
-            createQuery("by_userid_name").startKey(startKey).endKey(endKey).includeDocs(true)
+            createQuery(client, "by_userid_name").startKey(startKey).endKey(endKey).includeDocs(true)
         } else {
-            createQuery("by_userid_name").key(ComplexKey.of(userId, name)).includeDocs(true)
+            createQuery(client, "by_userid_name").key(ComplexKey.of(userId, name)).includeDocs(true)
         }
-        return client.queryViewIncludeDocs<ComplexKey, String, FrontEndMigration>(viewQuery).map { it.doc }
+        emitAll(client.queryViewIncludeDocs<ComplexKey, String, FrontEndMigration>(viewQuery).map { it.doc })
     }
 
 }

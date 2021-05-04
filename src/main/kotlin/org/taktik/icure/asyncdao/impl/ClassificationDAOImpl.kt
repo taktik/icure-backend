@@ -19,9 +19,7 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
@@ -42,10 +40,10 @@ import org.taktik.icure.properties.CouchDbProperties
 internal class ClassificationDAOImpl(couchDbProperties: CouchDbProperties,
                                      @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Classification>(Classification::class.java, couchDbProperties, couchDbDispatcher, idGenerator), ClassificationDAO {
 
-    override fun findByPatient(patientId: String): Flow<Classification> {
+    override fun findByPatient(patientId: String): Flow<Classification> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery("all").includeDocs(true).key(patientId)
-        return client.queryViewIncludeDocs<String, String, Classification>(viewQuery).map { it.doc }
+        val viewQuery = createQuery(client, "all").includeDocs(true).key(patientId)
+        emitAll(client.queryViewIncludeDocs<String, String, Classification>(viewQuery).map { it.doc })
     }
 
     override suspend fun getClassification(classificationId: String): Classification? {
@@ -53,11 +51,11 @@ internal class ClassificationDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_patient", map = "classpath:js/classification/By_hcparty_patient_map.js")
-    override fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification> {
+    override fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val viewQuery = createQuery("by_hcparty_patient").includeDocs(true).keys(keys)
-        return client.queryViewIncludeDocs<ComplexKey, String, Classification>(viewQuery).map { it.doc }.distinctUntilChangedBy { it.id }
+        val viewQuery = createQuery(client, "by_hcparty_patient").includeDocs(true).keys(keys)
+        emitAll(client.queryViewIncludeDocs<ComplexKey, String, Classification>(viewQuery).map { it.doc }.distinctUntilChangedBy { it.id })
     }
 }

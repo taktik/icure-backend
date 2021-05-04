@@ -39,7 +39,7 @@ class EntityReferenceDAOImpl(couchDbProperties: CouchDbProperties,
     override suspend fun getLatest(prefix: String): EntityReference? {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery("all").startKey(prefix + "\ufff0").descending(true).includeDocs(true).limit(1)
+        val viewQuery = createQuery(client, "all").startKey(prefix + "\ufff0").descending(true).includeDocs(true).limit(1)
         val entityReferences = client.queryViewIncludeDocsNoValue<String, EntityReference>(viewQuery).map { it.doc }
         return entityReferences.firstOrNull()
     }

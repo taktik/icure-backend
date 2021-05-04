@@ -18,10 +18,7 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.taktik.couchdb.annotation.View
@@ -109,51 +106,51 @@ class DocumentDAOImpl(couchDbProperties: CouchDbProperties,
             }
 
     @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted && doc._conflicts) emit(doc._id )}")
-    override fun listConflicts(): Flow<Document> {
+    override fun listConflicts(): Flow<Document> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery("conflicts")
+        val viewQuery = createQuery(client, "conflicts")
                 .limit(200)
                 .includeDocs(true)
 
-        return client.queryViewIncludeDocsNoValue<String, Document>(viewQuery).map { it.doc }
+        emitAll(client.queryViewIncludeDocsNoValue<String, Document>(viewQuery).map { it.doc })
     }
 
     @View(name = "by_hcparty_message", map = "classpath:js/document/By_hcparty_message_map.js")
-    override fun findDocumentsByHCPartySecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> {
+    override fun findDocumentsByHCPartySecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val keys = secretForeignKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val viewQuery = createQuery("by_hcparty_message")
+        val viewQuery = createQuery(client, "by_hcparty_message")
                 .keys(keys)
                 .includeDocs(true)
 
-        return client.queryViewIncludeDocs<Array<String>, String, Document>(viewQuery).map { it.doc }
+        emitAll(client.queryViewIncludeDocs<Array<String>, String, Document>(viewQuery).map { it.doc })
     }
 
     @View(name = "without_delegations", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted && (!doc.delegations || Object.keys(doc.delegations).length === 0)) emit(doc._id )}")
-    override fun findDocumentsWithNoDelegations(limit: Int): Flow<Document> {
+    override fun findDocumentsWithNoDelegations(limit: Int): Flow<Document> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery("without_delegations")
+        val viewQuery = createQuery(client, "without_delegations")
                 .limit(limit)
                 .includeDocs(true)
 
-        return client.queryViewIncludeDocsNoValue<String, Document>(viewQuery).map { it.doc }
+        emitAll(client.queryViewIncludeDocsNoValue<String, Document>(viewQuery).map { it.doc })
     }
 
     @View(name = "by_type_hcparty_message", map = "classpath:js/document/By_document_type_hcparty_message_map.js")
-    override fun findDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> {
+    override fun findDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val keys = secretForeignKeys.map { fk -> ComplexKey.of(documentTypeCode, hcPartyId, fk) }
 
-        val viewQuery = createQuery("by_type_hcparty_message")
+        val viewQuery = createQuery(client, "by_type_hcparty_message")
                 .keys(keys)
                 .includeDocs(true)
 
-        return client.queryViewIncludeDocs<Array<String>, String, Document>(viewQuery).map { it.doc }
+        emitAll(client.queryViewIncludeDocs<Array<String>, String, Document>(viewQuery).map { it.doc })
     }
 
     override fun readAttachment(documentId: String, attachmentId: String, rev: String?): Flow<ByteBuffer> {
@@ -164,7 +161,7 @@ class DocumentDAOImpl(couchDbProperties: CouchDbProperties,
     override suspend fun getAllByExternalUuid(externalUuid: String): List<Document> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery("by_externalUuid")
+        val viewQuery = createQuery(client, "by_externalUuid")
                 .key(externalUuid)
                 .includeDocs(true)
 

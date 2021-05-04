@@ -45,6 +45,6 @@ class RoleDAOImpl(couchDbProperties: CouchDbProperties,
     override suspend fun getByName(name: String): Role? {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocs<String, String, Role>(createQuery("by_name").key(name).includeDocs(true)).map { it.doc }.firstOrNull()
+        return client.queryViewIncludeDocs<String, String, Role>(createQuery(client, "by_name").key(name).includeDocs(true)).map { it.doc }.firstOrNull()
     }
 }

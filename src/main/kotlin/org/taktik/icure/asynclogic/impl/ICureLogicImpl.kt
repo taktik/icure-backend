@@ -63,7 +63,7 @@ class ICureLogicImpl(couchDbProperties: CouchDbProperties,
                 ?.let { dao: GenericDAO<*> ->
                     dao.forceInitStandardDesignDocument()
                     if (warmup) {
-                        val allIds = dao.getAllIds().toList()
+                        val allIds = dao.getAllIds(1).toList()
                     }
                 }
     }

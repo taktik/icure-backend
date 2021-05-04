@@ -18,9 +18,7 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.taktik.couchdb.annotation.View
@@ -51,52 +49,58 @@ internal class FormTemplateDAOImpl(couchDbProperties: CouchDbProperties,
                                    private val uuidGenerator: UUIDGenerator, @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager) : GenericDAOImpl<FormTemplate>(couchDbProperties, FormTemplate::class.java, couchDbDispatcher, idGenerator), FormTemplateDAO {
 
     @View(name = "by_userId_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted && doc.author) emit([doc.author,doc.guid], null )}")
-    override fun findByUserGuid(userId: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate> {
+    override fun findByUserGuid(userId: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val from = ComplexKey.of(userId, guid ?: "")
         val to = ComplexKey.of(userId, guid ?: "\ufff0")
-        val formTemplates = client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery("by_userId_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
+        val formTemplates = client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery(client, "by_userId_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
 
         // invoke postLoad()
-        return if (loadLayout) {
-            formTemplates.map {
-                this.postLoad(it)
-            }
-        } else formTemplates
+        emitAll(
+                if (loadLayout) {
+                    formTemplates.map {
+                        this@FormTemplateDAOImpl.postLoad(it)
+                    }
+                } else formTemplates
+        )
     }
 
     @View(name = "by_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted) emit(doc.guid, null )}")
-    override fun findByGuid(guid: String, loadLayout: Boolean): Flow<FormTemplate> {
+    override fun findByGuid(guid: String, loadLayout: Boolean): Flow<FormTemplate> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val formTemplates = client.queryViewIncludeDocsNoValue<String, FormTemplate>(createQuery("by_guid").key(guid).includeDocs(true)).map { it.doc }
+        val formTemplates = client.queryViewIncludeDocsNoValue<String, FormTemplate>(createQuery(client, "by_guid").key(guid).includeDocs(true)).map { it.doc }
 
-        return if (loadLayout) {
-            formTemplates.map {
-                this.postLoad(it)
-            }
-        } else formTemplates
+        emitAll(
+                if (loadLayout) {
+                    formTemplates.map {
+                        this@FormTemplateDAOImpl.postLoad(it)
+                    }
+                } else formTemplates
+        )
     }
 
     @View(name = "by_specialty_code_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted && doc.specialty) emit([doc.specialty.code,doc.guid], null )}")
-    override fun findBySpecialtyGuid(specialityCode: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate> {
+    override fun findBySpecialtyGuid(specialityCode: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val formTemplates = if (guid != null) {
             val key = ComplexKey.of(specialityCode, guid)
-            client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery("by_specialty_code_and_guid").key(key).includeDocs(true)).map { it.doc }
+            client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery(client, "by_specialty_code_and_guid").key(key).includeDocs(true)).map { it.doc }
         } else {
             val from = ComplexKey.of(specialityCode, null)
             val to = ComplexKey.of(specialityCode, ComplexKey.emptyObject())
-            client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery("by_specialty_code_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
+            client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery(client, "by_specialty_code_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
         }
 
-        return if (loadLayout) {
-            formTemplates.map {
-                this.postLoad(it)
-            }
-        } else formTemplates
+        emitAll(
+                if (loadLayout) {
+                    formTemplates.map {
+                        this@FormTemplateDAOImpl.postLoad(it)
+                    }
+                } else formTemplates
+        )
     }
 
 

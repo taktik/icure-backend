@@ -47,7 +47,7 @@ class PropertyTypeDAOImpl(couchDbProperties: CouchDbProperties,
 
         val wrappedValue = getWrapperFromCache("PID:$propertyTypeIdentifier")
         if (wrappedValue == null) {
-            val result = client.queryViewIncludeDocs<String, String, PropertyType>(createQuery("by_identifier").includeDocs(true).key(propertyTypeIdentifier)).map { it.doc }.firstOrNull()
+            val result = client.queryViewIncludeDocs<String, String, PropertyType>(createQuery(client, "by_identifier").includeDocs(true).key(propertyTypeIdentifier)).map { it.doc }.firstOrNull()
 
             if (result?.id != null) {
                 putInCache(result.id, result)

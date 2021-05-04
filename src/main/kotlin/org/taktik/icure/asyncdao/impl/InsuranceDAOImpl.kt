@@ -18,9 +18,7 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.*
 import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
@@ -40,19 +38,19 @@ class InsuranceDAOImpl(couchDbProperties: CouchDbProperties,
                        @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Insurance>(couchDbProperties, Insurance::class.java, couchDbDispatcher, idGenerator), InsuranceDAO {
 
     @View(name = "all_by_code", map = "classpath:js/insurance/all_by_code_map.js")
-    override fun listByCode(code: String): Flow<Insurance> {
+    override fun listByCode(code: String): Flow<Insurance> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocs<String, String, Insurance>(createQuery("all_by_code").key(code).includeDocs(true)).map { it.doc }
+        emitAll(client.queryViewIncludeDocs<String, String, Insurance>(createQuery(client, "all_by_code").key(code).includeDocs(true)).map { it.doc })
     }
 
     @View(name = "all_by_name", map = "classpath:js/insurance/all_by_name_map.js")
-    override fun listByName(name: String): Flow<Insurance> {
+    override fun listByName(name: String): Flow<Insurance> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val sanitizedName = StringUtils.sanitizeString(name)
 
-        val ids = client.queryView<Array<String>, String>(createQuery("all_by_name").startKey(ComplexKey.of(sanitizedName)).endKey(ComplexKey.of(sanitizedName + "\uFFF0")).includeDocs(false)).mapNotNull { it.value }
-        return getList(ids)
+        val ids = client.queryView<Array<String>, String>(createQuery(client, "all_by_name").startKey(ComplexKey.of(sanitizedName)).endKey(ComplexKey.of(sanitizedName + "\uFFF0")).includeDocs(false)).mapNotNull { it.value }
+        emitAll(getList(ids))
     }
 }

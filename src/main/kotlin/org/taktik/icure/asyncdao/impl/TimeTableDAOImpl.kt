@@ -18,13 +18,7 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filterNot
-import kotlinx.coroutines.flow.flattenConcat
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
@@ -44,17 +38,17 @@ class TimeTableDAOImpl (couchDbProperties: CouchDbProperties,
                         @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<TimeTable>(couchDbProperties, TimeTable::class.java, couchDbDispatcher, idGenerator), TimeTableDAO {
 
 	@View(name = "by_agenda", map = "classpath:js/timeTable/by_agenda.js")
-	override fun listTimeTableByAgendaId(agendaId: String): Flow<TimeTable> {
+	override fun listTimeTableByAgendaId(agendaId: String): Flow<TimeTable> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery("by_agenda")
+        val viewQuery = createQuery(client, "by_agenda")
 				.startKey(agendaId)
 				.endKey(agendaId)
 				.includeDocs(true)
-        return client.queryViewIncludeDocsNoValue<String, TimeTable>(viewQuery).map{it.doc}
+        emitAll(client.queryViewIncludeDocsNoValue<String, TimeTable>(viewQuery).map{it.doc})
 	}
 
 	@View(name = "by_agenda_and_startdate", map = "classpath:js/timeTable/by_agenda_and_startdate.js")
-	override fun listTimeTableByStartDateAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable> {
+	override fun listTimeTableByStartDateAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val from = ComplexKey.of(
 				agendaId,
@@ -64,15 +58,15 @@ class TimeTableDAOImpl (couchDbProperties: CouchDbProperties,
 				agendaId,
 				endDate ?: ComplexKey.emptyObject()
 		)
-		val viewQuery = createQuery("by_agenda_and_startdate")
+		val viewQuery = createQuery(client, "by_agenda_and_startdate")
 				.startKey(from)
 				.endKey(to)
 				.includeDocs(true)
-        return client.queryViewIncludeDocsNoValue<Array<String>, TimeTable>(viewQuery).map{it.doc}
+        emitAll(client.queryViewIncludeDocsNoValue<Array<String>, TimeTable>(viewQuery).map{it.doc})
 	}
 
 	@View(name = "by_agenda_and_enddate", map = "classpath:js/timeTable/by_agenda_and_enddate.js")
-	override fun listTimeTableByEndDateAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable> {
+	override fun listTimeTableByEndDateAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val from = ComplexKey.of(
 				agendaId,
@@ -82,11 +76,11 @@ class TimeTableDAOImpl (couchDbProperties: CouchDbProperties,
 				agendaId,
 				endDate ?: ComplexKey.emptyObject()
 		)
-		val viewQuery = createQuery("by_agenda_and_enddate")
+		val viewQuery = createQuery(client, "by_agenda_and_enddate")
 				.startKey(from)
 				.endKey(to)
 				.includeDocs(true)
-        return client.queryViewIncludeDocsNoValue<Array<String>, TimeTable>(viewQuery).map{it.doc}
+        emitAll(client.queryViewIncludeDocsNoValue<Array<String>, TimeTable>(viewQuery).map{it.doc})
 	}
 
 	override fun listTimeTableByPeriodAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable> = flow {
