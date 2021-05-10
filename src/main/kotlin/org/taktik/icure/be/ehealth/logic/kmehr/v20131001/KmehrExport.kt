@@ -234,6 +234,9 @@ open class KmehrExport(
             telecoms.addAll(makeTelecoms(p.addresses))
             if(!p.nationality.isNullOrBlank()) {
             p.nationality?.let { nat -> mapToCountryCode(nat)?.let { natCode -> nationality = PersonType.Nationality().apply { cd = CDCOUNTRY().apply { s(CDCOUNTRYschemes.CD_COUNTRY); value = natCode }}}}
+
+            p.note?.let { texts.add(TextType().apply { value = it })}
+            p.administrativeNote?.let { texts.add(TextType().apply { value = it })}
         }
     }
     }
