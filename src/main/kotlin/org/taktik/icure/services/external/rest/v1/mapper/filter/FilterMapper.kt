@@ -26,7 +26,7 @@ import org.taktik.icure.domain.filter.impl.predicate.KeyValuePredicate
 import org.taktik.icure.domain.filter.impl.predicate.NotPredicate
 import org.taktik.icure.domain.filter.impl.predicate.OrPredicate
 import org.taktik.icure.domain.filter.predicate.Predicate
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.ComplementFilter
 import org.taktik.icure.services.external.rest.v1.dto.filter.ConstantFilter

@@ -35,7 +35,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeFuzzyLongFromMo
 import org.taktik.icure.be.ehealth.logic.kmehr.toInputStream
 import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
-import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.domain.mapping.ImportMapping
 import org.taktik.icure.domain.result.ImportResult
@@ -98,7 +98,11 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                                 val documentLogic: DocumentLogic,
                                 val formLogic: FormLogic,
                                 val idGenerator: UUIDGenerator) {
-
+    val defaultMapping: Map<String, List<ImportMapping>> = ObjectMapper().let { om ->
+        val txt = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/ehealth/logic/kmehr/smf/impl/smf.labels.json")?.readBytes()?.toString(Charsets.UTF_8)
+                ?: "{}"
+        om.readValue(txt, object : TypeReference<Map<String, List<ImportMapping>>>() {})
+    }
 
     fun convertToKmehr(inputStream: InputStream): Kmehrmessage {
         val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
@@ -119,13 +123,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
 
         val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
 
-        val mymappings = if(mappings.isNotEmpty()) mappings else {
-            val mapper = ObjectMapper()
-            this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/ehealth/logic/kmehr/smf/impl/smf.labels.json")
-                    ?.let { mapper.readValue(it.readBytes().toString(Charsets.UTF_8), object : TypeReference<Map<String, List<ImportMapping>>>() {})} ?: mapOf()
-        }
-
-        LinkedList<ImportResult>()
+        val mymappings = if (mappings.isNotEmpty()) defaultMapping + mappings else defaultMapping
 
         val state = InternalState()
         val standard = kmehrMessage.header.standard.cd.value

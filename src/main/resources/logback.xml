@@ -3,35 +3,22 @@
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
     <!-- Spring -->
+    <!--logger name="org.springframework.web.reactive" level="TRACE" /-->
 
     <logger name="org.springframework" level="INFO" />
     <logger name="org.springframework.security" level="INFO" />
-    <logger name="org.springframework.web.reactive.handler" level="DEBUG" />
-    <logger name="org.springframework.web.reactive" level="TRACE" />
-    <!-- icure -->
+    <!-- logger name="org.springframework.web.reactive.handler" level="DEBUG" /-->
+
+    <!-- iCure -->
+    <!--logger name="org.taktik.couchdb.ClientImpl" level="DEBUG" /-->
+    <!--logger name="com.fasterxml.jackson" level="DEBUG" /-->
 
     <logger name="org.taktik" level="INFO" />
-    <logger name="org.taktik.couchdb" level="INFO" />
-    <logger name="org.taktik.couchdb.ClientImpl" level="DEBUG" />
-    <logger name="org.taktik.icure.asynclogic" level="INFO" />
-    <logger name="org.taktik.icure.dao" level="INFO" />
-    <logger name="org.taktik.icure.dao.replicator" level="DEBUG" />
 
     <!-- uncomment the following line to log expected errors -->
     <!-- <logger name="org.taktik.icure.services.external.rest.v1.error.WsExceptionMapper" level="DEBUG" /> -->
-    <!-- Spring Security -->
-    <logger name="org.taktik.icure.security" level="INFO" />
 
-    <logger name="org.eclipse.jetty.client" level="INFO" />
-    <logger name="org.eclipse.jetty" level="WARN" />
-    <logger name="org.apache.jasper" level="WARN" />
     <logger name="org.apache.commons" level="WARN" />
-    <logger name="org.elasticsearch" level="WARN" />
-    <logger name="com.fasterxml.jackson" level="DEBUG" />
-    <logger name="org.taktik.couchdb" level="DEBUG" />
-    <logger name="org.springframework.web.reactive.socket.adapter" level="TRACE" />
-    <logger name="org.taktik.icure.config.WebClient" level="DEBUG" />
 
-    <!--logger name="org.taktik.couchdb.parser" level="TRACE" /-->
-    <!--logger name="ma.glasnost.orika" level="DEBUG" /-->
+    <logger name="ch.qos.logback" level="WARN" />
 </configuration>

@@ -18,7 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.support
 
-import com.squareup.moshi.Moshi
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.Dispatchers
@@ -60,6 +60,7 @@ import kotlin.coroutines.CoroutineContext
 @Tag(name = "auth")
 class LoginController(
         private val sessionLogic: AsyncSessionLogic,
+        private val objectMapper: ObjectMapper,
         asyncCacheManager: AsyncCacheManager
 ) {
     val cache = asyncCacheManager.getCache<String, SecurityToken>("spring.security.tokens")
@@ -76,7 +77,7 @@ class LoginController(
         } ?: throw IllegalArgumentException("Missing body")
 
         withContext(Dispatchers.Default) {
-            val loginInfo = Moshi.Builder().build().adapter(LoginCredentials::class.java).fromJson(bodyText)
+            val loginInfo = objectMapper.readValue(bodyText, LoginCredentials::class.java)
             return@withContext loginInfo?.let {
                 val response = AuthenticationResponse()
                 val authentication = sessionLogic.login(loginInfo.username!!, loginInfo.password!!, request, session)

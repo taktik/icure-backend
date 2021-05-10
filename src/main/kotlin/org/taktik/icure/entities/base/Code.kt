@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
-import org.ektorp.Attachment
+import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.entities.embed.Periodicity
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.utils.MergeUtil
@@ -40,7 +40,7 @@ data class Code(
         override val type: String? = null, //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
         override val code: String? = null, //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
         override val version: String? = null, //ex: 10. Must be lexicographically searchable
-        override val label: Map<String, String> = mapOf(), //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
+        override val label: Map<String, String>? = null, //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
 
         val author: String? = null,
         val regions: Set<String> = setOf(), //ex: be,fr
@@ -61,7 +61,7 @@ data class Code(
 
 ) : StoredDocument, CodeIdentification {
     companion object : DynamicInitializer<Code> {
-        fun from(type: String, code: String, version: String) = Code(id = "$type:$code:$version", type = type, code = code, version = version)
+        fun from(type: String, code: String, version: String) = Code(id = "$type|$code|$version", type = type, code = code, version = version)
     }
 
     fun merge(other: Code) = Code(args = this.solveConflictsWith(other))

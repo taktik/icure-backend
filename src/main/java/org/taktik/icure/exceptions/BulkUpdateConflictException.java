@@ -20,6 +20,7 @@ package org.taktik.icure.exceptions;
 
 import java.util.List;
 
+import org.taktik.couchdb.exception.UpdateConflictException;
 import org.taktik.icure.entities.base.StoredDocument;
 
 public class BulkUpdateConflictException extends PersistenceException {

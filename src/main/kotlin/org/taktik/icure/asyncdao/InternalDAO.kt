@@ -21,8 +21,8 @@ package org.taktik.icure.asyncdao
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.BulkUpdateResult
 import org.taktik.couchdb.DocIdentifier
-import org.taktik.icure.dao.Option
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.entity.Option
+import org.taktik.couchdb.id.Identifiable
 
 interface InternalDAO<T : Identifiable<String>> {
 
@@ -37,8 +37,8 @@ interface InternalDAO<T : Identifiable<String>> {
     fun list(ids: List<String>): Flow<T>
 
     fun save(entities: List<T>): Flow<DocIdentifier>
-    suspend fun purge(entities: Flow<T>): Flow<BulkUpdateResult>
-    suspend fun remove(entities: Flow<T>): Flow<BulkUpdateResult>
+    fun purge(entities: Flow<T>): Flow<BulkUpdateResult>
+    fun remove(entities: Flow<T>): Flow<BulkUpdateResult>
 
     suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean)
 }

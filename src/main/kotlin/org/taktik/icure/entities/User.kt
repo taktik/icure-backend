@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.github.pozo.KotlinBuilder
-import org.ektorp.Attachment
+import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.constants.Users
 import org.taktik.icure.entities.base.Principal
 import org.taktik.icure.entities.base.PropertyStub

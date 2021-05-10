@@ -42,7 +42,7 @@ data class Pricing(
     }
 
     override fun hashCode(): Int {
-        var result = quantity?.hashCode() ?: 0
+        var result = quantity?.toInt() ?: 0
         result = 31 * result + (label?.hashCode() ?: 0)
         return result
     }

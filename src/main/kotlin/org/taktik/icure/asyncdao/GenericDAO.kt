@@ -21,7 +21,7 @@ package org.taktik.icure.asyncdao
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.Client
 import org.taktik.couchdb.DocIdentifier
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.id.Identifiable
 import java.net.URI
 import java.nio.ByteBuffer
 
@@ -31,8 +31,8 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
     suspend fun createAttachment(documentId: String, attachmentId: String, rev: String, contentType: String, data: Flow<ByteBuffer>): String
     suspend fun deleteAttachment(documentId: String, rev: String, attachmentId: String): String
 
-    suspend fun <K : Collection<T>> create(entities: K): Flow<T>
-    suspend fun <K : Collection<T>> save(entities: K): Flow<T>
+    fun <K : Collection<T>> create(entities: K): Flow<T>
+    fun <K : Collection<T>> save(entities: K): Flow<T>
 
     suspend fun contains(id: String): Boolean
     suspend fun hasAny(): Boolean

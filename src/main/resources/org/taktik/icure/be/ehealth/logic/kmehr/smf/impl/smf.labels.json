@@ -141,7 +141,6 @@
   ],
   "medication": [
     {
-      "type": "m",
       "label": {
         "fr": "Traitements médicamenteux"
       }
@@ -150,13 +149,11 @@
   "vaccine": [
     {
       "lifecycle": "planned",
-      "type": "m",
       "label": {
         "fr": "Vaccination à prévoir"
       }
     },
     {
-      "type": "m",
       "label": {
         "fr": "Vaccination"
       }
@@ -165,21 +162,17 @@
   "treatment": [
     {
       "lifecycle": "planned",
-      "content": "m",
       "label": {
         "fr": "Prescription à faire"
       }
     },
     {
-      "content": "m",
-      "type": "m",
       "label": {
         "fr": "Prescription"
       }
     },
     {
       "lifecycle": "planned",
-      "type": "m",
       "label": {
         "fr": "Actes plannifiés"
       }
@@ -193,7 +186,6 @@
   "actionplan": [
     {
       "lifecycle": "planned",
-      "type": "m",
       "label": {
         "fr": "Actes plannifiés"
       }
@@ -206,7 +198,6 @@
   ],
   "referral": [
     {
-      "type": "h",
       "label": {
         "fr": "Demande d'avis"
       }
@@ -242,7 +233,7 @@
         "tags": [
           {
             "type": "CD-PARAMETER",
-            "code": "heartbeat",
+            "code": "heartrate",
             "version": "1"
           }
         ]

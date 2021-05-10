@@ -399,8 +399,20 @@ class PatientController(
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting patient failed. Possible reasons: no such patient exists, or server error. Please try again or read the server log.")
     }
 
-    @Operation(summary = "Modify a patient", description = "Returns the id and _rev of created patients")
+    @Operation(summary = "Create patients in bulk", description = "Returns the id and _rev of created patients")
     @PostMapping("/bulk")
+    fun bulkCreatePatients(@RequestBody patientDtos: List<PatientDto>) = mono {
+        try {
+            val patients = patientLogic.updateEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
+            patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
+        } catch (e: Exception) {
+            log.warn(e.message, e)
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
+        }
+    }
+
+    @Operation(summary = "Modify patients in bulk", description = "Returns the id and _rev of modified patients")
+    @PutMapping("/bulk")
     fun bulkUpdatePatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
             val patients = patientLogic.updateEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())

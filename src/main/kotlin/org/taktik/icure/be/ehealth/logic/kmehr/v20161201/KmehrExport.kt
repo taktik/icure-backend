@@ -221,13 +221,13 @@ open class KmehrExport(
         }
     }
 
-    suspend fun makePerson(p : Patient, config: Config) : PersonType {
-        return makePersonBase(p, config).apply {
+    suspend fun makePerson(p : Patient, config: Config, useINSSId: Boolean? = false) : PersonType {
+        return makePersonBase(p, config, useINSSId).apply {
             p.dateOfDeath?.let { if(it != 0) deathdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
             p.placeOfBirth?.let { birthlocation = AddressTypeBase().apply { city= it }}
             p.placeOfDeath?.let { deathlocation = AddressTypeBase().apply { city= it }}
             p.profession?.let { profession = ProfessionType().apply { text = TextType().apply { l= "fr"; value = it } } }
-            usuallanguage= p.languages.firstOrNull()
+            usuallanguage= if (config.format == Config.Format.SUMEHR) config.defaultLanguage else p.languages.firstOrNull()
             addresses.addAll(makeAddresses(p.addresses))
             telecoms.addAll(makeTelecoms(p.addresses))
             if(!p.nationality.isNullOrBlank()) {
@@ -236,11 +236,11 @@ open class KmehrExport(
         }
     }
 
-    fun makePersonBase(p : Patient, config: Config) : PersonType {
+    fun makePersonBase(p : Patient, config: Config, useINSSId: Boolean? = false) : PersonType {
         val ssin = p.ssin?.replace("[^0-9]".toRegex(), "")?.let { if (org.taktik.icure.utils.Math.isNissValid(it)) it else null }
 
         return PersonType().apply {
-            ssin?.let { ssin -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.ID_PATIENT; sv = "1.0"; value = ssin }) }
+            ssin?.let { ssin -> if (useINSSId == true) ids.add(IDPATIENT().apply { s = IDPATIENTschemes.INSS; sv = "1.0"; value = ssin }) else ids.add(IDPATIENT().apply { s = IDPATIENTschemes.ID_PATIENT; sv = "1.0"; value = ssin }) }
             p.id?.let { id -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.LOCAL; sv = config.soft?.version; sl = "${config.soft?.name}-Person-Id"; value = id }) }
             firstnames.add(p.firstName)
             familyname= p.lastName
@@ -300,7 +300,9 @@ open class KmehrExport(
                                         })
                                     }
                                     // choice time of day
-                                    daynumbersAndQuantitiesAndDates.add(KmehrPrescriptionHelper.toDaytime(intake))
+                                    try { daynumbersAndQuantitiesAndDates.add(KmehrPrescriptionHelper.toDaytime(intake)) } catch (e:Exception) {
+                                        log.warn("Cannot export value $intake to kmehr in regimen")
+                                    }
 
                                     // mandatory quantity
                                     intake.administratedQuantity?.let { drugQuantity ->
@@ -480,13 +482,20 @@ open class KmehrExport(
                 content.medicationValue?.medicinalProduct?.let {
                     medicinalproduct = MedicinalProductType().apply {
                         intendedname = content.medicationValue?.medicinalProduct?.intendedname
-                        intendedcds.add(CDDRUGCNK().apply { s(CDDRUGCNKschemes.CD_DRUG_CNK); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.medicinalProduct?.intendedcds?.find { it.type == "CD-DRUG-CNK" }?.code })
+                        if (content.medicationValue?.medicinalProduct?.intendedcds?.any { it.type == "CD-DRUG-CNK" }) {
+                            intendedcds.add(CDDRUGCNK().apply { s(CDDRUGCNKschemes.CD_DRUG_CNK); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.medicinalProduct?.intendedcds?.find { it.type == "CD-DRUG-CNK" }?.code })
+                        }
                     }
                 }
                 content.medicationValue?.substanceProduct?.let {
+                    val innCluster = content.medicationValue?.substanceProduct?.intendedcds?.find { it.type == "CD-INNCLUSTER" }?.code
+                    val vmpGroup = content.medicationValue?.substanceProduct?.intendedcds?.find { it.type == "CD-VMPGROUP" }?.code
+
                     substanceproduct = ContentType.Substanceproduct().apply {
                         intendedname = content.medicationValue?.substanceProduct?.intendedname
-                        intendedcd = CDINNCLUSTER().apply { s(CDINNCLUSTERschemes.CD_INNCLUSTER); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.substanceProduct?.intendedcds?.find { it.type == "CD-INNCLUSTER" }?.code }
+                        intendedcd =
+                                if (vmpGroup.isNullOrEmpty()) CDINNCLUSTER().apply { s(CDINNCLUSTERschemes.CD_INNCLUSTER); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = innCluster }
+                                else CDINNCLUSTER().apply { s(CDINNCLUSTERschemes.CD_VMPGROUP); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = vmpGroup }
                     }
                 }
                 content.medicationValue?.compoundPrescription?.let {

@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.rest.v1.dto.filter.chain
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.predicate.Predicate
 

@@ -20,8 +20,9 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.github.pozo.KotlinBuilder
-import org.ektorp.Attachment
+import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.CryptoActor
 import org.taktik.icure.entities.base.Encryptable
@@ -42,6 +43,7 @@ import org.taktik.icure.entities.embed.PersonalStatus
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.embed.SchoolingInfo
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
+import org.taktik.icure.handlers.JacksonBase64LenientDeserializer
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
@@ -165,7 +167,7 @@ data class Patient(
         @Deprecated("Use note or administrativeNote") val warning: String? = null,
         val nationality: String? = null,
         val preferredUserId: String? = null,
-        val picture: ByteArray? = null,
+        @JsonDeserialize(using = JacksonBase64LenientDeserializer::class) val picture: ByteArray? = null,
         val externalId: String? = null, //No guarantee of unicity
         val insurabilities: List<Insurability> = listOf(),
         val partnerships: List<Partnership> = listOf(),

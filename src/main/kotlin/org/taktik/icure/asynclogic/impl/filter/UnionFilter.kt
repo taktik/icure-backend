@@ -22,7 +22,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flatMapConcat
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.id.Identifiable
 import java.io.Serializable
 
 @FlowPreview

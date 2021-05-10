@@ -97,6 +97,8 @@ class MedicationSchemeExport(patientLogic: PatientLogic,
                                          defaultLanguage = "en"
                                         )) = flow {
 
+        config.defaultLanguage = if(sender.languages.firstOrNull() == "nl") "nl-BE" else if(sender.languages.firstOrNull() == "de") "de-BE" else "fr-BE"
+        config.format = Config.Format.SUMEHR //sumehr and medicationscheme have same exception of patient/usuallanguage field (vitalink)
 		val message = initializeMessage(sender, config)
 		message.header.recipients.add(RecipientType().apply {
 			hcparties.add(HcpartyType().apply {

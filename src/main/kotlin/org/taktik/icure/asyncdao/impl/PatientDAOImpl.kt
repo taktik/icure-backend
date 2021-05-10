@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.toList
-import org.ektorp.support.View
+import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
@@ -39,7 +39,7 @@ import org.taktik.couchdb.queryView
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.PatientDAO
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Patient
@@ -49,7 +49,6 @@ import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.distinct
 import org.taktik.icure.utils.pagedViewQuery
 import org.taktik.icure.utils.pagedViewQueryOfIds
-import java.net.URI
 import java.util.*
 import kotlin.collections.set
 
@@ -425,8 +424,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Patient' && !doc.deleted && doc._conflicts) emit(doc._id )}")
     override fun listConflicts(): Flow<Patient> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery<Patient>("conflicts").includeDocs(true)
-        return client.queryViewIncludeDocsNoValue<String, Patient>(viewQuery).map { it.doc }
+        return client.queryViewIncludeDocsNoValue<String, Patient>(createQuery<Patient>("conflicts").includeDocs(true)).map { it.doc }
     }
 
     @View(name = "by_modification_date", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Patient' && doc.modified) emit(doc.modified)}")
@@ -460,8 +458,8 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
 
         val resultMap = HashMap<String, String>()
         result.collect {
-            if (it.value != null) {
-                resultMap[it.value[0]] = it.value[1]
+            it.value?.let {
+                resultMap[it[0]] = it[1]
             }
         }
 

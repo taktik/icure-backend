@@ -32,25 +32,25 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import org.apache.commons.lang3.ArrayUtils
-import org.ektorp.impl.NameConventions
-import org.ektorp.support.StdDesignDocumentFactory
+import org.taktik.couchdb.support.StdDesignDocumentFactory
 import org.slf4j.LoggerFactory
 import org.taktik.couchdb.Client
-import org.taktik.couchdb.DesignDocument
+import org.taktik.couchdb.entity.DesignDocument
 import org.taktik.couchdb.DocIdentifier
-import org.taktik.couchdb.View
+import org.taktik.couchdb.entity.View
 import org.taktik.couchdb.ViewRowWithDoc
+import org.taktik.couchdb.dao.designDocName
+import org.taktik.couchdb.entity.Option
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.exception.DocumentNotFoundException
 import org.taktik.couchdb.get
 import org.taktik.couchdb.queryView
 import org.taktik.couchdb.update
 import org.taktik.icure.asyncdao.GenericDAO
-import org.taktik.icure.dao.Option
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.exceptions.PersistenceException
-import org.taktik.icure.exceptions.UpdateConflictException
+import org.taktik.couchdb.exception.UpdateConflictException
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.createQuery
 import java.net.URI
@@ -60,7 +60,8 @@ import java.util.*
 @FlowPreview
 @ExperimentalCoroutinesApi
 abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProperties,
-                                                  protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator) : GenericDAO<T> {
+                                                  protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator
+) : GenericDAO<T> {
     private val log = LoggerFactory.getLogger(this.javaClass)
     protected val dbInstanceUrl = URI(couchDbProperties.url)
 
@@ -80,7 +81,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
 
     private suspend fun designDocContainsAllView(dbInstanceUrl: URI): Boolean {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.get<org.taktik.couchdb.DesignDocument>(NameConventions.designDocName(entityClass))?.views?.containsKey("all")
+        return client.get<DesignDocument>(designDocName(entityClass))?.views?.containsKey("all")
                 ?: false
     }
 
@@ -296,16 +297,16 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
         }
     }
 
-    override suspend fun <K : Collection<T>> create(entities: K): Flow<T> {
+    override fun <K : Collection<T>> create(entities: K): Flow<T> {
         return save(true, entities)
     }
 
-    override suspend fun <K : Collection<T>> save(entities: K): Flow<T> {
+    override fun <K : Collection<T>> save(entities: K): Flow<T> {
         return save(false, entities)
     }
 
     // TODO SH later: make sure this is correct
-    protected open suspend fun <K : Collection<T>> save(newEntity: Boolean?, entities: K): Flow<T> = flow {
+    protected open fun <K : Collection<T>> save(newEntity: Boolean?, entities: K): Flow<T> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".save: " + entities.mapNotNull { entity -> entity.id + ":" + entity.rev })
@@ -317,7 +318,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
 
         val results = client.bulkUpdate(orderedEntities, entityClass).toList()
 
-        val conflicts = results.filter { it.error == "conflict" }.map { r -> UpdateConflictException(orderedEntities.firstOrNull { e -> e.id == r.id }) }.toList()
+        val conflicts = results.filter { it.error == "conflict" }.map { r -> UpdateConflictException(r.id, r.rev ?: "unknown") }.toList()
         if (conflicts.isNotEmpty()) {
             throw BulkUpdateConflictException(conflicts, orderedEntities)
         }
@@ -332,30 +333,12 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
     }
 
     override suspend fun forceInitStandardDesignDocument(client: Client, updateIfExists: Boolean) {
-            val designDocId = NameConventions.designDocName(this.entityClass)
-        val fromDatabase = client.get(designDocId, DesignDocument::class.java)?.let {
-            org.ektorp.support.DesignDocument(it.id).apply {
-                revision = it.rev
-                views = it.views.mapValues { org.ektorp.support.DesignDocument.View().apply {
-                    map= it.value?.map; reduce= it.value?.reduce
-                } }
-                updates = it.updateHandlers
-                lists = it.lists
-                shows = it.shows
-            }
-        }
-        val generated = StdDesignDocumentFactory().generateFrom(this)
-        val changed: Boolean = fromDatabase?.mergeWith(generated, true) ?: true
+        val designDocId = designDocName(this.entityClass)
+        val fromDatabase = client.get(designDocId, DesignDocument::class.java)
+        val generated = StdDesignDocumentFactory().generateFrom(designDocId, this)
+        val (merged, changed) = fromDatabase?.mergeWith(generated, true) ?: generated to true
         if (changed && (updateIfExists || fromDatabase == null)) {
-            client.update((fromDatabase ?: generated).let {
-                DesignDocument(
-                        id = designDocId,
-                        rev = it.revision,
-                        views = it.views.mapValues { View(map= it.value.map, reduce= it.value.reduce) },
-                        updateHandlers = it.updates,
-                        lists = it.lists,
-                        shows = it.shows)
-            })
+            client.update(fromDatabase?.let { merged.copy(rev = it.rev) } ?: merged)
         }
     }
 
@@ -363,24 +346,11 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
         initSystemDocumentIfAbsent(couchDbDispatcher.getClient(dbInstanceUrl))
     }
 
-
     override suspend fun initSystemDocumentIfAbsent(client: Client) {
-        val designDocId = NameConventions.designDocName("_System")
+        val designDocId = designDocName("_System")
         val designDocument = client.get(designDocId, DesignDocument::class.java)
         if (designDocument == null) {
-            client.update(
-                    (org.ektorp.support.DesignDocument(designDocId)
-                            .apply { addView("revs", org.ektorp.support.DesignDocument.View("function (doc) { emit(doc.java_type, doc._rev); }")) })
-                            .let {
-                                DesignDocument(
-                                        id = designDocId,
-                                        rev = it.revision,
-                                        views = it.views.mapValues { View(map= it.value.map, reduce= it.value.reduce) },
-                                        updateHandlers = it.updates,
-                                        lists = it.lists,
-                                        shows = it.shows)
-                            }
-            )
+            client.update(DesignDocument(designDocId, views = mapOf("revs" to View("function (doc) { emit(doc.java_type, doc._rev); }"))))
         }
     }
 }

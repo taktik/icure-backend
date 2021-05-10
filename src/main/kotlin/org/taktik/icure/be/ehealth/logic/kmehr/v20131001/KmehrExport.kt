@@ -197,7 +197,7 @@ open class KmehrExport(
 		}
 	}
 
-	private fun isNihiiValid(nihii: String) = nihii.length == 11 &&
+	private fun isNihiiValid(nihii: String) = !nihii.isNullOrEmpty() && nihii.length == 11 &&
             (
                     ((97 - nihii.substring(0, 6).toLong() % 97) == nihii.substring(6, 8).toLong()) ||
                     ((89 - nihii.substring(0, 6).toLong() % 89) == nihii.substring(6, 8).toLong())
@@ -262,14 +262,19 @@ open class KmehrExport(
 			svc.tags.find { t -> t.type == "CD-LAB" }?.let { cds.add(CDITEM().apply {s(CDITEMschemes.CD_LAB); value = it.code } ) }
 
             this.contents.addAll(filterEmptyContent(contents))
-            lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
-                value = if (ServiceStatus.isIrrelevant(svc.status) || (svc.closingDate ?: 99999999 <= FuzzyValues.getCurrentFuzzyDate())) {
-                    CDLIFECYCLEvalues.INACTIVE
-                } else {
+            if(cdItem == "medication" || cdItem == "healthcareelement") {
+                lifecycle = LifecycleType().apply {
+                    cd = CDLIFECYCLE().apply {
+                        s = "CD-LIFECYCLE"
+                        value = if (ServiceStatus.isIrrelevant(svc.status) || (svc.closingDate ?: 99999999 <= FuzzyValues.getCurrentFuzzyDate())) {
+                            CDLIFECYCLEvalues.INACTIVE
+                        } else {
                     svc.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { try { CDLIFECYCLEvalues.fromValue(it.code) } catch(e:java.lang.IllegalArgumentException) { null } }
-                            ?: if(cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else CDLIFECYCLEvalues.ACTIVE
+                                    ?: if (cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else CDLIFECYCLEvalues.ACTIVE
+                        }
+                    }
                 }
-            } }
+            }
             if(cdItem == "medication") {
                 svc.tags.find { it.type == "CD-TEMPORALITY" && it.code != null }?.let {
                     temporality = TemporalityType().apply {
@@ -296,7 +301,9 @@ open class KmehrExport(
                                         })
                                     }
                                     // choice time of day
-                                    daynumbersAndQuantitiesAndDaytimes.add(KmehrPrescriptionHelper.toDaytime(intake))
+                                    try { daynumbersAndQuantitiesAndDaytimes.add(KmehrPrescriptionHelper.toDaytime(intake)) } catch (e:Exception) {
+                                        log.warn("Cannot export value $intake to kmehr in regimen")
+                                    }
 
                                     // mandatory quantity
                                     intake.administratedQuantity?.let { drugQuantity ->
@@ -430,7 +437,7 @@ open class KmehrExport(
                 content.numberValue?.let { decimal = BigDecimal.valueOf(it) }
                 content.stringValue?.let { if (content.binaryValue==null && content.documentId==null) { texts.add(TextType().apply {
                     l = language;
-                    value = content.stringValue?.replace(Regex("\\p{Cc}"), "") // sanitised because imported epicure data has EOT chars in it
+                    value = content.stringValue?.replace(Regex("[^\\P{Cc}\\t\\r\\n]"), "") // sanitised because imported epicure data has EOT chars in it
                 }) } }
 				Utils.makeXGC(content.instantValue?.toEpochMilli(), true)?.let { date = it; time = it; }
                 content.measureValue?.let { mv ->

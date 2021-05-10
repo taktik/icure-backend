@@ -36,8 +36,8 @@ import org.taktik.icure.asynclogic.EntityReferenceLogic
 import org.taktik.icure.asynclogic.InvoiceLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
-import org.taktik.icure.dao.Option
-import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.entity.Option
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.dto.data.LabelledOccurence
@@ -302,7 +302,7 @@ class InvoiceLogicImpl(private val filters: Filters,
 
     override suspend fun getTarificationsCodesOccurences(hcPartyId: String, minOccurences: Long): List<LabelledOccurence> {
         return invoiceDAO.listTarificationsFrequencies(hcPartyId)
-                .filter { v -> v.value != null && v.value >= minOccurences }
+                .filter { v -> v.value != null && v.value!! >= minOccurences }
                 .map { v -> LabelledOccurence(v.key!!.components[1] as String, v.value) }
                 .toList().sortedByDescending { it.occurence }
     }

@@ -43,7 +43,7 @@ import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.listeners.UserLogicListener
 import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.constants.Users
-import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.User

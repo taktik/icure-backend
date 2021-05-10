@@ -31,7 +31,7 @@ import org.taktik.icure.utils.firstOrNull
 @ExperimentalCoroutinesApi
 @Service
 class EntityTemplateLogicImpl(private val entityTemplateDAO: EntityTemplateDAO,
-                              private val sessionLogic: AsyncSessionLogic): GenericLogicImpl<EntityTemplate, EntityTemplateDAO>(sessionLogic), EntityTemplateLogic {
+                              sessionLogic: AsyncSessionLogic): GenericLogicImpl<EntityTemplate, EntityTemplateDAO>(sessionLogic), EntityTemplateLogic {
 
     override suspend fun createEntityTemplate(entityTemplate: EntityTemplate) = fix(entityTemplate) { entityTemplate ->
         val createdEntityTemplates = try {
@@ -55,19 +55,20 @@ class EntityTemplateLogicImpl(private val entityTemplateDAO: EntityTemplateDAO,
         return getEntity(id)
     }
 
-    override fun getEntityTemplates(selectedIds: Collection<String>): Flow<EntityTemplate> = flow {
-        emitAll(entityTemplateDAO.getList(selectedIds))
-    }
+    override fun getEntityTemplates(selectedIds: Collection<String>): Flow<EntityTemplate> =
+            entityTemplateDAO.getList(selectedIds)
 
-    override suspend fun findEntityTemplates(userId: String, entityType: String, searchString: String?, includeEntities: Boolean?): List<EntityTemplate> {
-        return entityTemplateDAO.getByUserIdTypeDescr(userId, entityType, searchString, includeEntities)
-    }
+    override fun findEntityTemplates(userId: String, entityType: String, searchString: String?, includeEntities: Boolean?) =
+            entityTemplateDAO.getByUserIdTypeDescr(userId, entityType, searchString, includeEntities)
 
-    override suspend fun findAllEntityTemplates(entityType: String, searchString: String?, includeEntities: Boolean?): List<EntityTemplate> {
-        return entityTemplateDAO.getByTypeDescr(entityType, searchString, includeEntities)
-    }
+    override fun findAllEntityTemplates(entityType: String, searchString: String?, includeEntities: Boolean?) =
+            entityTemplateDAO.getByTypeDescr(entityType, searchString, includeEntities)
 
-    override fun getGenericDAO(): EntityTemplateDAO {
-        return entityTemplateDAO
-    }
+    override fun findEntityTemplatesByKeyword(userId: String, entityType: String, keyword: String?, includeEntities: Boolean?) =
+            entityTemplateDAO.getByUserIdTypeKeyword(userId, entityType, keyword, includeEntities)
+
+    override fun findAllEntityTemplatesByKeyword(entityType: String, keyword: String?, includeEntities: Boolean?) =
+            entityTemplateDAO.getByTypeKeyword(entityType, keyword, includeEntities)
+
+    override fun getGenericDAO() = entityTemplateDAO
 }

@@ -18,7 +18,7 @@
 
 package org.taktik.icure.utils
 
-import org.ektorp.impl.NameConventions
+import org.taktik.couchdb.dao.designDocName
 import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.couchdb.entity.ViewQuery
 import org.taktik.icure.db.PaginationOffset
@@ -37,11 +37,11 @@ fun getFullId(dbInstanceUrl: URI, id: String) = "${dbInstanceUrl}:$id"
  * @return
  */
 inline fun<reified T> createQuery(viewName: String): ViewQuery = ViewQuery()
-        .designDocId(NameConventions.designDocName(T::class.java))
+        .designDocId(designDocName(T::class.java))
         .viewName(viewName)
 
 fun<T> createQuery(viewName: String, entityClass: Class<T>): ViewQuery = ViewQuery()
-        .designDocId(NameConventions.designDocName(entityClass))
+        .designDocId(designDocName(entityClass))
         .viewName(viewName)
 
 inline fun<reified T, P> pagedViewQuery(viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>, descending: Boolean): ViewQuery {

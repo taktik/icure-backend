@@ -24,7 +24,7 @@ interface CodeIdentification {
     val type: String?
     val version: String?
     val context: String?
-    val label: Map<String, String>
+    val label: Map<String, String>?
 
     fun solveConflictsWith(other: CodeIdentification): Map<String, Any?> {
         return mapOf(
@@ -33,7 +33,7 @@ interface CodeIdentification {
                 "type" to (this.type ?: other.type),
                 "context" to (this.context ?: other.context),
                 "version" to (this.version ?: other.version),
-                "label" to (other.label + this.label)
+                "label" to (other.label?.let { it + (this.label ?: mapOf())} ?: this.label)
         )
     }
     fun normalizeIdentification() : CodeIdentification

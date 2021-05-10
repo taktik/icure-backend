@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import org.ektorp.support.View
+import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
@@ -35,13 +35,12 @@ import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.MessageDAO
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Message
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.pagedViewQuery
-import java.net.URI
 
 
 @FlowPreview
@@ -188,6 +187,6 @@ class MessageDAOImpl(couchDbProperties: CouchDbProperties,
     @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Message' && !doc.deleted && doc._conflicts) emit(doc._id )}")
     override fun listConflicts(): Flow<Message> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.queryViewIncludeDocsNoValue<String, Message>(createQuery<Message>("conflicts").includeDocs(true).key(Message::class.java)).map{it.doc}
+        return client.queryViewIncludeDocsNoValue<String, Message>(createQuery<Message>("conflicts").includeDocs(true)).map{ it.doc }
     }
 }

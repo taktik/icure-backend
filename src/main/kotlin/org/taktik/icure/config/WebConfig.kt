@@ -60,12 +60,14 @@ class WebConfig : WebFluxConfigurer {
     }
 
     override fun addCorsMappings(registry: CorsRegistry) {
-        registry.addMapping("/**").allowCredentials(true).allowedOrigins("*").allowedMethods("*").allowedHeaders("*")
+        registry.addMapping("/**").allowCredentials(true).allowedOriginPatterns("http://*", "https://*").allowedMethods("*").allowedHeaders("*")
     }
 
     override fun configureHttpMessageCodecs(configurer: ServerCodecConfigurer) {
+        configurer.defaultCodecs().maxInMemorySize(128*1024*1024)
+
         configurer.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(ObjectMapper().registerModule(KotlinModule()).apply { setSerializationInclusion(JsonInclude.Include.NON_NULL) }))
-        configurer.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(ObjectMapper().registerModule(KotlinModule())).apply { maxInMemorySize = 64 * 1024 * 1024 })
+        configurer.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(ObjectMapper().registerModule(KotlinModule())).apply { maxInMemorySize = 128 * 1024 * 1024 })
     }
 
     @Bean
@@ -101,27 +103,7 @@ class WebConfig : WebFluxConfigurer {
         return factory
     }
 
-    fun nettyCustomizer(): NettyServerCustomizer? {
-        if (System.getProperty("os.name").toLowerCase().contains("linux")) {
-            val parentGroup: EventLoopGroup = EpollEventLoopGroup()
-            val childGroup: EventLoopGroup = EpollEventLoopGroup()
-            return NettyServerCustomizer { httpServer ->
-                httpServer
-                        .tcpConfiguration { tcpServer ->
-                            tcpServer
-                                    .bootstrap { serverBootstrap ->
-                                        serverBootstrap
-                                                .group(parentGroup, childGroup)
-                                                .childOption(ChannelOption.SO_KEEPALIVE, true)
-                                                .option(ChannelOption.SO_BACKLOG, 2048)
-                                                .channel(EpollServerSocketChannel::class.java)
-                                    }
-                        }
-            }
-        } else {
-            return NettyServerCustomizer { httpServer ->
-                httpServer
-            }
-        }
+    fun nettyCustomizer() = NettyServerCustomizer { httpServer ->
+        httpServer.option(ChannelOption.SO_BACKLOG, 2048)
     }
 }

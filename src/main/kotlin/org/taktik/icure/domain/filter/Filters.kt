@@ -17,7 +17,7 @@
  */
 package org.taktik.icure.domain.filter
 
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.id.Identifiable
 import java.io.Serializable
 
 interface Filters {

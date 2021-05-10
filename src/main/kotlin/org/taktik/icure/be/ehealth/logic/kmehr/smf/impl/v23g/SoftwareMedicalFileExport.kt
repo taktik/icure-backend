@@ -80,7 +80,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
 import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
-import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.HealthElement
@@ -981,12 +981,12 @@ class SoftwareMedicalFileExport(
 
 	private suspend fun makeInsurancyStatus(itemIndex: Int, config: Config, insurability: Insurability?): ItemType? {
 		val insStatus = ItemType().apply {
-			ids.add(idKmehr(itemIndex))
-			ids.add(localIdKmehrElement(itemIndex, config))
-			cds.add(cdItem("insurancystatus"))
-			if (insurability?.insuranceId?.isBlank() == false) {
-				try {
-					insuranceLogic.getInsurance(insurability.insuranceId)?.let {
+        ids.add(idKmehr(itemIndex))
+        ids.add(localIdKmehrElement(itemIndex, config))
+        cds.add(cdItem("insurancystatus"))
+        if (insurability?.insuranceId?.isBlank() == false) {
+            try {
+                insuranceLogic.getInsurance(insurability.insuranceId)?.let {
                         if (it.code != null && it.code.length >= 3) {
                             contents.add(ContentType().apply {
                                 insurance = InsuranceType().apply {
@@ -1002,17 +1002,10 @@ class SoftwareMedicalFileExport(
                             })
                         }
                     }
-				} catch (ignored: DocumentNotFoundException) {
-				}
-			} else {
-                contents.add(ContentType().apply {
-                    insurance = InsuranceType().apply {
-                        id = IDINSURANCE().apply { s = IDINSURANCEschemes.ID_INSURANCE; value = ""; }
-                        membership = ""
-                    }
-                })
+            } catch (ignored: DocumentNotFoundException) {
             }
-		}
+        }
+      }
 		return if (insStatus.contents.size > 0) insStatus else null
 	}
 
@@ -1021,7 +1014,7 @@ class SoftwareMedicalFileExport(
 	}
 
 	private suspend fun getLastGmdManager(pat: Patient): Pair<HealthcareParty?, ReferralPeriod?> {
-		val isActive: (ReferralPeriod) -> Boolean = { r -> (r.startDate?.isBefore(Instant.now()) ?: false) && null == r.endDate }
+		val isActive: (ReferralPeriod) -> Boolean = { r -> r.startDate?.isBefore(Instant.now()) == true && null == r.endDate }
 		val gmdRelationship = pat.patientHealthCareParties?.find { it.referralPeriods?.any(isActive) ?: false }
                 ?: return Pair(null, null)
         val gmd = gmdRelationship.healthcarePartyId?.let { healthcarePartyLogic.getHealthcareParty(it) }
@@ -1383,4 +1376,3 @@ class SoftwareMedicalFileExport(
 		}
 	}
 }
-

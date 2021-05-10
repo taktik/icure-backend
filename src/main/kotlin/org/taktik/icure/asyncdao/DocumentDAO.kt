@@ -19,9 +19,7 @@
 package org.taktik.icure.asyncdao
 
 import kotlinx.coroutines.flow.Flow
-import org.ektorp.support.View
 import org.taktik.icure.entities.Document
-import java.net.URI
 import java.nio.ByteBuffer
 import java.util.*
 

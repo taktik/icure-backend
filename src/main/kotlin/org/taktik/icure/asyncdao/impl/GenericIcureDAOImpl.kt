@@ -19,11 +19,10 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.Flow
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.properties.CouchDbProperties
-import java.net.URI
 
 /**
  * @author Antoine Duchâteau
@@ -37,7 +36,7 @@ open class GenericIcureDAOImpl<T : StoredICureDocument>(entityClass: Class<T>, c
     override suspend fun save(newEntity: Boolean?, entity: T): T? =
             super.save(newEntity, entity.apply { setTimestamps(this) })
 
-    override suspend fun <K : Collection<T>> save(newEntity: Boolean?, entities: K): Flow<T> =
+    override fun <K : Collection<T>> save(newEntity: Boolean?, entities: K): Flow<T> =
             super.save(newEntity, entities.map { it.apply { setTimestamps(this) } })
 
     override suspend fun unRemove(entity: T) =

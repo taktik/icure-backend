@@ -26,10 +26,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.taktik.couchdb.CouchDbException
+import org.taktik.couchdb.exception.CouchDbException
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asynclogic.DocumentLogic
-import org.taktik.icure.dao.Option
+import org.taktik.couchdb.entity.Option
 import org.taktik.icure.entities.Document
 import org.taktik.icure.exceptions.CreationException
 import org.taktik.icure.utils.firstOrNull

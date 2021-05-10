@@ -19,7 +19,7 @@ package org.taktik.icure.domain.filter.impl.predicate
 
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.predicate.Predicate
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.id.Identifiable
 
 @KotlinBuilder
 data class OrPredicate(val predicates: List<Predicate> = listOf()) : Predicate {

@@ -33,6 +33,7 @@ data class EntityTemplateDto(
 
         var userId: String? = null,
         val descr: String? = null,
+        val keywords: Set<String>? = null,
         var entityType: String? = null,
         var subType: String? = null,
         var defaultTemplate: Boolean? = null,

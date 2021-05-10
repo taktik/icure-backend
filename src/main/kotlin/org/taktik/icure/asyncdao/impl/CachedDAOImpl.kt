@@ -20,24 +20,17 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import org.springframework.cache.Cache
-import org.taktik.couchdb.CouchDbException
+import org.taktik.couchdb.exception.CouchDbException
 import org.taktik.couchdb.DocIdentifier
-import org.taktik.icure.dao.Option
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.entity.Option
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import org.taktik.icure.utils.getFullId
-import java.net.URI
 import java.util.*
 
 @FlowPreview
@@ -242,7 +235,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbPropert
         }
     }
 
-    override suspend fun <K : Collection<T>> save(newEntity: Boolean?, entities: K): Flow<T> {
+    override fun <K : Collection<T>> save(newEntity: Boolean?, entities: K) = flow {
         val savedEntities = try {
             super.save(newEntity, entities)
         } catch (e: CouchDbException) {
@@ -254,9 +247,10 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbPropert
             throw e
         }
 
-        return savedEntities.onEach { entity ->
+        emitAll(savedEntities.map { entity ->
             putInCache(entity.id, entity)
-        }
+            entity
+        })
     }
 
 }

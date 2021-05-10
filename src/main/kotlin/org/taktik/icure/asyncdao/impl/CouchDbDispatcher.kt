@@ -22,9 +22,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import org.apache.http.client.utils.URIBuilder
-import org.springframework.web.reactive.function.client.WebClient
 import org.taktik.couchdb.ClientImpl
+import org.taktik.net.web.WebClient
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
@@ -34,7 +35,8 @@ class CouchDbDispatcher(
         private val prefix: String,
         private val dbFamily: String,
         private val username: String,
-        private val password: String
+        private val password: String,
+        private val createdReplicasIfNotExists: Int? = null
 ) {
     @ExperimentalCoroutinesApi
     private val connectors = CacheBuilder.newBuilder()
@@ -43,7 +45,15 @@ class CouchDbDispatcher(
             .build<CouchDbConnectorReference, ClientImpl>(object : CacheLoader<CouchDbConnectorReference, ClientImpl>() {
                 @Throws(Exception::class)
                 override fun load(key: CouchDbConnectorReference): ClientImpl {
-                    return ClientImpl(httpClient, URIBuilder(key.dbInstanceUrl).setPath("$prefix-$dbFamily").build(), username, password, objectMapper)
+                    return ClientImpl(httpClient, URIBuilder(key.dbInstanceUrl).setPath("$prefix-$dbFamily").build(), username, password, objectMapper).also {
+                        if (createdReplicasIfNotExists != null) {
+                            runBlocking {
+                                if (!it.exists()) {
+                                    it.create(3,createdReplicasIfNotExists)
+                                }
+                            }
+                        }
+                    }
                 }
             })
 

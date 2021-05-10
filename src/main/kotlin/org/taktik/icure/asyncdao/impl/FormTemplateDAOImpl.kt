@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
-import org.ektorp.support.View
+import org.taktik.couchdb.annotation.View
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -31,15 +31,14 @@ import org.springframework.stereotype.Repository
 import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.FormTemplateDAO
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
-import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.id.IDGenerator
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.entities.FormTemplate
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.writeTo
 import java.io.IOException
-import java.net.URI
 import java.nio.ByteBuffer
 
 /**

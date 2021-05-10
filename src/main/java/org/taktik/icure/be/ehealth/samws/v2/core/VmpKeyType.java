@@ -36,7 +36,7 @@ import org.taktik.icure.be.ehealth.samws.v2.consultation.ConsultVmpType;
 import org.taktik.icure.be.ehealth.samws.v2.virtual.common.ChangeVmpType;
 import org.taktik.icure.be.ehealth.samws.v2.virtual.common.RemoveVmpType;
 import org.taktik.icure.be.ehealth.samws.v2.virtual.common.VmpType;
-import org.taktik.icure.be.samv2.entities.VmpFullDataType;
+import org.taktik.icure.be.samv2v5.entities.VmpFullDataType;
 
 
 /**

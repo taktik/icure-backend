@@ -22,7 +22,7 @@ import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.asynclogic.FormLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.be.format.logic.ResultFormatLogic
-import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.db.StringUtils.detectFrenchCp850Cp1252
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.HealthcareParty

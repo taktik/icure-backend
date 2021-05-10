@@ -19,7 +19,7 @@ package org.taktik.icure.domain.filter.impl
 
 import org.taktik.icure.domain.filter.AbstractFilter
 import org.taktik.icure.domain.filter.Filter
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.id.Identifiable
 
 object Filters {
     fun <O : Identifiable<String>> union(vararg filters: AbstractFilter<O>): UnionFilter<O> {

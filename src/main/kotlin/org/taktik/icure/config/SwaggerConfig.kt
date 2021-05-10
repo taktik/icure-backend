@@ -28,10 +28,18 @@ import org.springdoc.core.customizers.OperationCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.method.HandlerMethod
+import org.springdoc.core.SpringDocUtils
+import java.util.Map
 
 
 @Configuration
 class SwaggerConfig {
+    companion object {
+        init {
+            SpringDocUtils.getConfig().removeRequestWrapperToIgnore(Map::class.java)
+        }
+    }
+
     @Bean
     fun springOpenAPI(): OpenAPI? {
         return OpenAPI()

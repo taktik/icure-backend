@@ -19,19 +19,18 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.map
-import org.ektorp.support.View
+import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.PropertyDAO
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.Property
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.firstOrNull
-import java.net.URI
 
 @Repository("propertyDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Property' && !doc.deleted) emit(null, doc._id )}")

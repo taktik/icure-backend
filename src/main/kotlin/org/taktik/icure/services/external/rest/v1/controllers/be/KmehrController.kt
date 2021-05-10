@@ -515,6 +515,7 @@ class KmehrController(
                           @RequestParam(required = false) documentKey: String?,
                           @RequestParam(required = false) patientId: String?,
                           @RequestParam(required = false) language: String?,
+                          @RequestParam(required = false) dryRun: Boolean?,
                           @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val document = documentLogic.get(documentId)
@@ -524,7 +525,7 @@ class KmehrController(
         attachmentId?.let {
             softwareMedicalFileLogic.importSmfFile(documentLogic.readAttachment(documentId, attachmentId), sessionLogic.getCurrentSessionContext().getUser(), language
                     ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
-                    false,
+                    dryRun ?: false,
                     patientId?.let { patientLogic.getPatient(patientId) },
                     mappings ?: HashMap())
         }?.map { importResultMapper.map(it) }

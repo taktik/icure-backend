@@ -35,7 +35,7 @@ class CodeStubDeserializer : JsonObjectDeserializer<CodeStub>() {
         val label = tree["label"]
 
         val codeStub = CodeStub(id = id
-                ?: "$type:$code:$version", code = code, type = type, version = version, context = context, label = label?.let { codec.treeToValue(it, Map::class.java) as Map<String, String> } ?: mapOf())
+                ?: "$type|$code|$version", code = code, type = type, version = version, context = context, label = label?.let { codec.treeToValue(it, Map::class.java) as Map<String, String> } ?: mapOf())
         return codeStub
     }
 }

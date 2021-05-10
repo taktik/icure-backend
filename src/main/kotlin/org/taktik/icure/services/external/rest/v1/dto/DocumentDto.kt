@@ -46,7 +46,6 @@ data class DocumentDto(
         override val endOfLife: Long? = null,
         override val deletionDate: Long? = null,
 
-        val attachment: ByteArray? = null,
         val documentLocation: DocumentLocationDto? = null,
         val documentType: DocumentTypeDto? = null,
         val documentStatus: DocumentStatusDto? = null,

@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
-import org.ektorp.Attachment
+import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.samv2.embed.SamText
@@ -39,6 +39,7 @@ data class Nmp(
         val to: Long? = null,
         val code: String? = null,
         val category: String? = null,
+        var productId: String? = null,
         val commercialStatus: String? = null,
         val name: SamText? = null,
         val producer: SamText? = null,

@@ -67,8 +67,8 @@ class CustomAuthenticationProvider(
                         "Only UsernamePasswordAuthenticationToken is supported"))
 
         val username: String = authentication.name
-        val isFullToken = username.matches(Regex("(.+/)([0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}|idUser_idLogin_.+)"))
-        val isPartialToken = username.matches(Regex("[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}|idUser_idLogin_.+"))
+        val isFullToken = username.matches(Regex("(.+/)([0-9a-zA-Z]{8}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{12}|idUser_.+)"))
+        val isPartialToken = username.matches(Regex("[0-9a-zA-Z]{8}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{12}|idUser_.+"))
 
         val usersFlow = when {
             isFullToken -> {
@@ -88,7 +88,6 @@ class CustomAuthenticationProvider(
                 .toList()
                 .sortedBy { it.id }
 
-        var user: User? = null
 
         val matchingUsers = mutableListOf<User>()
         val password: String = authentication.credentials.toString()
@@ -98,6 +97,8 @@ class CustomAuthenticationProvider(
                 matchingUsers.add(candidate)
             }
         }
+
+        val user: User? = matchingUsers.firstOrNull()
 
         if (user == null) {
             log.warn("Invalid username or password for user " + username + ", no user matched out of " + users.size + " candidates")

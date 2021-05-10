@@ -40,7 +40,7 @@ data class CodeDto(
         override val type: String? = null, //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
         override val code: String? = null, //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
         override val version: String? = null, //ex: 10. Must be lexicographically searchable
-        override val label: Map<String, String> = mapOf(), //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
+        override val label: Map<String, String>? = null, //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
 
         val author: String? = null,
         val regions: Set<String> = setOf(), //ex: be,fr
@@ -55,7 +55,7 @@ data class CodeDto(
         val disabled: Boolean = false
 ) : StoredDocumentDto, CodeIdentificationDto<String> {
     companion object {
-        fun from(type: String, code: String, version: String) = CodeDto(id = "$type:$code:$version", type = type, code = code, version = version)
+        fun from(type: String, code: String, version: String) = CodeDto(id = "$type|$code|$version", type = type, code = code, version = version)
     }
 
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)

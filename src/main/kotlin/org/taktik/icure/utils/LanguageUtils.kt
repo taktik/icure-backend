@@ -18,6 +18,8 @@
 
 package org.taktik.icure.utils
 
+import java.util.*
+
 tailrec fun <K>retry(trials: Int, closure: () -> K): K {
     try {
         return closure()
@@ -38,4 +40,8 @@ tailrec suspend fun <K>suspendRetry(trials: Int, closure: suspend () -> K): K {
         }
     }
     return suspendRetry(trials - 1, closure)
+}
+
+fun UUID.xor(other: UUID): UUID {
+    return UUID(this.mostSignificantBits.xor(other.mostSignificantBits), this.leastSignificantBits.xor(other.leastSignificantBits))
 }

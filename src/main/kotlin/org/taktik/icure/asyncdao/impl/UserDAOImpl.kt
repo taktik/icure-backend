@@ -18,13 +18,12 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import com.fasterxml.uuid.Generators
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import org.ektorp.support.View
+import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
@@ -33,16 +32,16 @@ import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.couchdb.update
 import org.taktik.icure.asyncdao.UserDAO
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.User
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.pagedViewQuery
 import java.net.URI
 import java.time.Instant
+import java.util.*
 
 @Repository("userDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) emit( null, doc._rev )}")
@@ -173,7 +172,7 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
         return super.save(
                 newEntity,
                 if (entity.use2fa == true && !entity.applicationTokens.containsKey("ICC"))
-                    entity.copy(applicationTokens = entity.applicationTokens + ("ICC" to Generators.randomBasedGenerator(CryptoUtils.getRandom()).generate().toString()))
+                    entity.copy(applicationTokens = entity.applicationTokens + ("ICC" to UUID.randomUUID().toString()))
                 else entity
         )
     }

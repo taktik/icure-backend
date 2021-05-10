@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
-import org.ektorp.Attachment
+import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.utils.DynamicInitializer
@@ -39,10 +39,11 @@ data class EntityTemplate(
 
         @field:NotNull(autoFix = AutoFix.CURRENTUSERID) var userId: String? = null,
         val descr: String? = null,
-        var entityType: String? = null,
-        var subType: String? = null,
-        @JsonProperty("isDefaultTemplate") var defaultTemplate: Boolean? = null,
-        var entity: List<Map<String, Any>> = listOf(),
+        val keywords: Set<String>? = null,
+        val entityType: String? = null,
+        val subType: String? = null,
+        @JsonProperty("isDefaultTemplate") val defaultTemplate: Boolean? = null,
+        val entity: List<Map<String, Any>> = listOf(),
 
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
@@ -55,6 +56,7 @@ data class EntityTemplate(
     fun merge(other: EntityTemplate) = EntityTemplate(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: EntityTemplate) = super.solveConflictsWith(other) + mapOf(
             "descr" to (this.descr ?: other.descr),
+            "keywords" to ((other.keywords ?: setOf()) + (this.keywords ?: setOf())),
             "entityType" to (this.entityType ?: other.entityType),
             "subType" to (this.subType ?: other.subType),
             "defaultTemplate" to (this.defaultTemplate ?: other.defaultTemplate),

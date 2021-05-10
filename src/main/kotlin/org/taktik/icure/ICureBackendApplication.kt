@@ -42,7 +42,6 @@ import java.net.URI
 @SpringBootApplication(scanBasePackages = [
     "org.springframework.boot.autoconfigure.aop",
     "org.springframework.boot.autoconfigure.context",
-    "org.springframework.boot.autoconfigure.dao",
     "org.springframework.boot.autoconfigure.validation",
     "org.springframework.boot.autoconfigure.websocket",
     "org.taktik.icure.config",
@@ -51,7 +50,10 @@ import java.net.URI
     "org.taktik.icure.be.ehealth.logic",
     "org.taktik.icure.be.format.logic",
     "org.taktik.icure.properties",
-    "org.taktik.icure.services"
+    "org.taktik.icure.services.external.http",
+    "org.taktik.icure.services.external.rest.v1.controllers",
+    "org.taktik.icure.services.external.rest.v1.mapper",
+    "org.taktik.icure.services.external.rest.v1.wscontrollers"
 ], exclude = [
     FreeMarkerAutoConfiguration::class,
     CacheAutoConfiguration::class,
