@@ -122,23 +122,24 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
                 // convert links ISASERVICEFOR to subcontacts
                 val approachsByMFID = state.approachLinks.groupBy { it.second }
-                state.subcontactLinks.groupBy{ it["contact"] as Contact }.forEach{
-                    val contact = it.key
-                    it.value.groupBy{ it["heMFID"] as String }.forEach { subentry ->
-                        // in kmehr, a service can be linked to an He or to an HealthcareApproach which is linked to an He
-                        val heid = state.hesByMFID[subentry.key]?.id
-                        val approachHeId = approachsByMFID[subentry.key]?.firstOrNull()?.let {
-                            state.hesByMFID[it.third]?.id
-                        }
-                        (heid ?: approachHeId) ?.let { hid ->
-                            contact.subContacts.add(
-                                    SubContact().apply {
-                                        healthElementId = hid
-                                        services = subentry.value.map {
-                                            ServiceLink( (it["service"] as Service).id )
+                state.subcontactLinks.groupBy{ it["contactId"] }.forEach{
+                    state.contactsByMFID[it.key]?.let { contact ->
+                        it.value.groupBy{ it["heMFID"] as String }.forEach { subentry ->
+                            // in kmehr, a service can be linked to an He or to an HealthcareApproach which is linked to an He
+                            val heid = state.hesByMFID[subentry.key]?.id
+                            val approachHeId = approachsByMFID[subentry.key]?.firstOrNull()?.let {
+                                state.hesByMFID[it.third]?.id
+                            }
+                            (heid ?: approachHeId) ?.let { hid ->
+                                contact.subContacts.add(
+                                        SubContact().apply {
+                                            healthElementId = hid
+                                            services = subentry.value.map {
+                                                ServiceLink( (it["service"] as Service).id )
+                                            }
                                         }
-                                    }
-                            )
+                                )
+                            }
                         }
                     }
                 }
@@ -387,6 +388,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             createOrProcessHcp(it, saveToDatabase, v)
         }?.firstOrNull()?.id ?:
                 author.healthcarePartyId
+        val target = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISACHILDOF }?.map { lnk ->
+            extractMFIDFromUrl(lnk.url)
+        }?.firstOrNull()
         val servlist = trn.findItems { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "medication" } }.map {item ->
             val cdItem = "medication"
             val service = parseGenericItem(cdItem, "Prescription", item, author, trnhcpid, language)
@@ -408,11 +412,22 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     service.formId = it.service.id
                 }
             }
+            target?.let {
+                item.lnks.filter { it.type == CDLNKvalues.ISASERVICEFOR && it.url != null }.mapNotNull {
+                    extractMFIDFromUrl(it.url)
+                }.map {
+                    state.subcontactLinks.add(
+                            mapOf(
+                                    "service" to service,
+                                    "heMFID" to it,
+                                    "contactId" to target
+                            )
+                    )
+                }
+            }
+
             service
         }
-        val target = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISACHILDOF }?.map { lnk ->
-            extractMFIDFromUrl(lnk.url)
-        }?.firstOrNull()
 
         if(target == null) {
             // no link to a contact, should create a contact so it can appear in topaz
@@ -675,7 +690,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                     mapOf(
                                             "service" to service,
                                             "heMFID" to it,
-                                            "contact" to this
+                                            "contactId" to this.id
                                     )
                             )
                         }
