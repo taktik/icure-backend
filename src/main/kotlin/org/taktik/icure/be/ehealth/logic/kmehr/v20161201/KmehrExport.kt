@@ -170,14 +170,15 @@ open class KmehrExport {
         }
     }
 
-    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service", language: String) : ItemType? {
+    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service", language: String, texts: List<TextType>? = null) : ItemType? {
         return ItemType().apply {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = svc.id })
             cds.add(CDITEM().apply {s(CDITEMschemes.CD_ITEM); value = cdItem } )
 			svc.tags.find { t -> t.type == "CD-LAB" }?.let { cds.add(CDITEM().apply {s(CDITEMschemes.CD_LAB); value = it.code } ) }
-
+            //texts.add(TextType().apply { l = language; svc.content })
             this.contents.addAll(filterEmptyContent(contents))
+            if (texts != null) this.texts.addAll(filterEmptyText(texts))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
                 value = if (ServiceStatus.isIrrelevant(svc.status) || (svc.closingDate ?: 99999999 <= FuzzyValues.getCurrentFuzzyDate())) {
 					CDLIFECYCLEvalues.INACTIVE
@@ -286,6 +287,10 @@ open class KmehrExport {
         }
     }
 
+    private fun filterEmptyText(texts: List<TextType>) = texts.filter{
+        it.value != null
+    }
+
 	private fun filterEmptyContent(contents: List<ContentType>) = contents.filter {
 		it.isBoolean != null || it.cds?.size ?: 0 > 0 || it.bacteriology != null || it.compoundprescription != null ||
 			it.location != null || it.lnks?.size ?: 0 > 0 || it.bacteriology != null || it.ecg != null || it.holter != null ||
@@ -382,6 +387,18 @@ open class KmehrExport {
         }
     }
 
+    fun makeText(language: String, content: Content): TextType?{
+        return (content.booleanValue ?: content.numberValue ?: content.stringValue ?: content.instantValue
+        ?: content.measureValue ?: content.medicationValue ?: content.binaryValue ?: content.documentId).let {
+            TextType().apply {
+                l = language
+                content.medicationValue?.compoundPrescription?.let {
+                    value = content.medicationValue?.medicinalProduct?.intendedname
+                }
+            }
+        }
+    }
+
     fun makeContent(language: String, content: Content): ContentType? {
         return (content.booleanValue ?: content.numberValue ?: content.stringValue ?: content.instantValue
         ?: content.measureValue ?: content.medicationValue ?: content.binaryValue ?: content.documentId).let {
@@ -406,11 +423,13 @@ open class KmehrExport {
                     mv.value?.let { decimal = BigDecimal.valueOf(it) }
                 }
                 content.medicationValue?.medicinalProduct?.let {
-                    val medicationType = content.medicationValue?.options?.get("type")?.stringValue
-                    medicinalproduct = MedicinalProductType().apply {
-                        intendedname = content.medicationValue?.medicinalProduct?.intendedname
-                        if (medicationType != "FRE") {
-                            intendedcds.add(CDDRUGCNK().apply { s(CDDRUGCNKschemes.CD_DRUG_CNK); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.medicinalProduct?.intendedcds?.find { it.type == "CD-DRUG-CNK" }?.code })
+                    if(content.medicationValue?.compoundPrescription == null) {
+                        val medicationType = content.medicationValue?.options?.get("type")?.stringValue
+                        medicinalproduct = MedicinalProductType().apply {
+                            intendedname = content.medicationValue?.medicinalProduct?.intendedname
+                            if (medicationType != "FRE") {
+                                intendedcds.add(CDDRUGCNK().apply { s(CDDRUGCNKschemes.CD_DRUG_CNK); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.medicinalProduct?.intendedcds?.find { it.type == "CD-DRUG-CNK" }?.code })
+                            }
                         }
                     }
                 }
@@ -426,7 +445,8 @@ open class KmehrExport {
                     }
                 }
                 content.medicationValue?.compoundPrescription?.let {
-                    compoundprescription = CompoundprescriptionType().apply { this.content.add(ObjectFactory().createCompoundprescriptionTypeMagistraltext(TextType().apply { l = language; value = content.medicationValue?.compoundPrescription })) }
+                    medicinalproduct = null //todo check if this works (remove the if(content.medicationValue?.compoundPrescription == null) { ...)
+                    compoundprescription = CompoundprescriptionType().apply { l= language; this.content.add(ObjectFactory().createCompoundprescriptionTypeMagistraltext(TextType().apply { l = language; value = content.medicationValue?.compoundPrescription })) }
                 }
                 content.binaryValue?.let {
                     if (Arrays.equals(content.binaryValue.slice(0..4).toByteArray(), "{\\rtf".toByteArray())) {
