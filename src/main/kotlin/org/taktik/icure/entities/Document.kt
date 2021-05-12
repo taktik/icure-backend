@@ -61,6 +61,7 @@ data class Document(
         val hash: String? = null,
         val openingContactId: String? = null,
 
+        val objectStoreReference: String? = null,
         @JsonIgnore val attachment: ByteArray? = null,
         @JsonIgnore var isAttachmentDirty: Boolean = false,
         val documentLocation: DocumentLocation? = null,
