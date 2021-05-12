@@ -80,6 +80,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
     private var newestServicesById: MutableMap<String?, Service> = HashMap()
 	private var itemByServiceId: MutableMap<String, ItemType> = HashMap()
 	private var oldestHeByHeId: Map<String?, HealthElement> = HashMap()
+    private var heById:  Map<String?, List<HealthElement>> = HashMap()
 
 	fun exportSMF(
 			os: OutputStream,
@@ -205,7 +206,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		hesByContactId[null].orEmpty().map { he -> addHealthCareElement(folder.transactions.first(), he, 0, config) }
 		hesByContactId = hesByContactId.filterKeys { it != null }
 
-		val heById = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
+		heById = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
 			// retrive the healthElementId property of an HE by his couchdb id
 			it.id
 		}
@@ -456,33 +457,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
                                 }
                             }
                         }
-
-                        val subContactsByFormId = contact.subContacts.groupBy { it.formId }
-                        val subContactServicesByFormId = subContactsByFormId.mapValues {
-                            it.value.flatMap { subContact -> subContact.services }
-                        }
-
-						// add link from items to HEs
-						contact.subContacts.forEach { subcon ->
-							if (subcon.healthElementId != null) {
-                                subContactServicesByFormId[subcon.formId]?.forEach {
-                                    itemByServiceId[it.serviceId]?.lnks?.let {
-                                        val lnk = LnkType().apply {
-                                            type = CDLNKvalues.ISASERVICEFOR
-                                            // link should point to He.healthElementId and not He.id
-                                            subcon.healthElementId?.let {
-                                                heById[it]?.firstOrNull()?.let {
-                                                    url = makeLnkUrl(it.healthElementId)
-                                                }
-                                            }
-                                        }
-                                        if (it.none { (it.type == lnk.type) && (it.url == lnk.url) }) {
-                                            it.add(lnk)
-                                        }
-                                    }
-                                }
-							}
-						}
+                        addServiceLinkToHealthElement(contact);
 					}
 			)
 			Unit
@@ -553,6 +528,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
                 }
                 // FIXME: prescriptions should be linked to medication with a ISATTESTATIONOF link but there is no such link in topaz
 				headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(con.id) })
+                addServiceLinkToHealthElement(con);
 			})
 		}
 
@@ -598,6 +574,34 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		renumberKmehrIds(folder)
 		return folder
 	}
+
+    private fun addServiceLinkToHealthElement(contact: Contact){
+        // add link from items to HEs
+        val subContactsByFormId = contact.subContacts.groupBy { it.formId }
+        val subContactServicesByFormId = subContactsByFormId.mapValues {
+            it.value.flatMap { subContact -> subContact.services }
+        }
+        contact.subContacts.forEach { subcon ->
+            if (subcon.healthElementId != null) {
+                subContactServicesByFormId[subcon.formId]?.forEach {
+                    itemByServiceId[it.serviceId]?.lnks?.let {
+                        val lnk = LnkType().apply {
+                            type = CDLNKvalues.ISASERVICEFOR
+                            // link should point to He.healthElementId and not He.id
+                            subcon.healthElementId?.let {
+                                heById[it]?.firstOrNull()?.let {
+                                    url = makeLnkUrl(it.healthElementId)
+                                }
+                            }
+                        }
+                        if (it.none { (it.type == lnk.type) && (it.url == lnk.url) }) {
+                            it.add(lnk)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     private fun makeNursePrescriptionTransaction(contact: Service): TransactionType {
         return makeSpecialPrescriptionTransaction(contact, "nursing")
