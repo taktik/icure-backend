@@ -142,7 +142,7 @@ dependencies {
     implementation(group = "org.mapstruct", name = "mapstruct", version = "1.4.2.Final")
 
     //Krouch
-    implementation(group = "org.taktik.couchdb", name = "krouch", version = "feature-timeout-initial-1.0.2-45-gd43112e78d")
+    implementation(group = "org.taktik.couchdb", name = "krouch", version = "jack211-1.0.2-49-gb108ca4a5f")
 
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-mail", version = "2.4.0")
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-webflux", version = "2.4.0")

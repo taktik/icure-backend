@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.map
 import org.taktik.couchdb.Client
 import org.taktik.couchdb.dao.designDocName
 import org.taktik.couchdb.entity.DesignDocument
+import org.taktik.couchdb.entity.Indexer
 import org.taktik.couchdb.entity.ViewQuery
 import org.taktik.couchdb.queryView
 import org.taktik.couchdb.support.StdDesignDocumentFactory
@@ -46,6 +47,17 @@ open class VersionnedDesignDocumentQueries<T : StoredDocument>(protected open va
                 }
             })
 
+    private val viewsBeingIndexed = CacheBuilder.newBuilder()
+            .maximumSize(1)
+            .expireAfterAccess(10, TimeUnit.SECONDS)
+            .build(object: CacheLoader<Client, Deferred<List<String>>>(){
+                override fun load(client: Client): Deferred<List<String>> = GlobalScope.async {
+                    return@async client.activeTasks()
+                            .filterIsInstance(Indexer::class.java)
+                            .mapNotNull { it.design_document }
+                }
+            })
+
     private suspend fun deleteStaleDesignDocuments(client: Client, relatedDesignDocuments: List<String>) {
         client.bulkDelete(
                 relatedDesignDocuments.mapNotNull { client.get(it, DesignDocument::class.java) }
@@ -53,6 +65,7 @@ open class VersionnedDesignDocumentQueries<T : StoredDocument>(protected open va
     }
 
     private suspend fun isReadyDesignDoc(client: Client, designDocumentId: String): Boolean =
+            viewsBeingIndexed.get(client).await().takeIf { it.contains(designDocumentId) }?.let { true } ?:
             client.queryView<String, String>(ViewQuery().designDocId(designDocumentId).viewName("all").limit(1), Duration.ofMillis(couchdDbProperties.desingDocumentStatusCheckTimeoutMilliseconds))
                     .map { true }
                     .catch { emit(false) }
