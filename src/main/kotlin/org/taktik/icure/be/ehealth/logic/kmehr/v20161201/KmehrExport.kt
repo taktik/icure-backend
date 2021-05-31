@@ -176,7 +176,7 @@ open class KmehrExport {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = svc.id })
             cds.add(CDITEM().apply {s(CDITEMschemes.CD_ITEM); value = cdItem } )
 			svc.tags.find { t -> t.type == "CD-LAB" }?.let { cds.add(CDITEM().apply {s(CDITEMschemes.CD_LAB); value = it.code } ) }
-            //texts.add(TextType().apply { l = language; svc.content })
+            
             this.contents.addAll(filterEmptyContent(contents))
             if (texts != null) this.texts.addAll(filterEmptyText(texts))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
