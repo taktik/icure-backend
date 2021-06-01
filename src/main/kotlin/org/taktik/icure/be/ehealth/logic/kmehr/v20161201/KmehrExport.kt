@@ -190,7 +190,7 @@ open class KmehrExport {
 			svc.tags.find { t -> t.type == "CD-LAB" }?.let { cds.add(CDITEM().apply {s(CDITEMschemes.CD_LAB); value = it.code } ) }
 
             this.contents.addAll(filterEmptyContent(contents))
-            if (texts != null) this.texts.addAll(filterEmptyText(texts))
+            if (texts != null) this.texts.addAll(texts.filterNotNull())
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
                 value = if (ServiceStatus.isIrrelevant(svc.status) || (svc.closingDate ?: 99999999 <= FuzzyValues.getCurrentFuzzyDate())) {
 					CDLIFECYCLEvalues.INACTIVE
@@ -299,10 +299,6 @@ open class KmehrExport {
         }
     }
 
-    private fun filterEmptyText(texts: List<TextType>) = texts.filter{
-        it.value != null
-    }
-
 	private fun filterEmptyContent(contents: List<ContentType>) = contents.filter {
 		it.isBoolean != null || it.cds?.size ?: 0 > 0 || it.bacteriology != null || it.compoundprescription != null ||
 			it.location != null || it.lnks?.size ?: 0 > 0 || it.bacteriology != null || it.ecg != null || it.holter != null ||
@@ -400,13 +396,10 @@ open class KmehrExport {
     }
 
     fun makeText(language: String, content: Content): TextType?{
-        return (content.booleanValue ?: content.numberValue ?: content.stringValue ?: content.instantValue
-        ?: content.measureValue ?: content.medicationValue ?: content.binaryValue ?: content.documentId).let {
+        return (content.medicationValue?.compoundPrescription ?: content.medicationValue?.medicinalProduct?.intendedname)?.let {
             TextType().apply {
                 l = language
-                content.medicationValue?.compoundPrescription?.let {
-                    value = content.medicationValue?.medicinalProduct?.intendedname
-                }
+                value = it
             }
         }
     }
