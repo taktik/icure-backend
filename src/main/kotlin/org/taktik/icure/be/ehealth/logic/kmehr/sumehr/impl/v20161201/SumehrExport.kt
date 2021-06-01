@@ -475,10 +475,10 @@ class SumehrExport : KmehrExport() {
 		return item
 	}
 
-	override fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String, language: String): ItemType? {
+	override fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String, language: String, texts: List<TextType>?): ItemType? {
 		if (ServiceStatus.isAbsent(svc.status) || svc.tags.any { t -> t.type == "CD-LIFECYCLE" && t.code == "notpresent" }) {
 			return null; }
-		return super.createItemWithContent(svc, idx, cdItem, contents, localIdName, language)
+		return super.createItemWithContent(svc, idx, cdItem, contents, localIdName, language, texts)
 	}
 
 	override fun createItemWithContent(he: HealthElement, idx: Int, cdItem: String, contents: List<ContentType>): ItemType? {
