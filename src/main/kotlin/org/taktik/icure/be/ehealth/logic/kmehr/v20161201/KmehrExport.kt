@@ -112,6 +112,18 @@ open class KmehrExport {
         }
     }
 
+    fun createHubHcParty(m : HealthcareParty) : HcpartyType {
+        return HcpartyType().apply {
+            if(!m.nihii.isNullOrBlank()) {
+                m.nihii?.let { nihii -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; sv = "1.0"; value = nihii }) }
+            }
+            this.cds.addAll(
+                    listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "hub" })
+            )
+            name = m.name?.trim()
+        }
+    }
+
     fun createSpecialistParty(m: HealthcareParty, cds: List<CDHCPARTY>? = listOf() ): HcpartyType {
         return HcpartyType().apply {
             cds?.let {this.cds.addAll(it)}
@@ -176,7 +188,7 @@ open class KmehrExport {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = svc.id })
             cds.add(CDITEM().apply {s(CDITEMschemes.CD_ITEM); value = cdItem } )
 			svc.tags.find { t -> t.type == "CD-LAB" }?.let { cds.add(CDITEM().apply {s(CDITEMschemes.CD_LAB); value = it.code } ) }
-            
+
             this.contents.addAll(filterEmptyContent(contents))
             if (texts != null) this.texts.addAll(filterEmptyText(texts))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
