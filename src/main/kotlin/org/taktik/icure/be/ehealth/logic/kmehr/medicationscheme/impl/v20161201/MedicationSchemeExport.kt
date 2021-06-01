@@ -28,6 +28,7 @@ import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
+import org.taktik.icure.entities.embed.PatientHealthCarePartyType
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
@@ -78,7 +79,7 @@ class MedicationSchemeExport : KmehrExport() {
 		})
 
 		// TODO split marshalling
-		message.folders.add(makePatientFolder(1, patient, version, sender, config, language, services ?: getActiveServices(sender.id, sfks, listOf("medication"), decryptor), serviceAuthors, decryptor, progressor))
+		message.folders.add(makePatientFolder(1, patient, version, sender, config, language, services ?: getActiveServices(sender.id, sfks, listOf("medication"), decryptor), serviceAuthors, decryptor, progressor, recipientSafe))
 
         val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
 
@@ -91,7 +92,8 @@ class MedicationSchemeExport : KmehrExport() {
 
 
 	private fun makePatientFolder(patientIndex: Int, patient: Patient, version: Int?, healthcareParty: HealthcareParty,
-                                  config: Config, language: String, medicationServices: List<Service>, serviceAuthors: List<HealthcareParty>?, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): FolderType {
+                                  config: Config, language: String, medicationServices: List<Service>, serviceAuthors: List<HealthcareParty>?,
+                                  decryptor: AsyncDecrypt?, progressor: AsyncProgress?, recipientSafe: String?): FolderType {
 
 		//creation of Patient
         val folder = FolderType().apply {
@@ -107,7 +109,14 @@ class MedicationSchemeExport : KmehrExport() {
             cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.10"; value = "medicationscheme" })
 			date = config.date
 			time = config.time
-			author = AuthorType().apply { hcparties.add(createParty(healthcareParty, emptyList())) }
+			author = AuthorType().apply {
+                hcparties.add(createParty(healthcareParty, emptyList()))
+                hcparties.add(createHubHcParty(HealthcareParty().apply {
+                    nihii = if(recipientSafe == "VITALINK") "1990001916" else if(recipientSafe == "RSW") "1990000035" else "1990000728";
+                    name = recipientSafe;
+                    speciality = "hub";
+                }))
+			}
 
             //TODO: is there a way to quit the .map once we've found what we where looking for ? (or use something else ?)
             val (_idOnSafeName, _idOnSafe, _medicationSchemeSafeVersion) = medicationServices.flatMap { svc ->
