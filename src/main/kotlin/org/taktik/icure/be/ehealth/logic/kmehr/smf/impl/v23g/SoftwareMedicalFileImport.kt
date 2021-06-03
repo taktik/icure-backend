@@ -387,11 +387,12 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
         val contactDate = extractTransactionDateTime(trn)
         val trnCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value
+        val trnTypeCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION_TYPE }?.value
 
         return Contact(
                 id = transactionMfid?.let{ kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString(),
                 author = author.id,
-                tags = trnCd?.let { setOf(CodeStub.from("CD-TRANSACTION", it, "1.0")) } ?: emptySet(),
+                tags = listOfNotNull(trnCd, trnTypeCd).map { CodeStub.from("CD-TRANSACTION", it, "1.0") }.toSet(),
                 responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
                     createOrProcessHcp(it, saveToDatabase, v)
                 }?.firstOrNull()?.id ?: author.healthcarePartyId,
@@ -417,7 +418,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }?.firstOrNull()?.id ?: author.healthcarePartyId ?: throw IllegalArgumentException("The author's healthcarePartyId must be set")
 
         val transactionMfid = getTransactionMFID(trn)
+
         val trnCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value
+        val trnTypeCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION_TYPE }?.value
+
         val contactId = transactionMfid?.let{ kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString()
         val trnItems = trn.findItems()
         val formId = kmehrIndex.formIdMask.xor(UUID.fromString(contactId)).toString()
@@ -488,7 +492,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 modified = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
                 openingDate = contactDate,
                 closingDate = trn.isIscomplete.let { if (it) contactDate else null },
-                tags = trnCd?.let { setOf(CodeStub.from("CD-TRANSACTION", it, "1.0")) } ?: emptySet(),
+                tags = listOfNotNull(trnCd, trnTypeCd).map { CodeStub.from("CD-TRANSACTION", it, "1.0") }.toSet(),
                 location =
                 trn.findItem { it -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterlocation" } }
                         ?.let {
