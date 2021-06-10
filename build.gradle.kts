@@ -100,7 +100,7 @@ tasks.withType<BootJar> {
 
 tasks.withType<BootRun> {
     if ( project.hasProperty("jvmArgs") ) {
-        jvmArgs = (project.getProperties()["jvmArgs"] as String).split("\\s+")
+        jvmArgs = (project.getProperties()["jvmArgs"] as String).split(Regex("\\s+"))
     }
 }
 
