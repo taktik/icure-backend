@@ -108,7 +108,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     }
 
     protected fun handleServiceIndexes(c: ContactDto) = if (c.services.any { it.index == null }) {
-        val maxIndex = c.services.maxBy { it.index ?: 0 }?.index ?: 0
+        val maxIndex = c.services.maxByOrNull { it.index ?: 0 }?.index ?: 0
         c.copy(
                 services = c.services.mapIndexed { idx, it ->
                     if (it.index == null) {
@@ -255,15 +255,24 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     @PutMapping("/batch")
     fun modifyContacts(@RequestBody contactDtos: List<ContactDto>): Flux<ContactDto> {
         return try {
-            contactDtos.forEach { c -> handleServiceIndexes(c) }
-
-            val contacts = contactLogic.updateEntities(contactDtos.map { f -> contactMapper.map(f) })
+            val contacts = contactLogic.updateEntities(contactDtos.map { c -> handleServiceIndexes(c) }.map { f -> contactMapper.map(f) })
             contacts.map { f -> contactMapper.map(f) }.injectReactorContext()
         } catch (e: Exception) {
             log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
+    }
 
+    @Operation(summary = "Modify a batch of contacts", description = "Returns the modified contacts.")
+    @PostMapping("/batch")
+    fun createContacts(@RequestBody contactDtos: List<ContactDto>): Flux<ContactDto> {
+        return try {
+            val contacts = contactLogic.createEntities(contactDtos.map { c -> handleServiceIndexes(c) }.map { f -> contactMapper.map(f) })
+            contacts.map { f -> contactMapper.map(f) }.injectReactorContext()
+        } catch (e: Exception) {
+            log.warn(e.message, e)
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+        }
     }
 
     @Operation(summary = "Delegates a contact to a healthcare party", description = "It delegates a contact to a healthcare party (By current healthcare party). Returns the contact with new delegations.")
