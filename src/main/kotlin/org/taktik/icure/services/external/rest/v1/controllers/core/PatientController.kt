@@ -400,7 +400,7 @@ class PatientController(
     }
 
     @Operation(summary = "Create patients in bulk", description = "Returns the id and _rev of created patients")
-    @PostMapping("/bulk")
+    @PostMapping("/bulk", "/batch")
     fun bulkCreatePatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
             val patients = patientLogic.updateEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
@@ -412,7 +412,7 @@ class PatientController(
     }
 
     @Operation(summary = "Modify patients in bulk", description = "Returns the id and _rev of modified patients")
-    @PutMapping("/bulk")
+    @PutMapping("/bulk", "/batch")
     fun bulkUpdatePatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
             val patients = patientLogic.updateEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
