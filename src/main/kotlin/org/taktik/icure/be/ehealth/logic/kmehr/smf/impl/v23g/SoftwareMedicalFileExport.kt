@@ -81,21 +81,16 @@ import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
 import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
 import org.taktik.couchdb.id.UUIDGenerator
-import org.taktik.icure.entities.Contact
-import org.taktik.icure.entities.Form
-import org.taktik.icure.entities.HealthElement
-import org.taktik.icure.entities.HealthcareParty
-import org.taktik.icure.entities.Patient
+import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.ICureDocument
-import org.taktik.icure.entities.embed.Insurability
-import org.taktik.icure.entities.embed.ReferralPeriod
-import org.taktik.icure.entities.embed.Service
-import org.taktik.icure.entities.embed.SubContact
+import org.taktik.icure.entities.embed.*
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
+import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
 import org.taktik.icure.services.external.rest.v1.mapper.ContactMapper
+import org.taktik.icure.services.external.rest.v1.mapper.DocumentMapper
 import org.taktik.icure.utils.FuzzyValues
 import java.io.StringWriter
 import java.time.Instant
@@ -121,7 +116,8 @@ class SoftwareMedicalFileExport(
         sessionLogic: AsyncSessionLogic,
         userLogic: UserLogic,
         filters: org.taktik.icure.asynclogic.impl.filter.Filters,
-        val contactMapper: ContactMapper
+        val contactMapper: ContactMapper,
+        val documentMapper: DocumentMapper,
 ) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 	private var hesByContactId: Map<String?, List<HealthElement>> = HashMap()
     private var servicesByContactId: Map<String?, List<Service>> = HashMap()
@@ -849,6 +845,19 @@ class SoftwareMedicalFileExport(
         } catch(e:Exception) {
           log.error("Cannot export document ${documentId}")
         }
+    }
+
+    private suspend fun makeMultimediaLnkType(
+            document: Document,
+            attachment: ByteArray,
+            decryptor: AsyncDecrypt?
+    ): LnkType {
+        val data = if (document.encryptionKeys.isNotEmpty() && decryptor != null) {
+            decryptor.decrypt(listOf(documentMapper.map(document).copy(encryptedAttachment = document.attachment)), DocumentDto::class.java).firstOrNull()?.decryptedAttachment
+                    ?: attachment
+        } else attachment
+        val element = LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(document); value = data }
+        return element
     }
 
     private fun makeIncapacityItem(contact: Contact, subcon: SubContact, form: Form, index: Number = 0): ItemType {

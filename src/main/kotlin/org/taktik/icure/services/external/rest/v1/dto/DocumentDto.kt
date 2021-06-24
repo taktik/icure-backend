@@ -65,10 +65,14 @@ data class DocumentDto(
         val idOpeningContact: String? = null,
         val idClosingContact: String? = null,
 
+        val encryptedAttachment: ByteArray? = null,
+        val decryptedAttachment: ByteArray? = null,
+
         override val secretForeignKeys: Set<String> = setOf(),
         override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = mapOf(),
         override val delegations: Map<String, Set<DelegationDto>> = mapOf(),
         override val encryptionKeys: Map<String, Set<DelegationDto>> = mapOf(),
+
         override val encryptedSelf: String? = null
 ) : StoredDocumentDto, ICureDocumentDto<String>, EncryptableDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
