@@ -165,13 +165,15 @@ class DocumentTemplateDAOImpl extends CachedDAOImpl<DocumentTemplate> implements
 		super.postLoad(entity);
 
 		if (entity != null && entity.getAttachmentId() != null) {
-			AttachmentInputStream attachmentIs = getAttachmentInputStream(entity.getId(), entity.getAttachmentId(), entity.getRev());
-			try {
+            try {
+			    AttachmentInputStream attachmentIs = getAttachmentInputStream(entity.getId(), entity.getAttachmentId(), entity.getRev());
 				byte[] layout = ByteStreams.toByteArray(attachmentIs);
 				entity.setAttachment(layout);
 			} catch (IOException e) {
 				//Could not load
-			}
+			} catch (org.ektorp.DocumentNotFoundException e){
+                //attachment not found
+            }
 		}
 	}
 }
