@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.dto.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import org.taktik.icure.entities.embed.Content
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import java.io.Serializable
 
@@ -49,7 +50,7 @@ data class MedicationDto(
         val knownUsage: Boolean? = null,
         val regimen: List<RegimenItemDto>? = null,
         val posology: String? = null, // replace structured posology by text
-        //val options: Map<String, ContentDto>? = null, Evil
+        @Deprecated("Obsolete and Evil, must go away") val options: Map<String, Content>? = null,
         val agreements: Map<String, ParagraphAgreementDto>? = null,
         val medicationSchemeIdOnSafe: String? = null,
         val medicationSchemeSafeVersion: Int? = null,

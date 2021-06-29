@@ -50,7 +50,7 @@ data class Medication(
         val knownUsage: Boolean? = null,
         val regimen: List<RegimenItem>? = null,
         val posology: String? = null, // replace structured posology by text
-        //val options: Map<String, Content>? = null, //Obsolete, must go away
+        @Deprecated("Obsolete, must go away") val options: Map<String, Content>? = null,
         val agreements: Map<String, ParagraphAgreement>? = null,
         val medicationSchemeIdOnSafe: String? = null,
         val medicationSchemeSafeVersion: Int? = null,

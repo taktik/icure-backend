@@ -144,7 +144,7 @@ class SumehrExport(
         folder.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
 		folder.patient = makePerson(pat, config)
 		fillPatientFolder(folder, pat, sfks, sender, language, config, comment, excludedIds, includeIrrelevantInformation, decryptor, services, healthElements)
-        emitMessage(folder, message).collect { emit(it) }
+        emitMessage(message.apply { folders.add(folder) }).collect { emit(it) }
     }
 
     // was set from private to public for unit tests

@@ -25,17 +25,14 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpResponse
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
@@ -45,17 +42,12 @@ import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.diarynote.DiaryNoteLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medex.KmehrNoteLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationSchemeLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.patientinfo.PatientInfoFileLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
 import org.taktik.icure.domain.mapping.ImportMapping
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
-import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.DiaryNoteExportInfoDto
-import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.MedicationSchemeExportInfoDto
-import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SoftwareMedicalFileExportDto
-import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SumehrContentDto
-import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SumehrExportInfoDto
-import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SumehrStatus
-import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SumehrValidityDto
+import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.*
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.mapper.HealthElementMapper
@@ -64,6 +56,7 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.ImportResultMappe
 import org.taktik.icure.services.external.rest.v1.mapper.embed.PartnershipMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.PatientHealthCarePartyMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
+import org.taktik.icure.utils.injectReactorContext
 import java.time.Instant
 import java.util.stream.Collectors
 
@@ -82,6 +75,7 @@ class KmehrController(
         val healthcarePartyLogic: HealthcarePartyLogic,
         val patientLogic: PatientLogic,
         val documentLogic: DocumentLogic,
+        val patientInfoFileLogic: PatientInfoFileLogic,
         val healthElementMapper: HealthElementMapper,
         val serviceMapper: ServiceMapper,
         val healthcarePartyMapper: HealthcarePartyMapper,
@@ -343,6 +337,20 @@ class KmehrController(
                 } ?: throw IllegalArgumentException("Missing argument")
     }
 
+
+    @Operation(summary = "Get KMEHR Patient Info export", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+    @PostMapping("/patientinfo/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+    fun generatePatientInfoExport(@PathVariable patientId: String, @RequestParam language: String?) = flow {
+        val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
+        val patient = patientLogic.getPatient(patientId)
+        patient?.let {
+            userHealthCareParty?.let {
+                emitAll(patientInfoFileLogic.createExport(patient, userHealthCareParty, language ?: "fr"))
+            }
+        } ?: throw IllegalArgumentException("Missing argument")
+    }.injectReactorContext()
+
+
     @Operation(summary = "Get Medicationscheme export", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
     @PostMapping("/medicationscheme/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun generateMedicationSchemeExport(@PathVariable patientId: String,
@@ -350,21 +358,19 @@ class KmehrController(
                                                @RequestParam recipientSafe: String,
                                                @RequestParam version: Int,
                                                @RequestBody medicationSchemeExportParams: MedicationSchemeExportInfoDto,
-                                       response: ServerHttpResponse) = mono {
-
-    val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
+                                       response: ServerHttpResponse) = flow {
+        val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
 
         patient?.let {
             userHealthCareParty?.let {
-                 if (medicationSchemeExportParams.services.isEmpty())
-                     medicationSchemeLogic.createMedicationSchemeExport(patient, medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language, recipientSafe, version, null, null)
-                 else
-                     medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language, recipientSafe, version, medicationSchemeExportParams.services.map { s -> serviceMapper.map(s) }, null)
-
+                if (medicationSchemeExportParams.services.isEmpty())
+                    emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language, recipientSafe, version, null, null))
+                else
+                    emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language, recipientSafe, version, medicationSchemeExportParams.services.map { s -> serviceMapper.map(s) }, null))
             }
         } ?: throw IllegalArgumentException("Missing argument")
-    }
+    }.injectReactorContext()
 
 
     @Operation(summary = "Get Kmehr contactreport", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
@@ -379,14 +385,14 @@ class KmehrController(
                                     @RequestParam recipientLastName: String,
                                     @RequestParam mimeType: String,
                                     @RequestBody document: ByteArray,
-                                    response: ServerHttpResponse) = mono {
+                                    response: ServerHttpResponse) = flow {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
 
         if (userHealthCareParty != null && patient != null) {
-            kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientSsin, recipientFirstName, recipientLastName, patient, language, "contactreport", mimeType, document)
+            emitAll(kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientSsin, recipientFirstName, recipientLastName, patient, language, "contactreport", mimeType, document))
         } else throw IllegalArgumentException("Missing argument")
-    }
+    }.injectReactorContext()
 
     @Operation(summary = "Get Kmehr labresult", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
     @PostMapping("/labresult/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
@@ -400,14 +406,14 @@ class KmehrController(
                                 @RequestParam recipientLastName: String,
                                 @RequestParam mimeType: String,
                                 @RequestBody document: ByteArray,
-                                response: ServerHttpResponse) = mono {
+                                response: ServerHttpResponse) = flow {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
 
         if (userHealthCareParty != null && patient != null) {
-            kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientSsin, recipientFirstName, recipientLastName, patient, language, "labresult", mimeType, document)
+            emitAll(kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientSsin, recipientFirstName, recipientLastName, patient, language, "labresult", mimeType, document))
         } else throw IllegalArgumentException("Missing argument")
-    }
+    }.injectReactorContext()
 
     @Operation(summary = "Get Kmehr note", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
     @PostMapping("/note/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
@@ -421,13 +427,13 @@ class KmehrController(
                            @RequestParam recipientLastName: String,
                            @RequestParam mimeType: String,
                            @RequestBody document: ByteArray,
-                           response: ServerHttpResponse) = mono {
+                           response: ServerHttpResponse) = flow {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
         if (userHealthCareParty != null && patient != null) {
-            kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientSsin, recipientFirstName, recipientLastName, patient, language, "note", mimeType, document)
+            emitAll(kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientSsin, recipientFirstName, recipientLastName, patient, language, "note", mimeType, document))
         } else throw IllegalArgumentException("Missing argument")
-    }
+    }.injectReactorContext()
 
     @Operation(summary = "Get Kmehr prescription", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
     @PostMapping("/prescription/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
@@ -441,13 +447,13 @@ class KmehrController(
                                    @RequestParam recipientLastName: String,
                                    @RequestParam mimeType: String,
                                    @RequestBody document: ByteArray,
-                                   response: ServerHttpResponse) = mono {
+                                   response: ServerHttpResponse) = flow {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
         if (userHealthCareParty != null && patient != null) {
-            kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientSsin, recipientFirstName, recipientLastName, patient, language, "prescription", mimeType, document)
+            emitAll(kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientSsin, recipientFirstName, recipientLastName, patient, language, "prescription", mimeType, document))
         } else throw IllegalArgumentException("Missing argument")
-    }
+    }.injectReactorContext()
 
     @Operation(summary = "Get Kmehr report", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
     @PostMapping("/report/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
@@ -461,13 +467,13 @@ class KmehrController(
                              @RequestParam recipientLastName: String,
                              @RequestParam mimeType: String,
                              @RequestBody document: ByteArray,
-                             response: ServerHttpResponse) = mono {
+                             response: ServerHttpResponse) = flow {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
         if (userHealthCareParty != null && patient != null) {
-            kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientSsin, recipientFirstName, recipientLastName, patient, language, "report", mimeType, document)
+            emitAll(kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientSsin, recipientFirstName, recipientLastName, patient, language, "report", mimeType, document))
         } else throw IllegalArgumentException("Missing argument")
-    }
+    }.injectReactorContext()
 
     @Operation(summary = "Get Kmehr request", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
     @PostMapping("/request/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
@@ -481,13 +487,13 @@ class KmehrController(
                               @RequestParam recipientLastName: String,
                               @RequestParam mimeType: String,
                               @RequestBody document: ByteArray,
-                              response: ServerHttpResponse) = mono {
+                              response: ServerHttpResponse) = flow {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
         if (userHealthCareParty != null && patient != null) {
-            kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientSsin, recipientFirstName, recipientLastName, patient, language, "request", mimeType, document)
+            emitAll(kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientSsin, recipientFirstName, recipientLastName, patient, language, "request", mimeType, document))
         } else throw IllegalArgumentException("Missing argument")
-    }
+    }.injectReactorContext()
 
     @Operation(summary = "Get Kmehr result", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
     @PostMapping("/result/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
@@ -501,13 +507,13 @@ class KmehrController(
                              @RequestParam recipientLastName: String,
                              @RequestParam mimeType: String,
                              @RequestBody document: ByteArray,
-                             response: ServerHttpResponse) = mono {
+                             response: ServerHttpResponse) = flow {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
         if (userHealthCareParty != null && patient != null) {
-            kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientSsin, recipientFirstName, recipientLastName, patient, language, "result", mimeType, document)
+            emitAll(kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientSsin, recipientFirstName, recipientLastName, patient, language, "result", mimeType, document))
         } else throw IllegalArgumentException("Missing argument")
-    }
+    }.injectReactorContext()
 
     @Operation(summary = "Import SMF into patient(s) using existing document")
     @PostMapping("/smf/{documentId}/import")

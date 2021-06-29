@@ -128,6 +128,7 @@ class SoftwareMedicalFileExport(
     private var newestServicesById: MutableMap<String?, Service> = HashMap()
 	private var itemByServiceId: MutableMap<String, ItemType> = HashMap()
 	private var oldestHeByHeId: Map<String?, HealthElement> = HashMap()
+    private var heById:  Map<String?, List<HealthElement>> = HashMap()
 
 	fun exportSMF(
 			patient: Patient,
@@ -170,7 +171,7 @@ class SoftwareMedicalFileExport(
 		})
 
         val folder = makePatientFolder(1, patient, sfksUniq, sender, config, language, decryptor, progressor)
-        emitMessage(folder, message).collect { emit(it) }
+        emitMessage(message.apply { folders.add(folder) }).collect { emit(it) }
 	}
 
 
@@ -240,7 +241,7 @@ class SoftwareMedicalFileExport(
 		hesByContactId[null].orEmpty().map { he -> addHealthCareElement(folder.transactions.first(), he, 0, config) }
 		hesByContactId = hesByContactId.filterKeys { it != null }
 
-		val heById = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
+		heById = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
 			// retrive the healthElementId property of an HE by his couchdb id
 			it.id
 		}
@@ -559,10 +560,16 @@ class SoftwareMedicalFileExport(
                         }
                         addHistoryLinkAndCacheService(this, svc, config)
                         headingsAndItemsAndTexts.add(this)
+                        svc.formId?.let{
+                            (it != "") && it.let{
+                                this.lnks.add(LnkType().apply { type = CDLNKvalues.ISATTESTATIONOF; url = makeLnkUrl(it) })
+                            }
+                        }
                     }
                 }
                 // FIXME: prescriptions should be linked to medication with a ISATTESTATIONOF link but there is no such link in topaz
 				headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(con.id) })
+                addServiceLinkToHealthElement(con);
 			})
 		}
 
@@ -612,6 +619,34 @@ class SoftwareMedicalFileExport(
 		renumberKmehrIds(folder)
 		return folder
 	}
+
+    private fun addServiceLinkToHealthElement(contact: Contact){
+        // add link from items to HEs
+        val subContactsByFormId = contact.subContacts.groupBy { it.formId }
+        val subContactServicesByFormId = subContactsByFormId.mapValues {
+            it.value.flatMap { subContact -> subContact.services }
+        }
+        contact.subContacts.forEach { subcon ->
+            if (subcon.healthElementId != null) {
+                subContactServicesByFormId[subcon.formId]?.forEach {
+                    itemByServiceId[it.serviceId]?.lnks?.let { it ->
+                        val lnk = LnkType().apply {
+                            type = CDLNKvalues.ISASERVICEFOR
+                            // link should point to He.healthElementId and not He.id
+                            subcon.healthElementId.let { heId ->
+                                heById[heId]?.firstOrNull()?.let { healthElement ->
+                                    url = makeLnkUrl(healthElement.healthElementId ?: healthElement.id)
+                                }
+                            }
+                        }
+                        if (it.none { (it.type == lnk.type) && (it.url == lnk.url) }) {
+                            it.add(lnk)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     private fun addHistoryLinkAndCacheService(item: ItemType, svc: Service, config: Config) {
         svc.id.let { svcId ->
@@ -1166,16 +1201,6 @@ class SoftwareMedicalFileExport(
                         svc.closingDate == null
                         || svc.closingDate == 0L
                         || svc.closingDate!!.toLong() > FuzzyValues.getFuzzyDate(LocalDateTime.now(), ChronoUnit.SECONDS)
-                )
-                && (
-                        // medication store end moment in content.medicationValue.endMoment instead of svc.closingDate
-                        svc.content.values.find { content ->
-                            content.medicationValue != null
-                        }?.let { content ->
-                            content.medicationValue!!.endMoment == null
-                            || content.medicationValue!!.endMoment == 0L
-                            || content.medicationValue!!.endMoment!! > FuzzyValues.getFuzzyDate(LocalDateTime.now(), ChronoUnit.SECONDS)
-                        } ?: true
                 )
                 && (
                         // is newest version: there is no history in PMF
