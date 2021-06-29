@@ -104,12 +104,6 @@ tasks.withType<BootRun> {
     }
 }
 
-tasks.withType<PublishToMavenRepository> {
-    doFirst {
-        println("Artifact >>> ${project.group}:${project.name}:${project.version} <<< published to Maven repository")
-    }
-}
-
 configurations {
     all {
         exclude(group = "org.slf4j", module = "slf4j-log4j12")
@@ -122,6 +116,7 @@ configurations {
         it.get().outgoing.artifact(tasks.withType<BootJar>().first())
     }
 }
+
 dependencies {
     api("com.github.pozo:mapstruct-kotlin:1.3.1.2")
     kapt("com.github.pozo:mapstruct-kotlin-processor:1.3.1.2")
