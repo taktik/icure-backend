@@ -19,6 +19,8 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapNotNull
 import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -28,7 +30,7 @@ import org.taktik.icure.asyncdao.KeywordDAO
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.Keyword
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
+
 
 @Repository("keywordDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Keyword' && !doc.deleted) emit( null, doc._id )}")
@@ -40,9 +42,9 @@ internal class KeywordDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_user", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Keyword' && !doc.deleted) emit( doc.userId, doc)}")
-    override fun getByUserId(userId: String): Flow<Keyword> {
+    override fun getByUserId(userId: String): Flow<Keyword> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryView<String, Keyword>(createQuery<Keyword>("by_user").startKey(userId).endKey(userId).includeDocs(false)).mapNotNull { it.value }
+        emitAll(client.queryView<String, Keyword>(createQuery(client, "by_user").startKey(userId).endKey(userId).includeDocs(false)).mapNotNull { it.value })
     }
 }

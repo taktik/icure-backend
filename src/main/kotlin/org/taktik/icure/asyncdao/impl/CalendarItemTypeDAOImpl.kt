@@ -19,6 +19,8 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -28,7 +30,7 @@ import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.CalendarItemTypeDAO
 import org.taktik.icure.entities.CalendarItemType
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
+
 
 @Repository("calendarItemTypeDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItemType' && !doc.deleted) emit( null, doc._id )}")
@@ -37,13 +39,11 @@ class CalendarItemTypeDAOImpl(couchDbProperties: CouchDbProperties,
 ) : GenericDAOImpl<CalendarItemType>(couchDbProperties, CalendarItemType::class.java, couchDbDispatcher, idGenerator), CalendarItemTypeDAO {
 
     @View(name = "all_and_deleted", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItemType') emit( doc._id , null )}")
-    override fun getAllEntitiesIncludeDelete(): Flow<CalendarItemType> {
+    override fun getAllEntitiesIncludeDelete(): Flow<CalendarItemType> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery<CalendarItemType>("all_and_deleted").includeDocs(true)
+        val viewQuery = createQuery(client, "all_and_deleted").includeDocs(true)
 
         val result = client.queryViewIncludeDocsNoValue<String, CalendarItemType>(viewQuery).map { it.doc }
-        return result.map {
-            this.postLoad(it)
-        }
+        emitAll(result.map { this@CalendarItemTypeDAOImpl.postLoad(it) })
     }
 }
