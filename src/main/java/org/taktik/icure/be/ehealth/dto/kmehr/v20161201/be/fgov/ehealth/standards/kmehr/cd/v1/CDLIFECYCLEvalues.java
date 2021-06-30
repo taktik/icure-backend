@@ -131,9 +131,7 @@ public enum CDLIFECYCLEvalues {
     @XmlEnumValue("proposed")
     PROPOSED("proposed"),
     @XmlEnumValue("retracted")
-    RETRACTED("retracted"),
-    @XmlEnumValue("prolongated")
-    PROLONGATED("prolongated");
+    RETRACTED("retracted");
     private final String value;
 
     CDLIFECYCLEvalues(String v) {

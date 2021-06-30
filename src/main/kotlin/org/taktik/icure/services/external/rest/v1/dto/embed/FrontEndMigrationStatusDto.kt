@@ -24,5 +24,5 @@ import java.io.Serializable
 @EnumVersionDto(1L)
 
 enum class FrontEndMigrationStatusDto : Serializable {
-    STARTED, ERROR, SUCCESS
+    STARTED, PAUSED, ERROR, SUCCESS
 }

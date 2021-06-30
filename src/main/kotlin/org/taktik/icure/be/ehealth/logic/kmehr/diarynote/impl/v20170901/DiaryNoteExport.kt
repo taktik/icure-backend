@@ -110,7 +110,7 @@ class DiaryNoteExport(
         message.folders.add(folder)
 
         fillPatientFolder(folder, pat, sfks, sender, language, config, note, tags, contexts, isPsy, documentId, attachmentId, decryptor)
-        emitMessage(folder, message).collect { emit(it) }
+        emitMessage(message.apply { folders.add(folder) }).collect { emit(it) }
     }
 
     private fun dnFromContext(context: String) : String{

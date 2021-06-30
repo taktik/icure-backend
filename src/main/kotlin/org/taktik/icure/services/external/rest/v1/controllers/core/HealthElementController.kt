@@ -42,6 +42,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.services.external.rest.v1.dto.ContactDto
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
@@ -152,6 +153,16 @@ class HealthElementController(
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
 
+    @Operation(summary = "Create a batch of healthcare elements", description = "Returns the created healthcare elements.")
+    @PostMapping("/batch")
+    fun createHealthElements(@RequestBody healthElementDtos: List<HealthElementDto>): Flux<HealthElementDto> =
+        try {
+            val hes = healthElementLogic.createEntities(healthElementDtos.map { f -> healthElementMapper.map(f) })
+            hes.map { healthElementMapper.map(it) }.injectReactorContext()
+        } catch (e: Exception) {
+            logger.warn(e.message, e)
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+        }
 
     @Operation(summary = "Delegates a health element to a healthcare party", description = "It delegates a health element to a healthcare party (By current healthcare party). Returns the element with new delegations.")
     @PostMapping("/{healthElementId}/delegate")

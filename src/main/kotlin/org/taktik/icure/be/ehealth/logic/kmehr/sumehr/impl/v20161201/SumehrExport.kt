@@ -142,8 +142,7 @@ class SumehrExport(
 		folder.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
 		folder.patient = makePerson(pat, config)
 		fillPatientFolder(folder, pat, sfks, sender, language, config, comment, excludedIds, includeIrrelevantInformation, decryptor, services, healthElements)
-		message.folders.add(folder)
-        emitMessage(folder, message).collect { emit(it) }
+        emitMessage(message.apply { folders.add(folder) }).collect { emit(it) }
 	}
 
 	internal suspend fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, comment: String?, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, services: List<Service>?, healthElements: List<HealthElement>?): FolderType {
@@ -505,10 +504,10 @@ class SumehrExport(
 		return item
 	}
 
-	override fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String, language: String): ItemType? {
+	override fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String, language: String, texts: List<TextType>?): ItemType? {
 		if (ServiceStatus.isAbsent(svc.status) || svc.tags.any { t -> t.type == "CD-LIFECYCLE" && t.code == "notpresent" }) {
 			return null; }
-		return super.createItemWithContent(svc, idx, cdItem, contents, localIdName, language)
+		return super.createItemWithContent(svc, idx, cdItem, contents, localIdName, language, texts)
 	}
 
 	override fun createItemWithContent(he: HealthElement, idx: Int, cdItem: String, contents: List<ContentType>): ItemType? {
@@ -655,7 +654,7 @@ class SumehrExport(
 
 	internal suspend fun addHealthCareElement(trn: TransactionType, he: HealthElement) {
 		try {
-			val items = if (he.closingDate != null) {
+			val items = if (he.closingDate != null && he.closingDate != 0L) {
 				getHistory(trn).headingsAndItemsAndTexts
 			} else {
 				getAssessment(trn).headingsAndItemsAndTexts

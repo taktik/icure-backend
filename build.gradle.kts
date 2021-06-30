@@ -100,13 +100,7 @@ tasks.withType<BootJar> {
 
 tasks.withType<BootRun> {
     if ( project.hasProperty("jvmArgs") ) {
-        jvmArgs = (project.getProperties()["jvmArgs"] as String).split("\\s+")
-    }
-}
-
-tasks.withType<PublishToMavenRepository> {
-    doFirst {
-        println("Artifact >>> ${project.group}:${project.name}:${project.version} <<< published to Maven repository")
+        jvmArgs = (project.getProperties()["jvmArgs"] as String).split(Regex("\\s+"))
     }
 }
 
@@ -122,6 +116,7 @@ configurations {
         it.get().outgoing.artifact(tasks.withType<BootJar>().first())
     }
 }
+
 dependencies {
     api("com.github.pozo:mapstruct-kotlin:1.3.1.2")
     kapt("com.github.pozo:mapstruct-kotlin-processor:1.3.1.2")

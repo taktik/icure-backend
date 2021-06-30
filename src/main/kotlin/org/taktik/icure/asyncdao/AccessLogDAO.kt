@@ -23,7 +23,6 @@ import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.AccessLog
-import java.net.URI
 import java.time.Instant
 
 interface AccessLogDAO: GenericDAO<AccessLog> {

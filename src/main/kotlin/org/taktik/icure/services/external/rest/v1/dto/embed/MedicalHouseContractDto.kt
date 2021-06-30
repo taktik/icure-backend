@@ -43,11 +43,16 @@ data class MedicalHouseContractDto(
         val endOfCoverage: Long? = null,  //yyyyMMdd
         val kine: Boolean = false,
         val gp: Boolean = false,
+        val ptd: Boolean = false,
         val nurse: Boolean = false,
         val noKine: Boolean = false,
         val noGp: Boolean = false,
         val noNurse: Boolean = false,
         val unsubscriptionReasonId: Int? = null,
+
+        val ptdStart: Long? = null,
+        val ptdEnd: Long? = null,
+        val ptdLastInvoiced: Long? = null,
 
         //SuspensionDto specific data:
         val startOfSuspension: Long? = null, //yyyyMMdd
@@ -57,6 +62,8 @@ data class MedicalHouseContractDto(
         val forcedSuspension: Boolean = false, //no automatic unSuspension = false
         val signatureType: MhcSignatureTypeDto? = null,
         val status: Int? = null,
+
+        val options: Map<String, String> = HashMap(),
         val receipts: Map<String,String> = mapOf(),
 
         override val encryptedSelf: String? = null
