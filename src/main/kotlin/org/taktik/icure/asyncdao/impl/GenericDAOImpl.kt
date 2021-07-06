@@ -328,17 +328,19 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
         }.map { afterSave(it) })
     }
 
-    override suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean) {
-        forceInitStandardDesignDocument(couchDbDispatcher.getClient(dbInstanceUrl), updateIfExists)
+    override suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean, useVersioning: Boolean) {
+        forceInitStandardDesignDocument(couchDbDispatcher.getClient(dbInstanceUrl), updateIfExists, useVersioning)
     }
 
-    override suspend fun forceInitStandardDesignDocument(client: Client, updateIfExists: Boolean) {
+    override suspend fun forceInitStandardDesignDocument(client: Client, updateIfExists: Boolean, useVersioning: Boolean) {
         val designDocId = designDocName(this.entityClass)
-        val fromDatabase = client.get(designDocId, DesignDocument::class.java)
         val generated = StdDesignDocumentFactory().generateFrom(designDocId, this)
+
+        val fromDatabase = client.get(generated.id, DesignDocument::class.java) ?: client.get(designDocId, DesignDocument::class.java)
+
         val (merged, changed) = fromDatabase?.mergeWith(generated, true) ?: generated to true
         if (changed && (updateIfExists || fromDatabase == null)) {
-            client.update(fromDatabase?.let { merged.copy(rev = it.rev) } ?: merged)
+            client.update(fromDatabase?.let { if (it.id == generated.id) merged.copy(rev = it.rev) else merged } ?: merged)
         }
     }
 

@@ -48,8 +48,8 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
     suspend fun purge(entities: Collection<T>)
     fun unRemove(entities: Collection<T>): Flow<DocIdentifier>
     suspend fun unRemove(entity: T): DocIdentifier
-    suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean = true)
-    suspend fun forceInitStandardDesignDocument(client: Client, updateIfExists: Boolean = true)
+    suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean = true, useVersioning: Boolean = true)
+    suspend fun forceInitStandardDesignDocument(client: Client, updateIfExists: Boolean = true, useVersioning: Boolean = true)
     suspend fun initSystemDocumentIfAbsent(dbInstanceUrl: URI)
     suspend fun initSystemDocumentIfAbsent(client: Client)
 }
