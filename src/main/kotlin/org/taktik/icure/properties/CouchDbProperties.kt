@@ -65,7 +65,9 @@ data class CouchDbProperties(
 			buf[13] = t.ushr(24).toByte()
 			return String(buf)
 		}
-	}.toString()
+	}.toString(),
+    var desingDocumentStatusCheckTimeoutMilliseconds: Long = 2000,
+    var cachedDesignDocuemntTtlMinutes: Long = 15
 ) {
     fun altUrlsList() = if (altUrls.isNullOrBlank()) listOf() else altUrls.split(";")
 }

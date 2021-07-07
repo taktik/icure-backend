@@ -19,11 +19,7 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.flattenConcat
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
@@ -34,7 +30,7 @@ import org.taktik.icure.asyncdao.CalendarItemDAO
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.CalendarItem
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
+
 import org.taktik.icure.utils.distinctById
 
 @FlowPreview
@@ -44,7 +40,7 @@ class CalendarItemDAOImpl(couchDbProperties: CouchDbProperties,
                           @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<CalendarItem>(couchDbProperties, CalendarItem::class.java, couchDbDispatcher, idGenerator), CalendarItemDAO {
 
     @View(name = "by_hcparty_and_startdate", map = "classpath:js/calendarItem/by_hcparty_and_startdate.js")
-    override fun listCalendarItemByStartDateAndHcPartyId(startDate: Long?, endDate: Long?, hcPartyId: String): Flow<CalendarItem> {
+    override fun listCalendarItemByStartDateAndHcPartyId(startDate: Long?, endDate: Long?, hcPartyId: String): Flow<CalendarItem> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val from = ComplexKey.of(
@@ -56,16 +52,16 @@ class CalendarItemDAOImpl(couchDbProperties: CouchDbProperties,
                 endDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<CalendarItem>("by_hcparty_and_startdate")
+        val viewQuery = createQuery(client, "by_hcparty_and_startdate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(true)
 
-        return client.queryViewIncludeDocsNoValue<Array<String>, CalendarItem>(viewQuery).map { it.doc }
+        emitAll(client.queryViewIncludeDocsNoValue<Array<String>, CalendarItem>(viewQuery).map { it.doc })
     }
 
     @View(name = "by_hcparty_and_enddate", map = "classpath:js/calendarItem/by_hcparty_and_enddate.js")
-    override fun listCalendarItemByEndDateAndHcPartyId(startDate: Long?, endDate: Long?, hcPartyId: String): Flow<CalendarItem> {
+    override fun listCalendarItemByEndDateAndHcPartyId(startDate: Long?, endDate: Long?, hcPartyId: String): Flow<CalendarItem> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val from = ComplexKey.of(
@@ -77,12 +73,12 @@ class CalendarItemDAOImpl(couchDbProperties: CouchDbProperties,
                 endDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<CalendarItem>("by_hcparty_and_enddate")
+        val viewQuery = createQuery(client,"by_hcparty_and_enddate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(true)
 
-        return client.queryViewIncludeDocsNoValue<Array<String>, CalendarItem>(viewQuery).map { it.doc }
+        emitAll(client.queryViewIncludeDocsNoValue<Array<String>, CalendarItem>(viewQuery).map { it.doc })
     }
 
     override fun listCalendarItemByPeriodAndHcPartyId(startDate: Long?, endDate: Long?, hcPartyId: String): Flow<CalendarItem> {
@@ -93,7 +89,7 @@ class CalendarItemDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_agenda_and_startdate", map = "classpath:js/calendarItem/by_agenda_and_startdate.js")
-    override fun listCalendarItemByStartDateAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<CalendarItem> {
+    override fun listCalendarItemByStartDateAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<CalendarItem> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val from = ComplexKey.of(
@@ -105,16 +101,16 @@ class CalendarItemDAOImpl(couchDbProperties: CouchDbProperties,
                 endDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<CalendarItem>("by_agenda_and_startdate")
+        val viewQuery = createQuery(client, "by_agenda_and_startdate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(true)
 
-        return client.queryViewIncludeDocsNoValue<ComplexKey, CalendarItem>(viewQuery).map { it.doc }
+        emitAll(client.queryViewIncludeDocsNoValue<ComplexKey, CalendarItem>(viewQuery).map { it.doc })
     }
 
     @View(name = "by_agenda_and_enddate", map = "classpath:js/calendarItem/by_agenda_and_enddate.js")
-    override fun listCalendarItemByEndDateAndAgendaId(startDate: Long?, endDate: Long?, agenda: String): Flow<CalendarItem> {
+    override fun listCalendarItemByEndDateAndAgendaId(startDate: Long?, endDate: Long?, agenda: String): Flow<CalendarItem> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val from = ComplexKey.of(
@@ -126,12 +122,12 @@ class CalendarItemDAOImpl(couchDbProperties: CouchDbProperties,
                 endDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<CalendarItem>("by_agenda_and_enddate")
+        val viewQuery = createQuery(client, "by_agenda_and_enddate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(true)
 
-        return client.queryViewIncludeDocsNoValue<ComplexKey, CalendarItem>(viewQuery).map { it.doc }
+        emitAll(client.queryViewIncludeDocsNoValue<ComplexKey, CalendarItem>(viewQuery).map { it.doc })
     }
 
     override fun listCalendarItemByPeriodAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<CalendarItem> {
@@ -142,10 +138,10 @@ class CalendarItemDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_patient", map = "classpath:js/calendarItem/by_hcparty_patient_map.js")
-    override fun findByHcPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<CalendarItem> {
+    override fun findByHcPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<CalendarItem> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
-        val viewQuery = createQuery<CalendarItem>("by_hcparty_patient").keys(keys).includeDocs(true)
-        return client.queryViewIncludeDocs<Array<String>, String, CalendarItem>(viewQuery).distinctUntilChangedBy { it.id }.map { it.doc }
+        val viewQuery = createQuery(client, "by_hcparty_patient").keys(keys).includeDocs(true)
+        emitAll(client.queryViewIncludeDocs<Array<String>, String, CalendarItem>(viewQuery).distinctUntilChangedBy { it.id }.map { it.doc })
     }
 }

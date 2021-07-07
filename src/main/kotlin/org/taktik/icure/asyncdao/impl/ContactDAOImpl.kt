@@ -20,13 +20,7 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flattenConcat
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.*
 import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
@@ -42,9 +36,9 @@ import org.taktik.icure.domain.ContactIdServiceId
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
+
 import org.taktik.icure.utils.distinct
-import org.taktik.icure.utils.pagedViewQuery
+
 
 /**
  * Created by aduchate on 18/07/13, 13:36
@@ -71,20 +65,20 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_openingdate", map = "classpath:js/contact/By_hcparty_openingdate.js")
-    override fun listContactsByOpeningDate(hcPartyId: String, startOpeningDate: Long?, endOpeningDate: Long?, pagination: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {
+    override fun listContactsByOpeningDate(hcPartyId: String, startOpeningDate: Long?, endOpeningDate: Long?, pagination: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val startKey = ComplexKey.of(hcPartyId, startOpeningDate)
         val endKey = ComplexKey.of(hcPartyId, endOpeningDate)
-        val viewQuery = pagedViewQuery<Contact, ComplexKey>("by_hcparty_openingdate", startKey, endKey, pagination, false)
-        return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Contact::class.java)
+        val viewQuery = pagedViewQuery<Contact, ComplexKey>(client, "by_hcparty_openingdate", startKey, endKey, pagination, false)
+        emitAll(client.queryView(viewQuery, Array<String>::class.java, String::class.java, Contact::class.java))
     }
 
     @View(name = "by_hcparty", map = "classpath:js/contact/By_hcparty.js")
-    override fun listContacts(hcPartyId: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
+    override fun listContacts(hcPartyId: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = pagedViewQuery<Contact,String>("by_hcparty", hcPartyId, hcPartyId, pagination, false)
-        return client.queryView(viewQuery, String::class.java, String::class.java, Contact::class.java)
+        val viewQuery = pagedViewQuery<Contact,String>(client, "by_hcparty", hcPartyId, hcPartyId, pagination, false)
+        emitAll(client.queryView(viewQuery, String::class.java, String::class.java, Contact::class.java))
     }
 
     override fun getPaginatedContacts(contactIds: Flow<String>): Flow<ViewQueryResultEvent> {
@@ -97,65 +91,67 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         return client.getForPagination(contactIds, Contact::class.java)
     }
 
-    override fun listContactIds(hcPartyId: String): Flow<String> {
+    override fun listContactIds(hcPartyId: String): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery<Contact>("by_hcparty")
+        val viewQuery = createQuery(client, "by_hcparty")
                 .startKey(hcPartyId)
                 .endKey(hcPartyId)
                 .includeDocs(false)
 
-        return client.queryView<String, String>(viewQuery).mapNotNull { it.value }
+        emitAll(client.queryView<String, String>(viewQuery).mapNotNull { it.value })
     }
 
     @View(name = "by_hcparty_patientfk", map = "classpath:js/contact/By_hcparty_patientfk_map.js")
-    override fun findByHcPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact> {
+    override fun findByHcPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val viewQuery = createQuery<Contact>("by_hcparty_patientfk").keys(keys).includeDocs(true)
+        val viewQuery = createQuery(client, "by_hcparty_patientfk").keys(keys).includeDocs(true)
 
-        return client.queryViewIncludeDocs<Array<String>, String, Contact>(viewQuery).distinctUntilChangedBy { it.id }.map { it.doc }
+        emitAll(client.queryViewIncludeDocs<Array<String>, String, Contact>(viewQuery).distinctUntilChangedBy { it.id }.map { it.doc })
     }
 
     @View(name = "by_hcparty_formid", map = "classpath:js/contact/By_hcparty_formid_map.js")
-    override fun findByHcPartyFormId(hcPartyId: String, formId: String): Flow<Contact> {
+    override fun findByHcPartyFormId(hcPartyId: String, formId: String): Flow<Contact> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery<Contact>("by_hcparty_formid").key(ComplexKey.of(hcPartyId, formId)).includeDocs(true)
+        val viewQuery = createQuery(client, "by_hcparty_formid").key(ComplexKey.of(hcPartyId, formId)).includeDocs(true)
         val result = client.queryViewIncludeDocs<Array<String>, String, Contact>(viewQuery).map { it.doc }
-        return relink(result)
+        emitAll(relink(result))
     }
 
-    override fun findByHcPartyFormIds(hcPartyId: String, ids: List<String>): Flow<Contact> {
+    override fun findByHcPartyFormIds(hcPartyId: String, ids: List<String>): Flow<Contact> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery<Contact>("by_hcparty_formid")
+        val viewQuery = createQuery(client, "by_hcparty_formid")
                 .includeDocs(false)
                 .keys(ids.map { k -> ComplexKey.of(hcPartyId, k) })
         val result = client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }.distinct()
 
-        return relink(get(result))
+        emitAll(relink(get(result)))
     }
 
 
     @ExperimentalCoroutinesApi
     @FlowPreview
     @View(name = "service_by_linked_id", map = "classpath:js/contact/Service_by_linked_id.js")
-    override fun findServiceIdsByIdQualifiedLink(ids: List<String>, linkType: String?): Flow<String> {
+    override fun findServiceIdsByIdQualifiedLink(ids: List<String>, linkType: String?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery<Contact>("service_by_linked_id")
+        val viewQuery = createQuery(client, "service_by_linked_id")
                 .keys(ids)
                 .includeDocs(false)
         val res = client.queryView<String, Array<String>>(viewQuery)
-        return (linkType?.let { lt ->
-            res.filter { it.value!![0] == lt}
-        } ?: res).map { it.value!![1] }
+        emitAll(
+                (linkType?.let { lt ->
+                    res.filter { it.value!![0] == lt }
+                } ?: res).map { it.value!![1] }
+        )
     }
 
     @View(name = "service_by_hcparty_tag", map = "classpath:js/contact/Service_by_hcparty_tag.js")
-    override fun listServiceIdsByTag(hcPartyId: String, tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> {
+    override fun listServiceIdsByTag(hcPartyId: String, tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         var startValueDate = startValueDate
@@ -179,16 +175,16 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                 endValueDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<Contact>("service_by_hcparty_tag")
+        val viewQuery = createQuery(client, "service_by_hcparty_tag")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(false)
 
-        return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
+        emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
     }
 
     @View(name = "service_by_hcparty_patient_tag", map = "classpath:js/contact/Service_by_hcparty_patient_tag.js")
-    override fun listServiceIdsByPatientTag(hcPartyId: String, patientSecretForeignKeys: List<String>, tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> {
+    override fun listServiceIdsByPatientTag(hcPartyId: String, patientSecretForeignKeys: List<String>, tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         var startValueDate = startValueDate
@@ -216,18 +212,18 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                     endValueDate ?: ComplexKey.emptyObject()
             )
 
-            val viewQuery = createQuery<Contact>("service_by_hcparty_patient_tag")
+            val viewQuery = createQuery(client, "service_by_hcparty_patient_tag")
                     .startKey(from)
                     .endKey(to)
                     .includeDocs(false)
 
             idFlows.add(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
         }
-        return idFlows.asFlow().flattenConcat().distinct()
+        emitAll(idFlows.asFlow().flattenConcat().distinct())
     }
 
     @View(name = "service_by_hcparty_code", map = "classpath:js/contact/Service_by_hcparty_code.js", reduce = "_count")
-    override fun listServiceIdsByCode(hcPartyId: String, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> {
+    override fun listServiceIdsByCode(hcPartyId: String, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         var startValueDate = startValueDate
@@ -251,17 +247,17 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                 endValueDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<Contact>("service_by_hcparty_code")
+        val viewQuery = createQuery(client, "service_by_hcparty_code")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
                 .includeDocs(false)
 
-        return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
+        emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
     }
 
     @View(name = "by_hcparty_tag", map = "classpath:js/contact/By_hcparty_tag.js", reduce = "_count")
-    override fun listContactIdsByTag(hcPartyId: String, tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> {
+    override fun listContactIdsByTag(hcPartyId: String, tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         var startValueDate = startValueDate
@@ -285,17 +281,17 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                 endValueDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<Contact>("by_hcparty_tag")
+        val viewQuery = createQuery(client, "by_hcparty_tag")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
                 .includeDocs(false)
 
-        return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
+        emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
     }
 
     @View(name = "by_hcparty_code", map = "classpath:js/contact/By_hcparty_code.js", reduce = "_count")
-    override fun listContactIdsByCode(hcPartyId: String, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> {
+    override fun listContactIdsByCode(hcPartyId: String, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         var startValueDate = startValueDate
@@ -319,16 +315,16 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                 endValueDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<Contact>("by_hcparty_code")
+        val viewQuery = createQuery(client, "by_hcparty_code")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
                 .includeDocs(false)
 
-        return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
+        emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
     }
 
-    override fun listCodesFrequencies(hcPartyId: String, codeType: String): Flow<Pair<ComplexKey,Long?>> {
+    override fun listCodesFrequencies(hcPartyId: String, codeType: String): Flow<Pair<ComplexKey,Long?>> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val from = ComplexKey.of(
@@ -342,14 +338,14 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                 ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery<Contact>("service_by_hcparty_code").startKey(from).endKey(to).includeDocs(false).reduce(true).group(true).groupLevel(3)
+        val viewQuery = createQuery(client, "service_by_hcparty_code").startKey(from).endKey(to).includeDocs(false).reduce(true).group(true).groupLevel(3)
 
-        return client.queryView<Array<String>, Long>(viewQuery).map { Pair(ComplexKey.of(it.key), it.value) }
+        emitAll(client.queryView<Array<String>, Long>(viewQuery).map { Pair(ComplexKey.of(it.key), it.value) })
     }
 
 
     @View(name = "service_by_hcparty_patient_code", map = "classpath:js/contact/Service_by_hcparty_patient_code.js")
-    override fun findServicesByForeignKeys(hcPartyId: String, patientSecretForeignKeys: List<String>, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> {
+    override fun findServicesByForeignKeys(hcPartyId: String, patientSecretForeignKeys: List<String>, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         var startValueDate = startValueDate
@@ -377,14 +373,14 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                     endValueDate ?: ComplexKey.emptyObject()
             )
 
-            val viewQuery = createQuery<Contact>("service_by_hcparty_patient_code")
+            val viewQuery = createQuery(client, "service_by_hcparty_patient_code")
                     .startKey(from)
                     .endKey(to)
                     .includeDocs(false)
             val result = client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
             ids += result
         }
-        return ids.asFlow().flattenConcat().distinct()
+        emitAll(ids.asFlow().flattenConcat().distinct())
     }
 
     override fun findServicesByForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String> {
@@ -395,11 +391,11 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     fun legacy() {}
 
     @View(name = "by_service_emit_modified", map = "classpath:js/contact/By_service_emit_modified.js")
-    override fun listIdsByServices(services: Collection<String>): Flow<ContactIdServiceId> {
+    override fun listIdsByServices(services: Collection<String>): Flow<ContactIdServiceId> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery<Contact>("by_service_emit_modified").keys(services).includeDocs(false)
-        return client.queryView<String, ContactIdServiceId>(viewQuery).mapNotNull { it.value }
+        val viewQuery = createQuery(client, "by_service_emit_modified").keys(services).includeDocs(false)
+        emitAll(client.queryView<String, ContactIdServiceId>(viewQuery).mapNotNull { it.value })
     }
 
     override fun listByServices(services: Collection<String>): Flow<Contact> {
@@ -422,10 +418,10 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Contact' && !doc.deleted && doc._conflicts) emit(doc._id )}")
-    override fun listConflicts(): Flow<Contact> {
+    override fun listConflicts(): Flow<Contact> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery<Contact>("conflicts").includeDocs(true)
-        return client.queryViewIncludeDocsNoValue<String, Contact>(viewQuery).map { it.doc }
+        val viewQuery = createQuery(client, "conflicts").includeDocs(true)
+        emitAll(client.queryViewIncludeDocsNoValue<String, Contact>(viewQuery).map { it.doc })
     }
 }

@@ -18,6 +18,7 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -34,6 +35,7 @@ import org.taktik.icure.asyncdao.DocumentTemplateDAO
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.DocumentTemplate
 import org.taktik.icure.properties.CouchDbProperties
+import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.writeTo
 import java.io.IOException
@@ -49,63 +51,57 @@ class DocumentTemplateDAOImpl(couchDbProperties: CouchDbProperties,
                               @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<DocumentTemplate>(couchDbProperties, DocumentTemplate::class.java, couchDbDispatcher, idGenerator), DocumentTemplateDAO {
 
     @View(name = "by_userId_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.owner) emit([doc.owner,doc.guid], null )}")
-    override fun findByUserGuid(userId: String, guid: String?): Flow<DocumentTemplate> {
+    override fun findByUserGuid(userId: String, guid: String?): Flow<DocumentTemplate> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val from = ComplexKey.of(userId, "")
         val to = ComplexKey.of(userId, "\ufff0")
-        val viewQuery = createQuery<DocumentTemplate>("by_userId_and_guid").startKey(from).endKey(to).includeDocs(true)
+        val viewQuery = createQuery(client, "by_userId_and_guid").startKey(from).endKey(to).includeDocs(true)
         val documentTemplates = client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
 
         // invoke postLoad()
-        return documentTemplates.map {
-            this.postLoad(it)
-        }
+        emitAll(documentTemplates.map { this@DocumentTemplateDAOImpl.postLoad(it) })
     }
 
     @View(name = "by_specialty_code_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.specialty) emit([doc.specialty.code,doc.guid], null )}")
-    override fun findBySpecialtyGuid(healthcarePartyId: String, guid: String?): Flow<DocumentTemplate> {
+    override fun findBySpecialtyGuid(healthcarePartyId: String, guid: String?): Flow<DocumentTemplate> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val documentTemplates = if (guid != null) {
             val key = ComplexKey.of(healthcarePartyId, guid)
-            val viewQuery = createQuery<DocumentTemplate>("by_specialty_code_and_guid").key(key).includeDocs(true)
+            val viewQuery = createQuery(client, "by_specialty_code_and_guid").key(key).includeDocs(true)
             client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
         } else {
             val from = ComplexKey.of(healthcarePartyId, "")
             val to = ComplexKey.of(healthcarePartyId, "\ufff0")
-            val viewQuery = createQuery<DocumentTemplate>("by_specialty_code_and_guid").startKey(from).endKey(to).includeDocs(true)
+            val viewQuery = createQuery(client, "by_specialty_code_and_guid").startKey(from).endKey(to).includeDocs(true)
             client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
         }
 
         // invoke postLoad()
-        return documentTemplates.map {
-            this.postLoad(it)
-        }
+         emitAll(documentTemplates.map { this@DocumentTemplateDAOImpl.postLoad(it) })
     }
 
     @View(name = "by_document_type_code_and_user_id_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.documentType ) emit([doc.documentType,doc.owner,doc.guid], null )}")
-    override fun findByTypeUserGuid(documentTypeCode: String, userId: String?, guid: String?): Flow<DocumentTemplate> {
+    override fun findByTypeUserGuid(documentTypeCode: String, userId: String?, guid: String?): Flow<DocumentTemplate> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val viewQuery = if (userId != null && guid != null) {
             val key = ComplexKey.of(documentTypeCode, userId, guid)
-            createQuery<DocumentTemplate>("by_document_type_code_and_user_id_and_guid").key(key).includeDocs(true)
+            createQuery(client, "by_document_type_code_and_user_id_and_guid").key(key).includeDocs(true)
         } else if (userId != null) {
             val from = ComplexKey.of(documentTypeCode, userId, "")
             val to = ComplexKey.of(documentTypeCode, userId, "\ufff0")
-            createQuery<DocumentTemplate>("by_document_type_code_and_user_id_and_guid").startKey(from).endKey(to).includeDocs(true)
+            createQuery(client, "by_document_type_code_and_user_id_and_guid").startKey(from).endKey(to).includeDocs(true)
         } else {
             val from = ComplexKey.of(documentTypeCode, "", "")
             val to = ComplexKey.of(documentTypeCode, "\ufff0", "\ufff0")
-            createQuery<DocumentTemplate>("by_document_type_code_and_user_id_and_guid").startKey(from).endKey(to).includeDocs(true)
+            createQuery(client, "by_document_type_code_and_user_id_and_guid").startKey(from).endKey(to).includeDocs(true)
         }
         val documentTemplates = client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
 
         // invoke postLoad()
-        return documentTemplates.map {
-            this.postLoad(it)
-        }
+        emitAll(documentTemplates.map { this@DocumentTemplateDAOImpl.postLoad(it) })
     }
 
     override suspend fun createDocumentTemplate(entity: DocumentTemplate): DocumentTemplate {

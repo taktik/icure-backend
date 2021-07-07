@@ -51,8 +51,8 @@ import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.exceptions.PersistenceException
 import org.taktik.couchdb.exception.UpdateConflictException
+import org.taktik.icure.asyncdao.VersionnedDesignDocumentQueries
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
 import java.net.URI
 import java.nio.ByteBuffer
 import java.util.*
@@ -60,8 +60,8 @@ import java.util.*
 @FlowPreview
 @ExperimentalCoroutinesApi
 abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProperties,
-                                                  protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator
-) : GenericDAO<T> {
+                                                  protected override val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator
+) : GenericDAO<T>, VersionnedDesignDocumentQueries<T>(entityClass, couchDbProperties) {
     private val log = LoggerFactory.getLogger(this.javaClass)
     protected val dbInstanceUrl = URI(couchDbProperties.url)
 
@@ -76,7 +76,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
 
     override suspend fun hasAny(): Boolean {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return designDocContainsAllView(dbInstanceUrl) && client.queryView<String, String>(createQuery("all", entityClass).limit(1)).count() > 0
+        return designDocContainsAllView(dbInstanceUrl) && client.queryView<String, String>(createQuery(client,"all").limit(1)).count() > 0
     }
 
     private suspend fun designDocContainsAllView(dbInstanceUrl: URI): Boolean {
@@ -91,16 +91,18 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
         }
         if (designDocContainsAllView(dbInstanceUrl)) {
             val client = couchDbDispatcher.getClient(dbInstanceUrl)
-            client.queryView<String, String>(if (limit != null) createQuery("all", entityClass).limit(limit) else createQuery("all", entityClass)).onEach { emit(it.id) }.collect()
+            client.queryView<String, String>(if (limit != null) createQuery(client,"all", entityClass).limit(limit) else createQuery(client,"all", entityClass)).onEach { emit(it.id) }.collect()
         }
     }
 
-    override fun getAll(): Flow<T> {
+    override fun getAll(): Flow<T> = flow {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".getAll")
         }
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.queryView(createQuery("all", entityClass).includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
+        emitAll(
+            client.queryView(createQuery(client, "all").includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
+        )
     }
 
     override fun getAttachment(documentId: String, attachmentId: String, rev: String?): Flow<ByteBuffer> {

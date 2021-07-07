@@ -13,8 +13,8 @@ val repoPassword: String by project
 val mavenReleasesRepository: String by project
 
 plugins {
-    kotlin("jvm") version "1.4.21"
-    kotlin("kapt") version "1.4.21"
+    kotlin("jvm") version "1.4.31"
+    kotlin("kapt") version "1.4.31"
     `maven-publish`
 }
 
@@ -28,8 +28,8 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:2.4.0")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.21")
-        classpath("org.jetbrains.kotlin:kotlin-allopen:1.4.21")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.31")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:1.4.31")
         classpath("com.taktik.gradle:gradle-plugin-docker-java:2.0.6")
         classpath("com.taktik.gradle:gradle-plugin-git-version:1.0.13")
     }
@@ -121,23 +121,23 @@ dependencies {
     api("com.github.pozo:mapstruct-kotlin:1.3.1.2")
     kapt("com.github.pozo:mapstruct-kotlin-processor:1.3.1.2")
 
-    implementation(group = "io.projectreactor", name = "reactor-core", version = "3.4.0")
-    implementation(group = "io.projectreactor", name = "reactor-tools", version = "3.4.0")
+    implementation(group = "io.projectreactor", name = "reactor-core", version = "3.4.2")
+    implementation(group = "io.projectreactor", name = "reactor-tools", version = "3.4.2")
     implementation(group = "io.projectreactor.netty", name = "reactor-netty", version = "1.0.1")
 
     implementation(group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8")
     implementation(group = "org.jetbrains.kotlin", name = "kotlin-reflect")
-    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.4.2")
-    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactor", version = "1.4.2")
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.4.3")
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactor", version = "1.4.3")
     implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable-jvm", version = "0.3")
 
     //Jackson
     implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.11.3")
     implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = "2.11.3")
-    implementation(group = "org.mapstruct", name = "mapstruct", version = "1.3.1.Final")
+    implementation(group = "org.mapstruct", name = "mapstruct", version = "1.4.2.Final")
 
     //Krouch
-    implementation(group = "org.taktik.couchdb", name = "krouch", version = "jack211-1.0.2-42-ga934401c85")
+    implementation(group = "org.taktik.couchdb", name = "krouch", version = "jack211-1.0.2-49-gb108ca4a5f")
 
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-mail", version = "2.4.0")
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-webflux", version = "2.4.0")
@@ -192,8 +192,8 @@ dependencies {
     implementation(group = "org.jboss.aerogear", name = "aerogear-otp-java", version = "1.0.0")
 
     // Swagger
-    implementation(group = "org.springdoc", name = "springdoc-openapi-webflux-ui", version = "1.5.2")
-    implementation(group = "org.springdoc", name = "springdoc-openapi-kotlin", version = "1.5.2")
+    implementation(group = "org.springdoc", name = "springdoc-openapi-webflux-ui", version = "1.5.5")
+    implementation(group = "org.springdoc", name = "springdoc-openapi-kotlin", version = "1.5.5")
 
     //Saxon
     implementation(group = "net.sf.saxon", name = "Saxon-HE", version = "9.6.0-6")
