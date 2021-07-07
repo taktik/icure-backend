@@ -170,6 +170,17 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
         }
     }
 
+    @Operation(summary = "Create a batch of forms", description = "Returns the created forms.")
+    @PostMapping("/batch")
+    fun createForms(@RequestBody formDtos: List<FormDto>): Flux<FormDto> {
+        return try {
+            formLogic.createEntities(formDtos.map { formMapper.map(it) }).map { formMapper.map(it) }.injectReactorContext()
+        } catch (e: Exception) {
+            log.warn(e.message, e)
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+        }
+    }
+
     @Operation(summary = "List forms found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
     fun findFormsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,

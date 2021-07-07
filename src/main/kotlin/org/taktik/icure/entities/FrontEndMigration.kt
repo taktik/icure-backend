@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.entity.Attachment
+import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.FrontEndMigrationStatus
 import org.taktik.icure.entities.embed.RevisionInfo
@@ -46,6 +47,7 @@ data class FrontEndMigration(
         val startKey: String? = null,
         val startKeyDocId: String? = null,
         val processCount: Long? = null,
+        val properties: Set<PropertyStub> = setOf(),
 
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
@@ -65,7 +67,8 @@ data class FrontEndMigration(
             "userId" to (this.userId ?: other.userId),
             "startKey" to (this.startKey ?: other.startKey),
             "startKeyDocId" to (this.startKeyDocId ?: other.startKeyDocId),
-            "processCount" to (this.processCount ?: other.processCount)
+            "processCount" to (this.processCount ?: other.processCount),
+            "properties" to (other.properties + this.properties),
     )
 
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
