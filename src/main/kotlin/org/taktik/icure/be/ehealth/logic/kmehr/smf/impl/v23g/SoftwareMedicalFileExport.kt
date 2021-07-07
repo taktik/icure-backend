@@ -251,12 +251,14 @@ class SoftwareMedicalFileExport(
 			progressor?.progress((1.0 * index) / (contacts.size + documents.size))
             log.info("Treating contact ${index}/${contacts.size}")
 
-            log.info("Decrypt "+encContact.id)
-
             val contact = if (decryptor != null && (encContact.services.isNotEmpty())) {
+                log.info("Decrypt ${encContact.id}")
                 val ctcDto = contactMapper.map(encContact)
-				decryptor.decrypt(listOf(ctcDto), ContactDto::class.java).firstOrNull()?.let { contactMapper.map(it) } ?: encContact
-			} else {
+                val decryptedContact = decryptor.decrypt(listOf(ctcDto), ContactDto::class.java).firstOrNull()?.let { contactMapper.map(it) }
+                        ?: encContact
+                log.info("${encContact.id} decrypted")
+                decryptedContact
+            } else {
 				encContact
 			}
 
@@ -334,7 +336,6 @@ class SoftwareMedicalFileExport(
                                                             specialPrescriptions.add(makeNursePrescriptionTransaction(contact, subcon, subformsubcons, form))
                                                         }
                                                         else -> Unit
-
                                                     }
                                                 }
                                             } catch (e:Exception) {
@@ -349,16 +350,15 @@ class SoftwareMedicalFileExport(
                         contact.services.filter { s -> s.tags.find { t -> t.code == "incapacity" } != null }.forEach { incapacityService ->
                             headingsAndItemsAndTexts.add(makeIncapacityItem(healthcareParty, incapacityService))
                             incapacityService.content[language]?.documentId?.let { docId ->
-                                createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config)
+                                createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config, decryptor)
                             }
                         }
                         contact.services.filter { s -> s.tags.find { t -> t.code == "physiotherapy" } != null }.forEach { kineService ->
-                            specialPrescriptions.add(makeKinePrescriptionTransaction(kineService))
+                            specialPrescriptions.add(makeKinePrescriptionTransaction(kineService, decryptor))
                         }
                         contact.services.filter { s -> s.tags.find { t -> t.code == "medicalcares" } != null }.forEach { nurseService ->
-                            specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService))
+                            specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService, decryptor))
                         }
-
                         contact.services.filter { s -> isSummary(s) }.forEach { summaryService ->
                             summaries.add(makeSummaryTransaction(contact, summaryService))
                         }
@@ -414,7 +414,7 @@ class SoftwareMedicalFileExport(
                                         } ?: emptyList()
                                     } + codesToKmehr(svc.codes)
                                     if (contents.isNotEmpty()) {
-                                        val item = createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID")?.apply {
+                                        createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID")?.apply {
                                             this.ids.add(IDKMEHR().apply {
                                                 this.s = IDKMEHRschemes.LOCAL
                                                 this.sv = "1.0"
@@ -465,9 +465,9 @@ class SoftwareMedicalFileExport(
                                                     this.contents.add(ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
                                                 }
                                             }
-
-                                            addHistoryLinkAndCacheService(this, svc, config)
-                                            headingsAndItemsAndTexts.add(this)
+                                        }?.let {
+                                            addHistoryLinkAndCacheService(it, svc, config)
+                                            headingsAndItemsAndTexts.add(it)
                                         }
                                     }
                                 }
@@ -499,7 +499,7 @@ class SoftwareMedicalFileExport(
             )
 			Unit
 		}
-
+        log.info("Exporting pharmaceutical prescriptions")
 		pharmaceuticalPrescriptions.forEachIndexed{ index, it ->
 			progressor?.progress((1.0 * (index + contacts.size)) / (contacts.size + documents.size))
 			val (svc, con) = it
@@ -571,6 +571,7 @@ class SoftwareMedicalFileExport(
 
         documents.forEachIndexed{ index, it ->
             try {
+                log.info("Exporting document $index/${documents.size}")
                 progressor?.progress((1.0 * (index + contacts.size)) / (contacts.size + documents.size))
                 val (docid, svc, con) = it
                 folder.transactions.add(TransactionType().apply {
@@ -596,7 +597,9 @@ class SoftwareMedicalFileExport(
                             value = svc.comment
                         })
                     }
-                    documentLogic?.get(docid)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(d); value = it }) } }
+                    documentLogic.get(docid)?.let { d ->
+                        d.attachment?.let { headingsAndItemsAndTexts.add(makeMultimediaLnkType(d, it, decryptor)) }
+                    }
                     headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(con.id) })
                 })
             } catch(e:Exception) {
@@ -659,15 +662,15 @@ class SoftwareMedicalFileExport(
         }
     }
 
-    private suspend fun makeNursePrescriptionTransaction(contact: Service): TransactionType {
-        return makeSpecialPrescriptionTransaction(contact, "nursing")
+    private suspend fun makeNursePrescriptionTransaction(contact: Service, decryptor: AsyncDecrypt?): TransactionType {
+        return makeSpecialPrescriptionTransaction(contact, "nursing", decryptor)
     }
 
-    private suspend fun makeKinePrescriptionTransaction(contact: Service): TransactionType {
-        return makeSpecialPrescriptionTransaction(contact, "physiotherapy")
+    private suspend fun makeKinePrescriptionTransaction(contact: Service, decryptor: AsyncDecrypt?): TransactionType {
+        return makeSpecialPrescriptionTransaction(contact, "physiotherapy", decryptor)
     }
 
-    private suspend fun makeSpecialPrescriptionTransaction(service: Service, transactionType: String): TransactionType {
+    private suspend fun makeSpecialPrescriptionTransaction(service: Service, transactionType: String, decryptor: AsyncDecrypt?): TransactionType {
         val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
 
         return TransactionType().apply {
@@ -690,7 +693,7 @@ class SoftwareMedicalFileExport(
 
             service.content[lang]?.documentId?.let {
                 try{
-                    documentLogic?.get(it)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(d); value = it }) } }
+                    documentLogic.get(it)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(makeMultimediaLnkType(d, it, decryptor)) } }
                 } catch(e:Exception) {
                     log.error("Cannot export document ${it}")
                 }
@@ -814,7 +817,7 @@ class SoftwareMedicalFileExport(
         }
     }
 
-    private suspend fun createLinkToDocument(documentId: String, healthcareParty: HealthcareParty, service: Service, folder: FolderType, language: String, config: Config){
+    private suspend fun createLinkToDocument(documentId: String, healthcareParty: HealthcareParty, service: Service, folder: FolderType, language: String, config: Config, decryptor: AsyncDecrypt?){
         try {
             folder.transactions.add(TransactionType().apply {
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = "1.0"; value = service.id })
@@ -839,7 +842,10 @@ class SoftwareMedicalFileExport(
                         value = service.comment
                     })
                 }
-                documentLogic?.get(documentId)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(d); value = it }) } }
+                documentLogic.get(documentId)?.let { d -> d.attachment?.let {
+                    val element = makeMultimediaLnkType(d, it, decryptor)
+                    headingsAndItemsAndTexts.add(element)
+                } }
                 LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(service.id!!) }.also { headingsAndItemsAndTexts.add(it) }
             })
         } catch(e:Exception) {
@@ -1087,7 +1093,7 @@ class SoftwareMedicalFileExport(
 						s = CDCONTENTschemes.LOCAL
 						sl = "ICURE.MEDICALCODEID"
 						dn = "ICURE.MEDICALCODEID"
-						sv = code.version
+						sv = code.version ?: "1.0"
 						value = code.code
 					}
 				}
@@ -1210,6 +1216,16 @@ class SoftwareMedicalFileExport(
                         svc.closingDate == null
                         || svc.closingDate == 0L
                         || svc.closingDate!!.toLong() > FuzzyValues.getFuzzyDate(LocalDateTime.now(), ChronoUnit.SECONDS)
+                )
+                && (
+                        // medication store end moment in content.medicationValue.endMoment instead of svc.closingDate
+                        svc.content.values.find { content ->
+                            content.medicationValue != null
+                        }?.let { content ->
+                            content.medicationValue!!.endMoment == null
+                            || content.medicationValue!!.endMoment == 0L
+                            || content.medicationValue!!.endMoment!! > FuzzyValues.getFuzzyDate(LocalDateTime.now(), ChronoUnit.SECONDS)
+                        } ?: true
                 )
                 && (
                         // is newest version: there is no history in PMF
