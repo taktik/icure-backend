@@ -400,6 +400,9 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 						ri.setProtocol(p.protocol);
 						ri.setSex(p.sex);
 						ri.setDocumentId(documentId);
+                        if(!p.ssin.isEmpty()){
+                            ri.setSsin(p.ssin);
+                        }
 					} else if (isExtraPatientLine(line)) {
 						PatientLine p = getExtraPatientLine(line);
 						if (p.dn != null) {
@@ -529,6 +532,9 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
             if (parts.length > 5) {
                 pl.dn = parseBirthDate(parts[5].trim());
             }
+        }
+        if(parts.length > 6){
+            pl.ssin = parts[6].trim();
         }
         return pl;
     }
