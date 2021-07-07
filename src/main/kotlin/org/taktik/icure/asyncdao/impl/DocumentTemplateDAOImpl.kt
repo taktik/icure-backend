@@ -35,8 +35,6 @@ import org.taktik.icure.asyncdao.DocumentTemplateDAO
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.DocumentTemplate
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.spring.asynccache.AsyncCacheManager
-import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.writeTo
 import java.io.IOException
 import java.nio.ByteBuffer
