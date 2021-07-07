@@ -23,7 +23,6 @@ package org.taktik.icure.logic.impl
 import com.google.common.base.Preconditions
 import com.google.common.collect.ImmutableMap
 import org.apache.commons.beanutils.PropertyUtilsBean
-import org.apache.commons.lang3.ObjectUtils
 import org.apache.commons.logging.LogFactory
 import org.jetbrains.annotations.NotNull
 import org.slf4j.LoggerFactory
@@ -44,8 +43,6 @@ import org.xml.sax.helpers.DefaultHandler
 import java.io.InputStream
 import java.lang.reflect.InvocationTargetException
 import java.util.*
-import java.util.stream.Collectors
-import javax.security.auth.login.LoginException
 import javax.xml.parsers.SAXParserFactory
 import kotlin.collections.HashMap
 
@@ -176,8 +173,8 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
         val check = get(listOf(Code("ICURE-SYSTEM", md5, "1").id))
 
         if (check.isEmpty()) {
-            val factory = SAXParserFactory.newInstance();
-            val saxParser = factory.newSAXParser();
+            val factory = SAXParserFactory.newInstance()
+            val saxParser = factory.newSAXParser()
 
             val stack = LinkedList<Code>()
 
@@ -243,11 +240,154 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
                             else -> null
                         }
                     }
-
                 }
             }
+
+            val beThesaurusProcHandler = object : DefaultHandler() {
+                var initialized = false
+                var version: String? = null
+                var charsHandler: ((chars: String) -> Unit)? = null
+                var code: Code? = null
+                var characters: String = ""
+
+                override fun characters(ch: CharArray?, start: Int, length: Int) {
+                    ch?.let { characters += String(it, start, length) }
+                }
+
+                override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
+                    if (!initialized && qName != "Root") {
+                        throw IllegalArgumentException("XML not supported : $type")
+                    }
+                    if (!initialized) {
+                        version = attributes?.getValue("version")?:
+                            throw IllegalArgumentException("Unknown version in : $type")
+                    }
+
+                    initialized = true
+                    characters = ""
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "PROCEDURE" -> {
+                                code = Code(type, null, version).apply {
+                                    label = HashMap()
+                                    searchTerms = HashMap()
+                                }
+                            }
+                            "CISP" -> charsHandler = { ch -> code?.code = ch }
+                            "IBUI" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) code?.links = listOf("BE-THESAURUS|$ch|$version")
+                            }
+                            "IBUI_NOT_EXACT" -> charsHandler = { ch ->
+                                if(ch.isNotBlank() && code?.links.isNullOrEmpty())
+                                    code?.links = listOf("BE-THESAURUS|$ch|$version")
+                            }
+                            "LABEL_FR" -> charsHandler = { ch -> if(ch.isNotBlank()) code?.label?.put("fr", ch) }
+                            "LABEL_NL" -> charsHandler = { ch -> if(ch.isNotBlank()) code?.label?.put("nl", ch) }
+                            "SYN_FR" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) {
+                                    code?.searchTerms?.put("fr", ch.split(";").map { it.trim() }.toSet())
+                                }
+                            }
+                            "SYN_NL" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) {
+                                    code?.searchTerms?.put("nl", ch.split(";").map { it.trim() }.toSet())
+                                }
+                            }
+                            else -> charsHandler = null
+                        }
+                    }
+                }
+
+                override fun endElement(uri: String?, localName: String?, qName: String?) {
+                    charsHandler?.let { it(characters) }
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "PROCEDURE" -> {
+                                batchSave(code, false)
+                            }
+                            else -> null
+                        }
+                    }
+                }
+            }
+
+            val beThesaurusHandler = object : DefaultHandler() {
+                var initialized = false
+                var version: String? = null
+                var charsHandler: ((chars: String) -> Unit)? = null
+                var code: Code? = null
+                var characters: String = ""
+
+                override fun characters(ch: CharArray?, start: Int, length: Int) {
+                    ch?.let { characters += String(it, start, length) }
+                }
+
+                override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
+                    if (!initialized && qName != "Root") {
+                        throw IllegalArgumentException("XML not supported : $type")
+                    }
+                    if (!initialized) {
+                        version = attributes?.getValue("version")?:
+                                throw IllegalArgumentException("Unknown version in : $type")
+                    }
+
+                    initialized = true
+                    characters = ""
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "CLINICAL_LABEL" -> {
+                                code = Code(type, null, version).apply {
+                                    label = HashMap()
+                                    searchTerms = HashMap()
+                                    links = mutableListOf()
+                                }
+                            }
+                            "IBUI" -> charsHandler = { ch -> code?.code = ch }
+                            "ICPC_2_CODE_1", "ICPC_2_CODE_1X", "ICPC_2_CODE_1Y",
+                            "ICPC_2_CODE_2", "ICPC_2_CODE_2X", "ICPC_2_CODE_2Y" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) code?.links?.add("ICPC|$ch|2")
+                            }
+                            "ICD_10_CODE_1", "ICD_10_CODE_1X", "ICD_10_CODE_1Y",
+                            "ICD_10_CODE_2", "ICD_10_CODE_2X", "ICD_10_CODE_2Y" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) code?.links?.add("ICD|$ch|10")
+                            }
+                            "FR_CLINICAL_LABEL" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) code?.label?.put("fr", ch.replace("&apos;","'")) }
+                            "NL_CLINICAL_LABEL" -> charsHandler = { ch -> if(ch.isNotBlank()) code?.label?.put("nl", ch) }
+                            "CLEFS_RECHERCHE_FR" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) {
+                                    code?.searchTerms?.put("fr", ch.split(" ").map { it.trim() }.toSet())
+                                }
+                            }
+                            "ZOEKTERMEN_NL" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) {
+                                    code?.searchTerms?.put("nl", ch.split(" ").map { it.trim() }.toSet())
+                                }
+                            }
+                            else -> charsHandler = null
+                        }
+                    }
+                }
+
+                override fun endElement(uri: String?, localName: String?, qName: String?) {
+                    charsHandler?.let { it(characters) }
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "CLINICAL_LABEL" -> {
+                                batchSave(code, false)
+                            }
+                            else -> null
+                        }
+                    }
+                }
+            }
+
             try {
-                saxParser.parse(stream, handler)
+                when (type.toUpperCase()) {
+                    "BE-THESAURUS-PROCEDURES" -> saxParser.parse(stream, beThesaurusProcHandler)
+                    "BE-THESAURUS" -> saxParser.parse(stream, beThesaurusHandler)
+                    else -> saxParser.parse(stream, handler)
+                }
                 batchSave(null, true)
                 create(Code("ICURE-SYSTEM", md5, "1"))
             } catch(e:IllegalArgumentException) {
