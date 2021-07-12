@@ -156,7 +156,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 
 				Instant demandDate = getResultDate(lines, i, isStandardFormat);
 				if (demandDate!=null) { ri.setDemandDate(demandDate.toEpochMilli()); }
-				String code = getProtocolCode(lines, i, isStandardFormat, demandDate, false);
+				String code = getProtocolCode(lines, i, isStandardFormat, demandDate, 0);
 
 				ri.setProtocol(code);
 				i += isStandardFormat?6:9;
@@ -172,7 +172,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 		return l;
 	}
 
-	private String getProtocolCode(List<String> lines, int i, boolean isStandardFormat, Instant demandDate, Boolean legacy) {
+	private String getProtocolCode(List<String> lines, int i, boolean isStandardFormat, Instant demandDate, Integer offset) {
 		String code = null;
 		if (isStandardFormat) {
 				try {
@@ -181,7 +181,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 					code = computeProtocolCode(lines.get(i + 1).substring(0, Math.min(24,lines.get(i + 1).length())).trim(),
 						lines.get(i + 1).length()>24?lines.get(i + 1).substring(24).trim():"",
 						date != null ? date.toEpochMilli() : 0,
-						demandDate.toEpochMilli() + (legacy ? 0 : 0),
+						demandDate.toEpochMilli() + offset,
 						lines.get(i + 5));
 			} catch (ParseException | NullPointerException e) {
 				e.printStackTrace();
@@ -192,7 +192,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 				code = computeProtocolCode(lines.get(i + 1).substring(0, 24).trim(),
 						lines.get(i + 1).substring(24).trim(),
 						parseDate(lines.get(i + 5).trim()).toEpochMilli(),
-						demandDate.toEpochMilli() + (legacy ? 0 : 0),
+						demandDate.toEpochMilli() + offset,
 						lines.get(i + 8));
 			} catch (ParseException | NullPointerException e) {
 				e.printStackTrace();
@@ -232,11 +232,12 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 				boolean isStandardFormat = onlyNumbersAndPercentSigns.matcher(lines.get(i + 2).trim()).matches();
 
 				Instant demandDate = getResultDate(lines, i, isStandardFormat);
-				String code = getProtocolCode(lines, i, isStandardFormat, demandDate, false);
-                String legacyCode = getProtocolCode(lines, i, isStandardFormat, demandDate, true);
+				String code = getProtocolCode(lines, i, isStandardFormat, demandDate, 0);
+                String legacyCode = getProtocolCode(lines, i, isStandardFormat, demandDate, -7200000);
+                String reverseLegacyCode = getProtocolCode(lines, i, isStandardFormat, demandDate, 7200000);
 				i += isStandardFormat?6:9;
 
-				if (protocolIds.contains(code) || protocolIds.contains(legacyCode) || (protocolIds.size() == 1 && protocolIds.get(0) != null && protocolIds.get(0).startsWith("***"))) {
+				if (protocolIds.contains(code) || protocolIds.contains(legacyCode) || protocolIds.contains(reverseLegacyCode) || (protocolIds.size() == 1 && protocolIds.get(0) != null && protocolIds.get(0).startsWith("***"))) {
 					Service s = new Service();
 
 					i = fillService(s, language, lines, i, demandDate);
