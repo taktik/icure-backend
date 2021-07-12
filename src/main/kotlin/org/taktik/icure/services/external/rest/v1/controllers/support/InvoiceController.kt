@@ -31,6 +31,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -86,6 +88,7 @@ class InvoiceController(
         private val invoicingCodeMapper: InvoicingCodeMapper,
         private val stubMapper: StubMapper
 ) {
+    private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     private val invoiceToInvoiceDto = { it: Invoice -> invoiceMapper.map(it) }
 
@@ -377,4 +380,28 @@ class InvoiceController(
         val invoices = invoiceLogic.filter(filterChainMapper.map(filterChain))
         return invoices.map { element -> invoiceMapper.map(element) }.injectReactorContext()
     }
+
+    @Operation(summary = "Modify a batch of invoices", description = "Returns the modified invoices.")
+    @PutMapping("/batch")
+    fun modifyInvoices(@RequestBody invoiceDtos: List<InvoiceDto>): Flux<InvoiceDto> {
+        return try {
+            invoiceLogic.updateEntities(invoiceDtos.map { invoiceMapper.map(it) }).map { invoiceMapper.map(it) }.injectReactorContext()
+        } catch (e: Exception) {
+            log.warn(e.message, e)
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+        }
+    }
+
+    @Operation(summary = "Create a batch of invoices", description = "Returns the created invoices.")
+    @PostMapping("/batch")
+    fun createInvoices(@RequestBody invoiceDtos: List<InvoiceDto>): Flux<InvoiceDto> {
+        return try {
+            invoiceLogic.createEntities(invoiceDtos.map { invoiceMapper.map(it) }).map { invoiceMapper.map(it) }.injectReactorContext()
+        } catch (e: Exception) {
+            log.warn(e.message, e)
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+        }
+    }
+
+
 }
