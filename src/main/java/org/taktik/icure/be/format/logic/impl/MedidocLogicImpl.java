@@ -30,6 +30,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -73,7 +74,9 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 	private final DateFormat df = new SimpleDateFormat("yyyyMMdd");
 	private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd");
 	private final DateFormat idf = new SimpleDateFormat("ddMMyyyy");
+    private final DateTimeFormatter idtf = DateTimeFormatter.ofPattern("ddMMyyyy");
 	private final DateFormat sidf = new SimpleDateFormat("ddMMyy");
+    private final DateTimeFormatter sidtf = DateTimeFormatter.ofPattern("ddMMyy");
 	private final Pattern onlyNumbersAndPercentSigns = Pattern.compile("^[0-9%]+$");
 
 	protected ContactLogic contactLogic;
@@ -144,7 +147,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 
 				try {
 					//noinspection ConstantConditions
-					ri.setDateOfBirth(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(parseDate(birthDateLine).getTime()), ZoneId.systemDefault()), ChronoUnit.DAYS));
+					ri.setDateOfBirth(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(parseDate(birthDateLine), ZoneId.of("UTC")), ChronoUnit.DAYS));
 				} catch (ParseException | NullPointerException ignored) {
 				}
 
@@ -153,8 +156,8 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 					ri.setSex(gender.equals("X") ? "F" : "M");
 				}
 
-				Date demandDate = getResultDate(lines, i, isStandardFormat);
-				if (demandDate!=null) { ri.setDemandDate(demandDate.getTime()); }
+				Instant demandDate = getResultDate(lines, i, isStandardFormat);
+				if (demandDate!=null) { ri.setDemandDate(demandDate.toEpochMilli()); }
 				String code = getProtocolCode(lines, i, isStandardFormat, demandDate);
 
 				ri.setProtocol(code);
@@ -171,16 +174,16 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 		return l;
 	}
 
-	private String getProtocolCode(List<String> lines, int i, boolean isStandardFormat, Date demandDate) {
+	private String getProtocolCode(List<String> lines, int i, boolean isStandardFormat, Instant demandDate) {
 		String code = null;
 		if (isStandardFormat) {
 				try {
 				//noinspection ConstantConditions
-					Date date = parseDate(lines.get(i + 2).trim());
+					Instant date = parseDate(lines.get(i + 2).trim());
 					code = computeProtocolCode(lines.get(i + 1).substring(0, Math.min(24,lines.get(i + 1).length())).trim(),
 						lines.get(i + 1).length()>24?lines.get(i + 1).substring(24).trim():"",
-						date != null ? date.getTime() : System.currentTimeMillis(),
-						demandDate.getTime(),
+						date != null ? date.toEpochMilli() : 0,
+						demandDate.toEpochMilli(),
 						lines.get(i + 5));
 			} catch (ParseException | NullPointerException e) {
 				e.printStackTrace();
@@ -190,8 +193,8 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 				//noinspection ConstantConditions
 				code = computeProtocolCode(lines.get(i + 1).substring(0, 24).trim(),
 						lines.get(i + 1).substring(24).trim(),
-						parseDate(lines.get(i + 5).trim()).getTime(),
-						demandDate.getTime(),
+						parseDate(lines.get(i + 5).trim()).toEpochMilli(),
+						demandDate.toEpochMilli(),
 						lines.get(i + 8));
 			} catch (ParseException | NullPointerException e) {
 				e.printStackTrace();
@@ -200,8 +203,8 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 		return code;
 	}
 
-	private Date getResultDate(List<String> lines, int i, boolean isStandardFormat) {
-		Date demandDate = null;
+	private Instant getResultDate(List<String> lines, int i, boolean isStandardFormat) {
+		Instant demandDate = null;
 		if (isStandardFormat) {
 			//noinspection Duplicates
 			try {
@@ -230,7 +233,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 				//come before the birth date.
 				boolean isStandardFormat = onlyNumbersAndPercentSigns.matcher(lines.get(i + 2).trim()).matches();
 
-				Date demandDate = getResultDate(lines, i, isStandardFormat);
+				Instant demandDate = getResultDate(lines, i, isStandardFormat);
 				String code = getProtocolCode(lines, i, isStandardFormat, demandDate);
 				i += isStandardFormat?6:9;
 
@@ -255,7 +258,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 		return contactLogic.modifyContact(ctc);
 	}
 
-	private int fillService(Service s, String language, List<String> lines, int i, Date demandDate) {
+	private int fillService(Service s, String language, List<String> lines, int i, Instant demandDate) {
 		do {
 			i++;
 		} while (!p2.matcher(lines.get(i)).matches());
@@ -271,7 +274,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 		s.setId(uuidGen.newGUID().toString());
 		s.getContent().put(language, new Content(b.toString()));
 		s.setLabel("Protocol");
-		s.setValueDate(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(demandDate != null ? Instant.ofEpochMilli(demandDate.getTime()) : Instant.now(), ZoneId.systemDefault()), ChronoUnit.DAYS));
+		s.setValueDate(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(demandDate != null ? demandDate : Instant.now(), ZoneId.of("UTC")), ChronoUnit.DAYS));
 		return i;
 	}
 
@@ -382,7 +385,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 				+ StringUtils.substring(code, 0, 20);
 	}
 
-	private Date parseDate(String dateString) throws ParseException {
+	private Instant parseDate(String dateString) throws ParseException {
 		if (dateString.contains("%")) {
 			return null;
 		}
@@ -394,22 +397,22 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 		}
 		if (dateString.length() < 8) {
 			if (Integer.parseInt(dateString.substring(4, 6)) > 31) {
-				return sidf.parse(dateString);
+				return LocalDateTime.parse(dateString, sidtf).atZone(ZoneId.of("UTC")).toInstant();
 			} else {
 				if (Integer.parseInt(dateString.substring(0, 2)) < 18) {
-					return df.parse("20" + dateString);
+                    return LocalDateTime.parse("20" + dateString, dtf).atZone(ZoneId.of("UTC")).toInstant();
 				} else {
-					return df.parse("19" + dateString);
+                    return LocalDateTime.parse("19" + dateString, dtf).atZone(ZoneId.of("UTC")).toInstant();
 				}
 			}
 		}
 
 		if (Integer.parseInt(dateString.substring(4, 8)) > 1300) {
 			//Last digits are a year. Let's guess a ddMMyyyy
-			return idf.parse(dateString);
+            return LocalDateTime.parse(dateString, idtf).atZone(ZoneId.of("UTC")).toInstant();
 		} else {
 			//You won't believe it... It follows the doc
-			return df.parse(dateString);
+            return LocalDateTime.parse(dateString, dtf).atZone(ZoneId.of("UTC")).toInstant();
 		}
 	}
 }
