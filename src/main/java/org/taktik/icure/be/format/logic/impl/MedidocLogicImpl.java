@@ -180,7 +180,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 					Instant date = parseDate(lines.get(i + 2).trim());
 					code = computeProtocolCode(lines.get(i + 1).substring(0, Math.min(24,lines.get(i + 1).length())).trim(),
 						lines.get(i + 1).length()>24?lines.get(i + 1).substring(24).trim():"",
-						date != null ? date.toEpochMilli() : 0,
+						date != null ? date.toEpochMilli() + offset : 0,
 						demandDate.toEpochMilli() + offset,
 						lines.get(i + 5));
 			} catch (ParseException | NullPointerException e) {
@@ -191,7 +191,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 				//noinspection ConstantConditions
 				code = computeProtocolCode(lines.get(i + 1).substring(0, 24).trim(),
 						lines.get(i + 1).substring(24).trim(),
-						parseDate(lines.get(i + 5).trim()).toEpochMilli(),
+						parseDate(lines.get(i + 5).trim()).toEpochMilli() + offset,
 						demandDate.toEpochMilli() + offset,
 						lines.get(i + 8));
 			} catch (ParseException | NullPointerException e) {
