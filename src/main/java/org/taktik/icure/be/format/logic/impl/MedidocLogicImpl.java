@@ -236,7 +236,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
                 String legacyCode = getProtocolCode(lines, i, isStandardFormat, demandDate, true);
 				i += isStandardFormat?6:9;
 
-				if (protocolIds.contains(code) || (protocolIds.size() == 1 && protocolIds.get(0) != null && protocolIds.get(0).startsWith("***"))) {
+				if (protocolIds.contains(code) || protocolIds.contains(legacyCode) || (protocolIds.size() == 1 && protocolIds.get(0) != null && protocolIds.get(0).startsWith("***"))) {
 					Service s = new Service();
 
 					i = fillService(s, language, lines, i, demandDate);
