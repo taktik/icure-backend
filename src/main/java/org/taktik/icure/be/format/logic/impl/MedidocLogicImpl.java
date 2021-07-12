@@ -73,9 +73,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 	private final Pattern p5 = Pattern.compile("^#/[0-9]*\\s*$");
 	private final DateFormat df = new SimpleDateFormat("yyyyMMdd");
 	private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd");
-	private final DateFormat idf = new SimpleDateFormat("ddMMyyyy");
     private final DateTimeFormatter idtf = DateTimeFormatter.ofPattern("ddMMyyyy");
-	private final DateFormat sidf = new SimpleDateFormat("ddMMyy");
     private final DateTimeFormatter sidtf = DateTimeFormatter.ofPattern("ddMMyy");
 	private final Pattern onlyNumbersAndPercentSigns = Pattern.compile("^[0-9%]+$");
 
@@ -158,7 +156,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 
 				Instant demandDate = getResultDate(lines, i, isStandardFormat);
 				if (demandDate!=null) { ri.setDemandDate(demandDate.toEpochMilli()); }
-				String code = getProtocolCode(lines, i, isStandardFormat, demandDate);
+				String code = getProtocolCode(lines, i, isStandardFormat, demandDate, false);
 
 				ri.setProtocol(code);
 				i += isStandardFormat?6:9;
@@ -174,7 +172,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 		return l;
 	}
 
-	private String getProtocolCode(List<String> lines, int i, boolean isStandardFormat, Instant demandDate) {
+	private String getProtocolCode(List<String> lines, int i, boolean isStandardFormat, Instant demandDate, Boolean legacy) {
 		String code = null;
 		if (isStandardFormat) {
 				try {
@@ -183,7 +181,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 					code = computeProtocolCode(lines.get(i + 1).substring(0, Math.min(24,lines.get(i + 1).length())).trim(),
 						lines.get(i + 1).length()>24?lines.get(i + 1).substring(24).trim():"",
 						date != null ? date.toEpochMilli() : 0,
-						demandDate.toEpochMilli(),
+						demandDate.toEpochMilli() + (legacy ? 0 : 0),
 						lines.get(i + 5));
 			} catch (ParseException | NullPointerException e) {
 				e.printStackTrace();
@@ -194,7 +192,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 				code = computeProtocolCode(lines.get(i + 1).substring(0, 24).trim(),
 						lines.get(i + 1).substring(24).trim(),
 						parseDate(lines.get(i + 5).trim()).toEpochMilli(),
-						demandDate.toEpochMilli(),
+						demandDate.toEpochMilli() + (legacy ? 0 : 0),
 						lines.get(i + 8));
 			} catch (ParseException | NullPointerException e) {
 				e.printStackTrace();
@@ -234,7 +232,8 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 				boolean isStandardFormat = onlyNumbersAndPercentSigns.matcher(lines.get(i + 2).trim()).matches();
 
 				Instant demandDate = getResultDate(lines, i, isStandardFormat);
-				String code = getProtocolCode(lines, i, isStandardFormat, demandDate);
+				String code = getProtocolCode(lines, i, isStandardFormat, demandDate, false);
+                String legacyCode = getProtocolCode(lines, i, isStandardFormat, demandDate, true);
 				i += isStandardFormat?6:9;
 
 				if (protocolIds.contains(code) || (protocolIds.size() == 1 && protocolIds.get(0) != null && protocolIds.get(0).startsWith("***"))) {
@@ -397,22 +396,22 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 		}
 		if (dateString.length() < 8) {
 			if (Integer.parseInt(dateString.substring(4, 6)) > 31) {
-				return LocalDateTime.parse(dateString, sidtf).atZone(ZoneId.of("UTC")).toInstant();
+				return LocalDate.parse(dateString, sidtf).atTime(0,0,0,0).atZone(ZoneId.of("UTC")).toInstant();
 			} else {
 				if (Integer.parseInt(dateString.substring(0, 2)) < 18) {
-                    return LocalDateTime.parse("20" + dateString, dtf).atZone(ZoneId.of("UTC")).toInstant();
+                    return LocalDate.parse("20" + dateString, dtf).atTime(0,0,0,0).atZone(ZoneId.of("UTC")).toInstant();
 				} else {
-                    return LocalDateTime.parse("19" + dateString, dtf).atZone(ZoneId.of("UTC")).toInstant();
+                    return LocalDate.parse("19" + dateString, dtf).atTime(0,0,0,0).atZone(ZoneId.of("UTC")).toInstant();
 				}
 			}
 		}
 
 		if (Integer.parseInt(dateString.substring(4, 8)) > 1300) {
 			//Last digits are a year. Let's guess a ddMMyyyy
-            return LocalDateTime.parse(dateString, idtf).atZone(ZoneId.of("UTC")).toInstant();
+            return LocalDate.parse(dateString, idtf).atTime(0,0,0,0).atZone(ZoneId.of("UTC")).toInstant();
 		} else {
 			//You won't believe it... It follows the doc
-            return LocalDateTime.parse(dateString, dtf).atZone(ZoneId.of("UTC")).toInstant();
+            return LocalDate.parse(dateString, dtf).atTime(0,0,0,0).atZone(ZoneId.of("UTC")).toInstant();
 		}
 	}
 }
