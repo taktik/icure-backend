@@ -46,7 +46,7 @@ interface HealthElementLogic : EntityPersister<HealthElement, String> {
 
     suspend fun addDelegations(healthElementId: String, delegations: List<Delegation>): HealthElement?
 
-    suspend fun solveConflicts()
+    fun solveConflicts(): Flow<HealthElement>
 
     fun filter(filter: FilterChain<HealthElement>): Flow<HealthElement>
 }

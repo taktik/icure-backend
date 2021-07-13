@@ -288,17 +288,12 @@ class InvoiceLogicImpl(private val filters: Filters,
         emitAll(invoiceDAO.listAllHcpsByStatus(status, from, to, hcpIds))
     }
 
-    override suspend fun solveConflicts() {
-        val invoicesInConflict = invoiceDAO.listConflicts().mapNotNull { invoiceDAO.get(it.id, Option.CONFLICTS) }
-        invoicesInConflict.collect { iv ->
-            var modifiedInvoice = iv
-            iv.conflicts?.mapNotNull { c: String -> invoiceDAO.get(iv.id, c) }?.forEach { cp ->
-                modifiedInvoice = modifiedInvoice.merge(cp)
-                invoiceDAO.purge(cp)
-            }
-            invoiceDAO.save(modifiedInvoice)
-        }
-    }
+    override fun solveConflicts(): Flow<Invoice> =
+            invoiceDAO.listConflicts().mapNotNull { invoiceDAO.get(it.id, Option.CONFLICTS)?.let { invoice ->
+                invoice.conflicts?.mapNotNull { conflictingRevision -> invoiceDAO.get(invoice.id, conflictingRevision) }
+                        ?.fold(invoice) { kept, conflict -> kept.merge(conflict).also { invoiceDAO.purge(conflict) } }
+                        ?.let { mergedInvoice -> invoiceDAO.save(mergedInvoice) }
+            } }
 
     override suspend fun getTarificationsCodesOccurences(hcPartyId: String, minOccurences: Long): List<LabelledOccurence> {
         return invoiceDAO.listTarificationsFrequencies(hcPartyId)

@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.FormDAO
 import org.taktik.icure.entities.Form
+import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Delegation
 
 interface FormLogic : EntityPersister<Form, String> {
@@ -39,6 +40,6 @@ interface FormLogic : EntityPersister<Form, String> {
 
     suspend fun addDelegations(formId: String, delegations: List<Delegation>): Form?
     fun getGenericDAO(): FormDAO
-    suspend fun solveConflicts()
+    fun solveConflicts(): Flow<Form>
     suspend fun getAllByExternalUuid(documentId: String): List<Form>
 }

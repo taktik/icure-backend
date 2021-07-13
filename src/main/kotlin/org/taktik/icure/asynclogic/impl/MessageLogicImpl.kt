@@ -18,13 +18,7 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.ViewQueryResultEvent
@@ -165,22 +159,12 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
         messageDAO.save(message)
     }
 
-    override suspend fun solveConflicts() {
-        val messagesInConflict = messageDAO.listConflicts()
-                .map { it.id?.let { it1 -> messageDAO.get(it1, Option.CONFLICTS) } }
-                .filterNotNull()
-                .onEach { msg ->
-                    msg.conflicts?.map { c ->
-                        msg.id?.let {
-                            messageDAO.get(it, c)?.also { cp ->
-                                msg.solveConflictsWith(cp)
-                                messageDAO.purge(cp)
-                            }
-                        }
-                    }
-                }
-                .collect()
-    }
+    override fun solveConflicts(): Flow<Message> =
+            messageDAO.listConflicts().mapNotNull { messageDAO.get(it.id, Option.CONFLICTS)?.let { message ->
+                message.conflicts?.mapNotNull { conflictingRevision -> messageDAO.get(message.id, conflictingRevision) }
+                        ?.fold(message) { kept, conflict -> kept.merge(conflict).also { messageDAO.purge(conflict) } }
+                        ?.let { mergedMessage -> messageDAO.save(mergedMessage) }
+            } }
 
     override fun getGenericDAO(): MessageDAO {
         return messageDAO

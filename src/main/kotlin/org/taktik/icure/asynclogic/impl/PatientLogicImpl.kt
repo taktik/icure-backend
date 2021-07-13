@@ -28,12 +28,12 @@ import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.ViewRowWithDoc
-import org.taktik.icure.asyncdao.PatientDAO
-import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.couchdb.entity.Option
+import org.taktik.icure.asyncdao.PatientDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.Sorting
 import org.taktik.icure.domain.filter.chain.FilterChain
@@ -394,18 +394,12 @@ class PatientLogicImpl(
         return patientDAO.getByExternalId(externalId)
     }
 
-    override fun solveConflicts(): Flow<Patient> {
-        return patientDAO.listConflicts().map { it: Patient -> patientDAO.get(it.id, Option.CONFLICTS) }
-                .filterNotNull()
-                .mapNotNull { patient ->
-                    patient.conflicts?.mapNotNull { patientDAO.get(patient.id, it) }
-                            ?.forEach {
-                                patient.solveConflictsWith(it)
-                                patientDAO.purge(it)
-                            }
-                    patientDAO.save(patient)
-                }
-    }
+    override fun solveConflicts(): Flow<Patient> =
+            patientDAO.listConflicts().mapNotNull { patientDAO.get(it.id, Option.CONFLICTS)?.let { patient ->
+                patient.conflicts?.mapNotNull { conflictingRevision -> patientDAO.get(patient.id, conflictingRevision) }
+                        ?.fold(patient) { kept, conflict -> kept.merge(conflict).also { patientDAO.purge(conflict) } }
+                        ?.let { mergedPatient -> patientDAO.save(mergedPatient) }
+            } }
 
     override suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String> {
         return patientDAO.getHcPartyKeysForDelegate(healthcarePartyId)

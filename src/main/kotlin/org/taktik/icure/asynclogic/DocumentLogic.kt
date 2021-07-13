@@ -21,6 +21,7 @@ package org.taktik.icure.asynclogic
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.entities.Document
+import org.taktik.icure.entities.Patient
 import java.nio.ByteBuffer
 import java.util.*
 
@@ -39,7 +40,7 @@ interface DocumentLogic : EntityPersister<Document, String> {
     fun getDocuments(documentIds: List<String>): Flow<Document>
     fun updateDocuments(documents: List<Document>): Flow<Document>
 
-    suspend fun solveConflicts(ids: List<String>?)
+    fun solveConflicts(ids: List<String>?): Flow<Document>
     fun getGenericDAO(): DocumentDAO
     suspend fun getAllByExternalUuid(documentId: String): List<Document>
 }

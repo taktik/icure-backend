@@ -18,12 +18,7 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.exception.CouchDbException
@@ -97,17 +92,14 @@ class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessio
         emitAll(documentDAO.save(documents))
     }
 
-    override suspend fun solveConflicts(ids: List<String>?) {
-        val documentsInConflict = ids?.asFlow()?.map { documentDAO.get(it, Option.CONFLICTS) }
-                ?: documentDAO.listConflicts().map { documentDAO.get(it.id, Option.CONFLICTS) }
-        documentsInConflict.collect { doc ->
-            if (doc != null && doc.conflicts != null) {
-                val conflicted = doc.conflicts.mapNotNull { c -> documentDAO.get(doc.id, c) }
-                conflicted.forEach { other -> doc.solveConflictsWith(other) }
-                documentDAO.save(doc)
-                conflicted.forEach { cp -> documentDAO.purge(cp) }
-            }
-        }
+    override fun solveConflicts(ids: List<String>?): Flow<Document> {
+        val documentsInConflict = ids?.asFlow()?.mapNotNull { documentDAO.get(it, Option.CONFLICTS) }
+                ?: documentDAO.listConflicts().mapNotNull { documentDAO.get(it.id, Option.CONFLICTS) }
+        return documentsInConflict.mapNotNull { documentDAO.get(it.id, Option.CONFLICTS)?.let { document ->
+            document.conflicts?.mapNotNull { conflictingRevision -> documentDAO.get(document.id, conflictingRevision) }
+                    ?.fold(document) { kept, conflict -> kept.merge(conflict).also { documentDAO.purge(conflict) } }
+                    ?.let { mergedDocument -> documentDAO.save(mergedDocument) }
+        } }
     }
 
     override fun getGenericDAO(): DocumentDAO {

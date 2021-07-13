@@ -122,17 +122,13 @@ class FormLogicImpl(private val formDAO: FormDAO,
         return formDAO
     }
 
-    override suspend fun solveConflicts() {
-        val formsInConflict = formDAO.listConflicts().mapNotNull { formDAO.get(it.id, Option.CONFLICTS) }
-        formsInConflict.collect { form ->
-            var modifieForm = form
-            form.conflicts?.mapNotNull { c: String -> formDAO.get(form.id, c) }?.forEach { cp ->
-                modifieForm = modifieForm.merge(cp)
-                formDAO.purge(cp)
-            }
-            formDAO.save(modifieForm)
-        }
-    }
+    override fun solveConflicts(): Flow<Form> =
+            formDAO.listConflicts().mapNotNull { formDAO.get(it.id, Option.CONFLICTS)?.let { form ->
+                form.conflicts?.mapNotNull { conflictingRevision -> formDAO.get(form.id, conflictingRevision) }
+                        ?.fold(form) { kept, conflict -> kept.merge(conflict).also { formDAO.purge(conflict) } }
+                        ?.let { mergedForm -> formDAO.save(mergedForm) }
+            } }
+
 
     companion object {
         private val logger = LoggerFactory.getLogger(FormLogicImpl::class.java)

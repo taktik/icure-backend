@@ -113,37 +113,25 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
 
     @Operation(summary = "Resolve contacts conflicts")
     @PostMapping("/conflicts/contact")
-    fun resolveContactsConflicts() = mono {
-        contactLogic.solveConflicts()
-    }
+    fun resolveContactsConflicts() = contactLogic.solveConflicts().injectReactorContext()
 
     @Operation(summary = "resolve forms conflicts")
     @PostMapping("/conflicts/form")
-    fun resolveFormsConflicts() = mono {
-        formLogic.solveConflicts()
-    }
+    fun resolveFormsConflicts() = formLogic.solveConflicts().injectReactorContext()
 
     @Operation(summary = "resolve health elements conflicts")
     @PostMapping("/conflicts/healthelement")
-    fun resolveHealthElementsConflicts() = mono {
-        healthElementLogic.solveConflicts()
-    }
+    fun resolveHealthElementsConflicts() = healthElementLogic.solveConflicts().injectReactorContext()
 
     @Operation(summary = "resolve invoices conflicts")
     @PostMapping("/conflicts/invoice")
-    fun resolveInvoicesConflicts() = mono {
-        invoiceLogic.solveConflicts()
-    }
+    fun resolveInvoicesConflicts() = invoiceLogic.solveConflicts().injectReactorContext()
 
     @Operation(summary = "resolve messages conflicts")
     @PostMapping("/conflicts/message")
-    fun resolveMessagesConflicts() = mono {
-        messageLogic.solveConflicts()
-    }
+    fun resolveMessagesConflicts() = messageLogic.solveConflicts().injectReactorContext()
 
     @Operation(summary = "resolve documents conflicts")
     @PostMapping("/conflicts/document")
-    fun resolveDocumentsConflicts(@RequestParam(required = false) ids: String?) = mono {
-        documentLogic.solveConflicts(ids?.split(','))
-    }
+    fun resolveDocumentsConflicts(@RequestParam(required = false) ids: String?) = documentLogic.solveConflicts(ids?.split(",")).injectReactorContext()
 }

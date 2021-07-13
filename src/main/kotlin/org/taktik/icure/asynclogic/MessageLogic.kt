@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Message
+import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.exceptions.CreationException
 import org.taktik.icure.exceptions.MissingRequirementsException
@@ -58,5 +59,5 @@ interface MessageLogic : EntityPersister<Message, String> {
     fun getByTransportGuids(hcpId: String, transportGuids: Set<String>): Flow<Message>
     fun listMessagesByInvoiceIds(ids: List<String>): Flow<Message>
     fun listMessagesByExternalRefs(hcPartyId: String, externalRefs: List<String>): Flow<Message>
-    suspend fun solveConflicts()
+    fun solveConflicts(): Flow<Message>
 }

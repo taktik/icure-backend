@@ -258,17 +258,12 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(getServices(selectedIds.toList()))
     }
 
-    override suspend fun solveConflicts() {
-        val contactsInConflict = contactDAO.listConflicts().mapNotNull { contactDAO.get(it.id, Option.CONFLICTS) }
-        contactsInConflict.collect { ctc ->
-            var modifiedContact = ctc
-            ctc.conflicts?.mapNotNull { c: String -> contactDAO.get(ctc.id, c) }?.forEach { cp ->
-                modifiedContact = modifiedContact.merge(cp)
-                contactDAO.purge(cp)
-            }
-            contactDAO.save(modifiedContact)
-        }
-    }
+    override fun solveConflicts() = contactDAO.listConflicts().mapNotNull { contactDAO.get(it.id, Option.CONFLICTS)?.let { contact ->
+        contact.conflicts?.mapNotNull { conflictingRevision -> contactDAO.get(contact.id, conflictingRevision) }
+                ?.fold(contact) { kept, conflict -> kept.merge(conflict).also { contactDAO.purge(conflict) } }
+                ?.let { mergedContact -> contactDAO.save(mergedContact) }
+    } }
+
 
     override fun listContactsByOpeningDate(hcPartyId: String, startOpeningDate: Long, endOpeningDate: Long, offset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> = flow {
         emitAll(contactDAO.listContactsByOpeningDate(hcPartyId, startOpeningDate, endOpeningDate, offset.toComplexKeyPaginationOffset()))

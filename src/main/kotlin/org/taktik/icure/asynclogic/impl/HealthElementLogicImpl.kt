@@ -128,17 +128,13 @@ class HealthElementLogicImpl(private val filters: Filters,
         }
     }
 
-    override suspend fun solveConflicts() {
-        val healthElementsInConflict = healthElementDAO.listConflicts().mapNotNull { healthElementDAO.get(it.id, Option.CONFLICTS) }
-        healthElementsInConflict.collect { he ->
-            var modifiedContact = he
-            he.conflicts?.mapNotNull { c: String -> healthElementDAO.get(he.id, c) }?.forEach { cp ->
-                modifiedContact = modifiedContact.merge(cp)
-                healthElementDAO.purge(cp)
-            }
-            healthElementDAO.save(modifiedContact)
-        }
-    }
+    override fun solveConflicts(): Flow<HealthElement> =
+           healthElementDAO.listConflicts().mapNotNull {healthElementDAO.get(it.id, Option.CONFLICTS)?.let {healthElement ->
+               healthElement.conflicts?.mapNotNull { conflictingRevision ->healthElementDAO.get(healthElement.id, conflictingRevision) }
+                        ?.fold(healthElement) { kept, conflict -> kept.merge(conflict).also {healthElementDAO.purge(conflict) } }
+                        ?.let { mergedHealthElement ->healthElementDAO.save(mergedHealthElement) }
+            } }
+
 
     override fun filter(filter: FilterChain<HealthElement>) = flow<HealthElement> {
         val ids = filters.resolve(filter.filter).toList()
