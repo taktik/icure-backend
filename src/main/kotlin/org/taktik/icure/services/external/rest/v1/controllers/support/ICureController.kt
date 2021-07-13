@@ -42,9 +42,10 @@ import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.impl.ICureLogicImpl
 import org.taktik.icure.constants.PropertyTypes
-import org.taktik.icure.services.external.rest.v1.dto.IndexingInfoDto
-import org.taktik.icure.services.external.rest.v1.mapper.UserMapper
+import org.taktik.icure.services.external.rest.v1.dto.*
+import org.taktik.icure.services.external.rest.v1.mapper.*
 import org.taktik.icure.utils.injectReactorContext
+import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
 @RestController
@@ -60,7 +61,15 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
                       private val healthElementLogic: HealthElementLogic,
                       private val formLogic: FormLogic,
                       private val sessionLogic: AsyncSessionLogic,
-                      private val userMapper: UserMapper) {
+                      private val userMapper: UserMapper,
+                      private val patientMapper: PatientMapper,
+                      private val contactMapper: ContactMapper,
+                      private val healthElementMapper: HealthElementMapper,
+                      private val formMapper: FormMapper,
+                      private val invoiceMapper: InvoiceMapper,
+                      private val messageMapper: MessageMapper,
+                      private val documentMapper: DocumentMapper,
+) {
 
     @Operation(summary = "Get version")
     @GetMapping("/v", produces = [MediaType.TEXT_PLAIN_VALUE])
@@ -109,29 +118,29 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
 
     @Operation(summary = "Resolve patients conflicts")
     @PostMapping("/conflicts/patient")
-    fun resolvePatientsConflicts() = patientLogic.solveConflicts().injectReactorContext()
+    fun resolvePatientsConflicts(): Flux<PatientDto> = patientLogic.solveConflicts().map { patientMapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "Resolve contacts conflicts")
     @PostMapping("/conflicts/contact")
-    fun resolveContactsConflicts() = contactLogic.solveConflicts().injectReactorContext()
+    fun resolveContactsConflicts(): Flux<ContactDto> = contactLogic.solveConflicts().map { contactMapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "resolve forms conflicts")
     @PostMapping("/conflicts/form")
-    fun resolveFormsConflicts() = formLogic.solveConflicts().injectReactorContext()
+    fun resolveFormsConflicts(): Flux<FormDto> = formLogic.solveConflicts().map { formMapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "resolve health elements conflicts")
     @PostMapping("/conflicts/healthelement")
-    fun resolveHealthElementsConflicts() = healthElementLogic.solveConflicts().injectReactorContext()
+    fun resolveHealthElementsConflicts(): Flux<HealthElementDto> = healthElementLogic.solveConflicts().map { healthElementMapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "resolve invoices conflicts")
     @PostMapping("/conflicts/invoice")
-    fun resolveInvoicesConflicts() = invoiceLogic.solveConflicts().injectReactorContext()
+    fun resolveInvoicesConflicts(): Flux<InvoiceDto> = invoiceLogic.solveConflicts().map { invoiceMapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "resolve messages conflicts")
     @PostMapping("/conflicts/message")
-    fun resolveMessagesConflicts() = messageLogic.solveConflicts().injectReactorContext()
+    fun resolveMessagesConflicts(): Flux<MessageDto> = messageLogic.solveConflicts().map { messageMapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "resolve documents conflicts")
     @PostMapping("/conflicts/document")
-    fun resolveDocumentsConflicts(@RequestParam(required = false) ids: String?) = documentLogic.solveConflicts(ids?.split(",")).injectReactorContext()
+    fun resolveDocumentsConflicts(@RequestParam(required = false) ids: String?): Flux<DocumentDto> = documentLogic.solveConflicts(ids?.split(",")).map { documentMapper.map(it) }.injectReactorContext()
 }
