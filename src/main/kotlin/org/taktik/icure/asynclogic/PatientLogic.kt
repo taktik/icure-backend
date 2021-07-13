@@ -79,7 +79,7 @@ interface PatientLogic {
 
     suspend fun getByExternalId(externalId: String): Patient?
 
-    suspend fun solveConflicts()
+    fun solveConflicts(): Flow<Patient>
 
     suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String>
     fun listOfPatientsModifiedAfter(date: Long, startKey: Long?, startDocumentId: String?, limit: Int?): Flow<ViewQueryResultEvent>

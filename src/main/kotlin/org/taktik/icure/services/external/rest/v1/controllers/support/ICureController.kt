@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactor.asFlux
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
@@ -108,9 +109,7 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
 
     @Operation(summary = "Resolve patients conflicts")
     @PostMapping("/conflicts/patient")
-    fun resolvePatientsConflicts() = mono {
-        patientLogic.solveConflicts()
-    }
+    fun resolvePatientsConflicts() = patientLogic.solveConflicts().injectReactorContext()
 
     @Operation(summary = "Resolve contacts conflicts")
     @PostMapping("/conflicts/contact")

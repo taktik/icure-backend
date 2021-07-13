@@ -20,19 +20,7 @@ package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flattenConcat
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.flow.toSet
+import kotlinx.coroutines.flow.*
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
@@ -406,10 +394,10 @@ class PatientLogicImpl(
         return patientDAO.getByExternalId(externalId)
     }
 
-    override suspend fun solveConflicts() {
-        patientDAO.listConflicts().map { it: Patient -> patientDAO.get(it.id, Option.CONFLICTS) }
+    override fun solveConflicts(): Flow<Patient> {
+        return patientDAO.listConflicts().map { it: Patient -> patientDAO.get(it.id, Option.CONFLICTS) }
                 .filterNotNull()
-                .onEach { patient ->
+                .mapNotNull { patient ->
                     patient.conflicts?.mapNotNull { patientDAO.get(patient.id, it) }
                             ?.forEach {
                                 patient.solveConflictsWith(it)
