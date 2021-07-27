@@ -40,9 +40,9 @@ class CouchDbLocalConfig(val couchDbProperties: CouchDbProperties) {
 
     @Bean fun couchdbConfig(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("icure-config", couchdbInstance)
     @Bean fun couchdbDrugs(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("icure-drugs", couchdbInstance)
-    @Bean fun couchdbBase(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("icure-tz-mm-sam-test-ms2-base", couchdbInstance)
-    @Bean fun couchdbPatient(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("icure-tz-mm-sam-test-ms2-patient", couchdbInstance)
-    @Bean fun couchdbHealthdata(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("icure-tz-mm-sam-test-ms2-healthdata", couchdbInstance)
+    @Bean fun couchdbBase(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("icure-base", couchdbInstance)
+    @Bean fun couchdbPatient(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("icure-patient", couchdbInstance)
+    @Bean fun couchdbHealthdata(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("icure-healthdata", couchdbInstance)
 
     @Bean fun entitiesCacheManager() = NoOpCacheManager()
 }
