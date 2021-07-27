@@ -5,7 +5,7 @@ public class SuspensionDto {
     private Long beginMoment;
     private Long endMoment;
     private String suspensionReason;
-    private String lifeCycle;
+    private String lifecycle;
 
     public Long getBeginMoment() { return beginMoment; }
 
@@ -19,7 +19,7 @@ public class SuspensionDto {
 
     public void setSuspensionReason(String suspensionReason) { this.suspensionReason = suspensionReason; }
 
-    public String getLifeCycle() { return lifeCycle; }
+    public String getLifecycle() { return lifecycle; }
 
-    public void setLifeCycle(String lifeCycle) { this.lifeCycle = lifeCycle; }
+    public void setLifecycle(String lifecycle) { this.lifecycle = lifecycle; }
 }
