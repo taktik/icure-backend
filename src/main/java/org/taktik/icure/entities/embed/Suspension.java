@@ -4,6 +4,7 @@ public class Suspension {
     private Long beginMoment;
     private Long endMoment;
     private String suspensionReason;
+    private String lifeCycle;
 
     public Long getBeginMoment() { return beginMoment; }
 
@@ -17,7 +18,9 @@ public class Suspension {
 
     public void setSuspensionReason(String suspensionReason) { this.suspensionReason = suspensionReason; }
 
+    public String getLifeCycle() { return lifeCycle; }
 
+    public void setLifeCycle(String lifeCycle) { this.lifeCycle = lifeCycle; }
 
     @Override
     public String toString() {
@@ -25,6 +28,7 @@ public class Suspension {
                 "beginMoment=" + beginMoment +
                 ", endMoment=" + endMoment +
                 ", suspensionReason='" + suspensionReason + '\'' +
+                ", lifeCycle='" + lifeCycle + '\'' +
                 '}';
     }
 }
