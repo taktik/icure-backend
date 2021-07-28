@@ -188,7 +188,7 @@ open class KmehrExport {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = svc.id })
             cds.add(CDITEM().apply {s(CDITEMschemes.CD_ITEM); value = cdItem } )
 			svc.tags.find { t -> t.type == "CD-LAB" }?.let { cds.add(CDITEM().apply {s(CDITEMschemes.CD_LAB); value = it.code } ) }
-
+            val suspension = svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.suspension?.firstOrNull()
             this.contents.addAll(filterEmptyContent(contents))
             if (texts != null) this.texts.addAll(texts.filterNotNull())
             if (link != null) this.lnks.add(link)
@@ -204,7 +204,7 @@ open class KmehrExport {
                             CDLIFECYCLEvalues.CORRECTED
                         }
                     }
-                            ?: if(cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else CDLIFECYCLEvalues.ACTIVE
+                            ?: if(cdItem == "medication") (if (suspension != null) CDLIFECYCLEvalues.fromValue(suspension.lifecycle) else CDLIFECYCLEvalues.PRESCRIBED) else CDLIFECYCLEvalues.ACTIVE
                 }
 			} }
             if(cdItem == "medication") {
