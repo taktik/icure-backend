@@ -243,7 +243,9 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 
     protected List<Service> addLaboResult(LaboResultLine lrl, String language, long position, ResultsInfosLine ril, String comment) {
         List<Service> result = new ArrayList<>();
-        Double d = tryToGetValueAsNumber(lrl.value);
+         // Sometimes the doctor indicates an extreme value outside of the reference value by prefixing with < or >.
+        String laboResultLineValue = lrl.value.replaceAll("<", "").replaceAll(">", "");
+        Double d = tryToGetValueAsNumber(laboResultLineValue);
         if (d != null) {
             //We import as a Measure
             result.add(importNumericLaboResult(language, d, lrl, position, ril, comment));
