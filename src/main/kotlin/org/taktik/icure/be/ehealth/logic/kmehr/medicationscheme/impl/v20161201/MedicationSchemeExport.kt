@@ -269,6 +269,11 @@ class MedicationSchemeExport : KmehrExport() {
                             isIsvalidated = true
 
                             var itemsIdx = 1
+                            //The treatmentsuspension transaction contains a copy of the medication where only beginmoment and endmoment are changed and equal to the duration of the suspension
+                            if(svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull() != null){
+                                svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.beginMoment = m.suspension[0].beginMoment
+                                svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.endMoment = m.suspension[0].endMoment
+                            }
 
                             headingsAndItemsAndTexts.addAll(
                                     listOf(
