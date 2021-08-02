@@ -184,7 +184,7 @@ class MedicationSchemeExport : KmehrExport() {
                                                 })
                                             },
                                             createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!), language = language, texts = listOf(makeText(language, cnt)!!))))
-                            //TODO: handle treatmentsuspension
+                            //handle treatmentsuspension
                             //      ITEM: transactionreason: Text
                             //      ITEM: medication contains Link to medication <lnk TYPE="isplannedfor" URL="//transaction[id[@S='ID-KMEHR']='18']"/>
                             //            Lifecycle: suspended (begin and enddate) or stopped (only begindate)
