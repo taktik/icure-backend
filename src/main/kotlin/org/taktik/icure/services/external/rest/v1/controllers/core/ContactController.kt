@@ -263,7 +263,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
         }
     }
 
-    @Operation(summary = "Modify a batch of contacts", description = "Returns the modified contacts.")
+    @Operation(summary = "Create a batch of contacts", description = "Returns the modified contacts.")
     @PostMapping("/batch")
     fun createContacts(@RequestBody contactDtos: List<ContactDto>): Flux<ContactDto> {
         return try {
