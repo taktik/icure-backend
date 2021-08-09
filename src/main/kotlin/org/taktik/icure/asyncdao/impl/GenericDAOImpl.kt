@@ -128,7 +128,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
             log.debug(entityClass.simpleName + ".get: " + id + " [" + ArrayUtils.toString(options) + "]")
         }
         try {
-            return rev?.let { client.get(id, entityClass, *options) }
+            return rev?.let { client.get(id, it, entityClass, *options) }
                     ?: client.get(id, entityClass, *options)?.let { postLoad(it) }
         } catch (e: DocumentNotFoundException) {
             log.warn("Document not found", e)
