@@ -260,6 +260,9 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 			i++;
 		} while (!p2.matcher(lines.get(i)).matches());
 		//Skip p2 and first empty line
+        if(!lines.get(i+1).trim().equals("")){
+            s.getContent().put("descr",new Content(lines.get(i+1).trim()));
+        }
 		i += 2;
 
 		StringBuilder b = new StringBuilder();
