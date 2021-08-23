@@ -554,10 +554,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
             this.author = author.id
             this.responsible = trnauthorhcpid
-            this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
-                    trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
-                        it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                    }
+            this.openingDate = extractTransactionDateTime(trn)
             this.closingDate = trn.isIscomplete.let { if (it) this.openingDate else null }
 
             this.location =
@@ -700,6 +697,11 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             }
         }
     }
+
+    private fun extractTransactionDateTime(trn: TransactionType) =
+            trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
+                it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+            } ?: trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) }
 
     private fun isHealthElementTypeEqual(item: ItemType, checkItem: ItemType) =
             item.recorddatetime == checkItem.recorddatetime &&
