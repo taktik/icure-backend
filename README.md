@@ -21,14 +21,14 @@ if you wish to build & run this project using the IntelliJ idea, you'll have to 
 
 For controllers, logic and daos:
 
-|  Action    |  API Name  | Method and path |
-|-------|--------|------|
-|  Create an object    |  createObject  | POST /rest/v?/object |
-|  Create objects    |  createObjects  | POST /rest/v?/object/batch |
-|  Modify an object    |  modifyObject  | PUT /rest/v?/object |
-|  Modify objects    |  modifyObjects  | PUT /rest/v?/object/batch |
-|  Get an object by id   |  getObject  | GET /rest/v?/object/:id |
-|  Get an object by other key   |  getObjectByKey  | GET /rest/v?/object/byKey/:key |
-|  Find objects using pagination   |  findObjectsBy  | GET or POST /rest/v?/object/byMainKey/:mainKey (may have extra query params or body)|
-|  List objects (no pagination)   |  listObjectsBy  | GET or POST /rest/v?/object/byMainKey/:mainKey (may have extra query params or body)|
+|  Action                       |  API Name       | Method and path |
+|-------------------------------|-----------------|-----------------|
+| Create an object              |  createObject   | POST /rest/v?/object |
+| Create objects                |  createObjects  | POST /rest/v?/object/batch |
+| Modify an object              |  modifyObject   | PUT /rest/v?/object |
+| Modify objects                |  modifyObjects  | PUT /rest/v?/object/batch |
+| Get an object by id           |  getObject      | GET /rest/v?/object/:id |
+| Get an object by other key    |  getObjectByKey | GET /rest/v?/object/byKey/:key |
+| Find objects using pagination |  findObjectsBy  | GET or POST /rest/v?/object/byMainKey/:mainKey (may have extra query params or body)|
+| List objects (no pagination)  |  listObjectsBy  | GET or POST /rest/v?/object/byMainKey/:mainKey (may have extra query params or body)|
 
