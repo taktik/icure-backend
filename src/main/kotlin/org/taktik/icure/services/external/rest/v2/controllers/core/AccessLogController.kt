@@ -44,7 +44,7 @@ import java.time.Instant
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/accesslog")
+@RequestMapping("/rest/v2/accesslog")
 @Tag(name = "accesslog")
 class AccessLogController(
         private val accessLogLogic: AccessLogLogic,
@@ -77,24 +77,24 @@ class AccessLogController(
         accessLogMapper.map(accessLog)
     }
 
-    @Operation(summary = "Lists access logs")
+    @Operation(summary = "Get Paginated List of Access logs")
     @GetMapping
-    fun listAccessLogs(@RequestParam(required = false) fromEpoch: Long?, @RequestParam(required = false) toEpoch: Long?, @RequestParam(required = false) startKey: Long?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: Int?, @RequestParam(required = false) descending: Boolean?) = mono {
+    fun findAccessLogsBy(@RequestParam(required = false) fromEpoch: Long?, @RequestParam(required = false) toEpoch: Long?, @RequestParam(required = false) startKey: Long?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: Int?, @RequestParam(required = false) descending: Boolean?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1) // fetch one more for nextKeyPair
         val accessLogs = accessLogLogic.listAccessLogs(fromEpoch ?: if(descending == true) Long.MAX_VALUE else 0, toEpoch ?: if(descending == true) 0 else Long.MAX_VALUE, paginationOffset, descending == true)
         accessLogs.paginatedList(accessLogToAccessLogDto, realLimit)
     }
 
-    @Operation(summary = "Get Paginated List of Access logs")
+    @Operation(summary = "Get Paginated List of Access logs by user after date")
     @GetMapping("/byUser")
-    fun findByUserAfterDate(@Parameter(description = "A User ID", required = true) @RequestParam userId: String,
-                                    @Parameter(description = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
-                                    @Parameter(description = "The start search epoch") @RequestParam(required = false) startDate: Long?,
-                                    @Parameter(description = "The start key for pagination") @RequestParam(required = false) startKey: String?,
-                                    @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-                                    @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
-                                    @Parameter(description = "Descending order") @RequestParam(required = false) descending: Boolean?) = mono {
+    fun findAccessLogsByUserAfterDate(@Parameter(description = "A User ID", required = true) @RequestParam userId: String,
+                                      @Parameter(description = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
+                                      @Parameter(description = "The start search epoch") @RequestParam(required = false) startDate: Long?,
+                                      @Parameter(description = "The start key for pagination") @RequestParam(required = false) startKey: String?,
+                                      @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+                                      @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+                                      @Parameter(description = "Descending order") @RequestParam(required = false) descending: Boolean?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
@@ -106,7 +106,7 @@ class AccessLogController(
 
     @Operation(summary = "List access logs found By Healthcare Party and secret foreign keyelementIds.")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findAccessLogsByHCPartyPatientForeignKeys(@RequestParam("hcPartyId") hcPartyId: String, @RequestParam("secretFKeys") secretFKeys: String) = flow {
+    fun listAccessLogsByHCPartyAndPatientForeignKeys(@RequestParam("hcPartyId") hcPartyId: String, @RequestParam("secretFKeys") secretFKeys: String) = flow {
         val secretPatientKeys = HashSet(secretFKeys.split(","))
         emitAll(accessLogLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys)).map { accessLogMapper.map(it) } )
     }.injectReactorContext()
