@@ -31,4 +31,6 @@ For controllers, logic and daos:
 | Get an object by other key    |  getObjectByKey | GET /rest/v?/object/byKey/:key |
 | Find objects using pagination |  findObjectsBy  | GET or POST /rest/v?/object/byMainKey/:mainKey (may have extra query params or body)|
 | List objects (no pagination)  |  listObjectsBy  | GET or POST /rest/v?/object/byMainKey/:mainKey (may have extra query params or body)|
-
+| Get objects by ids | getObjects| GET /rest/v?/object (ids pass in body) |
+| Delete an object | deleteObject | DELETE /rest/v?/object/:id |
+| Delete objects | deleteObjects | DELETE /rest/v?/object/:ids |
