@@ -71,6 +71,7 @@ import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 import org.taktik.icure.utils.paginatedListOfIds
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.time.Instant
 import java.util.*
 import javax.security.auth.login.LoginException
@@ -222,7 +223,7 @@ class PatientController(
         patientLogic.findByHcPartyIdsOnly(hcPartyId, paginationOffset).paginatedListOfIds(realLimit)
     }
 
-    @Operation(summary = "Get Paginated List of Patients sorted by Access logs descending")
+    @Operation(summary = "Get the patient having the provided externalId")
     @GetMapping("/byExternalId/{externalId}")
     fun findByExternalId(@PathVariable("externalId")
                          @Parameter(description = "A external ID", required = true) externalId: String) = mono {
@@ -236,7 +237,7 @@ class PatientController(
                                      @Parameter(description = "The start search epoch") @RequestParam(required = false) startDate: Long?,
                                      @Parameter(description = "The start key for pagination") @RequestParam(required = false) startKey: String?,
                                      @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-                                     @Parameter(description = "Number of rows") @RequestParam(defaultValue = DEFAULT_LIMIT.toString()) limit: Int) = mono {
+                                     @Parameter(description = "Number of rows") @RequestParam(defaultValue = DEFAULT_LIMIT.toString()) limit: Int): Mono<PaginatedList<PatientDto>> = mono {
 
         val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
