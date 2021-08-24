@@ -47,7 +47,7 @@ import reactor.core.publisher.Flux
 @ExperimentalCoroutinesApi
 @FlowPreview
 @RestController
-@RequestMapping("/rest/v1/code")
+@RequestMapping("/rest/v2/code")
 @Tag(name = "code")
 class CodeController(
         private val codeLogic: CodeLogic,
@@ -61,7 +61,7 @@ class CodeController(
 
     @Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, pagination is not supported")
     @GetMapping("/byLabel")
-    fun findPaginatedCodesByLabel(
+    fun findCodesByLabel(
             @RequestParam(required = false) region: String?,
             @RequestParam(required = false) types: String?,
             @RequestParam(required = false) language: String?,
@@ -98,7 +98,7 @@ class CodeController(
 
     @Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a list of codes matched with given input.")
     @GetMapping
-    fun findPaginatedCodes(
+    fun findCodesBy(
             @RequestParam(required = false) region: String?,
             @RequestParam(required = false) type: String?,
             @RequestParam(required = false) code: String?,
@@ -129,7 +129,7 @@ class CodeController(
     }
     @Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a list of codes matched with given input.")
     @GetMapping("link/{linkType}")
-    fun findPaginatedCodesWithLink(
+    fun findCodesByLink(
             @PathVariable linkType: String,
             @RequestParam(required = false) linkedId: String,
             @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey")
@@ -148,7 +148,7 @@ class CodeController(
 
     @Operation(summary = "Finding codes by code, type and version", description = "Returns a list of codes matched with given input.")
     @GetMapping("/byRegionTypeCode")
-    fun findCodes(
+    fun listCodesByRegionTypeCodeVersion(
             @Parameter(description = "Code region") @RequestParam(required = false) region: String?,
             @Parameter(description = "Code type") @RequestParam(required = false) type: String?,
             @Parameter(description = "Code code") @RequestParam(required = false) code: String?,
@@ -161,7 +161,7 @@ class CodeController(
 
     @Operation(summary = "Finding code types.", description = "Returns a list of code types matched with given input.")
     @GetMapping("/codetype/byRegionType")
-    fun findCodeTypes(
+    fun listCodeTypesBy(
             @Parameter(description = "Code region") @RequestParam(required = false) region: String?,
             @Parameter(description = "Code type") @RequestParam(required = false) type: String?): Flux<String> {
         return codeLogic.findCodeTypes(region, type)
@@ -170,7 +170,7 @@ class CodeController(
 
     @Operation(summary = "Finding tag types.", description = "Returns a list of tag types matched with given input.")
     @GetMapping("/tagtype/byRegionType")
-    fun findTagTypes(
+    fun listTagTypesBy(
             @Parameter(description = "Code region") @RequestParam(required = false) region: String?,
             @Parameter(description = "Code type") @RequestParam(required = false) type: String?): Flux<String> {
         val tagTypeCandidates = codeLogic.getTagTypeCandidates()
@@ -188,7 +188,7 @@ class CodeController(
 
     @Operation(summary = "Get a list of codes by ids", description = "Keys must be delimited by coma")
     @GetMapping("/byIds/{codeIds}")
-    fun getCodes(@PathVariable codeIds: String): Flux<CodeDto> {
+    fun listCodesBy(@PathVariable codeIds: String): Flux<CodeDto> {
         val codes = codeLogic.get(codeIds.split(','))
         return codes
                 .map { f -> codeMapper.map(f) }
@@ -228,7 +228,7 @@ class CodeController(
 
     @Operation(summary = "Filter codes ", description = "Returns a list of codes along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
-    fun filterCodesBy(
+    fun findCodesByFilter(
             @Parameter(description = "The start key for pagination, depends on the filters used") @RequestParam(required = false) startKey: String?,
             @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
