@@ -281,7 +281,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
 
     @Operation(summary = "List contacts for the current user (HcParty) or the given hcparty in the filter ", description = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
-    fun findContactsBy(
+    fun filterContactsBy(
             @Parameter(description = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
             @RequestBody filterChain: FilterChain<Contact>) = mono {
@@ -302,7 +302,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     // TODO SH MB test this for PaginatedList construction...
     @Operation(summary = "List services for the current user (HcParty) or the given hcparty in the filter ", description = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/service/filter")
-    fun findServicesBy(
+    fun filterServicesBy(
             @Parameter(description = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
             @RequestBody filterChain: FilterChain<Service>) = mono {

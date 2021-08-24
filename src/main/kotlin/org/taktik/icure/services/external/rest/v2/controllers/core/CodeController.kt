@@ -228,7 +228,7 @@ class CodeController(
 
     @Operation(summary = "Filter codes ", description = "Returns a list of codes along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
-    fun findCodesByFilter(
+    fun filterCodesBy(
             @Parameter(description = "The start key for pagination, depends on the filters used") @RequestParam(required = false) startKey: String?,
             @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
