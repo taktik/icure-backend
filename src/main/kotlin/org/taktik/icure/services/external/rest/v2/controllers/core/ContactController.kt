@@ -61,7 +61,7 @@ import java.util.*
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/contact")
+@RequestMapping("/rest/v2/contact")
 @Tag(name = "contact")
 class ContactController(private val filters: org.taktik.icure.asynclogic.impl.filter.Filters,
                         private val contactLogic: ContactLogic,
@@ -132,14 +132,14 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
 
     @Operation(summary = "List contacts found By Healthcare Party and form Id.")
     @GetMapping("/byHcPartyFormId")
-    fun findByHCPartyFormId(@RequestParam hcPartyId: String, @RequestParam formId: String): Flux<ContactDto> {
+    fun listContactsByHCPartyAndFormId(@RequestParam hcPartyId: String, @RequestParam formId: String): Flux<ContactDto> {
         val contactList = contactLogic.findContactsByHCPartyFormId(hcPartyId, formId)
         return contactList.map { contact -> contactMapper.map(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "List contacts found By Healthcare Party and form Id.")
     @PostMapping("/byHcPartyFormIds")
-    fun findByHCPartyFormIds(@RequestParam hcPartyId: String, @RequestBody formIds: ListOfIdsDto): Flux<ContactDto> {
+    fun listContactsByHCPartyAndFormIds(@RequestParam hcPartyId: String, @RequestBody formIds: ListOfIdsDto): Flux<ContactDto> {
         if (formIds.ids.size == 0) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
         }
@@ -150,7 +150,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
 
     @Operation(summary = "List contacts found By Healthcare Party and Patient foreign keys.")
     @PostMapping("/byHcPartyPatientForeignKeys")
-    fun findContactsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestBody patientForeignKeys: ListOfIdsDto): Flux<ContactDto> {
+    fun listContactsByHCPartyAndPatientForeignKeys(@RequestParam hcPartyId: String, @RequestBody patientForeignKeys: ListOfIdsDto): Flux<ContactDto> {
         if (patientForeignKeys.ids.size == 0) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
         }
@@ -161,10 +161,10 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
 
     @Operation(summary = "List contacts found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
-                                        @RequestParam secretFKeys: String,
-                                        @RequestParam(required = false) planOfActionsIds: String?,
-                                        @RequestParam(required = false) skipClosedContacts: Boolean?): Flux<ContactDto> {
+    fun listContactsByHCPartyAndPatientSecretFKeys(@RequestParam hcPartyId: String,
+                                                   @RequestParam secretFKeys: String,
+                                                   @RequestParam(required = false) planOfActionsIds: String?,
+                                                   @RequestParam(required = false) skipClosedContacts: Boolean?): Flux<ContactDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val contactList = contactLogic.findByHCPartyPatient(hcPartyId, ArrayList(secretPatientKeys))
 
@@ -178,15 +178,15 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
 
     @Operation(summary = "List contacts found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys/delegations")
-    fun findContactsDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
-                                                        @RequestParam secretFKeys: String): Flux<IcureStubDto> {
+    fun listContactsDelegationsStubsByHCPartyAndPatientForeignKeys(@RequestParam hcPartyId: String,
+                                                                   @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         return contactLogic.findByHCPartyPatient(hcPartyId, secretPatientKeys).map { contact -> stubMapper.mapToStub(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
-    @PostMapping("/delegations")
-    fun setContactsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
+    @PutMapping("/delegations")
+    fun modifyContactsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
         val contacts = contactLogic.getContacts(stubs.map { it.id }).map { contact ->
             stubs.find { s -> s.id == contact.id }?.let { stub ->
                 contact.copy(
@@ -281,7 +281,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
 
     @Operation(summary = "List contacts for the current user (HcParty) or the given hcparty in the filter ", description = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
-    fun filterContactsBy(
+    fun findContactsBy(
             @Parameter(description = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
             @RequestBody filterChain: FilterChain<Contact>) = mono {
@@ -302,7 +302,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     // TODO SH MB test this for PaginatedList construction...
     @Operation(summary = "List services for the current user (HcParty) or the given hcparty in the filter ", description = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/service/filter")
-    fun filterServicesBy(
+    fun findServicesBy(
             @Parameter(description = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
             @RequestBody filterChain: FilterChain<Service>) = mono {
@@ -327,18 +327,18 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
 
     @Operation(summary = "List services with provided ids ", description = "Returns a list of services")
     @PostMapping("/service/byIds")
-    fun listServices(@RequestBody ids: ListOfIdsDto) = contactLogic.getServices(ids.ids).map { svc -> serviceMapper.map(svc) }.injectReactorContext()
+    fun getServices(@RequestBody ids: ListOfIdsDto) = contactLogic.getServices(ids.ids).map { svc -> serviceMapper.map(svc) }.injectReactorContext()
 
     @Operation(summary = "List services linked to provided ids ", description = "Returns a list of services")
     @PostMapping("/service/linkedTo")
-    fun listServicesLinkedTo(
+    fun getServicesLinkedTo(
             @Parameter(description = "The type of the link") @RequestParam(required = false) linkType: String?,
             @RequestBody ids: ListOfIdsDto
     ) = contactLogic.getServicesLinkedTo(ids.ids, linkType).map { svc -> serviceMapper.map(svc) }.injectReactorContext()
 
     @Operation(summary = "List contacts bu opening date parties with(out) pagination", description = "Returns a list of contacts.")
     @GetMapping("/byOpeningDate")
-    fun listContactsByOpeningDate(
+    fun findContactsByOpeningDate(
             @Parameter(description = "The contact openingDate", required = true) @RequestParam startKey: Long,
             @Parameter(description = "The contact max openingDate", required = true) @RequestParam endKey: Long,
             @Parameter(description = "hcpartyid", required = true) @RequestParam hcpartyid: String,
