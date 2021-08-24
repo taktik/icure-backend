@@ -42,7 +42,7 @@ import org.taktik.icure.properties.CouchDbProperties
 class TarificationDAOImpl(couchDbProperties: CouchDbProperties,
                           @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Tarification>(couchDbProperties, Tarification::class.java, couchDbDispatcher, idGenerator), TarificationDAO {
 
-    @View(name = "by_type_code_version", map = "classpath:js/tarif/By_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
+    @View(name = "by_type_code_version", map = "classpath:js/tarif/By_type_code_version.js", reduce = "_count")
     override fun findTarifications(type: String?, code: String?, version: String?): Flow<Tarification> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(
@@ -63,7 +63,7 @@ class TarificationDAOImpl(couchDbProperties: CouchDbProperties,
         )
     }
 
-    @View(name = "by_region_type_code_version", map = "classpath:js/tarif/By_region_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
+    @View(name = "by_region_type_code_version", map = "classpath:js/tarif/By_region_type_code_version.js", reduce = "_count")
     override fun findTarifications(region: String?, type: String?, code: String?, version: String?): Flow<Tarification> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(
