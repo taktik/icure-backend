@@ -54,7 +54,7 @@ import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/form")
+@RequestMapping("/rest/v2/form")
 @Tag(name = "form")
 class FormController(private val formTemplateLogic: FormTemplateLogic,
                      private val formLogic: FormLogic,
@@ -76,7 +76,7 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
     }
 
     @Operation(summary = "Get a list of forms by ids", description = "Keys must be delimited by coma")
-    @PostMapping("/byIds")
+    @PostMapping("/batch")
     fun getForms(@RequestBody formIds: ListOfIdsDto): Flux<FormDto> {
         val forms = formLogic.getForms(formIds.ids)
         return forms.map { formMapper.map(it) }.injectReactorContext()
@@ -173,11 +173,11 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
 
     @Operation(summary = "List forms found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findFormsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
-                                        @RequestParam secretFKeys: String,
-                                        @RequestParam(required = false) healthElementId: String?,
-                                        @RequestParam(required = false) planOfActionId: String?,
-                                        @RequestParam(required = false) formTemplateId: String?): Flux<FormDto> {
+    fun listFormsByHCPartyAndPatientForeignKeys(@RequestParam hcPartyId: String,
+                                                @RequestParam secretFKeys: String,
+                                                @RequestParam(required = false) healthElementId: String?,
+                                                @RequestParam(required = false) planOfActionId: String?,
+                                                @RequestParam(required = false) formTemplateId: String?): Flux<FormDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val formsList = formLogic.findByHCPartyPatient(hcPartyId, ArrayList(secretPatientKeys), healthElementId, planOfActionId, formTemplateId)
         return formsList.map { contact -> formMapper.map(contact) }.injectReactorContext()
@@ -185,8 +185,8 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
 
     @Operation(summary = "List form stubs found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys/delegations")
-    fun findFormsDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
-                                                        @RequestParam secretFKeys: String): Flux<IcureStubDto> {
+    fun listFormsDelegationsStubsByHCPartyAndPatientForeignKeys(@RequestParam hcPartyId: String,
+                                                                @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         return formLogic.findByHCPartyPatient(hcPartyId, ArrayList(secretPatientKeys), null, null, null).map { form -> stubMapper.mapToStub(form) }.injectReactorContext()
     }
@@ -225,14 +225,14 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
 
     @Operation(summary = "Gets all form templates")
     @GetMapping("/template/bySpecialty/{specialityCode}")
-    fun findFormTemplatesBySpeciality(@PathVariable specialityCode: String, @RequestParam(required = false) loadLayout: Boolean?): Flux<FormTemplateDto> {
+    fun listFormTemplatesBySpeciality(@PathVariable specialityCode: String, @RequestParam(required = false) loadLayout: Boolean?): Flux<FormTemplateDto> {
         val formTemplates = formTemplateLogic.getFormTemplatesBySpecialty(specialityCode, loadLayout ?: true)
         return formTemplates.map { formTemplateMapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Gets all form templates for current user")
     @GetMapping("/template")
-    fun findFormTemplates(@RequestParam(required = false) loadLayout: Boolean?): Flux<FormTemplateDto> = flow{
+    fun getFormTemplates(@RequestParam(required = false) loadLayout: Boolean?): Flux<FormTemplateDto> = flow{
         val formTemplates = try {
             formTemplateLogic.getFormTemplatesByUser(sessionLogic.getCurrentUserId(), loadLayout ?: true)
         } catch (e: Exception) {
