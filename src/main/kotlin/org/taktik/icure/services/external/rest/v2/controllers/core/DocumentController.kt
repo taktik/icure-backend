@@ -56,7 +56,7 @@ import java.util.*
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/document")
+@RequestMapping("/rest/v2/document")
 @Tag(name = "document")
 class DocumentController(private val documentLogic: DocumentLogic,
                          private val sessionLogic: AsyncSessionLogic,
@@ -76,14 +76,16 @@ class DocumentController(private val documentLogic: DocumentLogic,
     }
 
     @Operation(summary = "Deletes a document")
-    @DeleteMapping("/{documentIds}")
-    fun deleteDocument(@PathVariable documentIds: String): Flux<DocIdentifier> {
-        val documentIdsList = documentIds.split(',')
-        return try {
-            documentLogic.deleteByIds(documentIdsList).injectReactorContext()
-        } catch (e: Exception) {
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document deletion failed")
-        }
+    @PostMapping("/delete/byIds")
+    fun deleteDocument(@RequestBody documentIds: ListOfIdsDto): Flux<DocIdentifier>? {
+        return documentIds.ids.takeIf { it.isNotEmpty() }
+                ?.let {
+                    try {
+                       documentLogic.deleteByIds(it).injectReactorContext()
+                    } catch (e: Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document deletion failed")
+                    }
+                }
     }
 
     @Operation(summary = "Load document's attachment", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
@@ -255,8 +257,8 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @Operation(summary = "List documents found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findDocumentsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
-                                        @RequestParam secretFKeys: String): Flux<DocumentDto> {
+    fun listDocumentsByHCPartyAndPatientForeignKeys(@RequestParam hcPartyId: String,
+                                                    @RequestParam secretFKeys: String): Flux<DocumentDto> {
 
         val secretMessageKeys = secretFKeys.split(',').map { it.trim() }
         val documentList = documentLogic.findDocumentsByHCPartySecretMessageKeys(hcPartyId, ArrayList(secretMessageKeys))
@@ -265,7 +267,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @Operation(summary = "List documents found By type, By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byTypeHcPartySecretForeignKeys")
-    fun findByTypeHCPartyMessageSecretFKeys(@RequestParam documentTypeCode: String,
+    fun listDocumentByTypeHCPartyMessageSecretFKeys(@RequestParam documentTypeCode: String,
                                             @RequestParam hcPartyId: String,
                                             @RequestParam secretFKeys: String): Flux<DocumentDto> {
         if (DocumentType.fromName(documentTypeCode) == null) {
