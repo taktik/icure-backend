@@ -48,7 +48,7 @@ import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/hcparty")
+@RequestMapping("/rest/v2/hcparty")
 @Tag(name = "hcparty")
 class HealthcarePartyController(private val userLogic: UserLogic,
                                 private val healthcarePartyLogic: HealthcarePartyLogic,
@@ -69,7 +69,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
 
     @Operation(summary = "List healthcare parties with(out) pagination", description = "Returns a list of healthcare parties.")
     @GetMapping
-    fun listHealthcareParties(
+    fun findHealthcarePartiesBy(
             @Parameter(description = "A healthcare party Last name") @RequestParam(required = false) startKey: String?,
             @Parameter(description = "A healthcare party document ID") @RequestParam(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
@@ -84,7 +84,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
 
     @Operation(summary = "Find healthcare parties by name with(out) pagination", description = "Returns a list of healthcare parties.")
     @GetMapping("/byName")
-    fun findByName(
+    fun findHealthcarePartiesByName(
             @Parameter(description = "The Last name search value") @RequestParam(required = false) name: String?,
             @Parameter(description = "A healthcare party Last name") @RequestParam(required = false) startKey: String?,
             @Parameter(description = "A healthcare party document ID") @RequestParam(required = false) startDocumentId: String?,
@@ -102,7 +102,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
 
     @Operation(summary = "Find healthcare parties by nihii or ssin with(out) pagination", description = "Returns a list of healthcare parties.")
     @GetMapping("/byNihiiOrSsin/{searchValue}")
-    fun findBySsinOrNihii(
+    fun findHealthcarePartiesBySsinOrNihii(
             @PathVariable searchValue: String,
             @Parameter(description = "A healthcare party Last name") @RequestParam(required = false) startKey: String?,
             @Parameter(description = "A healthcare party document ID") @RequestParam(required = false) startDocumentId: String?,
@@ -118,7 +118,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
 
     @Operation(summary = "Find healthcare parties by name with(out) pagination", description = "Returns a list of healthcare parties.")
     @GetMapping("/byNameStrict/{name}")
-    fun listByName(@Parameter(description = "The Last name search value")
+    fun listHealthcarePartiesByName(@Parameter(description = "The Last name search value")
                    @PathVariable name: String) =
             healthcarePartyLogic.listByName(name)
                            .map { healthcarePartyMapper.map(it) }
@@ -126,7 +126,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
 
     @Operation(summary = "Find healthcare parties by name with(out) pagination", description = "Returns a list of healthcare parties.")
     @GetMapping("/bySpecialityAndPostCode/{type}/{spec}/{firstCode}/to/{lastCode}")
-    fun findBySpecialityAndPostCode(
+    fun findHealthcarePartiesBySpecialityAndPostCode(
             @Parameter(description = "The type of the HCP (persphysician)") @PathVariable type: String,
             @Parameter(description = "The speciality of the HCP") @PathVariable spec: String,
             @Parameter(description = "The first postCode for the HCP") @PathVariable firstCode: String,
@@ -154,7 +154,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
     }
 
     @Operation(summary = "Get the HcParty encrypted AES keys indexed by owner", description = "(key, value) of the map is as follows: (ID of the owner of the encrypted AES key, encrypted AES key)")
-    @GetMapping("/{healthcarePartyId}/keys")
+    @GetMapping("byKeys/{healthcarePartyId}")
     fun getHcPartyKeysForDelegate(@PathVariable healthcarePartyId: String) = mono {
         healthcarePartyLogic.getHcPartyKeysForDelegate(healthcarePartyId)
     }
@@ -168,26 +168,18 @@ class HealthcarePartyController(private val userLogic: UserLogic,
     }
 
     @Operation(summary = "Get healthcareParties by their IDs", description = "General information about the healthcare Party")
-    @GetMapping("/byIds/{healthcarePartyIds}")
-    fun getHealthcareParties(@PathVariable healthcarePartyIds: String) =
-            healthcarePartyLogic.getHealthcareParties(healthcarePartyIds.split(','))
-                    .map { healthcarePartyMapper.map(it) }
-                    .injectReactorContext()
-
-    @Operation(summary = "Get healthcareParties by their IDs", description = "General information about the healthcare Party")
-    @PostMapping("/inGroup/{groupId}/byIds")
-    fun getHealthcarePartiesInGroup(@PathVariable groupId: String, @RequestBody(required = false) healthcarePartyIds: ListOfIdsDto? = null) =
-            healthcarePartyLogic.getHealthcareParties(groupId, healthcarePartyIds?.ids)
+    @PostMapping("/batch")
+    fun getHealthcareParties(@RequestBody healthcarePartyIds: ListOfIdsDto) =
+            healthcarePartyLogic.getHealthcareParties(healthcarePartyIds.ids)
                     .map { healthcarePartyMapper.map(it) }
                     .injectReactorContext()
 
     @Operation(summary = "Find children of an healthcare parties", description = "Return a list of children hcp.")
     @GetMapping("/{parentId}/children")
-    fun getHealthcarePartiesByParentId(@PathVariable parentId: String) =
+    fun listHealthcarePartiesByParentId(@PathVariable parentId: String) =
             healthcarePartyLogic.getHealthcarePartiesByParentId(parentId)
                     .map { healthcarePartyMapper.map(it) }
                     .injectReactorContext()
-
 
     @Operation(summary = "Get public key of a healthcare party", description = "Returns the public key of a healthcare party in Hex")
     @GetMapping("/{healthcarePartyId}/publicKey")
@@ -203,10 +195,10 @@ class HealthcarePartyController(private val userLogic: UserLogic,
     }
 
     @Operation(summary = "Delete a healthcare party", description = "Deleting a healthcareParty. Response is an array containing the id of deleted healthcare party.")
-    @DeleteMapping("/{healthcarePartyIds}")
-    fun deleteHealthcareParties(@PathVariable healthcarePartyIds: String): Flux<DocIdentifier> {
+    @PostMapping("/delete/batch")
+    fun deleteHealthcareParties(@RequestBody healthcarePartyIds: ListOfIdsDto): Flux<DocIdentifier> {
         return try {
-            healthcarePartyLogic.deleteHealthcareParties(healthcarePartyIds.split(',')).injectReactorContext()
+            healthcarePartyLogic.deleteHealthcareParties(healthcarePartyIds.ids).injectReactorContext()
         } catch (e: DeletionException) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
@@ -227,10 +219,10 @@ class HealthcarePartyController(private val userLogic: UserLogic,
     }
 
     @Operation(summary = "Delete a healthcare party", description = "Deleting a healthcareParty. Response is an array containing the id of deleted healthcare party.")
-    @DeleteMapping("/inGroup/{groupId}/{healthcarePartyIds}")
-    fun deleteHealthcarePartiesInGroup(@PathVariable groupId: String, @PathVariable healthcarePartyIds: String): Flux<DocIdentifier> {
+    @PostMapping("/delete/batch/inGroup/{groupId}")
+    fun deleteHealthcarePartiesInGroup(@PathVariable groupId: String, @RequestBody healthcarePartyIds: ListOfIdsDto): Flux<DocIdentifier> {
         return try {
-            healthcarePartyLogic.deleteHealthcareParties(groupId, healthcarePartyIds.split(',')).injectReactorContext()
+            healthcarePartyLogic.deleteHealthcareParties(groupId, healthcarePartyIds.ids).injectReactorContext()
         } catch (e: DeletionException) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
