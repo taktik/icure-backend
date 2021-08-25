@@ -21,11 +21,11 @@ package org.taktik.icure.services.external.rest.v2.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
-import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
-import org.taktik.icure.services.external.rest.v1.dto.base.EncryptableDto
-import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
-import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.*
+import org.taktik.icure.services.external.rest.v2.dto.base.CodeStubDto
+import org.taktik.icure.services.external.rest.v2.dto.base.EncryptableDto
+import org.taktik.icure.services.external.rest.v2.dto.base.ICureDocumentDto
+import org.taktik.icure.services.external.rest.v2.dto.base.StoredDocumentDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -48,9 +48,9 @@ data class InvoiceDto(
         val printedDate: Long? = null,
         val invoicingCodes: List<InvoicingCodeDto> = listOf(),
         val receipts: Map<String, String> = mapOf(),
-        val recipientType: String? = null, // org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto,
+        val recipientType: String? = null, // org.taktik.icure.services.external.rest.v2.dto.HealthcarePartyDto,
 
-        // org.taktik.icure.services.external.rest.v1.dto.InsuranceDto, org.taktik.icure.services.external.rest.v1.dto.PatientDto
+        // org.taktik.icure.services.external.rest.v2.dto.InsuranceDto, org.taktik.icure.services.external.rest.v2.dto.PatientDto
         val recipientId: String? = null, // for hcps and insurance, patient link happens through secretForeignKeys
         val invoiceReference: String? = null,
         val thirdPartyReference: String? = null,

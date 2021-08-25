@@ -18,7 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v2.dto.base
 
-import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
 
 interface EncryptableDto {
     //Those are typically filled in the contacts

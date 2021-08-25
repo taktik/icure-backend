@@ -19,7 +19,7 @@
 package org.taktik.icure.services.external.rest.v2.dto.be.efact
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import org.taktik.icure.services.external.rest.v1.dto.be.efact.segments.ZoneDescription
+import org.taktik.icure.services.external.rest.v2.dto.be.efact.segments.ZoneDescription
 
 @JsonIgnoreProperties("zoneDescription")
 class Zone(var zoneDescription: ZoneDescription? = null, var value: Any? = null) {

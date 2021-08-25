@@ -26,10 +26,10 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.FormTemplate
-import org.taktik.icure.services.external.rest.v1.dto.FormTemplateDto
-import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout
-import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DocumentGroupMapper
+import org.taktik.icure.services.external.rest.v2.dto.FormTemplateDto
+import org.taktik.icure.services.external.rest.v2.dto.gui.layout.FormLayout
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DocumentGroupMapper
 
 @Mapper(componentModel = "spring", uses = [DocumentGroupMapper::class, CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 abstract class FormTemplateMapper {

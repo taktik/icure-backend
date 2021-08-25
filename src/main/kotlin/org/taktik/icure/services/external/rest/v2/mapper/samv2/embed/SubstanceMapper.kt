@@ -23,7 +23,7 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.samv2.embed.Substance
-import org.taktik.icure.services.external.rest.v1.dto.samv2.embed.SubstanceDto
+import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.SubstanceDto
 @Mapper(componentModel = "spring", uses = [StandardSubstanceMapper::class, SamTextMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface SubstanceMapper {
     @Mappings(

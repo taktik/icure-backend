@@ -23,10 +23,10 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.User
-import org.taktik.icure.services.external.rest.v1.dto.UserDto
-import org.taktik.icure.services.external.rest.v1.mapper.base.PropertyStubMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationTagMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.PermissionMapper
+import org.taktik.icure.services.external.rest.v2.dto.UserDto
+import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationTagMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.PermissionMapper
 
 @Mapper(componentModel = "spring", uses = [PermissionMapper::class, DelegationTagMapper::class, PropertyStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface UserMapper {

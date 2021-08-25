@@ -33,12 +33,12 @@ import org.taktik.icure.constants.TypedValuesType
 import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.base.PropertyTypeStub
 import org.taktik.icure.entities.embed.TypedValue
-import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.AppointmentImportDto
-import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.EmailOrSmsMessageDto
-import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentTypeRestDto
-import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoCredentialsDto
-import org.taktik.icure.services.external.rest.v1.mapper.UserMapper
-import org.taktik.icure.services.external.rest.v1.mapper.mikrono.EmailOrSmsMessageMapper
+import org.taktik.icure.services.external.rest.v2.dto.be.mikrono.AppointmentImportDto
+import org.taktik.icure.services.external.rest.v2.dto.be.mikrono.EmailOrSmsMessageDto
+import org.taktik.icure.services.external.rest.v2.dto.be.mikrono.MikronoAppointmentTypeRestDto
+import org.taktik.icure.services.external.rest.v2.dto.be.mikrono.MikronoCredentialsDto
+import org.taktik.icure.services.external.rest.v2.mapper.UserMapper
+import org.taktik.icure.services.external.rest.v2.mapper.mikrono.EmailOrSmsMessageMapper
 import org.taktik.icure.utils.firstOrNull
 import java.io.IOException
 

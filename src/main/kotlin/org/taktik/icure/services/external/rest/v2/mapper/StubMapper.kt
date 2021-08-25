@@ -21,8 +21,8 @@ package org.taktik.icure.services.external.rest.v2.mapper
 import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.*
-import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
 
 @Mapper(componentModel = "spring", uses = [DelegationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface StubMapper {

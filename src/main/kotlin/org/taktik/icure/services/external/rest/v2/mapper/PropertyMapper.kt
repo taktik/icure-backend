@@ -23,8 +23,8 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Property
-import org.taktik.icure.services.external.rest.v1.dto.PropertyDto
-import org.taktik.icure.services.external.rest.v1.mapper.embed.TypedValueMapper
+import org.taktik.icure.services.external.rest.v2.dto.PropertyDto
+import org.taktik.icure.services.external.rest.v2.mapper.embed.TypedValueMapper
 
 @Mapper(componentModel = "spring", uses = [TypedValueMapper::class, PropertyTypeMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface PropertyMapper {

@@ -23,9 +23,9 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.HealthElement
-import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
-import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.*
+import org.taktik.icure.services.external.rest.v2.dto.HealthElementDto
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.*
 
 @Mapper(componentModel = "spring", uses = [LateralityMapper::class, PlanOfActionMapper::class, EpisodeMapper::class, CodeStubMapper::class, DelegationMapper::class, CareTeamMemberMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface HealthElementMapper {

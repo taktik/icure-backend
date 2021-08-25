@@ -17,8 +17,8 @@
  */
 package org.taktik.icure.services.external.rest.v2.dto.be.kmehr
 
-import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
+import org.taktik.icure.services.external.rest.v2.dto.HealthcarePartyDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.ServiceDto
 import java.io.Serializable
 
 class MedicationSchemeExportInfoDto : Serializable {

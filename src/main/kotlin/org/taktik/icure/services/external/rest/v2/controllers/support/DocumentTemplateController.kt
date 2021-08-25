@@ -38,9 +38,9 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DocumentTemplateLogic
 import org.taktik.icure.entities.embed.DocumentType
-import org.taktik.icure.services.external.rest.v1.dto.DocumentTemplateDto
-import org.taktik.icure.services.external.rest.v1.dto.data.ByteArrayDto
-import org.taktik.icure.services.external.rest.v1.mapper.DocumentTemplateMapper
+import org.taktik.icure.services.external.rest.v2.dto.DocumentTemplateDto
+import org.taktik.icure.services.external.rest.v2.dto.data.ByteArrayDto
+import org.taktik.icure.services.external.rest.v2.mapper.DocumentTemplateMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 

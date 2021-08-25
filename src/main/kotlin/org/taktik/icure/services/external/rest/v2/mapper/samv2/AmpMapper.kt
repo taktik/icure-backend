@@ -23,9 +23,9 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.samv2.Amp
-import org.taktik.icure.services.external.rest.v1.dto.samv2.AmpDto
-import org.taktik.icure.services.external.rest.v1.mapper.EntityReferenceMapper
-import org.taktik.icure.services.external.rest.v1.mapper.samv2.embed.*
+import org.taktik.icure.services.external.rest.v2.dto.samv2.AmpDto
+import org.taktik.icure.services.external.rest.v2.mapper.EntityReferenceMapper
+import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.*
 
 @Mapper(componentModel = "spring", uses = [CompanyMapper::class, AmpStatusMapper::class, SamTextMapper::class, VmpStubMapper::class, MedicineTypeMapper::class, AmpComponentMapper::class, EntityReferenceMapper::class, AmppMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface AmpMapper {

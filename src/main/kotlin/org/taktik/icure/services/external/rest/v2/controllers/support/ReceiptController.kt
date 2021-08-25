@@ -34,8 +34,8 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.ReceiptLogic
 import org.taktik.icure.entities.embed.ReceiptBlobType
 import org.taktik.icure.security.CryptoUtils
-import org.taktik.icure.services.external.rest.v1.dto.ReceiptDto
-import org.taktik.icure.services.external.rest.v1.mapper.ReceiptMapper
+import org.taktik.icure.services.external.rest.v2.dto.ReceiptDto
+import org.taktik.icure.services.external.rest.v2.mapper.ReceiptMapper
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.writeTo

@@ -23,9 +23,9 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Keyword
-import org.taktik.icure.services.external.rest.v1.dto.KeywordDto
-import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.KeywordSubwordMapper
+import org.taktik.icure.services.external.rest.v2.dto.KeywordDto
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.KeywordSubwordMapper
 
 @Mapper(componentModel = "spring", uses = [CodeStubMapper::class, KeywordSubwordMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface KeywordMapper {

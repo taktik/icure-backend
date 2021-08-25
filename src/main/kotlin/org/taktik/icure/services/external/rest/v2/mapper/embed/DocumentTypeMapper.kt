@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.DocumentType
-import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentTypeDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.DocumentTypeDto
 @Mapper(componentModel = "spring")
 interface DocumentTypeMapper {
 	fun map(documentTypeDto: DocumentTypeDto):DocumentType

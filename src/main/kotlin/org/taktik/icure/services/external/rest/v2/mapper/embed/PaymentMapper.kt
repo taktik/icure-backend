@@ -21,7 +21,7 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Payment
-import org.taktik.icure.services.external.rest.v1.dto.embed.PaymentDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.PaymentDto
 @Mapper(componentModel = "spring", uses = [PaymentTypeMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface PaymentMapper {
 	fun map(paymentDto: PaymentDto):Payment

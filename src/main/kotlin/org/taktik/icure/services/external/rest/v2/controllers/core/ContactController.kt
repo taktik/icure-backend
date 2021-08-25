@@ -36,21 +36,21 @@ import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.exceptions.MissingRequirementsException
-import org.taktik.icure.services.external.rest.v1.dto.ContactDto
-import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
-import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
-import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair
-import org.taktik.icure.services.external.rest.v1.dto.data.LabelledOccurenceDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
-import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
-import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
-import org.taktik.icure.services.external.rest.v1.mapper.ContactMapper
-import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
-import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
+import org.taktik.icure.services.external.rest.v2.dto.ContactDto
+import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
+import org.taktik.icure.services.external.rest.v2.dto.PaginatedDocumentKeyIdPair
+import org.taktik.icure.services.external.rest.v2.dto.data.LabelledOccurenceDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.ContentDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.ServiceDto
+import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
+import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
+import org.taktik.icure.services.external.rest.v2.mapper.ContactMapper
+import org.taktik.icure.services.external.rest.v2.mapper.StubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.ServiceMapper
+import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
@@ -317,11 +317,11 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
         val totalSize = services.size // TODO SH AD: this is wrong! totalSize is ids.size from filterServices, which can be retrieved from the TotalCount ViewQueryResultEvent, but we can't easily recover it...
 
         if (services.size <= realLimit) {
-            org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ServiceDto>(services.size, totalSize, services, null)
+            org.taktik.icure.services.external.rest.v2.dto.PaginatedList<ServiceDto>(services.size, totalSize, services, null)
         } else {
             val nextKeyPair = services.lastOrNull()?.let { PaginatedDocumentKeyIdPair(null, it.id) }
             val rows = services.subList(0, services.size-1)
-            org.taktik.icure.services.external.rest.v1.dto.PaginatedList(realLimit, totalSize, rows, nextKeyPair)
+            org.taktik.icure.services.external.rest.v2.dto.PaginatedList(realLimit, totalSize, rows, nextKeyPair)
         }
     }
 

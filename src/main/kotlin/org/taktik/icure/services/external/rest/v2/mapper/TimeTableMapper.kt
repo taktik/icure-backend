@@ -23,10 +23,10 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.TimeTable
-import org.taktik.icure.services.external.rest.v1.dto.TimeTableDto
-import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.TimeTableItemMapper
+import org.taktik.icure.services.external.rest.v2.dto.TimeTableDto
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.TimeTableItemMapper
 
 @Mapper(componentModel = "spring", uses = [TimeTableItemMapper::class, CodeStubMapper::class, DelegationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface TimeTableMapper {

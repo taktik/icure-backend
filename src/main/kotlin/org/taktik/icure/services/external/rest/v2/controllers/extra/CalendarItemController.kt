@@ -32,11 +32,11 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.CalendarItemLogic
 import org.taktik.icure.entities.embed.Delegation
-import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto
-import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
-import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
-import org.taktik.icure.services.external.rest.v1.mapper.CalendarItemMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v2.dto.CalendarItemDto
+import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
+import org.taktik.icure.services.external.rest.v2.mapper.CalendarItemMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 

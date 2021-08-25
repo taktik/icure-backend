@@ -17,10 +17,10 @@
  */
 package org.taktik.icure.services.external.rest.v2.dto.be.kmehr
 
-import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.PartnershipDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePartyDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
+import org.taktik.icure.services.external.rest.v2.dto.HealthElementDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.PartnershipDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.PatientHealthCarePartyDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.ServiceDto
 import java.io.Serializable
 
 class SumehrContentDto : Serializable {

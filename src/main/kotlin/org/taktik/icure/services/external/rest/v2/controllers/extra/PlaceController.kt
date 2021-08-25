@@ -26,8 +26,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.PlaceLogic
-import org.taktik.icure.services.external.rest.v1.dto.PlaceDto
-import org.taktik.icure.services.external.rest.v1.mapper.PlaceMapper
+import org.taktik.icure.services.external.rest.v2.dto.PlaceDto
+import org.taktik.icure.services.external.rest.v2.mapper.PlaceMapper
 import org.taktik.icure.utils.injectReactorContext
 
 @RestController

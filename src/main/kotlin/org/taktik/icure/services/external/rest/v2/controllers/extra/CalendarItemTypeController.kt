@@ -28,8 +28,8 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.CalendarItemTypeLogic
-import org.taktik.icure.services.external.rest.v1.dto.CalendarItemTypeDto
-import org.taktik.icure.services.external.rest.v1.mapper.CalendarItemTypeMapper
+import org.taktik.icure.services.external.rest.v2.dto.CalendarItemTypeDto
+import org.taktik.icure.services.external.rest.v2.mapper.CalendarItemTypeMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 

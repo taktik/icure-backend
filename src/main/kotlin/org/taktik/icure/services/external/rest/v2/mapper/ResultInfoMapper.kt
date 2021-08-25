@@ -21,10 +21,10 @@ package org.taktik.icure.services.external.rest.v2.mapper
 import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.dto.result.ResultInfo
-import org.taktik.icure.services.external.rest.v1.dto.ResultInfoDto
-import org.taktik.icure.services.external.rest.v1.mapper.base.CodeMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
+import org.taktik.icure.services.external.rest.v2.dto.ResultInfoDto
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.ServiceMapper
 
 @Mapper(componentModel = "spring", uses = [DelegationMapper::class, ServiceMapper::class, CodeMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ResultInfoMapper {

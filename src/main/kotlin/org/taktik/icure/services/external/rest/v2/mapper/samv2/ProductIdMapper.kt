@@ -23,7 +23,7 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.samv2.ProductId
-import org.taktik.icure.services.external.rest.v1.dto.samv2.ProductIdDto
+import org.taktik.icure.services.external.rest.v2.dto.samv2.ProductIdDto
 
 @Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ProductIdMapper {

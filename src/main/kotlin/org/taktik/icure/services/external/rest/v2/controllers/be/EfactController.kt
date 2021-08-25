@@ -25,7 +25,7 @@ import kotlinx.coroutines.reactor.mono
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.entities.Invoice
-import org.taktik.icure.services.external.rest.v1.dto.MapOfIdsDto
+import org.taktik.icure.services.external.rest.v2.dto.MapOfIdsDto
 
 
 @RestController

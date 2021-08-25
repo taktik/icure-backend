@@ -23,8 +23,8 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Insurance
-import org.taktik.icure.services.external.rest.v1.dto.InsuranceDto
-import org.taktik.icure.services.external.rest.v1.mapper.embed.AddressMapper
+import org.taktik.icure.services.external.rest.v2.dto.InsuranceDto
+import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressMapper
 
 @Mapper(componentModel = "spring", uses = [AddressMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface InsuranceMapper {

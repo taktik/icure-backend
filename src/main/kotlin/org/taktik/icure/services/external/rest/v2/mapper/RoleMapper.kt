@@ -23,9 +23,9 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Role
-import org.taktik.icure.services.external.rest.v1.dto.RoleDto
-import org.taktik.icure.services.external.rest.v1.mapper.base.PropertyStubMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.PermissionMapper
+import org.taktik.icure.services.external.rest.v2.dto.RoleDto
+import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.PermissionMapper
 
 @Mapper(componentModel = "spring", uses = [PropertyStubMapper::class, PermissionMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface RoleMapper {

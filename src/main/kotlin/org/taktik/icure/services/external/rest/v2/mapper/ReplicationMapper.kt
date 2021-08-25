@@ -23,8 +23,8 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Replication
-import org.taktik.icure.services.external.rest.v1.dto.ReplicationDto
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DatabaseSynchronizationMapper
+import org.taktik.icure.services.external.rest.v2.dto.ReplicationDto
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DatabaseSynchronizationMapper
 
 @Mapper(componentModel = "spring", uses = [DatabaseSynchronizationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ReplicationMapper {

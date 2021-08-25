@@ -18,7 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v2.dto.be.efact
 
-import org.taktik.icure.services.external.rest.v1.dto.PatientDto
+import org.taktik.icure.services.external.rest.v2.dto.PatientDto
 import java.util.*
 
 class EfactInvoice {

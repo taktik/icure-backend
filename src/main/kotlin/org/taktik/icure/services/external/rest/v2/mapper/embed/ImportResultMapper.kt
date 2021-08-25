@@ -23,8 +23,8 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.domain.result.ImportResult
-import org.taktik.icure.services.external.rest.v1.dto.ImportResultDto
-import org.taktik.icure.services.external.rest.v1.mapper.*
+import org.taktik.icure.services.external.rest.v2.dto.ImportResultDto
+import org.taktik.icure.services.external.rest.v2.mapper.*
 
 @Mapper(componentModel = "spring", uses = [DelegationMapper::class, PatientMapper::class, HealthElementMapper::class, ContactMapper::class, FormMapper::class, HealthcarePartyMapper::class, DocumentMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ImportResultMapper {

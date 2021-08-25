@@ -31,10 +31,10 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.User
-import org.taktik.icure.services.external.rest.v1.dto.PropertyStubDto
-import org.taktik.icure.services.external.rest.v1.dto.UserDto
-import org.taktik.icure.services.external.rest.v1.mapper.UserMapper
-import org.taktik.icure.services.external.rest.v1.mapper.base.PropertyStubMapper
+import org.taktik.icure.services.external.rest.v2.dto.PropertyStubDto
+import org.taktik.icure.services.external.rest.v2.dto.UserDto
+import org.taktik.icure.services.external.rest.v2.mapper.UserMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubMapper
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList

@@ -23,9 +23,9 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Agenda
-import org.taktik.icure.services.external.rest.v1.dto.AgendaDto
-import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.RightMapper
+import org.taktik.icure.services.external.rest.v2.dto.AgendaDto
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.RightMapper
 
 @Mapper(componentModel = "spring", uses = [CodeStubMapper::class, RightMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface AgendaMapper {

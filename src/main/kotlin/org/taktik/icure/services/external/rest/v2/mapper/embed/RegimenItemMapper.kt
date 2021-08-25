@@ -21,8 +21,8 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.RegimenItem
-import org.taktik.icure.services.external.rest.v1.dto.embed.RegimenItemDto
-import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.dto.embed.RegimenItemDto
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
 
 @Mapper(componentModel = "spring", uses = [CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface RegimenItemMapper {

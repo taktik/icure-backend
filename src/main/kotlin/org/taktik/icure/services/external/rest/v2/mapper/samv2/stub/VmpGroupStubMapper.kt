@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.samv2.stub.VmpGroupStub
-import org.taktik.icure.services.external.rest.v1.dto.samv2.stub.VmpGroupStubDto
+import org.taktik.icure.services.external.rest.v2.dto.samv2.stub.VmpGroupStubDto
 
 @Mapper(componentModel = "spring")
 interface VmpGroupStubMapper {

@@ -39,8 +39,8 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.WebSession
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.security.SecurityToken
-import org.taktik.icure.services.external.rest.v1.dto.AuthenticationResponse
-import org.taktik.icure.services.external.rest.v1.dto.LoginCredentials
+import org.taktik.icure.services.external.rest.v2.dto.AuthenticationResponse
+import org.taktik.icure.services.external.rest.v2.dto.LoginCredentials
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono

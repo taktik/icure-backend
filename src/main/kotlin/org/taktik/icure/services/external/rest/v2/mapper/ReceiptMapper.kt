@@ -23,10 +23,10 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Receipt
-import org.taktik.icure.services.external.rest.v1.dto.ReceiptDto
-import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.ReceiptBlobTypeMapper
+import org.taktik.icure.services.external.rest.v2.dto.ReceiptDto
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.ReceiptBlobTypeMapper
 
 @Mapper(componentModel = "spring", uses = [CodeStubMapper::class, DelegationMapper::class, ReceiptBlobTypeMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ReceiptMapper {

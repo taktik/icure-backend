@@ -33,4 +33,4 @@ For controllers, logic and daos:
 | List objects (no pagination)  |  listObjectsBy  | GET or POST /rest/v?/object/byMainKey/:mainKey (may have extra query params or body)|
 | Get objects by ids | getObjects| GET /rest/v?/object (ids pass in body) |
 | Delete an object | deleteObject | DELETE /rest/v?/object/:id |
-| Delete objects | deleteObjects | DELETE /rest/v?/object/:ids |
+| Delete objects | deleteObjects | POST /rest/v?/object/ (ids pass in body) |

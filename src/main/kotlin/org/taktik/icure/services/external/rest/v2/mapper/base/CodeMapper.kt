@@ -23,8 +23,8 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.base.Code
-import org.taktik.icure.services.external.rest.v1.dto.CodeDto
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v2.dto.CodeDto
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
 
 @Mapper(componentModel = "spring", uses = [DelegationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface CodeMapper {

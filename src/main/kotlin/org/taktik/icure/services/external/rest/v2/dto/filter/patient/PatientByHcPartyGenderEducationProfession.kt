@@ -25,7 +25,7 @@ import com.github.pozo.KotlinBuilder
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Gender
 import org.taktik.icure.handlers.JsonPolymorphismRoot
-import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
+import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 
 @JsonPolymorphismRoot(AbstractFilterDto::class)
 @JsonDeserialize(using = JsonDeserializer.None::class)

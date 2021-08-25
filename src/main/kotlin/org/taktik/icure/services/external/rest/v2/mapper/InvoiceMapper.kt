@@ -23,9 +23,9 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Invoice
-import org.taktik.icure.services.external.rest.v1.dto.InvoiceDto
-import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.*
+import org.taktik.icure.services.external.rest.v2.dto.InvoiceDto
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.*
 
 @Mapper(componentModel = "spring", uses = [InvoiceTypeMapper::class, PaymentTypeMapper::class, InvoicingCodeMapper::class, IdentityDocumentReaderMapper::class, MediumTypeMapper::class, CodeStubMapper::class, PaymentMapper::class, DelegationMapper::class, InvoiceInterventionTypeMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface InvoiceMapper {

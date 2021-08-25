@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.KeywordSubword
-import org.taktik.icure.services.external.rest.v1.dto.embed.KeywordSubwordDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.KeywordSubwordDto
 @Mapper(componentModel = "spring")
 interface KeywordSubwordMapper {
 	fun map(keywordSubwordDto: KeywordSubwordDto):KeywordSubword

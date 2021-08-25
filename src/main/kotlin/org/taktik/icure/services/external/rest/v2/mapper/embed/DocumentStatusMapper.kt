@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.DocumentStatus
-import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentStatusDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.DocumentStatusDto
 @Mapper(componentModel = "spring")
 interface DocumentStatusMapper {
 	fun map(documentStatusDto: DocumentStatusDto):DocumentStatus

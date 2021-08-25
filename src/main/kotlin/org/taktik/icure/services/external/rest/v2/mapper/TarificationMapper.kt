@@ -23,13 +23,13 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Tarification
-import org.taktik.icure.services.external.rest.v1.dto.TarificationDto
-import org.taktik.icure.services.external.rest.v1.mapper.base.AppendixTypeMapper
-import org.taktik.icure.services.external.rest.v1.mapper.base.CodeFlagMapper
-import org.taktik.icure.services.external.rest.v1.mapper.base.LinkQualificationMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.LetterValueMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.PeriodicityMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.ValorisationMapper
+import org.taktik.icure.services.external.rest.v2.dto.TarificationDto
+import org.taktik.icure.services.external.rest.v2.mapper.base.AppendixTypeMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeFlagMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.LinkQualificationMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.LetterValueMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.PeriodicityMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.ValorisationMapper
 
 @Mapper(componentModel = "spring", uses = [LetterValueMapper::class, PeriodicityMapper::class, LinkQualificationMapper::class, AppendixTypeMapper::class, ValorisationMapper::class, CodeFlagMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface TarificationMapper {

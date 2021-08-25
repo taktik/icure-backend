@@ -17,7 +17,7 @@
  */
 package org.taktik.icure.services.external.rest.v2.dto.embed
 
-import org.taktik.icure.services.external.rest.v1.dto.base.EnumVersionDto
+import org.taktik.icure.services.external.rest.v2.dto.base.EnumVersionDto
 
 /**
  * Created by aduchate on 21/01/13, 15:38

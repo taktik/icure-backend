@@ -28,8 +28,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.EntityTemplateLogic
-import org.taktik.icure.services.external.rest.v1.dto.EntityTemplateDto
-import org.taktik.icure.services.external.rest.v1.mapper.EntityTemplateMapper
+import org.taktik.icure.services.external.rest.v2.dto.EntityTemplateDto
+import org.taktik.icure.services.external.rest.v2.mapper.EntityTemplateMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 

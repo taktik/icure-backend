@@ -34,8 +34,8 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AccessLogLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.AccessLog
-import org.taktik.icure.services.external.rest.v1.dto.AccessLogDto
-import org.taktik.icure.services.external.rest.v1.mapper.AccessLogMapper
+import org.taktik.icure.services.external.rest.v2.dto.AccessLogDto
+import org.taktik.icure.services.external.rest.v2.mapper.AccessLogMapper
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux

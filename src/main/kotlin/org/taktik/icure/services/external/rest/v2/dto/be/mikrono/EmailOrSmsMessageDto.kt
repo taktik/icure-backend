@@ -23,7 +23,7 @@ package org.taktik.icure.services.external.rest.v2.dto.be.mikrono
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
-import org.taktik.icure.services.external.rest.v1.dto.base.MimeAttachmentDto
+import org.taktik.icure.services.external.rest.v2.dto.base.MimeAttachmentDto
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

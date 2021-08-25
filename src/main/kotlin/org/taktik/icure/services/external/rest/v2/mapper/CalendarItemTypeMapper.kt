@@ -23,7 +23,7 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.CalendarItemType
-import org.taktik.icure.services.external.rest.v1.dto.CalendarItemTypeDto
+import org.taktik.icure.services.external.rest.v2.dto.CalendarItemTypeDto
 
 @Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface CalendarItemTypeMapper {

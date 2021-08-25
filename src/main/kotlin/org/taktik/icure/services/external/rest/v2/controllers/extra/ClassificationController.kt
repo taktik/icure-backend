@@ -32,12 +32,12 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.ClassificationLogic
 import org.taktik.icure.entities.embed.Delegation
-import org.taktik.icure.services.external.rest.v1.dto.ClassificationDto
-import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
-import org.taktik.icure.services.external.rest.v1.mapper.ClassificationMapper
-import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v2.dto.ClassificationDto
+import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
+import org.taktik.icure.services.external.rest.v2.mapper.ClassificationMapper
+import org.taktik.icure.services.external.rest.v2.mapper.StubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 

@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.taktik.icure.asynclogic.ApplicationSettingsLogic
-import org.taktik.icure.services.external.rest.v1.dto.ApplicationSettingsDto
-import org.taktik.icure.services.external.rest.v1.mapper.ApplicationSettingsMapper
+import org.taktik.icure.services.external.rest.v2.dto.ApplicationSettingsDto
+import org.taktik.icure.services.external.rest.v2.mapper.ApplicationSettingsMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 

@@ -27,9 +27,9 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.taktik.icure.be.ehealth.logic.kmehr.medex.MedexLogic
-import org.taktik.icure.services.external.rest.v1.dto.MedexInfoDto
-import org.taktik.icure.services.external.rest.v1.mapper.HealthcarePartyMapper
-import org.taktik.icure.services.external.rest.v1.mapper.PatientMapper
+import org.taktik.icure.services.external.rest.v2.dto.MedexInfoDto
+import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyMapper
+import org.taktik.icure.services.external.rest.v2.mapper.PatientMapper
 
 @RestController
 @RequestMapping("/rest/v1/medex")

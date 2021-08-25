@@ -17,7 +17,7 @@
  */
 package org.taktik.icure.services.external.rest.v2.dto
 
-import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentDto
+import org.taktik.icure.services.external.rest.v2.dto.be.mikrono.MikronoAppointmentDto
 import org.taktik.icure.utils.FuzzyValues
 import java.io.Serializable
 import java.time.Instant

@@ -23,9 +23,9 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.FrontEndMigration
-import org.taktik.icure.services.external.rest.v1.dto.FrontEndMigrationDto
-import org.taktik.icure.services.external.rest.v1.mapper.base.PropertyStubMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.FrontEndMigrationStatusMapper
+import org.taktik.icure.services.external.rest.v2.dto.FrontEndMigrationDto
+import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.FrontEndMigrationStatusMapper
 
 @Mapper(componentModel = "spring", uses = [FrontEndMigrationStatusMapper::class, PropertyStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface FrontEndMigrationMapper {

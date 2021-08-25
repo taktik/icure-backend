@@ -21,8 +21,8 @@ package org.taktik.icure.services.external.rest.v2.mapper.filter
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.domain.filter.AbstractFilter
-import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
-import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
+import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
+import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
 
 @Service
 class FilterChainMapper(val filterMapper: FilterMapper) {

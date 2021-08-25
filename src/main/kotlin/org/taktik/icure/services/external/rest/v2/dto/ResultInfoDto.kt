@@ -17,8 +17,8 @@
  */
 package org.taktik.icure.services.external.rest.v2.dto
 
-import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
+import org.taktik.icure.services.external.rest.v2.dto.base.CodeStubDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.ServiceDto
 
 class ResultInfoDto {
     var ssin: String? = null

@@ -20,11 +20,11 @@ package org.taktik.icure.services.external.rest.v2.mapper.gui.layout
 
 import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
-import org.taktik.icure.services.external.rest.v1.dto.gui.Editor
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.*
-import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout
-import org.taktik.icure.services.external.rest.v1.dto.gui.type.Data
-import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
+import org.taktik.icure.services.external.rest.v2.dto.gui.Editor
+import org.taktik.icure.services.external.rest.v2.dto.gui.editor.*
+import org.taktik.icure.services.external.rest.v2.dto.gui.layout.FormLayout
+import org.taktik.icure.services.external.rest.v2.dto.gui.type.Data
+import org.taktik.icure.services.external.rest.v2.mapper.embed.ServiceMapper
 
 @Mapper(componentModel = "spring", uses = [ServiceMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 abstract class FormLayoutMapper {
@@ -122,50 +122,50 @@ abstract class FormLayoutMapper {
     }
 
 
-    abstract fun map(data: org.taktik.icure.services.external.rest.v1.dto.gui.type.Array): org.taktik.icure.dto.gui.type.Array
-    abstract fun map(data: org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.AttributedString): org.taktik.icure.dto.gui.type.primitive.AttributedString
-    abstract fun map(data: org.taktik.icure.services.external.rest.v1.dto.gui.type.Dictionary): org.taktik.icure.dto.gui.type.Dictionary
-    abstract fun map(data: org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.Label): org.taktik.icure.dto.gui.type.primitive.Label
-    abstract fun map(data: org.taktik.icure.services.external.rest.v1.dto.gui.type.Measure): org.taktik.icure.dto.gui.type.Measure
-    abstract fun map(data: org.taktik.icure.services.external.rest.v1.dto.gui.type.MedicationTable): org.taktik.icure.dto.gui.type.MedicationTable
-    abstract fun map(data: org.taktik.icure.services.external.rest.v1.dto.gui.type.MenuOption): org.taktik.icure.dto.gui.type.MenuOption
-    abstract fun map(data: org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.PrimitiveBoolean): org.taktik.icure.dto.gui.type.primitive.PrimitiveBoolean
-    abstract fun map(data: org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.PrimitiveDate): org.taktik.icure.dto.gui.type.primitive.PrimitiveDate
-    abstract fun map(data: org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.PrimitiveNumber): org.taktik.icure.dto.gui.type.primitive.PrimitiveNumber
-    abstract fun map(data: org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.PrimitiveString): org.taktik.icure.dto.gui.type.primitive.PrimitiveString
-    abstract fun map(data: org.taktik.icure.services.external.rest.v1.dto.gui.type.Schema): org.taktik.icure.dto.gui.type.Schema
-    abstract fun map(data: org.taktik.icure.services.external.rest.v1.dto.gui.type.StringTable): org.taktik.icure.dto.gui.type.StringTable
+    abstract fun map(data: org.taktik.icure.services.external.rest.v2.dto.gui.type.Array): org.taktik.icure.dto.gui.type.Array
+    abstract fun map(data: org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.AttributedString): org.taktik.icure.dto.gui.type.primitive.AttributedString
+    abstract fun map(data: org.taktik.icure.services.external.rest.v2.dto.gui.type.Dictionary): org.taktik.icure.dto.gui.type.Dictionary
+    abstract fun map(data: org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.Label): org.taktik.icure.dto.gui.type.primitive.Label
+    abstract fun map(data: org.taktik.icure.services.external.rest.v2.dto.gui.type.Measure): org.taktik.icure.dto.gui.type.Measure
+    abstract fun map(data: org.taktik.icure.services.external.rest.v2.dto.gui.type.MedicationTable): org.taktik.icure.dto.gui.type.MedicationTable
+    abstract fun map(data: org.taktik.icure.services.external.rest.v2.dto.gui.type.MenuOption): org.taktik.icure.dto.gui.type.MenuOption
+    abstract fun map(data: org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.PrimitiveBoolean): org.taktik.icure.dto.gui.type.primitive.PrimitiveBoolean
+    abstract fun map(data: org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.PrimitiveDate): org.taktik.icure.dto.gui.type.primitive.PrimitiveDate
+    abstract fun map(data: org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.PrimitiveNumber): org.taktik.icure.dto.gui.type.primitive.PrimitiveNumber
+    abstract fun map(data: org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.PrimitiveString): org.taktik.icure.dto.gui.type.primitive.PrimitiveString
+    abstract fun map(data: org.taktik.icure.services.external.rest.v2.dto.gui.type.Schema): org.taktik.icure.dto.gui.type.Schema
+    abstract fun map(data: org.taktik.icure.services.external.rest.v2.dto.gui.type.StringTable): org.taktik.icure.dto.gui.type.StringTable
 
     fun map(data: Data): org.taktik.icure.dto.gui.type.Data = when (data) {
-        is org.taktik.icure.services.external.rest.v1.dto.gui.type.Array -> map(data)
-        is org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.AttributedString -> map(data)
-        is org.taktik.icure.services.external.rest.v1.dto.gui.type.Dictionary -> map(data)
-        is org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.Label -> map(data)
-        is org.taktik.icure.services.external.rest.v1.dto.gui.type.Measure -> map(data)
-        is org.taktik.icure.services.external.rest.v1.dto.gui.type.MedicationTable -> map(data)
-        is org.taktik.icure.services.external.rest.v1.dto.gui.type.MenuOption -> map(data)
-        is org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.PrimitiveBoolean -> map(data)
-        is org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.PrimitiveDate -> map(data)
-        is org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.PrimitiveNumber -> map(data)
-        is org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.PrimitiveString -> map(data)
-        is org.taktik.icure.services.external.rest.v1.dto.gui.type.Schema -> map(data)
-        is org.taktik.icure.services.external.rest.v1.dto.gui.type.StringTable -> map(data)
+        is org.taktik.icure.services.external.rest.v2.dto.gui.type.Array -> map(data)
+        is org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.AttributedString -> map(data)
+        is org.taktik.icure.services.external.rest.v2.dto.gui.type.Dictionary -> map(data)
+        is org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.Label -> map(data)
+        is org.taktik.icure.services.external.rest.v2.dto.gui.type.Measure -> map(data)
+        is org.taktik.icure.services.external.rest.v2.dto.gui.type.MedicationTable -> map(data)
+        is org.taktik.icure.services.external.rest.v2.dto.gui.type.MenuOption -> map(data)
+        is org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.PrimitiveBoolean -> map(data)
+        is org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.PrimitiveDate -> map(data)
+        is org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.PrimitiveNumber -> map(data)
+        is org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.PrimitiveString -> map(data)
+        is org.taktik.icure.services.external.rest.v2.dto.gui.type.Schema -> map(data)
+        is org.taktik.icure.services.external.rest.v2.dto.gui.type.StringTable -> map(data)
         else -> throw IllegalArgumentException("Unsupported data class")
     }
 
-    abstract fun map(data: org.taktik.icure.dto.gui.type.Array): org.taktik.icure.services.external.rest.v1.dto.gui.type.Array
-    abstract fun map(data: org.taktik.icure.dto.gui.type.primitive.AttributedString): org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.AttributedString
-    abstract fun map(data: org.taktik.icure.dto.gui.type.Dictionary): org.taktik.icure.services.external.rest.v1.dto.gui.type.Dictionary
-    abstract fun map(data: org.taktik.icure.dto.gui.type.primitive.Label): org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.Label
-    abstract fun map(data: org.taktik.icure.dto.gui.type.Measure): org.taktik.icure.services.external.rest.v1.dto.gui.type.Measure
-    abstract fun map(data: org.taktik.icure.dto.gui.type.MedicationTable): org.taktik.icure.services.external.rest.v1.dto.gui.type.MedicationTable
-    abstract fun map(data: org.taktik.icure.dto.gui.type.MenuOption): org.taktik.icure.services.external.rest.v1.dto.gui.type.MenuOption
-    abstract fun map(data: org.taktik.icure.dto.gui.type.primitive.PrimitiveBoolean): org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.PrimitiveBoolean
-    abstract fun map(data: org.taktik.icure.dto.gui.type.primitive.PrimitiveDate): org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.PrimitiveDate
-    abstract fun map(data: org.taktik.icure.dto.gui.type.primitive.PrimitiveNumber): org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.PrimitiveNumber
-    abstract fun map(data: org.taktik.icure.dto.gui.type.primitive.PrimitiveString): org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.PrimitiveString
-    abstract fun map(data: org.taktik.icure.dto.gui.type.Schema): org.taktik.icure.services.external.rest.v1.dto.gui.type.Schema
-    abstract fun map(data: org.taktik.icure.dto.gui.type.StringTable): org.taktik.icure.services.external.rest.v1.dto.gui.type.StringTable
+    abstract fun map(data: org.taktik.icure.dto.gui.type.Array): org.taktik.icure.services.external.rest.v2.dto.gui.type.Array
+    abstract fun map(data: org.taktik.icure.dto.gui.type.primitive.AttributedString): org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.AttributedString
+    abstract fun map(data: org.taktik.icure.dto.gui.type.Dictionary): org.taktik.icure.services.external.rest.v2.dto.gui.type.Dictionary
+    abstract fun map(data: org.taktik.icure.dto.gui.type.primitive.Label): org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.Label
+    abstract fun map(data: org.taktik.icure.dto.gui.type.Measure): org.taktik.icure.services.external.rest.v2.dto.gui.type.Measure
+    abstract fun map(data: org.taktik.icure.dto.gui.type.MedicationTable): org.taktik.icure.services.external.rest.v2.dto.gui.type.MedicationTable
+    abstract fun map(data: org.taktik.icure.dto.gui.type.MenuOption): org.taktik.icure.services.external.rest.v2.dto.gui.type.MenuOption
+    abstract fun map(data: org.taktik.icure.dto.gui.type.primitive.PrimitiveBoolean): org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.PrimitiveBoolean
+    abstract fun map(data: org.taktik.icure.dto.gui.type.primitive.PrimitiveDate): org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.PrimitiveDate
+    abstract fun map(data: org.taktik.icure.dto.gui.type.primitive.PrimitiveNumber): org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.PrimitiveNumber
+    abstract fun map(data: org.taktik.icure.dto.gui.type.primitive.PrimitiveString): org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive.PrimitiveString
+    abstract fun map(data: org.taktik.icure.dto.gui.type.Schema): org.taktik.icure.services.external.rest.v2.dto.gui.type.Schema
+    abstract fun map(data: org.taktik.icure.dto.gui.type.StringTable): org.taktik.icure.services.external.rest.v2.dto.gui.type.StringTable
 
     fun map(data: org.taktik.icure.dto.gui.type.Data): Data = when (data) {
         is org.taktik.icure.dto.gui.type.Array -> map(data)

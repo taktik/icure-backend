@@ -21,7 +21,7 @@ package org.taktik.icure.services.external.rest.v2.mapper.samv2.embed
 import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.Reimbursement
-import org.taktik.icure.services.external.rest.v1.dto.samv2.embed.ReimbursementDto
+import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.ReimbursementDto
 
 @Mapper(componentModel = "spring", uses = [CopaymentMapper::class, DeliveryEnvironmentMapper::class, PricingMapper::class, ReimbursementCriterionMapper::class, MultipleTypeMapper::class, DmppCodeTypeMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ReimbursementMapper {

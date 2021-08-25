@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.CalendarItemTag
-import org.taktik.icure.services.external.rest.v1.dto.embed.CalendarItemTagDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.CalendarItemTagDto
 @Mapper(componentModel = "spring")
 interface CalendarItemTagMapper {
 	fun map(calendarItemTagDto: CalendarItemTagDto):CalendarItemTag

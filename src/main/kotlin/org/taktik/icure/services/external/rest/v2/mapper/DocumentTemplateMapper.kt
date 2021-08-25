@@ -23,10 +23,10 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.DocumentTemplate
-import org.taktik.icure.services.external.rest.v1.dto.DocumentTemplateDto
-import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
-import org.taktik.icure.services.external.rest.v1.mapper.base.ReportVersionMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DocumentGroupMapper
+import org.taktik.icure.services.external.rest.v2.dto.DocumentTemplateDto
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.ReportVersionMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DocumentGroupMapper
 
 @Mapper(componentModel = "spring", uses = [ReportVersionMapper::class, DocumentGroupMapper::class, CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DocumentTemplateMapper {

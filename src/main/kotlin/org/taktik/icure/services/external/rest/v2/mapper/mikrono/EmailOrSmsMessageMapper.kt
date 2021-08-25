@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.rest.v2.mapper.mikrono
 
 import org.mapstruct.Mapper
 import org.taktik.icure.dto.be.mikrono.EmailOrSmsMessage
-import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.EmailOrSmsMessageDto
+import org.taktik.icure.services.external.rest.v2.dto.be.mikrono.EmailOrSmsMessageDto
 
 @Mapper(componentModel = "spring")
 interface EmailOrSmsMessageMapper {

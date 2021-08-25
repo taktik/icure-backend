@@ -31,10 +31,10 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.ClassificationTemplateLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.ClassificationTemplate
-import org.taktik.icure.services.external.rest.v1.dto.ClassificationTemplateDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
-import org.taktik.icure.services.external.rest.v1.mapper.ClassificationTemplateMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v2.dto.ClassificationTemplateDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
+import org.taktik.icure.services.external.rest.v2.mapper.ClassificationTemplateMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux

@@ -37,11 +37,11 @@ import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
 import org.taktik.icure.services.external.http.websocket.KmehrFileOperation
 import org.taktik.icure.services.external.http.websocket.WebSocketOperation
 import org.taktik.icure.services.external.http.websocket.WebSocketParam
-import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.DiaryNoteExportInfoDto
-import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.MedicationSchemeExportInfoDto
-import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SoftwareMedicalFileExportDto
-import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SumehrExportInfoDto
-import org.taktik.icure.services.external.rest.v1.mapper.HealthcarePartyMapper
+import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.DiaryNoteExportInfoDto
+import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.MedicationSchemeExportInfoDto
+import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.SoftwareMedicalFileExportDto
+import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.SumehrExportInfoDto
+import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyMapper
 import reactor.core.publisher.Mono
 import java.time.Instant
 
