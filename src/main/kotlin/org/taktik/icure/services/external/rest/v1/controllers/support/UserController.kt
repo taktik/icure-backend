@@ -54,9 +54,9 @@ import org.taktik.icure.services.external.rest.v1.dto.PropertyStubDto
 import org.taktik.icure.services.external.rest.v1.dto.UserDto
 import org.taktik.icure.services.external.rest.v1.mapper.UserMapper
 import org.taktik.icure.services.external.rest.v1.mapper.base.PropertyStubMapper
-import org.taktik.icure.utils.firstOrNull
-import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.paginatedList
+import org.taktik.icure.services.external.rest.v1.utils.firstOrNull
+import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 
 /* Useful notes:
  * @RequestParam is required by default, but @ApiParam (which is useful to add a description)

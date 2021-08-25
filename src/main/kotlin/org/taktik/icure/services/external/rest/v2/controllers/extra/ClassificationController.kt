@@ -38,12 +38,12 @@ import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v2.mapper.ClassificationMapper
 import org.taktik.icure.services.external.rest.v2.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/classification")
+@RequestMapping("/rest/v2/classification")
 @Tag(name = "classification")
 class ClassificationController(
         private val classificationLogic: ClassificationLogic,

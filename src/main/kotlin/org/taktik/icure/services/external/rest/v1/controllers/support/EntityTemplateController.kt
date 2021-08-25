@@ -38,7 +38,7 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.EntityTemplateLogic
 import org.taktik.icure.services.external.rest.v1.dto.EntityTemplateDto
 import org.taktik.icure.services.external.rest.v1.mapper.EntityTemplateMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi

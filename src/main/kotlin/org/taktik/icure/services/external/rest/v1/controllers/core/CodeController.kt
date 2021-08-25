@@ -51,8 +51,8 @@ import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
-import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.paginatedList
+import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi

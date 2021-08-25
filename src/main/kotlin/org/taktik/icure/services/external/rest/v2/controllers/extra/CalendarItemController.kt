@@ -37,12 +37,12 @@ import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.mapper.CalendarItemMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/calendarItem")
+@RequestMapping("/rest/v2/calendarItem")
 @Tag(name = "calendarItem")
 class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
                              private val calendarItemMapper: CalendarItemMapper,

@@ -30,12 +30,12 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.EntityTemplateLogic
 import org.taktik.icure.services.external.rest.v2.dto.EntityTemplateDto
 import org.taktik.icure.services.external.rest.v2.mapper.EntityTemplateMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/entitytemplate")
+@RequestMapping("/rest/v2/entitytemplate")
 @Tag(name = "entitytemplate")
 class EntityTemplateController(
         private val entityTemplateLogic: EntityTemplateLogic,

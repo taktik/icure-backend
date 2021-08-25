@@ -52,15 +52,15 @@ import org.taktik.icure.services.external.rest.v2.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.InvoicingCodeMapper
 import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
-import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.paginatedList
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import reactor.core.publisher.Flux
 import java.util.*
 
 @FlowPreview
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/invoice")
+@RequestMapping("/rest/v2/invoice")
 @Tag(name = "invoice")
 class InvoiceController(
         private val invoiceLogic: InvoiceLogic,

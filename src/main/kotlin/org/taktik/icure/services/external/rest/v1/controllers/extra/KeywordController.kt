@@ -36,7 +36,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.KeywordLogic
 import org.taktik.icure.services.external.rest.v1.dto.KeywordDto
 import org.taktik.icure.services.external.rest.v1.mapper.KeywordMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @RestController

@@ -35,9 +35,9 @@ import org.taktik.icure.services.external.rest.v2.dto.PropertyStubDto
 import org.taktik.icure.services.external.rest.v2.dto.UserDto
 import org.taktik.icure.services.external.rest.v2.mapper.UserMapper
 import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubMapper
-import org.taktik.icure.utils.firstOrNull
-import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.paginatedList
+import org.taktik.icure.services.external.rest.v2.utils.firstOrNull
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 
 /* Useful notes:
  * @RequestParam is required by default, but @ApiParam (which is useful to add a description)
@@ -46,7 +46,7 @@ import org.taktik.icure.utils.paginatedList
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/user")
+@RequestMapping("/rest/v2/user")
 @Tag(name = "user") // otherwise would default to "user-controller"
 class UserController(private val userLogic: UserLogic,
                      private val sessionLogic: AsyncSessionLogic,

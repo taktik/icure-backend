@@ -57,8 +57,8 @@ import org.taktik.icure.services.external.rest.v1.mapper.FormTemplateMapper
 import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
-import org.taktik.icure.utils.firstOrNull
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v1.utils.firstOrNull
+import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.util.*
 

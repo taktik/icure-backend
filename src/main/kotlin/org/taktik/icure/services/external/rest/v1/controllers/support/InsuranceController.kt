@@ -37,7 +37,7 @@ import org.taktik.icure.asynclogic.InsuranceLogic
 import org.taktik.icure.services.external.rest.v1.dto.InsuranceDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.mapper.InsuranceMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.util.*
 

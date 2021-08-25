@@ -67,9 +67,9 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.AddressMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.PatientHealthCarePartyMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
-import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.paginatedList
-import org.taktik.icure.utils.paginatedListOfIds
+import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v1.utils.paginatedList
+import org.taktik.icure.services.external.rest.v1.utils.paginatedListOfIds
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.Instant

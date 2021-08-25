@@ -36,15 +36,15 @@ import org.taktik.icure.entities.embed.ReceiptBlobType
 import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.services.external.rest.v2.dto.ReceiptDto
 import org.taktik.icure.services.external.rest.v2.mapper.ReceiptMapper
-import org.taktik.icure.utils.firstOrNull
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.firstOrNull
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
 import org.taktik.icure.utils.writeTo
 import reactor.core.publisher.Flux
 import java.io.ByteArrayOutputStream
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/receipt")
+@RequestMapping("/rest/v2/receipt")
 @Tag(name = "receipt")
 class ReceiptController(
         private val receiptLogic: ReceiptLogic,

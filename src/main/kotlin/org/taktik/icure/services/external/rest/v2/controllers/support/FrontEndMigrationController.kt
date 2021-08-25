@@ -32,12 +32,12 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FrontEndMigrationLogic
 import org.taktik.icure.services.external.rest.v2.dto.FrontEndMigrationDto
 import org.taktik.icure.services.external.rest.v2.mapper.FrontEndMigrationMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/frontendmigration")
+@RequestMapping("/rest/v2/frontendmigration")
 @Tag(name = "frontendmigration")
 class FrontEndMigrationController(
         private val frontEndMigrationLogic: FrontEndMigrationLogic,

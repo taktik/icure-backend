@@ -54,9 +54,9 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.mapper.MessageMapper
 import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
-import org.taktik.icure.utils.firstOrNull
-import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.paginatedList
+import org.taktik.icure.services.external.rest.v1.utils.firstOrNull
+import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 import reactor.core.publisher.Flux
 import java.util.function.Function
 import java.util.stream.Collectors

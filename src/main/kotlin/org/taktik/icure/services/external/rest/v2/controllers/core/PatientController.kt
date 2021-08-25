@@ -46,6 +46,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.Sorting
 import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.entities.Patient
+import org.taktik.icure.services.external.rest.v2.utils.paginatedListOfIds
 import org.taktik.icure.services.external.rest.v2.dto.IdWithRevDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.PaginatedList
@@ -59,17 +60,17 @@ import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.PatientHealthCarePartyMapper
 import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
-import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.paginatedList
-import org.taktik.icure.utils.paginatedListOfIds
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.io.Serializable
 import java.time.Instant
 import javax.security.auth.login.LoginException
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/patient")
+@RequestMapping("/rest/v2/patient")
 @Tag(name = "patient")
 class PatientController(
         private val sessionLogic: AsyncSessionLogic,
@@ -129,16 +130,6 @@ class PatientController(
         patientLogic.listOfPatientsModifiedAfter(date, startKey, startDocumentId, (limit
                 ?: DEFAULT_LIMIT) + 1).paginatedList<Patient, PatientDto>(patientToPatientDto, limit ?: DEFAULT_LIMIT)
     }
-
-    @Operation(summary = "List patients for a specific HcParty or for the current HcParty ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
-    @GetMapping("/hcParty/{hcPartyId}")
-    fun listPatientsByHcParty(@PathVariable hcPartyId: String,
-                              @Parameter(description = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String,
-                              @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String,
-                              @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String,
-                              @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
-                              @Parameter(description = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false) sortDirection: String) =
-            listPatients(hcPartyId, sortField, startKey, startDocumentId, limit, sortDirection)
 
     @Operation(
             summary = "Get the patient (identified by patientId) hcparty keys. Those keys are AES keys (encrypted) used to share information between HCPs and a patient.",
@@ -219,7 +210,7 @@ class PatientController(
         val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
         accessLogLogic.findByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, true).paginatedList<AccessLog>(limit)
-                .let {
+                .let { it: PaginatedList<AccessLog> ->
                     val patientIds = it.rows.sortedBy { accessLog -> accessLog.date }.mapNotNull { it.patientId }.distinct()
                     PaginatedList(
                             nextKeyPair = it.nextKeyPair,

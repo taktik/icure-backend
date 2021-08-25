@@ -39,7 +39,7 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FrontEndMigrationLogic
 import org.taktik.icure.services.external.rest.v1.dto.FrontEndMigrationDto
 import org.taktik.icure.services.external.rest.v1.mapper.FrontEndMigrationMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi

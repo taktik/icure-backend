@@ -28,10 +28,10 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.MedicalLocationLogic
 import org.taktik.icure.services.external.rest.v2.dto.MedicalLocationDto
 import org.taktik.icure.services.external.rest.v2.mapper.MedicalLocationMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
 
 @RestController
-@RequestMapping("/rest/v1/medicallocation")
+@RequestMapping("/rest/v2/medicallocation")
 @Tag(name = "medicallocation")
 class MedicalLocationController(
         private val medicalLocationLogic: MedicalLocationLogic,
