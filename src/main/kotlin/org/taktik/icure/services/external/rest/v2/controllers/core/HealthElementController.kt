@@ -36,6 +36,7 @@ import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.services.external.rest.v2.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v2.mapper.HealthElementMapper
@@ -47,7 +48,7 @@ import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/helement")
+@RequestMapping("/rest/v2/helement")
 @Tag(name = "helement")
 class HealthElementController(
         private val healthElementLogic: HealthElementLogic,
@@ -78,7 +79,7 @@ class HealthElementController(
 
     @Operation(summary = "List health elements found By Healthcare Party and secret foreign keyelementIds.", description = "Keys hast to delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findHealthElementsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<HealthElementDto> {
+    fun listHealthElementsByHCPartyAndPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<HealthElementDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val elementList = healthElementLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
@@ -89,8 +90,8 @@ class HealthElementController(
 
     @Operation(summary = "List helement stubs found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys/delegations")
-    fun findHealthElementsDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
-                                                        @RequestParam secretFKeys: String): Flux<IcureStubDto> {
+    fun listHealthElementsDelegationsStubsByHCPartyAndPatientForeignKeys(@RequestParam hcPartyId: String,
+                                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         return healthElementLogic.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys)
                 .map { healthElement -> stubMapper.mapToStub(healthElement) }
@@ -113,15 +114,18 @@ class HealthElementController(
     }.injectReactorContext()
 
     @Operation(summary = "Delete health elements.", description = "Response is a set containing the ID's of deleted health elements.")
-    @DeleteMapping("/{healthElementIds}")
-    fun deleteHealthElements(@PathVariable healthElementIds: String): Flux<DocIdentifier> {
-        val ids = healthElementIds.split(',')
-        if (ids.isEmpty()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
-        }
-
-        return healthElementLogic.deleteHealthElements(HashSet(ids))
-                .injectReactorContext()
+    @DeleteMapping("/delete/batch")
+    fun deleteHealthElements(@RequestBody healthElementIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return healthElementIds.ids.takeIf{it.isNotEmpty()}
+                ?.let { ids ->
+                    try {
+                        healthElementLogic.deleteHealthElements(HashSet(ids)).injectReactorContext()
+                    }
+                    catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
     }
 
     @Operation(summary = "Modify a health element", description = "Returns the modified health element.")
