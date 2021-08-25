@@ -87,31 +87,17 @@ class MessageController(
     }
 
     @Operation(summary = "Deletes multiple messages")
-    @DeleteMapping("/{messageIds}")
-    fun deleteMessages(@PathVariable messageIds: String): Flux<DocIdentifier> {
-        return messageIds.split(',').takeIf { it.isNotEmpty() }
-                ?.let {
+    @PostMapping("/delete/batch")
+    fun deleteMessages(@PathVariable messageIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return messageIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
                     try {
-                        messageLogic.deleteByIds(it).injectReactorContext()
+                        messageLogic.deleteByIds(ids).injectReactorContext()
                     } catch (e: java.lang.Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
                     }
                 }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Messages deletion failed").also { logger.error(it.message) }
-
-    }
-
-    @Operation(summary = "Deletes multiple messages")
-    @PostMapping("/delete/byIds")
-    fun deleteMessagesBatch(@RequestBody messagesIds: ListOfIdsDto): Flux<DocIdentifier>? {
-        return messagesIds.ids?.takeIf { it.isNotEmpty() }
-                ?.let {
-                    try {
-                        messageLogic.deleteByIds(it).injectReactorContext()
-                    } catch (e: Exception) {
-                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
-                    }
-                }
     }
 
     @Operation(summary = "Gets a message")
