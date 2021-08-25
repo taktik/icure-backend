@@ -30,12 +30,12 @@ import org.taktik.icure.asynclogic.InsuranceLogic
 import org.taktik.icure.services.external.rest.v2.dto.InsuranceDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.mapper.InsuranceMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/insurance")
+@RequestMapping("/rest/v2/insurance")
 @Tag(name = "insurance")
 class InsuranceController(private val insuranceLogic: InsuranceLogic,
                           private val insuranceMapper: InsuranceMapper) {

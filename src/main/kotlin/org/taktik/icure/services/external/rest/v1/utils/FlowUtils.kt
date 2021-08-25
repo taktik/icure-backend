@@ -16,7 +16,7 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.utils
+package org.taktik.icure.services.external.rest.v1.utils
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi

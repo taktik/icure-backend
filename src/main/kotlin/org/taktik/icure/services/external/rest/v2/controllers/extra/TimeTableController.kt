@@ -36,13 +36,13 @@ import org.taktik.icure.entities.embed.TimeTableHour
 import org.taktik.icure.entities.embed.TimeTableItem
 import org.taktik.icure.services.external.rest.v2.dto.TimeTableDto
 import org.taktik.icure.services.external.rest.v2.mapper.TimeTableMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.util.*
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/timeTable")
+@RequestMapping("/rest/v2/timeTable")
 @Tag(name = "timeTable")
 class TimeTableController(private val timeTableLogic: TimeTableLogic,
                           private val timeTableMapper: TimeTableMapper) {

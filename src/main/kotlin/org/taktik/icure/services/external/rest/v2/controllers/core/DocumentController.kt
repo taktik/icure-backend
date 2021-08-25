@@ -49,7 +49,7 @@ import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.mapper.DocumentMapper
 import org.taktik.icure.services.external.rest.v2.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.nio.ByteBuffer
 import java.util.*

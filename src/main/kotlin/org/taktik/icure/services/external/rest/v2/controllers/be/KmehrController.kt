@@ -56,13 +56,13 @@ import org.taktik.icure.services.external.rest.v2.mapper.embed.ImportResultMappe
 import org.taktik.icure.services.external.rest.v2.mapper.embed.PartnershipMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.PatientHealthCarePartyMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.ServiceMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
 import java.time.Instant
 import java.util.stream.Collectors
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/be_kmehr")
+@RequestMapping("/rest/v2/be_kmehr")
 @Tag(name = "bekmehr")
 class KmehrController(
         val sessionLogic: AsyncSessionLogic,

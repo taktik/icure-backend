@@ -43,7 +43,7 @@ import org.taktik.icure.services.external.rest.v2.mapper.HealthElementMapper
 import org.taktik.icure.services.external.rest.v2.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi

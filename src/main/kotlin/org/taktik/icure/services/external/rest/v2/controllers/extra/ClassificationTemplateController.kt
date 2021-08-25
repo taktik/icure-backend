@@ -35,13 +35,13 @@ import org.taktik.icure.services.external.rest.v2.dto.ClassificationTemplateDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v2.mapper.ClassificationTemplateMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
-import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.paginatedList
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/classificationTemplate")
+@RequestMapping("/rest/v2/classificationTemplate")
 @Tag(name = "classificationTemplate")
 class ClassificationTemplateController(
         private val classificationTemplateLogic: ClassificationTemplateLogic,

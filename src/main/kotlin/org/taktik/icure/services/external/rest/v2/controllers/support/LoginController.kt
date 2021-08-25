@@ -52,7 +52,7 @@ import kotlin.coroutines.CoroutineContext
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/auth")
+@RequestMapping("/rest/v2/auth")
 @Tag(name = "auth")
 class LoginController(
         private val sessionLogic: AsyncSessionLogic,

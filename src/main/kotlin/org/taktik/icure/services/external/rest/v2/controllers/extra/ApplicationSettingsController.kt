@@ -27,11 +27,11 @@ import org.springframework.web.bind.annotation.RestController
 import org.taktik.icure.asynclogic.ApplicationSettingsLogic
 import org.taktik.icure.services.external.rest.v2.dto.ApplicationSettingsDto
 import org.taktik.icure.services.external.rest.v2.mapper.ApplicationSettingsMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @RestController
-@RequestMapping("/rest/v1/appsettings")
+@RequestMapping("/rest/v2/appsettings")
 @Tag(name = "applicationsettings")
 class ApplicationSettingsController(private val applicationSettingsLogic: ApplicationSettingsLogic,
                                     private val applicationSettingsMapper: ApplicationSettingsMapper) {

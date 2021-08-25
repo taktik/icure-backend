@@ -51,9 +51,9 @@ import org.taktik.icure.services.external.rest.v2.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.ServiceMapper
 import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.FuzzyValues
-import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit

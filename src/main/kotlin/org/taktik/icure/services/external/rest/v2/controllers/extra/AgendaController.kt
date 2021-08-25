@@ -30,13 +30,13 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AgendaLogic
 import org.taktik.icure.services.external.rest.v2.dto.AgendaDto
 import org.taktik.icure.services.external.rest.v2.mapper.AgendaMapper
-import org.taktik.icure.utils.firstOrNull
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.firstOrNull
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/agenda")
+@RequestMapping("/rest/v2/agenda")
 @Tag(name = "agenda")
 class AgendaController(private val agendaLogic: AgendaLogic,
                        private val agendaMapper: AgendaMapper) {

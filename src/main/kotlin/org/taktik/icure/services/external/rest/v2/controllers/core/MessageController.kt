@@ -42,9 +42,8 @@ import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v2.mapper.MessageMapper
 import org.taktik.icure.services.external.rest.v2.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
-import org.taktik.icure.utils.firstOrNull
-import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.paginatedList
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import reactor.core.publisher.Flux
 import kotlin.streams.toList
 
@@ -52,7 +51,7 @@ import kotlin.streams.toList
 @FlowPreview
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/message")
+@RequestMapping("/rest/v2/message")
 @Tag(name = "message")
 class MessageController(
         private val messageLogic: MessageLogic,

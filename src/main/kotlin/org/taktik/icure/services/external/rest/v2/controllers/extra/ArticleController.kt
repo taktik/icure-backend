@@ -30,12 +30,12 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.ArticleLogic
 import org.taktik.icure.services.external.rest.v2.dto.ArticleDto
 import org.taktik.icure.services.external.rest.v2.mapper.ArticleMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
 @RestController
-@RequestMapping("/rest/v1/article")
+@RequestMapping("/rest/v2/article")
 @Tag(name = "article")
 class ArticleController(
         private val articleLogic: ArticleLogic,

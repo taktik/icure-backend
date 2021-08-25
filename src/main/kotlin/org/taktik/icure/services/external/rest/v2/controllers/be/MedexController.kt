@@ -32,7 +32,7 @@ import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyMapper
 import org.taktik.icure.services.external.rest.v2.mapper.PatientMapper
 
 @RestController
-@RequestMapping("/rest/v1/medex")
+@RequestMapping("/rest/v2/medex")
 @Tag(name = "medex")
 class MedexController(
         private val medexLogic: MedexLogic,
