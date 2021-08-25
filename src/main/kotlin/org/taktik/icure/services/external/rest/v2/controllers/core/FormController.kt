@@ -90,7 +90,7 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
         formMapper.map(form)
     }
 
-    @Operation(summary = "Get a list of forms by ids", description = "Keys must be delimited by coma")
+    @Operation(summary = "Get a list of forms by parents ids", description = "Keys must be delimited by coma")
     @GetMapping("/childrenOf/{formId}/{hcPartyId}")
     fun getChildrenForms(@PathVariable formId: String,
                     @PathVariable hcPartyId: String): Flux<FormDto> {
