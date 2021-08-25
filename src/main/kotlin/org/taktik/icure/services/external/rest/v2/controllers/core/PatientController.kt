@@ -89,7 +89,7 @@ class PatientController(
 
     @Operation(summary = "Find patients for the current user (HcParty) ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/byNameBirthSsinAuto")
-    fun findByNameBirthSsinAuto(
+    fun findPatientsByNameBirthSsinAuto(
             @Parameter(description = "HealthcareParty Id, if unset will user user's hcpId") @RequestParam(required = false) healthcarePartyId: String?,
             @Parameter(description = "Optional value for filtering results") @RequestParam(required = false) filterValue: String?,
             @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
@@ -112,21 +112,7 @@ class PatientController(
                     filterValue,
                     Sorting(null, sortDirection))
                     .let { it.paginatedList(patientToPatientDto, realLimit) }
-        } ?: PaginatedList() }
-    }
-
-    @Operation(summary = "List patients of a specific HcParty or of the current HcParty ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
-    @GetMapping("/ofHcParty/{hcPartyId}")
-    fun listPatientsOfHcParty(@PathVariable hcPartyId: String,
-                              @Parameter(description = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String?,
-                              @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
-                              @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-                              @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
-                              @Parameter(description = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String) = mono {
-        val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
-        patientLogic.findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(hcPartyId, paginationOffset, null, Sorting(sortField, sortDirection)).paginatedList(patientToPatientDto, realLimit)
+        } ?: PaginatedList<Serializable>() }
     }
 
     @Operation(summary = "List patients that have been merged towards another patient ", description = "Returns a list of patients that have been merged after the provided date")
@@ -136,7 +122,7 @@ class PatientController(
 
     @Operation(summary = "List patients that have been modified after the provided date", description = "Returns a list of patients that have been modified after the provided date")
     @GetMapping("/modifiedAfter/{date}")
-    fun listOfPatientsModifiedAfter(@PathVariable date: Long,
+    fun findPatientsModifiedAfter(@PathVariable date: Long,
                                     @Parameter(description = "The start key for pagination the date of the first element of the new page") @RequestParam(required = false) startKey: Long?,
                                     @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                                     @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
@@ -181,7 +167,7 @@ class PatientController(
 
     @Operation(summary = "List patients for a specific HcParty", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping
-    fun listPatients(@Parameter(description = "Healthcare party id") @RequestParam(required = false) hcPartyId: String?,
+    fun findPatientsBy(@Parameter(description = "Healthcare party id") @RequestParam(required = false) hcPartyId: String?,
                      @Parameter(description = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String?,
                      @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
                      @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
@@ -198,13 +184,13 @@ class PatientController(
                 paginationOffset,
                 null,
                 Sorting(sortField, sortDirection)).paginatedList<Patient, PatientDto>(patientToPatientDto, realLimit)
-            } ?: PaginatedList()
+            } ?: PaginatedList<Serializable>()
         }
     }
 
     @Operation(summary = "List patients by pages for a specific HcParty", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
-    @GetMapping("/idsPages")
-    fun listPatientsIds(@Parameter(description = "Healthcare party id")@RequestParam hcPartyId: String,
+    @GetMapping("/byHcPartyId")
+    fun findPatientsIdsBy(@Parameter(description = "Healthcare party id")@RequestParam hcPartyId: String,
                         @Parameter(description = "The page first id") @RequestParam(required = false) startKey: String?,
                         @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                         @Parameter(description = "Page size") @RequestParam(required = false) limit: Int?) = mono {
@@ -223,7 +209,7 @@ class PatientController(
 
     @Operation(summary = "Get Paginated List of Patients sorted by Access logs descending")
     @GetMapping("/byAccess/{userId}")
-    fun findByAccessLogUserAfterDate(@Parameter(description = "A User ID", required = true) @PathVariable userId: String,
+    fun findPatientsByAccessLogUserAfterDate(@Parameter(description = "A User ID", required = true) @PathVariable userId: String,
                                      @Parameter(description = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
                                      @Parameter(description = "The start search epoch") @RequestParam(required = false) startDate: Long?,
                                      @Parameter(description = "The start key for pagination") @RequestParam(required = false) startKey: String?,
@@ -316,6 +302,7 @@ class PatientController(
         patient?.let(patientToPatientDto) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Patient creation failed.")
     }
 
+    //TODO : proper delete
     @Operation(summary = "Delete patients.", description = "Response is an array containing the ID of deleted patient..")
     @DeleteMapping("/{patientIds}")
     fun deletePatient(@PathVariable patientIds: String): Flux<DocIdentifier> {
@@ -325,8 +312,8 @@ class PatientController(
     }
 
     @Operation(summary = "Find deleted patients", description = "Returns a list of deleted patients, within the specified time period, if any.")
-    @GetMapping("/deleted/by_date")
-    fun listDeletedPatients(
+    @GetMapping("/deleted/byDate")
+    fun findDeletedPatients(
             @Parameter(description = "Filter deletions after this date (unix epoch), included") @RequestParam(required = false) startDate: Long,
             @Parameter(description = "Filter deletions before this date (unix epoch), included") @RequestParam(required = false) endDate: Long?,
             @Parameter(description = "Descending") @RequestParam(required = false) desc: Boolean?,
@@ -392,8 +379,8 @@ class PatientController(
     }
 
     @Operation(summary = "Create patients in bulk", description = "Returns the id and _rev of created patients")
-    @PostMapping("/bulk", "/batch")
-    fun bulkCreatePatients(@RequestBody patientDtos: List<PatientDto>) = mono {
+    @PostMapping( "/batch")
+    fun createPatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
             val patients = patientLogic.updateEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
             patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
@@ -404,8 +391,8 @@ class PatientController(
     }
 
     @Operation(summary = "Modify patients in bulk", description = "Returns the id and _rev of modified patients")
-    @PutMapping("/bulk", "/batch")
-    fun bulkUpdatePatients(@RequestBody patientDtos: List<PatientDto>) = mono {
+    @PutMapping( "/batch")
+    fun modifyPatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
             val patients = patientLogic.updateEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
             patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
