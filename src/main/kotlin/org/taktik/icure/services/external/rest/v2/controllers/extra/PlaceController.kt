@@ -22,13 +22,17 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.PlaceLogic
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.PlaceDto
 import org.taktik.icure.services.external.rest.v2.mapper.PlaceMapper
 import org.taktik.icure.utils.injectReactorContext
+import reactor.core.publisher.Flux
 
 @RestController
 @RequestMapping("/rest/v2/place")
@@ -37,6 +41,7 @@ class PlaceController(
         private val placeLogic: PlaceLogic,
         private val placeMapper: PlaceMapper
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Creates a place")
     @PostMapping
@@ -45,9 +50,20 @@ class PlaceController(
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place creation failed")
     }
 
-    @Operation(summary = "Deletes an place")
-    @DeleteMapping("/{placeIds}")
-    fun deletePlace(@PathVariable placeIds: String) = placeLogic.deletePlace(placeIds.split(',')).injectReactorContext()
+    @Operation(summary = "Deletes places")
+    @PostMapping("/delete/batch")
+    fun deletePlaces(@RequestBody placeIds: ListOfIdsDto) : Flux<DocIdentifier> {
+        return placeIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        placeLogic.deleteByIds(ids).injectReactorContext()
+                    }
+                    catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
+    }
 
     @Operation(summary = "Gets an place")
     @GetMapping("/{placeId}")
