@@ -23,12 +23,14 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.CalendarItemTypeLogic
 import org.taktik.icure.services.external.rest.v2.dto.CalendarItemTypeDto
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.mapper.CalendarItemTypeMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
@@ -39,6 +41,7 @@ import reactor.core.publisher.Flux
 @Tag(name = "calendarItemType")
 class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItemTypeLogic,
                                  private val calendarItemTypeMapper: CalendarItemTypeMapper) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Gets all calendarItemTypes")
     @GetMapping
@@ -57,10 +60,20 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItemType creation failed")
     }
 
-    @Operation(summary = "Deletes an calendarItemType")
-    @DeleteMapping("/{calendarItemTypeIds}")
-    fun deleteCalendarItemType(@PathVariable calendarItemTypeIds: String): Flux<DocIdentifier> =
-            calendarItemTypeLogic.deleteCalendarItemTypes(calendarItemTypeIds.split(',')).injectReactorContext()
+    @Operation(summary = "Deletes calendarItemTypes")
+    @PostMapping("/delete/batch")
+    fun deleteCalendarItemTypes(@RequestBody calendarItemTypeIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return calendarItemTypeIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        calendarItemTypeLogic.deleteByIds(HashSet(ids)).injectReactorContext()
+                    }
+                    catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
+    }
 
     @Operation(summary = "Gets an calendarItemType")
     @GetMapping("/{calendarItemTypeId}")
