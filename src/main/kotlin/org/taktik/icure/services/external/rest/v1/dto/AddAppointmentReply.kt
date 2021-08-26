@@ -24,7 +24,7 @@ class AddAppointmentReply : Serializable {
     var mikronoId: String? = null
     var mikronoUrl: String? = null
 
-    constructor() {}
+    constructor()
     constructor(mikronoUrl: String?) : super() {
         this.mikronoUrl = mikronoUrl
     }

@@ -56,7 +56,7 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.ImportResultMappe
 import org.taktik.icure.services.external.rest.v1.mapper.embed.PartnershipMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.PatientHealthCarePartyMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
-import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
+import org.taktik.icure.utils.injectReactorContext
 import java.time.Instant
 import java.util.stream.Collectors
 

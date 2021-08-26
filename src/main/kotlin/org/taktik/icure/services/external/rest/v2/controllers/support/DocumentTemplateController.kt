@@ -41,7 +41,7 @@ import org.taktik.icure.entities.embed.DocumentType
 import org.taktik.icure.services.external.rest.v2.dto.DocumentTemplateDto
 import org.taktik.icure.services.external.rest.v2.dto.data.ByteArrayDto
 import org.taktik.icure.services.external.rest.v2.mapper.DocumentTemplateMapper
-import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi

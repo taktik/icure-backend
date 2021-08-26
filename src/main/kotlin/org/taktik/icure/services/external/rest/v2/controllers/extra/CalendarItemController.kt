@@ -37,7 +37,7 @@ import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.mapper.CalendarItemMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
-import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi

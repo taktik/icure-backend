@@ -63,7 +63,7 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
                     full ?: false,
                     language,
                     if (isBlank(enckeys)) listOf() else enckeys.split(',')
-            )?.map { resultInfoMapper.map(it) }
+            ).map { resultInfoMapper.map(it) }
         }
     }
 

@@ -38,8 +38,8 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AgendaLogic
 import org.taktik.icure.services.external.rest.v1.dto.AgendaDto
 import org.taktik.icure.services.external.rest.v1.mapper.AgendaMapper
-import org.taktik.icure.services.external.rest.v1.utils.firstOrNull
-import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
+import org.taktik.icure.utils.firstOrNull
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
@@ -90,7 +90,6 @@ class AgendaController(private val agendaLogic: AgendaLogic,
     @GetMapping("/readableForUser")
     fun getReadableAgendasForUser(@RequestParam userId: String): Flux<AgendaDto> {
         val agendas = agendaLogic.getReadableAgendaForUser(userId)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Readable agendas fetching failed")
         return agendas.map { agendaMapper.map(it) }.injectReactorContext()
     }
 

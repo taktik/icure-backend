@@ -35,7 +35,7 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.MedicalLocationLogic
 import org.taktik.icure.services.external.rest.v1.dto.MedicalLocationDto
 import org.taktik.icure.services.external.rest.v1.mapper.MedicalLocationMapper
-import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
+import org.taktik.icure.utils.injectReactorContext
 
 @RestController
 @RequestMapping("/rest/v1/medicallocation")

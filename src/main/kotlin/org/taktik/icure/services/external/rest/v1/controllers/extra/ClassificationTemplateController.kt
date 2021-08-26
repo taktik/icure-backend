@@ -43,7 +43,7 @@ import org.taktik.icure.services.external.rest.v1.dto.ClassificationTemplateDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.mapper.ClassificationTemplateMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
-import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
+import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 import reactor.core.publisher.Flux
 import java.util.*

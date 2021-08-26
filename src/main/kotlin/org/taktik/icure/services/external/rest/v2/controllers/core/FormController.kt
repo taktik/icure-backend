@@ -48,8 +48,8 @@ import org.taktik.icure.services.external.rest.v2.mapper.FormTemplateMapper
 import org.taktik.icure.services.external.rest.v2.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterMapper
-import org.taktik.icure.services.external.rest.v2.utils.firstOrNull
-import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
+import org.taktik.icure.utils.firstOrNull
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi

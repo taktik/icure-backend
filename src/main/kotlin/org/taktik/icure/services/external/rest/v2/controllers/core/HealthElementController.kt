@@ -43,7 +43,7 @@ import org.taktik.icure.services.external.rest.v2.mapper.HealthElementMapper
 import org.taktik.icure.services.external.rest.v2.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
-import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
@@ -164,7 +164,7 @@ class HealthElementController(
         healthElementLogic.addDelegations(healthElementId, ds.map { d -> delegationMapper.map(d) })
         val healthElementWithDelegation = healthElementLogic.getHealthElement(healthElementId)
 
-        val succeed = healthElementWithDelegation?.delegations != null && healthElementWithDelegation.delegations!!.isNotEmpty()
+        val succeed = healthElementWithDelegation?.delegations != null && healthElementWithDelegation.delegations.isNotEmpty()
         if (succeed) {
             healthElementWithDelegation?.let { healthElementMapper.map(it) }
         } else {

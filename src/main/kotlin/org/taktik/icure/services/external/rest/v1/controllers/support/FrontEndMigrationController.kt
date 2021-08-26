@@ -39,7 +39,7 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FrontEndMigrationLogic
 import org.taktik.icure.services.external.rest.v1.dto.FrontEndMigrationDto
 import org.taktik.icure.services.external.rest.v1.mapper.FrontEndMigrationMapper
-import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
@@ -56,7 +56,6 @@ class FrontEndMigrationController(
     @GetMapping
     fun getFrontEndMigrations(): Flux<FrontEndMigrationDto> = flow {
         val userId = sessionLogic.getCurrentSessionContext().getUser().id
-                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Not authorized")
         emitAll(
                 frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, null)
                         .map { frontEndMigrationMapper.map(it) }

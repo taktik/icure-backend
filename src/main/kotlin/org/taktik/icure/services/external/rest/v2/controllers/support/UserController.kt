@@ -35,8 +35,8 @@ import org.taktik.icure.services.external.rest.v2.dto.PropertyStubDto
 import org.taktik.icure.services.external.rest.v2.dto.UserDto
 import org.taktik.icure.services.external.rest.v2.mapper.UserMapper
 import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubMapper
-import org.taktik.icure.services.external.rest.v2.utils.firstOrNull
-import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
+import org.taktik.icure.utils.firstOrNull
+import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 
 /* Useful notes:

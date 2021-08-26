@@ -35,7 +35,7 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.PlaceLogic
 import org.taktik.icure.services.external.rest.v1.dto.PlaceDto
 import org.taktik.icure.services.external.rest.v1.mapper.PlaceMapper
-import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
+import org.taktik.icure.utils.injectReactorContext
 
 @RestController
 @RequestMapping("/rest/v1/place")

@@ -32,5 +32,4 @@ data class SoftwareMedicalFileExportDto(
         var exportAsPMF: Boolean,
         var softwareName: String? = null,
         var softwareVersion: String? = null
-) : Serializable {
-}
+) : Serializable

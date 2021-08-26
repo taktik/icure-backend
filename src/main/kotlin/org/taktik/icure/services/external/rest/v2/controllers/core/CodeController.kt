@@ -40,7 +40,7 @@ import org.taktik.icure.services.external.rest.v2.dto.CodeDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v2.mapper.base.CodeMapper
 import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
-import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
+import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import reactor.core.publisher.Flux
 
@@ -243,7 +243,7 @@ class CodeController(
 
         var codes: Flow<ViewQueryResultEvent>? = null
         val timing = System.currentTimeMillis()
-        filterChain?.let {
+        filterChain.let {
             codes = codeLogic.listCodes(paginationOffset, filterChainMapper.map(filterChain), sort, desc)
         }
         logger.info("Filter codes in " + (System.currentTimeMillis() - timing) + " ms.")

@@ -57,8 +57,8 @@ import org.taktik.icure.services.external.rest.v1.mapper.samv2.VmpGroupMapper
 import org.taktik.icure.services.external.rest.v1.mapper.samv2.VmpMapper
 import org.taktik.icure.services.external.rest.v1.mapper.samv2.embed.PharmaceuticalFormMapper
 import org.taktik.icure.services.external.rest.v1.mapper.samv2.embed.SubstanceMapper
-import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v1.utils.paginatedList
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.util.*
 

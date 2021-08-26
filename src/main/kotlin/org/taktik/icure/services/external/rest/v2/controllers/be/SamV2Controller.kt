@@ -42,7 +42,7 @@ import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.SubstanceDto
 import org.taktik.icure.services.external.rest.v2.mapper.samv2.*
 import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.PharmaceuticalFormMapper
 import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.SubstanceMapper
-import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
+import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import reactor.core.publisher.Flux
 import java.util.*

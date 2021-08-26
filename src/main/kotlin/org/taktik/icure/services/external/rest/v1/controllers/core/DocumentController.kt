@@ -58,7 +58,7 @@ import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.mapper.DocumentMapper
 import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
-import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.nio.ByteBuffer
 import java.util.*
@@ -221,7 +221,6 @@ class DocumentController(private val documentLogic: DocumentLogic,
         }
 
         val document = documentMapper.map(documentDto)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         if (documentDto.attachmentId != null) {
             val prevDoc = document.id.let { documentLogic.get(it) } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No document matching input")
             documentMapper.map(documentLogic.modifyDocument(if (documentDto.attachmentId == prevDoc.attachmentId) document.copy(

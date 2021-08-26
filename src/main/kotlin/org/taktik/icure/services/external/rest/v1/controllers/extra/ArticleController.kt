@@ -37,7 +37,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.ArticleLogic
 import org.taktik.icure.services.external.rest.v1.dto.ArticleDto
 import org.taktik.icure.services.external.rest.v1.mapper.ArticleMapper
-import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi

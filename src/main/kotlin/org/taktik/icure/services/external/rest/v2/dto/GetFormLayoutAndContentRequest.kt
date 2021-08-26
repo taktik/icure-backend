@@ -24,7 +24,7 @@ class GetFormLayoutAndContentRequest : Serializable {
     var entityClass: String? = null
     var entityId: String? = null
 
-    constructor() : super() {}
+    constructor() : super()
     constructor(formTemplateGuid: String?, entityClass: String?, entityId: String?) : super() {
         this.formTemplateGuid = formTemplateGuid
         this.entityClass = entityClass

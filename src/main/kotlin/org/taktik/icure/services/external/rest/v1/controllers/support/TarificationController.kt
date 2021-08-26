@@ -42,7 +42,7 @@ import org.taktik.icure.entities.Tarification
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.TarificationDto
 import org.taktik.icure.services.external.rest.v1.mapper.TarificationMapper
-import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
+import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 import reactor.core.publisher.Flux
 

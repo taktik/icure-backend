@@ -36,7 +36,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.services.external.rest.v2.dto.AccessLogDto
 import org.taktik.icure.services.external.rest.v2.mapper.AccessLogMapper
-import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
+import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import reactor.core.publisher.Flux
 import java.time.Instant

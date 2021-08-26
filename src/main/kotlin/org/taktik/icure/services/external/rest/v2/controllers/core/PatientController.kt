@@ -60,7 +60,7 @@ import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.PatientHealthCarePartyMapper
 import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
-import org.taktik.icure.services.external.rest.v2.utils.injectReactorContext
+import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -87,6 +87,7 @@ class PatientController(
 ) {
 
     private val patientToPatientDto = { it: Patient -> patientMapper.map(it) }
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Operation(summary = "Find patients for the current user (HcParty) ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/byNameBirthSsinAuto")
@@ -293,13 +294,19 @@ class PatientController(
         patient?.let(patientToPatientDto) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Patient creation failed.")
     }
 
-    //TODO : proper delete
     @Operation(summary = "Delete patients.", description = "Response is an array containing the ID of deleted patient..")
-    @DeleteMapping("/{patientIds}")
-    fun deletePatient(@PathVariable patientIds: String): Flux<DocIdentifier> {
-        val ids = patientIds.split(',')
-        if (ids.isEmpty()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
-        return patientLogic.deletePatients(HashSet(ids)).injectReactorContext()
+    @PostMapping("/{patientIds}")
+    fun deletePatient(@RequestBody patientIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return patientIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try{
+                        patientLogic.deletePatients(HashSet(ids)).injectReactorContext()
+                    }
+                    catch (e: Exception){
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Patients deletion failed").also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
     }
 
     @Operation(summary = "Find deleted patients", description = "Returns a list of deleted patients, within the specified time period, if any.")

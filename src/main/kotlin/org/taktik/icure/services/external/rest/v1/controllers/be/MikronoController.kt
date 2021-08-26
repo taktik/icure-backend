@@ -46,7 +46,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointm
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoCredentialsDto
 import org.taktik.icure.services.external.rest.v1.mapper.UserMapper
 import org.taktik.icure.services.external.rest.v1.mapper.mikrono.EmailOrSmsMessageMapper
-import org.taktik.icure.services.external.rest.v1.utils.firstOrNull
+import org.taktik.icure.utils.firstOrNull
 import java.io.IOException
 
 @RestController

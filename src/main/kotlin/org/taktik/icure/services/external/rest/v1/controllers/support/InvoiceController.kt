@@ -66,7 +66,7 @@ import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.InvoicingCodeMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
-import org.taktik.icure.services.external.rest.v1.utils.injectReactorContext
+import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 import reactor.core.publisher.Flux
 import java.util.*
@@ -136,7 +136,6 @@ class InvoiceController(
     @PostMapping("/reassign")
     fun reassignInvoice(@RequestBody invoiceDto: InvoiceDto) = mono {
         val invoice = invoiceMapper.map(invoiceDto).let { it.reassign(it.invoicingCodes, uuidGenerator) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Invoice modification failed")
 
         invoiceMapper.map(invoice)
     }

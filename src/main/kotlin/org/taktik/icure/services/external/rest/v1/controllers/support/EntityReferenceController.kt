@@ -32,7 +32,7 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.EntityReferenceLogic
 import org.taktik.icure.services.external.rest.v1.dto.EntityReferenceDto
 import org.taktik.icure.services.external.rest.v1.mapper.EntityReferenceMapper
-import org.taktik.icure.services.external.rest.v1.utils.firstOrNull
+import org.taktik.icure.utils.firstOrNull
 
 @RestController
 @RequestMapping("/rest/v1/entityref")

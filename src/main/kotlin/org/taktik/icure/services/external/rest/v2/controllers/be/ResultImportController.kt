@@ -54,11 +54,11 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
         val doc = documentLogic.get(id)
         doc?.let {
             multiFormatLogic.getInfos(
-                    it,
-                    full ?: false,
-                    language,
-                    if (isBlank(enckeys)) listOf() else enckeys.split(',')
-            )?.map { resultInfoMapper.map(it) }
+                it,
+                full ?: false,
+                language,
+                if (isBlank(enckeys)) listOf() else enckeys.split(',')
+            ).map { resultInfoMapper.map(it) }
         }
     }
 
