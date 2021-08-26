@@ -52,8 +52,8 @@ import org.taktik.icure.services.external.rest.v2.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.InvoicingCodeMapper
 import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
-import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.util.*
 
@@ -166,7 +166,7 @@ class InvoiceController(
         emitAll( invoices.map { invoiceMapper.map(it) })
     }.injectReactorContext()
 
-    @Operation(summary = "Gets all invoices for author at date")
+    @Operation(summary = "Remove an invoice of an user")
     @PostMapping("/byauthor/{userId}/service/{serviceId}")
     fun removeCodes(@PathVariable userId: String,
                     @PathVariable serviceId: String,
@@ -185,7 +185,7 @@ class InvoiceController(
 
     @Operation(summary = "Gets all invoices for author at date")
     @GetMapping("/byauthor/{hcPartyId}")
-    fun findByAuthor(@PathVariable hcPartyId: String,
+    fun listInvoicesByAuthor(@PathVariable hcPartyId: String,
                      @RequestParam(required = false) fromDate: Long?,
                      @RequestParam(required = false) toDate: Long?,
                      @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam("startKey", required = false) startKey: String?,
@@ -207,7 +207,7 @@ class InvoiceController(
 
     @Operation(summary = "List invoices found By Healthcare Party and secret foreign patient keys.", description = "Keys have to delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findInvoicesByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<InvoiceDto> {
+    fun listInvoicesByHCPartyAndPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<InvoiceDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }.toSet()
         val elementList = invoiceLogic.listByHcPartyPatientSks(hcPartyId, secretPatientKeys)
 
@@ -216,7 +216,7 @@ class InvoiceController(
 
     @Operation(summary = "List helement stubs found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys/delegations")
-    fun findInvoicesDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
+    fun listInvoicesDelegationsStubsByHCPartyAndPatientForeignKeys(@RequestParam hcPartyId: String,
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }.toSet()
         return invoiceLogic.listByHcPartyPatientSks(hcPartyId, secretPatientKeys).map { invoice -> stubMapper.mapToStub(invoice) }.injectReactorContext()
@@ -224,14 +224,14 @@ class InvoiceController(
 
     @Operation(summary = "List invoices by groupId", description = "Keys have to delimited by coma")
     @GetMapping("/byHcPartyGroupId/{hcPartyId}/{groupId}")
-    fun listByHcPartyGroupId(@PathVariable hcPartyId: String, @PathVariable groupId: String): Flux<InvoiceDto> {
+    fun listInvoicesByHcPartyAndGroupId(@PathVariable hcPartyId: String, @PathVariable groupId: String): Flux<InvoiceDto> {
         val invoices = invoiceLogic.listByHcPartyGroupId(hcPartyId, groupId)
         return invoices.map { el -> invoiceMapper.map(el) }.injectReactorContext()
     }
 
     @Operation(summary = "List invoices by type, sent or unsent", description = "Keys have to delimited by coma")
     @GetMapping("/byHcParty/{hcPartyId}/mediumType/{sentMediumType}/invoiceType/{invoiceType}/sent/{sent}")
-    fun listByHcPartySentMediumTypeInvoiceTypeSentDate(@PathVariable hcPartyId: String,
+    fun listInvoicesByHcPartySentMediumTypeInvoiceTypeSentDate(@PathVariable hcPartyId: String,
                                                        @PathVariable sentMediumType: MediumType,
                                                        @PathVariable invoiceType: InvoiceType,
                                                        @PathVariable sent: Boolean,
@@ -257,8 +257,8 @@ class InvoiceController(
     }.injectReactorContext()
 
     @Operation(summary = "Gets all invoices for author at date")
-    @PostMapping("/byCtcts")
-    fun listByContactIds(@RequestBody contactIds: ListOfIdsDto) = flow {
+    @PostMapping("/byContacts")
+    fun listInvoicesByContactIds(@RequestBody contactIds: ListOfIdsDto) = flow {
         emitAll(
                 invoiceLogic.listByHcPartyContacts(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, HashSet(contactIds.ids))
                         .map { invoiceMapper.map(it) }
@@ -267,7 +267,7 @@ class InvoiceController(
 
     @Operation(summary = "Gets all invoices for author at date")
     @GetMapping("/to/{recipientIds}")
-    fun listByRecipientsIds(@PathVariable recipientIds: String) = flow {
+    fun listInvoicesByRecipientsIds(@PathVariable recipientIds: String) = flow {
         emitAll(
                 invoiceLogic.listByHcPartyRecipientIds(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, recipientIds.split(',').toSet())
                         .map { invoiceMapper.map(it) }
@@ -324,13 +324,13 @@ class InvoiceController(
 
     @Operation(summary = "Gets all invoices for author at date")
     @GetMapping("/byIds/{invoiceIds}")
-    fun listByIds(@PathVariable invoiceIds: String): Flux<InvoiceDto> {
+    fun listInvoicesByIds(@PathVariable invoiceIds: String): Flux<InvoiceDto> {
         return invoiceLogic.getInvoices(invoiceIds.split(',')).map { invoiceMapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Get all invoices by author, by sending mode, by status and by date")
     @GetMapping("/byHcpartySendingModeStatusDate/{hcPartyId}")
-    fun listByHcpartySendingModeStatusDate(@PathVariable hcPartyId: String,
+    fun listInvoicesByHcpartySendingModeStatusDate(@PathVariable hcPartyId: String,
                                            @RequestParam(required = false) sendingMode: String?,
                                            @RequestParam(required = false) status: String?,
                                            @RequestParam(required = false) from: Long?,
@@ -340,7 +340,7 @@ class InvoiceController(
 
     @Operation(summary = "Gets all invoices for author at date")
     @GetMapping("/byServiceIds/{serviceIds}")
-    fun listByServiceIds(@PathVariable serviceIds: String): Flux<InvoiceDto> {
+    fun listInvoicesByServiceIds(@PathVariable serviceIds: String): Flux<InvoiceDto> {
         return invoiceLogic.listByServiceIds(serviceIds.split(',').toSet()).map { invoiceMapper.map(it) }.injectReactorContext()
     }
 
