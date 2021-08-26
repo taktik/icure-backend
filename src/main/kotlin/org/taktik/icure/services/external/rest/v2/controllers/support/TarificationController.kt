@@ -35,8 +35,8 @@ import org.taktik.icure.entities.Tarification
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.TarificationDto
 import org.taktik.icure.services.external.rest.v2.mapper.TarificationMapper
-import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
@@ -52,7 +52,7 @@ class TarificationController(
 
     @Operation(summary = "Finding tarifications by tarification, type and version with pagination.", description = "Returns a list of tarifications matched with given input.")
     @GetMapping("/byLabel")
-    fun findPaginatedTarificationsByLabel(
+    fun findTarificationsByLabel(
             @RequestParam(required = false) region: String?,
             @RequestParam(required = false) types: String?,
             @RequestParam(required = false) language: String?,
@@ -76,7 +76,7 @@ class TarificationController(
 
     @Operation(summary = "Finding tarifications by tarification, type and version with pagination.", description = "Returns a list of tarifications matched with given input.")
     @GetMapping
-    fun findPaginatedTarifications(
+    fun findTarificationsBy(
             @RequestParam(required = false) region: String?,
             @RequestParam(required = false) type: String?,
             @RequestParam(required = false) tarification: String?,
@@ -98,7 +98,7 @@ class TarificationController(
 
     @Operation(summary = "Finding tarifications by tarification, type and version", description = "Returns a list of tarifications matched with given input.")
     @GetMapping("/byRegionTypeTarification")
-    fun findTarifications(
+    fun findTarificationsBy(
             @Parameter(description = "Tarification region") @RequestParam(required = false) region: String?,
             @Parameter(description = "Tarification type") @RequestParam(required = false) type: String?,
             @Parameter(description = "Tarification tarification") @RequestParam(required = false) tarification: String?,
