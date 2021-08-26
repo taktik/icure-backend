@@ -35,9 +35,9 @@ import org.taktik.icure.services.external.rest.v2.dto.PropertyStubDto
 import org.taktik.icure.services.external.rest.v2.dto.UserDto
 import org.taktik.icure.services.external.rest.v2.mapper.UserMapper
 import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubMapper
+import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 
 /* Useful notes:
  * @RequestParam is required by default, but @ApiParam (which is useful to add a description)
@@ -73,7 +73,7 @@ class UserController(private val userLogic: UserLogic,
 
     @Operation(summary = "List users with(out) pagination", description = "Returns a list of users.")
     @GetMapping
-    fun listUsers(
+    fun listUsersBy(
             @Parameter(description = "An user email") @RequestParam(required = false) startKey: String?,
             @Parameter(description = "An user document ID") @RequestParam(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
@@ -109,7 +109,6 @@ class UserController(private val userLogic: UserLogic,
 
     @Operation(summary = "Get a user by his Email/Login", description = "General information about the user")
     @GetMapping("/byEmail/{email}")
-
     fun getUserByEmail(@PathVariable email: String) = mono {
         val user = userLogic.getUserByEmail(email)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
