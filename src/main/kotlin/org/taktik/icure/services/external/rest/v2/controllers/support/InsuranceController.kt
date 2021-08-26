@@ -65,7 +65,7 @@ class InsuranceController(private val insuranceLogic: InsuranceLogic,
     }
 
     @Operation(summary = "Gets insurances by id")
-    @PostMapping("/byIds")
+    @PostMapping("/batch")
     fun getInsurances(@RequestBody insuranceIds: ListOfIdsDto): Flux<InsuranceDto> {
         val insurances = insuranceLogic.getInsurances(HashSet(insuranceIds.ids))
         return insurances.map { insuranceMapper.map(it) }.injectReactorContext()
