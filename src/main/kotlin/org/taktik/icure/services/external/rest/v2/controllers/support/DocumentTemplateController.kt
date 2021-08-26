@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -39,6 +40,7 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DocumentTemplateLogic
 import org.taktik.icure.entities.embed.DocumentType
 import org.taktik.icure.services.external.rest.v2.dto.DocumentTemplateDto
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.data.ByteArrayDto
 import org.taktik.icure.services.external.rest.v2.mapper.DocumentTemplateMapper
 import org.taktik.icure.utils.injectReactorContext
@@ -53,6 +55,8 @@ class DocumentTemplateController(
         private val sessionLogic: AsyncSessionLogic,
         private val documentTemplateMapper: DocumentTemplateMapper
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     @Operation(summary = "Gets a document template")
     @GetMapping("/{documentTemplateId}")
     fun getDocumentTemplate(@PathVariable documentTemplateId: String) = mono {
@@ -61,27 +65,31 @@ class DocumentTemplateController(
         documentTemplateMapper.map(documentTemplate)
     }
 
-    @Operation(summary = "Deletes a document template")
-    @DeleteMapping("/{documentTemplateIds}")
-    fun deleteDocumentTemplate(@PathVariable documentTemplateIds: String): Flux<DocIdentifier> {
-        val documentTemplateIdsList = documentTemplateIds.split(',')
-        return try {
-            documentTemplateLogic.deleteByIds(documentTemplateIdsList).injectReactorContext()
-        } catch (e: Exception) {
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document template deletion failed")
-        }
+    @Operation(summary = "Deletes document templates")
+    @PostMapping("/delete/batch")
+    fun deleteDocumentTemplates(@RequestBody documentTemplateIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return documentTemplateIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        documentTemplateLogic.deleteByIds(HashSet(ids)).injectReactorContext()
+                    }
+                    catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
     @Operation(summary = "Gets all document templates")
     @GetMapping("/bySpecialty/{specialityCode}")
-    fun findDocumentTemplatesBySpeciality(@PathVariable specialityCode: String): Flux<DocumentTemplateDto> {
+    fun listDocumentTemplatesBySpeciality(@PathVariable specialityCode: String): Flux<DocumentTemplateDto> {
         val documentTemplates = documentTemplateLogic.getDocumentTemplatesBySpecialty(specialityCode)
         return documentTemplates.map { ft -> documentTemplateMapper.map(ft) }.injectReactorContext()
     }
 
     @Operation(summary = "Gets all document templates by Type")
     @GetMapping("/byDocumentType/{documentTypeCode}")
-    fun findDocumentTemplatesByDocumentType(@PathVariable documentTypeCode: String): Flux<DocumentTemplateDto> {
+    fun listDocumentTemplatesByDocumentType(@PathVariable documentTypeCode: String): Flux<DocumentTemplateDto> {
         DocumentType.fromName(documentTypeCode)
                 ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot retrieve document templates: provided Document Type Code doesn't exists")
         val documentTemplates = documentTemplateLogic.getDocumentTemplatesByDocumentType(documentTypeCode)
@@ -90,7 +98,7 @@ class DocumentTemplateController(
 
     @Operation(summary = "Gets all document templates by Type For currentUser")
     @GetMapping("/byDocumentTypeForCurrentUser/{documentTypeCode}")
-    fun findDocumentTemplatesByDocumentTypeForCurrentUser(@PathVariable documentTypeCode: String): Flux<DocumentTemplateDto> = flow {
+    fun listDocumentTemplatesByDocumentTypeForCurrentUser(@PathVariable documentTypeCode: String): Flux<DocumentTemplateDto> = flow {
         DocumentType.fromName(documentTypeCode)
                 ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot retrieve document templates: provided Document Type Code doesn't exists")
         emitAll(
@@ -101,7 +109,7 @@ class DocumentTemplateController(
 
     @Operation(summary = "Gets all document templates for current user")
     @GetMapping
-    fun findDocumentTemplates(): Flux<DocumentTemplateDto> = flow {
+    fun listDocumentTemplates(): Flux<DocumentTemplateDto> = flow {
         emitAll(
                 documentTemplateLogic.getDocumentTemplatesByUser(sessionLogic.getCurrentUserId())
                         .map { ft -> documentTemplateMapper.map(ft) }
@@ -110,7 +118,7 @@ class DocumentTemplateController(
 
     @Operation(summary = "Gets all document templates for all users")
     @GetMapping("/find/all")
-    fun findAllDocumentTemplates(): Flux<DocumentTemplateDto> {
+    fun listAllDocumentTemplates(): Flux<DocumentTemplateDto> {
         val documentTemplates = documentTemplateLogic.getAllEntities()
         return documentTemplates.map { ft -> documentTemplateMapper.map(ft) }.injectReactorContext()
     }
@@ -124,7 +132,7 @@ class DocumentTemplateController(
 
     @Operation(summary = "Modify a document template with the current user", description = "Returns an instance of created document template.")
     @PutMapping("/{documentTemplateId}")
-    fun updateDocumentTemplate(@PathVariable documentTemplateId: String, @RequestBody ft: DocumentTemplateDto) = mono {
+    fun modifyDocumentTemplate(@PathVariable documentTemplateId: String, @RequestBody ft: DocumentTemplateDto) = mono {
         val template = documentTemplateMapper.map(ft).copy(id = documentTemplateId)
         val documentTemplate = documentTemplateLogic.modifyDocumentTemplate(template)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document Template update failed")
