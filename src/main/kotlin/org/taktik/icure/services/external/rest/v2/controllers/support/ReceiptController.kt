@@ -31,9 +31,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.ReceiptLogic
 import org.taktik.icure.entities.embed.ReceiptBlobType
 import org.taktik.icure.security.CryptoUtils
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.ReceiptDto
 import org.taktik.icure.services.external.rest.v2.mapper.ReceiptMapper
 import org.taktik.icure.utils.firstOrNull
@@ -50,6 +52,7 @@ class ReceiptController(
         private val receiptLogic: ReceiptLogic,
         private val receiptMapper: ReceiptMapper
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Creates a receipt")
     @PostMapping
@@ -63,14 +66,19 @@ class ReceiptController(
         }
     }
 
-    @Operation(summary = "Deletes a receipt")
-    @DeleteMapping("/{receiptIds}")
-    fun deleteReceipt(@PathVariable receiptIds: String) =
-            try {
-                receiptLogic.deleteByIds(receiptIds.split(',')).injectReactorContext()
-            } catch (e: Exception) {
-                throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt deletion failed")
-            }
+    @Operation(summary = "Deletes receipts")
+    @DeleteMapping("/delete/batch")
+    fun deleteReceipts(@RequestBody receiptIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return receiptIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        receiptLogic.deleteByIds(HashSet(ids)).injectReactorContext()
+                    } catch (e: Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt deletion failed").also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
+    }
 
 
     @Operation(summary = "Get an attachment", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
@@ -116,7 +124,7 @@ class ReceiptController(
     }
 
     @Operation(summary = "Gets a receipt")
-    @GetMapping("/byref/{ref}")
+    @GetMapping("/byRef/{ref}")
     fun listByReference(@PathVariable ref: String): Flux<ReceiptDto> =
             receiptLogic.listByReference(ref).map { receiptMapper.map(it) }.injectReactorContext()
 
@@ -132,10 +140,6 @@ class ReceiptController(
             logger.error("Cannot update receipt", e)
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt modification failed")
         }
-    }
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(javaClass)
     }
 
 }
