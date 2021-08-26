@@ -27,6 +27,8 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.FormTemplate
 import org.taktik.icure.services.external.rest.v1.dto.FormTemplateDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.form.template.Field
+import org.taktik.icure.services.external.rest.v1.dto.embed.form.template.FormTemplateLayout
 import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DocumentGroupMapper
@@ -37,14 +39,21 @@ abstract class FormTemplateMapper {
 
     @Mappings(
             Mapping(target = "isAttachmentDirty", ignore = true),
+            Mapping(target = "layout", source = "formTemplateDto"),
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),
             Mapping(target = "conflicts", ignore = true),
             Mapping(target = "revisionsInfo", ignore = true)
-            )
-	abstract fun map(formTemplateDto: FormTemplateDto):FormTemplate
-    abstract fun map(formTemplate: FormTemplate):FormTemplateDto
+    )
+	abstract fun map(formTemplateDto: FormTemplateDto): FormTemplate
 
-    fun map(formLayout: ByteArray?): FormLayout? = formLayout?.let { json.readValue(it, FormLayout::class.java) }
-    fun map(formLayout: FormLayout?): ByteArray? = formLayout?.let { json.writeValueAsBytes(formLayout) }
+    @Mappings(
+            Mapping(target = "templateLayout", source = "layout")
+    )
+    abstract fun map(formTemplate: FormTemplate): FormTemplateDto
+
+    fun mapLayout(formLayout: ByteArray?): FormLayout? = formLayout?.let { try { json.readValue(it, FormLayout::class.java) } catch(e:Exception) { null } }
+    fun mapTemplateLayout(formLayout: ByteArray?): FormTemplateLayout? = formLayout?.let { try { json.readValue(it, FormTemplateLayout::class.java) } catch(e:Exception) { null } }
+
+    fun mapLayout(formTemplateDto: FormTemplateDto): ByteArray? = formTemplateDto.templateLayout?.let { json.writeValueAsBytes(it) } ?: formTemplateDto.layout?.let { json.writeValueAsBytes(it) }
 }
