@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -48,6 +49,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
                              private val calendarItemMapper: CalendarItemMapper,
                              private val delegationMapper: DelegationMapper
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Gets all calendarItems")
     @GetMapping
@@ -66,9 +68,17 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     }
 
     @Operation(summary = "Deletes an calendarItem")
-    @DeleteMapping("/{calendarItemIds}")
-    fun deleteCalendarItem(@PathVariable calendarItemIds: String): Flux<DocIdentifier> {
-        return calendarItemLogic.deleteCalendarItems(calendarItemIds.split(',')).injectReactorContext()
+    @DeleteMapping("/delete/batch")
+    fun deleteCalendarItems(@RequestBody calendarItemIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return calendarItemIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        calendarItemLogic.deleteCalendarItems(ids).injectReactorContext()
+                    } catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
     @Operation(summary = "Gets an calendarItem")
@@ -115,7 +125,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
         return calendars.map { calendarItemMapper.map(it) }.injectReactorContext()
     }
 
-    @Operation(summary = "Get calendarItems by id")
+    @Operation(summary = "Get calendarItems by ids")
     @PostMapping("/byIds")
     fun getCalendarItemsWithIds(@RequestBody calendarItemIds: ListOfIdsDto?): Flux<CalendarItemDto> {
         if (calendarItemIds == null) {
@@ -148,5 +158,4 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
         }
         emitAll(calendarItemLogic.updateEntities(calendarItems.toList()).map { calendarItemMapper.map(it) })
     }.injectReactorContext()
-
 }
