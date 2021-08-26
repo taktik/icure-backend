@@ -73,7 +73,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
         return calendarItemIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try {
-                        calendarItemLogic.deleteCalendarItems(ids).injectReactorContext()
+                        calendarItemLogic.deleteByIds(HashSet(ids)).injectReactorContext()
                     } catch (e: java.lang.Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
                     }

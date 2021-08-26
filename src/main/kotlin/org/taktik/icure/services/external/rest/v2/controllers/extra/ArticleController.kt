@@ -60,7 +60,7 @@ class ArticleController(
         return articleIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try {
-                        articleLogic.deleteArticles(ids).injectReactorContext()
+                        articleLogic.deleteByIds(HashSet(ids)).injectReactorContext()
                     } catch (e: java.lang.Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
                     }

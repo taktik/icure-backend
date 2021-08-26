@@ -66,7 +66,7 @@ class AgendaController(private val agendaLogic: AgendaLogic,
         return agendaIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try {
-                        agendaLogic.deleteAgenda(ids).injectReactorContext()
+                        agendaLogic.deleteByIds(HashSet(ids)).injectReactorContext()
                     }catch (e: java.lang.Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
                     }
