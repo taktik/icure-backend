@@ -23,12 +23,14 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.ArticleLogic
 import org.taktik.icure.services.external.rest.v2.dto.ArticleDto
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.mapper.ArticleMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
@@ -41,6 +43,7 @@ class ArticleController(
         private val articleLogic: ArticleLogic,
         private val articleMapper: ArticleMapper
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Creates a article")
     @PostMapping
@@ -51,10 +54,18 @@ class ArticleController(
         articleMapper.map(article)
     }
 
-    @Operation(summary = "Deletes an article")
-    @DeleteMapping("/{articleIds}")
-    fun deleteArticle(@PathVariable articleIds: String): Flux<DocIdentifier> {
-        return articleLogic.deleteArticles(articleIds.split(',')).injectReactorContext()
+    @Operation(summary = "Deletes articles")
+    @PostMapping("/delete/batch")
+    fun deleteArticles(@RequestBody articleIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return articleIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        articleLogic.deleteArticles(ids).injectReactorContext()
+                    } catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
     @Operation(summary = "Gets an article")
