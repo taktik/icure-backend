@@ -67,7 +67,7 @@ class AccessLogController(
 
     @Operation(summary = "Deletes an access log")
     @PostMapping("/delete/batch")
-    fun deleteAccessLog(@RequestBody accessLogIds: ListOfIdsDto): Flux<DocIdentifier> {
+    fun deleteAccessLogs(@RequestBody accessLogIds: ListOfIdsDto): Flux<DocIdentifier> {
         return accessLogIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try {
