@@ -78,7 +78,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
 
-        healthcarePartyLogic.listHealthcareParties(paginationOffset, desc)
+        healthcarePartyLogic.findHealthcarePartiesBy(paginationOffset, desc)
                 .paginatedList<HealthcareParty, HealthcarePartyDto>(healthcarePartyToHealthcarePartyDto, realLimit)
     }
 
@@ -94,9 +94,9 @@ class HealthcarePartyController(private val userLogic: UserLogic,
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
         if (name == null || name.isEmpty()) {
-            healthcarePartyLogic.listHealthcareParties(paginationOffset, desc)
+            healthcarePartyLogic.findHealthcarePartiesBy(paginationOffset, desc)
         } else {
-            healthcarePartyLogic.findHealthcareParties(name, paginationOffset, desc)
+            healthcarePartyLogic.findHealthcarePartiesBy(name, paginationOffset, desc)
         }.paginatedList<HealthcareParty, HealthcarePartyDto>(healthcarePartyToHealthcarePartyDto, realLimit)
     }
 
@@ -120,7 +120,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
     @GetMapping("/byNameStrict/{name}")
     fun listHealthcarePartiesByName(@Parameter(description = "The Last name search value")
                    @PathVariable name: String) =
-            healthcarePartyLogic.listByName(name)
+            healthcarePartyLogic.listHealthcarePartiesByName(name)
                            .map { healthcarePartyMapper.map(it) }
                            .injectReactorContext()
 
@@ -132,7 +132,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
             @Parameter(description = "The first postCode for the HCP") @PathVariable firstCode: String,
             @Parameter(description = "The last postCode for the HCP") @PathVariable lastCode: String,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int) = mono {
-        healthcarePartyLogic.findHealthcareParties(type, spec, firstCode, lastCode).paginatedList<HealthcareParty, HealthcarePartyDto>(healthcarePartyToHealthcarePartyDto, limit)
+        healthcarePartyLogic.listHealthcarePartiesBy(type, spec, firstCode, lastCode).paginatedList<HealthcareParty, HealthcarePartyDto>(healthcarePartyToHealthcarePartyDto, limit)
     }
 
     @Operation(summary = "Create a healthcare party", description = "One of Name or Last name+First name, Nihii, and Public key are required.")

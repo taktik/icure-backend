@@ -47,7 +47,7 @@ class DocumentTemplateLogicImpl(private val documentTemplateDAO: DocumentTemplat
         documentTemplateDAO.createDocumentTemplate(documentTemplate.owner?.let { documentTemplate } ?: documentTemplate.copy(owner = sessionLogic.getCurrentUserId()))
     }
 
-    override suspend fun getDocumentTemplateById(documentTemplateId: String): DocumentTemplate? {
+    override suspend fun getDocumentTemplate(documentTemplateId: String): DocumentTemplate? {
         return documentTemplateDAO.get(documentTemplateId)
     }
 

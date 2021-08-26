@@ -90,6 +90,6 @@ interface PatientLogic {
     fun findDeletedPatientsByDeleteDate(start: Long, end: Long?, descending: Boolean, paginationOffset: PaginationOffset<Long>): Flow<ViewQueryResultEvent>
     fun findDeletedPatientsByNames(firstName: String?, lastName: String?): Flow<Patient>
     fun undeletePatients(ids: Set<String>): Flow<DocIdentifier>
-    fun updateEntities(entities: Collection<Patient>): Flow<Patient>
+    fun modifyEntities(entities: Collection<Patient>): Flow<Patient>
     suspend fun hasEntities(): Boolean
 }

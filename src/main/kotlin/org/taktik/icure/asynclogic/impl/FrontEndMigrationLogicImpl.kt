@@ -42,7 +42,7 @@ class FrontEndMigrationLogicImpl(private val frontEndMigrationDAO: FrontEndMigra
 
     override suspend fun deleteFrontEndMigration(frontEndMigrationId: String): DocIdentifier? {
         return try {
-            deleteByIds(setOf(frontEndMigrationId)).firstOrNull()
+            deleteEntities(setOf(frontEndMigrationId)).firstOrNull()
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }

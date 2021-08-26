@@ -72,7 +72,7 @@ class ReceiptController(
         return receiptIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try {
-                        receiptLogic.deleteByIds(HashSet(ids)).injectReactorContext()
+                        receiptLogic.deleteEntities(HashSet(ids)).injectReactorContext()
                     } catch (e: Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt deletion failed").also { logger.error(it.message) }
                     }
@@ -126,14 +126,14 @@ class ReceiptController(
     @Operation(summary = "Gets a receipt")
     @GetMapping("/byRef/{ref}")
     fun listByReference(@PathVariable ref: String): Flux<ReceiptDto> =
-            receiptLogic.listByReference(ref).map { receiptMapper.map(it) }.injectReactorContext()
+            receiptLogic.listReceiptsByReference(ref).map { receiptMapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "Updates a receipt")
     @PutMapping
     fun modifyReceipt(@RequestBody receiptDto: ReceiptDto) = mono {
         val receipt = receiptMapper.map(receiptDto)
         try {
-            receiptLogic.updateEntities(listOf(receipt)).map { receiptMapper.map(it) }.firstOrNull()
+            receiptLogic.modifyEntities(listOf(receipt)).map { receiptMapper.map(it) }.firstOrNull()
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update receipt")
 
         } catch (e: Exception) {

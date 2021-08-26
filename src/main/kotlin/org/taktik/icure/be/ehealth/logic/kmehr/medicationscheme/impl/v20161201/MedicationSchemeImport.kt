@@ -24,68 +24,33 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.toList
-import org.taktik.icure.asynclogic.ContactLogic
-import org.taktik.icure.asynclogic.DocumentLogic
-import org.taktik.icure.asynclogic.FormLogic
-import org.taktik.icure.asynclogic.HealthElementLogic
-import org.taktik.icure.asynclogic.HealthcarePartyLogic
-import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.couchdb.id.UUIDGenerator
+import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeFuzzyLongFromMomentType
 import org.taktik.icure.be.ehealth.logic.kmehr.toInputStream
 import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
-import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.domain.mapping.ImportMapping
 import org.taktik.icure.domain.result.ImportResult
-import org.taktik.icure.entities.Contact
-import org.taktik.icure.entities.Document
-import org.taktik.icure.entities.Form
-import org.taktik.icure.entities.HealthElement
-import org.taktik.icure.entities.HealthcareParty
-import org.taktik.icure.entities.Patient
-import org.taktik.icure.entities.User
+import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.CodeStub
-import org.taktik.icure.entities.embed.Address
+import org.taktik.icure.entities.embed.*
 import org.taktik.icure.entities.embed.AddressType
-import org.taktik.icure.entities.embed.Content
-import org.taktik.icure.entities.embed.Duration
-import org.taktik.icure.entities.embed.Gender
-import org.taktik.icure.entities.embed.Measure
-import org.taktik.icure.entities.embed.Medication
-import org.taktik.icure.entities.embed.Medicinalproduct
-import org.taktik.icure.entities.embed.RegimenItem
-import org.taktik.icure.entities.embed.Service
-import org.taktik.icure.entities.embed.Substanceproduct
-import org.taktik.icure.entities.embed.Telecom
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.exceptions.MissingRequirementsException
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDADDRESSschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDLNKvalues
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDSEXvalues
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTELECOMschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.firstOrNull
 import java.io.InputStream
 import java.io.Serializable
 import java.nio.ByteBuffer
-import java.util.*
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.JAXBElement
 
@@ -513,8 +478,8 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
         val nihii = validNihiiOrNull(p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value)
         val niss = validSsinOrNull(p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value)
 
-        return nihii?.let { healthcarePartyLogic.listByNihii(it).firstOrNull() }
-                ?: niss?.let  { healthcarePartyLogic.listBySsin(niss).firstOrNull() }
+        return nihii?.let { healthcarePartyLogic.listHealthcarePartiesByNihii(it).firstOrNull() }
+                ?: niss?.let  { healthcarePartyLogic.listHealthcarePartiesBySsin(niss).firstOrNull() }
                 ?: try {
                     copyFromHcpToHcp(p, HealthcareParty(id = idGenerator.newGUID().toString(), nihii = nihii, ssin = niss)).also{
                         if (saveToDatabase) healthcarePartyLogic.createHealthcareParty(it)

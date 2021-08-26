@@ -123,7 +123,7 @@ class UserController(private val userLogic: UserLogic,
     @DeleteMapping("/{userId}")
     fun deleteUser(@PathVariable userId: String) = mono {
         try {
-            userLogic.deleteByIds(setOf(userId)).firstOrNull()
+            userLogic.deleteEntities(setOf(userId)).firstOrNull()
         } catch (e: Exception) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)

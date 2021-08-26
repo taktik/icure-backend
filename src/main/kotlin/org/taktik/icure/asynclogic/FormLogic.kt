@@ -22,13 +22,12 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.FormDAO
 import org.taktik.icure.entities.Form
-import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Delegation
 
 interface FormLogic : EntityPersister<Form, String> {
     suspend fun getForm(id: String): Form?
     fun getForms(selectedIds: Collection<String>): Flow<Form>
-    fun findByHCPartyPatient(hcPartyId: String, secretPatientKeys: List<String>, healthElementId: String?, planOfActionId: String?, formTemplateId: String?): Flow<Form>
+    fun listFormsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>, healthElementId: String?, planOfActionId: String?, formTemplateId: String?): Flow<Form>
 
     suspend fun addDelegation(formId: String, delegation: Delegation): Form?
 
@@ -36,10 +35,10 @@ interface FormLogic : EntityPersister<Form, String> {
     fun deleteForms(ids: Set<String>): Flow<DocIdentifier>
 
     suspend fun modifyForm(form: Form): Form?
-    fun findByHcPartyParentId(hcPartyId: String, formId: String): Flow<Form>
+    fun listByHcPartyAndParentId(hcPartyId: String, formId: String): Flow<Form>
 
     suspend fun addDelegations(formId: String, delegations: List<Delegation>): Form?
     fun getGenericDAO(): FormDAO
     fun solveConflicts(): Flow<Form>
-    suspend fun getAllByExternalUuid(documentId: String): List<Form>
+    suspend fun getFormsByExternalUuid(documentId: String): List<Form>
 }

@@ -93,7 +93,7 @@ class AccessLogController(
     fun findAccessLogsBy(@RequestParam(required = false) fromEpoch: Long?, @RequestParam(required = false) toEpoch: Long?, @RequestParam(required = false) startKey: Long?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: Int?, @RequestParam(required = false) descending: Boolean?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1) // fetch one more for nextKeyPair
-        val accessLogs = accessLogLogic.listAccessLogs(fromEpoch ?: if(descending == true) Long.MAX_VALUE else 0, toEpoch ?: if(descending == true) 0 else Long.MAX_VALUE, paginationOffset, descending == true)
+        val accessLogs = accessLogLogic.listAccessLogsBy(fromEpoch ?: if(descending == true) Long.MAX_VALUE else 0, toEpoch ?: if(descending == true) 0 else Long.MAX_VALUE, paginationOffset, descending == true)
         accessLogs.paginatedList(accessLogToAccessLogDto, realLimit)
     }
 
@@ -109,7 +109,7 @@ class AccessLogController(
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
-        val accessLogs = accessLogLogic.findByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, descending
+        val accessLogs = accessLogLogic.findAccessLogsByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, descending
                 ?: false)
 
         accessLogs.paginatedList(accessLogToAccessLogDto, realLimit)
@@ -119,7 +119,7 @@ class AccessLogController(
     @GetMapping("/byHcPartySecretForeignKeys")
     fun listAccessLogsByHCPartyAndPatientForeignKeys(@RequestParam("hcPartyId") hcPartyId: String, @RequestParam("secretFKeys") secretFKeys: String) = flow {
         val secretPatientKeys = HashSet(secretFKeys.split(","))
-        emitAll(accessLogLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys)).map { accessLogMapper.map(it) } )
+        emitAll(accessLogLogic.findByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys)).map { accessLogMapper.map(it) } )
     }.injectReactorContext()
 
     @Operation(summary = "Modifies an access log")

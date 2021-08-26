@@ -26,15 +26,14 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.dto.data.LabelledOccurence
 import org.taktik.icure.entities.Contact
-import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Service
 
 interface ContactLogic : EntityPersister<Contact, String> {
     suspend fun getContact(id: String): Contact?
     fun getContacts(selectedIds: Collection<String>): Flow<Contact>
-        fun getPaginatedContacts(selectedIds: Collection<String>): Flow<ViewQueryResultEvent>
-    fun findByHCPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact>
+        fun findContactsByIds(selectedIds: Collection<String>): Flow<ViewQueryResultEvent>
+    fun findContactsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact>
 
     suspend fun addDelegation(contactId: String, delegation: Delegation): Contact?
 

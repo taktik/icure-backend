@@ -19,8 +19,6 @@ package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
 import org.springframework.stereotype.Service
 import org.taktik.icure.asyncdao.EntityTemplateDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
@@ -45,7 +43,7 @@ class EntityTemplateLogicImpl(private val entityTemplateDAO: EntityTemplateDAO,
     override suspend fun modifyEntityTemplate(entityTemplate: EntityTemplate) = fix(entityTemplate) { entityTemplate ->
         val entityTemplates = setOf(entityTemplate)
         try {
-            updateEntities(entityTemplates).firstOrNull()
+            modifyEntities(entityTemplates).firstOrNull()
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid template", e)
         }
@@ -58,16 +56,16 @@ class EntityTemplateLogicImpl(private val entityTemplateDAO: EntityTemplateDAO,
     override fun getEntityTemplates(selectedIds: Collection<String>): Flow<EntityTemplate> =
             entityTemplateDAO.getList(selectedIds)
 
-    override fun findEntityTemplates(userId: String, entityType: String, searchString: String?, includeEntities: Boolean?) =
+    override fun listEntityTemplatesBy(userId: String, entityType: String, searchString: String?, includeEntities: Boolean?) =
             entityTemplateDAO.getByUserIdTypeDescr(userId, entityType, searchString, includeEntities)
 
-    override fun findAllEntityTemplates(entityType: String, searchString: String?, includeEntities: Boolean?) =
+    override fun listEntityTemplatesBy(entityType: String, searchString: String?, includeEntities: Boolean?) =
             entityTemplateDAO.getByTypeDescr(entityType, searchString, includeEntities)
 
-    override fun findEntityTemplatesByKeyword(userId: String, entityType: String, keyword: String?, includeEntities: Boolean?) =
+    override fun listEntityTemplatesByKeyword(userId: String, entityType: String, keyword: String?, includeEntities: Boolean?) =
             entityTemplateDAO.getByUserIdTypeKeyword(userId, entityType, keyword, includeEntities)
 
-    override fun findAllEntityTemplatesByKeyword(entityType: String, keyword: String?, includeEntities: Boolean?) =
+    override fun listEntityTemplatesByKeyword(entityType: String, keyword: String?, includeEntities: Boolean?) =
             entityTemplateDAO.getByTypeKeyword(entityType, keyword, includeEntities)
 
     override fun getGenericDAO() = entityTemplateDAO

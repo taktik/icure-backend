@@ -18,32 +18,18 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.dropWhile
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.entity.Option
 import org.taktik.couchdb.exception.UpdateConflictException
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asyncdao.ContactDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
-import org.taktik.couchdb.entity.Option
-import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.dto.data.LabelledOccurence
@@ -54,8 +40,6 @@ import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
-import java.util.*
-import kotlin.collections.HashSet
 
 @ExperimentalCoroutinesApi
 @Service
@@ -72,11 +56,11 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(contactDAO.get(selectedIds))
     }
 
-    override fun getPaginatedContacts(selectedIds: Collection<String>): Flow<ViewQueryResultEvent> = flow {
+    override fun findContactsByIds(selectedIds: Collection<String>): Flow<ViewQueryResultEvent> = flow {
         emitAll(contactDAO.getPaginatedContacts(selectedIds))
     }
 
-    override fun findByHCPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact> = flow {
+    override fun findContactsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact> = flow {
         emitAll(contactDAO.findByHcPartyPatient(hcPartyId, secretPatientKeys))
     }
 
@@ -113,7 +97,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
 
     override fun deleteContacts(ids: Set<String>): Flow<DocIdentifier> {
         return try {
-            deleteByIds(ids)
+            deleteEntities(ids)
         } catch (e: Exception) {
             logger.error(e.message, e)
             flowOf()

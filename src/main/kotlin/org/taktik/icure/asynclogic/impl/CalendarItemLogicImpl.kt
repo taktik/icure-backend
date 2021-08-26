@@ -41,7 +41,7 @@ class CalendarItemLogicImpl(private val calendarItemDAO: CalendarItemDAO,
 
     override fun deleteCalendarItems(ids: List<String>): Flow<DocIdentifier> {
         try {
-            return deleteByIds(ids)
+            return deleteEntities(ids)
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }
@@ -59,11 +59,11 @@ class CalendarItemLogicImpl(private val calendarItemDAO: CalendarItemDAO,
         emitAll(calendarItemDAO.listCalendarItemByPeriodAndAgendaId(startDate, endDate, agendaId))
     }
 
-    override fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>) = flow {
+    override fun listCalendarItemsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>) = flow {
             emitAll(calendarItemDAO.findByHcPartyPatient(hcPartyId, secretPatientKeys))
     }
 
-    override fun getCalendarItemByIds(ids: List<String>): Flow<CalendarItem> = flow {
+    override fun getCalendarItems(ids: List<String>): Flow<CalendarItem> = flow {
         calendarItemDAO.getList(ids).collect { emit(it) }
     }
 

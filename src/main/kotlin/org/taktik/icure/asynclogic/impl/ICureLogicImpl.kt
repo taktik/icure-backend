@@ -57,7 +57,7 @@ class ICureLogicImpl(couchDbProperties: CouchDbProperties,
         }
     }
 
-    override suspend fun updateDesignDoc(daoEntityName: String, warmup:Boolean) {
+    override suspend fun modifyDesignDoc(daoEntityName: String, warmup:Boolean) {
         allDaos
                 .firstOrNull { dao: GenericDAO<*> -> dao.javaClass.simpleName.startsWith(daoEntityName + "DAO") }
                 ?.let { dao: GenericDAO<*> ->
@@ -68,7 +68,7 @@ class ICureLogicImpl(couchDbProperties: CouchDbProperties,
                 }
     }
 
-    override suspend fun updateAllDesignDoc() {
+    override suspend fun modifyDesignDocs() {
         allDaos.forEach { dao: GenericDAO<*> ->
             try {
                 dao.forceInitStandardDesignDocument()

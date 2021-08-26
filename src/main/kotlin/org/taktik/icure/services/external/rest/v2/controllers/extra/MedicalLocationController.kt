@@ -56,7 +56,7 @@ class MedicalLocationController(
         return locationIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try {
-                        medicalLocationLogic.deleteByIds(HashSet(ids)).injectReactorContext()
+                        medicalLocationLogic.deleteEntities(HashSet(ids)).injectReactorContext()
                     }
                     catch (e: java.lang.Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
@@ -75,7 +75,7 @@ class MedicalLocationController(
 
     @Operation(summary = "Gets all medical locations")
     @GetMapping
-    fun getMedicalLocations() = medicalLocationLogic.getAllEntities().map { c -> medicalLocationMapper.map(c) }.injectReactorContext()
+    fun getMedicalLocations() = medicalLocationLogic.getEntities().map { c -> medicalLocationMapper.map(c) }.injectReactorContext()
 
     @Operation(summary = "Modifies a medical location")
     @PutMapping

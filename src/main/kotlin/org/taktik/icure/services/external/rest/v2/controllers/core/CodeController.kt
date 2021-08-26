@@ -40,8 +40,8 @@ import org.taktik.icure.services.external.rest.v2.dto.CodeDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v2.mapper.base.CodeMapper
 import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
-import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
@@ -189,7 +189,7 @@ class CodeController(
     @Operation(summary = "Get a list of codes by ids", description = "Keys must be delimited by coma")
     @GetMapping("/byIds/{codeIds}")
     fun listCodesBy(@PathVariable codeIds: String): Flux<CodeDto> {
-        val codes = codeLogic.get(codeIds.split(','))
+        val codes = codeLogic.getCodes(codeIds.split(','))
         return codes
                 .map { f -> codeMapper.map(f) }
                 .injectReactorContext()

@@ -25,15 +25,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.ClassificationTemplateLogic
@@ -43,10 +35,9 @@ import org.taktik.icure.services.external.rest.v1.dto.ClassificationTemplateDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.mapper.ClassificationTemplateMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
-import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v1.utils.paginatedList
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
-import java.util.*
 
 @ExperimentalCoroutinesApi
 @RestController
@@ -79,7 +70,7 @@ class ClassificationTemplateController(
     @Operation(summary = "Get a list of classifications Templates", description = "Ids are seperated by a coma")
     @GetMapping("/byIds/{ids}")
     fun getClassificationTemplateByIds(@PathVariable ids: String): Flux<ClassificationTemplateDto> {
-        val elements = classificationTemplateLogic.getClassificationTemplateByIds(ids.split(','))
+        val elements = classificationTemplateLogic.getClassificationTemplates(ids.split(','))
         return elements.map { classificationTemplateMapper.map(it) }.injectReactorContext()
     }
 
@@ -87,7 +78,7 @@ class ClassificationTemplateController(
     @GetMapping("/byHcPartySecretForeignKeys")
     fun findClassificationTemplatesByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<ClassificationTemplateDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        val elementList = classificationTemplateLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
+        val elementList = classificationTemplateLogic.listClasificationsByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
         return elementList.map { classificationTemplateMapper.map(it) }.injectReactorContext()
     }

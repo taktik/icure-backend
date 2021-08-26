@@ -62,7 +62,7 @@ class KeywordController(private val keywordLogic: KeywordLogic, private val keyw
     @Operation(summary = "Gets all keywords")
     @GetMapping
     fun getKeywords(): Flux<KeywordDto> {
-        return keywordLogic.getAllEntities().map { c -> keywordMapper.map(c) }.injectReactorContext()
+        return keywordLogic.getEntities().map { c -> keywordMapper.map(c) }.injectReactorContext()
     }
 
     @Operation(summary = "Delete keywords.", description = "Response is a set containing the ID's of deleted keywords.")
@@ -71,7 +71,7 @@ class KeywordController(private val keywordLogic: KeywordLogic, private val keyw
         return keywordIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try {
-                        keywordLogic.deleteByIds(ids.toSet()).injectReactorContext()
+                        keywordLogic.deleteEntities(ids.toSet()).injectReactorContext()
                     }
                     catch (e: java.lang.Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }

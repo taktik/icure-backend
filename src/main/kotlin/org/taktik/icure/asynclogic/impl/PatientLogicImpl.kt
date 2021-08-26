@@ -317,7 +317,7 @@ class PatientLogicImpl(
         // checking requirements
         checkRequirements(patient)
         try {
-            updateEntities(setOf(patient)).firstOrNull()
+            modifyEntities(setOf(patient)).firstOrNull()
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid patient", e)
         }
@@ -328,9 +328,9 @@ class PatientLogicImpl(
         return super.createEntities(entities)
     }
 
-    override fun updateEntities(entities: Collection<Patient>): Flow<Patient> {
+    override fun modifyEntities(entities: Collection<Patient>): Flow<Patient> {
         entities.forEach { checkRequirements(it) }
-        return super.updateEntities(entities)
+        return super.modifyEntities(entities)
     }
 
     private fun checkRequirements(patient: Patient) {
@@ -453,7 +453,7 @@ class PatientLogicImpl(
     }
 
     override fun deletePatients(ids: Set<String>) = flow<DocIdentifier> {
-        emitAll(deleteByIds(ids))
+        emitAll(deleteEntities(ids))
     }
 
     override fun findDeletedPatientsByDeleteDate(start: Long, end: Long?, descending: Boolean, paginationOffset: PaginationOffset<Long>) = flow<ViewQueryResultEvent> {

@@ -42,7 +42,7 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
     @GetMapping("/canhandle/{id}")
     fun canHandle(@PathVariable id: String,
                   @RequestParam enckeys: String) = mono {
-        documentLogic.get(id)?.let { multiFormatLogic.canHandle(it, if (isBlank(enckeys)) listOf() else enckeys.split(',')) }
+        documentLogic.getDocument(id)?.let { multiFormatLogic.canHandle(it, if (isBlank(enckeys)) listOf() else enckeys.split(',')) }
     }
 
     @Operation(summary = "Extract general infos from document")
@@ -51,7 +51,7 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
                  @RequestParam language: String,
                  @RequestParam enckeys: String,
                  @RequestParam(required = false) full: Boolean?) = mono {
-        val doc = documentLogic.get(id)
+        val doc = documentLogic.getDocument(id)
         doc?.let {
             multiFormatLogic.getInfos(
                 it,
@@ -71,7 +71,7 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
                  @RequestParam formIds: String,
                  @RequestParam planOfActionId: String,
                  @RequestParam enckeys: String, @RequestBody ctc: ContactDto) = mono {
-        documentLogic.get(documentId)?.let {
+        documentLogic.getDocument(documentId)?.let {
             multiFormatLogic.doImport(
                     language,
                     it,

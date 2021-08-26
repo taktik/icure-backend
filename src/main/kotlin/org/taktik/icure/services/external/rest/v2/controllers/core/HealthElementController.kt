@@ -81,7 +81,7 @@ class HealthElementController(
     @GetMapping("/byHcPartySecretForeignKeys")
     fun listHealthElementsByHCPartyAndPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<HealthElementDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        val elementList = healthElementLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
+        val elementList = healthElementLogic.findHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
         return elementList
                 .map { element -> healthElementMapper.map(element) }
@@ -93,7 +93,7 @@ class HealthElementController(
     fun listHealthElementsDelegationsStubsByHCPartyAndPatientForeignKeys(@RequestParam hcPartyId: String,
                                                                          @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        return healthElementLogic.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys)
+        return healthElementLogic.findHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys)
                 .map { healthElement -> stubMapper.mapToStub(healthElement) }
                 .injectReactorContext()
     }
@@ -110,7 +110,7 @@ class HealthElementController(
                 )
             } ?: he
         }
-        emitAll(healthElementLogic.updateEntities(healthElements.toList()).map { healthElementMapper.map(it) })
+        emitAll(healthElementLogic.modifyEntities(healthElements.toList()).map { healthElementMapper.map(it) })
     }.injectReactorContext()
 
     @Operation(summary = "Delete health elements.", description = "Response is a set containing the ID's of deleted health elements.")
@@ -140,7 +140,7 @@ class HealthElementController(
     @PutMapping("/batch")
     fun modifyHealthElements(@RequestBody healthElementDtos: List<HealthElementDto>): Flux<HealthElementDto> =
         try {
-            val hes = healthElementLogic.updateEntities(healthElementDtos.map { f -> healthElementMapper.map(f) })
+            val hes = healthElementLogic.modifyEntities(healthElementDtos.map { f -> healthElementMapper.map(f) })
             hes.map { healthElementMapper.map(it) }.injectReactorContext()
         } catch (e: Exception) {
             logger.warn(e.message, e)

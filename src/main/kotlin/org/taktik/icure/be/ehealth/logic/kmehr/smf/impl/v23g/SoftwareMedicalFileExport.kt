@@ -309,7 +309,7 @@ class SoftwareMedicalFileExport(
                                     formLogic.getForm(it)?.let { form ->
                                         form.formTemplateId?.let {
                                             try {
-                                                formTemplateLogic.getFormTemplateById(it)?.let {
+                                                formTemplateLogic.getFormTemplate(it)?.let {
                                                     when (it.guid) {
                                                         "FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00" -> { // ITT
                                                             services = services.filterNot { subcon.services.map { it.serviceId }.contains(it.id) } // remove form services from main list
@@ -597,7 +597,7 @@ class SoftwareMedicalFileExport(
                             value = svc.comment
                         })
                     }
-                    documentLogic.get(docid)?.let { d ->
+                    documentLogic.getDocument(docid)?.let { d ->
                         d.attachment?.let { headingsAndItemsAndTexts.add(makeMultimediaLnkType(d, it, decryptor)) }
                     }
                     headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(con.id) })
@@ -693,7 +693,7 @@ class SoftwareMedicalFileExport(
 
             service.content[lang]?.documentId?.let {
                 try{
-                    documentLogic.get(it)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(makeMultimediaLnkType(d, it, decryptor)) } }
+                    documentLogic.getDocument(it)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(makeMultimediaLnkType(d, it, decryptor)) } }
                 } catch(e:Exception) {
                     log.error("Cannot export document ${it}")
                 }
@@ -842,7 +842,7 @@ class SoftwareMedicalFileExport(
                         value = service.comment
                     })
                 }
-                documentLogic.get(documentId)?.let { d -> d.attachment?.let {
+                documentLogic.getDocument(documentId)?.let { d -> d.attachment?.let {
                     val element = makeMultimediaLnkType(d, it, decryptor)
                     headingsAndItemsAndTexts.add(element)
                 } }
@@ -1153,9 +1153,9 @@ class SoftwareMedicalFileExport(
 	suspend fun getHealthElements(hcp: HealthcareParty, sfks: List<String>, config: Config): List<HealthElement> {
         var res : List<HealthElement> = emptyList()
         if(hcp.parentId != null) {
-            res = res + (healthElementLogic?.findByHCPartySecretPatientKeys(hcp.parentId, sfks)?.toList() ?: emptyList())
+            res = res + (healthElementLogic?.findHealthElementsByHCPartyAndSecretPatientKeys(hcp.parentId, sfks)?.toList() ?: emptyList())
         }
-        res = res + (healthElementLogic?.findByHCPartySecretPatientKeys(hcp.id, sfks)?.toList() ?: emptyList())
+        res = res + (healthElementLogic?.findHealthElementsByHCPartyAndSecretPatientKeys(hcp.id, sfks)?.toList() ?: emptyList())
         res = res.distinctBy { it.id }
         return excludeHealthElementsForPMF(
 				res?.filterNot {
@@ -1240,9 +1240,9 @@ class SoftwareMedicalFileExport(
     private suspend fun getAllContacts(hcp : HealthcareParty, sfks: List<String>) : List<Contact> {
         var res : List<Contact> = emptyList()
         if(hcp.parentId != null) {
-            res = contactLogic.findByHCPartyPatient(hcp.parentId, sfks.toList()).toList()
+            res = contactLogic.findContactsByHCPartyAndPatient(hcp.parentId, sfks.toList()).toList()
         }
-        res = res + contactLogic.findByHCPartyPatient(hcp.id, sfks.toList()).toList()
+        res = res + contactLogic.findContactsByHCPartyAndPatient(hcp.id, sfks.toList()).toList()
         res = res.filterNot { it.services.isEmpty() &&  it.subContacts.isEmpty()}
         return res.distinctBy { it.id }
     }

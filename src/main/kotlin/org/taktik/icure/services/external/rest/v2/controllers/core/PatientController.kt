@@ -210,7 +210,7 @@ class PatientController(
 
         val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
-        accessLogLogic.findByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, true).paginatedList<AccessLog>(limit)
+        accessLogLogic.findAccessLogsByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, true).paginatedList<AccessLog>(limit)
                 .let { it: PaginatedList<AccessLog> ->
                     val patientIds = it.rows.sortedBy { accessLog -> accessLog.date }.mapNotNull { it.patientId }.distinct()
                     PaginatedList(
@@ -380,7 +380,7 @@ class PatientController(
     @PostMapping( "/batch")
     fun createPatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
-            val patients = patientLogic.updateEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
+            val patients = patientLogic.modifyEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
             patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
         } catch (e: Exception) {
             log.warn(e.message, e)
@@ -392,7 +392,7 @@ class PatientController(
     @PutMapping( "/batch")
     fun modifyPatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
-            val patients = patientLogic.updateEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
+            val patients = patientLogic.modifyEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
             patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
         } catch (e: Exception) {
             log.warn(e.message, e)

@@ -256,7 +256,7 @@ class SumehrExport(
     }
 
     suspend fun getHealthElements(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, treatedServiceIds: MutableSet<String>, healthElements: List<HealthElement>? = null): List<HealthElement> {
-        return (healthElements ?: ArrayList(hcPartyIds).flatMap { healthElementLogic.findLatestByHCPartySecretPatientKeys(it, sfks) }).map {
+        return (healthElements ?: ArrayList(hcPartyIds).flatMap { healthElementLogic.findLatestHealthElementsByHCPartyAndSecretPatientKeys(it, sfks) }).map {
             it.idService?.let { treatedServiceIds.add(it) }
             it
         }.filter {

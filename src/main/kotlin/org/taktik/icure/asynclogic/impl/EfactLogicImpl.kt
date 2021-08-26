@@ -23,35 +23,14 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.springframework.stereotype.Service
-import org.taktik.icure.asynclogic.AsyncSessionLogic
-import org.taktik.icure.asynclogic.DocumentLogic
-import org.taktik.icure.asynclogic.EfactLogic
-import org.taktik.icure.asynclogic.EntityReferenceLogic
-import org.taktik.icure.asynclogic.HealthcarePartyLogic
-import org.taktik.icure.asynclogic.InsuranceLogic
-import org.taktik.icure.asynclogic.InvoiceLogic
-import org.taktik.icure.asynclogic.MessageLogic
-import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.couchdb.id.UUIDGenerator
-import org.taktik.icure.entities.EntityReference
-import org.taktik.icure.entities.HealthcareParty
-import org.taktik.icure.entities.Insurance
-import org.taktik.icure.entities.Invoice
-import org.taktik.icure.entities.Message
+import org.taktik.icure.asynclogic.*
+import org.taktik.icure.entities.*
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Telecom
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.exceptions.MissingRequirementsException
-import org.taktik.icure.services.external.rest.v1.dto.be.efact.EIDItem
-import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoiceItem
-import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoiceSender
-import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicesBatch
-import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingPercentNorm
-import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingPrescriberCode
-import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingSideCode
-import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingTimeOfDay
-import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingTreatmentReasonCode
-import org.taktik.icure.services.external.rest.v1.dto.be.efact.MessageWithBatch
+import org.taktik.icure.services.external.rest.v1.dto.be.efact.*
 import org.taktik.icure.services.external.rest.v1.mapper.MessageMapper
 import org.taktik.icure.services.external.rest.v1.mapper.PatientMapper
 import org.taktik.icure.utils.FuzzyValues
@@ -332,11 +311,11 @@ class EfactLogicImpl(
     private suspend fun acceptAndMaskMessage(msg: Message, hasError: Boolean) {
         messageLogic.modifyMessage(msg.copy(status = (msg.status ?: 0) or Message.STATUS_MASKED or (if (hasError) Message.STATUS_PARTIAL_SUCCESS else 0)))
         if (msg.parentId != null) {
-            val parent = messageLogic.get(msg.parentId)
+            val parent = messageLogic.getMessage(msg.parentId)
             if (parent != null) {
                 messageLogic.modifyMessage(parent.copy(status = (parent.status ?: 0) or Message.STATUS_ACCEPTED_FOR_TREATMENT))
                 if (parent.parentId != null) {
-                    val parentParent = messageLogic.get(parent.parentId)
+                    val parentParent = messageLogic.getMessage(parent.parentId)
                     if (parentParent != null) {
                         messageLogic.modifyMessage(parentParent.copy(status = (parent.status ?: 0) or Message.STATUS_ACCEPTED_FOR_TREATMENT))
                     }
@@ -349,11 +328,11 @@ class EfactLogicImpl(
     private fun rejectMessage(msg: Message, rejectedIcErrorCodes: Map<UUID, List<String>>?) = flow {
         messageLogic.modifyMessage(msg.copy(status = (msg.status ?: 0) or Message.STATUS_FULL_ERROR))
         if (msg.parentId != null) {
-            val parent = messageLogic.get(msg.parentId)
+            val parent = messageLogic.getMessage(msg.parentId)
             if (parent != null) {
                 messageLogic.modifyMessage(parent.copy(status = (parent.status ?: 0) or Message.STATUS_REJECTED or Message.STATUS_FULL_ERROR))
                 if (parent.parentId != null) {
-                    val parentParent = messageLogic.get(parent.parentId)
+                    val parentParent = messageLogic.getMessage(parent.parentId)
                     if (parentParent!= null) {
                         messageLogic.modifyMessage(parentParent.copy(status = (parent.status ?: 0) or Message.STATUS_REJECTED or Message.STATUS_FULL_ERROR))
                         emitAll(

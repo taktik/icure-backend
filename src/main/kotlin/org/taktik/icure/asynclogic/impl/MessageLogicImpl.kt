@@ -22,11 +22,11 @@ import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.entity.Option
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asyncdao.MessageDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.MessageLogic
-import org.taktik.couchdb.entity.Option
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Message
 import org.taktik.icure.entities.embed.Delegation
@@ -35,7 +35,6 @@ import org.taktik.icure.exceptions.CreationException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.exceptions.PersistenceException
 import org.taktik.icure.utils.firstOrNull
-import java.util.*
 import javax.security.auth.login.LoginException
 
 @ExperimentalCoroutinesApi
@@ -72,23 +71,23 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
         emitAll(messageDAO.findByHcParty(currentHealthCarPartyId(), paginationOffset))
     }
 
-    override fun findByFromAddress(partyId: String, fromAddress: String, paginationOffset: PaginationOffset<List<Any>>) = flow<ViewQueryResultEvent> {
+    override fun findMessagesByFromAddress(partyId: String, fromAddress: String, paginationOffset: PaginationOffset<List<Any>>) = flow<ViewQueryResultEvent> {
         emitAll(messageDAO.findByFromAddress(partyId, fromAddress, paginationOffset))
     }
 
-    override fun findByToAddress(partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<Any>>, reverse: Boolean?) = flow<ViewQueryResultEvent> {
+    override fun findMessagesByToAddress(partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<Any>>, reverse: Boolean?) = flow<ViewQueryResultEvent> {
         emitAll(messageDAO.findByToAddress(partyId, toAddress, paginationOffset, reverse))
     }
 
-    override fun findByTransportGuidReceived(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>) = flow<ViewQueryResultEvent> {
+    override fun findMessagesByTransportGuidReceived(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>) = flow<ViewQueryResultEvent> {
         emitAll(messageDAO.findByTransportGuidReceived(partyId, transportGuid, paginationOffset))
     }
 
-    override fun findByTransportGuid(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>) = flow<ViewQueryResultEvent> {
+    override fun findMessagesByTransportGuid(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>) = flow<ViewQueryResultEvent> {
         emitAll(messageDAO.findByTransportGuid(partyId, transportGuid, paginationOffset))
     }
 
-    override fun findByTransportGuidSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<Any>>) = flow<ViewQueryResultEvent> {
+    override fun findMessagesByTransportGuidSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<Any>>) = flow<ViewQueryResultEvent> {
         emitAll(messageDAO.findByTransportGuidSentDate(partyId, transportGuid, fromDate, toDate, paginationOffset))
     }
 
@@ -111,15 +110,15 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
         }
     }
 
-    override fun getChildren(messageId: String) = flow<Message> {
+    override fun getMessageChildren(messageId: String) = flow<Message> {
         emitAll(messageDAO.getChildren(messageId))
     }
 
-    override fun getChildren(parentIds: List<String>) = flow<List<Message>> {
+    override fun getMessagesChildren(parentIds: List<String>) = flow<List<Message>> {
         emitAll(messageDAO.getChildren(parentIds))
     }
 
-    override fun getByTransportGuids(hcpId: String, transportGuids: Set<String>) = flow<Message> {
+    override fun getMessagesByTransportGuids(hcpId: String, transportGuids: Set<String>) = flow<Message> {
         emitAll(messageDAO.getByTransportGuids(hcpId, transportGuids))
     }
 
@@ -131,7 +130,7 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
         emitAll(messageDAO.getByExternalRefs(hcPartyId, externalRefs.toSet()))
     }
 
-    fun createEntities(entities: Collection<Message>, createdEntities: Collection<Message>) = flow {
+    fun createMessages(entities: Collection<Message>, createdEntities: Collection<Message>) = flow {
         val loggedUser = sessionLogic.getCurrentSessionContext().getUser()
 
         emitAll(super.createEntities(entities.map {
@@ -147,10 +146,10 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
     @Throws(CreationException::class, LoginException::class)
     override suspend fun createMessage(message: Message) = fix(message) { message ->
         val createdMessages: List<Message> = ArrayList(1)
-        createEntities(setOf(message), createdMessages).firstOrNull()
+        createMessages(setOf(message), createdMessages).firstOrNull()
     }
 
-    override suspend fun get(messageId: String): Message? {
+    override suspend fun getMessage(messageId: String): Message? {
         return messageDAO.get(messageId)
     }
 

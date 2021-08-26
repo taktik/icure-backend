@@ -23,30 +23,12 @@ import kotlinx.coroutines.flow.flow
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
 import org.springframework.core.io.buffer.DataBuffer
-import org.taktik.icure.asynclogic.AsyncSessionLogic
-import org.taktik.icure.asynclogic.CodeLogic
-import org.taktik.icure.asynclogic.ContactLogic
-import org.taktik.icure.asynclogic.DocumentLogic
-import org.taktik.icure.asynclogic.HealthElementLogic
-import org.taktik.icure.asynclogic.HealthcarePartyLogic
-import org.taktik.icure.asynclogic.PatientLogic
-import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTY
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDLNKvalues
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTION
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.LnkType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.AuthorType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.FolderType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.RecipientType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.TextWithLayoutType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
 import org.taktik.icure.be.ehealth.logic.kmehr.getSignature
@@ -55,7 +37,6 @@ import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import java.time.Instant
-import java.util.*
 
 @org.springframework.stereotype.Service("dairyNoteExport")
 class DiaryNoteExport(
@@ -143,7 +124,7 @@ class DiaryNoteExport(
         }
         folder.transactions.add(trn)
         if(documentId?.isNotEmpty() == true && attachmentId?.isNotEmpty() == true) {
-            val document = documentLogic.get(documentId)
+            val document = documentLogic.getDocument(documentId)
             val attachment = document?.decryptAttachment(sfks)
             if(attachment != null){
                 trn.headingsAndItemsAndTexts.add(LnkType().apply{type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(document); value = attachment })

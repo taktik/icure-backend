@@ -25,10 +25,10 @@ import kotlinx.coroutines.flow.flowOf
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asyncdao.KeywordDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.KeywordLogic
-import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.entities.Keyword
 import org.taktik.icure.utils.firstOrNull
 
@@ -58,7 +58,7 @@ class KeywordLogicImpl(private val keywordDAO: KeywordDAO,
 
     override fun deleteKeywords(ids: Set<String>): Flow<DocIdentifier> {
         return try {
-            deleteByIds(ids)
+            deleteEntities(ids)
         } catch (e: Exception) {
             log.error(e.message, e)
             flowOf()
@@ -67,7 +67,7 @@ class KeywordLogicImpl(private val keywordDAO: KeywordDAO,
 
     override suspend fun modifyKeyword(keyword: Keyword): Keyword? {
         return try {
-            updateEntities(setOf(keyword)).firstOrNull()
+            modifyEntities(setOf(keyword)).firstOrNull()
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid Keyword", e)
         }

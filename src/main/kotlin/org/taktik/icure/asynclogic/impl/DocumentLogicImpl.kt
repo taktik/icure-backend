@@ -21,15 +21,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.taktik.couchdb.entity.Option
 import org.taktik.couchdb.exception.CouchDbException
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asynclogic.DocumentLogic
-import org.taktik.couchdb.entity.Option
 import org.taktik.icure.entities.Document
 import org.taktik.icure.exceptions.CreationException
 import org.taktik.icure.utils.firstOrNull
 import java.nio.ByteBuffer
-import java.util.*
 
 @ExperimentalCoroutinesApi
 @Service
@@ -43,16 +42,12 @@ class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessio
         }
     }
 
-    override suspend fun get(documentId: String): Document? {
+    override suspend fun getDocument(documentId: String): Document? {
         return documentDAO.get(documentId)
     }
 
-    override suspend fun getAllByExternalUuid(documentId: String): List<Document> {
+    override suspend fun getDocumentsByExternalUuid(documentId: String): List<Document> {
         return documentDAO.getAllByExternalUuid(documentId)
-    }
-
-    override fun get(documentIds: List<String>): Flow<Document> = flow {
-        emitAll(documentDAO.getList(documentIds))
     }
 
     override fun getAttachment(documentId: String, attachmentId: String): Flow<ByteBuffer> = flow {
@@ -72,15 +67,15 @@ class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessio
         }
     }
 
-    override fun findDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> = flow {
+    override fun listDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> = flow {
         emitAll(documentDAO.findDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode, hcPartyId, secretForeignKeys))
     }
 
-    override fun findDocumentsByHCPartySecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> = flow {
+    override fun listDocumentsByHCPartySecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> = flow {
         emitAll(documentDAO.findDocumentsByHCPartySecretMessageKeys(hcPartyId, secretForeignKeys))
     }
 
-    override fun findWithoutDelegation(limit: Int): Flow<Document> = flow {
+    override fun listDocumentsWithoutDelegation(limit: Int): Flow<Document> = flow {
         emitAll(documentDAO.findDocumentsWithNoDelegations(limit))
     }
 
@@ -88,7 +83,7 @@ class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessio
         emitAll(documentDAO.getList(documentIds))
     }
 
-    override fun updateDocuments(documents: List<Document>): Flow<Document> = flow {
+    override fun modifyDocuments(documents: List<Document>): Flow<Document> = flow {
         emitAll(documentDAO.save(documents))
     }
 

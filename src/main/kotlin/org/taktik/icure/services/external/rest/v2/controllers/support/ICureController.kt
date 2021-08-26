@@ -71,7 +71,7 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
 
     @Operation(summary = "Get users stubs")
     @GetMapping("/u")
-    fun getUsers() = userLogic.getAllEntities().map { u -> userMapper.map(u) }.injectReactorContext()
+    fun getUsers() = userLogic.getEntities().map { u -> userMapper.map(u) }.injectReactorContext()
 
     @Operation(summary = "Get process info")
     @GetMapping("/p", produces = [MediaType.TEXT_PLAIN_VALUE])
@@ -98,7 +98,7 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
     @Operation(summary = "Force update design doc")
     @PostMapping("/dd/{entityName}")
     fun updateDesignDoc(@PathVariable entityName: String, @RequestParam(required = false) warmup: Boolean? = null) = mono {
-        iCureLogic.updateDesignDoc(entityName, warmup ?: false)
+        iCureLogic.modifyDesignDoc(entityName, warmup ?: false)
         true
     }
 

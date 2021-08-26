@@ -21,15 +21,7 @@ package org.taktik.icure.asynclogic.impl
 
 import com.google.common.collect.ImmutableMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.fold
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.logging.LogFactory
@@ -53,7 +45,6 @@ import java.io.InputStream
 import java.lang.reflect.InvocationTargetException
 import java.util.*
 import javax.xml.parsers.SAXParserFactory
-import kotlin.collections.HashMap
 
 @ExperimentalCoroutinesApi
 @Service
@@ -78,7 +69,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
         return codeDAO.get("$type|$code|$version")
     }
 
-    override fun get(ids: List<String>) = flow<Code> {
+    override fun getCodes(ids: List<String>) = flow<Code> {
         emitAll(codeDAO.getList(ids))
     }
 
@@ -92,7 +83,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 
     @Throws(Exception::class)
     override suspend fun modify(code: Code) = fix(code) { code ->
-        updateEntities(setOf(code)).firstOrNull()
+        modifyEntities(setOf(code)).firstOrNull()
     }
 
     override fun findCodeTypes(type: String?) = flow<String> {
@@ -173,7 +164,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
     }
 
     override suspend fun importCodesFromXml(md5: String, type: String, stream: InputStream) {
-        val check = get(listOf(Code.from("ICURE-SYSTEM", md5, version = "1").id)).toList()
+        val check = getCodes(listOf(Code.from("ICURE-SYSTEM", md5, version = "1").id)).toList()
 
         if (check.isEmpty()) {
             val factory = SAXParserFactory.newInstance();
@@ -184,7 +175,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
             val batchSave: suspend (Code?, Boolean?) -> Unit = { c, flush ->
                 c?.let { stack.add(it) }
                 if (stack.size == 100 || flush == true) {
-                    val existings = get(stack.map { it.id }).fold(HashMap<String, Code>()) { map, c -> map[c.id] = c; map }
+                    val existings = getCodes(stack.map { it.id }).fold(HashMap<String, Code>()) { map, c -> map[c.id] = c; map }
                     try {
                         codeDAO.save(stack.map { xc ->
                             existings[xc.id]?.let { xc.copy(rev = it.rev) } ?: xc

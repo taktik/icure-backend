@@ -56,7 +56,7 @@ class PlaceController(
         return placeIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try {
-                        placeLogic.deleteByIds(ids).injectReactorContext()
+                        placeLogic.deleteEntities(ids).injectReactorContext()
                     }
                     catch (e: java.lang.Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
@@ -75,7 +75,7 @@ class PlaceController(
     @Operation(summary = "Gets all places")
     @GetMapping
     fun getPlaces() =
-            placeLogic.getAllEntities().let { it.map { c -> placeMapper.map(c) } }.injectReactorContext()
+            placeLogic.getEntities().let { it.map { c -> placeMapper.map(c) } }.injectReactorContext()
 
     @Operation(summary = "Modifies an place")
     @PutMapping

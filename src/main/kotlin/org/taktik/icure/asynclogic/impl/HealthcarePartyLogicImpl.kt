@@ -27,11 +27,11 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asyncdao.HealthcarePartyDAO
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
-import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.exceptions.DeletionException
@@ -40,7 +40,6 @@ import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.firstOrNull
 import java.net.URI
-import java.util.*
 
 @ExperimentalCoroutinesApi
 @Service
@@ -61,7 +60,7 @@ class HealthcarePartyLogicImpl(
         return healthcarePartyDAO.get(id)
     }
 
-    override fun findHealthcareParties(searchString: String, offset: Int, limit: Int): Flow<HealthcareParty> = flow {
+    override fun listHealthcarePartiesBy(searchString: String, offset: Int, limit: Int): Flow<HealthcareParty> = flow {
         emitAll(healthcarePartyDAO.findHealthcareParties(searchString, offset, limit))
     }
 
@@ -74,7 +73,7 @@ class HealthcarePartyLogicImpl(
             throw MissingRequirementsException("modifyHealthcareParty: one of Name or Last name, Nihii or  Ssin are required.")
         }
         try {
-            updateEntities(setOf(healthcareParty)).firstOrNull()
+            modifyEntities(setOf(healthcareParty)).firstOrNull()
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid healthcare party", e)
         }
@@ -82,7 +81,7 @@ class HealthcarePartyLogicImpl(
 
     override fun deleteHealthcareParties(healthcarePartyIds: List<String>): Flow<DocIdentifier> {
         return try {
-            deleteByIds(healthcarePartyIds)
+            deleteEntities(healthcarePartyIds)
         } catch (e: Exception) {
             log.error(e.message, e)
             throw DeletionException("The healthcare party (" + healthcarePartyIds + ") not found or " + e.message, e)
@@ -131,32 +130,32 @@ class HealthcarePartyLogicImpl(
         }
     }
 
-    override suspend fun updateHcPartyKeys(healthcarePartyId: String, newHcPartyKeys: Map<String, Array<String>>): Map<String, Array<String>> {
+    override suspend fun modifyHcPartyKeys(healthcarePartyId: String, newHcPartyKeys: Map<String, Array<String>>): Map<String, Array<String>> {
         Preconditions.checkArgument(newHcPartyKeys.isNotEmpty())
         // Fetching existing HcPartyKeys
         val healthcareParty = getHealthcareParty(healthcarePartyId) ?: throw IllegalStateException("No HCP found for ID $healthcarePartyId")
-        return updateEntities(setOf(healthcareParty.copy(hcPartyKeys = healthcareParty.hcPartyKeys + newHcPartyKeys))).firstOrNull()?.hcPartyKeys ?: healthcareParty.hcPartyKeys
+        return modifyEntities(setOf(healthcareParty.copy(hcPartyKeys = healthcareParty.hcPartyKeys + newHcPartyKeys))).firstOrNull()?.hcPartyKeys ?: healthcareParty.hcPartyKeys
     }
 
-    override fun listHealthcareParties(offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent> = flow {
+    override fun findHealthcarePartiesBy(offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent> = flow {
         val healthcareParties = healthcarePartyDAO.listHealthCareParties(offset, desc)
         emitAll(healthcareParties)
     }
 
-    override fun findHealthcareParties(fuzzyName: String, offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent> = flow {
+    override fun findHealthcarePartiesBy(fuzzyName: String, offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent> = flow {
         val healthcareParties = healthcarePartyDAO.findByHcPartyNameContainsFuzzy(fuzzyName, offset, desc)
         emitAll(healthcareParties)
     }
 
-    override fun listByNihii(nihii: String): Flow<HealthcareParty> = flow {
+    override fun listHealthcarePartiesByNihii(nihii: String): Flow<HealthcareParty> = flow {
         emitAll(healthcarePartyDAO.findByNihii(nihii))
     }
 
-    override fun listBySsin(ssin: String): Flow<HealthcareParty> = flow {
+    override fun listHealthcarePartiesBySsin(ssin: String): Flow<HealthcareParty> = flow {
         emitAll(healthcarePartyDAO.findBySsin(ssin))
     }
 
-    override fun listByName(name: String): Flow<HealthcareParty> = flow {
+    override fun listHealthcarePartiesByName(name: String): Flow<HealthcareParty> = flow {
         emitAll(healthcarePartyDAO.findByName(name))
     }
 
@@ -166,7 +165,7 @@ class HealthcarePartyLogicImpl(
         return hcParty.publicKey
     }
 
-    override fun findHealthcareParties(type: String, spec: String, firstCode: String, lastCode: String): Flow<ViewQueryResultEvent> = flow {
+    override fun listHealthcarePartiesBy(type: String, spec: String, firstCode: String, lastCode: String): Flow<ViewQueryResultEvent> = flow {
         emitAll(healthcarePartyDAO.findBySpecialityPostcode(type, spec, firstCode, lastCode))
     }
 

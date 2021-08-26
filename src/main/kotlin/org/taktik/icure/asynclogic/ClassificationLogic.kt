@@ -30,7 +30,7 @@ interface ClassificationLogic : EntityPersister<Classification, String> {
     suspend fun createClassification(classification: Classification): Classification?
 
     suspend fun getClassification(classificationId: String): Classification?
-    fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification>
+    fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification>
     fun deleteClassifications(ids: Set<String>): Flow<DocIdentifier>
 
     suspend fun modifyClassification(classification: Classification): Classification
@@ -38,5 +38,5 @@ interface ClassificationLogic : EntityPersister<Classification, String> {
     suspend fun addDelegation(classificationId: String, healthcarePartyId: String, delegation: Delegation): Classification?
 
     suspend fun addDelegations(classificationId: String, delegations: List<Delegation>): Classification?
-    fun getClassificationByIds(ids: List<String>): Flow<Classification>
+    fun getClassifications(ids: List<String>): Flow<Classification>
 }

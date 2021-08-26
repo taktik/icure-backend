@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.RoleDAO
@@ -343,15 +344,15 @@ class UserLogicImpl(
         emitAll(getProperties(userId, true, true, true))
     }
 
-    override fun updateEntities(users: Collection<User>): Flow<User> = flow {
+    override fun modifyEntities(users: Collection<User>): Flow<User> = flow {
         emitAll(users.asFlow().mapNotNull { modifyUser(it) })
     }
 
-    suspend fun deleteEntities(userIds: Collection<String>) { //TODO MB was override here
+    /* override fun deleteEntities(userIds: Collection<String>) { //TODO MB was override here
         for (userId in userIds) {
             deleteUser(userId)
         }
-    }
+    }*/
 
     suspend fun undeleteEntities(userIds: Collection<String>) { //TODO MB was override here
         for (userId in userIds) {
@@ -359,11 +360,11 @@ class UserLogicImpl(
         }
     }
 
-    override fun getAllEntities(): Flow<User> = flow {
+    override fun getEntities(): Flow<User> = flow {
         emitAll(userDAO.getAll())
     }
 
-    override fun getAllEntityIds(): Flow<String> = flow {
+    override fun getEntitiesIds(): Flow<String> = flow {
         emitAll(userDAO.getAllIds())
     }
 

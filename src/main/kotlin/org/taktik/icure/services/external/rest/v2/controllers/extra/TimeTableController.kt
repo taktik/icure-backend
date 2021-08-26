@@ -64,7 +64,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
         return timeTableIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try {
-                        timeTableLogic.deleteByIds(HashSet(ids)).injectReactorContext()
+                        timeTableLogic.deleteEntities(HashSet(ids)).injectReactorContext()
                     }
                     catch (e: java.lang.Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }

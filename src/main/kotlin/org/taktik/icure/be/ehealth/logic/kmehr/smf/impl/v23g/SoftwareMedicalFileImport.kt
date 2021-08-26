@@ -943,16 +943,16 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
 
         // test if already exist in db
-        existing = existing ?: (nihii?.let { healthcarePartyLogic.listByNihii(it).firstOrNull() }?.also {
+        existing = existing ?: (nihii?.let { healthcarePartyLogic.listHealthcarePartiesByNihii(it).firstOrNull() }?.also {
             v?.hcps?.add(it) // do not create it, but should appear in patient external hcparties (duplicates are removed at the end)
-        } ?: niss?.let { healthcarePartyLogic.listBySsin(niss).firstOrNull() })?.also {
+        } ?: niss?.let { healthcarePartyLogic.listHealthcarePartiesBySsin(niss).firstOrNull() })?.also {
             v?.hcps?.add(it) // do not create it, but should appear in patient external hcparties
         }
 
         if (existing == null && ((nihii == null || nihii.trim() == "") && (niss == null || niss.trim() == ""))
                 && p.firstname?.trim()?.let { it == "" } != false
                 && p.familyname?.trim()?.let { it == "" } != false) {
-            existing = healthcarePartyLogic.listByName(p.name).firstOrNull()
+            existing = healthcarePartyLogic.listHealthcarePartiesByName(p.name).firstOrNull()
             existing?.let {
                 v?.hcps?.add(it) // do not create it, but should appear in patient external hcparties
             }

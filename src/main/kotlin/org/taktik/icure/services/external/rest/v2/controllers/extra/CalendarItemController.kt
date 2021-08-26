@@ -54,7 +54,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     @Operation(summary = "Gets all calendarItems")
     @GetMapping
     fun getCalendarItems(): Flux<CalendarItemDto> {
-        val calendarItems = calendarItemLogic.getAllEntities()
+        val calendarItems = calendarItemLogic.getEntities()
         return calendarItems.map { calendarItemMapper.map(it) }.injectReactorContext()
     }
 
@@ -73,7 +73,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
         return calendarItemIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try {
-                        calendarItemLogic.deleteByIds(HashSet(ids)).injectReactorContext()
+                        calendarItemLogic.deleteEntities(HashSet(ids)).injectReactorContext()
                     } catch (e: java.lang.Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
                     }
@@ -131,7 +131,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
         if (calendarItemIds == null) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "calendarItemIds was empty")
         }
-        val calendars = calendarItemLogic.getCalendarItemByIds(calendarItemIds.ids)
+        val calendars = calendarItemLogic.getCalendarItems(calendarItemIds.ids)
         return calendars.map { calendarItemMapper.map(it) }.injectReactorContext()
     }
 
@@ -139,7 +139,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     @GetMapping("/byHcPartySecretForeignKeys")
     fun findCalendarItemsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,@RequestParam secretFKeys: String): Flux<CalendarItemDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        val elementList = calendarItemLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
+        val elementList = calendarItemLogic.listCalendarItemsByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
         return elementList.map { calendarItemMapper.map(it) }.injectReactorContext()
     }
@@ -147,7 +147,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     @Operation(summary = "Update delegations in calendarItems")
     @PostMapping("/delegations")
     fun setCalendarItemsDelegations(stubs: List<IcureStubDto>) = flow {
-        val calendarItems = calendarItemLogic.getCalendarItemByIds(stubs.map { obj: IcureStubDto -> obj.id }).map { ci ->
+        val calendarItems = calendarItemLogic.getCalendarItems(stubs.map { obj: IcureStubDto -> obj.id }).map { ci ->
             stubs.find { s -> s.id == ci.id }?.let { stub ->
                 ci.copy(
                         delegations = ci.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels },
@@ -156,6 +156,6 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
                 )
             } ?: ci
         }
-        emitAll(calendarItemLogic.updateEntities(calendarItems.toList()).map { calendarItemMapper.map(it) })
+        emitAll(calendarItemLogic.modifyEntities(calendarItems.toList()).map { calendarItemMapper.map(it) })
     }.injectReactorContext()
 }

@@ -73,7 +73,7 @@ class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogi
         return roleDAO.get(id)
     }
 
-    override fun getUsers(role: Role) = flow<User> {
+    override fun getUsersByRole(role: Role) = flow<User> {
         emitAll(userDAO.getList(role.users))
     }
 
@@ -105,17 +105,17 @@ class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogi
     }
 
     @Throws(Exception::class)
-    override fun updateEntities(roles: Collection<Role>) = flow {
+    override fun modifyEntities(roles: Collection<Role>) = flow {
         roles.map { role: Role -> saveRole(role) }
                 .filterNotNull()
                 .onEach { emit(it) }
     }
 
-    override fun getAllEntities() = flow() {
+    override fun getEntities() = flow() {
         emitAll(roleDAO.getAll())
     }
 
-    override fun getAllEntityIds() = flow<String> {
+    override fun getEntitiesIds() = flow<String> {
         emitAll(roleDAO.getAll().mapNotNull { it.id })
     }
 

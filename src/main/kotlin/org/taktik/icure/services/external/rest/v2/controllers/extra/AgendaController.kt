@@ -47,7 +47,7 @@ class AgendaController(private val agendaLogic: AgendaLogic,
     @Operation(summary = "Gets all agendas")
     @GetMapping
     fun getAgendas(): Flux<AgendaDto> {
-        val agendas = agendaLogic.getAllEntities()
+        val agendas = agendaLogic.getEntities()
         return agendas.map { agendaMapper.map(it) }.injectReactorContext()
     }
 
@@ -66,7 +66,7 @@ class AgendaController(private val agendaLogic: AgendaLogic,
         return agendaIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try {
-                        agendaLogic.deleteByIds(HashSet(ids)).injectReactorContext()
+                        agendaLogic.deleteEntities(HashSet(ids)).injectReactorContext()
                     }catch (e: java.lang.Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
                     }
@@ -85,7 +85,7 @@ class AgendaController(private val agendaLogic: AgendaLogic,
     @Operation(summary = "Gets all agendas for user")
     @GetMapping("/byUser")
     fun getAgendasForUser(@RequestParam userId: String) = mono {
-        agendaLogic.getAllAgendaForUser(userId).firstOrNull()?.let { agendaMapper.map(it) }
+        agendaLogic.getAgendasByUser(userId).firstOrNull()?.let { agendaMapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Agendas fetching failed")
     }
 

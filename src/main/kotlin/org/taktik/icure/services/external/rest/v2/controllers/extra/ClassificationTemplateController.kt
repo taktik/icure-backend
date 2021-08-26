@@ -72,7 +72,7 @@ class ClassificationTemplateController(
     @Operation(summary = "Get a list of classifications Templates", description = "Ids are seperated by a coma")
     @GetMapping("/byIds/{ids}")
     fun getClassificationTemplateByIds(@PathVariable ids: String): Flux<ClassificationTemplateDto> {
-        val elements = classificationTemplateLogic.getClassificationTemplateByIds(ids.split(','))
+        val elements = classificationTemplateLogic.getClassificationTemplates(ids.split(','))
         return elements.map { classificationTemplateMapper.map(it) }.injectReactorContext()
     }
 
@@ -80,7 +80,7 @@ class ClassificationTemplateController(
     @GetMapping("/byHcPartySecretForeignKeys")
     fun listClassificationTemplatesByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<ClassificationTemplateDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        val elementList = classificationTemplateLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
+        val elementList = classificationTemplateLogic.listClasificationsByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
         return elementList.map { classificationTemplateMapper.map(it) }.injectReactorContext()
     }
@@ -91,7 +91,7 @@ class ClassificationTemplateController(
         return classificationTemplateIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try {
-                        classificationTemplateLogic.deleteByIds(ids.toSet()).injectReactorContext()
+                        classificationTemplateLogic.deleteEntities(ids.toSet()).injectReactorContext()
                     }
                     catch (e: java.lang.Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }

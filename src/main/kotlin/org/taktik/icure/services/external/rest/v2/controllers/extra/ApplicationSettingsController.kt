@@ -39,7 +39,7 @@ class ApplicationSettingsController(private val applicationSettingsLogic: Applic
     @Operation(summary = "Gets all application settings")
     @GetMapping
     fun getApplicationSettings(): Flux<ApplicationSettingsDto> {
-        val applicationSettings = applicationSettingsLogic.getAllEntities()
+        val applicationSettings = applicationSettingsLogic.getEntities()
         return applicationSettings.map { applicationSettingsMapper.map(it) }.injectReactorContext()
     }
 }

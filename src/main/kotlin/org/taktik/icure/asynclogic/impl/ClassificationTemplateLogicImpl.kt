@@ -26,15 +26,14 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asyncdao.ClassificationTemplateDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.ClassificationTemplateLogic
-import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.ClassificationTemplate
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.utils.firstOrNull
-import java.util.*
 
 /**
  * Created by dlm on 16-07-18
@@ -69,7 +68,7 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
 
     override fun deleteClassificationTemplates(ids: Set<String>): Flow<DocIdentifier> {
         return try {
-            deleteByIds(ids)
+            deleteEntities(ids)
         } catch (e: Exception) {
             log.error(e.message, e)
             flowOf()
@@ -79,7 +78,7 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
     override suspend fun modifyClassificationTemplate(classificationTemplate: ClassificationTemplate) = fix(classificationTemplate) { classificationTemplate ->
         try {
             getClassificationTemplate(classificationTemplate.id)?.let { toEdit ->
-                updateEntities(setOf(toEdit.copy(label = classificationTemplate.label))).firstOrNull()
+                modifyEntities(setOf(toEdit.copy(label = classificationTemplate.label))).firstOrNull()
             } ?: throw IllegalArgumentException("Non-existing Classification Template")
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid Classification Template", e)
@@ -105,11 +104,11 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
         }
     }
 
-    override fun getClassificationTemplateByIds(ids: List<String>): Flow<ClassificationTemplate> = flow {
+    override fun getClassificationTemplates(ids: List<String>): Flow<ClassificationTemplate> = flow {
         emitAll(classificationTemplateDAO.getList(ids))
     }
 
-    override fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate> = flow {
+    override fun listClasificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate> = flow {
         emitAll(classificationTemplateDAO.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys))
     }
 

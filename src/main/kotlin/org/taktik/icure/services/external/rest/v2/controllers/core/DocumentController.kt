@@ -81,7 +81,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         return documentIds.ids.takeIf { it.isNotEmpty() }
                 ?.let {
                     try {
-                       documentLogic.deleteByIds(it).injectReactorContext()
+                       documentLogic.deleteEntities(it).injectReactorContext()
                     } catch (e: Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document deletion failed")
                     }
@@ -97,7 +97,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
                       @RequestParam(required = false) enckeys: String?,
                       @RequestParam(required = false) fileName: String?,
                       response: ServerHttpResponse) = response.writeWith(flow {
-    val document = documentLogic.get(documentId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
+    val document = documentLogic.getDocument(documentId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
         val attachment = document.decryptAttachment(if (enckeys.isNullOrBlank()) null else enckeys.split(','))
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "AttachmentDto not found")
         val uti = UTI.get(document.mainUti)
@@ -113,7 +113,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
     @DeleteMapping("/{documentId}/attachment")
     fun deleteAttachment(@PathVariable documentId: String) = mono {
 
-        val document = documentLogic.get(documentId)
+        val document = documentLogic.getDocument(documentId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
 
         documentLogic.modifyDocument(document.copy(attachment = null))
@@ -140,7 +140,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
             }
         }
 
-        val document = documentLogic.get(documentId)
+        val document = documentLogic.getDocument(documentId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         documentLogic.modifyDocument(document.copy(attachment = newPayload))
         documentMapper.map(document)
@@ -166,7 +166,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
             }
         }
 
-        val document = documentLogic.get(documentId)
+        val document = documentLogic.getDocument(documentId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         documentLogic.modifyDocument(document.copy(attachment = newPayload))
         documentMapper.map(document)
@@ -182,7 +182,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
     @Operation(summary = "Gets a document")
     @GetMapping("/{documentId}")
     fun getDocument(@PathVariable documentId: String) = mono {
-        val document = documentLogic.get(documentId)
+        val document = documentLogic.getDocument(documentId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
         documentMapper.map(document)
     }
@@ -190,7 +190,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
     @Operation(summary = "Gets a document")
     @GetMapping("/externaluuid/{externalUuid}")
     fun getDocumentByExternalUuid(@PathVariable externalUuid: String) = mono {
-        val document = documentLogic.getAllByExternalUuid(externalUuid).firstOrNull()
+        val document = documentLogic.getDocumentsByExternalUuid(externalUuid).firstOrNull()
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
         documentMapper.map(document)
     }
@@ -198,13 +198,13 @@ class DocumentController(private val documentLogic: DocumentLogic,
     @Operation(summary = "Get all documents with externalUuid")
     @GetMapping("/externaluuid/{externalUuid}/all")
     fun getDocumentsByExternalUuid(@PathVariable externalUuid: String) = mono {
-        documentLogic.getAllByExternalUuid(externalUuid).map { documentMapper.map(it) }
+        documentLogic.getDocumentsByExternalUuid(externalUuid).map { documentMapper.map(it) }
     }
 
     @Operation(summary = "Gets a document")
     @PostMapping("/batch")
     fun getDocuments(@RequestBody documentIds: ListOfIdsDto): Flux<DocumentDto> {
-        val documents = documentLogic.get(documentIds.ids)
+        val documents = documentLogic.getDocuments(documentIds.ids)
         return documents.map { doc -> documentMapper.map(doc) }.injectReactorContext()
     }
 
@@ -217,7 +217,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
         val document = documentMapper.map(documentDto)
         if (documentDto.attachmentId != null) {
-            val prevDoc = document.id.let { documentLogic.get(it) } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No document matching input")
+            val prevDoc = document.id.let { documentLogic.getDocument(it) } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No document matching input")
             documentMapper.map(documentLogic.modifyDocument(if (documentDto.attachmentId == prevDoc.attachmentId) document.copy(
                     attachment = prevDoc.attachment,
                     attachments = prevDoc.attachments
@@ -235,7 +235,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         try {
             val indocs = documentDtos.map { f -> documentMapper.map(f) }.mapIndexed { i, doc ->
                 if (doc.attachmentId != null) {
-                    documentLogic.get(doc.id)?.let {
+                    documentLogic.getDocument(doc.id)?.let {
                         if (doc.attachmentId == it.attachmentId) doc.copy(
                                 attachment = it.attachment,
                                 attachments = it.attachments
@@ -246,7 +246,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
                 } else doc
             }
             emitAll(
-                    documentLogic.updateEntities(indocs)
+                    documentLogic.modifyEntities(indocs)
                             .map { f -> documentMapper.map(f) }
             )
         } catch (e: Exception) {
@@ -262,7 +262,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
                                                     @RequestParam secretFKeys: String): Flux<DocumentDto> {
 
         val secretMessageKeys = secretFKeys.split(',').map { it.trim() }
-        val documentList = documentLogic.findDocumentsByHCPartySecretMessageKeys(hcPartyId, ArrayList(secretMessageKeys))
+        val documentList = documentLogic.listDocumentsByHCPartySecretMessageKeys(hcPartyId, ArrayList(secretMessageKeys))
         return documentList.map { document -> documentMapper.map(document) }.injectReactorContext()
     }
 
@@ -276,7 +276,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         }
 
         val secretMessageKeys = secretFKeys.split(',').map { it.trim() }
-        val documentList = documentLogic.findDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode, hcPartyId, ArrayList(secretMessageKeys))
+        val documentList = documentLogic.listDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode, hcPartyId, ArrayList(secretMessageKeys))
 
         return documentList.map { document -> documentMapper.map(document) }.injectReactorContext()
     }
@@ -285,7 +285,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
     @Operation(summary = "List documents with no delegation", description = "Keys must be delimited by coma")
     @GetMapping("/woDelegation")
     fun findWithoutDelegation(@RequestParam(required = false) limit: Int?): Flux<DocumentDto> {
-        val documentList = documentLogic.findWithoutDelegation(limit ?: 100)
+        val documentList = documentLogic.listDocumentsWithoutDelegation(limit ?: 100)
         return documentList.map { document -> documentMapper.map(document) }.injectReactorContext()
     }
 
@@ -301,6 +301,6 @@ class DocumentController(private val documentLogic: DocumentLogic,
                 )
             } ?: document
         }
-        emitAll(documentLogic.updateDocuments(invoices.toList()).map { stubMapper.mapToStub(it) })
+        emitAll(documentLogic.modifyDocuments(invoices.toList()).map { stubMapper.mapToStub(it) })
     }.injectReactorContext()
 }

@@ -23,10 +23,10 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import org.taktik.couchdb.DocIdentifier
+import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.EntityPersister
-import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.validation.aspect.Fixer
 
 
@@ -39,11 +39,11 @@ abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(pri
         emitAll(getGenericDAO().create(entities))
     }
 
-    override fun updateEntities(entities: Collection<E>): Flow<E> = flow {
+    override fun modifyEntities(entities: Collection<E>): Flow<E> = flow {
         emitAll(getGenericDAO().save(entities))
     }
 
-    override fun deleteByIds(identifiers: Collection<String>): Flow<DocIdentifier> = flow {
+    override fun deleteEntities(identifiers: Collection<String>): Flow<DocIdentifier> = flow {
         val entities = getGenericDAO().getList(identifiers).toList()
         emitAll(getGenericDAO().remove(entities))
     }
@@ -53,11 +53,11 @@ abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(pri
         emitAll(getGenericDAO().unRemove(entities))
     }
 
-    override fun getAllEntities(): Flow<E> = flow {
+    override fun getEntities(): Flow<E> = flow {
         emitAll(getGenericDAO().getAll())
     }
 
-    override fun getAllEntityIds(): Flow<String> = flow {
+    override fun getEntitiesIds(): Flow<String> = flow {
         emitAll(getGenericDAO().getAllIds())
     }
 

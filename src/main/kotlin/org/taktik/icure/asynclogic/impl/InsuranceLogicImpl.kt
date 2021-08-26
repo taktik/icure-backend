@@ -40,7 +40,7 @@ class InsuranceLogicImpl(private val insuranceDAO: InsuranceDAO,
 
     override suspend fun deleteInsurance(insuranceId: String): DocIdentifier? {
         return try {
-            deleteByIds(listOf(insuranceId)).firstOrNull()
+            deleteEntities(listOf(insuranceId)).firstOrNull()
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }

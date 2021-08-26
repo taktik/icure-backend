@@ -29,10 +29,8 @@ import org.taktik.icure.asyncdao.FormTemplateDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FormTemplateLogic
 import org.taktik.icure.dto.gui.layout.FormLayout
-
 import org.taktik.icure.entities.FormTemplate
 import org.taktik.icure.utils.firstOrNull
-import java.util.*
 
 @ExperimentalCoroutinesApi
 @Service
@@ -40,7 +38,7 @@ class FormTemplateLogicImpl(private val formTemplateDAO: FormTemplateDAO,
                             private val sessionLogic: AsyncSessionLogic,
                             private val objectMapper: ObjectMapper) : GenericLogicImpl<FormTemplate, FormTemplateDAO>(sessionLogic), FormTemplateLogic {
 
-    override fun createEntities(entities: Collection<FormTemplate>, createdEntities: Collection<FormTemplate>) = flow {
+    override fun createFormTemplates(entities: Collection<FormTemplate>, createdEntities: Collection<FormTemplate>) = flow {
         emitAll(super.createEntities(entities))
     }
 
@@ -48,7 +46,7 @@ class FormTemplateLogicImpl(private val formTemplateDAO: FormTemplateDAO,
         formTemplateDAO.createFormTemplate(entity)
     }
 
-    override suspend fun getFormTemplateById(formTemplateId: String): FormTemplate? {
+    override suspend fun getFormTemplate(formTemplateId: String): FormTemplate? {
         return formTemplateDAO.get(formTemplateId)
     }
 

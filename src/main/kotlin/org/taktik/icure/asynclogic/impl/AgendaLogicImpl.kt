@@ -36,9 +36,9 @@ class AgendaLogicImpl(private val agendaDAO: AgendaDAO, private val sessionLogic
         agendaDAO.create(agenda)
     }
 
-    override fun deleteAgenda(ids: List<String>): Flow<DocIdentifier> {
+    override fun deleteAgendas(ids: List<String>): Flow<DocIdentifier> {
         return try {
-            deleteByIds(ids)
+            deleteEntities(ids)
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }
@@ -52,7 +52,7 @@ class AgendaLogicImpl(private val agendaDAO: AgendaDAO, private val sessionLogic
         agendaDAO.save(agenda)
     }
 
-    override fun getAllAgendaForUser(userId: String) = flow<Agenda> {
+    override fun getAgendasByUser(userId: String) = flow<Agenda> {
         emitAll(agendaDAO.getAllAgendaForUser(userId))
     }
 

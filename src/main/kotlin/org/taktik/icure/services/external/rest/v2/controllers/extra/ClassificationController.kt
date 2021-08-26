@@ -76,7 +76,7 @@ class ClassificationController(
     @Operation(summary = "Get a list of classifications", description = "Ids are seperated by a coma")
     @GetMapping("/byIds/{ids}")
     fun getClassificationByHcPartyId(@PathVariable ids: String): Flux<ClassificationDto> {
-        val elements = classificationLogic.getClassificationByIds(ids.split(','))
+        val elements = classificationLogic.getClassifications(ids.split(','))
 
         return elements.map { classificationMapper.map(it) }.injectReactorContext()
     }
@@ -85,7 +85,7 @@ class ClassificationController(
     @GetMapping("/byHcPartySecretForeignKeys")
     fun findClassificationsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<ClassificationDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        val elementList = classificationLogic.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys)
+        val elementList = classificationLogic.listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys)
 
         return elementList.map { classificationMapper.map(it) }.injectReactorContext()
     }
@@ -96,7 +96,7 @@ class ClassificationController(
         return classificationIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids->
                     try {
-                        classificationLogic.deleteByIds(HashSet(ids)).injectReactorContext()
+                        classificationLogic.deleteEntities(HashSet(ids)).injectReactorContext()
                     }
                     catch (e: java.lang.Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
@@ -133,7 +133,7 @@ class ClassificationController(
     @Operation(summary = "Update delegations in classification", description = "Keys must be delimited by coma")
     @PostMapping("/delegations")
     fun setClassificationsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
-        val classifications = classificationLogic.getClassificationByIds(stubs.map { it.id }).map { classification ->
+        val classifications = classificationLogic.getClassifications(stubs.map { it.id }).map { classification ->
             stubs.find { s -> s.id == classification.id }?.let { stub ->
                 classification.copy(
                         delegations = classification.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels },
@@ -142,6 +142,6 @@ class ClassificationController(
                 )
             } ?: classification
         }
-        emitAll(classificationLogic.updateEntities(classifications.toList()).map { stubMapper.mapToStub(it) })
+        emitAll(classificationLogic.modifyEntities(classifications.toList()).map { stubMapper.mapToStub(it) })
     }.injectReactorContext()
 }

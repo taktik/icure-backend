@@ -46,7 +46,7 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
     @Operation(summary = "Gets all calendarItemTypes")
     @GetMapping
     fun getCalendarItemTypes(): Flux<CalendarItemTypeDto> =
-            calendarItemTypeLogic.getAllEntities().map { calendarItemTypeMapper.map(it) }.injectReactorContext()
+            calendarItemTypeLogic.getEntities().map { calendarItemTypeMapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "Gets all calendarItemTypes include deleted")
     @GetMapping("/includeDeleted")
@@ -66,7 +66,7 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
         return calendarItemTypeIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try {
-                        calendarItemTypeLogic.deleteByIds(HashSet(ids)).injectReactorContext()
+                        calendarItemTypeLogic.deleteEntities(HashSet(ids)).injectReactorContext()
                     }
                     catch (e: java.lang.Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }

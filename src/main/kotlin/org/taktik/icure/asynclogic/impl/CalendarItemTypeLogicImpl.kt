@@ -40,7 +40,7 @@ class CalendarItemTypeLogicImpl(private val calendarItemTypeDAO: CalendarItemTyp
 
     override fun deleteCalendarItemTypes(ids: List<String>): Flow<DocIdentifier> {
         try {
-            return deleteByIds(ids)
+            return deleteEntities(ids)
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }

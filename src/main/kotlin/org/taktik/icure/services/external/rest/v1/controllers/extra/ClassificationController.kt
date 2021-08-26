@@ -27,15 +27,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.ClassificationLogic
@@ -81,7 +73,7 @@ class ClassificationController(
     @Operation(summary = "Get a list of classifications", description = "Ids are seperated by a coma")
     @GetMapping("/byIds/{ids}")
     fun getClassificationByHcPartyId(@PathVariable ids: String): Flux<ClassificationDto> {
-        val elements = classificationLogic.getClassificationByIds(ids.split(','))
+        val elements = classificationLogic.getClassifications(ids.split(','))
 
         return elements.map { classificationMapper.map(it) }.injectReactorContext()
     }
@@ -90,7 +82,7 @@ class ClassificationController(
     @GetMapping("/byHcPartySecretForeignKeys")
     fun findClassificationsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<ClassificationDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        val elementList = classificationLogic.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys)
+        val elementList = classificationLogic.listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys)
 
         return elementList.map { classificationMapper.map(it) }.injectReactorContext()
     }
@@ -134,7 +126,7 @@ class ClassificationController(
     @Operation(summary = "Update delegations in classification", description = "Keys must be delimited by coma")
     @PostMapping("/delegations")
     fun setClassificationsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
-        val classifications = classificationLogic.getClassificationByIds(stubs.map { it.id }).map { classification ->
+        val classifications = classificationLogic.getClassifications(stubs.map { it.id }).map { classification ->
             stubs.find { s -> s.id == classification.id }?.let { stub ->
                 classification.copy(
                         delegations = classification.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels },
@@ -143,6 +135,6 @@ class ClassificationController(
                 )
             } ?: classification
         }
-        emitAll(classificationLogic.updateEntities(classifications.toList()).map { stubMapper.mapToStub(it) })
+        emitAll(classificationLogic.modifyEntities(classifications.toList()).map { stubMapper.mapToStub(it) })
     }.injectReactorContext()
 }
