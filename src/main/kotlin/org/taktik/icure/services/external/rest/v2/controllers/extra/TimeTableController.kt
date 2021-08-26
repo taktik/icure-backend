@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -34,6 +35,7 @@ import org.taktik.icure.asynclogic.TimeTableLogic
 import org.taktik.icure.entities.TimeTable
 import org.taktik.icure.entities.embed.TimeTableHour
 import org.taktik.icure.entities.embed.TimeTableItem
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.TimeTableDto
 import org.taktik.icure.services.external.rest.v2.mapper.TimeTableMapper
 import org.taktik.icure.utils.injectReactorContext
@@ -46,6 +48,7 @@ import java.util.*
 @Tag(name = "timeTable")
 class TimeTableController(private val timeTableLogic: TimeTableLogic,
                           private val timeTableMapper: TimeTableMapper) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Creates a timeTable")
     @PostMapping
@@ -56,9 +59,18 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
             }
 
     @Operation(summary = "Deletes an timeTable")
-    @DeleteMapping("/{timeTableIds}")
-    fun deleteTimeTable(@PathVariable timeTableIds: String): Flux<DocIdentifier> {
-        return timeTableLogic.deleteTimeTables(timeTableIds.split(',')).injectReactorContext()
+    @PostMapping("/delete/batch")
+    fun deleteTimeTable(@RequestBody timeTableIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return timeTableIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        timeTableLogic.deleteByIds(HashSet(ids)).injectReactorContext()
+                    }
+                    catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
     @Operation(summary = "Gets a timeTable")
