@@ -22,13 +22,17 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.MedicalLocationLogic
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.MedicalLocationDto
 import org.taktik.icure.services.external.rest.v2.mapper.MedicalLocationMapper
 import org.taktik.icure.utils.injectReactorContext
+import reactor.core.publisher.Flux
 
 @RestController
 @RequestMapping("/rest/v2/medicallocation")
@@ -37,6 +41,7 @@ class MedicalLocationController(
         private val medicalLocationLogic: MedicalLocationLogic,
         private val medicalLocationMapper: MedicalLocationMapper
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Creates a medical location")
     @PostMapping
@@ -45,10 +50,20 @@ class MedicalLocationController(
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Medical location creation failed")
     }
 
-    @Operation(summary = "Deletes a medical location")
-    @DeleteMapping("/{locationIds}")
-    fun deleteMedicalLocation(@PathVariable locationIds: String) =
-            medicalLocationLogic.deleteMedicalLocations(locationIds.split(',')).injectReactorContext()
+    @Operation(summary = "Deletes medical locations")
+    @DeleteMapping("/delete/batch")
+    fun deleteMedicalLocations(@RequestBody locationIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return locationIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        medicalLocationLogic.deleteByIds(HashSet(ids)).injectReactorContext()
+                    }
+                    catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
+    }
 
 
     @Operation(summary = "Gets a medical location")
