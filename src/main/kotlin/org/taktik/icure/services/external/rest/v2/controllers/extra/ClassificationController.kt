@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -34,6 +35,7 @@ import org.taktik.icure.asynclogic.ClassificationLogic
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.services.external.rest.v2.dto.ClassificationDto
 import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v2.mapper.ClassificationMapper
 import org.taktik.icure.services.external.rest.v2.mapper.StubMapper
@@ -51,6 +53,7 @@ class ClassificationController(
         private val delegationMapper: DelegationMapper,
         private val stubMapper: StubMapper
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Create a classification with the current user", description = "Returns an instance of created classification Template.")
     @PostMapping
@@ -88,14 +91,18 @@ class ClassificationController(
     }
 
     @Operation(summary = "Delete classification Templates.", description = "Response is a set containing the ID's of deleted classification Templates.")
-    @DeleteMapping("/{classificationIds}")
-    fun deleteClassifications(@PathVariable classificationIds: String): Flux<DocIdentifier> {
-        val ids = classificationIds.split(',')
-        if (ids.isEmpty()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
-        }
-
-        return classificationLogic.deleteClassifications(ids.toSet()).injectReactorContext()
+    @PostMapping("/delete/batch")
+    fun deleteClassifications(@RequestBody classificationIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return classificationIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids->
+                    try {
+                        classificationLogic.deleteByIds(HashSet(ids)).injectReactorContext()
+                    }
+                    catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
     @Operation(summary = "Modify a classification Template", description = "Returns the modified classification Template.")
