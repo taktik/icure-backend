@@ -22,12 +22,14 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.KeywordLogic
 import org.taktik.icure.services.external.rest.v2.dto.KeywordDto
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.mapper.KeywordMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
@@ -36,6 +38,7 @@ import reactor.core.publisher.Flux
 @RequestMapping("/rest/v2/keyword")
 @Tag(name = "keyword")
 class KeywordController(private val keywordLogic: KeywordLogic, private val keywordMapper: KeywordMapper) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Create a keyword with the current user", description = "Returns an instance of created keyword.")
     @PostMapping
@@ -63,11 +66,18 @@ class KeywordController(private val keywordLogic: KeywordLogic, private val keyw
     }
 
     @Operation(summary = "Delete keywords.", description = "Response is a set containing the ID's of deleted keywords.")
-    @DeleteMapping("/{keywordIds}")
-    fun deleteKeywords(@PathVariable keywordIds: String): Flux<DocIdentifier> {
-        val ids = keywordIds.split(',')
-        if (ids.isEmpty()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
-        return keywordLogic.deleteKeywords(ids.toSet()).injectReactorContext()
+    @PostMapping("/delete/batch")
+    fun deleteKeywords(@RequestBody keywordIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return keywordIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        keywordLogic.deleteByIds(ids.toSet()).injectReactorContext()
+                    }
+                    catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
     @Operation(summary = "Modify a keyword", description = "Returns the modified keyword.")
