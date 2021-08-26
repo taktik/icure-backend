@@ -52,8 +52,12 @@ abstract class FormTemplateMapper {
     )
     abstract fun map(formTemplate: FormTemplate): FormTemplateDto
 
-    fun mapLayout(formLayout: ByteArray?): FormLayout? = formLayout?.let { try { json.readValue(it, FormLayout::class.java) } catch(e:Exception) { null } }
-    fun mapTemplateLayout(formLayout: ByteArray?): FormTemplateLayout? = formLayout?.let { try { json.readValue(it, FormTemplateLayout::class.java) } catch(e:Exception) { null } }
+    fun mapLayout(formLayout: ByteArray?): FormLayout? = formLayout?.let { try { json.readValue(it, FormLayout::class.java) } catch(e:Exception) {
+        null
+    } }
+    fun mapTemplateLayout(formLayout: ByteArray?): FormTemplateLayout? = formLayout?.let { try { json.readValue(it, FormTemplateLayout::class.java) } catch(e:Exception) {
+        null
+    } }
 
     fun mapLayout(formTemplateDto: FormTemplateDto): ByteArray? = formTemplateDto.templateLayout?.let { json.writeValueAsBytes(it) } ?: formTemplateDto.layout?.let { json.writeValueAsBytes(it) }
 }
