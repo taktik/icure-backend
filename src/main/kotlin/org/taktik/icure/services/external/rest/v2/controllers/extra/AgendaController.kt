@@ -23,12 +23,14 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AgendaLogic
 import org.taktik.icure.services.external.rest.v2.dto.AgendaDto
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.mapper.AgendaMapper
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
@@ -40,6 +42,7 @@ import reactor.core.publisher.Flux
 @Tag(name = "agenda")
 class AgendaController(private val agendaLogic: AgendaLogic,
                        private val agendaMapper: AgendaMapper) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Gets all agendas")
     @GetMapping
@@ -57,10 +60,18 @@ class AgendaController(private val agendaLogic: AgendaLogic,
         agendaMapper.map(agenda)
     }
 
-    @Operation(summary = "Deletes an agenda")
-    @DeleteMapping("/{agendaIds}")
-    fun deleteAgenda(@PathVariable agendaIds: String): Flux<DocIdentifier> {
-        return agendaLogic.deleteAgenda(agendaIds.split(',')).injectReactorContext()
+    @Operation(summary = "Deletes agendas")
+    @PostMapping("/delete/batch")
+    fun deleteAgendas(@RequestBody agendaIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return agendaIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        agendaLogic.deleteAgenda(ids).injectReactorContext()
+                    }catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
     @Operation(summary = "Gets an agenda")
