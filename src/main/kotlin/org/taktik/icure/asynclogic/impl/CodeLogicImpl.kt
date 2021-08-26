@@ -237,6 +237,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
                         when (it.toUpperCase()) {
                             "VALUE" -> {
                                 runBlocking {
+                                    code["id"] = "${code["type"] as String}|${code["code"] as String}|${code["version"] as String}"
                                     batchSave(Code(args = code), false)
                                 }
                             }
