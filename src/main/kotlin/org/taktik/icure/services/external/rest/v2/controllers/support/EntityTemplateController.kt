@@ -24,11 +24,14 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.EntityTemplateLogic
 import org.taktik.icure.services.external.rest.v2.dto.EntityTemplateDto
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.mapper.EntityTemplateMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
@@ -41,10 +44,11 @@ class EntityTemplateController(
         private val entityTemplateLogic: EntityTemplateLogic,
         private val entityTemplateMapper: EntityTemplateMapper
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Finding entityTemplates by userId, entityTemplate, type and version with pagination.", description = "Returns a list of entityTemplates matched with given input.")
     @GetMapping("/find/{userId}/{type}")
-    fun findEntityTemplates(
+    fun listEntityTemplatesBy(
             @PathVariable userId: String,
             @PathVariable type: String,
             @RequestParam(required = false) searchString: String?,
@@ -52,14 +56,14 @@ class EntityTemplateController(
 
     @Operation(summary = "Finding entityTemplates by entityTemplate, type and version with pagination.", description = "Returns a list of entityTemplates matched with given input.")
     @GetMapping("/findAll/{type}")
-    fun findAllEntityTemplates(
+    fun listAllEntityTemplatesBy(
             @PathVariable type: String,
             @RequestParam(required = false) searchString: String?,
             @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.findAllEntityTemplates(type, searchString, includeEntities).map { entityTemplateMapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
 
     @Operation(summary = "Finding entityTemplates by userId, type and keyword.", description = "Returns a list of entityTemplates matched with given input.")
     @GetMapping("/find/{userId}/{type}/keyword/{keyword}")
-    fun findEntityTemplatesByKeyword(
+    fun listEntityTemplatesByKeyword(
             @PathVariable userId: String,
             @PathVariable type: String,
             @PathVariable keyword: String,
@@ -84,13 +88,16 @@ class EntityTemplateController(
     }
 
     @Operation(summary = "Get a list of entityTemplates by ids", description = "Keys must be delimited by coma")
-    @GetMapping("/byIds/{entityTemplateIds}")
-    fun getEntityTemplates(@PathVariable entityTemplateIds: String): Flux<EntityTemplateDto> {
-        val entityTemplates = entityTemplateLogic.getEntityTemplates(entityTemplateIds.split(','))
-
-        val entityTemplateDtos = entityTemplates.map { f -> entityTemplateMapper.map(f)/*.apply { entity = f.entity }*/ }
-
-        return entityTemplateDtos.injectReactorContext()
+    @PostMapping("/batch")
+    fun getEntityTemplates(@RequestBody entityTemplateIds: ListOfIdsDto): Flux<EntityTemplateDto> {
+        return entityTemplateIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    entityTemplateLogic
+                            .getEntityTemplates(ids)
+                            .map { f -> entityTemplateMapper.map(f) }
+                            .injectReactorContext()
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
 
@@ -146,8 +153,19 @@ class EntityTemplateController(
     }
 
 
-@DeleteMapping("/{entityTemplateIds}")
+    @PostMapping("/delete/batch")
     @Operation(summary = "Delete entity templates")
-    fun deleteEntityTemplate(@PathVariable("entityTemplateIds") entityTemplateIds: String) =
-        entityTemplateLogic.deleteByIds(entityTemplateIds.split(",")).injectReactorContext()
+    fun deleteEntityTemplate(@RequestBody entityTemplateIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return entityTemplateIds.ids.takeIf {it.isNotEmpty()}
+                ?.let { ids ->
+                    try {
+                        entityTemplateLogic.deleteByIds(HashSet(ids)).injectReactorContext()
+                    }
+                    catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
+    }
+
 }
