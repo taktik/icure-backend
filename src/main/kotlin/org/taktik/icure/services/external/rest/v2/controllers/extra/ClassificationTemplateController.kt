@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -32,11 +33,12 @@ import org.taktik.icure.asynclogic.ClassificationTemplateLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.ClassificationTemplate
 import org.taktik.icure.services.external.rest.v2.dto.ClassificationTemplateDto
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v2.mapper.ClassificationTemplateMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
-import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
@@ -48,8 +50,8 @@ class ClassificationTemplateController(
         private val classificationTemplateMapper: ClassificationTemplateMapper,
         private val delegationMapper: DelegationMapper
 ) {
-
     private val DEFAULT_LIMIT = 1000
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Create a classification Template with the current user", description = "Returns an instance of created classification Template.")
     @PostMapping
@@ -76,7 +78,7 @@ class ClassificationTemplateController(
 
     @Operation(summary = "List classification Templates found By Healthcare Party and secret foreign keyelementIds.", description = "Keys hast to delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findClassificationTemplatesByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<ClassificationTemplateDto> {
+    fun listClassificationTemplatesByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<ClassificationTemplateDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val elementList = classificationTemplateLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
@@ -84,11 +86,18 @@ class ClassificationTemplateController(
     }
 
     @Operation(summary = "Delete classification Templates.", description = "Response is a set containing the ID's of deleted classification Templates.")
-    @DeleteMapping("/{classificationTemplateIds}")
-    fun deleteClassificationTemplates(@PathVariable classificationTemplateIds: String): Flux<DocIdentifier> {
-        val ids = classificationTemplateIds.split(',').takeUnless { it.isEmpty() }
-                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
-        return classificationTemplateLogic.deleteClassificationTemplates(ids.toSet()).injectReactorContext()
+    @PostMapping("/delete/batch")
+    fun deleteClassificationTemplates(@RequestBody classificationTemplateIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return classificationTemplateIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        classificationTemplateLogic.deleteByIds(ids.toSet()).injectReactorContext()
+                    }
+                    catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
     @Operation(summary = "Modify a classification Template", description = "Returns the modified classification Template.")
@@ -118,7 +127,7 @@ class ClassificationTemplateController(
 
     @Operation(summary = "List all classification templates with pagination", description = "Returns a list of classification templates.")
     @GetMapping
-    fun listClassificationTemplates(
+    fun findClassificationTemplatesBy(
             @Parameter(description = "A label") @RequestBody(required = false) startKey: String?,
             @Parameter(description = "An classification template document ID") @RequestBody(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestBody(required = false) limit: Int?) = mono {
