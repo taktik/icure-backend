@@ -75,8 +75,8 @@ class DocumentController(private val documentLogic: DocumentLogic,
         documentMapper.map(createdDocument)
     }
 
-    @Operation(summary = "Deletes a document")
-    @PostMapping("/delete/byIds")
+    @Operation(summary = "Deletes documents")
+    @PostMapping("/delete/batch")
     fun deleteDocument(@RequestBody documentIds: ListOfIdsDto): Flux<DocIdentifier>? {
         return documentIds.ids.takeIf { it.isNotEmpty() }
                 ?.let {
@@ -86,6 +86,8 @@ class DocumentController(private val documentLogic: DocumentLogic,
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document deletion failed")
                     }
                 }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
+
     }
 
     @Operation(summary = "Load document's attachment", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])

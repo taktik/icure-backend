@@ -46,7 +46,6 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.Sorting
 import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.entities.Patient
-import org.taktik.icure.services.external.rest.v2.utils.paginatedListOfIds
 import org.taktik.icure.services.external.rest.v2.dto.IdWithRevDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.PaginatedList
@@ -60,8 +59,9 @@ import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.PatientHealthCarePartyMapper
 import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
-import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
+import org.taktik.icure.services.external.rest.v2.utils.paginatedListOfIds
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.io.Serializable
@@ -295,8 +295,8 @@ class PatientController(
     }
 
     @Operation(summary = "Delete patients.", description = "Response is an array containing the ID of deleted patient..")
-    @PostMapping("/{patientIds}")
-    fun deletePatient(@RequestBody patientIds: ListOfIdsDto): Flux<DocIdentifier> {
+    @PostMapping("/delete/batch")
+    fun deletePatients(@RequestBody patientIds: ListOfIdsDto): Flux<DocIdentifier> {
         return patientIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try{

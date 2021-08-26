@@ -42,8 +42,8 @@ import org.taktik.icure.services.external.rest.v2.dto.HealthcarePartyDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.PublicKeyDto
 import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyMapper
-import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
@@ -194,15 +194,18 @@ class HealthcarePartyController(private val userLogic: UserLogic,
         PublicKeyDto(healthcarePartyId, publicKey)
     }
 
-    @Operation(summary = "Delete a healthcare party", description = "Deleting a healthcareParty. Response is an array containing the id of deleted healthcare party.")
+    @Operation(summary = "Delete healthcare parties", description = "Deleting healthcareParties. Response is an array containing the id of deleted healthcare parties.")
     @PostMapping("/delete/batch")
     fun deleteHealthcareParties(@RequestBody healthcarePartyIds: ListOfIdsDto): Flux<DocIdentifier> {
-        return try {
-            healthcarePartyLogic.deleteHealthcareParties(healthcarePartyIds.ids).injectReactorContext()
-        } catch (e: DeletionException) {
-            logger.warn(e.message, e)
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
-        }
+        return healthcarePartyIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        healthcarePartyLogic.deleteHealthcareParties(ids).injectReactorContext()
+                    } catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
     @Operation(summary = "Modify a Healthcare Party.", description = "No particular return value. It's just a message.")

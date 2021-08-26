@@ -65,7 +65,7 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
                      private val filterMapper: FilterMapper,
                      private val stubMapper: StubMapper
 ) {
-    private val log: Logger = LoggerFactory.getLogger(javaClass)
+    private val logger: Logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Gets a form")
     @GetMapping("/{formId}")
@@ -105,7 +105,7 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
             formLogic.createForm(formMapper.map(ft))
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form creation failed")
         } catch (e: MissingRequirementsException) {
-            log.warn(e.message, e)
+            logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
         formMapper.map(form)
@@ -135,18 +135,23 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
             formMapper.map(modifiedForm)
 
         } catch (e: MissingRequirementsException) {
-            log.warn(e.message, e)
+            logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
     }
 
     @Operation(summary = "Delete forms.", description = "Response is a set containing the ID's of deleted forms.")
-    @DeleteMapping("/{formIds}")
-    fun deleteForms(@PathVariable formIds: String): Flux<DocIdentifier> {
-        if (formIds.isEmpty()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "formIds was empty")
-        }
-        return formLogic.deleteForms(formIds.split(',').toSet()).injectReactorContext()
+    @PostMapping("/delete/batch")
+    fun deleteForms(@RequestBody formIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return formIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        formLogic.deleteForms(HashSet(ids)).injectReactorContext()
+                    } catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
     @Operation(summary = "Modify a batch of forms", description = "Returns the modified forms.")
@@ -155,7 +160,7 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
         return try {
             formLogic.updateEntities(formDtos.map { formMapper.map(it) }).map { formMapper.map(it) }.injectReactorContext()
         } catch (e: Exception) {
-            log.warn(e.message, e)
+            logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
     }
@@ -166,7 +171,7 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
         return try {
             formLogic.createEntities(formDtos.map { formMapper.map(it) }).map { formMapper.map(it) }.injectReactorContext()
         } catch (e: Exception) {
-            log.warn(e.message, e)
+            logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
     }
@@ -236,7 +241,7 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
         val formTemplates = try {
             formTemplateLogic.getFormTemplatesByUser(sessionLogic.getCurrentUserId(), loadLayout ?: true)
         } catch (e: Exception) {
-            log.warn(e.message, e)
+            logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
         emitAll(

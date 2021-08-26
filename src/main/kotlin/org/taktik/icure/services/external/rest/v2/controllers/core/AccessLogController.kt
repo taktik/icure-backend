@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -35,9 +36,10 @@ import org.taktik.icure.asynclogic.AccessLogLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.services.external.rest.v2.dto.AccessLogDto
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.mapper.AccessLogMapper
-import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.time.Instant
 
@@ -53,6 +55,7 @@ class AccessLogController(
 ) {
     private val DEFAULT_LIMIT = 1000
     private val accessLogToAccessLogDto = { it: AccessLog -> accessLogMapper.map(it) }
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Operation(summary = "Creates an access log")
     @PostMapping
@@ -63,9 +66,17 @@ class AccessLogController(
     }
 
     @Operation(summary = "Deletes an access log")
-    @DeleteMapping("/{accessLogIds}")
-    fun deleteAccessLog(@PathVariable accessLogIds: String): Flux<DocIdentifier> {
-        return accessLogLogic.deleteAccessLogs(accessLogIds.split(',')).injectReactorContext()
+    @PostMapping("/delete/batch")
+    fun deleteAccessLog(@RequestBody accessLogIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return accessLogIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        accessLogLogic.deleteAccessLogs(accessLogIds.ids).injectReactorContext()
+                    } catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
     @Operation(summary = "Gets an access log")

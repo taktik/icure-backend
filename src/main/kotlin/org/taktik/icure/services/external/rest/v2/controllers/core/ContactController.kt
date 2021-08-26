@@ -51,9 +51,9 @@ import org.taktik.icure.services.external.rest.v2.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.ServiceMapper
 import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
-import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.FuzzyValues
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -72,7 +72,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
                         private val filterChainMapper: FilterChainMapper,
                         private val stubMapper: StubMapper
 ) {
-    private val log = LoggerFactory.getLogger(javaClass)
+    private val logger = LoggerFactory.getLogger(javaClass)
     val DEFAULT_LIMIT = 1000
     private val contactToContactDto = { it: Contact -> contactMapper.map(it) }
 
@@ -88,7 +88,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
             contactLogic.createContact(contactMapper.map(handleServiceIndexes(c)))
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Contact creation failed")
         } catch (e: MissingRequirementsException) {
-            log.warn(e.message, e)
+            logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
         contactMapper.map(contact)
@@ -111,7 +111,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     @GetMapping("/{contactId}")
     fun getContact(@PathVariable contactId: String) = mono {
         val contact = contactLogic.getContact(contactId)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Contact failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Contact failed. Possible reasons: no such contact exists, or server error. Please try again or read the server logger.")
         contactMapper.map(contact)
     }
 
@@ -219,13 +219,17 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     }
 
     @Operation(summary = "Delete contacts.", description = "Response is a set containing the ID's of deleted contacts.")
-    @DeleteMapping("/{contactIds}")
-    fun deleteContacts(@PathVariable contactIds: String): Flux<DocIdentifier> {
-        if (contactIds.isBlank()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
-        }
-        // TODO versioning?
-        return contactLogic.deleteContacts(contactIds.split(',').toSet()).injectReactorContext()
+    @PostMapping("/delete/batch")
+    fun deleteContacts(@RequestBody contactIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return contactIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        contactLogic.deleteContacts(HashSet(ids)).injectReactorContext()
+                    } catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
     @Operation(summary = "Modify a contact", description = "Returns the modified contact.")
@@ -245,7 +249,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
             val contacts = contactLogic.updateEntities(contactDtos.map { c -> handleServiceIndexes(c) }.map { f -> contactMapper.map(f) })
             contacts.map { f -> contactMapper.map(f) }.injectReactorContext()
         } catch (e: Exception) {
-            log.warn(e.message, e)
+            logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
     }
@@ -257,7 +261,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
             val contacts = contactLogic.createEntities(contactDtos.map { c -> handleServiceIndexes(c) }.map { f -> contactMapper.map(f) })
             contacts.map { f -> contactMapper.map(f) }.injectReactorContext()
         } catch (e: Exception) {
-            log.warn(e.message, e)
+            logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
     }
