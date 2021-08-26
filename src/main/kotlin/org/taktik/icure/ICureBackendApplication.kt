@@ -30,14 +30,15 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.JndiDataSourceAutoConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.core.task.TaskExecutor
 import org.springframework.scheduling.TaskScheduler
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.asynclogic.ICureLogic
 import org.taktik.icure.asynclogic.PropertyLogic
+import org.taktik.icure.entities.embed.*
 import org.taktik.icure.properties.CouchDbProperties
-import java.net.URI
 
 @SpringBootApplication(scanBasePackages = [
     "org.springframework.boot.autoconfigure.aop",
@@ -70,19 +71,19 @@ class ICureBackendApplication {
         //Check that core types have corresponding codes
         log.info("icure (" + iCureLogic.getVersion() + ") is initialised")
 
-//        taskExecutor.execute {
-//            listOf(AddressType::class.java, DocumentType::class.java, DocumentStatus::class.java,
-//                   Gender::class.java, InsuranceStatus::class.java, PartnershipStatus::class.java, PartnershipType::class.java, PaymentType::class.java,
-//                   PersonalStatus::class.java, TelecomType::class.java, Confidentiality::class.java, Visibility::class.java).forEach { runBlocking { codeLogic.importCodesFromEnum(it) } }
-//        }
-//
-//        taskExecutor.execute {
-//            val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader)
-//            resolver.getResources("classpath*:/org/taktik/icure/db/codes/**.xml").forEach {
-//                val md5 = it.filename!!.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
-//                runBlocking { codeLogic.importCodesFromXml(md5, it.filename!!.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream) }
-//            }
-//        }
+        taskExecutor.execute {
+            listOf(AddressType::class.java, DocumentType::class.java, DocumentStatus::class.java,
+                   Gender::class.java, InsuranceStatus::class.java, PartnershipStatus::class.java, PartnershipType::class.java, PaymentType::class.java,
+                   PersonalStatus::class.java, TelecomType::class.java, Confidentiality::class.java, Visibility::class.java).forEach { runBlocking { codeLogic.importCodesFromEnum(it) } }
+        }
+
+        taskExecutor.execute {
+            val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader)
+            resolver.getResources("classpath*:/org/taktik/icure/db/codes/**.xml").forEach {
+                val md5 = it.filename!!.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
+                runBlocking { codeLogic.importCodesFromXml(md5, it.filename!!.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream) }
+            }
+        }
 
         runBlocking {
             allDaos.forEach {
