@@ -75,7 +75,7 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
                 ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
-    @Operation(summary = "Gets an calendarItemType")
+    @Operation(summary = "Gets a calendarItemType")
     @GetMapping("/{calendarItemTypeId}")
     fun getCalendarItemType(@PathVariable calendarItemTypeId: String) = mono {
         calendarItemTypeLogic.getCalendarItemType(calendarItemTypeId)?.let { calendarItemTypeMapper.map(it) }
