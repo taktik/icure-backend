@@ -188,7 +188,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
                     try {
                         codeDAO.save(stack.map { xc ->
                             existings[xc.id]?.let { xc.copy(rev = it.rev) } ?: xc
-                        })
+                        }).collect { log.debug("Code: ${it.id} from file ${type}.${md5}.xml is saved") }
                     } catch (e: BulkUpdateConflictException) {
                         log.error("${e.conflicts.size} conflicts for type $type")
                     }
