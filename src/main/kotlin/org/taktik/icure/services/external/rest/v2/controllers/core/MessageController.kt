@@ -87,7 +87,7 @@ class MessageController(
 
     @Operation(summary = "Deletes multiple messages")
     @PostMapping("/delete/batch")
-    fun deleteMessages(@PathVariable messageIds: ListOfIdsDto): Flux<DocIdentifier> {
+    fun deleteMessages(@RequestBody messageIds: ListOfIdsDto): Flux<DocIdentifier> {
         return messageIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try {
@@ -141,15 +141,15 @@ class MessageController(
 
     @Operation(summary = "Get children messages of provided message")
     @PostMapping("/children/batch")
-    fun getChildrenMessagesOfList(@RequestBody parentIds: ListOfIdsDto) =
+    fun getMessagesChildren(@RequestBody parentIds: ListOfIdsDto) =
             messageLogic.getMessagesChildren(parentIds.ids)
                     .map { m -> m.stream().map { mm -> messageMapper.map(mm) }.toList().asFlow() }
                     .flattenConcat()
                     .injectReactorContext()
 
     @Operation(summary = "Get children messages of provided message")
-    @PostMapping("byInvoiceId")
-    fun listMessagesByInvoiceIds(@RequestBody ids: ListOfIdsDto) =
+    @PostMapping("/byInvoice")
+    fun listMessagesByInvoices(@RequestBody ids: ListOfIdsDto) =
             messageLogic.listMessagesByInvoiceIds(ids.ids).map { messageMapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "Get all messages (paginated) for current HC Party and provided transportGuid")

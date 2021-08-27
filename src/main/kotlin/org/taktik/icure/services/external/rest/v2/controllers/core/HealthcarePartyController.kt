@@ -170,9 +170,19 @@ class HealthcarePartyController(private val userLogic: UserLogic,
     @Operation(summary = "Get healthcareParties by their IDs", description = "General information about the healthcare Party")
     @PostMapping("/batch")
     fun getHealthcareParties(@RequestBody healthcarePartyIds: ListOfIdsDto) =
-            healthcarePartyLogic.getHealthcareParties(healthcarePartyIds.ids)
-                    .map { healthcarePartyMapper.map(it) }
-                    .injectReactorContext()
+            healthcarePartyIds.ids.takeIf { it.isNotEmpty() }
+                    ?.let { ids ->
+                        try {
+                            healthcarePartyLogic
+                                    .getHealthcareParties(ids)
+                                    .map { healthcarePartyMapper.map(it) }
+                                    .injectReactorContext()
+                        }
+                        catch (e: java.lang.Exception) {
+                            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                        }
+                    }
+                    ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
 
     @Operation(summary = "Find children of an healthcare parties", description = "Return a list of children hcp.")
     @GetMapping("/{parentId}/children")

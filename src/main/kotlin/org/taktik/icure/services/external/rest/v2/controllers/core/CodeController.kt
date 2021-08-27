@@ -37,6 +37,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.predicate.Predicate
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.services.external.rest.v2.dto.CodeDto
+import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v2.mapper.base.CodeMapper
 import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
@@ -128,7 +129,7 @@ class CodeController(
         }
     }
     @Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a list of codes matched with given input.")
-    @GetMapping("link/{linkType}")
+    @GetMapping("/byLink/{linkType}")
     fun findCodesByLink(
             @PathVariable linkType: String,
             @RequestParam(required = false) linkedId: String,
@@ -187,12 +188,21 @@ class CodeController(
     }
 
     @Operation(summary = "Get a list of codes by ids", description = "Keys must be delimited by coma")
-    @GetMapping("/byIds/{codeIds}")
-    fun listCodesBy(@PathVariable codeIds: String): Flux<CodeDto> {
-        val codes = codeLogic.getCodes(codeIds.split(','))
-        return codes
-                .map { f -> codeMapper.map(f) }
-                .injectReactorContext()
+    @PostMapping("/batch")
+    fun getCodes(@RequestBody codeIds: ListOfIdsDto): Flux<CodeDto> {
+        return codeIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        codeLogic
+                                .getCodes(ids)
+                                .map { f -> codeMapper.map(f) }
+                                .injectReactorContext()
+                    }
+                    catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
     @Operation(summary = "Get a code", description = "Get a code based on ID or (code,type,version) as query strings. (code,type,version) is unique.")

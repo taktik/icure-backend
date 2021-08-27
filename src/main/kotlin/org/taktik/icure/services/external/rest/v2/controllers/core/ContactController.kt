@@ -116,10 +116,21 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     }
 
     @Operation(summary = "Get contacts")
-    @PostMapping("/byIds")
+    @PostMapping("/batch")
     fun getContacts(@RequestBody contactIds: ListOfIdsDto): Flux<ContactDto> {
-        val contacts = contactLogic.getContacts(contactIds.ids)
-        return contacts.map { c -> contactMapper.map(c) }.injectReactorContext()
+        return contactIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        contactLogic
+                                .getContacts(HashSet(ids))
+                                .map { c -> contactMapper.map(c) }
+                                .injectReactorContext()
+                    }
+                    catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
     @Operation(summary = "Get the list of all used codes frequencies in services")
@@ -133,7 +144,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     @Operation(summary = "List contacts found By Healthcare Party and form Id.")
     @GetMapping("/byHcPartyFormId")
     fun listContactsByHCPartyAndFormId(@RequestParam hcPartyId: String, @RequestParam formId: String): Flux<ContactDto> {
-        val contactList = contactLogic.findContactsByHCPartyFormId(hcPartyId, formId)
+        val contactList = contactLogic.listContactsByHcPartyAndFormId(hcPartyId, formId)
         return contactList.map { contact -> contactMapper.map(contact) }.injectReactorContext()
     }
 
@@ -143,7 +154,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
         if (formIds.ids.size == 0) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
         }
-        val contactList = contactLogic.findContactsByHCPartyFormIds(hcPartyId, formIds.ids)
+        val contactList = contactLogic.listContactsByHcPartyAndFormIds(hcPartyId, formIds.ids)
 
         return contactList.map { contact -> contactMapper.map(contact) }.injectReactorContext()
     }
@@ -154,7 +165,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
         if (patientForeignKeys.ids.size == 0) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
         }
-        val contactList = contactLogic.findContactsByHCPartyAndPatient(hcPartyId, patientForeignKeys.ids)
+        val contactList = contactLogic.listContactsByHCPartyAndPatient(hcPartyId, patientForeignKeys.ids)
 
         return contactList.map { contact -> contactMapper.map(contact) }.injectReactorContext()
     }
@@ -166,7 +177,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
                                                    @RequestParam(required = false) planOfActionsIds: String?,
                                                    @RequestParam(required = false) skipClosedContacts: Boolean?): Flux<ContactDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        val contactList = contactLogic.findContactsByHCPartyAndPatient(hcPartyId, ArrayList(secretPatientKeys))
+        val contactList = contactLogic.listContactsByHCPartyAndPatient(hcPartyId, ArrayList(secretPatientKeys))
 
         return if (planOfActionsIds != null) {
             val poaids = planOfActionsIds.split(',')
@@ -181,7 +192,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     fun listContactsDelegationsStubsByHCPartyAndPatientForeignKeys(@RequestParam hcPartyId: String,
                                                                    @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        return contactLogic.findContactsByHCPartyAndPatient(hcPartyId, secretPatientKeys).map { contact -> stubMapper.mapToStub(contact) }.injectReactorContext()
+        return contactLogic.listContactsByHCPartyAndPatient(hcPartyId, secretPatientKeys).map { contact -> stubMapper.mapToStub(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
@@ -205,7 +216,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     fun closeForHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                           @RequestParam secretFKeys: String): Flux<ContactDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        val contactFlow = contactLogic.findContactsByHCPartyAndPatient(hcPartyId, secretPatientKeys)
+        val contactFlow = contactLogic.listContactsByHCPartyAndPatient(hcPartyId, secretPatientKeys)
 
         val savedOrFailed = contactFlow.mapNotNull { c ->
             if (c.closingDate == null) {
@@ -330,7 +341,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     }
 
     @Operation(summary = "List services with provided ids ", description = "Returns a list of services")
-    @PostMapping("/service/byIds")
+    @PostMapping("/service")
     fun getServices(@RequestBody ids: ListOfIdsDto) = contactLogic.getServices(ids.ids).map { svc -> serviceMapper.map(svc) }.injectReactorContext()
 
     @Operation(summary = "List services linked to provided ids ", description = "Returns a list of services")

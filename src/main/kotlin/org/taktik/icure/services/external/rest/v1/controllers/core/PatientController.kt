@@ -344,7 +344,7 @@ class PatientController(
             @Parameter(description = "First name prefix") @RequestParam(required = false) firstName: String?,
             @Parameter(description = "Last name prefix") @RequestParam(required = false) lastName: String?) =
             try {
-                patientLogic.findDeletedPatientsByNames(firstName, lastName).map { patientMapper.map(it) }.injectReactorContext()
+                patientLogic.listDeletedPatientsByNames(firstName, lastName).map { patientMapper.map(it) }.injectReactorContext()
             } catch (e: Exception) {
                 log.warn(e.message, e)
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)

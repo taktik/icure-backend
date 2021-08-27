@@ -60,7 +60,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(contactDAO.findContactsByIds(selectedIds))
     }
 
-    override fun findContactsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact> = flow {
+    override fun listContactsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact> = flow {
         emitAll(contactDAO.listContactsByHcPartyAndPatient(hcPartyId, secretPatientKeys))
     }
 
@@ -194,11 +194,11 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(contactDAO.listIdsByServices(services).map { it.contactId })
     }
 
-    override fun findServicesBySecretForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String> = flow {
+    override fun listServicesByHcPartyAndSecretForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String> = flow {
         emitAll(contactDAO.listServicesByPatientForeignKeys(hcPartyId, patientSecretForeignKeys))
     }
 
-    override fun findContactsByHCPartyFormId(hcPartyId: String, formId: String): Flow<Contact> = flow {
+    override fun listContactsByHcPartyAndFormId(hcPartyId: String, formId: String): Flow<Contact> = flow {
         emitAll(contactDAO.listContactsByHcPartyAndFormId(hcPartyId, formId))
     }
 
@@ -209,7 +209,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
           return mapped.sortedByDescending { obj: LabelledOccurence -> obj.occurence }
     }
 
-    override fun findContactsByHCPartyFormIds(hcPartyId: String, ids: List<String>): Flow<Contact> = flow {
+    override fun listContactsByHcPartyAndFormIds(hcPartyId: String, ids: List<String>): Flow<Contact> = flow {
         emitAll(contactDAO.listContactsByHcPartyAndFormIds(hcPartyId, ids))
     }
 

@@ -21,70 +21,29 @@ package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 import com.github.mustachejava.DefaultMustacheFactory
 import com.github.mustachejava.Mustache
 import com.github.mustachejava.MustacheFactory
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.couchdb.exception.DocumentNotFoundException
-import org.taktik.icure.asynclogic.AsyncSessionLogic
-import org.taktik.icure.asynclogic.CodeLogic
-import org.taktik.icure.asynclogic.ContactLogic
-import org.taktik.icure.asynclogic.DocumentLogic
-import org.taktik.icure.asynclogic.FormLogic
-import org.taktik.icure.asynclogic.FormTemplateLogic
-import org.taktik.icure.asynclogic.HealthElementLogic
-import org.taktik.icure.asynclogic.HealthcarePartyLogic
-import org.taktik.icure.asynclogic.InsuranceLogic
-import org.taktik.icure.asynclogic.PatientLogic
-import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.couchdb.id.UUIDGenerator
+import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeMomentType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXMLGregorianCalendarFromFuzzyLong
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXmlGregorianCalendar
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENT
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTY
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITY
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITYREASON
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITYREASONvalues
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITYvalues
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEM
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDLIFECYCLE
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDLIFECYCLEvalues
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDLNKvalues
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDMEDIATYPEvalues
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTION
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.LnkType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCE
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCEschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AuthorType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ContentType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.FolderType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.IncapacityType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.IncapacityreasonType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.InsuranceType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.LifecycleType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.RecipientType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
 import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
-import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.ICureDocument
-import org.taktik.icure.entities.embed.*
+import org.taktik.icure.entities.embed.Insurability
+import org.taktik.icure.entities.embed.ReferralPeriod
+import org.taktik.icure.entities.embed.Service
+import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
@@ -96,7 +55,6 @@ import java.io.StringWriter
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.util.*
 import javax.xml.datatype.DatatypeConstants
 
 /**
@@ -1240,9 +1198,9 @@ class SoftwareMedicalFileExport(
     private suspend fun getAllContacts(hcp : HealthcareParty, sfks: List<String>) : List<Contact> {
         var res : List<Contact> = emptyList()
         if(hcp.parentId != null) {
-            res = contactLogic.findContactsByHCPartyAndPatient(hcp.parentId, sfks.toList()).toList()
+            res = contactLogic.listContactsByHCPartyAndPatient(hcp.parentId, sfks.toList()).toList()
         }
-        res = res + contactLogic.findContactsByHCPartyAndPatient(hcp.id, sfks.toList()).toList()
+        res = res + contactLogic.listContactsByHCPartyAndPatient(hcp.id, sfks.toList()).toList()
         res = res.filterNot { it.services.isEmpty() &&  it.subContacts.isEmpty()}
         return res.distinctBy { it.id }
     }

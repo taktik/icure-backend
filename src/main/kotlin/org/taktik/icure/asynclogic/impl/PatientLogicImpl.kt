@@ -460,7 +460,7 @@ class PatientLogicImpl(
         emitAll(patientDAO.findDeletedPatientsByDeleteDate(start, end, descending, paginationOffset))
     }
 
-    override fun findDeletedPatientsByNames(firstName: String?, lastName: String?) = flow<Patient> {
+    override fun listDeletedPatientsByNames(firstName: String?, lastName: String?) = flow<Patient> {
         emitAll(patientDAO.findDeletedPatientsByNames(firstName, lastName))
     }
 

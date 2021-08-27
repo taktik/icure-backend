@@ -329,7 +329,7 @@ class PatientController(
             @Parameter(description = "First name prefix") @RequestParam(required = false) firstName: String?,
             @Parameter(description = "Last name prefix") @RequestParam(required = false) lastName: String?) =
             try {
-                patientLogic.findDeletedPatientsByNames(firstName, lastName).map { patientMapper.map(it) }.injectReactorContext()
+                patientLogic.listDeletedPatientsByNames(firstName, lastName).map { patientMapper.map(it) }.injectReactorContext()
             } catch (e: Exception) {
                 log.warn(e.message, e)
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -362,11 +362,21 @@ class PatientController(
     }
 
     @Operation(summary = "Get patients by id", description = "It gets patient administrative data.")
-    @PostMapping("/byIds")
+    @PostMapping("/batch")
     fun getPatients(@RequestBody patientIds: ListOfIdsDto): Flux<PatientDto> {
-        return patientLogic.getPatients(patientIds.ids)
-                .map { patientMapper.map(it) }
-                .injectReactorContext()
+        return patientIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        patientLogic
+                                .getPatients(ids)
+                                .map { patientMapper.map(it) }
+                                .injectReactorContext()
+                    }
+                    catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
     @Operation(summary = "Get patient", description = "It gets patient administrative data.")
