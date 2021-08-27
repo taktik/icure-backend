@@ -53,11 +53,11 @@ class AgendaLogicImpl(private val agendaDAO: AgendaDAO, private val sessionLogic
     }
 
     override fun getAgendasByUser(userId: String) = flow<Agenda> {
-        emitAll(agendaDAO.getAllAgendaForUser(userId))
+        emitAll(agendaDAO.getAgendasByUser(userId))
     }
 
     override fun getReadableAgendaForUser(userId: String) = flow<Agenda> {
-        emitAll(agendaDAO.getReadableAgendaForUser(userId))
+        emitAll(agendaDAO.getReadableAgendaByUser(userId))
     }
 
     override fun getGenericDAO(): AgendaDAO {

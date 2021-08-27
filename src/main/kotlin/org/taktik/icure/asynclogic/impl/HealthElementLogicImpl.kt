@@ -61,28 +61,28 @@ class HealthElementLogicImpl(private val filters: Filters,
     }
 
     override fun getHealthElements(healthElementIds: List<String>): Flow<HealthElement> = flow {
-        emitAll(healthElementDAO.getList(healthElementIds))
+        emitAll(healthElementDAO.getEntities(healthElementIds))
     }
 
     override fun findHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<HealthElement> = flow {
-        emitAll(healthElementDAO.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys))
+        emitAll(healthElementDAO.listHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys))
     }
 
     override suspend fun findLatestHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): List<HealthElement> {
-        return healthElementDAO.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys).toList()
+        return healthElementDAO.listHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys).toList()
                 .groupBy { it.healthElementId }.values.mapNotNull { value -> value.maxBy { it.modified ?: it.created ?: 0L } }
     }
 
     override fun findHealthElementsByHCPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String) = flow {
-        emitAll(healthElementDAO.findByHCPartyAndCodes(hcPartyId, codeType, codeNumber))
+        emitAll(healthElementDAO.findHealthElementsByHCPartyAndCodes(hcPartyId, codeType, codeNumber))
     }
 
     override fun findHealthElementsByHCPartyAndTags(hcPartyId: String, tagType: String, tagCode: String) = flow {
-        emitAll(healthElementDAO.findByHCPartyAndTags(hcPartyId, tagType, tagCode))
+        emitAll(healthElementDAO.findHealthElementsByHCPartyAndTags(hcPartyId, tagType, tagCode))
     }
 
     override fun findHealthElementsByHCPartyAndStatus(hcPartyId: String, status: Int): Flow<String> = flow {
-        emitAll(healthElementDAO.findByHCPartyAndStatus(hcPartyId, status))
+        emitAll(healthElementDAO.findHealthElementsByHCPartyAndStatus(hcPartyId, status))
     }
 
     override fun deleteHealthElements(ids: Set<String>): Flow<DocIdentifier> {

@@ -61,7 +61,7 @@ class HealthcarePartyLogicImpl(
     }
 
     override fun listHealthcarePartiesBy(searchString: String, offset: Int, limit: Int): Flow<HealthcareParty> = flow {
-        emitAll(healthcarePartyDAO.findHealthcareParties(searchString, offset, limit))
+        emitAll(healthcarePartyDAO.listHealthcareParties(searchString, offset, limit))
     }
 
     override suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String> {
@@ -90,7 +90,7 @@ class HealthcarePartyLogicImpl(
 
     override fun deleteHealthcareParties(groupId: String, healthcarePartyIds: List<String>) = flow {
         try {
-            emitAll(healthcarePartyDAO.remove(healthcarePartyDAO.getList(healthcarePartyIds).toList()))
+            emitAll(healthcarePartyDAO.remove(healthcarePartyDAO.getEntities(healthcarePartyIds).toList()))
         } catch (e: Exception) {
             log.error(e.message, e)
             throw DeletionException("The healthcare party (" + healthcarePartyIds + ") not found or " + e.message, e)
@@ -138,25 +138,25 @@ class HealthcarePartyLogicImpl(
     }
 
     override fun findHealthcarePartiesBy(offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent> = flow {
-        val healthcareParties = healthcarePartyDAO.listHealthCareParties(offset, desc)
+        val healthcareParties = healthcarePartyDAO.findHealthCareParties(offset, desc)
         emitAll(healthcareParties)
     }
 
     override fun findHealthcarePartiesBy(fuzzyName: String, offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent> = flow {
-        val healthcareParties = healthcarePartyDAO.findByHcPartyNameContainsFuzzy(fuzzyName, offset, desc)
+        val healthcareParties = healthcarePartyDAO.findHealthcarePartiesByHcPartyNameContainsFuzzy(fuzzyName, offset, desc)
         emitAll(healthcareParties)
     }
 
     override fun listHealthcarePartiesByNihii(nihii: String): Flow<HealthcareParty> = flow {
-        emitAll(healthcarePartyDAO.findByNihii(nihii))
+        emitAll(healthcarePartyDAO.findHealthcarePartiesByNihii(nihii))
     }
 
     override fun listHealthcarePartiesBySsin(ssin: String): Flow<HealthcareParty> = flow {
-        emitAll(healthcarePartyDAO.findBySsin(ssin))
+        emitAll(healthcarePartyDAO.findHealthcarePartiesBySsin(ssin))
     }
 
     override fun listHealthcarePartiesByName(name: String): Flow<HealthcareParty> = flow {
-        emitAll(healthcarePartyDAO.findByName(name))
+        emitAll(healthcarePartyDAO.listHealthcarePartiesByName(name))
     }
 
     override suspend fun getPublicKey(healthcarePartyId: String): String? {
@@ -166,23 +166,23 @@ class HealthcarePartyLogicImpl(
     }
 
     override fun listHealthcarePartiesBy(type: String, spec: String, firstCode: String, lastCode: String): Flow<ViewQueryResultEvent> = flow {
-        emitAll(healthcarePartyDAO.findBySpecialityPostcode(type, spec, firstCode, lastCode))
+        emitAll(healthcarePartyDAO.findHealthcarePartiesBySpecialityAndPostcode(type, spec, firstCode, lastCode))
     }
 
     override fun getHealthcareParties(ids: List<String>): Flow<HealthcareParty> = flow {
-        emitAll(healthcarePartyDAO.getList(ids))
+        emitAll(healthcarePartyDAO.getEntities(ids))
     }
 
     override fun getHealthcareParties(groupId: String, ids: List<String>?) = flow {
-        emitAll(ids?.let { healthcarePartyDAO.getList(it)} ?: healthcarePartyDAO.getAll() )
+        emitAll(ids?.let { healthcarePartyDAO.getEntities(it)} ?: healthcarePartyDAO.getEntities() )
     }
 
     override fun findHealthcarePartiesBySsinOrNihii(searchValue: String, paginationOffset: PaginationOffset<String>, desc: Boolean): Flow<ViewQueryResultEvent> = flow {
-        emitAll(healthcarePartyDAO.findBySsinOrNihii(searchValue, paginationOffset, desc))
+        emitAll(healthcarePartyDAO.findHealthcarePartiesBySsinOrNihii(searchValue, paginationOffset, desc))
     }
 
     override fun getHealthcarePartiesByParentId(parentId: String): Flow<HealthcareParty> = flow {
-        emitAll(healthcarePartyDAO.findByParentId(parentId))
+        emitAll(healthcarePartyDAO.listHealthcarePartiesByParentId(parentId))
     }
 
     override suspend fun getHcpHierarchyIds(hcParty: HealthcareParty): HashSet<String> {

@@ -23,9 +23,9 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import org.springframework.cache.Cache
-import org.taktik.couchdb.exception.CouchDbException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.entity.Option
+import org.taktik.couchdb.exception.CouchDbException
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.properties.CouchDbProperties
@@ -44,14 +44,14 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbPropert
         log.debug("Cache impl = {}", this.cache.getNativeCache())
     }
 
-    override fun getList(ids: Flow<String>) = flow<T> {
+    override fun getEntities(ids: Flow<String>) = flow<T> {
         val batch = mutableListOf<String>()
         ids.collect {id ->
             val fullId = getFullId(dbInstanceUrl, id)
             val value = cache.get(fullId)
             if (value != null) {
                 if (batch.isNotEmpty()) {
-                    super.getList(batch).collect {
+                    super.getEntities(batch).collect {
                         emit(it)
                     }
                     batch.clear()
@@ -65,13 +65,13 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbPropert
         }
 
         if (batch.isNotEmpty()) {
-            super.getList(batch).collect {
+            super.getEntities(batch).collect {
                 emit(it)
             }
         }
     }
 
-    override fun getList(ids: Collection<String>) = flow {
+    override fun getEntities(ids: Collection<String>) = flow {
         val missingKeys = mutableListOf<String>()
         val cachedKeys = mutableListOf<Pair<String, T>>()
 
@@ -90,7 +90,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbPropert
             emitAll(cachedKeys.map { it.second }.asFlow())
         } else {
                 // Get missing values from storage
-                val entities = super.getList(missingKeys).filter { Objects.nonNull(it) }
+                val entities = super.getEntities(missingKeys).filter { Objects.nonNull(it) }
                 // Interleave missing and cached values to preserve original ordering
                 var currentIndex = 0 // index of current element in [ids]
                 var currentCachedIndex = 0 // index of current element in [cachedKeys]
@@ -184,8 +184,8 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbPropert
         return value
     }
 
-    override fun getAll(): Flow<T> =
-            getList(getAllIds())
+    override fun getEntities(): Flow<T> =
+            getEntities(getEntitiesIds())
 
     override suspend fun save(newEntity: Boolean?, entity: T): T? {
         try {

@@ -21,20 +21,19 @@ package org.taktik.icure.asyncdao.impl
 import kotlinx.coroutines.flow.*
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
-import org.taktik.couchdb.annotation.View
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
-import org.taktik.couchdb.queryViewIncludeDocsNoValue
-import org.taktik.icure.asyncdao.FormTemplateDAO
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.id.UUIDGenerator
+import org.taktik.couchdb.queryViewIncludeDocsNoValue
+import org.taktik.icure.asyncdao.FormTemplateDAO
 import org.taktik.icure.entities.FormTemplate
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
-
 import org.taktik.icure.utils.writeTo
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -49,7 +48,7 @@ internal class FormTemplateDAOImpl(couchDbProperties: CouchDbProperties,
                                    private val uuidGenerator: UUIDGenerator, @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager) : GenericDAOImpl<FormTemplate>(couchDbProperties, FormTemplate::class.java, couchDbDispatcher, idGenerator), FormTemplateDAO {
 
     @View(name = "by_userId_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted && doc.author) emit([doc.author,doc.guid], null )}")
-    override fun findByUserGuid(userId: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate> = flow {
+    override fun listFormTemplatesByUserGuid(userId: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val from = ComplexKey.of(userId, guid ?: "")
@@ -67,7 +66,7 @@ internal class FormTemplateDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted) emit(doc.guid, null )}")
-    override fun findByGuid(guid: String, loadLayout: Boolean): Flow<FormTemplate> = flow {
+    override fun listFormsByGuid(guid: String, loadLayout: Boolean): Flow<FormTemplate> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val formTemplates = client.queryViewIncludeDocsNoValue<String, FormTemplate>(createQuery(client, "by_guid").key(guid).includeDocs(true)).map { it.doc }
@@ -82,7 +81,7 @@ internal class FormTemplateDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_specialty_code_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted && doc.specialty) emit([doc.specialty.code,doc.guid], null )}")
-    override fun findBySpecialtyGuid(specialityCode: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate> = flow {
+    override fun listFormsBySpecialtyAndGuid(specialityCode: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val formTemplates = if (guid != null) {

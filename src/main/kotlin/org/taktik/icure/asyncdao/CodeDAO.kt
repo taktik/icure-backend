@@ -22,14 +22,13 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.base.Code
-import java.net.URI
 
 interface CodeDAO : GenericDAO<Code> {
-    fun findCodeTypes(type: String?): Flow<String>
-    fun findCodeTypes(region: String?, type: String?): Flow<String>
-    fun findCodes(type: String?, code: String?, version: String?): Flow<Code>
-    fun findCodes(region: String?, type: String?, code: String?, version: String?): Flow<Code>
-    fun findCodes(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
+    fun listCodesByType(type: String?): Flow<String>
+    fun listCodesByRegionAndType(region: String?, type: String?): Flow<String>
+    fun listCodesBy(type: String?, code: String?, version: String?): Flow<Code>
+    fun listCodesBy(region: String?, type: String?, code: String?, version: String?): Flow<Code>
+    fun findCodesBy(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
     fun findCodesByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
     fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
     fun listCodeIdsByLabel(region: String?, language: String?, label: String?): Flow<String>
@@ -38,5 +37,5 @@ interface CodeDAO : GenericDAO<Code> {
     suspend fun getCodeByLabel(region: String, label: String, ofType: String, labelLang : List<String> = listOf("fr", "nl")) : Code?
     fun findCodesByQualifiedLinkId(region: String?, linkType: String, linkedId: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
     fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): Flow<String>
-    fun getForPagination(ids: List<String>): Flow<ViewQueryResultEvent>
+    fun getCodesByIdsForPagination(ids: List<String>): Flow<ViewQueryResultEvent>
 }

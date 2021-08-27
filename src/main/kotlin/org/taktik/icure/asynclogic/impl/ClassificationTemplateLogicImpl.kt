@@ -105,15 +105,15 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
     }
 
     override fun getClassificationTemplates(ids: List<String>): Flow<ClassificationTemplate> = flow {
-        emitAll(classificationTemplateDAO.getList(ids))
+        emitAll(classificationTemplateDAO.getEntities(ids))
     }
 
     override fun listClasificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate> = flow {
-        emitAll(classificationTemplateDAO.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys))
+        emitAll(classificationTemplateDAO.listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys))
     }
 
     override fun listClassificationTemplates(paginationOffset: PaginationOffset<String>) =flow<ViewQueryResultEvent> {
-        emitAll(classificationTemplateDAO.listClassificationTemplates(paginationOffset))
+        emitAll(classificationTemplateDAO.findClassificationTemplates(paginationOffset))
     }
 
     companion object {

@@ -20,17 +20,16 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.CalendarItemDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.CalendarItem
 import org.taktik.icure.properties.CouchDbProperties
-
 import org.taktik.icure.utils.distinctById
 
 @FlowPreview
@@ -138,7 +137,7 @@ class CalendarItemDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_patient", map = "classpath:js/calendarItem/by_hcparty_patient_map.js")
-    override fun findByHcPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<CalendarItem> = flow {
+    override fun listAccessLogsByHcPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<CalendarItem> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
         val viewQuery = createQuery(client, "by_hcparty_patient").keys(keys).includeDocs(true)

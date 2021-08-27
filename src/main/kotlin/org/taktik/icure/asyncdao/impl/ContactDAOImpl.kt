@@ -21,22 +21,21 @@ package org.taktik.icure.asyncdao.impl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryView
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.ContactDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.ContactIdServiceId
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.properties.CouchDbProperties
-
 import org.taktik.icure.utils.distinct
 
 
@@ -54,12 +53,12 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         return get(id)
     }
 
-    override fun get(contactIds: Flow<String>): Flow<Contact> {
+    override fun getContacts(contactIds: Flow<String>): Flow<Contact> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         return client.get(contactIds, Contact::class.java)
     }
 
-    override fun get(contactIds: Collection<String>): Flow<Contact> {
+    override fun getContacts(contactIds: Collection<String>): Flow<Contact> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         return client.get(contactIds, Contact::class.java)
     }
@@ -75,23 +74,23 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty", map = "classpath:js/contact/By_hcparty.js")
-    override fun listContacts(hcPartyId: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
+    override fun findContactsByHcParty(hcPartyId: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val viewQuery = pagedViewQuery<Contact,String>(client, "by_hcparty", hcPartyId, hcPartyId, pagination, false)
         emitAll(client.queryView(viewQuery, String::class.java, String::class.java, Contact::class.java))
     }
 
-    override fun getPaginatedContacts(contactIds: Flow<String>): Flow<ViewQueryResultEvent> {
+    override fun findContactsByIds(contactIds: Flow<String>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         return client.getForPagination(contactIds, Contact::class.java)
     }
 
-    override fun getPaginatedContacts(contactIds: Collection<String>): Flow<ViewQueryResultEvent> {
+    override fun findContactsByIds(contactIds: Collection<String>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         return client.getForPagination(contactIds, Contact::class.java)
     }
 
-    override fun listContactIds(hcPartyId: String): Flow<String> = flow {
+    override fun getContactsByHcParty(hcPartyId: String): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val viewQuery = createQuery(client, "by_hcparty")
@@ -103,7 +102,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_patientfk", map = "classpath:js/contact/By_hcparty_patientfk_map.js")
-    override fun findByHcPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact> = flow {
+    override fun listContactsByHcPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
@@ -114,7 +113,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_formid", map = "classpath:js/contact/By_hcparty_formid_map.js")
-    override fun findByHcPartyFormId(hcPartyId: String, formId: String): Flow<Contact> = flow {
+    override fun listContactsByHcPartyAndFormId(hcPartyId: String, formId: String): Flow<Contact> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val viewQuery = createQuery(client, "by_hcparty_formid").key(ComplexKey.of(hcPartyId, formId)).includeDocs(true)
@@ -122,7 +121,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(relink(result))
     }
 
-    override fun findByHcPartyFormIds(hcPartyId: String, ids: List<String>): Flow<Contact> = flow {
+    override fun listContactsByHcPartyAndFormIds(hcPartyId: String, ids: List<String>): Flow<Contact> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val viewQuery = createQuery(client, "by_hcparty_formid")
@@ -130,7 +129,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                 .keys(ids.map { k -> ComplexKey.of(hcPartyId, k) })
         val result = client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }.distinct()
 
-        emitAll(relink(get(result)))
+        emitAll(relink(getContacts(result)))
     }
 
 
@@ -184,7 +183,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "service_by_hcparty_patient_tag", map = "classpath:js/contact/Service_by_hcparty_patient_tag.js")
-    override fun listServiceIdsByPatientTag(hcPartyId: String, patientSecretForeignKeys: List<String>, tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
+    override fun listServiceIdsByPatientAndTag(hcPartyId: String, patientSecretForeignKeys: List<String>, tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         var startValueDate = startValueDate
@@ -345,7 +344,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
 
 
     @View(name = "service_by_hcparty_patient_code", map = "classpath:js/contact/Service_by_hcparty_patient_code.js")
-    override fun findServicesByForeignKeys(hcPartyId: String, patientSecretForeignKeys: List<String>, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
+    override fun listServicesByPatientForeignKeys(hcPartyId: String, patientSecretForeignKeys: List<String>, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         var startValueDate = startValueDate
@@ -383,8 +382,8 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(ids.asFlow().flattenConcat().distinct())
     }
 
-    override fun findServicesByForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String> {
-        return this.findByHcPartyPatient(hcPartyId, patientSecretForeignKeys.toList()).mapNotNull { it.services?.mapNotNull { it.id }?.asFlow() }.flattenConcat() // no distinct ?
+    override fun listServicesByPatientForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String> {
+        return this.listContactsByHcPartyAndPatient(hcPartyId, patientSecretForeignKeys.toList()).mapNotNull { it.services?.mapNotNull { it.id }?.asFlow() }.flattenConcat() // no distinct ?
     }
 
     @View(name = "by_service", map = "classpath:js/contact/By_service.js")
@@ -398,8 +397,8 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView<String, ContactIdServiceId>(viewQuery).mapNotNull { it.value })
     }
 
-    override fun listByServices(services: Collection<String>): Flow<Contact> {
-        return get(this.listIdsByServices(services).map { it.contactId })
+    override fun getContactsByServices(services: Collection<String>): Flow<Contact> {
+        return getContacts(listIdsByServices(services).map { it.contactId })
     }
 
     override fun relink(cs: Flow<Contact>): Flow<Contact> {

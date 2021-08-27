@@ -19,23 +19,18 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.*
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
-import org.taktik.couchdb.ViewQueryResultEvent
-import org.taktik.couchdb.ViewRowNoDoc
+import org.taktik.couchdb.*
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
-import org.taktik.couchdb.queryView
-import org.taktik.couchdb.queryViewIncludeDocs
-import org.taktik.couchdb.queryViewIncludeDocsNoValue
-import org.taktik.icure.asyncdao.InvoiceDAO
 import org.taktik.couchdb.id.IDGenerator
+import org.taktik.icure.asyncdao.InvoiceDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Invoice
 import org.taktik.icure.entities.embed.InvoiceType
 import org.taktik.icure.entities.embed.MediumType
 import org.taktik.icure.properties.CouchDbProperties
-
 import org.taktik.icure.utils.distinct
 
 
@@ -45,7 +40,7 @@ class InvoiceDAOImpl(couchDbProperties: CouchDbProperties,
                      @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Invoice>(Invoice::class.java, couchDbProperties, couchDbDispatcher, idGenerator), InvoiceDAO {
 
     @View(name = "by_hcparty_date", map = "classpath:js/invoice/By_hcparty_date_map.js")
-    override fun findByHcParty(hcParty: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> = flow {
+    override fun findInvoicesByHcParty(hcParty: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val startKey = ComplexKey.of(hcParty, fromDate)
@@ -56,22 +51,22 @@ class InvoiceDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_contact", map = "classpath:js/invoice/By_hcparty_contact_map.js")
-    override fun listByHcPartyContacts(hcParty: String, contactId: Set<String>): Flow<Invoice> = flow {
+    override fun listInvoicesByHcPartyAndContacts(hcParty: String, contactId: Set<String>): Flow<Invoice> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val invoiceIds = client.queryView<Array<String>, String>(createQuery(client, "by_hcparty_contact").keys(contactId.map { ComplexKey.of(hcParty, it) }).includeDocs(false)).mapNotNull { it.value }
-        emitAll(getList(invoiceIds.distinct()))
+        emitAll(getEntities(invoiceIds.distinct()))
     }
 
     @View(name = "by_hcparty_reference", map = "classpath:js/invoice/By_hcparty_reference_map.js")
-    override fun listByHcPartyReferences(hcParty: String, invoiceReferences: Set<String>?): Flow<Invoice> = flow {
+    override fun listInvoicesByHcPartyAndReferences(hcParty: String, invoiceReferences: Set<String>?): Flow<Invoice> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(client.queryViewIncludeDocs<Array<String>, String, Invoice>(createQuery(client, "by_hcparty_reference").includeDocs(true).let { if (invoiceReferences != null) it.keys(invoiceReferences.map { ComplexKey.of(hcParty, it) }) else it }).map { it.doc })
     }
 
     @View(name = "by_hcparty_reference", map = "classpath:js/invoice/By_hcparty_reference_map.js")
-    override fun listByHcPartyReferences(hcParty: String, from: String?, to: String?, descending: Boolean, limit: Int): Flow<Invoice> = flow {
+    override fun listInvoicesByHcPartyAndReferences(hcParty: String, from: String?, to: String?, descending: Boolean, limit: Int): Flow<Invoice> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val startKey = ComplexKey.of(hcParty, if (descending && from == null) ComplexKey.emptyObject() else from)
@@ -81,7 +76,7 @@ class InvoiceDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_groupid", map = "classpath:js/invoice/By_hcparty_groupid_map.js")
-    override fun listByHcPartyGroupId(inputGroupId:String, hcParty: String): Flow<Invoice> = flow {
+    override fun listInvoicesByHcPartyAndGroupId(inputGroupId:String, hcParty: String): Flow<Invoice> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val startKey = ComplexKey.of(hcParty, inputGroupId)
@@ -89,14 +84,14 @@ class InvoiceDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_recipient", map = "classpath:js/invoice/By_hcparty_recipient_map.js")
-    override fun listByHcPartyRecipientIds(hcParty: String, recipientIds: Set<String?>): Flow<Invoice> = flow {
+    override fun listInvoicesByHcPartyAndRecipientIds(hcParty: String, recipientIds: Set<String?>): Flow<Invoice> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(client.queryViewIncludeDocs<Array<String>, String, Invoice>(createQuery(client, "by_hcparty_recipient").includeDocs(true).keys(recipientIds.map { id -> ComplexKey.of(hcParty, id) })).map { it.doc })
     }
 
     @View(name = "by_hcparty_patientfk", map = "classpath:js/invoice/By_hcparty_patientfk_map.js")
-    override fun listByHcPartyPatientFk(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice> = flow {
+    override fun listInvoicesByHcPartyAndPatientFk(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcParty, fk) }
@@ -104,14 +99,14 @@ class InvoiceDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_recipient_unsent", map = "classpath:js/invoice/By_hcparty_recipient_unsent_map.js")
-    override fun listByHcPartyRecipientIdsUnsent(hcParty: String, recipientIds: Set<String?>): Flow<Invoice> = flow {
+    override fun listInvoicesByHcPartyAndRecipientIdsUnsent(hcParty: String, recipientIds: Set<String?>): Flow<Invoice> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(client.queryViewIncludeDocs<Array<String>, String, Invoice>(createQuery(client, "by_hcparty_recipient_unsent").includeDocs(true).keys(recipientIds.map { id -> ComplexKey.of(hcParty, id) })).map { it.doc })
     }
 
     @View(name = "by_hcparty_patientfk_unsent", map = "classpath:js/invoice/By_hcparty_patientfk_unsent_map.js")
-    override fun listByHcPartyPatientFkUnsent(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice> = flow {
+    override fun listInvoicesByHcPartyAndPatientFkUnsent(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcParty, fk) }
@@ -120,7 +115,7 @@ class InvoiceDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_sentmediumtype_invoicetype_sent_date", map = "classpath:js/invoice/By_hcparty_sentmediumtype_invoicetype_sent_date.js")
-    override fun listByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty: String, sentMediumType: MediumType, invoiceType: InvoiceType, sent: Boolean, fromDate: Long?, toDate: Long?): Flow<Invoice> = flow {
+    override fun listInvoicesByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty: String, sentMediumType: MediumType, invoiceType: InvoiceType, sent: Boolean, fromDate: Long?, toDate: Long?): Flow<Invoice> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         var startKey = ComplexKey.of(hcParty, sentMediumType, invoiceType, sent)
@@ -136,7 +131,7 @@ class InvoiceDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_sending_mode_status_date", map = "classpath:js/invoice/By_hcparty_sending_mode_status_date.js")
-    override fun listByHcPartySendingModeStatus(hcParty: String, sendingMode: String?, status: String?, fromDate: Long?, toDate: Long?): Flow<Invoice> = flow {
+    override fun listInvoicesByHcPartySendingModeStatus(hcParty: String, sendingMode: String?, status: String?, fromDate: Long?, toDate: Long?): Flow<Invoice> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         var startKey = ComplexKey.of(hcParty)
@@ -156,14 +151,14 @@ class InvoiceDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_serviceid", map = "classpath:js/invoice/By_serviceid_map.js")
-    override fun listByServiceIds(serviceIds: Set<String>): Flow<Invoice> = flow {
+    override fun listInvoicesByServiceIds(serviceIds: Set<String>): Flow<Invoice> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(client.queryViewIncludeDocs<String, String, Invoice>(createQuery(client, "by_serviceid").includeDocs(true).keys(serviceIds)).map { it.doc })
     }
 
     @View(name = "by_status_hcps_sentdate", map = "classpath:js/invoice/By_status_hcps_sentdate_map.js")
-    override fun listAllHcpsByStatus(status: String, from: Long?, to: Long?, hcpIds: List<String>): Flow<Invoice> = flow {
+    override fun listInvoicesHcpsByStatus(status: String, from: Long?, to: Long?, hcpIds: List<String>): Flow<Invoice> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val result = hcpIds.map {
@@ -172,7 +167,7 @@ class InvoiceDAOImpl(couchDbProperties: CouchDbProperties,
                     .endKey(ComplexKey.of(status, it, to ?: ComplexKey.emptyObject()))).mapNotNull { it.value }
         }.asFlow().flattenConcat().distinct()
 
-        emitAll(getList(result))
+        emitAll(getEntities(result))
     }
 
     @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Invoice' && !doc.deleted && doc._conflicts) emit(doc._id )}")
@@ -184,7 +179,7 @@ class InvoiceDAOImpl(couchDbProperties: CouchDbProperties,
 
 
     @View(name = "tarification_by_hcparty_code", map = "classpath:js/invoice/Tarification_by_hcparty_code.js", reduce = "_count")
-    override fun listIdsByTarificationsByCode(hcPartyId: String, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
+    override fun listInvoiceIdsByTarificationsAndCode(hcPartyId: String, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         var startValueDate = startValueDate

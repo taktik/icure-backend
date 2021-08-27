@@ -22,16 +22,19 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import org.apache.commons.lang3.ArrayUtils
-import org.taktik.couchdb.support.StdDesignDocumentFactory
 import org.slf4j.LoggerFactory
-import org.taktik.couchdb.*
-import org.taktik.couchdb.entity.DesignDocument
+import org.taktik.couchdb.DocIdentifier
+import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.dao.designDocName
+import org.taktik.couchdb.entity.DesignDocument
+import org.taktik.couchdb.entity.Option
 import org.taktik.couchdb.entity.ViewQuery
 import org.taktik.couchdb.exception.DocumentNotFoundException
-import org.taktik.icure.asyncdao.InternalDAO
-import org.taktik.couchdb.entity.Option
 import org.taktik.couchdb.id.IDGenerator
+import org.taktik.couchdb.queryView
+import org.taktik.couchdb.support.StdDesignDocumentFactory
+import org.taktik.couchdb.update
+import org.taktik.icure.asyncdao.InternalDAO
 import org.taktik.icure.asyncdao.VersionnedDesignDocumentQueries
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.properties.CouchDbProperties
@@ -43,12 +46,12 @@ open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T
     private val log = LoggerFactory.getLogger(javaClass)
     private val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
 
-    override fun getAll() = couchDbDispatcher.getClient(URI(couchDbProperties.url)).queryView(ViewQuery()
+    override fun getEntities() = couchDbDispatcher.getClient(URI(couchDbProperties.url)).queryView(ViewQuery()
             .designDocId(designDocName(entityClass))
             .viewName("all").includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
 
 
-    override fun getAllIds(): Flow<String> {
+    override fun getEntitiesIds(): Flow<String> {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".getAllIds")
         }
@@ -71,7 +74,7 @@ open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T
         }
     }
 
-    override fun getList(ids: Collection<String>): Flow<T> {
+    override fun getEntities(ids: Collection<String>): Flow<T> {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + ids)
         }
@@ -113,7 +116,7 @@ open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T
         return client.update(entity, entityClass)
     }
 
-    override fun list(ids: List<String>) =
+    override fun getEntities(ids: List<String>) =
             couchDbDispatcher.getClient(URI(couchDbProperties.url)).queryView(ViewQuery()
                     .designDocId(designDocName(entityClass))
                     .viewName("all").keys(ids).includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()

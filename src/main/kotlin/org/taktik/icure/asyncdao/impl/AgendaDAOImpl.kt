@@ -22,12 +22,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
+import org.taktik.couchdb.annotation.View
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.AgendaDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.Agenda
 import org.taktik.icure.properties.CouchDbProperties
 
@@ -38,7 +38,7 @@ class AgendaDAOImpl(couchDbProperties: CouchDbProperties,
                     @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Agenda>(couchDbProperties, Agenda::class.java, couchDbDispatcher, idGenerator), AgendaDAO {
 
     @View(name = "by_user", map = "classpath:js/agenda/by_user.js")
-    override fun getAllAgendaForUser(userId: String): Flow<Agenda> = flow {
+    override fun getAgendasByUser(userId: String): Flow<Agenda> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val viewQuery = createQuery(client, "by_user")
@@ -50,7 +50,7 @@ class AgendaDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "readable_by_user", map = "classpath:js/agenda/readable_by_user.js")
-    override fun getReadableAgendaForUser(userId: String): Flow<Agenda> = flow {
+    override fun getReadableAgendaByUser(userId: String): Flow<Agenda> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val viewQuery = createQuery(client, "readable_by_user")

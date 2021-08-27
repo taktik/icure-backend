@@ -20,13 +20,13 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.ClassificationDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.Classification
 import org.taktik.icure.properties.CouchDbProperties
 
@@ -40,7 +40,7 @@ import org.taktik.icure.properties.CouchDbProperties
 internal class ClassificationDAOImpl(couchDbProperties: CouchDbProperties,
                                      @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Classification>(Classification::class.java, couchDbProperties, couchDbDispatcher, idGenerator), ClassificationDAO {
 
-    override fun findByPatient(patientId: String): Flow<Classification> = flow {
+    override fun listClassificationByPatient(patientId: String): Flow<Classification> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val viewQuery = createQuery(client, "all").includeDocs(true).key(patientId)
         emitAll(client.queryViewIncludeDocs<String, String, Classification>(viewQuery).map { it.doc })
@@ -51,7 +51,7 @@ internal class ClassificationDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_patient", map = "classpath:js/classification/By_hcparty_patient_map.js")
-    override fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification> = flow {
+    override fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 

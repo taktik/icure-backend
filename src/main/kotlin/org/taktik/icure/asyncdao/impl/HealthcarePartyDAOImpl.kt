@@ -18,23 +18,22 @@
 
 package org.taktik.icure.asyncdao.impl
 
+
 import kotlinx.coroutines.flow.*
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryView
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.HealthcarePartyDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
-
-
 import java.util.*
 
 /** Created by aduchate on 18/07/13, 13:36  */
@@ -44,7 +43,7 @@ internal class HealthcarePartyDAOImpl(couchDbProperties: CouchDbProperties,
                                       @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager) : CachedDAOImpl<HealthcareParty>(HealthcareParty::class.java, couchDbProperties, couchDbDispatcher, idGenerator, asyncCacheManager), HealthcarePartyDAO {
 
     @View(name = "by_nihii", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthcareParty' && !doc.deleted) emit(doc.nihii.substr(0,8), doc._id )}")
-    override fun findByNihii(nihii: String?): Flow<HealthcareParty> = flow {
+    override fun findHealthcarePartiesByNihii(nihii: String?): Flow<HealthcareParty> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(
@@ -58,14 +57,14 @@ internal class HealthcarePartyDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_ssin", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthcareParty' && !doc.deleted) emit(doc.ssin, doc._id )}")
-    override fun findBySsin(ssin: String): Flow<HealthcareParty> = flow {
+    override fun findHealthcarePartiesBySsin(ssin: String): Flow<HealthcareParty> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery(client, "by_ssin").key(ssin).includeDocs(true)).map { it.doc })
     }
 
     @View(name = "by_speciality_postcode", map = "classpath:js/healthcareparty/By_speciality_postcode.js")
-    override fun findBySpecialityPostcode(type: String, spec: String, firstCode: String, lastCode: String): Flow<ViewQueryResultEvent> = flow {
+    override fun findHealthcarePartiesBySpecialityAndPostcode(type: String, spec: String, firstCode: String, lastCode: String): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val viewQuery = pagedViewQuery<HealthcareParty, ComplexKey>(client, "by_speciality_postcode", ComplexKey.of(type, spec, firstCode), ComplexKey.of(type, spec, lastCode), PaginationOffset(10000), false)
@@ -73,7 +72,7 @@ internal class HealthcarePartyDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "allForPagination", map = "classpath:js/healthcareparty/All_for_pagination.js")
-    override fun listHealthCareParties(pagination: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent> = flow {
+    override fun findHealthCareParties(pagination: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val viewQuery = pagedViewQuery<HealthcareParty, String>(client, "allForPagination", if (pagination.startKey != null) pagination.startKey.toString() else if (desc != null && desc) "\ufff0" else "\u0000", if (desc != null && desc) "\u0000" else "\ufff0", pagination, desc
@@ -83,14 +82,14 @@ internal class HealthcarePartyDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_name", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthcareParty' && !doc.deleted) emit(doc.name, doc._id )}")
-    override fun findByName(name: String): Flow<HealthcareParty> = flow {
+    override fun listHealthcarePartiesByName(name: String): Flow<HealthcareParty> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery(client, "by_name").key(name).includeDocs(true)).map { it.doc })
     }
 
     @View(name = "by_ssin_or_nihii", map = "classpath:js/healthcareparty/By_Ssin_or_Nihii.js")
-    override fun findBySsinOrNihii(searchValue: String?, offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent> = flow {
+    override fun findHealthcarePartiesBySsinOrNihii(searchValue: String?, offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val isDesc = desc != null && desc
@@ -103,7 +102,7 @@ internal class HealthcarePartyDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcParty_name", map = "classpath:js/healthcareparty/By_hcparty_name_map.js")
-    override fun findByHcPartyNameContainsFuzzy(searchString: String?, offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent> = flow {
+    override fun findHealthcarePartiesByHcPartyNameContainsFuzzy(searchString: String?, offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val r = if (searchString != null) StringUtils.sanitizeString(searchString) else null
@@ -116,7 +115,7 @@ internal class HealthcarePartyDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView(viewQuery, String::class.java, String::class.java, HealthcareParty::class.java))
     }
 
-    override fun findHealthcareParties(searchString: String, offset: Int, limit: Int): Flow<HealthcareParty> = flow {
+    override fun listHealthcareParties(searchString: String, offset: Int, limit: Int): Flow<HealthcareParty> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         // TODO test
         val r = StringUtils.sanitizeString(searchString)
@@ -143,7 +142,7 @@ internal class HealthcarePartyDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_parent", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthcareParty' && !doc.deleted && doc.parentId) emit(doc.parentId, doc._id)}")
-    override fun findByParentId(parentId: String): Flow<HealthcareParty> = flow {
+    override fun listHealthcarePartiesByParentId(parentId: String): Flow<HealthcareParty> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery(client, "by_parent").key(parentId).includeDocs(true)).map { it.doc })

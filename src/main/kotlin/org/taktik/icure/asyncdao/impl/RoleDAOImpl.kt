@@ -19,17 +19,15 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.map
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
-
 import org.springframework.stereotype.Repository
+import org.taktik.couchdb.annotation.View
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.RoleDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.Role
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
-
 import org.taktik.icure.utils.firstOrNull
 
 @Repository("roleDAO")
@@ -42,7 +40,7 @@ class RoleDAOImpl(couchDbProperties: CouchDbProperties,
             "            emit(doc.name,doc._id);\n" +
             "}\n" +
             "}")
-    override suspend fun getByName(name: String): Role? {
+    override suspend fun getRoleByName(name: String): Role? {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         return client.queryViewIncludeDocs<String, String, Role>(createQuery(client, "by_name").key(name).includeDocs(true)).map { it.doc }.firstOrNull()

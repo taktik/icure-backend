@@ -19,28 +19,19 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
-import org.taktik.couchdb.annotation.View
+import kotlinx.coroutines.flow.*
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.MessageDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Message
 import org.taktik.icure.properties.CouchDbProperties
-
-
 
 
 @FlowPreview
@@ -50,7 +41,7 @@ class MessageDAOImpl(couchDbProperties: CouchDbProperties,
                      @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Message>(Message::class.java, couchDbProperties, couchDbDispatcher, idGenerator), MessageDAO {
 
     @View(name = "by_hcparty_from_address_actor", map = "classpath:js/message/By_hcparty_from_address_actor_map.js")
-    override fun findByFromAddressActor(partyId: String, fromAddress: String, actorKeys: List<String>?): Flow<Message> = flow {
+    override fun listMessagesByFromAddressAndActor(partyId: String, fromAddress: String, actorKeys: List<String>?): Flow<Message> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(
                 actorKeys?.takeIf { it.isNotEmpty() }?.let {
@@ -61,7 +52,7 @@ class MessageDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_to_address_actor", map = "classpath:js/message/By_hcparty_to_address_actor_map.js")
-    override fun findByToAddressActor(partyId: String, toAddress: String, actorKeys: List<String>?): Flow<Message> = flow {
+    override fun listMessagesByToAddressAndActor(partyId: String, toAddress: String, actorKeys: List<String>?): Flow<Message> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(
                 actorKeys?.takeIf { it.isNotEmpty() }?.let {
@@ -72,7 +63,7 @@ class MessageDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_transport_guid_actor", map = "classpath:js/message/By_hcparty_transport_guid_actor_map.js")
-    override fun findByTransportGuidActor(partyId: String, transportGuid: String, actorKeys: List<String>?): Flow<Message> = flow {
+    override fun listMessagesByTransportGuidAndActor(partyId: String, transportGuid: String, actorKeys: List<String>?): Flow<Message> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(
                 actorKeys?.takeIf { it.isNotEmpty() }?.let {
@@ -83,7 +74,7 @@ class MessageDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_from_address", map = "classpath:js/message/By_hcparty_from_address_map.js")
-    override fun findByFromAddress(partyId: String, fromAddress: String, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> = flow {
+    override fun listMessagesByFromAddress(partyId: String, fromAddress: String, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val startKey = ComplexKey.of(partyId, fromAddress, null)
         val endKey: ComplexKey = ComplexKey.of(startKey.components[0], startKey.components[1], ComplexKey.emptyObject())
@@ -93,7 +84,7 @@ class MessageDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_to_address", map = "classpath:js/message/By_hcparty_to_address_map.js")
-    override fun findByToAddress(partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<Any>>, reverse: Boolean?): Flow<ViewQueryResultEvent> = flow {
+    override fun findMessagesByToAddress(partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<Any>>, reverse: Boolean?): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val reverse = reverse ?: false
         val startKey = ComplexKey.of(partyId, toAddress, null)
@@ -103,7 +94,7 @@ class MessageDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_transport_guid", map = "classpath:js/message/By_hcparty_transport_guid_map.js")
-    override fun findByTransportGuid(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> = flow {
+    override fun findMessagesByTransportGuid(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val startKey = transportGuid?.takeIf { it.endsWith(":*") }?.let {
@@ -120,7 +111,7 @@ class MessageDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_transport_guid_received", map = "classpath:js/message/By_hcparty_transport_guid_received_map.js")
-    override fun findByTransportGuidReceived(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> = flow {
+    override fun findMessagesByTransportGuidReceived(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val startKey = transportGuid?.takeIf { it.endsWith(":*") }?.let {
@@ -136,7 +127,7 @@ class MessageDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_transport_guid_sent_date", map = "classpath:js/message/By_hcparty_transport_guid_sent_date.js")
-    override fun findByTransportGuidSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> = flow {
+    override fun findMessagesByTransportGuidAndSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val startKey = ComplexKey.of(partyId, transportGuid, fromDate)
         val endKey = ComplexKey.of(partyId, transportGuid, toDate)
@@ -145,7 +136,7 @@ class MessageDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty", map = "classpath:js/message/By_hcparty_map.js")
-    override fun findByHcParty(partyId: String, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> = flow {
+    override fun findMessagesByHcParty(partyId: String, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val startKey: ComplexKey = ComplexKey.of(partyId, null)
         val endKey: ComplexKey = ComplexKey.of(partyId, ComplexKey.emptyObject())
@@ -154,7 +145,7 @@ class MessageDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_patientfk", map = "classpath:js/message/By_hcparty_patientfk_map.js")
-    override fun findByHcPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Message> = flow {
+    override fun listMessagesByHcPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Message> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val keys = secretPatientKeys.map { fk: String -> ComplexKey.of(hcPartyId, fk) }
         emitAll(client.queryViewIncludeDocs<Array<String>, String, Message>(createQuery(client, "by_hcparty_patientfk").includeDocs(true).keys(keys)).distinctUntilChangedBy { it.id }.map { it.doc })
@@ -166,26 +157,26 @@ class MessageDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryViewIncludeDocs<String, Int, Message>(createQuery(client, "by_parent_id").includeDocs(true).key(messageId)).map { it.doc })
     }
 
-    override fun getChildren(parentIds: List<String>)= flow<List<Message>> {
+    override fun getMessagesChildren(parentIds: List<String>)= flow<List<Message>> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val byParentId = client.queryViewIncludeDocs<String, Int, Message>(createQuery(client, "by_parent_id").includeDocs(true).keys(parentIds)).map { it.doc }.toList()
         emitAll( parentIds.asFlow().map { parentId -> byParentId.filter { message -> message.id == parentId } })
     }
 
     @View(name = "by_invoice_id", map = "classpath:js/message/By_invoice_id_map.js")
-    override fun getByInvoiceIds(invoiceIds: Set<String>): Flow<Message> = flow {
+    override fun getMessagesByInvoiceIds(invoiceIds: Set<String>): Flow<Message> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(client.queryViewIncludeDocs<String, Int, Message>(createQuery(client, "by_invoice_id").includeDocs(true).keys(invoiceIds)).map { it.doc })
     }
 
     @View(name = "by_hcparty_transport_guid", map = "classpath:js/message/By_hcparty_transport_guid_map.js")
-    override fun getByTransportGuids(hcPartyId: String, transportGuids: Collection<String>): Flow<Message> = flow {
+    override fun getMessagesByTransportGuids(hcPartyId: String, transportGuids: Collection<String>): Flow<Message> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(client.queryViewIncludeDocs<Array<String>, String, Message>(createQuery(client, "by_hcparty_transport_guid").includeDocs(true).keys(HashSet(transportGuids).map { ComplexKey.of(hcPartyId, it) })).map { it.doc })
     }
 
     @View(name = "by_external_ref", map = "classpath:js/message/By_hcparty_external_ref_map.js")
-    override fun getByExternalRefs(hcPartyId: String, externalRefs: Set<String>): Flow<Message> = flow {
+    override fun getMessagesByExternalRefs(hcPartyId: String, externalRefs: Set<String>): Flow<Message> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(client.queryViewIncludeDocs<Array<String>, String, Message>(createQuery(client, "by_hcparty_transport_guid").includeDocs(true).keys(HashSet(externalRefs).map { ComplexKey.of(hcPartyId, it) })).map{it.doc})
     }

@@ -60,11 +60,11 @@ class CalendarItemLogicImpl(private val calendarItemDAO: CalendarItemDAO,
     }
 
     override fun listCalendarItemsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>) = flow {
-            emitAll(calendarItemDAO.findByHcPartyPatient(hcPartyId, secretPatientKeys))
+            emitAll(calendarItemDAO.listAccessLogsByHcPartyAndPatient(hcPartyId, secretPatientKeys))
     }
 
     override fun getCalendarItems(ids: List<String>): Flow<CalendarItem> = flow {
-        calendarItemDAO.getList(ids).collect { emit(it) }
+        calendarItemDAO.getEntities(ids).collect { emit(it) }
     }
 
 

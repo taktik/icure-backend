@@ -18,21 +18,18 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.commons.uti.UTI
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.DocumentTemplateDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.DocumentTemplate
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.writeTo
@@ -49,7 +46,7 @@ class DocumentTemplateDAOImpl(couchDbProperties: CouchDbProperties,
                               @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<DocumentTemplate>(couchDbProperties, DocumentTemplate::class.java, couchDbDispatcher, idGenerator), DocumentTemplateDAO {
 
     @View(name = "by_userId_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.owner) emit([doc.owner,doc.guid], null )}")
-    override fun findByUserGuid(userId: String, guid: String?): Flow<DocumentTemplate> = flow {
+    override fun listDocumentTemplatesByUserGuid(userId: String, guid: String?): Flow<DocumentTemplate> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val from = ComplexKey.of(userId, "")
@@ -62,7 +59,7 @@ class DocumentTemplateDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_specialty_code_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.specialty) emit([doc.specialty.code,doc.guid], null )}")
-    override fun findBySpecialtyGuid(healthcarePartyId: String, guid: String?): Flow<DocumentTemplate> = flow {
+    override fun listDocumentTemplatesBySpecialtyAndGuid(healthcarePartyId: String, guid: String?): Flow<DocumentTemplate> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val documentTemplates = if (guid != null) {
@@ -81,7 +78,7 @@ class DocumentTemplateDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_document_type_code_and_user_id_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.documentType ) emit([doc.documentType,doc.owner,doc.guid], null )}")
-    override fun findByTypeUserGuid(documentTypeCode: String, userId: String?, guid: String?): Flow<DocumentTemplate> = flow {
+    override fun listDocumentsByTypeUserGuid(documentTypeCode: String, userId: String?, guid: String?): Flow<DocumentTemplate> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val viewQuery = if (userId != null && guid != null) {

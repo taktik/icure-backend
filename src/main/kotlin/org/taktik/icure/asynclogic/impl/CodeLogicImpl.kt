@@ -70,7 +70,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
     }
 
     override fun getCodes(ids: List<String>) = flow<Code> {
-        emitAll(codeDAO.getList(ids))
+        emitAll(codeDAO.getEntities(ids))
     }
 
     override suspend fun create(code: Code) = fix(code) { code: Code ->
@@ -87,23 +87,23 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
     }
 
     override fun findCodeTypes(type: String?) = flow<String> {
-        emitAll(codeDAO.findCodeTypes(type))
+        emitAll(codeDAO.listCodesByType(type))
     }
 
     override fun findCodeTypes(region: String?, type: String?) = flow<String> {
-        emitAll(codeDAO.findCodeTypes(region, type))
+        emitAll(codeDAO.listCodesByRegionAndType(region, type))
     }
 
     override fun findCodesBy(type: String?, code: String?, version: String?) = flow<Code> {
-        emitAll(codeDAO.findCodes(type, code, version))
+        emitAll(codeDAO.listCodesBy(type, code, version))
     }
 
     override fun findCodesBy(region: String?, type: String?, code: String?, version: String?) = flow<Code> {
-        emitAll(codeDAO.findCodes(region, type, code, version))
+        emitAll(codeDAO.listCodesBy(region, type, code, version))
     }
 
     override fun findCodesBy(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>) = flow<ViewQueryResultEvent> {
-        emitAll(codeDAO.findCodes(region, type, code, version, paginationOffset))
+        emitAll(codeDAO.findCodesBy(region, type, code, version, paginationOffset))
     }
 
     override fun findCodesByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>) = flow<ViewQueryResultEvent> {
@@ -253,7 +253,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 
     override fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Code>, sort: String?, desc: Boolean?) = flow<ViewQueryResultEvent> {
         var ids = filters.resolve(filterChain.filter).toList().sorted()
-        var codes = codeDAO.getForPagination(ids)
+        var codes = codeDAO.getCodesByIdsForPagination(ids)
         if (filterChain.predicate != null || sort != null && sort != "id") {
             filterChain.predicate?.let {
                 codes.filter {

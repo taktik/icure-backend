@@ -43,15 +43,15 @@ class FormLogicImpl(private val formDAO: FormDAO,
     }
 
     override fun getForms(selectedIds: Collection<String>): Flow<Form> = flow {
-        emitAll(formDAO.getList(selectedIds))
+        emitAll(formDAO.getEntities(selectedIds))
     }
 
     override suspend fun getFormsByExternalUuid(documentId: String): List<Form> {
-        return formDAO.getAllByExternalUuid(documentId)
+        return formDAO.getFormsByExternalUuid(documentId)
     }
 
     override fun listFormsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>, healthElementId: String?, planOfActionId: String?, formTemplateId: String?): Flow<Form> = flow {
-        val forms = formDAO.findByHcPartyPatient(hcPartyId, secretPatientKeys)
+        val forms = formDAO.listFormsByHcPartyPatient(hcPartyId, secretPatientKeys)
         val filteredForms = forms.filter { f ->
             (healthElementId == null || healthElementId == f.healthElementId) &&
                     (planOfActionId == null || planOfActionId == f.planOfActionId) &&
@@ -99,7 +99,7 @@ class FormLogicImpl(private val formDAO: FormDAO,
     }
 
     override fun listByHcPartyAndParentId(hcPartyId: String, formId: String): Flow<Form> = flow {
-        emitAll(formDAO.findByHcPartyParentId(hcPartyId, formId))
+        emitAll(formDAO.listFormsByHcPartyAndParentId(hcPartyId, formId))
     }
 
     override suspend fun addDelegations(formId: String, delegations: List<Delegation>): Form? {

@@ -51,20 +51,20 @@ class FormTemplateLogicImpl(private val formTemplateDAO: FormTemplateDAO,
     }
 
     override fun getFormTemplatesByGuid(userId: String, specialityCode: String, formTemplateGuid: String): Flow<FormTemplate> = flow {
-        val byUserGuid = formTemplateDAO.findByUserGuid(userId, formTemplateGuid, true)
+        val byUserGuid = formTemplateDAO.listFormTemplatesByUserGuid(userId, formTemplateGuid, true)
         if (byUserGuid.firstOrNull() != null) {
             emitAll(byUserGuid)
         } else {
-            emitAll(formTemplateDAO.findBySpecialtyGuid(specialityCode, formTemplateGuid, true))
+            emitAll(formTemplateDAO.listFormsBySpecialtyAndGuid(specialityCode, formTemplateGuid, true))
         }
     }
 
     override fun getFormTemplatesBySpecialty(specialityCode: String, loadLayout: Boolean): Flow<FormTemplate> = flow {
-        emitAll(formTemplateDAO.findBySpecialtyGuid(specialityCode, null, loadLayout))
+        emitAll(formTemplateDAO.listFormsBySpecialtyAndGuid(specialityCode, null, loadLayout))
     }
 
     override fun getFormTemplatesByUser(userId: String, loadLayout: Boolean): Flow<FormTemplate> = flow {
-        emitAll(formTemplateDAO.findByUserGuid(userId, null, loadLayout))
+        emitAll(formTemplateDAO.listFormTemplatesByUserGuid(userId, null, loadLayout))
     }
 
     override suspend fun modifyFormTemplate(formTemplate: FormTemplate) = fix(formTemplate) { formTemplate ->

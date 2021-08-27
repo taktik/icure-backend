@@ -43,7 +43,7 @@ class TarificationLogicImpl(private val tarificationDAO: TarificationDAO, privat
     }
 
     override fun getTarifications(ids: List<String>): Flow<Tarification> = flow {
-        emitAll(tarificationDAO.getList(ids))
+        emitAll(tarificationDAO.getEntities(ids))
     }
 
     override suspend fun createTarification(tarification: Tarification) = fix(tarification) { tarification ->
@@ -64,15 +64,15 @@ class TarificationLogicImpl(private val tarificationDAO: TarificationDAO, privat
     }
 
     override fun findTarificationsBy(type: String?, tarification: String?, version: String?): Flow<Tarification> = flow {
-        emitAll(tarificationDAO.findTarifications(type, tarification, version))
+        emitAll(tarificationDAO.listTarificationsBy(type, tarification, version))
     }
 
     override fun findTarificationsBy(region: String?, type: String?, tarification: String?, version: String?): Flow<Tarification> = flow {
-        emitAll(tarificationDAO.findTarifications(region, type, tarification, version))
+        emitAll(tarificationDAO.listTarificationsBy(region, type, tarification, version))
     }
 
     override fun findTarificationsBy(region: String?, type: String?, tarification: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
-        emitAll(tarificationDAO.findTarifications(region, type, tarification, version, paginationOffset))
+        emitAll(tarificationDAO.findTarificationsBy(region, type, tarification, version, paginationOffset))
     }
 
     override fun findTarificationsByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {

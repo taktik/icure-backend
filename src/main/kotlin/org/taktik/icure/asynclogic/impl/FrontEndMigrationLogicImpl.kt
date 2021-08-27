@@ -53,7 +53,7 @@ class FrontEndMigrationLogicImpl(private val frontEndMigrationDAO: FrontEndMigra
     }
 
     override fun getFrontEndMigrationByUserIdName(userId: String, name: String?): Flow<FrontEndMigration> = flow {
-        emitAll(frontEndMigrationDAO.getByUserIdName(userId, name))
+        emitAll(frontEndMigrationDAO.getFrontEndMigrationsByUserIdAndName(userId, name))
     }
 
     override suspend fun modifyFrontEndMigration(frontEndMigration: FrontEndMigration): FrontEndMigration? {

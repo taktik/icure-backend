@@ -44,21 +44,21 @@ abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(pri
     }
 
     override fun deleteEntities(identifiers: Collection<String>): Flow<DocIdentifier> = flow {
-        val entities = getGenericDAO().getList(identifiers).toList()
+        val entities = getGenericDAO().getEntities(identifiers).toList()
         emitAll(getGenericDAO().remove(entities))
     }
 
     override fun undeleteByIds(identifiers: Collection<String>): Flow<DocIdentifier> = flow {
-        val entities = getGenericDAO().getList(identifiers).toList()
+        val entities = getGenericDAO().getEntities(identifiers).toList()
         emitAll(getGenericDAO().unRemove(entities))
     }
 
     override fun getEntities(): Flow<E> = flow {
-        emitAll(getGenericDAO().getAll())
+        emitAll(getGenericDAO().getEntities())
     }
 
     override fun getEntitiesIds(): Flow<String> = flow {
-        emitAll(getGenericDAO().getAllIds())
+        emitAll(getGenericDAO().getEntitiesIds())
     }
 
     override suspend fun hasEntities(): Boolean {

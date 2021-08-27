@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.RoleDAO
@@ -89,16 +88,16 @@ class UserLogicImpl(
     }
 
     override suspend fun getUserByEmail(email: String): User? {
-        val findByEmail = userDAO.findByEmail(email).toList()
+        val findByEmail = userDAO.listUsersByEmail(email).toList()
         return findByEmail.firstOrNull()
     }
 
     suspend fun getUserByEmail(groupId: String, email: String): User? {
-        return userDAO.findByEmail(email).firstOrNull()
+        return userDAO.listUsersByEmail(email).firstOrNull()
     }
 
     override fun findByHcpartyId(hcpartyId: String): Flow<String> = flow {
-        emitAll(userDAO.findByHcpId(hcpartyId).mapNotNull { v: User -> v.id })
+        emitAll(userDAO.listUsersByHcpId(hcpartyId).mapNotNull { v: User -> v.id })
     }
 
     override suspend fun newUser(type: Users.Type, status: Users.Status, email: String, createdDate: Instant): User {
@@ -141,7 +140,7 @@ class UserLogicImpl(
     }
 
     override fun getUsersByLogin(login: String): Flow<User> = flow {
-        emitAll(userDAO.findByUsername(formatLogin(login)))
+        emitAll(userDAO.listUsersByUsername(formatLogin(login)))
     }
 
     override fun listUsersByLoginOnFallbackDb(login: String): Flow<User> =
@@ -151,7 +150,7 @@ class UserLogicImpl(
             userDAO.listByEmailOnFallbackDb(email)
 
     override suspend fun getUserByLogin(login: String): User? { // Format login
-        return userDAO.findByUsername(formatLogin(login)).firstOrNull()
+        return userDAO.listUsersByUsername(formatLogin(login)).firstOrNull()
     }
 
     override suspend fun newUser(type: Users.Type, email: String, password: String?, healthcarePartyId: String): User? { // Format login
@@ -361,11 +360,11 @@ class UserLogicImpl(
     }
 
     override fun getEntities(): Flow<User> = flow {
-        emitAll(userDAO.getAll())
+        emitAll(userDAO.getEntities())
     }
 
     override fun getEntitiesIds(): Flow<String> = flow {
-        emitAll(userDAO.getAllIds())
+        emitAll(userDAO.getEntitiesIds())
     }
 
     override suspend fun hasEntities(): Boolean {
@@ -396,7 +395,7 @@ class UserLogicImpl(
     }
 
     override fun listUsers(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
-        emitAll(userDAO.listUsers(paginationOffset))
+        emitAll(userDAO.findUsers(paginationOffset))
     }
 
     override suspend fun setProperties(user: User, properties: List<PropertyStub>): User? {
@@ -411,7 +410,7 @@ class UserLogicImpl(
     }
 
     override fun getUsers(ids: List<String>): Flow<User> = flow {
-        emitAll(userDAO.getList(ids))
+        emitAll(userDAO.getEntities(ids))
     }
 
     override suspend fun getUserOnFallbackDb(userId: String): User? {
@@ -433,7 +432,7 @@ class UserLogicImpl(
     }
 
     override suspend fun getUserByEmailOnUserDb(email: String): User? {
-        return userDAO.findByEmail(email).singleOrNull()
+        return userDAO.listUsersByEmail(email).singleOrNull()
     }
 
     override suspend fun getUserOnUserDb(userId: String): User {

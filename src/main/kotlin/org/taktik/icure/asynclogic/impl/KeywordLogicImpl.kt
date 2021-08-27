@@ -74,7 +74,7 @@ class KeywordLogicImpl(private val keywordDAO: KeywordDAO,
     }
 
     override fun getKeywordsByUser(userId: String): Flow<Keyword> = flow {
-        emitAll(keywordDAO.getByUserId(userId))
+        emitAll(keywordDAO.getKeywordsByUserId(userId))
     }
 
     companion object {

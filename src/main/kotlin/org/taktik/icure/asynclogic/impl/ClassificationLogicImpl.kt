@@ -63,7 +63,7 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
     }
 
     override fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification> = flow {
-        emitAll(classificationDAO.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys))
+        emitAll(classificationDAO.listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys))
     }
 
     override fun deleteClassifications(ids: Set<String>): Flow<DocIdentifier> {
@@ -107,7 +107,7 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
     }
 
     override fun getClassifications(ids: List<String>): Flow<Classification> = flow {
-        emitAll(classificationDAO.getList(ids))
+        emitAll(classificationDAO.getEntities(ids))
     }
 
     companion object {
