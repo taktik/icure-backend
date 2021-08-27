@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.DatabaseSynchronization
 import org.taktik.icure.services.external.rest.v2.dto.embed.DatabaseSynchronizationDto
 @Mapper(componentModel = "spring")
-interface DatabaseSynchronizationMapper {
+interface DatabaseSynchronizationV2Mapper {
 	fun map(databaseSynchronizationDto: DatabaseSynchronizationDto):DatabaseSynchronization
 	fun map(databaseSynchronization: DatabaseSynchronization):DatabaseSynchronizationDto
 }

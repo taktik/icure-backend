@@ -37,31 +37,31 @@ import org.taktik.icure.services.external.rest.v2.dto.ClassificationDto
 import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
-import org.taktik.icure.services.external.rest.v2.mapper.ClassificationMapper
-import org.taktik.icure.services.external.rest.v2.mapper.StubMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v2.mapper.ClassificationV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.StubV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("classificationControllerV2")
 @RequestMapping("/rest/v2/classification")
 @Tag(name = "classification")
 class ClassificationController(
         private val classificationLogic: ClassificationLogic,
-        private val classificationMapper: ClassificationMapper,
-        private val delegationMapper: DelegationMapper,
-        private val stubMapper: StubMapper
+        private val classificationV2Mapper: ClassificationV2Mapper,
+        private val delegationV2Mapper: DelegationV2Mapper,
+        private val stubV2Mapper: StubV2Mapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Create a classification with the current user", description = "Returns an instance of created classification Template.")
     @PostMapping
     fun createClassification(@RequestBody c: ClassificationDto) = mono {
-        val element = classificationLogic.createClassification(classificationMapper.map(c))
+        val element = classificationLogic.createClassification(classificationV2Mapper.map(c))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Classification creation failed.")
 
-        classificationMapper.map(element)
+        classificationV2Mapper.map(element)
     }
 
     @Operation(summary = "Get a classification Template")
@@ -70,7 +70,7 @@ class ClassificationController(
         val element = classificationLogic.getClassification(classificationId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting classification failed. Possible reasons: no such classification exists, or server error. Please try again or read the server log.")
 
-        classificationMapper.map(element)
+        classificationV2Mapper.map(element)
     }
 
     @Operation(summary = "Get a list of classifications", description = "Ids are seperated by a coma")
@@ -78,7 +78,7 @@ class ClassificationController(
     fun getClassificationByHcPartyId(@PathVariable ids: String): Flux<ClassificationDto> {
         val elements = classificationLogic.getClassifications(ids.split(','))
 
-        return elements.map { classificationMapper.map(it) }.injectReactorContext()
+        return elements.map { classificationV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "List classification Templates found By Healthcare Party and secret foreign keyelementIds.", description = "Keys hast to delimited by coma")
@@ -87,7 +87,7 @@ class ClassificationController(
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val elementList = classificationLogic.listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys)
 
-        return elementList.map { classificationMapper.map(it) }.injectReactorContext()
+        return elementList.map { classificationV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Delete classification Templates.", description = "Response is a set containing the ID's of deleted classification Templates.")
@@ -108,23 +108,23 @@ class ClassificationController(
     @Operation(summary = "Modify a classification Template", description = "Returns the modified classification Template.")
     @PutMapping
     fun modifyClassification(@RequestBody classificationDto: ClassificationDto) = mono {
-        classificationLogic.modifyClassification(classificationMapper.map(classificationDto))
+        classificationLogic.modifyClassification(classificationV2Mapper.map(classificationDto))
         val modifiedClassification = classificationLogic.getClassification(classificationDto.id)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Classification modification failed.")
 
-        classificationMapper.map(modifiedClassification)
+        classificationV2Mapper.map(modifiedClassification)
     }
 
 
     @Operation(summary = "Delegates a classification to a healthcare party", description = "It delegates a classification to a healthcare party (By current healthcare party). Returns the element with new delegations.")
     @PostMapping("/{classificationId}/delegate")
     fun newClassificationDelegations(@PathVariable classificationId: String, @RequestBody ds: List<DelegationDto>) = mono {
-        classificationLogic.addDelegations(classificationId, ds.map { delegationMapper.map(it) })
+        classificationLogic.addDelegations(classificationId, ds.map { delegationV2Mapper.map(it) })
         val classificationWithDelegation = classificationLogic.getClassification(classificationId)
 
         val succeed = classificationWithDelegation?.delegations != null && classificationWithDelegation.delegations.isNotEmpty()
         if (succeed) {
-            classificationWithDelegation?.let { classificationMapper.map(it) }
+            classificationWithDelegation?.let { classificationV2Mapper.map(it) }
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Delegation creation for classification failed.")
         }
@@ -136,12 +136,12 @@ class ClassificationController(
         val classifications = classificationLogic.getClassifications(stubs.map { it.id }).map { classification ->
             stubs.find { s -> s.id == classification.id }?.let { stub ->
                 classification.copy(
-                        delegations = classification.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels },
-                        encryptionKeys = classification.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels },
-                        cryptedForeignKeys = classification.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels }
+                        delegations = classification.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels },
+                        encryptionKeys = classification.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels },
+                        cryptedForeignKeys = classification.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels }
                 )
             } ?: classification
         }
-        emitAll(classificationLogic.modifyEntities(classifications.toList()).map { stubMapper.mapToStub(it) })
+        emitAll(classificationLogic.modifyEntities(classifications.toList()).map { stubV2Mapper.mapToStub(it) })
     }.injectReactorContext()
 }

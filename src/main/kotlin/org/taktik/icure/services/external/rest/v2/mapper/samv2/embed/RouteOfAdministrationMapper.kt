@@ -22,10 +22,10 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.RouteOfAdministration
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.RouteOfAdministrationDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [SamTextMapper::class, CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface RouteOfAdministrationMapper {
+@Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class, CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface RouteOfAdministrationV2Mapper {
 	fun map(routeOfAdministrationDto: RouteOfAdministrationDto):RouteOfAdministration
 	fun map(routeOfAdministration: RouteOfAdministration):RouteOfAdministrationDto
 }

@@ -24,10 +24,10 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Property
 import org.taktik.icure.services.external.rest.v2.dto.PropertyDto
-import org.taktik.icure.services.external.rest.v2.mapper.embed.TypedValueMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.TypedValueV2Mapper
 
-@Mapper(componentModel = "spring", uses = [TypedValueMapper::class, PropertyTypeMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface PropertyMapper {
+@Mapper(componentModel = "spring", uses = [TypedValueV2Mapper::class, PropertyTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface PropertyV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

@@ -28,24 +28,24 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.taktik.icure.be.ehealth.logic.kmehr.medex.MedexLogic
 import org.taktik.icure.services.external.rest.v2.dto.MedexInfoDto
-import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyMapper
-import org.taktik.icure.services.external.rest.v2.mapper.PatientMapper
+import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.PatientV2Mapper
 
-@RestController
+@RestController("medexControllerV2")
 @RequestMapping("/rest/v2/medex")
 @Tag(name = "medex")
 class MedexController(
         private val medexLogic: MedexLogic,
-        private val healthcarePartyMapper: HealthcarePartyMapper,
-        private val patientMapper: PatientMapper
+        private val healthcarePartyV2Mapper: HealthcarePartyV2Mapper,
+        private val patientV2Mapper: PatientV2Mapper
 ) {
 
     @Operation(summary = "Generate a Medex XML String")
     @PostMapping("/generate", produces = [MediaType.APPLICATION_XML_VALUE])
     fun generateMedex(@RequestBody infos: MedexInfoDto) = mono {
         medexLogic.createMedex(
-                healthcarePartyMapper.map(infos.author!!),
-                patientMapper.map(infos.patient!!),
+                healthcarePartyV2Mapper.map(infos.author!!),
+                patientV2Mapper.map(infos.patient!!),
                 infos.patientLanguage,
                 infos.incapacityType,
                 infos.incapacityReason,

@@ -24,10 +24,10 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.samv2.Nmp
 import org.taktik.icure.services.external.rest.v2.dto.samv2.NmpDto
-import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.SamTextMapper
+import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.SamTextV2Mapper
 
-@Mapper(componentModel = "spring", uses = [SamTextMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface NmpMapper {
+@Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface NmpV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

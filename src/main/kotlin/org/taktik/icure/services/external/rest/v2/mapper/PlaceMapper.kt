@@ -24,10 +24,10 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Place
 import org.taktik.icure.services.external.rest.v2.dto.PlaceDto
-import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressV2Mapper
 
-@Mapper(componentModel = "spring", uses = [AddressMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface PlaceMapper {
+@Mapper(componentModel = "spring", uses = [AddressV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface PlaceV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

@@ -25,7 +25,7 @@ import org.mapstruct.Mappings
 import org.taktik.icure.entities.PropertyType
 import org.taktik.icure.services.external.rest.v2.dto.PropertyTypeDto
 @Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface PropertyTypeMapper {
+interface PropertyTypeV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

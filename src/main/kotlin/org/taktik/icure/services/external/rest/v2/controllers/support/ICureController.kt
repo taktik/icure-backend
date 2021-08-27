@@ -34,7 +34,7 @@ import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("iCureControllerV2")
 @RequestMapping("/rest/v2/icure")
 @Tag(name = "icure")
 class ICureController(private val iCureLogic: ICureLogicImpl,
@@ -47,14 +47,14 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
                       private val healthElementLogic: HealthElementLogic,
                       private val formLogic: FormLogic,
                       private val sessionLogic: AsyncSessionLogic,
-                      private val userMapper: UserMapper,
-                      private val patientMapper: PatientMapper,
-                      private val contactMapper: ContactMapper,
-                      private val healthElementMapper: HealthElementMapper,
-                      private val formMapper: FormMapper,
-                      private val invoiceMapper: InvoiceMapper,
-                      private val messageMapper: MessageMapper,
-                      private val documentMapper: DocumentMapper,
+                      private val userV2Mapper: UserV2Mapper,
+                      private val patientV2Mapper: PatientV2Mapper,
+                      private val contactV2Mapper: ContactV2Mapper,
+                      private val healthElementV2Mapper: HealthElementV2Mapper,
+                      private val formV2Mapper: FormV2Mapper,
+                      private val invoiceV2Mapper: InvoiceV2Mapper,
+                      private val messageV2Mapper: MessageV2Mapper,
+                      private val documentV2Mapper: DocumentV2Mapper,
 ) {
 
     @Operation(summary = "Get version")
@@ -71,7 +71,7 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
 
     @Operation(summary = "Get users stubs")
     @GetMapping("/u")
-    fun getUsers() = userLogic.getEntities().map { u -> userMapper.map(u) }.injectReactorContext()
+    fun getUsers() = userLogic.getEntities().map { u -> userV2Mapper.map(u) }.injectReactorContext()
 
     @Operation(summary = "Get process info")
     @GetMapping("/p", produces = [MediaType.TEXT_PLAIN_VALUE])
@@ -104,29 +104,29 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
 
     @Operation(summary = "Resolve patients conflicts")
     @PostMapping("/conflicts/patient")
-    fun resolvePatientsConflicts(): Flux<PatientDto> = patientLogic.solveConflicts().map { patientMapper.map(it) }.injectReactorContext()
+    fun resolvePatientsConflicts(): Flux<PatientDto> = patientLogic.solveConflicts().map { patientV2Mapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "Resolve contacts conflicts")
     @PostMapping("/conflicts/contact")
-    fun resolveContactsConflicts(): Flux<ContactDto> = contactLogic.solveConflicts().map { contactMapper.map(it) }.injectReactorContext()
+    fun resolveContactsConflicts(): Flux<ContactDto> = contactLogic.solveConflicts().map { contactV2Mapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "resolve forms conflicts")
     @PostMapping("/conflicts/form")
-    fun resolveFormsConflicts(): Flux<FormDto> = formLogic.solveConflicts().map { formMapper.map(it) }.injectReactorContext()
+    fun resolveFormsConflicts(): Flux<FormDto> = formLogic.solveConflicts().map { formV2Mapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "resolve health elements conflicts")
     @PostMapping("/conflicts/healthelement")
-    fun resolveHealthElementsConflicts(): Flux<HealthElementDto> = healthElementLogic.solveConflicts().map { healthElementMapper.map(it) }.injectReactorContext()
+    fun resolveHealthElementsConflicts(): Flux<HealthElementDto> = healthElementLogic.solveConflicts().map { healthElementV2Mapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "resolve invoices conflicts")
     @PostMapping("/conflicts/invoice")
-    fun resolveInvoicesConflicts(): Flux<InvoiceDto> = invoiceLogic.solveConflicts().map { invoiceMapper.map(it) }.injectReactorContext()
+    fun resolveInvoicesConflicts(): Flux<InvoiceDto> = invoiceLogic.solveConflicts().map { invoiceV2Mapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "resolve messages conflicts")
     @PostMapping("/conflicts/message")
-    fun resolveMessagesConflicts(): Flux<MessageDto> = messageLogic.solveConflicts().map { messageMapper.map(it) }.injectReactorContext()
+    fun resolveMessagesConflicts(): Flux<MessageDto> = messageLogic.solveConflicts().map { messageV2Mapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "resolve documents conflicts")
     @PostMapping("/conflicts/document")
-    fun resolveDocumentsConflicts(@RequestParam(required = false) ids: String?): Flux<DocumentDto> = documentLogic.solveConflicts(ids?.split(",")).map { documentMapper.map(it) }.injectReactorContext()
+    fun resolveDocumentsConflicts(@RequestParam(required = false) ids: String?): Flux<DocumentDto> = documentLogic.solveConflicts(ids?.split(",")).map { documentV2Mapper.map(it) }.injectReactorContext()
 }

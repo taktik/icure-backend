@@ -31,18 +31,18 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FrontEndMigrationLogic
 import org.taktik.icure.services.external.rest.v2.dto.FrontEndMigrationDto
-import org.taktik.icure.services.external.rest.v2.mapper.FrontEndMigrationMapper
+import org.taktik.icure.services.external.rest.v2.mapper.FrontEndMigrationV2Mapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("frontEndMigrationControllerV2")
 @RequestMapping("/rest/v2/frontendmigration")
 @Tag(name = "frontendmigration")
 class FrontEndMigrationController(
         private val frontEndMigrationLogic: FrontEndMigrationLogic,
         private val sessionLogic: AsyncSessionLogic,
-        private val frontEndMigrationMapper: FrontEndMigrationMapper
+        private val frontEndMigrationV2Mapper: FrontEndMigrationV2Mapper
 ) {
 
     @Operation(summary = "Gets a front end migration")
@@ -51,17 +51,17 @@ class FrontEndMigrationController(
         val userId = sessionLogic.getCurrentSessionContext().getUser().id
         emitAll(
                 frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, null)
-                        .map { frontEndMigrationMapper.map(it) }
+                        .map { frontEndMigrationV2Mapper.map(it) }
         )
     }.injectReactorContext()
 
     @Operation(summary = "Creates a front end migration")
     @PostMapping
     fun createFrontEndMigration(@RequestBody frontEndMigrationDto: FrontEndMigrationDto) = mono {
-        val frontEndMigration = frontEndMigrationLogic.createFrontEndMigration(frontEndMigrationMapper.map(frontEndMigrationDto))
+        val frontEndMigration = frontEndMigrationLogic.createFrontEndMigration(frontEndMigrationV2Mapper.map(frontEndMigrationDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Frontend migration creation failed")
 
-        frontEndMigrationMapper.map(frontEndMigration)
+        frontEndMigrationV2Mapper.map(frontEndMigration)
     }
 
     @Operation(summary = "Deletes a front end migration")
@@ -76,7 +76,7 @@ class FrontEndMigrationController(
     fun getFrontEndMigration(@PathVariable frontEndMigrationId: String) = mono {
         val migration = frontEndMigrationLogic.getFrontEndMigration(frontEndMigrationId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Frontend migration fetching failed")
-        frontEndMigrationMapper.map(migration)
+        frontEndMigrationV2Mapper.map(migration)
     }
 
     @Operation(summary = "Gets an front end migration")
@@ -86,15 +86,15 @@ class FrontEndMigrationController(
 
         emitAll(
                 frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, frontEndMigrationName)
-                        .map { frontEndMigrationMapper.map(it) }
+                        .map { frontEndMigrationV2Mapper.map(it) }
         )
     }.injectReactorContext()
 
     @Operation(summary = "Modifies a front end migration")
     @PutMapping
     fun modifyFrontEndMigration(@RequestBody frontEndMigrationDto: FrontEndMigrationDto) = mono {
-        val migration = frontEndMigrationLogic.modifyFrontEndMigration(frontEndMigrationMapper.map(frontEndMigrationDto))
+        val migration = frontEndMigrationLogic.modifyFrontEndMigration(frontEndMigrationV2Mapper.map(frontEndMigrationDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Front end migration modification failed")
-        frontEndMigrationMapper.map(migration)
+        frontEndMigrationV2Mapper.map(migration)
     }
 }

@@ -24,10 +24,10 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.ApplicationSettings
 import org.taktik.icure.services.external.rest.v2.dto.ApplicationSettingsDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface ApplicationSettingsMapper {
+@Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface ApplicationSettingsV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

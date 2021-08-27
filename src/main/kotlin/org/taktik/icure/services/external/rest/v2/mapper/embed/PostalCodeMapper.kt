@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.PostalCode
 import org.taktik.icure.services.external.rest.v2.dto.embed.PostalCodeDto
 @Mapper(componentModel = "spring")
-interface PostalCodeMapper {
+interface PostalCodeV2Mapper {
 	fun map(postalCodeDto: PostalCodeDto):PostalCode
 	fun map(postalCode: PostalCode):PostalCodeDto
 }

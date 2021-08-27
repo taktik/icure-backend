@@ -22,10 +22,10 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Measure
 import org.taktik.icure.services.external.rest.v2.dto.embed.MeasureDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface MeasureMapper {
+@Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface MeasureV2Mapper {
 	fun map(measureDto: MeasureDto):Measure
 	fun map(measure: Measure):MeasureDto
 }

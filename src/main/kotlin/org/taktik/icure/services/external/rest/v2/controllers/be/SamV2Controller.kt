@@ -40,36 +40,36 @@ import org.taktik.icure.services.external.rest.v2.dto.samv2.VmpGroupDto
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.PharmaceuticalFormDto
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.SubstanceDto
 import org.taktik.icure.services.external.rest.v2.mapper.samv2.*
-import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.PharmaceuticalFormMapper
-import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.SubstanceMapper
-import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.PharmaceuticalFormV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.SubstanceV2Mapper
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.util.*
 
-@RestController
+@RestController("samV2ControllerV2")
 @RequestMapping("/rest/v2/be_samv2")
 @Tag(name = "besamv2")
 class SamV2Controller(
         private val samV2Logic: SamV2Logic,
-        private val ampMapper: AmpMapper,
-        private val vmpMapper: VmpMapper,
-        private val nmpMapper: NmpMapper,
-        private val substanceMapper: SubstanceMapper,
-        private val pharmaceuticalFormMapper: PharmaceuticalFormMapper,
-        private val vmpGroupMapper: VmpGroupMapper,
-        private val samVersionMapper: SamVersionMapper,
+        private val ampV2Mapper: AmpV2Mapper,
+        private val vmpV2Mapper: VmpV2Mapper,
+        private val nmpV2Mapper: NmpV2Mapper,
+        private val substanceV2Mapper: SubstanceV2Mapper,
+        private val pharmaceuticalFormV2Mapper: PharmaceuticalFormV2Mapper,
+        private val vmpGroupV2Mapper: VmpGroupV2Mapper,
+        private val samVersionV2Mapper: SamVersionV2Mapper,
         private val objectMapper: ObjectMapper
 ) {
     private val DEFAULT_LIMIT = 1000
-    private val ampToAmpDto = { it: Amp -> ampMapper.map(it) }
-    private val vmpToVmpDto = { it: Vmp -> vmpMapper.map(it) }
-    private val nmpToNmpDto = { it: Nmp -> nmpMapper.map(it) }
-    private val vmpGroupToVmpGroupDto = { it: VmpGroup -> vmpGroupMapper.map(it) }
+    private val ampToAmpDto = { it: Amp -> ampV2Mapper.map(it) }
+    private val vmpToVmpDto = { it: Vmp -> vmpV2Mapper.map(it) }
+    private val nmpToNmpDto = { it: Nmp -> nmpV2Mapper.map(it) }
+    private val vmpGroupToVmpGroupDto = { it: VmpGroup -> vmpGroupV2Mapper.map(it) }
 
     @Operation(summary = "Get Samv2 version.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/v")
-    fun getSamVersion() = mono { samV2Logic.getVersion()?.let { samVersionMapper.map(it) } }
+    fun getSamVersion() = mono { samV2Logic.getVersion()?.let { samVersionV2Mapper.map(it) } }
 
     @Operation(summary = "Finding AMPs by label with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/amp")
@@ -256,7 +256,7 @@ class SamV2Controller(
     @GetMapping("/amp/byDmppCode/{dmppCode}")
     fun findAmpsByDmppCode(
             @Parameter(description = "dmppCode", required = true) @PathVariable dmppCode: String
-    ) = addProductIdsToAmps(samV2Logic.findAmpsByDmppCode(dmppCode).filterIsInstance<ViewRowWithDoc<String, String, Amp>>().map { ampMapper.map(it.doc) }).injectReactorContext()
+    ) = addProductIdsToAmps(samV2Logic.findAmpsByDmppCode(dmppCode).filterIsInstance<ViewRowWithDoc<String, String, Amp>>().map { ampV2Mapper.map(it.doc) }).injectReactorContext()
 
 
     @Operation(summary = "Finding VMP groups by language label with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
@@ -352,13 +352,13 @@ class SamV2Controller(
     @Operation(summary = "List all substances.")
     @GetMapping("/substance")
     fun listSubstances(): Flux<SubstanceDto> {
-        return samV2Logic.listSubstances().map { substanceMapper.map(it) }.injectReactorContext()
+        return samV2Logic.listSubstances().map { substanceV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "List all pharmaceutical forms.")
     @GetMapping("/pharmaform")
     fun listPharmaceuticalForms(): Flux<PharmaceuticalFormDto> {
-        return samV2Logic.listPharmaceuticalForms().map { pharmaceuticalFormMapper.map(it) }.injectReactorContext()
+        return samV2Logic.listPharmaceuticalForms().map { pharmaceuticalFormV2Mapper.map(it) }.injectReactorContext()
     }
 
     private suspend fun addProductIdsToVmpGroups(vmpGroups: Collection<VmpGroupDto>): List<VmpGroupDto> {

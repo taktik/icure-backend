@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.MessageReadStatus
 import org.taktik.icure.services.external.rest.v2.dto.embed.MessageReadStatusDto
 @Mapper(componentModel = "spring")
-interface MessageReadStatusMapper {
+interface MessageReadStatusV2Mapper {
 	fun map(messageReadStatusDto: MessageReadStatusDto):MessageReadStatus
 	fun map(messageReadStatus: MessageReadStatus):MessageReadStatusDto
 }

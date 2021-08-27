@@ -24,10 +24,10 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Replication
 import org.taktik.icure.services.external.rest.v2.dto.ReplicationDto
-import org.taktik.icure.services.external.rest.v2.mapper.embed.DatabaseSynchronizationMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DatabaseSynchronizationV2Mapper
 
-@Mapper(componentModel = "spring", uses = [DatabaseSynchronizationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface ReplicationMapper {
+@Mapper(componentModel = "spring", uses = [DatabaseSynchronizationV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface ReplicationV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

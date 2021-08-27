@@ -24,14 +24,14 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.CalendarItem
 import org.taktik.icure.services.external.rest.v2.dto.CalendarItemDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.CalendarItemTagMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.FlowItemMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.CalendarItemTagV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.FlowItemV2Mapper
 
-@Mapper(componentModel = "spring", uses = [CalendarItemTagMapper::class, CodeStubMapper::class, DelegationMapper::class, AddressMapper::class, FlowItemMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface CalendarItemMapper {
+@Mapper(componentModel = "spring", uses = [CalendarItemTagV2Mapper::class, CodeStubV2Mapper::class, DelegationV2Mapper::class, AddressV2Mapper::class, FlowItemV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface CalendarItemV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

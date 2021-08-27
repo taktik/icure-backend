@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Episode
 import org.taktik.icure.services.external.rest.v2.dto.embed.EpisodeDto
 @Mapper(componentModel = "spring")
-interface EpisodeMapper {
+interface EpisodeV2Mapper {
 	fun map(episodeDto: EpisodeDto):Episode
 	fun map(episode: Episode):EpisodeDto
 }

@@ -31,27 +31,27 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.ArticleLogic
 import org.taktik.icure.services.external.rest.v2.dto.ArticleDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
-import org.taktik.icure.services.external.rest.v2.mapper.ArticleMapper
+import org.taktik.icure.services.external.rest.v2.mapper.ArticleV2Mapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("articleControllerV2")
 @RequestMapping("/rest/v2/article")
 @Tag(name = "article")
 class ArticleController(
         private val articleLogic: ArticleLogic,
-        private val articleMapper: ArticleMapper
+        private val articleV2Mapper: ArticleV2Mapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Creates a article")
     @PostMapping
     fun createArticle(@RequestBody articleDto: ArticleDto) = mono {
-        val article = articleLogic.createArticle(articleMapper.map(articleDto))
+        val article = articleLogic.createArticle(articleV2Mapper.map(articleDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Article creation failed")
 
-        articleMapper.map(article)
+        articleV2Mapper.map(article)
     }
 
     @Operation(summary = "Deletes articles")
@@ -74,20 +74,20 @@ class ArticleController(
         val article = articleLogic.getArticle(articleId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Article fetching failed")
 
-        articleMapper.map(article)
+        articleV2Mapper.map(article)
     }
 
     @Operation(summary = "Modifies an article")
     @PutMapping
     fun modifyArticle(@RequestBody articleDto: ArticleDto) = mono {
-        val article = articleLogic.modifyArticle(articleMapper.map(articleDto))
+        val article = articleLogic.modifyArticle(articleV2Mapper.map(articleDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog modification failed")
-        articleMapper.map(article)
+        articleV2Mapper.map(article)
     }
 
     @Operation(summary = "Gets all articles")
     @GetMapping
     fun getArticles(): Flux<ArticleDto> {
-        return articleLogic.getEntities().map { a -> articleMapper.map(a) }.injectReactorContext()
+        return articleLogic.getEntities().map { a -> articleV2Mapper.map(a) }.injectReactorContext()
     }
 }

@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Suspension
 import org.taktik.icure.services.external.rest.v2.dto.embed.SuspensionDto
 @Mapper(componentModel = "spring")
-interface SuspensionMapper {
+interface SuspensionV2Mapper {
 	fun map(suspensionDto: SuspensionDto):Suspension
 	fun map(suspension: Suspension):SuspensionDto
 }

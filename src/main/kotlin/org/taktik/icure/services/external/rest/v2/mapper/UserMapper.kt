@@ -24,12 +24,12 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.User
 import org.taktik.icure.services.external.rest.v2.dto.UserDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationTagMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.PermissionMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationTagV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.PermissionV2Mapper
 
-@Mapper(componentModel = "spring", uses = [PermissionMapper::class, DelegationTagMapper::class, PropertyStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface UserMapper {
+@Mapper(componentModel = "spring", uses = [PermissionV2Mapper::class, DelegationTagV2Mapper::class, PropertyStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface UserV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

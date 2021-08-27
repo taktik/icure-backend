@@ -32,17 +32,17 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.EntityTemplateLogic
 import org.taktik.icure.services.external.rest.v2.dto.EntityTemplateDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
-import org.taktik.icure.services.external.rest.v2.mapper.EntityTemplateMapper
+import org.taktik.icure.services.external.rest.v2.mapper.EntityTemplateV2Mapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("entityTemplateControllerV2")
 @RequestMapping("/rest/v2/entitytemplate")
 @Tag(name = "entitytemplate")
 class EntityTemplateController(
         private val entityTemplateLogic: EntityTemplateLogic,
-        private val entityTemplateMapper: EntityTemplateMapper
+        private val entityTemplateV2Mapper: EntityTemplateV2Mapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -52,14 +52,14 @@ class EntityTemplateController(
             @PathVariable userId: String,
             @PathVariable type: String,
             @RequestParam(required = false) searchString: String?,
-            @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.listEntityTemplatesBy(userId, type, searchString, includeEntities).map { entityTemplateMapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
+            @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.listEntityTemplatesBy(userId, type, searchString, includeEntities).map { entityTemplateV2Mapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
 
     @Operation(summary = "Finding entityTemplates by entityTemplate, type and version with pagination.", description = "Returns a list of entityTemplates matched with given input.")
     @GetMapping("/findAll/{type}")
     fun listAllEntityTemplatesBy(
             @PathVariable type: String,
             @RequestParam(required = false) searchString: String?,
-            @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.listEntityTemplatesBy(type, searchString, includeEntities).map { entityTemplateMapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
+            @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.listEntityTemplatesBy(type, searchString, includeEntities).map { entityTemplateV2Mapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
 
     @Operation(summary = "Finding entityTemplates by userId, type and keyword.", description = "Returns a list of entityTemplates matched with given input.")
     @GetMapping("/find/{userId}/{type}/keyword/{keyword}")
@@ -67,34 +67,34 @@ class EntityTemplateController(
             @PathVariable userId: String,
             @PathVariable type: String,
             @PathVariable keyword: String,
-            @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.listEntityTemplatesByKeyword(userId, type, keyword, includeEntities).map { entityTemplateMapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
+            @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.listEntityTemplatesByKeyword(userId, type, keyword, includeEntities).map { entityTemplateV2Mapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
 
     @Operation(summary = "Finding entityTemplates by entityTemplate, type and version with pagination.", description = "Returns a list of entityTemplates matched with given input.")
     @GetMapping("/findAll/{type}/keyword/{keyword}")
     fun findAllEntityTemplatesByKeyword(
             @PathVariable type: String,
             @PathVariable keyword: String,
-            @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.listEntityTemplatesByKeyword(type, keyword, includeEntities).map { entityTemplateMapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
+            @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.listEntityTemplatesByKeyword(type, keyword, includeEntities).map { entityTemplateV2Mapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
 
 
     @Operation(summary = "Create a EntityTemplate", description = "Type, EntityTemplate and Version are required.")
     @PostMapping
     fun createEntityTemplate(@RequestBody c: EntityTemplateDto) = mono {
-        val et = entityTemplateMapper.map(c).copy(entity = c.entity)
+        val et = entityTemplateV2Mapper.map(c).copy(entity = c.entity)
         val entityTemplate = entityTemplateLogic.createEntityTemplate(et)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "EntityTemplate creation failed.")
 
-        entityTemplateMapper.map(entityTemplate)
+        entityTemplateV2Mapper.map(entityTemplate)
     }
 
     @Operation(summary = "Get a list of entityTemplates by ids", description = "Keys must be delimited by coma")
-    @PostMapping("/batch")
+    @PostMapping("/byIds")
     fun getEntityTemplates(@RequestBody entityTemplateIds: ListOfIdsDto): Flux<EntityTemplateDto> {
         return entityTemplateIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     entityTemplateLogic
                             .getEntityTemplates(ids)
-                            .map { f -> entityTemplateMapper.map(f) }
+                            .map { f -> entityTemplateV2Mapper.map(f) }
                             .injectReactorContext()
                 }
                 ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
@@ -107,7 +107,7 @@ class EntityTemplateController(
         val c = entityTemplateLogic.getEntityTemplate(entityTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the entityTemplate. Read the app logs.")
 
-        val et = entityTemplateMapper.map(c)
+        val et = entityTemplateV2Mapper.map(c)
         /*et.entity = c.entity*/
         et
     }
@@ -116,7 +116,7 @@ class EntityTemplateController(
     @PutMapping
     fun modifyEntityTemplate(@RequestBody entityTemplateDto: EntityTemplateDto) = mono {
         val modifiedEntityTemplate = try {
-            val et = entityTemplateMapper.map(entityTemplateDto).copy(entity = entityTemplateDto.entity)
+            val et = entityTemplateV2Mapper.map(entityTemplateDto).copy(entity = entityTemplateDto.entity)
             entityTemplateLogic.modifyEntityTemplate(et)
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding modification of the entityTemplate. Read the app logs: " + e.message)
@@ -124,7 +124,7 @@ class EntityTemplateController(
 
         val succeed = modifiedEntityTemplate != null
         if (succeed) {
-            modifiedEntityTemplate?.let { entityTemplateMapper.map(it) }
+            modifiedEntityTemplate?.let { entityTemplateV2Mapper.map(it) }
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the entityTemplate failed. Read the server log.")
         }
@@ -134,8 +134,8 @@ class EntityTemplateController(
     @PutMapping("/batch")
     fun modifyEntityTemplates(@RequestBody entityTemplateDtos: List<EntityTemplateDto>): Flux<EntityTemplateDto> {
         return try {
-            val entityTemplates = entityTemplateLogic.modifyEntities(entityTemplateDtos.map { f -> entityTemplateMapper.map(f) })
-            entityTemplates.map { f -> entityTemplateMapper.map(f) }.injectReactorContext()
+            val entityTemplates = entityTemplateLogic.modifyEntities(entityTemplateDtos.map { f -> entityTemplateV2Mapper.map(f) })
+            entityTemplates.map { f -> entityTemplateV2Mapper.map(f) }.injectReactorContext()
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
@@ -145,8 +145,8 @@ class EntityTemplateController(
     @PostMapping("/batch")
     fun createEntityTemplates(@RequestBody entityTemplateDtos: List<EntityTemplateDto>): Flux<EntityTemplateDto> {
         return try {
-            val entityTemplates = entityTemplateLogic.createEntities(entityTemplateDtos.map { f -> entityTemplateMapper.map(f) })
-            entityTemplates.map { f -> entityTemplateMapper.map(f) }.injectReactorContext()
+            val entityTemplates = entityTemplateLogic.createEntities(entityTemplateDtos.map { f -> entityTemplateV2Mapper.map(f) })
+            entityTemplates.map { f -> entityTemplateV2Mapper.map(f) }.injectReactorContext()
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }

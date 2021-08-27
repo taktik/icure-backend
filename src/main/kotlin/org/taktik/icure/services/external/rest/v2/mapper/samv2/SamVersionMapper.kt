@@ -26,7 +26,7 @@ import org.taktik.icure.entities.samv2.SamVersion
 import org.taktik.icure.services.external.rest.v2.dto.samv2.SamVersionDto
 
 @Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface SamVersionMapper {
+interface SamVersionV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

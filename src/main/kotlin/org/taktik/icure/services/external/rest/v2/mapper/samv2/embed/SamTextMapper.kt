@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.SamText
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.SamTextDto
 @Mapper(componentModel = "spring")
-interface SamTextMapper {
+interface SamTextV2Mapper {
 	fun map(samTextDto: SamTextDto):SamText
 	fun map(samText: SamText):SamTextDto
 }

@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.MembershipType
 import org.taktik.icure.services.external.rest.v2.dto.embed.MembershipTypeDto
 @Mapper(componentModel = "spring")
-interface MembershipTypeMapper {
+interface MembershipTypeV2Mapper {
 	fun map(membershipTypeDto: MembershipTypeDto):MembershipType
 	fun map(membershipType: MembershipType):MembershipTypeDto
 }

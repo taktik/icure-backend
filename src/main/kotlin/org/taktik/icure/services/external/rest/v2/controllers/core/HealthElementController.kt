@@ -39,33 +39,33 @@ import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
-import org.taktik.icure.services.external.rest.v2.mapper.HealthElementMapper
-import org.taktik.icure.services.external.rest.v2.mapper.StubMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
-import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
+import org.taktik.icure.services.external.rest.v2.mapper.HealthElementV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.StubV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainV2Mapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("healthElementControllerV2")
 @RequestMapping("/rest/v2/helement")
 @Tag(name = "helement")
 class HealthElementController(
         private val healthElementLogic: HealthElementLogic,
-        private val healthElementMapper: HealthElementMapper,
-        private val delegationMapper: DelegationMapper,
-        private val filterChainMapper: FilterChainMapper,
-        private val stubMapper: StubMapper
+        private val healthElementV2Mapper: HealthElementV2Mapper,
+        private val delegationV2Mapper: DelegationV2Mapper,
+        private val filterChainV2Mapper: FilterChainV2Mapper,
+        private val stubV2Mapper: StubV2Mapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Create a health element with the current user", description = "Returns an instance of created health element.")
     @PostMapping
     fun createHealthElement(@RequestBody c: HealthElementDto) = mono {
-        val element = healthElementLogic.createHealthElement(healthElementMapper.map(c))
+        val element = healthElementLogic.createHealthElement(healthElementV2Mapper.map(c))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Health element creation failed.")
 
-        healthElementMapper.map(element)
+        healthElementV2Mapper.map(element)
     }
 
     @Operation(summary = "Get a health element")
@@ -74,7 +74,7 @@ class HealthElementController(
         val element = healthElementLogic.getHealthElement(healthElementId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting health element failed. Possible reasons: no such health element exists, or server error. Please try again or read the server log.")
 
-        healthElementMapper.map(element)
+        healthElementV2Mapper.map(element)
     }
 
     @Operation(summary = "List health elements found By Healthcare Party and secret foreign keyelementIds.", description = "Keys hast to delimited by coma")
@@ -84,7 +84,7 @@ class HealthElementController(
         val elementList = healthElementLogic.findHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
         return elementList
-                .map { element -> healthElementMapper.map(element) }
+                .map { element -> healthElementV2Mapper.map(element) }
                 .injectReactorContext()
     }
 
@@ -94,7 +94,7 @@ class HealthElementController(
                                                                          @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         return healthElementLogic.findHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys)
-                .map { healthElement -> stubMapper.mapToStub(healthElement) }
+                .map { healthElement -> stubV2Mapper.mapToStub(healthElement) }
                 .injectReactorContext()
     }
 
@@ -104,13 +104,13 @@ class HealthElementController(
         val healthElements = healthElementLogic.getHealthElements(stubs.map { it.id }).map { he ->
             stubs.find { s -> s.id == he.id }?.let { stub ->
                 he.copy(
-                        delegations = he.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels },
-                        encryptionKeys = he.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels },
-                        cryptedForeignKeys = he.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels }
+                        delegations = he.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels },
+                        encryptionKeys = he.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels },
+                        cryptedForeignKeys = he.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels }
                 )
             } ?: he
         }
-        emitAll(healthElementLogic.modifyEntities(healthElements.toList()).map { healthElementMapper.map(it) })
+        emitAll(healthElementLogic.modifyEntities(healthElements.toList()).map { healthElementV2Mapper.map(it) })
     }.injectReactorContext()
 
     @Operation(summary = "Delete health elements.", description = "Response is a set containing the ID's of deleted health elements.")
@@ -131,17 +131,17 @@ class HealthElementController(
     @Operation(summary = "Modify a health element", description = "Returns the modified health element.")
     @PutMapping
     fun modifyHealthElement(@RequestBody healthElementDto: HealthElementDto) = mono {
-        val modifiedHealthElement = healthElementLogic.modifyHealthElement(healthElementMapper.map(healthElementDto))
+        val modifiedHealthElement = healthElementLogic.modifyHealthElement(healthElementV2Mapper.map(healthElementDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Health element modification failed.")
-        healthElementMapper.map(modifiedHealthElement)
+        healthElementV2Mapper.map(modifiedHealthElement)
     }
 
     @Operation(summary = "Modify a batch of health elements", description = "Returns the modified health elements.")
     @PutMapping("/batch")
     fun modifyHealthElements(@RequestBody healthElementDtos: List<HealthElementDto>): Flux<HealthElementDto> =
         try {
-            val hes = healthElementLogic.modifyEntities(healthElementDtos.map { f -> healthElementMapper.map(f) })
-            hes.map { healthElementMapper.map(it) }.injectReactorContext()
+            val hes = healthElementLogic.modifyEntities(healthElementDtos.map { f -> healthElementV2Mapper.map(f) })
+            hes.map { healthElementV2Mapper.map(it) }.injectReactorContext()
         } catch (e: Exception) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -151,8 +151,8 @@ class HealthElementController(
     @PostMapping("/batch")
     fun createHealthElements(@RequestBody healthElementDtos: List<HealthElementDto>): Flux<HealthElementDto> =
         try {
-            val hes = healthElementLogic.createEntities(healthElementDtos.map { f -> healthElementMapper.map(f) })
-            hes.map { healthElementMapper.map(it) }.injectReactorContext()
+            val hes = healthElementLogic.createEntities(healthElementDtos.map { f -> healthElementV2Mapper.map(f) })
+            hes.map { healthElementV2Mapper.map(it) }.injectReactorContext()
         } catch (e: Exception) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -161,12 +161,12 @@ class HealthElementController(
     @Operation(summary = "Delegates a health element to a healthcare party", description = "It delegates a health element to a healthcare party (By current healthcare party). Returns the element with new delegations.")
     @PostMapping("/{healthElementId}/delegate")
     fun newHealthElementDelegations(@PathVariable healthElementId: String, @RequestBody ds: List<DelegationDto>) = mono {
-        healthElementLogic.addDelegations(healthElementId, ds.map { d -> delegationMapper.map(d) })
+        healthElementLogic.addDelegations(healthElementId, ds.map { d -> delegationV2Mapper.map(d) })
         val healthElementWithDelegation = healthElementLogic.getHealthElement(healthElementId)
 
         val succeed = healthElementWithDelegation?.delegations != null && healthElementWithDelegation.delegations.isNotEmpty()
         if (succeed) {
-            healthElementWithDelegation?.let { healthElementMapper.map(it) }
+            healthElementWithDelegation?.let { healthElementV2Mapper.map(it) }
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Delegation creation for health element failed.")
         }
@@ -175,7 +175,7 @@ class HealthElementController(
     @Operation(summary = "Filter health elements for the current user (HcParty)", description = "Returns a list of health elements along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
     fun filterHealthElementsBy(@RequestBody filterChain: FilterChain<HealthElement>) =
-            healthElementLogic.filter(filterChainMapper.map(filterChain))
-                    .map { healthElementMapper.map(it) }
+            healthElementLogic.filter(filterChainV2Mapper.map(filterChain))
+                    .map { healthElementV2Mapper.map(it) }
                     .injectReactorContext()
 }

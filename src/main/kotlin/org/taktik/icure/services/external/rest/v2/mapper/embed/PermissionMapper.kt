@@ -22,8 +22,8 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Permission
 import org.taktik.icure.services.external.rest.v2.dto.embed.PermissionDto
-@Mapper(componentModel = "spring", uses = [PermissionCriterionMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface PermissionMapper {
+@Mapper(componentModel = "spring", uses = [PermissionCriterionV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface PermissionV2Mapper {
 	fun map(permissionDto: PermissionDto):Permission
 	fun map(permission: Permission):PermissionDto
 }

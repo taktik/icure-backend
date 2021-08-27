@@ -24,10 +24,10 @@ import org.taktik.icure.services.external.rest.v2.dto.gui.Editor
 import org.taktik.icure.services.external.rest.v2.dto.gui.editor.*
 import org.taktik.icure.services.external.rest.v2.dto.gui.layout.FormLayout
 import org.taktik.icure.services.external.rest.v2.dto.gui.type.Data
-import org.taktik.icure.services.external.rest.v2.mapper.embed.ServiceMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.ServiceV2Mapper
 
-@Mapper(componentModel = "spring", uses = [ServiceMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-abstract class FormLayoutMapper {
+@Mapper(componentModel = "spring", uses = [ServiceV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+abstract class FormLayoutV2Mapper {
 	abstract fun map(formLayoutDto: FormLayout):org.taktik.icure.dto.gui.layout.FormLayout
 	abstract fun map(formLayout: org.taktik.icure.dto.gui.layout.FormLayout):FormLayout
 

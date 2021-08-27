@@ -34,21 +34,21 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Tarification
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.TarificationDto
-import org.taktik.icure.services.external.rest.v2.mapper.TarificationMapper
+import org.taktik.icure.services.external.rest.v2.mapper.TarificationV2Mapper
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("tarificationControllerV2")
 @RequestMapping("/rest/v2/tarification")
 @Tag(name = "tarification")
 class TarificationController(
         private val tarificationLogic: TarificationLogic,
-        private val tarificationMapper: TarificationMapper
+        private val tarificationV2Mapper: TarificationV2Mapper
 ) {
     private val DEFAULT_LIMIT = 1000
-    private val tarificationToTarificationDto = { it: Tarification -> tarificationMapper.map(it) }
+    private val tarificationToTarificationDto = { it: Tarification -> tarificationV2Mapper.map(it) }
 
     @Operation(summary = "Finding tarifications by tarification, type and version with pagination.", description = "Returns a list of tarifications matched with given input.")
     @GetMapping("/byLabel")
@@ -103,26 +103,26 @@ class TarificationController(
             @Parameter(description = "Tarification type") @RequestParam(required = false) type: String?,
             @Parameter(description = "Tarification tarification") @RequestParam(required = false) tarification: String?,
             @Parameter(description = "Tarification version") @RequestParam(required = false) version: String?) : Flux<TarificationDto> {
-        return tarificationLogic.findTarificationsBy(region, type, tarification, version).map { tarificationMapper.map(it) }.injectReactorContext()
+        return tarificationLogic.findTarificationsBy(region, type, tarification, version).map { tarificationV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Create a Tarification", description = "Type, Tarification and Version are required.")
     @PostMapping
     fun createTarification(@RequestBody c: TarificationDto) = mono {
-        tarificationLogic.createTarification(tarificationMapper.map(c))?.let { tarificationMapper.map(it) }
+        tarificationLogic.createTarification(tarificationV2Mapper.map(c))?.let { tarificationV2Mapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Tarification creation failed.")
     }
 
     @Operation(summary = "Get a list of tarifications by ids", description = "Keys must be delimited by coma")
     @PostMapping("/byIds")
     fun getTarifications(@RequestBody tarificationIds: ListOfIdsDto) =
-            tarificationLogic.getTarifications(tarificationIds.ids).map { f -> tarificationMapper.map(f) }.injectReactorContext()
+            tarificationLogic.getTarifications(tarificationIds.ids).map { f -> tarificationV2Mapper.map(f) }.injectReactorContext()
 
 
     @Operation(summary = "Get a tarification", description = "Get a tarification based on ID or (tarification,type,version) as query strings. (tarification,type,version) is unique.")
     @GetMapping("/{tarificationId}")
     fun getTarification(@Parameter(description = "Tarification id") @PathVariable tarificationId: String) = mono {
-        tarificationLogic.getTarification(tarificationId)?.let { tarificationMapper.map(it) }
+        tarificationLogic.getTarification(tarificationId)?.let { tarificationV2Mapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
     }
 
@@ -132,7 +132,7 @@ class TarificationController(
             @Parameter(description = "Tarification type", required = true) @PathVariable type: String,
             @Parameter(description = "Tarification tarification", required = true) @PathVariable tarification: String,
             @Parameter(description = "Tarification version", required = true) @PathVariable version: String) = mono {
-        tarificationLogic.getTarification(type, tarification, version)?.let { tarificationMapper.map(it) }
+        tarificationLogic.getTarification(type, tarification, version)?.let { tarificationV2Mapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
     }
 
@@ -140,7 +140,7 @@ class TarificationController(
     @PutMapping
     fun modifyTarification(@RequestBody tarificationDto: TarificationDto) = mono {
         try {
-            tarificationLogic.modifyTarification(tarificationMapper.map(tarificationDto))?.let { tarificationMapper.map(it) }
+            tarificationLogic.modifyTarification(tarificationV2Mapper.map(tarificationDto))?.let { tarificationV2Mapper.map(it) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the tarification failed. Read the server log.")
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding modification of the tarification. Read the app logs: ")

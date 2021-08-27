@@ -47,11 +47,11 @@ import org.taktik.icure.services.external.rest.v2.dto.data.LabelledOccurenceDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.InvoicingCodeDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
-import org.taktik.icure.services.external.rest.v2.mapper.InvoiceMapper
-import org.taktik.icure.services.external.rest.v2.mapper.StubMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.InvoicingCodeMapper
-import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
+import org.taktik.icure.services.external.rest.v2.mapper.InvoiceV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.StubV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.InvoicingCodeV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainV2Mapper
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
@@ -59,7 +59,7 @@ import java.util.*
 
 @FlowPreview
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("invoiceControllerV2")
 @RequestMapping("/rest/v2/invoice")
 @Tag(name = "invoice")
 class InvoiceController(
@@ -68,24 +68,24 @@ class InvoiceController(
         private val insuranceLogic: InsuranceLogic,
         private val userLogic: UserLogic,
         private val uuidGenerator: UUIDGenerator,
-        private val invoiceMapper: InvoiceMapper,
-        private val filterChainMapper: FilterChainMapper,
-        private val delegationMapper: DelegationMapper,
-        private val invoicingCodeMapper: InvoicingCodeMapper,
-        private val stubMapper: StubMapper
+        private val invoiceV2Mapper: InvoiceV2Mapper,
+        private val filterChainV2Mapper: FilterChainV2Mapper,
+        private val delegationV2Mapper: DelegationV2Mapper,
+        private val invoicingCodeV2Mapper: InvoicingCodeV2Mapper,
+        private val stubV2Mapper: StubV2Mapper
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    private val invoiceToInvoiceDto = { it: Invoice -> invoiceMapper.map(it) }
+    private val invoiceToInvoiceDto = { it: Invoice -> invoiceV2Mapper.map(it) }
 
     private val DEFAULT_LIMIT = 1000
 
     @Operation(summary = "Creates an invoice")
     @PostMapping
     fun createInvoice(@RequestBody invoiceDto: InvoiceDto) = mono {
-        val invoice = invoiceLogic.createInvoice(invoiceMapper.map(invoiceDto))
+        val invoice = invoiceLogic.createInvoice(invoiceV2Mapper.map(invoiceDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Invoice creation failed")
-        invoiceMapper.map(invoice)
+        invoiceV2Mapper.map(invoice)
     }
 
     @Operation(summary = "Deletes an invoice")
@@ -100,38 +100,38 @@ class InvoiceController(
     fun getInvoice(@PathVariable invoiceId: String) = mono {
         val invoice = invoiceLogic.getInvoice(invoiceId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Invoice fetching failed")
-        invoiceMapper.map(invoice)
+        invoiceV2Mapper.map(invoice)
     }
 
     @Operation(summary = "Gets an invoice")
     @PostMapping("/byIds")
     fun getInvoices(@RequestBody invoiceIds: ListOfIdsDto) = invoiceLogic.getInvoices(invoiceIds.ids)
-            .map { invoiceMapper.map(it) }
+            .map { invoiceV2Mapper.map(it) }
             .injectReactorContext()
 
     @Operation(summary = "Modifies an invoice")
     @PutMapping
     fun modifyInvoice(@RequestBody invoiceDto: InvoiceDto) = mono {
-        val invoice = invoiceLogic.modifyInvoice(invoiceMapper.map(invoiceDto))
+        val invoice = invoiceLogic.modifyInvoice(invoiceV2Mapper.map(invoiceDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Invoice modification failed")
 
-        invoiceMapper.map(invoice)
+        invoiceV2Mapper.map(invoice)
     }
 
     @Operation(summary = "Modifies an invoice")
     @PostMapping("/reassign")
     fun reassignInvoice(@RequestBody invoiceDto: InvoiceDto) = mono {
-        val invoice = invoiceMapper.map(invoiceDto).let { it.reassign(it.invoicingCodes, uuidGenerator) }
+        val invoice = invoiceV2Mapper.map(invoiceDto).let { it.reassign(it.invoicingCodes, uuidGenerator) }
 
-        invoiceMapper.map(invoice)
+        invoiceV2Mapper.map(invoice)
     }
 
     @Operation(summary = "Adds a delegation to a invoice")
     @PutMapping("/{invoiceId}/delegate")
     fun newInvoiceDelegations(@PathVariable invoiceId: String, @RequestBody ds: List<DelegationDto>) = mono {
-        val invoice = invoiceLogic.addDelegations(invoiceId, ds.map { delegationMapper.map(it) })
+        val invoice = invoiceLogic.addDelegations(invoiceId, ds.map { delegationV2Mapper.map(it) })
         if (invoice?.delegations != null && invoice.delegations.isNotEmpty()) {
-            invoiceMapper.map(invoice)
+            invoiceV2Mapper.map(invoice)
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "New delegation for invoice failed")
         }
@@ -140,14 +140,14 @@ class InvoiceController(
     @Operation(summary = "Gets all invoices for author at date")
     @PostMapping("/mergeTo/{invoiceId}")
     fun mergeTo(@PathVariable invoiceId: String, @RequestBody ids: ListOfIdsDto) = mono {
-        invoiceMapper.map(invoiceLogic.mergeInvoices(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, invoiceLogic.getInvoices(ids.ids).toList(), invoiceLogic.getInvoice(invoiceId))
+        invoiceV2Mapper.map(invoiceLogic.mergeInvoices(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, invoiceLogic.getInvoices(ids.ids).toList(), invoiceLogic.getInvoice(invoiceId))
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Invoice $invoiceId not found"))
     }
 
     @Operation(summary = "Gets all invoices for author at date")
     @PostMapping("/validate/{invoiceId}")
     fun validate(@PathVariable invoiceId: String, @RequestParam scheme: String, @RequestParam forcedValue: String) = mono {
-        invoiceLogic.validateInvoice(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, invoiceLogic.getInvoice(invoiceId), scheme, forcedValue)?.let { invoiceMapper.map(it) }
+        invoiceLogic.validateInvoice(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, invoiceLogic.getInvoice(invoiceId), scheme, forcedValue)?.let { invoiceV2Mapper.map(it) }
     }
 
     @Operation(summary = "Gets all invoices for author at date")
@@ -162,8 +162,8 @@ class InvoiceController(
                             @RequestBody invoicingCodes: List<InvoicingCodeDto>): Flux<InvoiceDto> = flow{
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }.toSet()
         val invoices = invoiceLogic.appendCodes(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, userId, insuranceId, secretPatientKeys, InvoiceType.valueOf(type), MediumType.valueOf(sentMediumType),
-                invoicingCodes.map { ic -> invoicingCodeMapper.map(ic) }, invoiceId, gracePeriod)
-        emitAll( invoices.map { invoiceMapper.map(it) })
+                invoicingCodes.map { ic -> invoicingCodeV2Mapper.map(ic) }, invoiceId, gracePeriod)
+        emitAll( invoices.map { invoiceV2Mapper.map(it) })
     }.injectReactorContext()
 
     @Operation(summary = "Remove an invoice of an user")
@@ -179,7 +179,7 @@ class InvoiceController(
 
             val invoices = invoiceLogic.removeCodes(userId, secretPatientKeys, serviceId, tarificationIds)
 
-            return invoices.map { invoiceMapper.map(it) }.injectReactorContext()
+            return invoices.map { invoiceV2Mapper.map(it) }.injectReactorContext()
         }
     }
 
@@ -211,7 +211,7 @@ class InvoiceController(
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }.toSet()
         val elementList = invoiceLogic.listInvoicesByHcPartyAndPatientSks(hcPartyId, secretPatientKeys)
 
-        return elementList.map { element -> invoiceMapper.map(element) }.injectReactorContext()
+        return elementList.map { element -> invoiceV2Mapper.map(element) }.injectReactorContext()
     }
 
     @Operation(summary = "List helement stubs found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
@@ -219,14 +219,14 @@ class InvoiceController(
     fun listInvoicesDelegationsStubsByHCPartyAndPatientForeignKeys(@RequestParam hcPartyId: String,
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }.toSet()
-        return invoiceLogic.listInvoicesByHcPartyAndPatientSks(hcPartyId, secretPatientKeys).map { invoice -> stubMapper.mapToStub(invoice) }.injectReactorContext()
+        return invoiceLogic.listInvoicesByHcPartyAndPatientSks(hcPartyId, secretPatientKeys).map { invoice -> stubV2Mapper.mapToStub(invoice) }.injectReactorContext()
     }
 
     @Operation(summary = "List invoices by groupId", description = "Keys have to delimited by coma")
     @GetMapping("/byHcPartyGroupId/{hcPartyId}/{groupId}")
     fun listInvoicesByHcPartyAndGroupId(@PathVariable hcPartyId: String, @PathVariable groupId: String): Flux<InvoiceDto> {
         val invoices = invoiceLogic.listInvoicesByHcPartyAndGroupId(hcPartyId, groupId)
-        return invoices.map { el -> invoiceMapper.map(el) }.injectReactorContext()
+        return invoices.map { el -> invoiceV2Mapper.map(el) }.injectReactorContext()
     }
 
     @Operation(summary = "List invoices by type, sent or unsent", description = "Keys have to delimited by coma")
@@ -238,7 +238,7 @@ class InvoiceController(
                                                        @RequestParam(required = false) from: Long?,
                                                        @RequestParam(required = false) to: Long?): Flux<InvoiceDto> {
         val invoices = invoiceLogic.listInvoicesByHcPartySentMediumTypeInvoiceTypeSentDate(hcPartyId, sentMediumType, invoiceType, sent, from, to)
-        return invoices.map { el -> invoiceMapper.map(el) }.injectReactorContext()
+        return invoices.map { el -> invoiceV2Mapper.map(el) }.injectReactorContext()
     }
 
     @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
@@ -247,13 +247,13 @@ class InvoiceController(
         val invoices = invoiceLogic.getInvoices(stubs.map { it.id }).map { invoice ->
             stubs.find { s -> s.id == invoice.id }?.let { stub ->
                 invoice.copy(
-                        delegations = invoice.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels },
-                        encryptionKeys = invoice.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels },
-                        cryptedForeignKeys = invoice.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels }
+                        delegations = invoice.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels },
+                        encryptionKeys = invoice.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels },
+                        cryptedForeignKeys = invoice.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels }
                 )
             } ?: invoice
         }.toList()
-        emitAll(invoiceLogic.modifyInvoices(invoices).map { stubMapper.mapToStub(it) })
+        emitAll(invoiceLogic.modifyInvoices(invoices).map { stubV2Mapper.mapToStub(it) })
     }.injectReactorContext()
 
     @Operation(summary = "Gets all invoices for author at date")
@@ -261,7 +261,7 @@ class InvoiceController(
     fun listInvoicesByContactIds(@RequestBody contactIds: ListOfIdsDto) = flow {
         emitAll(
                 invoiceLogic.listInvoicesByHcPartyContacts(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, HashSet(contactIds.ids))
-                        .map { invoiceMapper.map(it) }
+                        .map { invoiceV2Mapper.map(it) }
         )
     }.injectReactorContext()
 
@@ -270,7 +270,7 @@ class InvoiceController(
     fun listInvoicesByRecipientsIds(@PathVariable recipientIds: String) = flow {
         emitAll(
                 invoiceLogic.listInvoicesByHcPartyAndRecipientIds(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, recipientIds.split(',').toSet())
-                        .map { invoiceMapper.map(it) }
+                        .map { invoiceV2Mapper.map(it) }
         )
     }.injectReactorContext()
 
@@ -281,7 +281,7 @@ class InvoiceController(
         val insuranceIds = insuranceLogic.getEntitiesIds().toSet()
         users
                 .flatMapConcat { user -> invoiceLogic.listInvoicesByHcPartyAndRecipientIds(user.healthcarePartyId!!, insuranceIds).filter { iv -> user.id == iv.author } }
-                .map { invoiceMapper.map(it) }
+                .map { invoiceV2Mapper.map(it) }
                 .toList()
                 .sortedWith(Comparator.comparing { iv: InvoiceDto -> Optional.ofNullable(iv.sentDate).orElse(0L) }.thenComparing { iv: InvoiceDto -> Optional.ofNullable(iv.sentDate).orElse(0L) })
                 .forEach { emit(it) }
@@ -296,7 +296,7 @@ class InvoiceController(
                 .flatMapConcat { u ->
                     invoiceLogic.listInvoicesByHcPartyAndRecipientIdsUnsent(u.healthcarePartyId!!, insuranceIds).filter { iv -> u.id == iv.author }
                 }
-                .map { invoiceMapper.map(it) }
+                .map { invoiceV2Mapper.map(it) }
                 .toList()
                 .sortedWith(Comparator.comparing<InvoiceDto, Long> { invoiceDto -> Optional.ofNullable(invoiceDto.invoiceDate).orElse(0L) })
                 .forEach { emit(it) }
@@ -308,7 +308,7 @@ class InvoiceController(
         emitAll(
                 invoiceLogic.listInvoicesByHcPartyAndRecipientIds(hcPartyId
                         ?: sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!,
-                        setOf<String?>(null)).map { invoiceMapper.map(it) }
+                        setOf<String?>(null)).map { invoiceV2Mapper.map(it) }
         )
     }.injectReactorContext()
 
@@ -318,14 +318,14 @@ class InvoiceController(
         emitAll(
                 invoiceLogic.listInvoicesByHcPartyAndRecipientIdsUnsent(hcPartyId
                         ?: sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!,
-                        setOf<String?>(null)).map { invoiceMapper.map(it) }
+                        setOf<String?>(null)).map { invoiceV2Mapper.map(it) }
         )
     }.injectReactorContext()
 
     @Operation(summary = "Gets all invoices for author at date")
     @GetMapping("/byIds/{invoiceIds}")
     fun listInvoicesByIds(@PathVariable invoiceIds: String): Flux<InvoiceDto> {
-        return invoiceLogic.getInvoices(invoiceIds.split(',')).map { invoiceMapper.map(it) }.injectReactorContext()
+        return invoiceLogic.getInvoices(invoiceIds.split(',')).map { invoiceV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Get all invoices by author, by sending mode, by status and by date")
@@ -335,13 +335,13 @@ class InvoiceController(
                                            @RequestParam(required = false) status: String?,
                                            @RequestParam(required = false) from: Long?,
                                            @RequestParam(required = false) to: Long?): Flux<InvoiceDto> {
-        return invoiceLogic.listInvoicesByHcPartySendingModeStatus(hcPartyId, sendingMode, status, from, to).map { invoiceMapper.map(it) }.injectReactorContext()
+        return invoiceLogic.listInvoicesByHcPartySendingModeStatus(hcPartyId, sendingMode, status, from, to).map { invoiceV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Gets all invoices for author at date")
     @GetMapping("/byServiceIds/{serviceIds}")
     fun listInvoicesByServiceIds(@PathVariable serviceIds: String): Flux<InvoiceDto> {
-        return invoiceLogic.listInvoicesByServiceIds(serviceIds.split(',').toSet()).map { invoiceMapper.map(it) }.injectReactorContext()
+        return invoiceLogic.listInvoicesByServiceIds(serviceIds.split(',').toSet()).map { invoiceV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Gets all invoices per status")
@@ -350,7 +350,7 @@ class InvoiceController(
                             @RequestParam(required = false) from: Long?,
                             @RequestParam(required = false) to: Long?,
                             @RequestBody hcpIds: ListOfIdsDto): Flux<InvoiceDto> {
-        return invoiceLogic.listInvoicesHcpsByStatus(status, from, to, hcpIds.ids).map { invoiceMapper.map(it) }.injectReactorContext()
+        return invoiceLogic.listInvoicesHcpsByStatus(status, from, to, hcpIds.ids).map { invoiceV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Get the list of all used tarifications frequencies in invoices")
@@ -362,15 +362,15 @@ class InvoiceController(
     @Operation(summary = "Filter invoices for the current user (HcParty)", description = "Returns a list of invoices along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
     fun filterInvoicesBy(@RequestBody filterChain: FilterChain<Invoice>): Flux<InvoiceDto> {
-        val invoices = invoiceLogic.filter(filterChainMapper.map(filterChain))
-        return invoices.map { element -> invoiceMapper.map(element) }.injectReactorContext()
+        val invoices = invoiceLogic.filter(filterChainV2Mapper.map(filterChain))
+        return invoices.map { element -> invoiceV2Mapper.map(element) }.injectReactorContext()
     }
 
     @Operation(summary = "Modify a batch of invoices", description = "Returns the modified invoices.")
     @PutMapping("/batch")
     fun modifyInvoices(@RequestBody invoiceDtos: List<InvoiceDto>): Flux<InvoiceDto> {
         return try {
-            invoiceLogic.modifyEntities(invoiceDtos.map { invoiceMapper.map(it) }).map { invoiceMapper.map(it) }.injectReactorContext()
+            invoiceLogic.modifyEntities(invoiceDtos.map { invoiceV2Mapper.map(it) }).map { invoiceV2Mapper.map(it) }.injectReactorContext()
         } catch (e: Exception) {
             log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -381,7 +381,7 @@ class InvoiceController(
     @PostMapping("/batch")
     fun createInvoices(@RequestBody invoiceDtos: List<InvoiceDto>): Flux<InvoiceDto> {
         return try {
-            invoiceLogic.createEntities(invoiceDtos.map { invoiceMapper.map(it) }).map { invoiceMapper.map(it) }.injectReactorContext()
+            invoiceLogic.createEntities(invoiceDtos.map { invoiceV2Mapper.map(it) }).map { invoiceV2Mapper.map(it) }.injectReactorContext()
         } catch (e: Exception) {
             log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)

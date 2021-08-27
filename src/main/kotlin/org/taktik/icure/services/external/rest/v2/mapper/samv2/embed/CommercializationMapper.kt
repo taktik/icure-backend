@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.Commercialization
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.CommercializationDto
 @Mapper(componentModel = "spring")
-interface CommercializationMapper {
+interface CommercializationV2Mapper {
 	fun map(commercializationDto: CommercializationDto):Commercialization
 	fun map(commercialization: Commercialization):CommercializationDto
 }

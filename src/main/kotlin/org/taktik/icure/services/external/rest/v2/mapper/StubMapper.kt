@@ -22,10 +22,10 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.*
 import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto
-import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
 
-@Mapper(componentModel = "spring", uses = [DelegationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface StubMapper {
+@Mapper(componentModel = "spring", uses = [DelegationV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface StubV2Mapper {
     fun mapToStub(contact: Contact): IcureStubDto
     fun mapToStub(calendarItem: CalendarItem): IcureStubDto
     fun mapToStub(message: Message): IcureStubDto

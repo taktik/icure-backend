@@ -41,11 +41,11 @@ import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.DiaryNoteExportIn
 import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.MedicationSchemeExportInfoDto
 import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.SoftwareMedicalFileExportDto
 import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.SumehrExportInfoDto
-import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyMapper
+import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyV2Mapper
 import reactor.core.publisher.Mono
 import java.time.Instant
-
-@RestController("/ws/be_kmehr")
+@RestController("/ws/be_kmehr/v2")
+@RequestMapping("/rest/v2/be_kmehr")
 class KmehrWsController(private val sessionLogic: AsyncSessionLogic,
                         private val sumehrLogicV1: SumehrLogic,
                         private val sumehrLogicV2: SumehrLogic,
@@ -54,7 +54,7 @@ class KmehrWsController(private val sessionLogic: AsyncSessionLogic,
                         private val medicationSchemeLogic: MedicationSchemeLogic,
                         private val healthcarePartyLogic: HealthcarePartyLogic,
                         private val patientLogic: PatientLogic,
-                        private val healthcarePartyMapper: HealthcarePartyMapper
+                        private val healthcarePartyV2Mapper: HealthcarePartyV2Mapper
 ) {
 
     @Value("\${icure.version}")
@@ -70,7 +70,7 @@ class KmehrWsController(private val sessionLogic: AsyncSessionLogic,
             patient?.let {
                 healthcareParty?.let { it1 ->
                     operation.binaryResponse(
-                            diaryNoteLogic.createDiaryNote(it, info.secretForeignKeys, it1, healthcarePartyMapper.map(info.recipient!!), language, info.note, info.tags, info.contexts, info.psy ?: false, info.documentId, info.attachmentId, operation)
+                            diaryNoteLogic.createDiaryNote(it, info.secretForeignKeys, it1, healthcarePartyV2Mapper.map(info.recipient!!), language, info.note, info.tags, info.contexts, info.psy ?: false, info.documentId, info.attachmentId, operation)
                     )
                 }
             }
@@ -89,7 +89,7 @@ class KmehrWsController(private val sessionLogic: AsyncSessionLogic,
                 healthcareParty?.let { it1 ->
                     operation.binaryResponse(sumehrLogicV1.createSumehr( it, info.secretForeignKeys,
                             it1,
-                            healthcarePartyMapper.map(info.recipient!!), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, operation, null, null, Config(
+                            healthcarePartyV2Mapper.map(info.recipient!!), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, operation, null, null, Config(
                             "" + System.currentTimeMillis(),
                             makeXGC(Instant.now().toEpochMilli(), true),
                             makeXGC(Instant.now().toEpochMilli(), true),
@@ -114,7 +114,7 @@ class KmehrWsController(private val sessionLogic: AsyncSessionLogic,
         try {
             val patient = patientLogic.getPatient(patientId)
             val healthcareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
-            patient?.let { healthcareParty?.let { it1 -> operation.binaryResponse(sumehrLogicV1.validateSumehr( it, info.secretForeignKeys, it1, healthcarePartyMapper.map(info.recipient!!), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, operation, null, null, Config(
+            patient?.let { healthcareParty?.let { it1 -> operation.binaryResponse(sumehrLogicV1.validateSumehr( it, info.secretForeignKeys, it1, healthcarePartyV2Mapper.map(info.recipient!!), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, operation, null, null, Config(
                     "" + System.currentTimeMillis(),
                     makeXGC(Instant.now().toEpochMilli(), true),
                     makeXGC(Instant.now().toEpochMilli(), true),
@@ -141,7 +141,7 @@ class KmehrWsController(private val sessionLogic: AsyncSessionLogic,
                     operation.binaryResponse(
                             sumehrLogicV2.createSumehr( it, info.secretForeignKeys,
                                     it1,
-                                    healthcarePartyMapper.map(info.recipient!!), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, operation, null, null, Config(
+                                    healthcarePartyV2Mapper.map(info.recipient!!), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, operation, null, null, Config(
                                     "" + System.currentTimeMillis(),
                                     makeXGC(Instant.now().toEpochMilli(), true),
                                     makeXGC(Instant.now().toEpochMilli(), true),
@@ -173,7 +173,7 @@ class KmehrWsController(private val sessionLogic: AsyncSessionLogic,
                                     it,
                                     info.secretForeignKeys,
                                     it1,
-                                    healthcarePartyMapper.map(info.recipient!!),
+                                    healthcarePartyV2Mapper.map(info.recipient!!),
                                     language,
                                     info.comment,
                                     info.excludedIds,
@@ -211,7 +211,7 @@ class KmehrWsController(private val sessionLogic: AsyncSessionLogic,
                                     it,
                                     info.secretForeignKeys,
                                     it1,
-                                    healthcarePartyMapper.map(info.recipient!!),
+                                    healthcarePartyV2Mapper.map(info.recipient!!),
                                     language,
                                     info.comment,
                                     info.excludedIds,

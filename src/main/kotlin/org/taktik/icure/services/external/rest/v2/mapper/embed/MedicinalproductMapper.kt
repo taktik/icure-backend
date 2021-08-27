@@ -22,10 +22,10 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Medicinalproduct
 import org.taktik.icure.services.external.rest.v2.dto.embed.MedicinalproductDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [CodeStubMapper::class, MediumTypeMapper::class, MembershipTypeMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface MedicinalproductMapper {
+@Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class, MediumTypeV2Mapper::class, MembershipTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface MedicinalproductV2Mapper {
 	fun map(medicinalproductDto: MedicinalproductDto):Medicinalproduct
 	fun map(medicinalproduct: Medicinalproduct):MedicinalproductDto
 }

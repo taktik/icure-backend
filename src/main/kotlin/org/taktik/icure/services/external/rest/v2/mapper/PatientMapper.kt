@@ -24,12 +24,12 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.services.external.rest.v2.dto.PatientDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
-import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.*
 
-@Mapper(componentModel = "spring", uses = [GenderMapper::class, FinancialInstitutionInformationMapper::class, PersonalStatusMapper::class, SchoolingInfoMapper::class, AddressMapper::class, EmploymentInfoMapper::class, MedicalHouseContractMapper::class, DeactivationReasonMapper::class, PatientHealthCarePartyMapper::class, PropertyStubMapper::class, CodeStubMapper::class, DelegationMapper::class, InsurabilityMapper::class, PartnershipMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface PatientMapper {
+@Mapper(componentModel = "spring", uses = [GenderV2Mapper::class, FinancialInstitutionInformationV2Mapper::class, PersonalStatusV2Mapper::class, SchoolingInfoV2Mapper::class, AddressV2Mapper::class, EmploymentInfoV2Mapper::class, MedicalHouseContractV2Mapper::class, DeactivationReasonV2Mapper::class, PatientHealthCarePartyV2Mapper::class, PropertyStubV2Mapper::class, CodeStubV2Mapper::class, DelegationV2Mapper::class, InsurabilityV2Mapper::class, PartnershipV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface PatientV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

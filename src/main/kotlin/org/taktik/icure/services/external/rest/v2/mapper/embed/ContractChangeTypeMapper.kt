@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.ContractChangeType
 import org.taktik.icure.services.external.rest.v2.dto.embed.ContractChangeTypeDto
 @Mapper(componentModel = "spring")
-interface ContractChangeTypeMapper {
+interface ContractChangeTypeV2Mapper {
 	fun map(contractChangeTypeDto: ContractChangeTypeDto):ContractChangeType
 	fun map(contractChangeType: ContractChangeType):ContractChangeTypeDto
 }

@@ -23,11 +23,11 @@ import org.mapstruct.Mapper
 import org.taktik.icure.constants.TypedValuesType
 import org.taktik.icure.entities.embed.TypedValue
 import org.taktik.icure.services.external.rest.v2.dto.embed.TypedValueDto
-import org.taktik.icure.services.external.rest.v2.mapper.utils.InstantMapper
+import org.taktik.icure.services.external.rest.v2.mapper.utils.InstantV2Mapper
 import java.util.*
 
-@Mapper(componentModel = "spring", uses = [InstantMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-abstract class TypedValueMapper {
+@Mapper(componentModel = "spring", uses = [InstantV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+abstract class TypedValueV2Mapper {
     fun map(typedValueDto: TypedValueDto<*>?): TypedValue<*>? {
         return if (typedValueDto == null) null else when(typedValueDto.type) {
             TypedValuesType.STRING -> TypedValue.withTypeAndValue(typedValueDto.type, typedValueDto.getValue<String>())

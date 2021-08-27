@@ -36,18 +36,18 @@ import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.services.external.rest.v2.dto.CalendarItemDto
 import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
-import org.taktik.icure.services.external.rest.v2.mapper.CalendarItemMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v2.mapper.CalendarItemV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("calendarItemControllerV2")
 @RequestMapping("/rest/v2/calendarItem")
 @Tag(name = "calendarItem")
 class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
-                             private val calendarItemMapper: CalendarItemMapper,
-                             private val delegationMapper: DelegationMapper
+                             private val calendarItemV2Mapper: CalendarItemV2Mapper,
+                             private val delegationV2Mapper: DelegationV2Mapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -55,16 +55,16 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     @GetMapping
     fun getCalendarItems(): Flux<CalendarItemDto> {
         val calendarItems = calendarItemLogic.getEntities()
-        return calendarItems.map { calendarItemMapper.map(it) }.injectReactorContext()
+        return calendarItems.map { calendarItemV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Creates a calendarItem")
     @PostMapping
     fun createCalendarItem(@RequestBody calendarItemDto: CalendarItemDto) = mono {
-        val calendarItem = calendarItemLogic.createCalendarItem(calendarItemMapper.map(calendarItemDto))
+        val calendarItem = calendarItemLogic.createCalendarItem(calendarItemV2Mapper.map(calendarItemDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItem creation failed")
 
-        calendarItemMapper.map(calendarItem)
+        calendarItemV2Mapper.map(calendarItem)
     }
 
     @Operation(summary = "Deletes an calendarItem")
@@ -87,17 +87,17 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
         val calendarItem = calendarItemLogic.getCalendarItem(calendarItemId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "CalendarItem fetching failed")
 
-        calendarItemMapper.map(calendarItem)
+        calendarItemV2Mapper.map(calendarItem)
     }
 
 
     @Operation(summary = "Modifies an calendarItem")
     @PutMapping
     fun modifyCalendarItem(@RequestBody calendarItemDto: CalendarItemDto) = mono {
-        val calendarItem = calendarItemLogic.modifyCalendarItem(calendarItemMapper.map(calendarItemDto))
+        val calendarItem = calendarItemLogic.modifyCalendarItem(calendarItemV2Mapper.map(calendarItemDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItem modification failed")
 
-        calendarItemMapper.map(calendarItem)
+        calendarItemV2Mapper.map(calendarItem)
     }
 
 
@@ -110,7 +110,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "hcPartyId was empty")
         }
         val calendars = calendarItemLogic.getCalendarItemByPeriodAndHcPartyId(startDate, endDate, hcPartyId)
-        return calendars.map { calendarItemMapper.map(it) }.injectReactorContext()
+        return calendars.map { calendarItemV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Get CalendarItems by Period and AgendaId")
@@ -122,7 +122,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
         }
         val calendars = calendarItemLogic.getCalendarItemByPeriodAndAgendaId(startDate, endDate, agendaId)
-        return calendars.map { calendarItemMapper.map(it) }.injectReactorContext()
+        return calendars.map { calendarItemV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Get calendarItems by ids")
@@ -132,7 +132,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "calendarItemIds was empty")
         }
         val calendars = calendarItemLogic.getCalendarItems(calendarItemIds.ids)
-        return calendars.map { calendarItemMapper.map(it) }.injectReactorContext()
+        return calendars.map { calendarItemV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Find CalendarItems by hcparty and patient", description = "")
@@ -141,7 +141,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val elementList = calendarItemLogic.listCalendarItemsByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
-        return elementList.map { calendarItemMapper.map(it) }.injectReactorContext()
+        return elementList.map { calendarItemV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Update delegations in calendarItems")
@@ -150,12 +150,12 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
         val calendarItems = calendarItemLogic.getCalendarItems(stubs.map { obj: IcureStubDto -> obj.id }).map { ci ->
             stubs.find { s -> s.id == ci.id }?.let { stub ->
                 ci.copy(
-                        delegations = ci.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels },
-                        encryptionKeys = ci.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels },
-                        cryptedForeignKeys = ci.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels }
+                        delegations = ci.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels },
+                        encryptionKeys = ci.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels },
+                        cryptedForeignKeys = ci.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels }
                 )
             } ?: ci
         }
-        emitAll(calendarItemLogic.modifyEntities(calendarItems.toList()).map { calendarItemMapper.map(it) })
+        emitAll(calendarItemLogic.modifyEntities(calendarItems.toList()).map { calendarItemV2Mapper.map(it) })
     }.injectReactorContext()
 }

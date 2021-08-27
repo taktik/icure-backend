@@ -22,10 +22,10 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.PermissionCriterion
 import org.taktik.icure.services.external.rest.v2.dto.embed.PermissionCriterionDto
-import org.taktik.icure.services.external.rest.v2.mapper.UserMapper
+import org.taktik.icure.services.external.rest.v2.mapper.UserV2Mapper
 
-@Mapper(componentModel = "spring", uses = [UserMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface PermissionCriterionMapper {
+@Mapper(componentModel = "spring", uses = [UserV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface PermissionCriterionV2Mapper {
 	fun map(permissionCriterionDto: PermissionCriterionDto):PermissionCriterion
 	fun map(permissionCriterion: PermissionCriterion):PermissionCriterionDto
 }

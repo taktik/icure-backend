@@ -22,8 +22,8 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.ReimbursementCriterion
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.ReimbursementCriterionDto
-@Mapper(componentModel = "spring", uses = [SamTextMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface ReimbursementCriterionMapper {
+@Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface ReimbursementCriterionV2Mapper {
 	fun map(reimbursementCriterionDto: ReimbursementCriterionDto):ReimbursementCriterion
 	fun map(reimbursementCriterion: ReimbursementCriterion):ReimbursementCriterionDto
 }

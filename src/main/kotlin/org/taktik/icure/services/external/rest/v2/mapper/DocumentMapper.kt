@@ -24,14 +24,14 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Document
 import org.taktik.icure.services.external.rest.v2.dto.DocumentDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.DocumentLocationMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.DocumentStatusMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.DocumentTypeMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DocumentLocationV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DocumentStatusV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DocumentTypeV2Mapper
 
-@Mapper(componentModel = "spring", uses = [DocumentTypeMapper::class, DocumentLocationMapper::class, CodeStubMapper::class, DelegationMapper::class, DocumentStatusMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface DocumentMapper {
+@Mapper(componentModel = "spring", uses = [DocumentTypeV2Mapper::class, DocumentLocationV2Mapper::class, CodeStubV2Mapper::class, DelegationV2Mapper::class, DocumentStatusV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface DocumentV2Mapper {
     @Mappings(
             Mapping(target = "attachment", ignore = true),
             Mapping(target = "isAttachmentDirty", ignore = true),

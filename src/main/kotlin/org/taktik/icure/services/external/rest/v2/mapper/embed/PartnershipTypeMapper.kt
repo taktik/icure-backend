@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.PartnershipType
 import org.taktik.icure.services.external.rest.v2.dto.embed.PartnershipTypeDto
 @Mapper(componentModel = "spring")
-interface PartnershipTypeMapper {
+interface PartnershipTypeV2Mapper {
 	fun map(partnershipTypeDto: PartnershipTypeDto):PartnershipType
 	fun map(partnershipType: PartnershipType):PartnershipTypeDto
 }

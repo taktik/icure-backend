@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.services.external.rest.v2.dto.embed.TelecomTypeDto
 @Mapper(componentModel = "spring")
-interface TelecomTypeMapper {
+interface TelecomTypeV2Mapper {
 	fun map(telecomTypeDto: TelecomTypeDto):TelecomType
 	fun map(telecomType: TelecomType):TelecomTypeDto
 }

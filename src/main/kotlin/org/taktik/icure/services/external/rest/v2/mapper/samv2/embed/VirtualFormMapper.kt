@@ -22,10 +22,10 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.VirtualForm
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.VirtualFormDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [SamTextMapper::class, CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface VirtualFormMapper {
+@Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class, CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface VirtualFormV2Mapper {
 	fun map(virtualFormDto: VirtualFormDto):VirtualForm
 	fun map(virtualForm: VirtualForm):VirtualFormDto
 }

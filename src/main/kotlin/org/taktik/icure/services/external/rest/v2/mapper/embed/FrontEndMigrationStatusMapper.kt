@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.FrontEndMigrationStatus
 import org.taktik.icure.services.external.rest.v2.dto.embed.FrontEndMigrationStatusDto
 @Mapper(componentModel = "spring", uses = [])
-interface FrontEndMigrationStatusMapper {
+interface FrontEndMigrationStatusV2Mapper {
 	fun map(frontEndMigrationStatusDto: FrontEndMigrationStatusDto):FrontEndMigrationStatus
 	fun map(frontEndMigrationStatus: FrontEndMigrationStatus):FrontEndMigrationStatusDto
 }

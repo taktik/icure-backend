@@ -50,18 +50,18 @@ import org.taktik.icure.services.external.rest.v2.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.*
 import org.taktik.icure.services.external.rest.v2.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.ServiceDto
-import org.taktik.icure.services.external.rest.v2.mapper.HealthElementMapper
-import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.ImportResultMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.PartnershipMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.PatientHealthCarePartyMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.ServiceMapper
+import org.taktik.icure.services.external.rest.v2.mapper.HealthElementV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.ImportResultV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.PartnershipV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.PatientHealthCarePartyV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.ServiceV2Mapper
 import org.taktik.icure.utils.injectReactorContext
 import java.time.Instant
 import java.util.stream.Collectors
 
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("kmehrControllerV2")
 @RequestMapping("/rest/v2/be_kmehr")
 @Tag(name = "bekmehr")
 class KmehrController(
@@ -76,12 +76,12 @@ class KmehrController(
         val patientLogic: PatientLogic,
         val documentLogic: DocumentLogic,
         val patientInfoFileLogic: PatientInfoFileLogic,
-        val healthElementMapper: HealthElementMapper,
-        val serviceMapper: ServiceMapper,
-        val healthcarePartyMapper: HealthcarePartyMapper,
-        val patientHealthCarePartyMapper: PatientHealthCarePartyMapper,
-        val partnershipMapper: PartnershipMapper,
-        val importResultMapper: ImportResultMapper
+        val healthElementV2Mapper: HealthElementV2Mapper,
+        val serviceV2Mapper: ServiceV2Mapper,
+        val healthcarePartyV2Mapper: HealthcarePartyV2Mapper,
+        val patientHealthCarePartyV2Mapper: PatientHealthCarePartyV2Mapper,
+        val partnershipV2Mapper: PartnershipV2Mapper,
+        val importResultV2Mapper: ImportResultV2Mapper
 ) {
     @Value("\${icure.version}")
     internal val ICUREVERSION: String = "4.0.0"
@@ -98,7 +98,7 @@ class KmehrController(
                         it,
                         info.secretForeignKeys,
                         it1,
-                        healthcarePartyMapper.map(info.recipient!!),
+                        healthcarePartyV2Mapper.map(info.recipient!!),
                         language,
                         info.note,
                         info.tags,
@@ -124,7 +124,7 @@ class KmehrController(
                         it,
                         info.secretForeignKeys,
                         hcp,
-                        healthcarePartyMapper.map(info.recipient!!),
+                        healthcarePartyV2Mapper.map(info.recipient!!),
                         language,
                         info.comment,
                         info.excludedIds,
@@ -158,7 +158,7 @@ class KmehrController(
                       it,
                          info.secretForeignKeys,
                          hcp,
-                         healthcarePartyMapper.map(info.recipient!!),
+                         healthcarePartyV2Mapper.map(info.recipient!!),
                          language,
                          info.comment,
                          info.excludedIds,
@@ -186,9 +186,9 @@ class KmehrController(
                                  @RequestBody info: SumehrExportInfoDto) = mono {
         SumehrContentDto().apply {
             services = sumehrLogicV1.getAllServices(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
-                    ?: false, null).stream().map { s -> serviceMapper.map(s) }.collect(Collectors.toList<ServiceDto>())
+                    ?: false, null).stream().map { s -> serviceV2Mapper.map(s) }.collect(Collectors.toList<ServiceDto>())
             healthElements = sumehrLogicV1.getHealthElements(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
-                    ?: false).stream().map { h -> healthElementMapper.map(h) }.collect(Collectors.toList<HealthElementDto>())
+                    ?: false).stream().map { h -> healthElementV2Mapper.map(h) }.collect(Collectors.toList<HealthElementDto>())
 
         }
     }
@@ -222,7 +222,7 @@ class KmehrController(
                        it,
                         info.secretForeignKeys,
                         hcp,
-                        healthcarePartyMapper.map(info.recipient!!),
+                        healthcarePartyV2Mapper.map(info.recipient!!),
                         language,
                         info.comment,
                         info.excludedIds,
@@ -256,7 +256,7 @@ class KmehrController(
                         it,
                         info.secretForeignKeys,
                         hcp,
-                        healthcarePartyMapper.map(info.recipient!!),
+                        healthcarePartyV2Mapper.map(info.recipient!!),
                         language,
                         info.comment,
                         info.excludedIds,
@@ -284,11 +284,11 @@ class KmehrController(
                                    @RequestBody info: SumehrExportInfoDto) = mono {
         SumehrContentDto().apply {
             services = sumehrLogicV2.getAllServices(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
-                    ?: false, null).stream().map { s -> serviceMapper.map(s) }.collect(Collectors.toList<ServiceDto>())
+                    ?: false, null).stream().map { s -> serviceV2Mapper.map(s) }.collect(Collectors.toList<ServiceDto>())
             healthElements = sumehrLogicV2.getHealthElements(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
-                    ?: false).stream().map { h -> healthElementMapper.map(h) }.collect(Collectors.toList<HealthElementDto>())
-            patientHealthcareParties = sumehrLogicV2.getPatientHealthcareParties(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, patientId).map { h -> patientHealthCarePartyMapper.map(h) }
-            partnerships = sumehrLogicV2.getContactPeople(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, patientId).map { h -> partnershipMapper.map(h) }
+                    ?: false).stream().map { h -> healthElementV2Mapper.map(h) }.collect(Collectors.toList<HealthElementDto>())
+            patientHealthcareParties = sumehrLogicV2.getPatientHealthcareParties(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, patientId).map { h -> patientHealthCarePartyV2Mapper.map(h) }
+            partnerships = sumehrLogicV2.getContactPeople(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, patientId).map { h -> partnershipV2Mapper.map(h) }
         }
     }
 
@@ -367,7 +367,7 @@ class KmehrController(
                 if (medicationSchemeExportParams.services.isEmpty())
                     emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language, recipientSafe, version, null, null))
                 else
-                    emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language, recipientSafe, version, medicationSchemeExportParams.services.map { s -> serviceMapper.map(s) }, null))
+                    emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language, recipientSafe, version, medicationSchemeExportParams.services.map { s -> serviceV2Mapper.map(s) }, null))
             }
         } ?: throw IllegalArgumentException("Missing argument")
     }.injectReactorContext()
@@ -534,7 +534,7 @@ class KmehrController(
                     dryRun ?: false,
                     patientId?.let { patientLogic.getPatient(patientId) },
                     mappings ?: HashMap())
-        }?.map { importResultMapper.map(it) }
+        }?.map { importResultV2Mapper.map(it) }
     }
 
     @Operation(summary = "Check whether patients in SMF already exists in DB")
@@ -583,7 +583,7 @@ class KmehrController(
                     mappings ?: HashMap(),
                     dryRun != true
             )
-        }?.map { importResultMapper.map(it) }
+        }?.map { importResultV2Mapper.map(it) }
     }
 
     @Operation(summary = "Import sumehr into patient(s) using existing document")
@@ -610,7 +610,7 @@ class KmehrController(
                     mappings ?: HashMap(),
                     dryRun != true
             )
-        }?.map { importResultMapper.map(it) }
+        }?.map { importResultV2Mapper.map(it) }
     }
 
     @Operation(summary = "Import MedicationScheme into patient(s) using existing document")
@@ -636,12 +636,12 @@ class KmehrController(
                     mappings ?: HashMap(),
                     dryRun != true
             )
-        }?.map { importResultMapper.map(it) }
+        }?.map { importResultV2Mapper.map(it) }
     }
 
     private fun mapServices(services: List<ServiceDto>?) =
-            services?.map { s -> serviceMapper.map(s) }
+            services?.map { s -> serviceV2Mapper.map(s) }
 
     private fun mapHealthElements(healthElements: List<HealthElementDto>?) =
-            healthElements?.map { s -> healthElementMapper.map(s) }
+            healthElements?.map { s -> healthElementV2Mapper.map(s) }
 }

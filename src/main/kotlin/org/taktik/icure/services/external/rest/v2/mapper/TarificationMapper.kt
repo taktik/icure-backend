@@ -24,15 +24,15 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Tarification
 import org.taktik.icure.services.external.rest.v2.dto.TarificationDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.AppendixTypeMapper
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeFlagMapper
-import org.taktik.icure.services.external.rest.v2.mapper.base.LinkQualificationMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.LetterValueMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.PeriodicityMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.ValorisationMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.AppendixTypeV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeFlagV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.LinkQualificationV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.LetterValueV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.PeriodicityV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.ValorisationV2Mapper
 
-@Mapper(componentModel = "spring", uses = [LetterValueMapper::class, PeriodicityMapper::class, LinkQualificationMapper::class, AppendixTypeMapper::class, ValorisationMapper::class, CodeFlagMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface TarificationMapper {
+@Mapper(componentModel = "spring", uses = [LetterValueV2Mapper::class, PeriodicityV2Mapper::class, LinkQualificationV2Mapper::class, AppendixTypeV2Mapper::class, ValorisationV2Mapper::class, CodeFlagV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface TarificationV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

@@ -29,24 +29,24 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.InsuranceLogic
 import org.taktik.icure.services.external.rest.v2.dto.InsuranceDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
-import org.taktik.icure.services.external.rest.v2.mapper.InsuranceMapper
+import org.taktik.icure.services.external.rest.v2.mapper.InsuranceV2Mapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("insuranceControllerV2")
 @RequestMapping("/rest/v2/insurance")
 @Tag(name = "insurance")
 class InsuranceController(private val insuranceLogic: InsuranceLogic,
-                          private val insuranceMapper: InsuranceMapper) {
+                          private val insuranceV2Mapper: InsuranceV2Mapper) {
 
     @Operation(summary = "Creates an insurance")
     @PostMapping
     fun createInsurance(@RequestBody insuranceDto: InsuranceDto) = mono {
-        val insurance = insuranceLogic.createInsurance(insuranceMapper.map(insuranceDto))
+        val insurance = insuranceLogic.createInsurance(insuranceV2Mapper.map(insuranceDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Insurance creation failed")
 
-        insuranceMapper.map(insurance)
+        insuranceV2Mapper.map(insurance)
     }
 
     @Operation(summary = "Deletes an insurance")
@@ -61,21 +61,21 @@ class InsuranceController(private val insuranceLogic: InsuranceLogic,
     fun getInsurance(@PathVariable insuranceId: String) = mono {
         val insurance = insuranceLogic.getInsurance(insuranceId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Insurance fetching failed")
-        insuranceMapper.map(insurance)
+        insuranceV2Mapper.map(insurance)
     }
 
     @Operation(summary = "Gets insurances by id")
-    @PostMapping("/batch")
+    @PostMapping("/byIds")
     fun getInsurances(@RequestBody insuranceIds: ListOfIdsDto): Flux<InsuranceDto> {
         val insurances = insuranceLogic.getInsurances(HashSet(insuranceIds.ids))
-        return insurances.map { insuranceMapper.map(it) }.injectReactorContext()
+        return insurances.map { insuranceV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Gets an insurance")
     @GetMapping("/byCode/{insuranceCode}")
     fun listInsurancesByCode(@PathVariable insuranceCode: String): Flux<InsuranceDto> {
         val insurances = insuranceLogic.listInsurancesByCode(insuranceCode)
-        return insurances.map { insuranceMapper.map(it) }.injectReactorContext()
+        return insurances.map { insuranceV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Gets an insurance")
@@ -83,15 +83,15 @@ class InsuranceController(private val insuranceLogic: InsuranceLogic,
     fun listInsurancesByName(@PathVariable insuranceName: String): Flux<InsuranceDto> {
         val insurances = insuranceLogic.listInsurancesByName(insuranceName)
 
-        return insurances.map { insuranceMapper.map(it) }.injectReactorContext()
+        return insurances.map { insuranceV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Modifies an insurance")
     @PutMapping
     fun modifyInsurance(@RequestBody insuranceDto: InsuranceDto) = mono {
-        val insurance = insuranceLogic.modifyInsurance(insuranceMapper.map(insuranceDto))
+        val insurance = insuranceLogic.modifyInsurance(insuranceV2Mapper.map(insuranceDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Insurance modification failed")
 
-        insuranceMapper.map(insurance)
+        insuranceV2Mapper.map(insurance)
     }
 }

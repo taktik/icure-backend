@@ -24,11 +24,11 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Keyword
 import org.taktik.icure.services.external.rest.v2.dto.KeywordDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.KeywordSubwordMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.KeywordSubwordV2Mapper
 
-@Mapper(componentModel = "spring", uses = [CodeStubMapper::class, KeywordSubwordMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface KeywordMapper {
+@Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class, KeywordSubwordV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface KeywordV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

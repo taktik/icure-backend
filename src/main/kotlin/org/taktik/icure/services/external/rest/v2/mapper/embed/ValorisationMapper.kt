@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Valorisation
 import org.taktik.icure.services.external.rest.v2.dto.embed.ValorisationDto
 @Mapper(componentModel = "spring")
-interface ValorisationMapper {
+interface ValorisationV2Mapper {
 	fun map(valorisationDto: ValorisationDto):Valorisation
 	fun map(valorisation: Valorisation):ValorisationDto
 }

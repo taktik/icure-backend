@@ -22,10 +22,10 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.RegimenItem
 import org.taktik.icure.services.external.rest.v2.dto.embed.RegimenItemDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface RegimenItemMapper {
+@Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface RegimenItemV2Mapper {
 	fun map(regimenItemDto: RegimenItemDto):RegimenItem
 	fun map(regimenItem: RegimenItem):RegimenItemDto
 }

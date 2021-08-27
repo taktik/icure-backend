@@ -22,10 +22,10 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.SchoolingInfo
 import org.taktik.icure.services.external.rest.v2.dto.embed.SchoolingInfoDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface SchoolingInfoMapper {
+@Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface SchoolingInfoV2Mapper {
 	fun map(schoolingInfoDto: SchoolingInfoDto):SchoolingInfo
 	fun map(schoolingInfo: SchoolingInfo):SchoolingInfoDto
 }

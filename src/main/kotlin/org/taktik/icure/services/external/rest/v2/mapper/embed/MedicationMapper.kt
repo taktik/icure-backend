@@ -24,10 +24,10 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.embed.Medication
 import org.taktik.icure.services.external.rest.v2.dto.embed.MedicationDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [RenewalMapper::class, MedicinalproductMapper::class, CodeStubMapper::class, RegimenItemMapper::class, SuspensionMapper::class, ParagraphAgreementMapper::class, SubstanceproductMapper::class, DurationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface MedicationMapper {
+@Mapper(componentModel = "spring", uses = [RenewalV2Mapper::class, MedicinalproductV2Mapper::class, CodeStubV2Mapper::class, RegimenItemV2Mapper::class, SuspensionV2Mapper::class, ParagraphAgreementV2Mapper::class, SubstanceproductV2Mapper::class, DurationV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface MedicationV2Mapper {
     @Mappings(
             Mapping(target = "options", ignore = true),
     )

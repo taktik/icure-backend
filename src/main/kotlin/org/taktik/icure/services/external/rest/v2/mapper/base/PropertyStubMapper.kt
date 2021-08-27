@@ -22,10 +22,10 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.services.external.rest.v2.dto.PropertyStubDto
-import org.taktik.icure.services.external.rest.v2.mapper.embed.TypedValueMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.TypedValueV2Mapper
 
-@Mapper(componentModel = "spring", uses = [TypedValueMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface PropertyStubMapper {
+@Mapper(componentModel = "spring", uses = [TypedValueV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface PropertyStubV2Mapper {
 	fun map(propertyStubDto: PropertyStubDto):PropertyStub
 	fun map(propertyStub: PropertyStub):PropertyStubDto
 }

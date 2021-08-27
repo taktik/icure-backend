@@ -22,10 +22,10 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.EmploymentInfo
 import org.taktik.icure.services.external.rest.v2.dto.embed.EmploymentInfoDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [EmployerMapper::class, CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface EmploymentInfoMapper {
+@Mapper(componentModel = "spring", uses = [EmployerV2Mapper::class, CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface EmploymentInfoV2Mapper {
 	fun map(employmentInfoDto: EmploymentInfoDto):EmploymentInfo
 	fun map(employmentInfo: EmploymentInfo):EmploymentInfoDto
 }

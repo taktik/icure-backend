@@ -30,23 +30,23 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.PlaceLogic
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.PlaceDto
-import org.taktik.icure.services.external.rest.v2.mapper.PlaceMapper
+import org.taktik.icure.services.external.rest.v2.mapper.PlaceV2Mapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
-@RestController
+@RestController("placeControllerV2")
 @RequestMapping("/rest/v2/place")
 @Tag(name = "place")
 class PlaceController(
         private val placeLogic: PlaceLogic,
-        private val placeMapper: PlaceMapper
+        private val placeV2Mapper: PlaceV2Mapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Creates a place")
     @PostMapping
     fun createPlace(@RequestBody placeDto: PlaceDto) = mono {
-        placeLogic.createPlace(placeMapper.map(placeDto))?.let { placeMapper.map(it) }
+        placeLogic.createPlace(placeV2Mapper.map(placeDto))?.let { placeV2Mapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place creation failed")
     }
 
@@ -68,19 +68,19 @@ class PlaceController(
     @Operation(summary = "Gets an place")
     @GetMapping("/{placeId}")
     fun getPlace(@PathVariable placeId: String) = mono {
-        placeLogic.getPlace(placeId)?.let { placeMapper.map(it) }
+        placeLogic.getPlace(placeId)?.let { placeV2Mapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Place fetching failed")
     }
 
     @Operation(summary = "Gets all places")
     @GetMapping
     fun getPlaces() =
-            placeLogic.getEntities().let { it.map { c -> placeMapper.map(c) } }.injectReactorContext()
+            placeLogic.getEntities().let { it.map { c -> placeV2Mapper.map(c) } }.injectReactorContext()
 
     @Operation(summary = "Modifies an place")
     @PutMapping
     fun modifyPlace(@RequestBody placeDto: PlaceDto) = mono {
-        placeLogic.modifyPlace(placeMapper.map(placeDto))?.let { placeMapper.map(it) }
+        placeLogic.modifyPlace(placeV2Mapper.map(placeDto))?.let { placeV2Mapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place modification failed")
     }
 }

@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.AmpStatus
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.AmpStatusDto
 @Mapper(componentModel = "spring")
-interface AmpStatusMapper {
+interface AmpStatusV2Mapper {
 	fun map(ampStatusDto: AmpStatusDto):AmpStatus
 	fun map(ampStatus: AmpStatus):AmpStatusDto
 }

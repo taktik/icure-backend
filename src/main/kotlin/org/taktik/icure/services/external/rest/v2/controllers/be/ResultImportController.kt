@@ -26,16 +26,16 @@ import org.springframework.web.bind.annotation.*
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.be.format.logic.MultiFormatLogic
 import org.taktik.icure.services.external.rest.v2.dto.ContactDto
-import org.taktik.icure.services.external.rest.v2.mapper.ContactMapper
-import org.taktik.icure.services.external.rest.v2.mapper.ResultInfoMapper
+import org.taktik.icure.services.external.rest.v2.mapper.ContactV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.ResultInfoV2Mapper
 
-@RestController
+@RestController("resultImportControllerV2")
 @RequestMapping("/rest/v2/be_result_import")
 @Tag(name = "beresultimport")
 class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
                              private val documentLogic: DocumentLogic,
-                             private val resultInfoMapper: ResultInfoMapper,
-                             private val contactMapper: ContactMapper
+                             private val resultInfoV2Mapper: ResultInfoV2Mapper,
+                             private val contactV2Mapper: ContactV2Mapper
 ) {
 
     @Operation(summary = "Can we handle this document")
@@ -58,7 +58,7 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
                 full ?: false,
                 language,
                 if (isBlank(enckeys)) listOf() else enckeys.split(',')
-            ).map { resultInfoMapper.map(it) }
+            ).map { resultInfoV2Mapper.map(it) }
         }
     }
 
@@ -79,9 +79,9 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
                     protocolIds.split(','),
                     formIds.split(','),
                     planOfActionId,
-                    contactMapper.map(ctc),
+                    contactV2Mapper.map(ctc),
                     if (isBlank(enckeys)) listOf() else enckeys.split(',')
-            )?.let { contactMapper.map(it) }
+            )?.let { contactV2Mapper.map(it) }
         }
     }
 }

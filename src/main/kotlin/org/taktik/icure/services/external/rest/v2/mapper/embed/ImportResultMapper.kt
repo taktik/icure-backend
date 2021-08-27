@@ -26,8 +26,8 @@ import org.taktik.icure.domain.result.ImportResult
 import org.taktik.icure.services.external.rest.v2.dto.ImportResultDto
 import org.taktik.icure.services.external.rest.v2.mapper.*
 
-@Mapper(componentModel = "spring", uses = [DelegationMapper::class, PatientMapper::class, HealthElementMapper::class, ContactMapper::class, FormMapper::class, HealthcarePartyMapper::class, DocumentMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface ImportResultMapper {
+@Mapper(componentModel = "spring", uses = [DelegationV2Mapper::class, PatientV2Mapper::class, HealthElementV2Mapper::class, ContactV2Mapper::class, FormV2Mapper::class, HealthcarePartyV2Mapper::class, DocumentV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface ImportResultV2Mapper {
     @Mappings(
             Mapping(target = "warning", ignore = true),
             Mapping(target = "error", ignore = true)

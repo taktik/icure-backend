@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.rest.v2.mapper.utils
 
 import java.time.Instant
 
-interface InstantMapper {
+interface InstantV2Mapper {
     fun map(instant: Instant): Long = instant.toEpochMilli()
     fun map(long: Long): Instant = Instant.ofEpochMilli(long)
     fun map()

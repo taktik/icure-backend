@@ -22,8 +22,8 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.InvoicingCode
 import org.taktik.icure.services.external.rest.v2.dto.embed.InvoicingCodeDto
-@Mapper(componentModel = "spring", uses = [PaymentTypeMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface InvoicingCodeMapper {
+@Mapper(componentModel = "spring", uses = [PaymentTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface InvoicingCodeV2Mapper {
 	fun map(invoicingCodeDto: InvoicingCodeDto):InvoicingCode
 	fun map(invoicingCode: InvoicingCode):InvoicingCodeDto
 }

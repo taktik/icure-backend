@@ -54,11 +54,11 @@ import org.taktik.icure.services.external.rest.v2.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
-import org.taktik.icure.services.external.rest.v2.mapper.PatientMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.PatientHealthCarePartyMapper
-import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
+import org.taktik.icure.services.external.rest.v2.mapper.PatientV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.PatientHealthCarePartyV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainV2Mapper
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.services.external.rest.v2.utils.paginatedListOfIds
 import org.taktik.icure.utils.injectReactorContext
@@ -69,7 +69,7 @@ import java.time.Instant
 import javax.security.auth.login.LoginException
 
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("patientControllerV2")
 @RequestMapping("/rest/v2/patient")
 @Tag(name = "patient")
 class PatientController(
@@ -78,15 +78,15 @@ class PatientController(
         private val filters: Filters,
         private val patientLogic: PatientLogic,
         private val healthcarePartyLogic: HealthcarePartyLogic,
-        private val patientMapper: PatientMapper,
-        private val filterChainMapper: FilterChainMapper,
-        private val addressMapper: AddressMapper,
-        private val patientHealthCarePartyMapper: PatientHealthCarePartyMapper,
-        private val delegationMapper: DelegationMapper,
+        private val patientV2Mapper: PatientV2Mapper,
+        private val filterChainV2Mapper: FilterChainV2Mapper,
+        private val addressV2Mapper: AddressV2Mapper,
+        private val patientHealthCarePartyV2Mapper: PatientHealthCarePartyV2Mapper,
+        private val delegationV2Mapper: DelegationV2Mapper,
         private val objectMapper: ObjectMapper
 ) {
 
-    private val patientToPatientDto = { it: Patient -> patientMapper.map(it) }
+    private val patientToPatientDto = { it: Patient -> patientV2Mapper.map(it) }
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Operation(summary = "Find patients for the current user (HcParty) ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
@@ -120,7 +120,7 @@ class PatientController(
     @Operation(summary = "List patients that have been merged towards another patient ", description = "Returns a list of patients that have been merged after the provided date")
     @GetMapping("/merges/{date}")
     fun listOfMergesAfter(@PathVariable date: Long) =
-            patientLogic.listOfMergesAfter(date).map {patientMapper.map(it)}.injectReactorContext()
+            patientLogic.listOfMergesAfter(date).map {patientV2Mapper.map(it)}.injectReactorContext()
 
     @Operation(summary = "List patients that have been modified after the provided date", description = "Returns a list of patients that have been modified after the provided date")
     @GetMapping("/modifiedAfter/{date}")
@@ -227,8 +227,8 @@ class PatientController(
                                         dateOfBirth = p.dateOfBirth,
                                         ssin = p.ssin,
                                         externalId = p.externalId,
-                                        patientHealthCareParties = p.patientHealthCareParties.map { phcp -> patientHealthCarePartyMapper.map(phcp) },
-                                        addresses = p.addresses.map { addressMapper.map(it) }
+                                        patientHealthCareParties = p.patientHealthCareParties.map { phcp -> patientHealthCarePartyV2Mapper.map(phcp) },
+                                        addresses = p.addresses.map { addressV2Mapper.map(it) }
                                 )
                             }.toList()
                     )
@@ -251,7 +251,7 @@ class PatientController(
         val paginationOffset = PaginationOffset<List<String>>(startKeyList, startDocumentId, skip, realLimit + 1)
 
         try {
-            val patients = patientLogic.listPatients(paginationOffset, filterChainMapper.map(filterChain), sort, desc)
+            val patients = patientLogic.listPatients(paginationOffset, filterChainV2Mapper.map(filterChain), sort, desc)
             log.info("Filter patients in " + (System.currentTimeMillis() - System.currentTimeMillis()) + " ms.")
 
             patients.paginatedList<Patient, PatientDto>(patientToPatientDto, realLimit)
@@ -274,7 +274,7 @@ class PatientController(
 
         return try {
             patientLogic.fuzzySearchPatients(firstName, lastName, dateOfBirth)
-                    .map { patientMapper.map(it) }
+                    .map { patientV2Mapper.map(it) }
                     .injectReactorContext()
         } catch (e: Exception) {
             log.warn(e.message, e)
@@ -286,7 +286,7 @@ class PatientController(
     @PostMapping
     fun createPatient(@RequestBody p: PatientDto) = mono {
         val patient = try {
-            patientLogic.createPatient(patientMapper.map(p))
+            patientLogic.createPatient(patientV2Mapper.map(p))
         } catch (e: Exception) {
             log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -329,7 +329,7 @@ class PatientController(
             @Parameter(description = "First name prefix") @RequestParam(required = false) firstName: String?,
             @Parameter(description = "Last name prefix") @RequestParam(required = false) lastName: String?) =
             try {
-                patientLogic.listDeletedPatientsByNames(firstName, lastName).map { patientMapper.map(it) }.injectReactorContext()
+                patientLogic.listDeletedPatientsByNames(firstName, lastName).map { patientV2Mapper.map(it) }.injectReactorContext()
             } catch (e: Exception) {
                 log.warn(e.message, e)
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -350,7 +350,7 @@ class PatientController(
     fun newPatientDelegations(@PathVariable patientId: String,
                        @RequestBody ds: List<DelegationDto>) = mono {
         try {
-            patientLogic.addDelegations(patientId, ds.map { d -> delegationMapper.map(d) })
+            patientLogic.addDelegations(patientId, ds.map { d -> delegationV2Mapper.map(d) })
             val patientWithDelegations = patientLogic.getPatient(patientId)
 
             patientWithDelegations?.takeIf { it.delegations.isNotEmpty() }?.let(patientToPatientDto)
@@ -362,14 +362,15 @@ class PatientController(
     }
 
     @Operation(summary = "Get patients by id", description = "It gets patient administrative data.")
-    @PostMapping("/batch")
+    @PostMapping("/byIds")
     fun getPatients(@RequestBody patientIds: ListOfIdsDto): Flux<PatientDto> {
+        require(patientIds.ids.isNotEmpty()){ "This call require at least 1 id provided"}
         return patientIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try {
                         patientLogic
                                 .getPatients(ids)
-                                .map { patientMapper.map(it) }
+                                .map { patientV2Mapper.map(it) }
                                 .injectReactorContext()
                     }
                     catch (e: java.lang.Exception) {
@@ -390,7 +391,7 @@ class PatientController(
     @PostMapping( "/batch")
     fun createPatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
-            val patients = patientLogic.modifyEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
+            val patients = patientLogic.modifyEntities(patientDtos.map { p -> patientV2Mapper.map(p) }.toList())
             patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
         } catch (e: Exception) {
             log.warn(e.message, e)
@@ -402,7 +403,7 @@ class PatientController(
     @PutMapping( "/batch")
     fun modifyPatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
-            val patients = patientLogic.modifyEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
+            val patients = patientLogic.modifyEntities(patientDtos.map { p -> patientV2Mapper.map(p) }.toList())
             patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
         } catch (e: Exception) {
             log.warn(e.message, e)
@@ -413,7 +414,7 @@ class PatientController(
     @Operation(summary = "Modify a patient", description = "No particular return value. It's just a message.")
     @PutMapping
     fun modifyPatient(@RequestBody patientDto: PatientDto) = mono {
-        patientLogic.modifyPatient(patientMapper.map(patientDto))?.let(patientToPatientDto)
+        patientLogic.modifyPatient(patientV2Mapper.map(patientDto))?.let(patientToPatientDto)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting patient failed. Possible reasons: no such patient exists, or server error. Please try again or read the server log.").also { log.error(it.message) }
     }
 

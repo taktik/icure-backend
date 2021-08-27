@@ -26,7 +26,7 @@ import org.taktik.icure.entities.samv2.ProductId
 import org.taktik.icure.services.external.rest.v2.dto.samv2.ProductIdDto
 
 @Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface ProductIdMapper {
+interface ProductIdV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

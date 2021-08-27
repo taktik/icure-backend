@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.InvoiceType
 import org.taktik.icure.services.external.rest.v2.dto.embed.InvoiceTypeDto
 @Mapper(componentModel = "spring")
-interface InvoiceTypeMapper {
+interface InvoiceTypeV2Mapper {
 	fun map(invoiceTypeDto: InvoiceTypeDto):InvoiceType
 	fun map(invoiceType: InvoiceType):InvoiceTypeDto
 }

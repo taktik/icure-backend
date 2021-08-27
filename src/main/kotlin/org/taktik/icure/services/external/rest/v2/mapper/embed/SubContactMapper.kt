@@ -22,10 +22,10 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.services.external.rest.v2.dto.embed.SubContactDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [CodeStubMapper::class, ServiceLinkMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface SubContactMapper {
+@Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class, ServiceLinkV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface SubContactV2Mapper {
 	fun map(subContactDto: SubContactDto):SubContact
 	fun map(subContact: SubContact):SubContactDto
 }

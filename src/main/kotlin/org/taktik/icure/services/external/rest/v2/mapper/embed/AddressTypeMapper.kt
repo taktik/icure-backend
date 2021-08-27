@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.services.external.rest.v2.dto.embed.AddressTypeDto
 @Mapper(componentModel = "spring")
-interface AddressTypeMapper {
+interface AddressTypeV2Mapper {
 	fun map(addressTypeDto: AddressTypeDto):AddressType
 	fun map(addressType: AddressType):AddressTypeDto
 }

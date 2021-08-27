@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Laterality
 import org.taktik.icure.services.external.rest.v2.dto.embed.LateralityDto
 @Mapper(componentModel = "spring")
-interface LateralityMapper {
+interface LateralityV2Mapper {
 	fun map(lateralityDto: LateralityDto):Laterality
 	fun map(laterality: Laterality):LateralityDto
 }

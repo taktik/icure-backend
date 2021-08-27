@@ -37,7 +37,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.services.external.rest.v2.dto.AccessLogDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
-import org.taktik.icure.services.external.rest.v2.mapper.AccessLogMapper
+import org.taktik.icure.services.external.rest.v2.mapper.AccessLogV2Mapper
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
@@ -45,24 +45,24 @@ import java.time.Instant
 
 
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("accessLogControllerV2")
 @RequestMapping("/rest/v2/accesslog")
 @Tag(name = "accesslog")
 class AccessLogController(
         private val accessLogLogic: AccessLogLogic,
-        private val accessLogMapper: AccessLogMapper,
+        private val accessLogV2Mapper: AccessLogV2Mapper,
         private val objectMapper: ObjectMapper
 ) {
     private val DEFAULT_LIMIT = 1000
-    private val accessLogToAccessLogDto = { it: AccessLog -> accessLogMapper.map(it) }
+    private val accessLogToAccessLogDto = { it: AccessLog -> accessLogV2Mapper.map(it) }
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Operation(summary = "Creates an access log")
     @PostMapping
     fun createAccessLog(@RequestBody accessLogDto: AccessLogDto) = mono {
-        val accessLog = accessLogLogic.createAccessLog(accessLogMapper.map(accessLogDto))
+        val accessLog = accessLogLogic.createAccessLog(accessLogV2Mapper.map(accessLogDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog creation failed")
-        accessLogMapper.map(accessLog)
+        accessLogV2Mapper.map(accessLog)
     }
 
     @Operation(summary = "Deletes an access log")
@@ -85,7 +85,7 @@ class AccessLogController(
         val accessLog = accessLogLogic.getAccessLog(accessLogId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "AccessLog fetching failed")
 
-        accessLogMapper.map(accessLog)
+        accessLogV2Mapper.map(accessLog)
     }
 
     @Operation(summary = "Get Paginated List of Access logs")
@@ -119,14 +119,14 @@ class AccessLogController(
     @GetMapping("/byHcPartySecretForeignKeys")
     fun listAccessLogsByHCPartyAndPatientForeignKeys(@RequestParam("hcPartyId") hcPartyId: String, @RequestParam("secretFKeys") secretFKeys: String) = flow {
         val secretPatientKeys = HashSet(secretFKeys.split(","))
-        emitAll(accessLogLogic.listAccessLogsByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys)).map { accessLogMapper.map(it) } )
+        emitAll(accessLogLogic.listAccessLogsByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys)).map { accessLogV2Mapper.map(it) } )
     }.injectReactorContext()
 
     @Operation(summary = "Modifies an access log")
     @PutMapping
     fun modifyAccessLog(@RequestBody accessLogDto: AccessLogDto) = mono {
-        val accessLog = accessLogLogic.modifyAccessLog(accessLogMapper.map(accessLogDto))
+        val accessLog = accessLogLogic.modifyAccessLog(accessLogV2Mapper.map(accessLogDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog modification failed")
-        accessLogMapper.map(accessLog)
+        accessLogV2Mapper.map(accessLog)
     }
 }

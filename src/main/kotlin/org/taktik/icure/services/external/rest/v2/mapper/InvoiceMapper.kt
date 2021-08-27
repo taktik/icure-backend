@@ -24,11 +24,11 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Invoice
 import org.taktik.icure.services.external.rest.v2.dto.InvoiceDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.*
 
-@Mapper(componentModel = "spring", uses = [InvoiceTypeMapper::class, PaymentTypeMapper::class, InvoicingCodeMapper::class, IdentityDocumentReaderMapper::class, MediumTypeMapper::class, CodeStubMapper::class, PaymentMapper::class, DelegationMapper::class, InvoiceInterventionTypeMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface InvoiceMapper {
+@Mapper(componentModel = "spring", uses = [InvoiceTypeV2Mapper::class, PaymentTypeV2Mapper::class, InvoicingCodeV2Mapper::class, IdentityDocumentReaderV2Mapper::class, MediumTypeV2Mapper::class, CodeStubV2Mapper::class, PaymentV2Mapper::class, DelegationV2Mapper::class, InvoiceInterventionTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface InvoiceV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

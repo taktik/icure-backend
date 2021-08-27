@@ -31,33 +31,33 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AgendaLogic
 import org.taktik.icure.services.external.rest.v2.dto.AgendaDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
-import org.taktik.icure.services.external.rest.v2.mapper.AgendaMapper
+import org.taktik.icure.services.external.rest.v2.mapper.AgendaV2Mapper
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("agendaControllerV2")
 @RequestMapping("/rest/v2/agenda")
 @Tag(name = "agenda")
 class AgendaController(private val agendaLogic: AgendaLogic,
-                       private val agendaMapper: AgendaMapper) {
+                       private val agendaV2Mapper: AgendaV2Mapper) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Gets all agendas")
     @GetMapping
     fun getAgendas(): Flux<AgendaDto> {
         val agendas = agendaLogic.getEntities()
-        return agendas.map { agendaMapper.map(it) }.injectReactorContext()
+        return agendas.map { agendaV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Creates a agenda")
     @PostMapping
     fun createAgenda(@RequestBody agendaDto: AgendaDto) = mono {
-        val agenda = agendaLogic.createAgenda(agendaMapper.map(agendaDto))
+        val agenda = agendaLogic.createAgenda(agendaV2Mapper.map(agendaDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Agenda creation failed")
 
-        agendaMapper.map(agenda)
+        agendaV2Mapper.map(agenda)
     }
 
     @Operation(summary = "Deletes agendas")
@@ -79,13 +79,13 @@ class AgendaController(private val agendaLogic: AgendaLogic,
     fun getAgenda(@PathVariable agendaId: String) = mono {
         val agenda = agendaLogic.getAgenda(agendaId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Agenda fetching failed")
-        agendaMapper.map(agenda)
+        agendaV2Mapper.map(agenda)
     }
 
     @Operation(summary = "Gets all agendas for user")
     @GetMapping("/byUser")
     fun getAgendasForUser(@RequestParam userId: String) = mono {
-        agendaLogic.getAgendasByUser(userId).firstOrNull()?.let { agendaMapper.map(it) }
+        agendaLogic.getAgendasByUser(userId).firstOrNull()?.let { agendaV2Mapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Agendas fetching failed")
     }
 
@@ -93,16 +93,16 @@ class AgendaController(private val agendaLogic: AgendaLogic,
     @GetMapping("/readableForUser")
     fun getReadableAgendasForUser(@RequestParam userId: String): Flux<AgendaDto> {
         val agendas = agendaLogic.getReadableAgendaForUser(userId)
-        return agendas.map { agendaMapper.map(it) }.injectReactorContext()
+        return agendas.map { agendaV2Mapper.map(it) }.injectReactorContext()
     }
 
 
     @Operation(summary = "Modifies an agenda")
     @PutMapping
     fun modifyAgenda(@RequestBody agendaDto: AgendaDto) = mono {
-        val agenda = agendaLogic.modifyAgenda(agendaMapper.map(agendaDto))
+        val agenda = agendaLogic.modifyAgenda(agendaV2Mapper.map(agendaDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Agenda modification failed")
 
-        agendaMapper.map(agenda)
+        agendaV2Mapper.map(agenda)
     }
 }

@@ -39,26 +39,26 @@ import org.taktik.icure.entities.base.Code
 import org.taktik.icure.services.external.rest.v2.dto.CodeDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeMapper
-import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainV2Mapper
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
 @FlowPreview
-@RestController
+@RestController("codeControllerV2")
 @RequestMapping("/rest/v2/code")
 @Tag(name = "code")
 class CodeController(
         private val codeLogic: CodeLogic,
-        private val codeMapper: CodeMapper,
-        private val filterChainMapper: FilterChainMapper,
+        private val codeV2Mapper: CodeV2Mapper,
+        private val filterChainV2Mapper: FilterChainV2Mapper,
         private val objectMapper: ObjectMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000
-    private val codeToCodeDto = { it: Code -> codeMapper.map(it) }
+    private val codeToCodeDto = { it: Code -> codeV2Mapper.map(it) }
 
     @Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, pagination is not supported")
     @GetMapping("/byLabel")
@@ -156,7 +156,7 @@ class CodeController(
             @Parameter(description = "Code version") @RequestParam(required = false) version: String?): Flux<CodeDto> {
 
         return codeLogic.findCodesBy(region, type, code, version)
-                .map { c -> codeMapper.map(c) }
+                .map { c -> codeV2Mapper.map(c) }
                 .injectReactorContext()
     }
 
@@ -183,19 +183,19 @@ class CodeController(
     @Operation(summary = "Create a Code", description = "Type, Code and Version are required.")
     @PostMapping
     fun createCode(@RequestBody c: CodeDto) = mono {
-        val code = codeLogic.create(codeMapper.map(c))
-        code?.let { codeMapper.map(it) }
+        val code = codeLogic.create(codeV2Mapper.map(c))
+        code?.let { codeV2Mapper.map(it) }
     }
 
     @Operation(summary = "Get a list of codes by ids", description = "Keys must be delimited by coma")
-    @PostMapping("/batch")
+    @PostMapping("/byIds")
     fun getCodes(@RequestBody codeIds: ListOfIdsDto): Flux<CodeDto> {
         return codeIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
                     try {
                         codeLogic
                                 .getCodes(ids)
-                                .map { f -> codeMapper.map(f) }
+                                .map { f -> codeV2Mapper.map(f) }
                                 .injectReactorContext()
                     }
                     catch (e: java.lang.Exception) {
@@ -210,7 +210,7 @@ class CodeController(
     fun getCode(@Parameter(description = "Code id") @PathVariable codeId: String) = mono {
         val c = codeLogic.get(codeId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the code. Read the app logs.")
-        codeMapper.map(c)
+        codeV2Mapper.map(c)
     }
 
     @Operation(summary = "Get a code", description = "Get a code based on ID or (code,type,version) as query strings. (code,type,version) is unique.")
@@ -222,18 +222,18 @@ class CodeController(
 
         val c = codeLogic.get(type, code, version)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the code with parts. Read the app logs.")
-        codeMapper.map(c)
+        codeV2Mapper.map(c)
     }
 
     @Operation(summary = "Modify a code", description = "Modification of (type, code, version) is not allowed.")
     @PutMapping
     fun modifyCode(@RequestBody codeDto: CodeDto) = mono {
         val modifiedCode = try {
-            codeLogic.modify(codeMapper.map(codeDto))
+            codeLogic.modify(codeV2Mapper.map(codeDto))
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding modification of the code. Read the app logs: " + e.message)
         }
-        modifiedCode?.let { codeMapper.map(it) }
+        modifiedCode?.let { codeV2Mapper.map(it) }
     }
 
     @Operation(summary = "Filter codes ", description = "Returns a list of codes along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
@@ -254,7 +254,7 @@ class CodeController(
         var codes: Flow<ViewQueryResultEvent>? = null
         val timing = System.currentTimeMillis()
         filterChain.let {
-            codes = codeLogic.listCodes(paginationOffset, filterChainMapper.map(filterChain), sort, desc)
+            codes = codeLogic.listCodes(paginationOffset, filterChainV2Mapper.map(filterChain), sort, desc)
         }
         logger.info("Filter codes in " + (System.currentTimeMillis() - timing) + " ms.")
         codes?.let {

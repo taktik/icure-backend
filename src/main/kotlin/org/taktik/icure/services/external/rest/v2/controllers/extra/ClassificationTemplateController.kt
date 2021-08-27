@@ -35,20 +35,20 @@ import org.taktik.icure.entities.ClassificationTemplate
 import org.taktik.icure.services.external.rest.v2.dto.ClassificationTemplateDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
-import org.taktik.icure.services.external.rest.v2.mapper.ClassificationTemplateMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v2.mapper.ClassificationTemplateV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("classificationTemplateControllerV2")
 @RequestMapping("/rest/v2/classificationTemplate")
 @Tag(name = "classificationTemplate")
 class ClassificationTemplateController(
         private val classificationTemplateLogic: ClassificationTemplateLogic,
-        private val classificationTemplateMapper: ClassificationTemplateMapper,
-        private val delegationMapper: DelegationMapper
+        private val classificationTemplateV2Mapper: ClassificationTemplateV2Mapper,
+        private val delegationV2Mapper: DelegationV2Mapper
 ) {
     private val DEFAULT_LIMIT = 1000
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -56,9 +56,9 @@ class ClassificationTemplateController(
     @Operation(summary = "Create a classification Template with the current user", description = "Returns an instance of created classification Template.")
     @PostMapping
     fun createClassificationTemplate(@RequestBody c: ClassificationTemplateDto) = mono {
-        val element = classificationTemplateLogic.createClassificationTemplate(classificationTemplateMapper.map(c))
+        val element = classificationTemplateLogic.createClassificationTemplate(classificationTemplateV2Mapper.map(c))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Classification Template creation failed.")
-        classificationTemplateMapper.map(element)
+        classificationTemplateV2Mapper.map(element)
     }
 
     @Operation(summary = "Get a classification Template")
@@ -66,14 +66,14 @@ class ClassificationTemplateController(
     fun getClassificationTemplate(@PathVariable classificationTemplateId: String) = mono {
         val element = classificationTemplateLogic.getClassificationTemplate(classificationTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting classification Template failed. Possible reasons: no such classification Template exists, or server error. Please try again or read the server log.")
-        classificationTemplateMapper.map(element)
+        classificationTemplateV2Mapper.map(element)
     }
 
     @Operation(summary = "Get a list of classifications Templates", description = "Ids are seperated by a coma")
     @GetMapping("/byIds/{ids}")
     fun getClassificationTemplateByIds(@PathVariable ids: String): Flux<ClassificationTemplateDto> {
         val elements = classificationTemplateLogic.getClassificationTemplates(ids.split(','))
-        return elements.map { classificationTemplateMapper.map(it) }.injectReactorContext()
+        return elements.map { classificationTemplateV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "List classification Templates found By Healthcare Party and secret foreign keyelementIds.", description = "Keys hast to delimited by coma")
@@ -82,7 +82,7 @@ class ClassificationTemplateController(
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val elementList = classificationTemplateLogic.listClasificationsByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
-        return elementList.map { classificationTemplateMapper.map(it) }.injectReactorContext()
+        return elementList.map { classificationTemplateV2Mapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Delete classification Templates.", description = "Response is a set containing the ID's of deleted classification Templates.")
@@ -104,22 +104,22 @@ class ClassificationTemplateController(
     @PutMapping
     fun modifyClassificationTemplate(@RequestBody classificationTemplateDto: ClassificationTemplateDto) = mono {
         //TODO Ne modifier que le label
-        classificationTemplateLogic.modifyClassificationTemplate(classificationTemplateMapper.map(classificationTemplateDto))
+        classificationTemplateLogic.modifyClassificationTemplate(classificationTemplateV2Mapper.map(classificationTemplateDto))
         val modifiedClassificationTemplate = classificationTemplateLogic.getClassificationTemplate(classificationTemplateDto.id)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Classification Template modification failed")
-        classificationTemplateMapper.map(modifiedClassificationTemplate)
+        classificationTemplateV2Mapper.map(modifiedClassificationTemplate)
     }
 
 
     @Operation(summary = "Delegates a classification Template to a healthcare party", description = "It delegates a classification Template to a healthcare party (By current healthcare party). Returns the element with new delegations.")
     @PostMapping("/{classificationTemplateId}/delegate")
     fun newClassificationTemplateDelegations(@PathVariable classificationTemplateId: String, @RequestBody ds: List<DelegationDto>) = mono {
-        classificationTemplateLogic.addDelegations(classificationTemplateId, ds.map { delegationMapper.map(it) })
+        classificationTemplateLogic.addDelegations(classificationTemplateId, ds.map { delegationV2Mapper.map(it) })
         val classificationTemplateWithDelegation = classificationTemplateLogic.getClassificationTemplate(classificationTemplateId)
 
         val succeed = classificationTemplateWithDelegation?.delegations != null && classificationTemplateWithDelegation.delegations.isNotEmpty()
         if (succeed) {
-            classificationTemplateWithDelegation?.let { classificationTemplateMapper.map(it) }
+            classificationTemplateWithDelegation?.let { classificationTemplateV2Mapper.map(it) }
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Delegation creation for classification Template failed.")
         }
@@ -135,6 +135,6 @@ class ClassificationTemplateController(
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
 
         val classificationTemplates = classificationTemplateLogic.listClassificationTemplates(paginationOffset)
-        classificationTemplates.paginatedList<ClassificationTemplate, ClassificationTemplateDto>({ classificationTemplateMapper.map(it) }, realLimit)
+        classificationTemplates.paginatedList<ClassificationTemplate, ClassificationTemplateDto>({ classificationTemplateV2Mapper.map(it) }, realLimit)
     }
 }

@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.InsuranceStatus
 import org.taktik.icure.services.external.rest.v2.dto.embed.InsuranceStatusDto
 @Mapper(componentModel = "spring")
-interface InsuranceStatusMapper {
+interface InsuranceStatusV2Mapper {
 	fun map(insuranceStatusDto: InsuranceStatusDto):InsuranceStatus
 	fun map(insuranceStatus: InsuranceStatus):InsuranceStatusDto
 }

@@ -24,11 +24,11 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.services.external.rest.v2.dto.samv2.AmpDto
-import org.taktik.icure.services.external.rest.v2.mapper.EntityReferenceMapper
+import org.taktik.icure.services.external.rest.v2.mapper.EntityReferenceV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.*
 
-@Mapper(componentModel = "spring", uses = [CompanyMapper::class, AmpStatusMapper::class, SamTextMapper::class, VmpStubMapper::class, MedicineTypeMapper::class, AmpComponentMapper::class, EntityReferenceMapper::class, AmppMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface AmpMapper {
+@Mapper(componentModel = "spring", uses = [CompanyV2Mapper::class, AmpStatusV2Mapper::class, SamTextV2Mapper::class, VmpStubV2Mapper::class, MedicineTypeV2Mapper::class, AmpComponentV2Mapper::class, EntityReferenceV2Mapper::class, AmppV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface AmpV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

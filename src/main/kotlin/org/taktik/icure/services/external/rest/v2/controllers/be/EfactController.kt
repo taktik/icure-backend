@@ -28,7 +28,7 @@ import org.taktik.icure.entities.Invoice
 import org.taktik.icure.services.external.rest.v2.dto.MapOfIdsDto
 
 
-@RestController
+@RestController("efactControllerV2")
 @RequestMapping("/rest/v2/be_efact")
 @Tag(name = "beefact")
 class EfactController(val efactLogic: EfactLogic,

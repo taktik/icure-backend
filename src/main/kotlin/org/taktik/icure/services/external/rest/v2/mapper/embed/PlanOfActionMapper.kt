@@ -22,10 +22,10 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.PlanOfAction
 import org.taktik.icure.services.external.rest.v2.dto.embed.PlanOfActionDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [CareTeamMembershipMapper::class, CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface PlanOfActionMapper {
+@Mapper(componentModel = "spring", uses = [CareTeamMembershipV2Mapper::class, CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface PlanOfActionV2Mapper {
 	fun map(planOfActionDto: PlanOfActionDto):PlanOfAction
 	fun map(planOfAction: PlanOfAction):PlanOfActionDto
 }

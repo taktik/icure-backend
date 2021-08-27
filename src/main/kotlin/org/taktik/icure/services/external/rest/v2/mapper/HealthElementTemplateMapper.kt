@@ -24,11 +24,11 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.HealthElementTemplate
 import org.taktik.icure.services.external.rest.v2.dto.HealthElementTemplateDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.PlanOfActionTemplateMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.PlanOfActionTemplateV2Mapper
 
-@Mapper(componentModel = "spring", uses = [PlanOfActionTemplateMapper::class, CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface HealthElementTemplateMapper {
+@Mapper(componentModel = "spring", uses = [PlanOfActionTemplateV2Mapper::class, CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface HealthElementTemplateV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

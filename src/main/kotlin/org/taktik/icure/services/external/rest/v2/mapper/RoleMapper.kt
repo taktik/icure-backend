@@ -24,11 +24,11 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Role
 import org.taktik.icure.services.external.rest.v2.dto.RoleDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubMapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.PermissionMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.PermissionV2Mapper
 
-@Mapper(componentModel = "spring", uses = [PropertyStubMapper::class, PermissionMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface RoleMapper {
+@Mapper(componentModel = "spring", uses = [PropertyStubV2Mapper::class, PermissionV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface RoleV2Mapper {
     @Mappings(
             Mapping(target = "parents", ignore = true),
             Mapping(target = "attachments", ignore = true),

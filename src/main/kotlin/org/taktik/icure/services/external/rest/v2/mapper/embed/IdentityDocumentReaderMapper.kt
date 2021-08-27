@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.IdentityDocumentReader
 import org.taktik.icure.services.external.rest.v2.dto.embed.IdentityDocumentReaderDto
 @Mapper(componentModel = "spring")
-interface IdentityDocumentReaderMapper {
+interface IdentityDocumentReaderV2Mapper {
 	fun map(identityDocumentReaderDto: IdentityDocumentReaderDto):IdentityDocumentReader
 	fun map(identityDocumentReader: IdentityDocumentReader):IdentityDocumentReaderDto
 }

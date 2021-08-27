@@ -24,8 +24,8 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.embed.ServiceLink
 import org.taktik.icure.services.external.rest.v2.dto.embed.ServiceLinkDto
-@Mapper(componentModel = "spring", uses = [DelegationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface ServiceLinkMapper {
+@Mapper(componentModel = "spring", uses = [DelegationV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface ServiceLinkV2Mapper {
     @Mappings(
             Mapping(target = "service", ignore = true)
     )

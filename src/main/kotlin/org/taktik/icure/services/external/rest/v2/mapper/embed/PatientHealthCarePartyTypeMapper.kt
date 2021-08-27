@@ -22,7 +22,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.PatientHealthCarePartyType
 import org.taktik.icure.services.external.rest.v2.dto.embed.PatientHealthCarePartyTypeDto
 @Mapper(componentModel = "spring")
-interface PatientHealthCarePartyTypeMapper {
+interface PatientHealthCarePartyTypeV2Mapper {
 	fun map(patientHealthCarePartyTypeDto: PatientHealthCarePartyTypeDto):PatientHealthCarePartyType
 	fun map(patientHealthCarePartyType: PatientHealthCarePartyType):PatientHealthCarePartyTypeDto
 }

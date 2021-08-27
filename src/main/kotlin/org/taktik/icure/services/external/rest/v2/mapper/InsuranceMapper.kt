@@ -24,10 +24,10 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.Insurance
 import org.taktik.icure.services.external.rest.v2.dto.InsuranceDto
-import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressMapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressV2Mapper
 
-@Mapper(componentModel = "spring", uses = [AddressMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface InsuranceMapper {
+@Mapper(componentModel = "spring", uses = [AddressV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface InsuranceV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

@@ -37,7 +37,6 @@ import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.asynclogic.ICureLogic
 import org.taktik.icure.asynclogic.PropertyLogic
 import org.taktik.icure.properties.CouchDbProperties
-import java.net.URI
 
 @SpringBootApplication(scanBasePackages = [
     "org.springframework.boot.autoconfigure.aop",
@@ -53,7 +52,10 @@ import java.net.URI
     "org.taktik.icure.services.external.http",
     "org.taktik.icure.services.external.rest.v1.controllers",
     "org.taktik.icure.services.external.rest.v1.mapper",
-    "org.taktik.icure.services.external.rest.v1.wscontrollers"
+    "org.taktik.icure.services.external.rest.v1.wscontrollers",
+    "org.taktik.icure.services.external.rest.v2.controllers",
+    "org.taktik.icure.services.external.rest.v2.mapper",
+    "org.taktik.icure.services.external.rest.v2.wscontrollers"
 ], exclude = [
     FreeMarkerAutoConfiguration::class,
     CacheAutoConfiguration::class,

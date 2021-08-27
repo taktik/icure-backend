@@ -35,7 +35,7 @@ import org.taktik.icure.be.format.logic.KmehrReportLogic
 import org.taktik.icure.be.format.logic.MedidocLogic
 import org.taktik.icure.utils.FuzzyValues
 
-@RestController
+@RestController("resultExportControllerV2")
 @RequestMapping("/rest/v2/be_result_export")
 @Tag(name = "beresultexport")
 class ResultExportController(private var healthOneLogic: HealthOneLogic,

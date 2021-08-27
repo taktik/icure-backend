@@ -24,11 +24,11 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.services.external.rest.v2.dto.HealthElementDto
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.*
 
-@Mapper(componentModel = "spring", uses = [LateralityMapper::class, PlanOfActionMapper::class, EpisodeMapper::class, CodeStubMapper::class, DelegationMapper::class, CareTeamMemberMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface HealthElementMapper {
+@Mapper(componentModel = "spring", uses = [LateralityV2Mapper::class, PlanOfActionV2Mapper::class, EpisodeV2Mapper::class, CodeStubV2Mapper::class, DelegationV2Mapper::class, CareTeamMemberV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface HealthElementV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

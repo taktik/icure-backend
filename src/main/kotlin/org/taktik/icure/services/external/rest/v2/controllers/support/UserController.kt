@@ -33,8 +33,8 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.User
 import org.taktik.icure.services.external.rest.v2.dto.PropertyStubDto
 import org.taktik.icure.services.external.rest.v2.dto.UserDto
-import org.taktik.icure.services.external.rest.v2.mapper.UserMapper
-import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubMapper
+import org.taktik.icure.services.external.rest.v2.mapper.UserV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubV2Mapper
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
@@ -45,24 +45,24 @@ import org.taktik.icure.utils.injectReactorContext
  * Nicknames are required so that operationId is e.g. 'modifyAccessLog' instead of 'modifyAccessLogUsingPUT' */
 
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("userControllerV2")
 @RequestMapping("/rest/v2/user")
 @Tag(name = "user") // otherwise would default to "user-controller"
 class UserController(private val userLogic: UserLogic,
                      private val sessionLogic: AsyncSessionLogic,
-                     private val userMapper: UserMapper,
-                     private val propertyStubMapper: PropertyStubMapper
+                     private val userV2Mapper: UserV2Mapper,
+                     private val propertyStubV2Mapper: PropertyStubV2Mapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000
-    private val userToUserDto = { it: User -> userMapper.map(it) }
+    private val userToUserDto = { it: User -> userV2Mapper.map(it) }
 
     @Operation(summary = "Get presently logged-in user.", description = "Get current user.")
     @GetMapping(value = ["/current"])
     fun getCurrentUser() = mono {
             val user = userLogic.getUser(sessionLogic.getCurrentUserId())
                     ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
-            userMapper.map(user)
+            userV2Mapper.map(user)
     }
 
     @Operation(summary = "Get Currently logged-in user session.", description = "Get current user.")
@@ -89,13 +89,13 @@ class UserController(private val userLogic: UserLogic,
     @PostMapping
     fun createUser(@RequestBody userDto: UserDto) = mono {
         val user = try {
-            userLogic.createUser(userMapper.map(userDto.copy(groupId = null)))
+            userLogic.createUser(userV2Mapper.map(userDto.copy(groupId = null)))
         } catch (e: Exception) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User creation failed.")
 
-        userMapper.map(user)
+        userV2Mapper.map(user)
     }
 
 
@@ -104,7 +104,7 @@ class UserController(private val userLogic: UserLogic,
     fun getUser(@PathVariable userId: String) = mono {
         val user = userLogic.getUser(userId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
-        userMapper.map(user)
+        userV2Mapper.map(user)
     }
 
     @Operation(summary = "Get a user by his Email/Login", description = "General information about the user")
@@ -112,7 +112,7 @@ class UserController(private val userLogic: UserLogic,
     fun getUserByEmail(@PathVariable email: String) = mono {
         val user = userLogic.getUserByEmail(email)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
-        userMapper.map(user)
+        userV2Mapper.map(user)
     }
 
     @Operation(summary = "Get the list of users by healthcare party id")
@@ -135,11 +135,11 @@ class UserController(private val userLogic: UserLogic,
     @PutMapping
     fun modifyUser(@RequestBody userDto: UserDto) = mono {
         //Sanitize group
-        userLogic.modifyUser(userMapper.map(userDto.copy(groupId = null)))
+        userLogic.modifyUser(userV2Mapper.map(userDto.copy(groupId = null)))
         val modifiedUser = userLogic.getUser(userDto.id)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User modification failed.")
 
-        userMapper.map(modifiedUser)
+        userV2Mapper.map(modifiedUser)
     }
 
     @Operation(summary = "Assign a healthcare party ID to current user", description = "UserDto gets returned.")
@@ -149,7 +149,7 @@ class UserController(private val userLogic: UserLogic,
         modifiedUser?.let {
             userLogic.save(modifiedUser.copy(healthcarePartyId = healthcarePartyId))
 
-            userMapper.map(modifiedUser)
+            userV2Mapper.map(modifiedUser)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Assigning healthcare party ID to the current user failed.").also { logger.error(it.message) }
     }
 
@@ -158,13 +158,13 @@ class UserController(private val userLogic: UserLogic,
     fun modifyProperties(@PathVariable userId: String, @RequestBody properties: List<PropertyStubDto>?) = mono {
         val user = userLogic.getUser(userId)
         user?.let {
-            val modifiedUser = userLogic.setProperties(user, properties?.map { p -> propertyStubMapper.map(p) }
+            val modifiedUser = userLogic.setProperties(user, properties?.map { p -> propertyStubV2Mapper.map(p) }
                     ?: listOf())
             if (modifiedUser == null) {
                 logger.error("Modify a User property failed.")
                 throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modify a User property failed.")
             }
-            userMapper.map(modifiedUser)
+            userV2Mapper.map(modifiedUser)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modify a User property failed.")
 
     }

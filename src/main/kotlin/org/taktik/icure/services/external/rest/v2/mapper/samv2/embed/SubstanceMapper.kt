@@ -24,8 +24,8 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.samv2.embed.Substance
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.SubstanceDto
-@Mapper(componentModel = "spring", uses = [StandardSubstanceMapper::class, SamTextMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface SubstanceMapper {
+@Mapper(componentModel = "spring", uses = [StandardSubstanceV2Mapper::class, SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface SubstanceV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),

@@ -24,13 +24,13 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.samv2.VmpGroup
 import org.taktik.icure.services.external.rest.v2.dto.samv2.VmpGroupDto
-import org.taktik.icure.services.external.rest.v2.mapper.EntityReferenceMapper
-import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.NoGenericPrescriptionReasonMapper
-import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.NoSwitchReasonMapper
-import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.SamTextMapper
+import org.taktik.icure.services.external.rest.v2.mapper.EntityReferenceV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.NoGenericPrescriptionReasonV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.NoSwitchReasonV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.SamTextV2Mapper
 
-@Mapper(componentModel = "spring", uses = [NoSwitchReasonMapper::class, SamTextMapper::class, NoGenericPrescriptionReasonMapper::class, EntityReferenceMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface VmpGroupMapper {
+@Mapper(componentModel = "spring", uses = [NoSwitchReasonV2Mapper::class, SamTextV2Mapper::class, NoGenericPrescriptionReasonV2Mapper::class, EntityReferenceV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface VmpGroupV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),
