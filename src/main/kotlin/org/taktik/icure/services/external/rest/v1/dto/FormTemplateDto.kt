@@ -37,7 +37,10 @@ data class FormTemplateDto(
         override val rev: String? = null,
         override val deletionDate: Long? = null,
 
+        @Deprecated("Use templateLayout")
         val layout: FormLayout? = null,
+        val templateLayout: org.taktik.icure.services.external.rest.v1.dto.embed.form.template.FormTemplateLayout? = null,
+
         val name: String? = null,
         //Globally unique and consistent accross all DBs that get their formTemplate from a icure cloud library
         //The id is not guaranteed to be consistent accross dbs

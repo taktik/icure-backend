@@ -44,7 +44,7 @@ import org.taktik.icure.utils.firstOrNull
 class CodeDAOImpl(couchDbProperties: CouchDbProperties,
                   @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager) : CachedDAOImpl<Code>(Code::class.java, couchDbProperties, couchDbDispatcher, idGenerator, asyncCacheManager), CodeDAO {
 
-    @View(name = "by_type_code_version", map = "classpath:js/code/By_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
+    @View(name = "by_type_code_version", map = "classpath:js/code/By_type_code_version.js", reduce = "_count")
     override fun listCodesBy(type: String?, code: String?, version: String?): Flow<Code> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(
@@ -79,7 +79,7 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
         )
     }
 
-    @View(name = "by_region_type_code_version", map = "classpath:js/code/By_region_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
+    @View(name = "by_region_type_code_version", map = "classpath:js/code/By_region_type_code_version.js", reduce = "_count")
     override fun listCodesBy(region: String?, type: String?, code: String?, version: String?): Flow<Code> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(

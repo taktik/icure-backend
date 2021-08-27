@@ -57,17 +57,17 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         return listPatientIdsForName(name, healthcarePartyId, "of_hcparty_name")
     }
 
-    @View(name = "by_hcparty_ssin", map = "classpath:js/patient/By_hcparty_ssin_map.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
+    @View(name = "by_hcparty_ssin", map = "classpath:js/patient/By_hcparty_ssin_map.js", reduce = "_count")
     override fun listPatientIdsByHcPartyAndSsin(ssin: String, healthcarePartyId: String): Flow<String> {
         return listPatientIdsForSsin(ssin, healthcarePartyId, "by_hcparty_ssin")
     }
 
-    @View(name = "of_hcparty_ssin", map = "classpath:js/patient/Of_hcparty_ssin_map.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
+    @View(name = "of_hcparty_ssin", map = "classpath:js/patient/Of_hcparty_ssin_map.js", reduce = "_count")
     override fun listPatientIdsOfHcPartyAndSsin(ssin: String, healthcarePartyId: String): Flow<String> {
         return listPatientIdsForSsin(ssin, healthcarePartyId, "of_hcparty_ssin")
     }
 
-    @View(name = "by_hcparty_active", map = "classpath:js/patient/By_hcparty_active.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
+    @View(name = "by_hcparty_active", map = "classpath:js/patient/By_hcparty_active.js", reduce = "_count")
     override fun listPatientIdsByActive(active: Boolean, healthcarePartyId: String): Flow<String> {
         return listPatientIdsForActive(active, healthcarePartyId, "by_hcparty_active")
     }
