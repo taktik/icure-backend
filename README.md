@@ -19,7 +19,7 @@ if you wish to build & run this project using the IntelliJ idea, you'll have to 
 
 ### Naming convention in this project
 
-For controllers, logic and daos:
+For controllers, logic and DAOs:
 
 |  Action                       |  API Name       | Method and path |
 |-------------------------------|-----------------|-----------------|
