@@ -29,8 +29,10 @@ import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.entities.TimeTable
 import org.taktik.icure.properties.CouchDbProperties
+import org.taktik.icure.utils.FuzzyValues
 
 import org.taktik.icure.utils.distinctById
+import java.time.temporal.ChronoUnit
 
 @Repository("timeTableDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.TimeTable' && !doc.deleted) emit( null, doc._id )}")
@@ -83,13 +85,15 @@ class TimeTableDAOImpl (couchDbProperties: CouchDbProperties,
         emitAll(client.queryViewIncludeDocsNoValue<Array<String>, TimeTable>(viewQuery).map{it.doc})
 	}
 
-	override fun listTimeTableByPeriodAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable> = flow {
-        val timeTablesStart = listTimeTableByStartDateAndAgendaId(startDate, endDate, agendaId)
-		val timeTablesEnd = listTimeTableByEndDateAndAgendaId(startDate, endDate, agendaId)
-		/* Special case : timeTableStart < research.start < rechearch.end < timetableEnd*/
-		val timeTableStartBefore = listTimeTableByStartDateAndAgendaId(0L, startDate, agendaId)
-		val timeTableEndAfter = listTimeTableByEndDateAndAgendaId(endDate, 999999999999999L, agendaId).toList()
-
-        flowOf(timeTableStartBefore.filterNot { timeTableEndAfter.contains(it) }, timeTablesStart, timeTablesEnd).flattenConcat().distinctById()
-	}
+	override fun listTimeTableByPeriodAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable> =
+	        listTimeTableByStartDateAndAgendaId(
+                    startDate?.let {
+                        /* 1 day in the past to catch long lasting events that could bracket the search period */
+                        FuzzyValues.getFuzzyDateTime(FuzzyValues.getDateTime(it).minusDays(1), ChronoUnit.SECONDS)
+                    },
+                    endDate,
+                    agendaId
+            ).filter {
+                it.endTime?.let { et -> et > (startDate ?: 0) } ?: true
+            }
 }
