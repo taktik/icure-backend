@@ -17,6 +17,9 @@
  */
 package org.taktik.icure.entities.embed
 
+import org.taktik.icure.entities.base.EnumVersion
+
+@EnumVersion(1L)
 enum class DocumentStatus {
     draft, finalized, pending_review, reviewed, pending_signature, signed, canceled, sent, delivered
 }
