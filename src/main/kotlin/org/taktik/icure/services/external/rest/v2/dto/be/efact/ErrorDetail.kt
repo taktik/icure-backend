@@ -18,14 +18,15 @@
 
 package org.taktik.icure.services.external.rest.v2.dto.be.efact
 
+import io.swagger.v3.oas.annotations.media.Schema
 import java.io.Serializable
 
 class ErrorDetail : Serializable {
-    var creationDate: Int = 0
+    @Schema(defaultValue = "0") var creationDate: Int = 0
     var errorCodeComment: String? = null
-    var index: Int = 0
-    var invoicingYearMonth: Int = 0
-    var mutualityCode: Int = 0
+    @Schema(defaultValue = "0") var index: Int = 0
+    @Schema(defaultValue = "0") var invoicingYearMonth: Int = 0
+    @Schema(defaultValue = "0") var mutualityCode: Int = 0
     var oaResult: String? = null
     var rejectionCode1: String? = null
     var rejectionCode2: String? = null
@@ -40,7 +41,7 @@ class ErrorDetail : Serializable {
     var rejectionZoneDescr2: String? = null
     var rejectionZoneDescr3: String? = null
     var reserve: String? = null
-    var sendingId: Int = 0
+    @Schema(defaultValue = "0") var sendingId: Int = 0
     var zone114: String? = null
     var zone115: String? = null
     var zone116: String? = null

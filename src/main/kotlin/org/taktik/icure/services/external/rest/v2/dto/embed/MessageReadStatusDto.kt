@@ -20,8 +20,9 @@ package org.taktik.icure.services.external.rest.v2.dto.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
-data class MessageReadStatusDto(val time: Long? = null, val read: Boolean = false)
+data class MessageReadStatusDto(val time: Long? = null, @Schema(defaultValue = "false") val read: Boolean = false)

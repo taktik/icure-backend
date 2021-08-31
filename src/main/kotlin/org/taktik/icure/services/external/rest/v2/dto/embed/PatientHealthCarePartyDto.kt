@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v2.dto.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 import java.io.Serializable
 import java.util.*
 
@@ -30,11 +31,12 @@ import java.util.*
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
+@Schema(description = "One or several periods of care by an hcp for this patient")
 data class PatientHealthCarePartyDto(
-        val type: PatientHealthCarePartyTypeDto? = null,
-        val referral: Boolean = false, // mark this phcp as THE active referral link (gmd)
-        val healthcarePartyId: String? = null,
-        val sendFormats: Map<TelecomTypeDto, String> = mapOf(),  // String is in fact a UTI (uniform type identifier / a sort of super-MIME)
-        val referralPeriods: SortedSet<ReferralPeriodDto> = sortedSetOf(), // History of DMG ownerships
+        @Schema(description = "Type of care/relationship.") val type: PatientHealthCarePartyTypeDto? = null,
+        @Schema(description = "UUID of the hcp.") val healthcarePartyId: String? = null,
+        @Schema(description = "Preferred format of exchange for diverse means of communication") val sendFormats: Map<TelecomTypeDto, String> = mapOf(),  // String is in fact a UTI (uniform type identifier / a sort of super-MIME)
+        @Schema(description = "Time periods") val referralPeriods: SortedSet<ReferralPeriodDto> = sortedSetOf(), // History of DMG ownerships
+        @get:Deprecated("Use type") @Schema(defaultValue = "false") val referral: Boolean = false, // mark this phcp as THE active referral link (gmd)
         override val encryptedSelf: String? = null
 ) : EncryptedDto, Serializable

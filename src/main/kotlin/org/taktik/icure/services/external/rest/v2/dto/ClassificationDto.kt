@@ -22,6 +22,7 @@ package org.taktik.icure.services.external.rest.v2.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.services.external.rest.v2.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v2.dto.base.EncryptableDto
 import org.taktik.icure.services.external.rest.v2.dto.base.ICureDocumentDto
@@ -45,7 +46,7 @@ data class ClassificationDto(
         override val deletionDate: Long? = null,
 
         val parentId: String?,
-        val label: String = "",
+        @Schema(defaultValue = "\"\"") val label: String = "",
 
         override val secretForeignKeys: Set<String> = setOf(),
         override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = mapOf(),

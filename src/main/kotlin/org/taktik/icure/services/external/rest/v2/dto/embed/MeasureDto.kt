@@ -21,8 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.services.external.rest.v2.dto.base.CodeStubDto
-import org.taktik.icure.validation.AutoFix
-import org.taktik.icure.validation.ValidCode
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -35,9 +33,8 @@ data class MeasureDto(
         val ref: Double? = null,
         val severity: Int? = null,
         val severityCode: String? = null,
+        val evolution: Int? = null,
         val unit: String? = null,
-
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE)
         val unitCodes: Set<CodeStubDto>? = null,
         val comment: String? = null
 ) : Serializable

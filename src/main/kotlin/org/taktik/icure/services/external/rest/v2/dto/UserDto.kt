@@ -18,16 +18,18 @@
 package org.taktik.icure.services.external.rest.v2.dto
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.constants.Users
 import org.taktik.icure.services.external.rest.v2.dto.base.PrincipalDto
 import org.taktik.icure.services.external.rest.v2.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationTagDto
-import org.taktik.icure.services.external.rest.v2.dto.embed.PermissionDto
+import org.taktik.icure.services.external.rest.v2.dto.security.PermissionDto
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
 import java.io.Serializable
@@ -36,61 +38,42 @@ import java.time.Instant
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
+@Schema(description = """This entity is a root level object. It represents an user that can log in to the iCure platform. It is serialized in JSON and saved in the underlying icure-base CouchDB database.""")
 data class UserDto(
-        override val id: String,
-        override val rev: String? = null,
+        @Schema(description = "the Id of the user. We encourage using either a v4 UUID or a HL7 Id.") override val id: String,
+        @Schema(description = "the revision of the user in the database, used for conflict management / optimistic locking.") override val rev: String? = null,
         override val deletionDate: Long? = null,
         val created: Long? = null,
 
-        override val name: String? = null,
-        override val properties: Set<PropertyStubDto> = setOf(),
-        override val permissions: Set<PermissionDto> = setOf(),
-        val roles: Set<String> = setOf(),
-        val type: Users.Type? = null,
-        val status: Users.Status? = null,
-        val login: String? = null,
-        val passwordHash: String? = null,
-        val secret: String? = null,
-        val use2fa: Boolean? = null,
-        val groupId: String? = null,
-        val healthcarePartyId: String? = null,
-        val patientId: String? = null,
-        val autoDelegations: Map<DelegationTagDto, Set<String>> = mapOf(), //DelegationTagDto -> healthcarePartyIds
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        val createdDate: Instant? = null,
+        @Schema (description = "Last name of the user. This is the official last name that should be used for official administrative purposes.") override val name: String? = null,
+        @Schema (description = "Extra properties for the user. Those properties are typed (see class Property)") override val properties: Set<PropertyStubDto> = setOf(),
+        @Schema (description = "If permission to modify patient data is granted or revoked") override val permissions: Set<PermissionDto> = setOf(),
+        @Schema (description = "Roles specified for the user") val roles: Set<String> = setOf(),
+        @Schema (description = "Authorization source for user. 'Database', 'ldap' or 'token'") val type: Users.Type? = null,
+        @Schema (description = "State of user's activeness: 'Active', 'Disabled' or 'Registering'") val status: Users.Status? = null,
+        @Schema (description = "Username for this user. We encourage using an email address") val login: String? = null,
+        @Schema (description = "Hashed version of the password (BCrypt is used for hashing)") val passwordHash: String? = null,
+        @Schema (description = "Secret token used to verify 2fa") val secret: String? = null,
+        @Schema (description = "Whether the user has activated two factors authentication") val use2fa: Boolean? = null,
+        @Schema (description = "id of the group (practice/hospital) the user is member of") val groupId: String? = null,
+        @Schema (description = "Id of the healthcare party if the user is a healthcare party.") val healthcarePartyId: String? = null,
+        @Schema (description = "Id of the patient if the user is a patient") val patientId: String? = null,
+        @Schema (description = "Delegations that are automatically generated client side when a new database object is created by this user") val autoDelegations: Map<DelegationTagDto, Set<String>> = mapOf(), //DelegationTagDto -> healthcarePartyIds
 
         @JsonSerialize(using = InstantSerializer::class)
         @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
-        val lastLoginDate: Instant? = null,
+        @Schema(description = "the timestamp (unix epoch in ms) of creation of the user, will be filled automatically if missing. Not enforced by the application server.") val createdDate: Instant? = null,
 
         @JsonSerialize(using = InstantSerializer::class)
         @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
-        val expirationDate: Instant? = null,
-        val activationToken: String? = null,
-
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        val activationTokenExpirationDate: Instant? = null,
-        val passwordToken: String? = null,
-
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        val passwordTokenExpirationDate: Instant? = null,
-
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        val termsOfUseDate: Instant? = null,
-
-        val email: String? = null,
-        val applicationTokens: Map<String, String> = mapOf()
+        @Schema(description = "the timestamp (unix epoch in ms) of the latest validation of the terms of use of the application") val termsOfUseDate: Instant? = null,
+        @Schema(description = "email address of the user.") val email: String? = null,
+        @Schema(description = "Long lived authentication tokens used for inter-applications authentication.") val applicationTokens: Map<String, String> = mapOf()
 ) : StoredDocumentDto, PrincipalDto, Cloneable, Serializable {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+    @JsonIgnore
+    override fun getParents(): Set<String> = this.roles
 }

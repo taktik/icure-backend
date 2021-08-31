@@ -21,18 +21,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.services.external.rest.v2.dto.base.CodeStubDto
-import org.taktik.icure.validation.AutoFix
-import org.taktik.icure.validation.ValidCode
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class MedicinalproductDto(
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE)
         val intendedcds: List<CodeStubDto> = listOf(),
-
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE)
         val deliveredcds: List<CodeStubDto> = listOf(),
         val intendedname: String? = null,
         val deliveredname: String? = null,

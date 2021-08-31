@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v2.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -30,8 +31,8 @@ data class MedexInfoDto(
     val endDate: Long,
     val author: HealthcarePartyDto? = null,
     val patient: PatientDto? = null,
-    val patientLanguage: String = "fr",
-    val incapacityType // incapacity or incapacityextension
+    @Schema(defaultValue = "\"fr\"") val patientLanguage: String = "fr",
+    @Schema(defaultValue = "\"incapacity\"") val incapacityType // incapacity or incapacityextension
             : String = "incapacity",
 
     /*
@@ -43,7 +44,7 @@ data class MedexInfoDto(
         workaccident
         occupationaldisease
      */
-    val incapacityReason: String = "sickness",
+    @Schema(defaultValue = "\"sickness\"") val incapacityReason: String = "sickness",
     val outOfHomeAllowed: Boolean = true,
 
     /*

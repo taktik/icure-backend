@@ -18,6 +18,8 @@
 
 package org.taktik.icure.services.external.rest.v2.dto.be.efact
 
+import io.swagger.v3.oas.annotations.media.Schema
+
 /**
  * Created with IntelliJ IDEA.
  * User: aduchate
@@ -27,18 +29,18 @@ package org.taktik.icure.services.external.rest.v2.dto.be.efact
  */
 class InvoiceItem {
     var dateCode: Long? = null
-    var codeNomenclature: Long = 0
+    @Schema(defaultValue = "0") var codeNomenclature: Long = 0
     var relatedCode: Long? = null
 
     var eidItem: EIDItem? = null
     var insuranceRef: String? = null
     var insuranceRefDate: Long? = null
 
-    var units: Int = 0
+    @Schema(defaultValue = "0") var units: Int = 0
 
-    var reimbursedAmount: Long = 0
-    var patientFee: Long = 0
-    var doctorSupplement: Long = 0
+    @Schema(defaultValue = "0") var reimbursedAmount: Long = 0
+    @Schema(defaultValue = "0") var patientFee: Long = 0
+    @Schema(defaultValue = "0") var doctorSupplement: Long = 0
 
     var sideCode: InvoicingSideCode? = null
     var timeOfDay: InvoicingTimeOfDay? = null

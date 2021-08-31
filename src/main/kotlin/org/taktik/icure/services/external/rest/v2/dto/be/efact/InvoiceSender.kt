@@ -18,11 +18,13 @@
 
 package org.taktik.icure.services.external.rest.v2.dto.be.efact
 
+import io.swagger.v3.oas.annotations.media.Schema
+
 class InvoiceSender {
     var nihii: Long? = null
     var bic: String? = null
     var iban: String? = null
-    var bce: Long? = 999999922L
+    @Schema(defaultValue = "999999922L") var bce: Long? = 999999922L
 
     var ssin: String? = null
     var lastName: String? = null
@@ -30,6 +32,6 @@ class InvoiceSender {
     var phoneNumber: Long? = null
     var conventionCode: Int? = null
 
-    var isSpecialist: Boolean = false
+    @Schema(defaultValue = "false") var isSpecialist: Boolean = false
         get() = nihii!! % 1000L >= 10
 }

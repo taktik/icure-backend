@@ -15,18 +15,25 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.services.external.rest.v2.dto.embed
+
+package org.taktik.icure.services.external.rest.v2.dto.samv2.stub
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.SamTextDto
+import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.StandardSubstanceDto
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
-data class PermissionDto(
-        val grant: Int = 0,
-        val revoke: Int = 0,
-        val criteria: Set<PermissionCriterionDto?>? = setOf()
-) : Cloneable, Serializable
+data class SubstanceStubDto(
+        val id: String? = null,
+
+        val code: String? = null,
+        val chemicalForm: String? = null,
+        val name: SamTextDto? = null,
+        val note: SamTextDto? = null,
+        val standardSubstances: List<StandardSubstanceDto>? = null
+) : Serializable
