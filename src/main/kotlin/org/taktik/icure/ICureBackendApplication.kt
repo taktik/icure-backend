@@ -28,6 +28,7 @@ import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.JndiDataSourceAutoConfiguration
+import org.springframework.boot.autoconfigure.web.reactive.error.ErrorWebFluxAutoConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
 import org.springframework.core.task.TaskExecutor
@@ -55,12 +56,14 @@ import org.taktik.icure.properties.CouchDbProperties
     "org.taktik.icure.services.external.rest.v1.wscontrollers",
     "org.taktik.icure.services.external.rest.v2.controllers",
     "org.taktik.icure.services.external.rest.v2.mapper",
-    "org.taktik.icure.services.external.rest.v2.wscontrollers"
+    "org.taktik.icure.services.external.rest.v2.wscontrollers",
+    "org.taktik.icure.errors",
 ], exclude = [
     FreeMarkerAutoConfiguration::class,
     CacheAutoConfiguration::class,
     DataSourceAutoConfiguration::class,
-    JndiDataSourceAutoConfiguration::class
+    JndiDataSourceAutoConfiguration::class,
+    ErrorWebFluxAutoConfiguration::class
 ])
 @PropertySource("classpath:icure-default.properties")
 class ICureBackendApplication {
