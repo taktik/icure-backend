@@ -80,7 +80,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     @GetMapping("/service/content/empty")
     fun getEmptyContent() = ContentDto()
 
-    @Operation(summary = "Create a contact with the current user", description = "Returns an instance of created contact.")
+    @Operation(summary = "Create a contact with the current user", description = "Creates a contact with the current user and returns an instance of created contact afterward.")
     @PostMapping
     fun createContact(@RequestBody c: ContactDto) = mono {
         val contact = try {
@@ -107,7 +107,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
         )
     } else c
 
-    @Operation(summary = "Get a contact")
+    @Operation(summary = "Get a contact", description = "Gets a contact based on its id")
     @GetMapping("/{contactId}")
     fun getContact(@PathVariable contactId: String) = mono {
         val contact = contactLogic.getContact(contactId)
@@ -115,7 +115,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
         contactMapper.map(contact)
     }
 
-    @Operation(summary = "Get contacts")
+    @Operation(summary = "Get contacts by batch", description = "Get a list of contact by ids/keys.")
     @PostMapping("/byIds")
     fun getContacts(@RequestBody contactIds: ListOfIdsDto): Flux<ContactDto> {
         val contacts = contactLogic.getContacts(contactIds.ids)
@@ -130,14 +130,14 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
                 .map { LabelledOccurenceDto(it.label, it.occurence) }
     }
 
-    @Operation(summary = "List contacts found By Healthcare Party and form Id.")
+    @Operation(summary = "Get a list of contacts found by Healthcare Party and form's id.")
     @GetMapping("/byHcPartyFormId")
     fun findByHCPartyFormId(@RequestParam hcPartyId: String, @RequestParam formId: String): Flux<ContactDto> {
         val contactList = contactLogic.listContactsByHcPartyAndFormId(hcPartyId, formId)
         return contactList.map { contact -> contactMapper.map(contact) }.injectReactorContext()
     }
 
-    @Operation(summary = "List contacts found By Healthcare Party and form Id.")
+    @Operation(summary = "Get a list of contacts found by Healthcare Party and form's ids.")
     @PostMapping("/byHcPartyFormIds")
     fun findByHCPartyFormIds(@RequestParam hcPartyId: String, @RequestBody formIds: ListOfIdsDto): Flux<ContactDto> {
         if (formIds.ids.size == 0) {
@@ -148,7 +148,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
         return contactList.map { contact -> contactMapper.map(contact) }.injectReactorContext()
     }
 
-    @Operation(summary = "List contacts found By Healthcare Party and Patient foreign keys.")
+    @Operation(summary = "Get a list of contacts found by Healthcare Party and Patient foreign keys.")
     @PostMapping("/byHcPartyPatientForeignKeys")
     fun findContactsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestBody patientForeignKeys: ListOfIdsDto): Flux<ContactDto> {
         if (patientForeignKeys.ids.size == 0) {
@@ -159,7 +159,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
         return contactList.map { contact -> contactMapper.map(contact) }.injectReactorContext()
     }
 
-    @Operation(summary = "List contacts found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
+    @Operation(summary = "Get a list of contacts found by Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
     fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
                                         @RequestParam secretFKeys: String,
