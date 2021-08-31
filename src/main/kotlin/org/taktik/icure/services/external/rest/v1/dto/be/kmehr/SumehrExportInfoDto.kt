@@ -17,6 +17,7 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.be.kmehr
 
+import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
@@ -28,7 +29,7 @@ class SumehrExportInfoDto : Serializable {
     var recipient: HealthcarePartyDto? = null
     var softwareName: String? = null
     var softwareVersion: String? = null
-    var comment: String = ""
+    @Schema(defaultValue = "\"\"") var comment: String = ""
     var includeIrrelevantInformation: Boolean? = null
     var services: List<ServiceDto>? = null
     var healthElements: List<HealthElementDto>? = null

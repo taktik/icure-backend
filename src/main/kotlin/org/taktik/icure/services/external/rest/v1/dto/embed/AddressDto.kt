@@ -24,27 +24,28 @@ package org.taktik.icure.services.external.rest.v1.dto.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
+@Schema(description = """This entity represents an Address""")
 data class AddressDto(
-        val addressType: AddressTypeDto? = null,
-        val descr: String? = null,
-        val street: String? = null,
-        val houseNumber: String? = null,
-        val postboxNumber: String? = null,
-        val postalCode: String? = null,
-        val city: String? = null,
-        val state: String? = null,
-        val country: String? = null,
-        val note: String? = null,
-        val telecoms: List<TelecomDto> = listOf(),
+        @Schema(description = "The type of place the address represents, ex: home, office, hospital, clinic, etc. ") val addressType: AddressTypeDto? = null,
+        @Schema(description = "Descriptive notes about the address") val descr: String? = null,
+        @Schema(description = "Street name") val street: String? = null,
+        @Schema(description = "Building / house number") val houseNumber: String? = null,
+        @Schema(description = "Post / PO box number") val postboxNumber: String? = null,
+        @Schema(description = "Postal/PIN/ZIP/Area code") val postalCode: String? = null,
+        @Schema(description = "Name of city in the address") val city: String? = null,
+        @Schema(description = "Name of state in the Address") val state: String? = null,
+        @Schema(description = "Name / code of country in the address") val country: String? = null,
+        @Schema(description = "Additional notes") val note: String? = null,
+        @Schema(description = "List of other contact details available through telecom services, ex: email, phone number, fax, etc.") val telecoms: List<TelecomDto> = listOf(),
         override val encryptedSelf: String? = null
 ) : EncryptedDto, Serializable, Comparable<AddressDto> {
     override fun compareTo(other: AddressDto): Int {
         return addressType?.compareTo(other.addressType ?: AddressTypeDto.other) ?: 0
     }
-
 }

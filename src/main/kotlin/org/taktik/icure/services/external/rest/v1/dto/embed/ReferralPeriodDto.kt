@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
 import java.io.Serializable
@@ -35,13 +36,13 @@ data class ReferralPeriodDto(
         @JsonSerialize(using = InstantSerializer::class)
         @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
-        val startDate: Instant? = null,
+        @Schema(description = "The date (unix epoch in ms) when the referral period initiated, will be filled instantaneously.") val startDate: Instant? = null,
 
         @JsonSerialize(using = InstantSerializer::class)
         @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
-        val endDate: Instant? = null,
-        val comment: String? = null
+        @Schema(description = "The date (unix epoch in ms) the referral period ended, will be instantaneously filled.") val endDate: Instant? = null,
+        @Schema(description = "Comments made during the referral.") val comment: String? = null
 ) : Serializable, Comparable<ReferralPeriodDto> {
 
     override fun compareTo(other: ReferralPeriodDto): Int {

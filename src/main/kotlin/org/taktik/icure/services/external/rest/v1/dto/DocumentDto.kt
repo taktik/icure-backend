@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.EncryptableDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
@@ -33,9 +34,10 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentTypeDto
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
+@Schema(description = """This entity is a root level object. It represents a Document. It is serialized in JSON and saved in the underlying CouchDB database.""")
 data class DocumentDto(
-        override val id: String,
-        override val rev: String? = null,
+        @Schema(description = "The Id of the document. We encourage using either a v4 UUID or a HL7 Id.") override val id: String,
+        @Schema(description = "The revision of the document in the database, used for conflict management / optimistic locking.") override val rev: String? = null,
         override val created: Long? = null,
         override val modified: Long? = null,
         override val author: String? = null,
@@ -46,24 +48,22 @@ data class DocumentDto(
         override val endOfLife: Long? = null,
         override val deletionDate: Long? = null,
 
-        val documentLocation: DocumentLocationDto? = null,
-        val documentType: DocumentTypeDto? = null,
-        val documentStatus: DocumentStatusDto? = null,
-        val externalUri: String? = null,
-        val mainUti: String? = null,
-        val name: String? = null,
-        val version: String? = null,
-        val otherUtis: Set<String> = setOf(),
-        val storedICureDocumentId: String? = null, //The ICureDocumentDto (FormDto, ContactDto, ...) that has been used to generate the document
-        val externalUuid: String? = null,
-        val size: Long? = null,
-        val hash: String? = null,
-        val openingContactId: String? = null,
+        @Schema(description = "Reference in object store") val objectStoreReference: String? = null,
+        @Schema(description = "Location of the document") val documentLocation: DocumentLocationDto? = null,
+        @Schema(description = "The type of document, ex: admission, clinical path, document report,invoice, etc.") val documentType: DocumentTypeDto? = null,
+        @Schema(description = "The status of the development of the document. Ex: Draft, finalized, reviewed, signed, etc.") val documentStatus: DocumentStatusDto? = null,
+        @Schema(description = "When the document is stored in an external repository, this is the uri of the document in that repository") val externalUri: String? = null,
+        @Schema(description = "The main Uniform Type Identifier of the document (https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/understanding_utis/understand_utis_conc/understand_utis_conc.html#//apple_ref/doc/uid/TP40001319-CH202-CHDHIJDE)") val mainUti: String? = null,
+        @Schema(description = "Name of the document") val name: String? = null,
+        @Schema(description = "The document version") val version: String? = null,
+        @Schema(description = "Extra Uniform Type Identifiers") val otherUtis: Set<String> = setOf(),
+        @Schema(description = "The ICureDocument (Form, Contact, ...) that has been used to generate the document") val storedICureDocumentId: String? = null, //The ICureDocumentDto (FormDto, ContactDto, ...) that has been used to generate the document
+        @Schema(description = "A unique external id (from another external source).") val externalUuid: String? = null,
+        @Schema(description = "Size of the document file") val size: Long? = null,
+        @Schema(description = "Hashed version of the document") val hash: String? = null,
+        @Schema(description = "Id of the contact during which the document was created") val openingContactId: String? = null,
 
-        val attachmentId: String? = null,
-
-        val idOpeningContact: String? = null,
-        val idClosingContact: String? = null,
+        @Schema(description = "Id of attachment to this document") val attachmentId: String? = null,
 
         val encryptedAttachment: ByteArray? = null,
         val decryptedAttachment: ByteArray? = null,

@@ -22,7 +22,7 @@ import java.io.Serializable
 class IndexingInfoDto : Serializable {
     var statuses: Map<String, Number>? = null
 
-    constructor()
+    constructor() {}
     constructor(statuses: Map<String, Number>?) {
         this.statuses = statuses
     }

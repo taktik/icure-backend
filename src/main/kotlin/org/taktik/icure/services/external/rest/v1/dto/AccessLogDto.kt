@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.EncryptableDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
@@ -30,18 +31,17 @@ import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
-import org.taktik.icure.validation.AutoFix
-import org.taktik.icure.validation.NotNull
 import java.time.Instant
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
+@Schema(description = """This entity represents Access Log.""")
 data class AccessLogDto(
-        override val id: String,
-        override val rev: String? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+        @Schema(description = "The Id of the Access log. We encourage using either a v4 UUID or a HL7 Id") override val id: String,
+        @Schema(description = "The revision of the access log in the database, used for conflict management / optimistic locking.") override val rev: String? = null,
+        override val created: Long? = null,
+        override val modified: Long? = null,
         override val author: String? = null,
         override val responsible: String? = null,
         override val medicalLocationId: String? = null,
@@ -49,13 +49,13 @@ data class AccessLogDto(
         override val codes: Set<CodeStubDto> = setOf(),
         override val endOfLife: Long?,
         override val deletionDate: Long? = null,
-        val objectId: String? = null,
-        val accessType: String? = null,
-        val user: String? = null,
-        val detail: String? = null,
+        @Schema(description = "Id of the object that is being requested.") val objectId: String? = null,
+        @Schema(description = "The type of access") val accessType: String? = null,
+        @Schema(description = "Id of the user making the requests") val user: String? = null,
+        @Schema(description = "Further details about the access") val detail: String? = null,
         @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL) @JsonDeserialize(using = InstantDeserializer::class)
-        val date: Instant? = null,
-        @Deprecated("Use cryptedForeignKeys instead") val patientId: String? = null,
+        @Schema(description = "The date (unix epoch in ms) of logging, is filled instantaneously.") val date: Instant? = null,
+        @get:Deprecated("Use cryptedForeignKeys instead") val patientId: String? = null,
         override val secretForeignKeys: Set<String> = setOf(),
         override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = mapOf(),
         override val delegations: Map<String, Set<DelegationDto>> = mapOf(),

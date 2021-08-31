@@ -15,21 +15,23 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.services.external.rest.v1.dto.embed
+
+package org.taktik.icure.services.external.rest.v1.dto.samv2.stub
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
-import org.taktik.icure.constants.Permissions.CriterionDataType
-import org.taktik.icure.constants.Permissions.CriterionTypeCurrentUser
+import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
+import org.taktik.icure.services.external.rest.v1.dto.samv2.embed.SamTextDto
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
-data class PermissionCriterionDto(
-        val negative: Boolean = false,
-        val currentUser: CriterionTypeCurrentUser? = null,
-        val dataType: CriterionDataType? = null,
-        val patientStatus: String? = null
+data class PharmaceuticalFormStubDto(
+        val id: String? = null,
+
+        val code: String? = null,
+        val name: SamTextDto? = null,
+        val standardForms: List<CodeStubDto> = listOf()
 ) : Serializable
