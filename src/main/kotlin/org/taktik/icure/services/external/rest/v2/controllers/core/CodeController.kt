@@ -99,7 +99,7 @@ class CodeController(
 
     @Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a list of codes matched with given input.")
     @GetMapping
-    fun findCodesBy(
+    fun findCodesByType(
             @RequestParam(required = false) region: String?,
             @RequestParam(required = false) type: String?,
             @RequestParam(required = false) code: String?,

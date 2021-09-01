@@ -116,7 +116,7 @@ class DocumentDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_message", map = "classpath:js/document/By_hcparty_message_map.js")
-    override fun findDocumentsByHcPartyAndSecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> = flow {
+    override fun listDocumentsByHcPartyAndSecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val keys = secretForeignKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
@@ -157,7 +157,7 @@ class DocumentDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_externalUuid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted && doc.externalUuid) emit( doc.externalUuid, doc._id )}")
-    override suspend fun getDocumentsByExternalUuid(externalUuid: String): List<Document> {
+    override suspend fun listDocumentsByExternalUuid(externalUuid: String): List<Document> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val viewQuery = createQuery(client, "by_externalUuid")

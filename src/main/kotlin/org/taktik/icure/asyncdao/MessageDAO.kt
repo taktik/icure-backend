@@ -35,7 +35,7 @@ interface MessageDAO: GenericDAO<Message> {
     fun findMessagesByTransportGuidAndSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
     fun listMessagesByHcPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Message>
     fun getChildren(messageId: String): Flow<Message>
-    fun getMessagesByInvoiceIds(invoiceIds: Set<String>): Flow<Message>
+    fun listMessagesByInvoiceIds(invoiceIds: Set<String>): Flow<Message>
     fun getMessagesByTransportGuids(hcPartyId: String, transportGuids: Collection<String>): Flow<Message>
     fun getMessagesByExternalRefs(hcPartyId: String, externalRefs: Set<String>): Flow<Message>
     fun listConflicts(): Flow<Message>

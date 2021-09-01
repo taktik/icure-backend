@@ -69,7 +69,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
                 ?: false
     }
 
-    override fun getEntitiesIds(limit: Int?): Flow<String> = flow {
+    override fun getEntityIds(limit: Int?): Flow<String> = flow {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".getAllIds")
         }

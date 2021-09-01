@@ -33,7 +33,7 @@ interface ContactDAO: GenericDAO<Contact> {
     fun findContactsByHcParty(hcPartyId: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
     fun findContactsByIds(contactIds: Flow<String>): Flow<ViewQueryResultEvent>
     fun findContactsByIds(contactIds: Collection<String>): Flow<ViewQueryResultEvent>
-    fun getContactsByHcParty(hcPartyId: String): Flow<String>
+    fun listContactIdsByHealthcareParty(hcPartyId: String): Flow<String>
     fun listContactsByHcPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact>
     fun listContactsByHcPartyAndFormId(hcPartyId: String, formId: String): Flow<Contact>
     fun listContactsByHcPartyAndFormIds(hcPartyId: String, ids: List<String>): Flow<Contact>
@@ -44,9 +44,9 @@ interface ContactDAO: GenericDAO<Contact> {
     fun listContactIdsByTag(hcPartyId: String, tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listContactIdsByCode(hcPartyId: String, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listCodesFrequencies(hcPartyId: String, codeType: String): Flow<Pair<ComplexKey, Long?>>
-    fun listServicesByPatientForeignKeys(hcPartyId: String, patientSecretForeignKeys: List<String>, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
-    fun listServicesByPatientForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String>
-    fun getContactsByServices(services: Collection<String>): Flow<Contact>
+    fun listServicesIdsByPatientForeignKeys(hcPartyId: String, patientSecretForeignKeys: List<String>, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
+    fun listServicesIdsByPatientForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String>
+    fun listContactsByServices(services: Collection<String>): Flow<Contact>
     fun listIdsByServices(services: Collection<String>): Flow<ContactIdServiceId>
     fun relink(cs: Flow<Contact>): Flow<Contact>
 

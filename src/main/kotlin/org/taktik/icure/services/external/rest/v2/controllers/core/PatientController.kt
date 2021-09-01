@@ -159,7 +159,7 @@ class PatientController(
 
     @Operation(summary = "List patients for a specific HcParty", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping
-    fun findPatientsBy(@Parameter(description = "Healthcare party id") @RequestParam(required = false) hcPartyId: String?,
+    fun findPatientsByHealthcareParty(@Parameter(description = "Healthcare party id") @RequestParam(required = false) hcPartyId: String?,
                      @Parameter(description = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String?,
                      @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
                      @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
@@ -176,13 +176,13 @@ class PatientController(
                 paginationOffset,
                 null,
                 Sorting(sortField, sortDirection)).paginatedList<Patient, PatientDto>(patientToPatientDto, realLimit)
-            } ?: PaginatedList<Serializable>()
+            } ?: PaginatedList()
         }
     }
 
     @Operation(summary = "List patients by pages for a specific HcParty", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/byHcPartyId")
-    fun findPatientsIdsBy(@Parameter(description = "Healthcare party id")@RequestParam hcPartyId: String,
+    fun findPatientsIdsByHealthcareParty(@Parameter(description = "Healthcare party id")@RequestParam hcPartyId: String,
                         @Parameter(description = "The page first id") @RequestParam(required = false) startKey: String?,
                         @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                         @Parameter(description = "Page size") @RequestParam(required = false) limit: Int?) = mono {

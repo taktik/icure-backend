@@ -27,7 +27,7 @@ import org.taktik.couchdb.id.Identifiable
 interface InternalDAO<T : Identifiable<String>> {
 
     fun getEntities(): Flow<T>
-    fun getEntitiesIds(): Flow<String>
+    fun getEntityIds(): Flow<String>
     suspend fun get(id: String, vararg options: Option): T?
     suspend fun get(id: String, rev: String?, vararg options: Option): T?
     fun getEntities(ids: Collection<String>): Flow<T>

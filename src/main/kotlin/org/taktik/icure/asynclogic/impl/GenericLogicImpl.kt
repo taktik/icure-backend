@@ -58,7 +58,7 @@ abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(pri
     }
 
     override fun getEntitiesIds(): Flow<String> = flow {
-        emitAll(getGenericDAO().getEntitiesIds())
+        emitAll(getGenericDAO().getEntityIds())
     }
 
     override suspend fun hasEntities(): Boolean {

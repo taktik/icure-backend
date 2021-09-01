@@ -22,8 +22,8 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.EntityTemplate
 
 interface EntityTemplateDAO: GenericDAO<EntityTemplate> {
-    fun getEntityTemplatesByUserIdTypeDescr(userId: String, type: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate>
-    fun getEntityTemplatesByTypeDescr(type: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate>
-    fun getEntityTemplatesByUserIdTypeKeyword(userId: String?, type: String?, keyword: String?, includeEntities: Boolean?): Flow<EntityTemplate>
-    fun getEntityTemplatesByTypeAndKeyword(type: String?, keyword: String?, includeEntities: Boolean?): Flow<EntityTemplate>
+    fun listEntityTemplatesByUserIdTypeDescr(userId: String, type: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate>
+    fun listEntityTemplatesByTypeDescr(type: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate>
+    fun listEntityTemplatesByUserIdTypeKeyword(userId: String?, type: String?, keyword: String?, includeEntities: Boolean?): Flow<EntityTemplate>
+    fun listEntityTemplatesByTypeAndKeyword(type: String?, keyword: String?, includeEntities: Boolean?): Flow<EntityTemplate>
 }

@@ -154,7 +154,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
     }
 
     @Operation(summary = "Get the HcParty encrypted AES keys indexed by owner", description = "(key, value) of the map is as follows: (ID of the owner of the encrypted AES key, encrypted AES key)")
-    @GetMapping("byKeys/{healthcarePartyId}")
+    @GetMapping("/byKeys/{healthcarePartyId}")
     fun getHcPartyKeysForDelegate(@PathVariable healthcarePartyId: String) = mono {
         healthcarePartyLogic.getHcPartyKeysForDelegate(healthcarePartyId)
     }

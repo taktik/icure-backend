@@ -25,13 +25,13 @@ import org.taktik.icure.entities.base.Code
 interface HealthElementDAO: GenericDAO<HealthElement> {
     fun listHealthElementsByPatient(patientId: String): Flow<HealthElement>
 
-    fun findHealthElementsByPatientAndCodes(patientId: String, codes: Set<Code>): Flow<HealthElement>
+    fun listHealthElementsByPatientAndCodes(patientId: String, codes: Set<Code>): Flow<HealthElement>
 
-    fun findHealthElementsByHCPartyAndCodes(healthCarePartyId: String, codeType: String, codeNumber: String): Flow<String>
+    fun listHealthElementsByHCPartyAndCodes(healthCarePartyId: String, codeType: String, codeNumber: String): Flow<String>
 
-    fun findHealthElementsByHCPartyAndTags(healthCarePartyId: String, tagType: String, tagCode: String): Flow<String>
+    fun listHealthElementsByHCPartyAndTags(healthCarePartyId: String, tagType: String, tagCode: String): Flow<String>
 
-    fun findHealthElementsByHCPartyAndStatus(healthCarePartyId: String, status: Int?): Flow<String>
+    fun listHealthElementsByHCPartyAndStatus(healthCarePartyId: String, status: Int?): Flow<String>
 
     suspend fun getHealthElementByPlanOfActionId(planOfActionId: String): HealthElement?
 

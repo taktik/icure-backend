@@ -25,7 +25,7 @@ import java.nio.ByteBuffer
 interface DocumentDAO: GenericDAO<Document> {
     fun listConflicts(): Flow<Document>
 
-    fun findDocumentsByHcPartyAndSecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>
+    fun listDocumentsByHcPartyAndSecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>
 
     fun listDocumentsWithNoDelegations(limit: Int): Flow<Document>
 
@@ -33,5 +33,5 @@ interface DocumentDAO: GenericDAO<Document> {
 
     fun readAttachment(documentId: String, attachmentId: String, rev: String?): Flow<ByteBuffer>
 
-    suspend fun getDocumentsByExternalUuid(externalUuid: String): List<Document>
+    suspend fun listDocumentsByExternalUuid(externalUuid: String): List<Document>
 }

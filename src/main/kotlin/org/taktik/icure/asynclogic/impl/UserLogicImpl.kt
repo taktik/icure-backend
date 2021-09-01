@@ -17,15 +17,7 @@
  */
 package org.taktik.icure.asynclogic.impl
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.singleOrNull
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.lang3.Validate
 import org.slf4j.LoggerFactory
@@ -33,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.RoleDAO
 import org.taktik.icure.asyncdao.UserDAO
@@ -43,7 +36,6 @@ import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.listeners.UserLogicListener
 import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.constants.Users
-import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.User
@@ -56,7 +48,6 @@ import org.taktik.icure.utils.firstOrNull
 import java.net.URI
 import java.time.Duration
 import java.time.Instant
-import java.util.*
 import java.util.regex.Pattern
 
 @Transactional
@@ -364,7 +355,7 @@ class UserLogicImpl(
     }
 
     override fun getEntitiesIds(): Flow<String> = flow {
-        emitAll(userDAO.getEntitiesIds())
+        emitAll(userDAO.getEntityIds())
     }
 
     override suspend fun hasEntities(): Boolean {

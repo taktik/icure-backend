@@ -38,7 +38,7 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
     suspend fun hasAny(): Boolean
 
     fun getEntities(): Flow<T>
-    fun getEntitiesIds(limit: Int? = null): Flow<String>
+    fun getEntityIds(limit: Int? = null): Flow<String>
     fun getEntities(ids: Collection<String>): Flow<T>
     fun getEntities(ids: Flow<String>): Flow<T>
 

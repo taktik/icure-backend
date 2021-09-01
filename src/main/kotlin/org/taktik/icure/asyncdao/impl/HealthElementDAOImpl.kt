@@ -53,7 +53,7 @@ internal class HealthElementDAOImpl(couchDbProperties: CouchDbProperties,
             "  for (var i=0;i<doc.codes.length;i++) {\n" +
             "  emit( [doc.patientId, doc.codes[i].type+':'+doc.codes[i].code], doc._id );\n" +
             "  }}}")
-    override fun findHealthElementsByPatientAndCodes(patientId: String, codes: Set<Code>): Flow<HealthElement> = flow {
+    override fun listHealthElementsByPatientAndCodes(patientId: String, codes: Set<Code>): Flow<HealthElement> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val keys = codes.map { c -> ComplexKey.of(patientId, c.toString()) }
@@ -61,20 +61,20 @@ internal class HealthElementDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_and_codes", map = "classpath:js/healthelement/By_hcparty_code_map.js")
-    override fun findHealthElementsByHCPartyAndCodes(healthCarePartyId: String, codeType: String, codeNumber: String): Flow<String> = flow {
+    override fun listHealthElementsByHCPartyAndCodes(healthCarePartyId: String, codeType: String, codeNumber: String): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(client.queryView<Array<String>, String>(createQuery(client, "by_hcparty_and_codes").key(ComplexKey.of(healthCarePartyId, "$codeType:$codeNumber")).includeDocs(false)).mapNotNull { it.value })
     }
 
     @View(name = "by_hcparty_and_tags", map = "classpath:js/healthelement/By_hcparty_tag_map.js")
-    override fun findHealthElementsByHCPartyAndTags(healthCarePartyId: String, tagType: String, tagCode: String) = flow<String> {
+    override fun listHealthElementsByHCPartyAndTags(healthCarePartyId: String, tagType: String, tagCode: String) = flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(client.queryView<Array<String>, String>(createQuery(client, "by_hcparty_and_tags").key(ComplexKey.of(healthCarePartyId, "$tagType:$tagCode")).includeDocs(false)).mapNotNull { it.value })
    }
 
     @View(name = "by_hcparty_and_status", map = "classpath:js/healthelement/By_hcparty_status_map.js")
-    override fun findHealthElementsByHCPartyAndStatus(healthCarePartyId: String, status: Int?): Flow<String> = flow {
+    override fun listHealthElementsByHCPartyAndStatus(healthCarePartyId: String, status: Int?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(client.queryView<Array<String>, String>(createQuery(client, "by_hcparty_and_status").key(ComplexKey.of(healthCarePartyId, status)).includeDocs(false)).mapNotNull { it.value })

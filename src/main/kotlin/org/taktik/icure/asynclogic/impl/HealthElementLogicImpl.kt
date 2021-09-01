@@ -74,15 +74,15 @@ class HealthElementLogicImpl(private val filters: Filters,
     }
 
     override fun findHealthElementsByHCPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String) = flow {
-        emitAll(healthElementDAO.findHealthElementsByHCPartyAndCodes(hcPartyId, codeType, codeNumber))
+        emitAll(healthElementDAO.listHealthElementsByHCPartyAndCodes(hcPartyId, codeType, codeNumber))
     }
 
     override fun findHealthElementsByHCPartyAndTags(hcPartyId: String, tagType: String, tagCode: String) = flow {
-        emitAll(healthElementDAO.findHealthElementsByHCPartyAndTags(hcPartyId, tagType, tagCode))
+        emitAll(healthElementDAO.listHealthElementsByHCPartyAndTags(hcPartyId, tagType, tagCode))
     }
 
     override fun findHealthElementsByHCPartyAndStatus(hcPartyId: String, status: Int): Flow<String> = flow {
-        emitAll(healthElementDAO.findHealthElementsByHCPartyAndStatus(hcPartyId, status))
+        emitAll(healthElementDAO.listHealthElementsByHCPartyAndStatus(hcPartyId, status))
     }
 
     override fun deleteHealthElements(ids: Set<String>): Flow<DocIdentifier> {

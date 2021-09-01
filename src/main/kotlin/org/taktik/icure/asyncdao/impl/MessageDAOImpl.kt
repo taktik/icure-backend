@@ -164,7 +164,7 @@ class MessageDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_invoice_id", map = "classpath:js/message/By_invoice_id_map.js")
-    override fun getMessagesByInvoiceIds(invoiceIds: Set<String>): Flow<Message> = flow {
+    override fun listMessagesByInvoiceIds(invoiceIds: Set<String>): Flow<Message> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(client.queryViewIncludeDocs<String, Int, Message>(createQuery(client, "by_invoice_id").includeDocs(true).keys(invoiceIds)).map { it.doc })
     }

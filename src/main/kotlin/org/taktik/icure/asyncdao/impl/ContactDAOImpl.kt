@@ -90,7 +90,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         return client.getForPagination(contactIds, Contact::class.java)
     }
 
-    override fun getContactsByHcParty(hcPartyId: String): Flow<String> = flow {
+    override fun listContactIdsByHealthcareParty(hcPartyId: String): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val viewQuery = createQuery(client, "by_hcparty")
@@ -344,7 +344,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
 
 
     @View(name = "service_by_hcparty_patient_code", map = "classpath:js/contact/Service_by_hcparty_patient_code.js")
-    override fun listServicesByPatientForeignKeys(hcPartyId: String, patientSecretForeignKeys: List<String>, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
+    override fun listServicesIdsByPatientForeignKeys(hcPartyId: String, patientSecretForeignKeys: List<String>, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         var startValueDate = startValueDate
@@ -382,7 +382,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(ids.asFlow().flattenConcat().distinct())
     }
 
-    override fun listServicesByPatientForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String> {
+    override fun listServicesIdsByPatientForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String> {
         return this.listContactsByHcPartyAndPatient(hcPartyId, patientSecretForeignKeys.toList()).mapNotNull { it.services?.mapNotNull { it.id }?.asFlow() }.flattenConcat() // no distinct ?
     }
 
@@ -397,7 +397,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView<String, ContactIdServiceId>(viewQuery).mapNotNull { it.value })
     }
 
-    override fun getContactsByServices(services: Collection<String>): Flow<Contact> {
+    override fun listContactsByServices(services: Collection<String>): Flow<Contact> {
         return getContacts(listIdsByServices(services).map { it.contactId })
     }
 

@@ -123,7 +123,7 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
     }
 
     override fun listMessagesByInvoiceIds(ids: List<String>) = flow<Message> {
-        emitAll(messageDAO.getMessagesByInvoiceIds(ids.toSet()))
+        emitAll(messageDAO.listMessagesByInvoiceIds(ids.toSet()))
     }
 
     override fun listMessagesByExternalRefs(hcPartyId: String, externalRefs: List<String>) = flow<Message> {

@@ -24,11 +24,11 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.HealthcareParty
 
 interface HealthcarePartyDAO: GenericDAO<HealthcareParty> {
-    fun findHealthcarePartiesByNihii(nihii: String?): Flow<HealthcareParty>
+    fun listHealthcarePartiesByNihii(nihii: String?): Flow<HealthcareParty>
 
-    fun findHealthcarePartiesBySsin(ssin: String): Flow<HealthcareParty>
+    fun listHealthcarePartiesBySsin(ssin: String): Flow<HealthcareParty>
 
-    fun findHealthcarePartiesBySpecialityAndPostcode(type: String, spec: String, firstCode: String, lastCode: String): Flow<ViewQueryResultEvent>
+    fun listHealthcarePartiesBySpecialityAndPostcode(type: String, spec: String, firstCode: String, lastCode: String): Flow<ViewQueryResultEvent>
 
     fun findHealthCareParties(pagination: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent>
 

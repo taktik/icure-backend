@@ -43,7 +43,7 @@ class EntityTemplateDAOImpl(couchDbProperties: CouchDbProperties,
     val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
     @View(name = "by_user_type_descr", map = "classpath:js/entitytemplate/By_user_type_descr.js")
-    override fun getEntityTemplatesByUserIdTypeDescr(userId: String, type: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate> = flow {
+    override fun listEntityTemplatesByUserIdTypeDescr(userId: String, type: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate> = flow {
         val descr = if (searchString != null) StringUtils.sanitizeString(searchString) else null
         val viewQuery = createQuery(client, "by_user_type_descr").startKey(ComplexKey.of(userId, type, descr)).endKey(ComplexKey.of(userId, type, (descr
                 ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
@@ -57,7 +57,7 @@ class EntityTemplateDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_type_descr", map = "classpath:js/entitytemplate/By_type_descr.js")
-    override fun getEntityTemplatesByTypeDescr(type: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate> = flow {
+    override fun listEntityTemplatesByTypeDescr(type: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate> = flow {
         val descr = if (searchString != null) StringUtils.sanitizeString(searchString) else null
         val viewQuery = createQuery(client, "by_type_descr").startKey(ComplexKey.of(type, descr)).endKey(ComplexKey.of(type, (descr
                 ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
@@ -71,7 +71,7 @@ class EntityTemplateDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_user_type_keyword", map = "classpath:js/entitytemplate/By_user_type_keyword.js")
-    override fun getEntityTemplatesByUserIdTypeKeyword(
+    override fun listEntityTemplatesByUserIdTypeKeyword(
         userId: String?,
         type: String?,
         keyword: String?,
@@ -89,7 +89,7 @@ class EntityTemplateDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_type_keyword", map = "classpath:js/entitytemplate/By_type_keyword.js")
-    override fun getEntityTemplatesByTypeAndKeyword(type: String?, keyword: String?, includeEntities: Boolean?): Flow<EntityTemplate> = flow {
+    override fun listEntityTemplatesByTypeAndKeyword(type: String?, keyword: String?, includeEntities: Boolean?): Flow<EntityTemplate> = flow {
         val viewQuery = createQuery(client, "by_type_descr").startKey(ComplexKey.of(type, keyword)).endKey(ComplexKey.of(type, (keyword
                 ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
 

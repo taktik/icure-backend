@@ -351,7 +351,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
             @RequestBody ids: ListOfIdsDto
     ) = contactLogic.getServicesLinkedTo(ids.ids, linkType).map { svc -> serviceV2Mapper.map(svc) }.injectReactorContext()
 
-    @Operation(summary = "List contacts bu opening date parties with(out) pagination", description = "Returns a list of contacts.")
+    @Operation(summary = "List contacts by opening date parties with(out) pagination", description = "Returns a list of contacts.")
     @GetMapping("/byOpeningDate")
     fun findContactsByOpeningDate(
             @Parameter(description = "The contact openingDate", required = true) @RequestParam startKey: Long,

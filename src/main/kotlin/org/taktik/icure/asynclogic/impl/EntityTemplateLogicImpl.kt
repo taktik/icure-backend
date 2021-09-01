@@ -57,16 +57,16 @@ class EntityTemplateLogicImpl(private val entityTemplateDAO: EntityTemplateDAO,
             entityTemplateDAO.getEntities(selectedIds)
 
     override fun listEntityTemplatesBy(userId: String, entityType: String, searchString: String?, includeEntities: Boolean?) =
-            entityTemplateDAO.getEntityTemplatesByUserIdTypeDescr(userId, entityType, searchString, includeEntities)
+            entityTemplateDAO.listEntityTemplatesByUserIdTypeDescr(userId, entityType, searchString, includeEntities)
 
     override fun listEntityTemplatesBy(entityType: String, searchString: String?, includeEntities: Boolean?) =
-            entityTemplateDAO.getEntityTemplatesByTypeDescr(entityType, searchString, includeEntities)
+            entityTemplateDAO.listEntityTemplatesByTypeDescr(entityType, searchString, includeEntities)
 
     override fun listEntityTemplatesByKeyword(userId: String, entityType: String, keyword: String?, includeEntities: Boolean?) =
-            entityTemplateDAO.getEntityTemplatesByUserIdTypeKeyword(userId, entityType, keyword, includeEntities)
+            entityTemplateDAO.listEntityTemplatesByUserIdTypeKeyword(userId, entityType, keyword, includeEntities)
 
     override fun listEntityTemplatesByKeyword(entityType: String, keyword: String?, includeEntities: Boolean?) =
-            entityTemplateDAO.getEntityTemplatesByTypeAndKeyword(entityType, keyword, includeEntities)
+            entityTemplateDAO.listEntityTemplatesByTypeAndKeyword(entityType, keyword, includeEntities)
 
     override fun getGenericDAO() = entityTemplateDAO
 }

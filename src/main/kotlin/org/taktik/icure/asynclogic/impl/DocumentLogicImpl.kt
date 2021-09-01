@@ -47,7 +47,7 @@ class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessio
     }
 
     override suspend fun getDocumentsByExternalUuid(documentId: String): List<Document> {
-        return documentDAO.getDocumentsByExternalUuid(documentId)
+        return documentDAO.listDocumentsByExternalUuid(documentId)
     }
 
     override fun getAttachment(documentId: String, attachmentId: String): Flow<ByteBuffer> = flow {
@@ -72,7 +72,7 @@ class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessio
     }
 
     override fun listDocumentsByHCPartySecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> = flow {
-        emitAll(documentDAO.findDocumentsByHcPartyAndSecretMessageKeys(hcPartyId, secretForeignKeys))
+        emitAll(documentDAO.listDocumentsByHcPartyAndSecretMessageKeys(hcPartyId, secretForeignKeys))
     }
 
     override fun listDocumentsWithoutDelegation(limit: Int): Flow<Document> = flow {

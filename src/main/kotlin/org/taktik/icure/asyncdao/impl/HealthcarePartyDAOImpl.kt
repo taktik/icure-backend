@@ -43,7 +43,7 @@ internal class HealthcarePartyDAOImpl(couchDbProperties: CouchDbProperties,
                                       @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager) : CachedDAOImpl<HealthcareParty>(HealthcareParty::class.java, couchDbProperties, couchDbDispatcher, idGenerator, asyncCacheManager), HealthcarePartyDAO {
 
     @View(name = "by_nihii", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthcareParty' && !doc.deleted) emit(doc.nihii.substr(0,8), doc._id )}")
-    override fun findHealthcarePartiesByNihii(nihii: String?): Flow<HealthcareParty> = flow {
+    override fun listHealthcarePartiesByNihii(nihii: String?): Flow<HealthcareParty> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(
@@ -57,14 +57,14 @@ internal class HealthcarePartyDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_ssin", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthcareParty' && !doc.deleted) emit(doc.ssin, doc._id )}")
-    override fun findHealthcarePartiesBySsin(ssin: String): Flow<HealthcareParty> = flow {
+    override fun listHealthcarePartiesBySsin(ssin: String): Flow<HealthcareParty> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery(client, "by_ssin").key(ssin).includeDocs(true)).map { it.doc })
     }
 
     @View(name = "by_speciality_postcode", map = "classpath:js/healthcareparty/By_speciality_postcode.js")
-    override fun findHealthcarePartiesBySpecialityAndPostcode(type: String, spec: String, firstCode: String, lastCode: String): Flow<ViewQueryResultEvent> = flow {
+    override fun listHealthcarePartiesBySpecialityAndPostcode(type: String, spec: String, firstCode: String, lastCode: String): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val viewQuery = pagedViewQuery<HealthcareParty, ComplexKey>(client, "by_speciality_postcode", ComplexKey.of(type, spec, firstCode), ComplexKey.of(type, spec, lastCode), PaginationOffset(10000), false)

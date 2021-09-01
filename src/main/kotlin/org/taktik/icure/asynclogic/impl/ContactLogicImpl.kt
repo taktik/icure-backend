@@ -174,7 +174,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     }
 
     override fun listServiceIdsByCode(hcPartyId: String, patientSecretForeignKeys: List<String>?, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
-        val toEmit = if (patientSecretForeignKeys == null) contactDAO.listServiceIdsByCode(hcPartyId, codeType, codeCode, startValueDate, endValueDate) else contactDAO.listServicesByPatientForeignKeys(hcPartyId, patientSecretForeignKeys, codeType, codeCode, startValueDate, endValueDate)
+        val toEmit = if (patientSecretForeignKeys == null) contactDAO.listServiceIdsByCode(hcPartyId, codeType, codeCode, startValueDate, endValueDate) else contactDAO.listServicesIdsByPatientForeignKeys(hcPartyId, patientSecretForeignKeys, codeType, codeCode, startValueDate, endValueDate)
         emitAll(toEmit)
     }
 
@@ -187,7 +187,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     }
 
     override fun listContactIds(hcPartyId: String): Flow<String> = flow {
-        emitAll(contactDAO.getContactsByHcParty(hcPartyId))
+        emitAll(contactDAO.listContactIdsByHealthcareParty(hcPartyId))
     }
 
     override fun listIdsByServices(services: Collection<String>): Flow<String> = flow {
@@ -195,7 +195,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     }
 
     override fun listServicesByHcPartyAndSecretForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String> = flow {
-        emitAll(contactDAO.listServicesByPatientForeignKeys(hcPartyId, patientSecretForeignKeys))
+        emitAll(contactDAO.listServicesIdsByPatientForeignKeys(hcPartyId, patientSecretForeignKeys))
     }
 
     override fun listContactsByHcPartyAndFormId(hcPartyId: String, formId: String): Flow<Contact> = flow {

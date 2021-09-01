@@ -185,7 +185,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbPropert
     }
 
     override fun getEntities(): Flow<T> =
-            getEntities(getEntitiesIds())
+            getEntities(getEntityIds())
 
     override suspend fun save(newEntity: Boolean?, entity: T): T? {
         try {

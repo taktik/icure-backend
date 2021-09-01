@@ -148,11 +148,11 @@ class HealthcarePartyLogicImpl(
     }
 
     override fun listHealthcarePartiesByNihii(nihii: String): Flow<HealthcareParty> = flow {
-        emitAll(healthcarePartyDAO.findHealthcarePartiesByNihii(nihii))
+        emitAll(healthcarePartyDAO.listHealthcarePartiesByNihii(nihii))
     }
 
     override fun listHealthcarePartiesBySsin(ssin: String): Flow<HealthcareParty> = flow {
-        emitAll(healthcarePartyDAO.findHealthcarePartiesBySsin(ssin))
+        emitAll(healthcarePartyDAO.listHealthcarePartiesBySsin(ssin))
     }
 
     override fun listHealthcarePartiesByName(name: String): Flow<HealthcareParty> = flow {
@@ -166,7 +166,7 @@ class HealthcarePartyLogicImpl(
     }
 
     override fun listHealthcarePartiesBy(type: String, spec: String, firstCode: String, lastCode: String): Flow<ViewQueryResultEvent> = flow {
-        emitAll(healthcarePartyDAO.findHealthcarePartiesBySpecialityAndPostcode(type, spec, firstCode, lastCode))
+        emitAll(healthcarePartyDAO.listHealthcarePartiesBySpecialityAndPostcode(type, spec, firstCode, lastCode))
     }
 
     override fun getHealthcareParties(ids: List<String>): Flow<HealthcareParty> = flow {

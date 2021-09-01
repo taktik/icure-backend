@@ -51,7 +51,7 @@ open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T
             .viewName("all").includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
 
 
-    override fun getEntitiesIds(): Flow<String> {
+    override fun getEntityIds(): Flow<String> {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".getAllIds")
         }
