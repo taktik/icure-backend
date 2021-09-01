@@ -29,15 +29,7 @@ import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.ReceiptLogic
 import org.taktik.icure.entities.embed.ReceiptBlobType
@@ -75,7 +67,7 @@ class ReceiptController(
     @DeleteMapping("/{receiptIds}")
     fun deleteReceipt(@PathVariable receiptIds: String) =
             try {
-                receiptLogic.deleteByIds(receiptIds.split(',')).injectReactorContext()
+                receiptLogic.deleteEntities(receiptIds.split(',')).injectReactorContext()
             } catch (e: Exception) {
                 throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt deletion failed")
             }
@@ -126,14 +118,14 @@ class ReceiptController(
     @Operation(summary = "Gets a receipt")
     @GetMapping("/byref/{ref}")
     fun listByReference(@PathVariable ref: String): Flux<ReceiptDto> =
-            receiptLogic.listByReference(ref).map { receiptMapper.map(it) }.injectReactorContext()
+            receiptLogic.listReceiptsByReference(ref).map { receiptMapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "Updates a receipt")
     @PutMapping
     fun modifyReceipt(@RequestBody receiptDto: ReceiptDto) = mono {
         val receipt = receiptMapper.map(receiptDto)
         try {
-            receiptLogic.updateEntities(listOf(receipt)).map { receiptMapper.map(it) }.firstOrNull()
+            receiptLogic.modifyEntities(listOf(receipt)).map { receiptMapper.map(it) }.firstOrNull()
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update receipt")
 
         } catch (e: Exception) {

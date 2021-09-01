@@ -40,7 +40,7 @@ class CalendarItemTypeLogicImpl(private val calendarItemTypeDAO: CalendarItemTyp
 
     override fun deleteCalendarItemTypes(ids: List<String>): Flow<DocIdentifier> {
         try {
-            return deleteByIds(ids)
+            return deleteEntities(ids)
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }
@@ -55,7 +55,7 @@ class CalendarItemTypeLogicImpl(private val calendarItemTypeDAO: CalendarItemTyp
     }
 
     override fun getAllEntitiesIncludeDelete(): Flow<CalendarItemType> = flow {
-        emitAll(calendarItemTypeDAO.getAllEntitiesIncludeDelete())
+        emitAll(calendarItemTypeDAO.getCalendarItemsWithDeleted())
     }
 
     override fun getGenericDAO(): CalendarItemTypeDAO {

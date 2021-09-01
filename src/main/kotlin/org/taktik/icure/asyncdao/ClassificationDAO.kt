@@ -20,12 +20,11 @@ package org.taktik.icure.asyncdao
 
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.Classification
-import java.net.URI
 
 interface ClassificationDAO : GenericDAO<Classification> {
-    fun findByPatient(patientId: String): Flow<Classification>
+    fun listClassificationByPatient(patientId: String): Flow<Classification>
 
     suspend fun getClassification(classificationId: String): Classification?
 
-    fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification>
+    fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification>
 }

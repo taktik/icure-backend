@@ -29,10 +29,8 @@ import org.taktik.icure.asyncdao.FormTemplateDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FormTemplateLogic
 import org.taktik.icure.dto.gui.layout.FormLayout
-
 import org.taktik.icure.entities.FormTemplate
 import org.taktik.icure.utils.firstOrNull
-import java.util.*
 
 @ExperimentalCoroutinesApi
 @Service
@@ -40,7 +38,7 @@ class FormTemplateLogicImpl(private val formTemplateDAO: FormTemplateDAO,
                             private val sessionLogic: AsyncSessionLogic,
                             private val objectMapper: ObjectMapper) : GenericLogicImpl<FormTemplate, FormTemplateDAO>(sessionLogic), FormTemplateLogic {
 
-    override fun createEntities(entities: Collection<FormTemplate>, createdEntities: Collection<FormTemplate>) = flow {
+    override fun createFormTemplates(entities: Collection<FormTemplate>, createdEntities: Collection<FormTemplate>) = flow {
         emitAll(super.createEntities(entities))
     }
 
@@ -48,25 +46,25 @@ class FormTemplateLogicImpl(private val formTemplateDAO: FormTemplateDAO,
         formTemplateDAO.createFormTemplate(entity)
     }
 
-    override suspend fun getFormTemplateById(formTemplateId: String): FormTemplate? {
+    override suspend fun getFormTemplate(formTemplateId: String): FormTemplate? {
         return formTemplateDAO.get(formTemplateId)
     }
 
     override fun getFormTemplatesByGuid(userId: String, specialityCode: String, formTemplateGuid: String): Flow<FormTemplate> = flow {
-        val byUserGuid = formTemplateDAO.findByUserGuid(userId, formTemplateGuid, true)
+        val byUserGuid = formTemplateDAO.listFormTemplatesByUserGuid(userId, formTemplateGuid, true)
         if (byUserGuid.firstOrNull() != null) {
             emitAll(byUserGuid)
         } else {
-            emitAll(formTemplateDAO.findBySpecialtyGuid(specialityCode, formTemplateGuid, true))
+            emitAll(formTemplateDAO.listFormsBySpecialtyAndGuid(specialityCode, formTemplateGuid, true))
         }
     }
 
     override fun getFormTemplatesBySpecialty(specialityCode: String, loadLayout: Boolean): Flow<FormTemplate> = flow {
-        emitAll(formTemplateDAO.findBySpecialtyGuid(specialityCode, null, loadLayout))
+        emitAll(formTemplateDAO.listFormsBySpecialtyAndGuid(specialityCode, null, loadLayout))
     }
 
     override fun getFormTemplatesByUser(userId: String, loadLayout: Boolean): Flow<FormTemplate> = flow {
-        emitAll(formTemplateDAO.findByUserGuid(userId, null, loadLayout))
+        emitAll(formTemplateDAO.listFormTemplatesByUserGuid(userId, null, loadLayout))
     }
 
     override suspend fun modifyFormTemplate(formTemplate: FormTemplate) = fix(formTemplate) { formTemplate ->

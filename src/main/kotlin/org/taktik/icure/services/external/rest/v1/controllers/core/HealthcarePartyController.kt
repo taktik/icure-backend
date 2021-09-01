@@ -27,15 +27,7 @@ import kotlinx.coroutines.reactor.mono
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
@@ -50,8 +42,8 @@ import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.PublicKeyDto
 import org.taktik.icure.services.external.rest.v1.mapper.HealthcarePartyMapper
+import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
@@ -86,7 +78,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
 
-        healthcarePartyLogic.listHealthcareParties(paginationOffset, desc)
+        healthcarePartyLogic.findHealthcarePartiesBy(paginationOffset, desc)
                 .paginatedList<HealthcareParty, HealthcarePartyDto>(healthcarePartyToHealthcarePartyDto, realLimit)
     }
 
@@ -102,9 +94,9 @@ class HealthcarePartyController(private val userLogic: UserLogic,
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
         if (name == null || name.isEmpty()) {
-            healthcarePartyLogic.listHealthcareParties(paginationOffset, desc)
+            healthcarePartyLogic.findHealthcarePartiesBy(paginationOffset, desc)
         } else {
-            healthcarePartyLogic.findHealthcareParties(name, paginationOffset, desc)
+            healthcarePartyLogic.findHealthcarePartiesBy(name, paginationOffset, desc)
         }.paginatedList<HealthcareParty, HealthcarePartyDto>(healthcarePartyToHealthcarePartyDto, realLimit)
     }
 
@@ -128,7 +120,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
     @GetMapping("/byNameStrict/{name}")
     fun listByName(@Parameter(description = "The Last name search value")
                    @PathVariable name: String) =
-            healthcarePartyLogic.listByName(name)
+            healthcarePartyLogic.listHealthcarePartiesByName(name)
                            .map { healthcarePartyMapper.map(it) }
                            .injectReactorContext()
 
@@ -140,7 +132,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
             @Parameter(description = "The first postCode for the HCP") @PathVariable firstCode: String,
             @Parameter(description = "The last postCode for the HCP") @PathVariable lastCode: String,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int) = mono {
-        healthcarePartyLogic.findHealthcareParties(type, spec, firstCode, lastCode).paginatedList<HealthcareParty, HealthcarePartyDto>(healthcarePartyToHealthcarePartyDto, limit)
+        healthcarePartyLogic.listHealthcarePartiesBy(type, spec, firstCode, lastCode).paginatedList<HealthcareParty, HealthcarePartyDto>(healthcarePartyToHealthcarePartyDto, limit)
     }
 
     @Operation(summary = "Create a healthcare party", description = "One of Name or Last name+First name, Nihii, and Public key are required.")

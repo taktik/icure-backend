@@ -54,7 +54,10 @@ import org.taktik.icure.properties.CouchDbProperties
     "org.taktik.icure.services.external.http",
     "org.taktik.icure.services.external.rest.v1.controllers",
     "org.taktik.icure.services.external.rest.v1.mapper",
-    "org.taktik.icure.services.external.rest.v1.wscontrollers"
+    "org.taktik.icure.services.external.rest.v1.wscontrollers",
+    "org.taktik.icure.services.external.rest.v2.controllers",
+    "org.taktik.icure.services.external.rest.v2.mapper",
+    "org.taktik.icure.services.external.rest.v2.wscontrollers"
 ], exclude = [
     FreeMarkerAutoConfiguration::class,
     CacheAutoConfiguration::class,

@@ -18,22 +18,16 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.taktik.couchdb.exception.CouchDbException
 import org.taktik.couchdb.DocIdentifier
+import org.taktik.couchdb.entity.Option
+import org.taktik.couchdb.exception.CouchDbException
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asyncdao.FormDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FormLogic
-import org.taktik.couchdb.entity.Option
-import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.utils.firstOrNull
@@ -49,15 +43,15 @@ class FormLogicImpl(private val formDAO: FormDAO,
     }
 
     override fun getForms(selectedIds: Collection<String>): Flow<Form> = flow {
-        emitAll(formDAO.getList(selectedIds))
+        emitAll(formDAO.getEntities(selectedIds))
     }
 
-    override suspend fun getAllByExternalUuid(documentId: String): List<Form> {
-        return formDAO.getAllByExternalUuid(documentId)
+    override suspend fun getFormsByExternalUuid(documentId: String): List<Form> {
+        return formDAO.getFormsByExternalUuid(documentId)
     }
 
-    override fun findByHCPartyPatient(hcPartyId: String, secretPatientKeys: List<String>, healthElementId: String?, planOfActionId: String?, formTemplateId: String?): Flow<Form> = flow {
-        val forms = formDAO.findByHcPartyPatient(hcPartyId, secretPatientKeys)
+    override fun listFormsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>, healthElementId: String?, planOfActionId: String?, formTemplateId: String?): Flow<Form> = flow {
+        val forms = formDAO.listFormsByHcPartyPatient(hcPartyId, secretPatientKeys)
         val filteredForms = forms.filter { f ->
             (healthElementId == null || healthElementId == f.healthElementId) &&
                     (planOfActionId == null || planOfActionId == f.planOfActionId) &&
@@ -86,7 +80,7 @@ class FormLogicImpl(private val formDAO: FormDAO,
 
     override fun deleteForms(ids: Set<String>): Flow<DocIdentifier> {
         return try {
-            deleteByIds(ids)
+            deleteEntities(ids)
         } catch (e: Exception) {
             logger.error(e.message, e)
             return flowOf()
@@ -104,8 +98,8 @@ class FormLogicImpl(private val formDAO: FormDAO,
         }
     }
 
-    override fun findByHcPartyParentId(hcPartyId: String, formId: String): Flow<Form> = flow {
-        emitAll(formDAO.findByHcPartyParentId(hcPartyId, formId))
+    override fun listByHcPartyAndParentId(hcPartyId: String, formId: String): Flow<Form> = flow {
+        emitAll(formDAO.listFormsByHcPartyAndParentId(hcPartyId, formId))
     }
 
     override suspend fun addDelegations(formId: String, delegations: List<Delegation>): Form? {

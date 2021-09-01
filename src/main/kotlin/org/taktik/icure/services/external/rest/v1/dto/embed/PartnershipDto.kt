@@ -33,6 +33,4 @@ data class PartnershipDto(
         val meToOtherRelationshipDescription: String? = null, //son if partnerId is my son - codes are from CD-CONTACT-PERSON
         @Deprecated("use type instead")
         val otherToMeRelationshipDescription: String? = null //father/mother if partnerId is my son
-) : Serializable {
-
-}
+) : Serializable

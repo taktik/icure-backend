@@ -22,23 +22,22 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Message
-import java.net.URI
 
 interface MessageDAO: GenericDAO<Message> {
-    fun findByFromAddressActor(partyId: String, fromAddress: String, actorKeys: List<String>?): Flow<Message>
-    fun findByToAddressActor(partyId: String, toAddress: String, actorKeys: List<String>?): Flow<Message>
-    fun findByTransportGuidActor(partyId: String, transportGuid: String, actorKeys: List<String>?): Flow<Message>
-    fun findByFromAddress(partyId: String, fromAddress: String, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
-    fun findByToAddress(partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<Any>>, reverse: Boolean?): Flow<ViewQueryResultEvent>
-    fun findByHcParty(partyId: String, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
-    fun findByTransportGuid(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
-    fun findByTransportGuidReceived(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>):Flow<ViewQueryResultEvent>
-    fun findByTransportGuidSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
-    fun findByHcPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Message>
+    fun listMessagesByFromAddressAndActor(partyId: String, fromAddress: String, actorKeys: List<String>?): Flow<Message>
+    fun listMessagesByToAddressAndActor(partyId: String, toAddress: String, actorKeys: List<String>?): Flow<Message>
+    fun listMessagesByTransportGuidAndActor(partyId: String, transportGuid: String, actorKeys: List<String>?): Flow<Message>
+    fun listMessagesByFromAddress(partyId: String, fromAddress: String, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
+    fun findMessagesByToAddress(partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<Any>>, reverse: Boolean?): Flow<ViewQueryResultEvent>
+    fun findMessagesByHcParty(partyId: String, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
+    fun findMessagesByTransportGuid(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
+    fun findMessagesByTransportGuidReceived(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>):Flow<ViewQueryResultEvent>
+    fun findMessagesByTransportGuidAndSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
+    fun listMessagesByHcPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Message>
     fun getChildren(messageId: String): Flow<Message>
-    fun getByInvoiceIds(invoiceIds: Set<String>): Flow<Message>
-    fun getByTransportGuids(hcPartyId: String, transportGuids: Collection<String>): Flow<Message>
-    fun getByExternalRefs(hcPartyId: String, externalRefs: Set<String>): Flow<Message>
+    fun listMessagesByInvoiceIds(invoiceIds: Set<String>): Flow<Message>
+    fun getMessagesByTransportGuids(hcPartyId: String, transportGuids: Collection<String>): Flow<Message>
+    fun getMessagesByExternalRefs(hcPartyId: String, externalRefs: Set<String>): Flow<Message>
     fun listConflicts(): Flow<Message>
-    fun getChildren(parentIds: List<String>): Flow<List<Message>>
+    fun getMessagesChildren(parentIds: List<String>): Flow<List<Message>>
 }

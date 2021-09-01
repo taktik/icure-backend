@@ -28,21 +28,12 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
-import org.taktik.icure.services.external.rest.v1.dto.ContactDto
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
@@ -53,7 +44,6 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
-import java.util.*
 
 @ExperimentalCoroutinesApi
 @RestController
@@ -90,7 +80,7 @@ class HealthElementController(
     @GetMapping("/byHcPartySecretForeignKeys")
     fun findHealthElementsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<HealthElementDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        val elementList = healthElementLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
+        val elementList = healthElementLogic.findHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
         return elementList
                 .map { element -> healthElementMapper.map(element) }
@@ -102,7 +92,7 @@ class HealthElementController(
     fun findHealthElementsDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        return healthElementLogic.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys)
+        return healthElementLogic.findHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys)
                 .map { healthElement -> stubMapper.mapToStub(healthElement) }
                 .injectReactorContext()
     }
@@ -119,7 +109,7 @@ class HealthElementController(
                 )
             } ?: he
         }
-        emitAll(healthElementLogic.updateEntities(healthElements.toList()).map { healthElementMapper.map(it) })
+        emitAll(healthElementLogic.modifyEntities(healthElements.toList()).map { healthElementMapper.map(it) })
     }.injectReactorContext()
 
     @Operation(summary = "Delete health elements.", description = "Response is a set containing the ID's of deleted health elements.")
@@ -146,7 +136,7 @@ class HealthElementController(
     @PutMapping("/batch")
     fun modifyHealthElements(@RequestBody healthElementDtos: List<HealthElementDto>): Flux<HealthElementDto> =
         try {
-            val hes = healthElementLogic.updateEntities(healthElementDtos.map { f -> healthElementMapper.map(f) })
+            val hes = healthElementLogic.modifyEntities(healthElementDtos.map { f -> healthElementMapper.map(f) })
             hes.map { healthElementMapper.map(it) }.injectReactorContext()
         } catch (e: Exception) {
             logger.warn(e.message, e)
@@ -170,7 +160,7 @@ class HealthElementController(
         healthElementLogic.addDelegations(healthElementId, ds.map { d -> delegationMapper.map(d) })
         val healthElementWithDelegation = healthElementLogic.getHealthElement(healthElementId)
 
-        val succeed = healthElementWithDelegation?.delegations != null && healthElementWithDelegation.delegations!!.isNotEmpty()
+        val succeed = healthElementWithDelegation?.delegations != null && healthElementWithDelegation.delegations.isNotEmpty()
         if (succeed) {
             healthElementWithDelegation?.let { healthElementMapper.map(it) }
         } else {

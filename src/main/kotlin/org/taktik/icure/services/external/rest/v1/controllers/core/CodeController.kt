@@ -24,35 +24,24 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flattenMerge
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.predicate.Predicate
 import org.taktik.icure.entities.base.Code
-import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
+import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
@@ -200,7 +189,7 @@ class CodeController(
     @Operation(summary = "Get a list of codes by ids", description = "Keys must be delimited by coma")
     @GetMapping("/byIds/{codeIds}")
     fun getCodes(@PathVariable codeIds: String): Flux<CodeDto> {
-        val codes = codeLogic.get(codeIds.split(','))
+        val codes = codeLogic.getCodes(codeIds.split(','))
         return codes
                 .map { f -> codeMapper.map(f) }
                 .injectReactorContext()
@@ -254,7 +243,7 @@ class CodeController(
 
         var codes: Flow<ViewQueryResultEvent>? = null
         val timing = System.currentTimeMillis()
-        filterChain?.let {
+        filterChain.let {
             codes = codeLogic.listCodes(paginationOffset, filterChainMapper.map(filterChain), sort, desc)
         }
         logger.info("Filter codes in " + (System.currentTimeMillis() - timing) + " ms.")

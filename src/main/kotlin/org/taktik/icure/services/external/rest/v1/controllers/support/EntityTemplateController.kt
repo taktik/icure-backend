@@ -25,15 +25,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.EntityTemplateLogic
 import org.taktik.icure.services.external.rest.v1.dto.EntityTemplateDto
@@ -56,14 +48,14 @@ class EntityTemplateController(
             @PathVariable userId: String,
             @PathVariable type: String,
             @RequestParam(required = false) searchString: String?,
-            @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.findEntityTemplates(userId, type, searchString, includeEntities).map { entityTemplateMapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
+            @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.listEntityTemplatesBy(userId, type, searchString, includeEntities).map { entityTemplateMapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
 
     @Operation(summary = "Finding entityTemplates by entityTemplate, type and version with pagination.", description = "Returns a list of entityTemplates matched with given input.")
     @GetMapping("/findAll/{type}")
     fun findAllEntityTemplates(
             @PathVariable type: String,
             @RequestParam(required = false) searchString: String?,
-            @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.findAllEntityTemplates(type, searchString, includeEntities).map { entityTemplateMapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
+            @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.listEntityTemplatesBy(type, searchString, includeEntities).map { entityTemplateMapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
 
     @Operation(summary = "Finding entityTemplates by userId, type and keyword.", description = "Returns a list of entityTemplates matched with given input.")
     @GetMapping("/find/{userId}/{type}/keyword/{keyword}")
@@ -71,14 +63,14 @@ class EntityTemplateController(
             @PathVariable userId: String,
             @PathVariable type: String,
             @PathVariable keyword: String,
-            @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.findEntityTemplatesByKeyword(userId, type, keyword, includeEntities).map { entityTemplateMapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
+            @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.listEntityTemplatesByKeyword(userId, type, keyword, includeEntities).map { entityTemplateMapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
 
     @Operation(summary = "Finding entityTemplates by entityTemplate, type and version with pagination.", description = "Returns a list of entityTemplates matched with given input.")
     @GetMapping("/findAll/{type}/keyword/{keyword}")
     fun findAllEntityTemplatesByKeyword(
             @PathVariable type: String,
             @PathVariable keyword: String,
-            @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.findAllEntityTemplatesByKeyword(type, keyword, includeEntities).map { entityTemplateMapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
+            @RequestParam(required = false) includeEntities: Boolean?) = entityTemplateLogic.listEntityTemplatesByKeyword(type, keyword, includeEntities).map { entityTemplateMapper.map(it)/*.apply { if (includeEntities == true) entity = it.entity }*/ }.injectReactorContext()
 
 
     @Operation(summary = "Create a EntityTemplate", description = "Type, EntityTemplate and Version are required.")
@@ -135,7 +127,7 @@ class EntityTemplateController(
     @PutMapping("/batch")
     fun modifyEntityTemplates(@RequestBody entityTemplateDtos: List<EntityTemplateDto>): Flux<EntityTemplateDto> {
         return try {
-            val entityTemplates = entityTemplateLogic.updateEntities(entityTemplateDtos.map { f -> entityTemplateMapper.map(f) })
+            val entityTemplates = entityTemplateLogic.modifyEntities(entityTemplateDtos.map { f -> entityTemplateMapper.map(f) })
             entityTemplates.map { f -> entityTemplateMapper.map(f) }.injectReactorContext()
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -157,5 +149,5 @@ class EntityTemplateController(
 @DeleteMapping("/{entityTemplateIds}")
     @Operation(summary = "Delete entity templates")
     fun deleteEntityTemplate(@PathVariable("entityTemplateIds") entityTemplateIds: String) =
-        entityTemplateLogic.deleteByIds(entityTemplateIds.split(",")).injectReactorContext()
+        entityTemplateLogic.deleteEntities(entityTemplateIds.split(",")).injectReactorContext()
 }

@@ -25,7 +25,6 @@ import org.taktik.icure.asyncdao.ClassificationTemplateDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.ClassificationTemplate
 import org.taktik.icure.entities.embed.Delegation
-import java.util.*
 
 interface ClassificationTemplateLogic : EntityPersister<ClassificationTemplate, String> {
     fun getGenericDAO(): ClassificationTemplateDAO
@@ -40,8 +39,8 @@ interface ClassificationTemplateLogic : EntityPersister<ClassificationTemplate, 
     suspend fun addDelegation(classificationTemplateId: String, healthcarePartyId: String, delegation: Delegation): ClassificationTemplate?
 
     suspend fun addDelegations(classificationTemplateId: String, delegations: List<Delegation>): ClassificationTemplate?
-    fun getClassificationTemplateByIds(ids: List<String>): Flow<ClassificationTemplate>
-    fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate>
+    fun getClassificationTemplates(ids: List<String>): Flow<ClassificationTemplate>
+    fun listClasificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate>
 
     fun listClassificationTemplates(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
 }

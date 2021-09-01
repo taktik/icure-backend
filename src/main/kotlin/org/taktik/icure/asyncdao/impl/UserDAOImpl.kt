@@ -53,14 +53,14 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_username", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.login, null)}}")
-    override fun findByUsername(searchString: String): Flow<User> = flow {
+    override fun listUsersByUsername(searchString: String): Flow<User> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(client.queryViewIncludeDocsNoValue<String, User>(createQuery(client, "by_username").includeDocs(true).key(searchString)).mapNotNull { it.doc })
     }
 
     @View(name = "by_email", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.email, null)}}")
-    override fun findByEmail(searchString: String): Flow<User> = flow {
+    override fun listUsersByEmail(searchString: String): Flow<User> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(client.queryViewIncludeDocsNoValue<String, User>(createQuery(client, "by_email").includeDocs(true).key(searchString)).mapNotNull { it.doc })
@@ -75,7 +75,7 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
      * startKey in pagination is the email of the patient.
      */
     @View(name = "allForPagination", map = "map = function (doc) { if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) { emit(doc.login, null); }};")
-    override fun listUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
+    override fun findUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val viewQuery = pagedViewQuery<User,String>(client, "allForPagination", null, "\ufff0", pagination, false)
@@ -102,7 +102,7 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcp_id", map = "classpath:js/user/by_hcp_id.js")
-    override fun findByHcpId(hcPartyId: String): Flow<User> = flow {
+    override fun listUsersByHcpId(hcPartyId: String): Flow<User> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(client.queryViewIncludeDocsNoValue<String,User>(createQuery(client, "by_hcp_id").key(hcPartyId).includeDocs(true)).map { it.doc })

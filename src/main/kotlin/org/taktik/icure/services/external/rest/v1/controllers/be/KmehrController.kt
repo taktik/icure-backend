@@ -524,7 +524,7 @@ class KmehrController(
                           @RequestParam(required = false) dryRun: Boolean?,
                           @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
-        val document = documentLogic.get(documentId)
+        val document = documentLogic.getDocument(documentId)
 
         val attachmentId = document?.attachmentId
 
@@ -545,7 +545,7 @@ class KmehrController(
                                          @RequestParam(required = false) language: String?,
                                          @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
-        val document = documentLogic.get(documentId)
+        val document = documentLogic.getDocument(documentId)
 
         val attachmentId = document?.attachmentId
 
@@ -570,7 +570,7 @@ class KmehrController(
                              @RequestParam(required = false) language: String?,
                              @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
-        val document = documentLogic.get(documentId)
+        val document = documentLogic.getDocument(documentId)
 
         val attachmentId = document?.attachmentId
 
@@ -597,7 +597,7 @@ class KmehrController(
                                      @RequestParam(required = false) language: String?,
                                      @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
-        val document = documentLogic.get(documentId)
+        val document = documentLogic.getDocument(documentId)
 
         val attachmentId = document?.attachmentId
         attachmentId?.let {
@@ -623,7 +623,7 @@ class KmehrController(
                                        @RequestParam(required = false) language: String?,
                                        @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
-        val document = documentLogic.get(documentId)
+        val document = documentLogic.getDocument(documentId)
 
         val attachmentId = document?.attachmentId
         attachmentId?.let {

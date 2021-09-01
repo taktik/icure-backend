@@ -22,13 +22,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.FrontEndMigrationDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.FrontEndMigration
 import org.taktik.icure.properties.CouchDbProperties
 
@@ -43,7 +43,7 @@ class FrontEndMigrationDAOImpl(couchDbProperties: CouchDbProperties,
             "            emit([doc.userId, doc.name],doc._id);\n" +
             "}\n" +
             "}")
-    override fun getByUserIdName(userId: String, name: String?): Flow<FrontEndMigration> = flow {
+    override fun getFrontEndMigrationsByUserIdAndName(userId: String, name: String?): Flow<FrontEndMigration> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val viewQuery = if (name == null) {

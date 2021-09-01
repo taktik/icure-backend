@@ -25,13 +25,13 @@ interface EntityPersister<E, I> {
 
     fun createEntities(entities: Collection<E>): Flow<E>
 
-    fun updateEntities(entities: Collection<E>): Flow<E>
+    fun modifyEntities(entities: Collection<E>): Flow<E>
 
-    fun deleteByIds(identifiers: Collection<I>): Flow<DocIdentifier>
+    fun deleteEntities(identifiers: Collection<I>): Flow<DocIdentifier>
     fun undeleteByIds(identifiers: Collection<I>): Flow<DocIdentifier>
 
-    fun getAllEntities(): Flow<E>
-    fun getAllEntityIds(): Flow<I>
+    fun getEntities(): Flow<E>
+    fun getEntitiesIds(): Flow<I>
 
     suspend fun hasEntities(): Boolean
 

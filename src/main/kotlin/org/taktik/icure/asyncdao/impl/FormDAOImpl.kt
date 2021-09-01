@@ -20,19 +20,18 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.FormDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Form
 import org.taktik.icure.properties.CouchDbProperties
-
 
 
 /**
@@ -45,7 +44,7 @@ internal class FormDAOImpl(couchDbProperties: CouchDbProperties,
                            @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Form>(couchDbProperties, Form::class.java, couchDbDispatcher, idGenerator), FormDAO {
 
     @View(name = "by_hcparty_patientfk", map = "classpath:js/form/By_hcparty_patientfk_map.js")
-    override fun findByHcPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Form> = flow {
+    override fun listFormsByHcPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Form> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
@@ -55,13 +54,13 @@ internal class FormDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_parentId", map = "classpath:js/form/By_hcparty_parent_id.js")
-    override fun findByHcPartyParentId(hcPartyId: String, formId: String): Flow<Form> = flow {
+    override fun listFormsByHcPartyAndParentId(hcPartyId: String, formId: String): Flow<Form> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(client.queryViewIncludeDocs<Array<String>, String, Form>(createQuery(client, "by_hcparty_parentId").key(ComplexKey.of(hcPartyId, formId)).includeDocs(true)).map { it.doc })
     }
 
-    override fun findAll(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
+    override fun findForms(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val viewQuery = pagedViewQuery<Form,String>(client, "all", null, null, pagination, false)
         emitAll(client.queryView(viewQuery, Any::class.java, String::class.java, Form::class.java))
@@ -75,7 +74,7 @@ internal class FormDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_externalUuid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Form' && !doc.deleted && doc.externalUuid) emit( doc.externalUuid, doc._id )}")
-    override suspend fun getAllByExternalUuid(externalUuid: String): List<Form> {
+    override suspend fun getFormsByExternalUuid(externalUuid: String): List<Form> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val viewQuery = createQuery(client, "by_externalUuid")

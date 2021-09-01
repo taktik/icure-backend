@@ -22,21 +22,20 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryView
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.CodeDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
-
 import org.taktik.icure.utils.firstOrNull
 
 
@@ -46,7 +45,7 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
                   @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager) : CachedDAOImpl<Code>(Code::class.java, couchDbProperties, couchDbDispatcher, idGenerator, asyncCacheManager), CodeDAO {
 
     @View(name = "by_type_code_version", map = "classpath:js/code/By_type_code_version.js", reduce = "_count")
-    override fun findCodes(type: String?, code: String?, version: String?): Flow<Code> = flow {
+    override fun listCodesBy(type: String?, code: String?, version: String?): Flow<Code> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(
                 client.queryViewIncludeDocsNoValue<Array<String>, Code>(
@@ -67,7 +66,7 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
         )
     }
 
-    override fun findCodeTypes(type: String?): Flow<String> = flow {
+    override fun listCodesByType(type: String?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(
                 client.queryView<String, String>(
@@ -81,7 +80,7 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_region_type_code_version", map = "classpath:js/code/By_region_type_code_version.js", reduce = "_count")
-    override fun findCodes(region: String?, type: String?, code: String?, version: String?): Flow<Code> = flow {
+    override fun listCodesBy(region: String?, type: String?, code: String?, version: String?): Flow<Code> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(
                 client.queryViewIncludeDocsNoValue<Array<String>, Code>(
@@ -104,7 +103,7 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
         )
     }
 
-    override fun findCodeTypes(region: String?, type: String?): Flow<String> = flow {
+    override fun listCodesByRegionAndType(region: String?, type: String?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(client.queryView<List<String>, String>(
                 createQuery(client, "by_region_type_code_version")
@@ -118,7 +117,7 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
 
     @ExperimentalCoroutinesApi
     @FlowPreview
-    override fun findCodes(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
+    override fun findCodesBy(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val from = ComplexKey.of(region, type, code, version)
@@ -297,12 +296,12 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
                         .endKey(to)).mapNotNull { it.id })
     }
 
-    override fun getForPagination(ids: List<String>): Flow<ViewQueryResultEvent> {
+    override fun getCodesByIdsForPagination(ids: List<String>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         return client.getForPagination(ids, Code::class.java)
     }
 
-	override suspend fun isValid(codeType: String, codeCode: String, codeVersion: String?) = findCodes(codeType, codeCode, codeVersion).firstOrNull() != null
+	override suspend fun isValid(codeType: String, codeCode: String, codeVersion: String?) = listCodesBy(codeType, codeCode, codeVersion).firstOrNull() != null
 
 	@InternalCoroutinesApi
     override suspend fun getCodeByLabel(region: String, label: String, ofType: String, labelLang : List<String>) : Code? {

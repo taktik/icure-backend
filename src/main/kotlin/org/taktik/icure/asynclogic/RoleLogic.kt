@@ -27,7 +27,7 @@ interface RoleLogic : EntityPersister<Role, String> {
     fun getDescendantRoles(roleId: String): Flow<Role>
 
     suspend fun getRole(id: String): Role?
-    fun getUsers(role: Role): Flow<User>
+    fun getUsersByRole(role: Role): Flow<User>
     suspend fun createDefaultRoleIfNecessary()
 
     suspend fun newRole(role: Role): Role?

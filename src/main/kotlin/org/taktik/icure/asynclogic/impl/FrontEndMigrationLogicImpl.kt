@@ -42,7 +42,7 @@ class FrontEndMigrationLogicImpl(private val frontEndMigrationDAO: FrontEndMigra
 
     override suspend fun deleteFrontEndMigration(frontEndMigrationId: String): DocIdentifier? {
         return try {
-            deleteByIds(setOf(frontEndMigrationId)).firstOrNull()
+            deleteEntities(setOf(frontEndMigrationId)).firstOrNull()
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }
@@ -53,7 +53,7 @@ class FrontEndMigrationLogicImpl(private val frontEndMigrationDAO: FrontEndMigra
     }
 
     override fun getFrontEndMigrationByUserIdName(userId: String, name: String?): Flow<FrontEndMigration> = flow {
-        emitAll(frontEndMigrationDAO.getByUserIdName(userId, name))
+        emitAll(frontEndMigrationDAO.getFrontEndMigrationsByUserIdAndName(userId, name))
     }
 
     override suspend fun modifyFrontEndMigration(frontEndMigration: FrontEndMigration): FrontEndMigration? {

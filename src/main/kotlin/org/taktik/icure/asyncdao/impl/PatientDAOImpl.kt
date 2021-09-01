@@ -20,26 +20,17 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.toList
-import org.taktik.couchdb.annotation.View
+import kotlinx.coroutines.flow.*
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryView
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.PatientDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Patient
@@ -57,28 +48,28 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
                      @Qualifier("patientCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Patient>(Patient::class.java, couchDbProperties, couchDbDispatcher, idGenerator), PatientDAO {
 
     @View(name = "by_hcparty_name", map = "classpath:js/patient/By_hcparty_name_map.js", reduce = "_count")
-    override fun listIdsByHcPartyAndName(name: String, healthcarePartyId: String): Flow<String> {
-        return listIdsForName(name, healthcarePartyId, "by_hcparty_name")
+    override fun listPatientIdsByHcPartyAndName(name: String, healthcarePartyId: String): Flow<String> {
+        return listPatientIdsForName(name, healthcarePartyId, "by_hcparty_name")
     }
 
     @View(name = "of_hcparty_name", map = "classpath:js/patient/Of_hcparty_name_map.js")
-    override fun listIdsOfHcPartyAndName(name: String, healthcarePartyId: String): Flow<String> {
-        return listIdsForName(name, healthcarePartyId, "of_hcparty_name")
+    override fun listPatientIdsOfHcPartyAndName(name: String, healthcarePartyId: String): Flow<String> {
+        return listPatientIdsForName(name, healthcarePartyId, "of_hcparty_name")
     }
 
     @View(name = "by_hcparty_ssin", map = "classpath:js/patient/By_hcparty_ssin_map.js", reduce = "_count")
-    override fun listIdsByHcPartyAndSsin(ssin: String, healthcarePartyId: String): Flow<String> {
-        return listIdsForSsin(ssin, healthcarePartyId, "by_hcparty_ssin")
+    override fun listPatientIdsByHcPartyAndSsin(ssin: String, healthcarePartyId: String): Flow<String> {
+        return listPatientIdsForSsin(ssin, healthcarePartyId, "by_hcparty_ssin")
     }
 
     @View(name = "of_hcparty_ssin", map = "classpath:js/patient/Of_hcparty_ssin_map.js", reduce = "_count")
-    override fun listIdsOfHcPartyAndSsin(ssin: String, healthcarePartyId: String): Flow<String> {
-        return listIdsForSsin(ssin, healthcarePartyId, "of_hcparty_ssin")
+    override fun listPatientIdsOfHcPartyAndSsin(ssin: String, healthcarePartyId: String): Flow<String> {
+        return listPatientIdsForSsin(ssin, healthcarePartyId, "of_hcparty_ssin")
     }
 
     @View(name = "by_hcparty_active", map = "classpath:js/patient/By_hcparty_active.js", reduce = "_count")
-    override fun listIdsByActive(active: Boolean, healthcarePartyId: String): Flow<String> {
-        return listIdsForActive(active, healthcarePartyId, "by_hcparty_active")
+    override fun listPatientIdsByActive(active: Boolean, healthcarePartyId: String): Flow<String> {
+        return listPatientIdsForActive(active, healthcarePartyId, "by_hcparty_active")
     }
 
     @View(name = "merged_by_date", map = "classpath:js/patient/Merged_by_date.js")
@@ -108,7 +99,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         }
     }
 
-    override fun listIdsByHcParty(healthcarePartyId: String): Flow<String> = flow {
+    override fun listPatientIdsByHcParty(healthcarePartyId: String): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val viewQuery = createQuery(client, "by_hcparty_date_of_birth").startKey(ComplexKey.of(healthcarePartyId, null)).endKey(ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject())).includeDocs(false)
         emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
@@ -116,20 +107,20 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
 
 
     @View(name = "by_hcparty_date_of_birth", map = "classpath:js/patient/By_hcparty_date_of_birth_map.js")
-    override fun listIdsByHcPartyAndDateOfBirth(date: Int?, healthcarePartyId: String): Flow<String> = flow {
+    override fun listPatientIdsByHcPartyAndDateOfBirth(date: Int?, healthcarePartyId: String): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val viewQuery = createQuery(client, "by_hcparty_date_of_birth").key(ComplexKey.of(healthcarePartyId, date)).includeDocs(false)
         emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
     }
 
-    override fun listIdsByHcPartyAndDateOfBirth(startDate: Int?, endDate: Int?, healthcarePartyId: String): Flow<String> = flow {
+    override fun listPatientIdsByHcPartyAndDateOfBirth(startDate: Int?, endDate: Int?, healthcarePartyId: String): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val viewQuery = createQuery(client, "by_hcparty_date_of_birth").startKey(ComplexKey.of(healthcarePartyId, startDate)).endKey(ComplexKey.of(healthcarePartyId, endDate)).includeDocs(false)
         emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
     }
 
     @View(name = "by_hcparty_gender_education_profession", map = "classpath:js/patient/By_hcparty_gender_education_profession_map.js")
-    override fun listIdsByHcPartyGenderEducationProfession(healthcarePartyId: String, gender: Gender?, education: String?, profession: String?): Flow<String> = flow {
+    override fun listPatientIdsByHcPartyGenderEducationProfession(healthcarePartyId: String, gender: Gender?, education: String?, profession: String?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val viewQuery = createQuery(client, "by_hcparty_gender_education_profession")
                 .startKey(ComplexKey.of(healthcarePartyId, gender?.name, education, profession))
@@ -139,14 +130,14 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "of_hcparty_date_of_birth", map = "classpath:js/patient/Of_hcparty_date_of_birth_map.js")
-    override fun listIdsForHcPartyDateOfBirth(date: Int?, healthcarePartyId: String): Flow<String> = flow {
+    override fun listPatientIdsForHcPartyDateOfBirth(date: Int?, healthcarePartyId: String): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val viewQuery = createQuery(client, "of_hcparty_date_of_birth").key(ComplexKey.of(healthcarePartyId, date)).includeDocs(false)
         emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
     }
 
     @View(name = "by_hcparty_contains_name", map = "classpath:js/patient/By_hcparty_contains_name_map.js")
-    override fun listIdsByHcPartyAndNameContainsFuzzy(searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String> = flow {
+    override fun listPatientIdsByHcPartyAndNameContainsFuzzy(searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val name = if (searchString != null) StringUtils.sanitizeString(searchString) else null
         val viewQuery = createQuery(client, "by_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, if (name == null) ComplexKey.emptyObject() else name + "\ufff0")).also { q -> limit?.let { q.limit(it)} ?: q }.includeDocs(false)
@@ -154,14 +145,14 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "of_hcparty_contains_name", map = "classpath:js/patient/Of_hcparty_contains_name_map.js")
-    override fun listIdsOfHcPartyNameContainsFuzzy(searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String> = flow {
+    override fun listPatientIdsOfHcPartyNameContainsFuzzy(searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val name = if (searchString != null) StringUtils.sanitizeString(searchString) else null
         val viewQuery = createQuery(client, "of_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, if (name == null) ComplexKey.emptyObject() else name + "\ufff0")).also { q -> limit?.let { q.limit(it)} ?: q }.includeDocs(false)
         emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }.distinct())
     }
 
-    private fun listIdsForName(name: String?, healthcarePartyId: String, viewName: String): Flow<String> = flow {
+    private fun listPatientIdsForName(name: String?, healthcarePartyId: String, viewName: String): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         var name = name
         val startKey: ComplexKey
@@ -182,7 +173,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value })
     }
 
-    private fun listIdsForSsin(ssin: String?, healthcarePartyId: String, viewName: String): Flow<String> = flow {
+    private fun listPatientIdsForSsin(ssin: String?, healthcarePartyId: String, viewName: String): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val startKey: ComplexKey
         val endKey: ComplexKey
@@ -201,13 +192,13 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value })
     }
 
-    private fun listIdsForSsins(ssins: Collection<String>, healthcarePartyId: String, viewName: String): Flow<String> = flow {
+    private fun listPatientIdsForSsins(ssins: Collection<String>, healthcarePartyId: String, viewName: String): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val viewQuery = createQuery(client, viewName).reduce(false).keys(ssins.map { ssin -> ComplexKey.of(healthcarePartyId, ssin) }).includeDocs(false)
         emitAll(client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value })
     }
 
-    private fun listIdsForActive(active: Boolean, healthcarePartyId: String, viewName: String): Flow<String> = flow {
+    private fun listPatientIdsForActive(active: Boolean, healthcarePartyId: String, viewName: String): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val onlyKey = ComplexKey.of(healthcarePartyId, if (active) 1 else 0)
         val viewQuery = createQuery(client, viewName).reduce(false).startKey(onlyKey).endKey(onlyKey).includeDocs(false)
@@ -215,7 +206,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_externalid", map = "classpath:js/patient/By_hcparty_externalid_map.js")
-    override fun listIdsByHcPartyAndExternalId(externalId: String?, healthcarePartyId: String): Flow<String> = flow {
+    override fun listPatientIdsByHcPartyAndExternalId(externalId: String?, healthcarePartyId: String): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val startKey: ComplexKey
         val endKey: ComplexKey
@@ -235,47 +226,47 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
     }
 
-    override fun findIdsByHcParty(healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> = flow {
+    override fun findPatientIdsByHcParty(healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val viewQuery = pagedViewQueryOfIds<Patient, ComplexKey>(client, "by_hcparty_name", pagination.startKey ?: ComplexKey.of(healthcarePartyId, null), ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject()), pagination)
         emitAll(client.queryView(viewQuery, Array<String>::class.java, String::class.java, Any::class.java))
     }
 
     override fun findPatientsByHcPartyAndName(name: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
-        return findByName(name, healthcarePartyId, pagination, descending, "by_hcparty_name")
+        return findPatientsByName(name, healthcarePartyId, pagination, descending, "by_hcparty_name")
     }
 
     override fun findPatientsOfHcPartyAndName(name: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
-        return findByName(name, healthcarePartyId, pagination, descending, "of_hcparty_name")
+        return findPatientsByName(name, healthcarePartyId, pagination, descending, "of_hcparty_name")
     }
 
     override fun findPatientsByHcPartyAndSsin(ssin: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
-        return findBySsin(ssin, healthcarePartyId, pagination, descending, "by_hcparty_ssin")
+        return findPatientsBySsin(ssin, healthcarePartyId, pagination, descending, "by_hcparty_ssin")
     }
 
     override fun findPatientsOfHcPartyAndSsin(ssin: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
-        return findBySsin(ssin, healthcarePartyId, pagination, descending, "of_hcparty_ssin")
+        return findPatientsBySsin(ssin, healthcarePartyId, pagination, descending, "of_hcparty_ssin")
     }
 
     @View(name = "by_hcparty_modification_date", map = "classpath:js/patient/By_hcparty_modification_date_map.js")
     override fun findPatientsByHcPartyModificationDate(startDate: Long?, endDate: Long?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
-        return findByModificationDate(startDate, endDate, healthcarePartyId, pagination, descending, "by_hcparty_modification_date")
+        return findPatientsByModificationDate(startDate, endDate, healthcarePartyId, pagination, descending, "by_hcparty_modification_date")
     }
 
     @View(name = "of_hcparty_modification_date", map = "classpath:js/patient/Of_hcparty_modification_date_map.js")
     override fun findPatientsOfHcPartyModificationDate(startDate: Long?, endDate: Long?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
-        return findByModificationDate(startDate, endDate, healthcarePartyId, pagination, descending, "of_hcparty_modification_date")
+        return findPatientsByModificationDate(startDate, endDate, healthcarePartyId, pagination, descending, "of_hcparty_modification_date")
     }
 
     override fun findPatientsByHcPartyDateOfBirth(startDate: Int?, endDate: Int?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
-        return findByDateOfBirth(startDate, endDate, healthcarePartyId, pagination, descending, "by_hcparty_date_of_birth")
+        return findPatientsByDateOfBirth(startDate, endDate, healthcarePartyId, pagination, descending, "by_hcparty_date_of_birth")
     }
 
     override fun findPatientsOfHcPartyDateOfBirth(startDate: Int?, endDate: Int?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
-        return findByDateOfBirth(startDate, endDate, healthcarePartyId, pagination, descending, "of_hcparty_date_of_birth")
+        return findPatientsByDateOfBirth(startDate, endDate, healthcarePartyId, pagination, descending, "of_hcparty_date_of_birth")
     }
 
-    private fun findByName(name: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean, viewName: String): Flow<ViewQueryResultEvent> = flow {
+    private fun findPatientsByName(name: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean, viewName: String): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         var name = name
@@ -299,7 +290,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView(viewQuery, Array<String>::class.java, String::class.java, Patient::class.java))
     }
 
-    private fun findBySsin(ssin: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean, viewName: String): Flow<ViewQueryResultEvent> = flow {
+    private fun findPatientsBySsin(ssin: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean, viewName: String): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val startKeyNameKeySuffix = if (descending) "\ufff0" else "\u0000"
@@ -322,7 +313,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Patient::class.java))
     }
 
-    private fun findByDateOfBirth(startDate: Int?, endDate: Int?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean, viewName: String): Flow<ViewQueryResultEvent> = flow {
+    private fun findPatientsByDateOfBirth(startDate: Int?, endDate: Int?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean, viewName: String): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val startKeyStartDate = if (descending) endDate else startDate
@@ -337,7 +328,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Patient::class.java))
     }
 
-    private fun findByModificationDate(startDate: Long?, endDate: Long?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean, viewName: String): Flow<ViewQueryResultEvent> = flow {
+    private fun findPatientsByModificationDate(startDate: Long?, endDate: Long?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean, viewName: String): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val startKeyStartDate = if (descending) endDate else startDate
@@ -360,12 +351,12 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         return client.queryViewIncludeDocs<String, String, Patient>(queryView).firstOrNull()?.doc
     }
 
-    override fun get(patIds: Collection<String>): Flow<Patient> {
-        return getList(patIds)
+    override fun getPatients(patIds: Collection<String>): Flow<Patient> {
+        return getEntities(patIds)
     }
 
     @View(name = "by_external_id", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Patient' && !doc.deleted && doc.externalId) emit( doc.externalId, doc._id )}")
-    override suspend fun getByExternalId(externalId: String): Patient? {
+    override suspend fun getPatientByExternalId(externalId: String): Patient? {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val queryView = createQuery(client, "by_external_id").includeDocs(true).key(externalId)
@@ -427,18 +418,18 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_modification_date", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Patient'  && doc.modified) emit(doc.modified)}  ") // TODO mbo revert
-    override fun listOfPatientsModifiedAfter(date: Long, paginationOffset: PaginationOffset<Long>): Flow<ViewQueryResultEvent> = flow {
+    override fun findPatientsModifiedAfter(date: Long, paginationOffset: PaginationOffset<Long>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val viewQuery = pagedViewQuery<Patient, Long>(client, "by_modification_date", date, java.lang.Long.MAX_VALUE, paginationOffset, false)
         emitAll(client.queryView(viewQuery, Long::class.java, Any::class.java, Patient::class.java))
     }
 
-    override fun listIdsByHcPartyAndSsins(ssins: Collection<String>, healthcarePartyId: String): Flow<String> {
-        return listIdsForSsins(ssins, healthcarePartyId, "by_hcparty_ssin")
+    override fun listPatientIdsByHcPartyAndSsins(ssins: Collection<String>, healthcarePartyId: String): Flow<String> {
+        return listPatientIdsForSsins(ssins, healthcarePartyId, "by_hcparty_ssin")
     }
 
     @View(name = "by_hcparty_contains_name_delegate", map = "classpath:js/patient/By_hcparty_contains_name_delegate.js")
-    override fun listByHcPartyName(searchString: String?, healthcarePartyId: String): Flow<String> = flow {
+    override fun listPatientsByHcPartyName(searchString: String?, healthcarePartyId: String): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val name = if (searchString != null) StringUtils.sanitizeString(searchString) else null
@@ -474,12 +465,12 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         return this.getDuplicatesFromView("by_hcparty_name", healthcarePartyId, paginationOffset)
     }
 
-    override fun getForPagination(ids: Collection<String>): Flow<ViewQueryResultEvent> {
+    override fun findPatients(ids: Collection<String>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         return client.getForPagination(ids, Patient::class.java)
     }
 
-    override fun getForPagination(ids: Flow<String>): Flow<ViewQueryResultEvent> {
+    override fun findPatients(ids: Flow<String>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         return client.getForPagination(ids, Patient::class.java)
     }

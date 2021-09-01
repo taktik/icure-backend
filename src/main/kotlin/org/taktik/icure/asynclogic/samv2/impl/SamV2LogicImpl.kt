@@ -21,22 +21,10 @@ package org.taktik.icure.asynclogic.samv2.impl
 import kotlinx.coroutines.flow.Flow
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.ViewQueryResultEvent
-import org.taktik.icure.asyncdao.samv2.AmpDAO
-import org.taktik.icure.asyncdao.samv2.NmpDAO
-import org.taktik.icure.asyncdao.samv2.PharmaceuticalFormDAO
-import org.taktik.icure.asyncdao.samv2.ProductIdDAO
-import org.taktik.icure.asyncdao.samv2.SubstanceDAO
-import org.taktik.icure.asyncdao.samv2.VmpDAO
-import org.taktik.icure.asyncdao.samv2.VmpGroupDAO
+import org.taktik.icure.asyncdao.samv2.*
 import org.taktik.icure.asynclogic.samv2.SamV2Logic
-import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.samv2.Amp
-import org.taktik.icure.entities.samv2.Nmp
-import org.taktik.icure.entities.samv2.ProductId
-import org.taktik.icure.entities.samv2.SamVersion
-import org.taktik.icure.entities.samv2.Vmp
-import org.taktik.icure.entities.samv2.VmpGroup
+import org.taktik.icure.entities.samv2.*
 import org.taktik.icure.entities.samv2.embed.PharmaceuticalForm
 import org.taktik.icure.entities.samv2.embed.Substance
 
@@ -95,7 +83,7 @@ class SamV2LogicImpl(val ampDAO: AmpDAO, val vmpDAO: VmpDAO, val vmpGroupDAO: Vm
     }
 
     override fun listProductIds(productIds: List<String>): Flow<ProductId> {
-        return productIdDAO.list(productIds)
+        return productIdDAO.getEntities(productIds)
     }
 
     override fun findVmpsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
@@ -147,11 +135,11 @@ class SamV2LogicImpl(val ampDAO: AmpDAO, val vmpDAO: VmpDAO, val vmpGroupDAO: Vm
     }
 
     override fun listSubstances(): Flow<Substance> {
-        return substanceDAO.getAll()
+        return substanceDAO.getEntities()
     }
 
     override fun listPharmaceuticalForms(): Flow<PharmaceuticalForm> {
-        return pharmaceuticalFormDAO.getAll()
+        return pharmaceuticalFormDAO.getEntities()
     }
 
     override fun listVmpsByVmpCodes(vmpCodes: List<String>): Flow<Vmp> {

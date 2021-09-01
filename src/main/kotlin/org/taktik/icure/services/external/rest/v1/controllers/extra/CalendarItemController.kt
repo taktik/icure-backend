@@ -27,15 +27,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.CalendarItemLogic
@@ -47,7 +39,6 @@ import org.taktik.icure.services.external.rest.v1.mapper.CalendarItemMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
-import java.util.*
 
 @ExperimentalCoroutinesApi
 @RestController
@@ -61,7 +52,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     @Operation(summary = "Gets all calendarItems")
     @GetMapping
     fun getCalendarItems(): Flux<CalendarItemDto> {
-        val calendarItems = calendarItemLogic.getAllEntities()
+        val calendarItems = calendarItemLogic.getEntities()
         return calendarItems.map { calendarItemMapper.map(it) }.injectReactorContext()
     }
 
@@ -130,7 +121,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
         if (calendarItemIds == null) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "calendarItemIds was empty")
         }
-        val calendars = calendarItemLogic.getCalendarItemByIds(calendarItemIds.ids)
+        val calendars = calendarItemLogic.getCalendarItems(calendarItemIds.ids)
         return calendars.map { calendarItemMapper.map(it) }.injectReactorContext()
     }
 
@@ -138,7 +129,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     @GetMapping("/byHcPartySecretForeignKeys")
     fun findCalendarItemsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,@RequestParam secretFKeys: String): Flux<CalendarItemDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        val elementList = calendarItemLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
+        val elementList = calendarItemLogic.listCalendarItemsByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
         return elementList.map { calendarItemMapper.map(it) }.injectReactorContext()
     }
@@ -146,7 +137,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     @Operation(summary = "Update delegations in calendarItems")
     @PostMapping("/delegations")
     fun setCalendarItemsDelegations(stubs: List<IcureStubDto>) = flow {
-        val calendarItems = calendarItemLogic.getCalendarItemByIds(stubs.map { obj: IcureStubDto -> obj.id }).map { ci ->
+        val calendarItems = calendarItemLogic.getCalendarItems(stubs.map { obj: IcureStubDto -> obj.id }).map { ci ->
             stubs.find { s -> s.id == ci.id }?.let { stub ->
                 ci.copy(
                         delegations = ci.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels },
@@ -155,7 +146,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
                 )
             } ?: ci
         }
-        emitAll(calendarItemLogic.updateEntities(calendarItems.toList()).map { calendarItemMapper.map(it) })
+        emitAll(calendarItemLogic.modifyEntities(calendarItems.toList()).map { calendarItemMapper.map(it) })
     }.injectReactorContext()
 
 }

@@ -432,8 +432,8 @@ class SumehrImport(val patientLogic: PatientLogic,
         val nihii = p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value
         val niss = p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value
 
-        return (nihii?.let { healthcarePartyLogic.listByNihii(it).firstOrNull() }
-            ?: niss?.let  { healthcarePartyLogic.listBySsin(niss).firstOrNull() }
+        return (nihii?.let { healthcarePartyLogic.listHealthcarePartiesByNihii(it).firstOrNull() }
+            ?: niss?.let  { healthcarePartyLogic.listHealthcarePartiesBySsin(niss).firstOrNull() }
                 ?: try {
                     copyFromHcpToHcp(p, HealthcareParty(
                             id = idGenerator.newGUID().toString(),

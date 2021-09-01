@@ -19,25 +19,18 @@ package org.taktik.icure.asynclogic.impl
 
 import com.google.common.base.Strings
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.entity.Option
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asyncdao.InvoiceDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.EntityReferenceLogic
 import org.taktik.icure.asynclogic.InvoiceLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
-import org.taktik.couchdb.entity.Option
-import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.dto.data.LabelledOccurence
@@ -76,7 +69,7 @@ class InvoiceLogicImpl(private val filters: Filters,
 
     override suspend fun deleteInvoice(invoiceId: String): DocIdentifier? {
         return try {
-            deleteByIds(listOf(invoiceId)).firstOrNull()
+            deleteEntities(listOf(invoiceId)).firstOrNull()
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }
@@ -87,14 +80,14 @@ class InvoiceLogicImpl(private val filters: Filters,
     }
 
     override fun getInvoices(ids: List<String>): Flow<Invoice> = flow {
-        emitAll(invoiceDAO.getList(ids))
+        emitAll(invoiceDAO.getEntities(ids))
     }
 
     override suspend fun modifyInvoice(invoice: Invoice) = fix(invoice) { invoice ->
         invoiceDAO.save(invoice)
     }
 
-    override fun updateInvoices(invoices: List<Invoice>): Flow<Invoice> = flow {
+    override fun modifyInvoices(invoices: List<Invoice>): Flow<Invoice> = flow {
         emitAll(invoiceDAO.save(invoices))
     }
 
@@ -119,44 +112,44 @@ class InvoiceLogicImpl(private val filters: Filters,
         }
     }
 
-    override fun findByAuthor(hcPartyId: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> = flow {
-        emitAll(invoiceDAO.findByHcParty(hcPartyId, fromDate, toDate, paginationOffset.toComplexKeyPaginationOffset()))
+    override fun findInvoicesByAuthor(hcPartyId: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> = flow {
+        emitAll(invoiceDAO.findInvoicesByHcParty(hcPartyId, fromDate, toDate, paginationOffset.toComplexKeyPaginationOffset()))
     }
 
-    override fun listByHcPartyContacts(hcParty: String, contactIds: Set<String>): Flow<Invoice> = flow {
-        emitAll(invoiceDAO.listByHcPartyContacts(hcParty, contactIds))
+    override fun listInvoicesByHcPartyContacts(hcParty: String, contactIds: Set<String>): Flow<Invoice> = flow {
+        emitAll(invoiceDAO.listInvoicesByHcPartyAndContacts(hcParty, contactIds))
     }
 
-    override fun listByHcPartyRecipientIds(hcParty: String, recipientIds: Set<String?>): Flow<Invoice> = flow {
-        emitAll(invoiceDAO.listByHcPartyRecipientIds(hcParty, recipientIds))
+    override fun listInvoicesByHcPartyAndRecipientIds(hcParty: String, recipientIds: Set<String?>): Flow<Invoice> = flow {
+        emitAll(invoiceDAO.listInvoicesByHcPartyAndRecipientIds(hcParty, recipientIds))
     }
 
-    override fun listByHcPartyPatientSks(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice> = flow {
-        emitAll(invoiceDAO.listByHcPartyPatientFk(hcParty, secretPatientKeys))
+    override fun listInvoicesByHcPartyAndPatientSks(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice> = flow {
+        emitAll(invoiceDAO.listInvoicesByHcPartyAndPatientFk(hcParty, secretPatientKeys))
     }
 
-    override fun listByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty: String, sentMediumType: MediumType, invoiceType: InvoiceType, sent: Boolean, fromDate: Long?, toDate: Long?): Flow<Invoice> = flow {
-        emitAll(invoiceDAO.listByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty, sentMediumType, invoiceType, sent, fromDate, toDate))
+    override fun listInvoicesByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty: String, sentMediumType: MediumType, invoiceType: InvoiceType, sent: Boolean, fromDate: Long?, toDate: Long?): Flow<Invoice> = flow {
+        emitAll(invoiceDAO.listInvoicesByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty, sentMediumType, invoiceType, sent, fromDate, toDate))
     }
 
-    override fun listByHcPartySendingModeStatus(hcParty: String, sendingMode: String?, status: String?, fromDate: Long?, toDate: Long?): Flow<Invoice> = flow {
-        emitAll(invoiceDAO.listByHcPartySendingModeStatus(hcParty, sendingMode, status, fromDate, toDate))
+    override fun listInvoicesByHcPartySendingModeStatus(hcParty: String, sendingMode: String?, status: String?, fromDate: Long?, toDate: Long?): Flow<Invoice> = flow {
+        emitAll(invoiceDAO.listInvoicesByHcPartySendingModeStatus(hcParty, sendingMode, status, fromDate, toDate))
     }
 
-    override fun listByHcPartyGroupId(hcParty: String, inputGroupId: String): Flow<Invoice> = flow {
-        emitAll(invoiceDAO.listByHcPartyGroupId(inputGroupId, hcParty))
+    override fun listInvoicesByHcPartyAndGroupId(hcParty: String, inputGroupId: String): Flow<Invoice> = flow {
+        emitAll(invoiceDAO.listInvoicesByHcPartyAndGroupId(inputGroupId, hcParty))
     }
 
-    override fun listByHcPartyRecipientIdsUnsent(hcParty: String, recipientIds: Set<String?>): Flow<Invoice> = flow {
-        emitAll(invoiceDAO.listByHcPartyRecipientIdsUnsent(hcParty, recipientIds))
+    override fun listInvoicesByHcPartyAndRecipientIdsUnsent(hcParty: String, recipientIds: Set<String?>): Flow<Invoice> = flow {
+        emitAll(invoiceDAO.listInvoicesByHcPartyAndRecipientIdsUnsent(hcParty, recipientIds))
     }
 
-    override fun listByHcPartyPatientSksUnsent(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice> = flow {
-        emitAll(invoiceDAO.listByHcPartyPatientFkUnsent(hcParty, secretPatientKeys))
+    override fun listInvoicesByHcPartyAndPatientSksUnsent(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice> = flow {
+        emitAll(invoiceDAO.listInvoicesByHcPartyAndPatientFkUnsent(hcParty, secretPatientKeys))
     }
 
-    override fun listByServiceIds(serviceIds: Set<String>): Flow<Invoice> = flow {
-        emitAll(invoiceDAO.listByServiceIds(serviceIds))
+    override fun listInvoicesByServiceIds(serviceIds: Set<String>): Flow<Invoice> = flow {
+        emitAll(invoiceDAO.listInvoicesByServiceIds(serviceIds))
     }
 
     override suspend fun mergeInvoices(hcParty: String, invoices: List<Invoice>, destination: Invoice?): Invoice? {
@@ -188,7 +181,7 @@ class InvoiceLogicImpl(private val filters: Filters,
                     val fix = startScheme.replace("0+$".toRegex(), "")
                     val reference = entityReferenceLogic.getLatest(prefix + fix)
                     if (reference == null || !reference.id.startsWith(prefix)) {
-                        val prevInvoices = invoiceDAO.listByHcPartyReferences(hcParty, endScheme, null, true, 1)
+                        val prevInvoices = invoiceDAO.listInvoicesByHcPartyAndReferences(hcParty, endScheme, null, true, 1)
                         val first = prevInvoices.firstOrNull()
                         "" + if (first?.invoiceReference != null) max(java.lang.Long.valueOf(first.invoiceReference) + 1L, java.lang.Long.valueOf(startScheme) + 1L) else java.lang.Long.valueOf(startScheme) + 1L
                     } else {
@@ -204,10 +197,10 @@ class InvoiceLogicImpl(private val filters: Filters,
         } else invoicingCodes
         val invoiceGraceTimeInDays = invoiceGraceTime ?: 0
         val selectedInvoice = if (invoiceId != null) getInvoice(invoiceId) else null
-        var invoices = if (selectedInvoice != null) mutableListOf<Invoice>() else listByHcPartyPatientSksUnsent(hcPartyId, secretPatientKeys)
+        var invoices = if (selectedInvoice != null) mutableListOf<Invoice>() else listInvoicesByHcPartyAndPatientSksUnsent(hcPartyId, secretPatientKeys)
                 .filter { i -> i.invoiceType == type && i.sentMediumType == sentMediumType && if (insuranceId == null) i.recipientId == null else insuranceId == i.recipientId }.toList().toMutableList()
         if (selectedInvoice == null && invoices.isEmpty()) {
-            invoices = listByHcPartyRecipientIdsUnsent(hcPartyId, insuranceId?.let { setOf(it) }
+            invoices = listInvoicesByHcPartyAndRecipientIdsUnsent(hcPartyId, insuranceId?.let { setOf(it) }
                     ?: setOf()).filter { i -> i.invoiceType == type && i.sentMediumType == sentMediumType && i.secretForeignKeys == secretPatientKeys }.toList().toMutableList()
         }
 
@@ -264,7 +257,7 @@ class InvoiceLogicImpl(private val filters: Filters,
         val tarificationIds = inputTarificationIds.toMutableList()
         val user = userLogic.getUser(userId)
         if (user != null) {
-            val invoices = listByHcPartyPatientSksUnsent(user.healthcarePartyId ?: throw IllegalArgumentException("The provided user must be linked to an hcp"), secretPatientKeys)
+            val invoices = listInvoicesByHcPartyAndPatientSksUnsent(user.healthcarePartyId ?: throw IllegalArgumentException("The provided user must be linked to an hcp"), secretPatientKeys)
                     .filter { i -> i.invoicingCodes.any { ic -> serviceId == ic.serviceId && tarificationIds.contains(ic.tarificationId) } }
                     .toList().sortedWith(Comparator { a: Invoice, b: Invoice -> ((b.invoiceDate ?: 99999999999999L) as Long).compareTo(a.invoiceDate ?: 0L) })
             for (i in invoices) {
@@ -284,8 +277,8 @@ class InvoiceLogicImpl(private val filters: Filters,
         }
     }
 
-    override fun listAllHcpsByStatus(status: String, from: Long?, to: Long?, hcpIds: List<String>): Flow<Invoice> = flow {
-        emitAll(invoiceDAO.listAllHcpsByStatus(status, from, to, hcpIds))
+    override fun listInvoicesHcpsByStatus(status: String, from: Long?, to: Long?, hcpIds: List<String>): Flow<Invoice> = flow {
+        emitAll(invoiceDAO.listInvoicesHcpsByStatus(status, from, to, hcpIds))
     }
 
     override fun solveConflicts(): Flow<Invoice> =
@@ -302,8 +295,8 @@ class InvoiceLogicImpl(private val filters: Filters,
                 .toList().sortedByDescending { it.occurence }
     }
 
-    override fun listIdsByTarificationsByCode(hcPartyId: String, codeCode: String, startValueDate: Long, endValueDate: Long): Flow<String> = flow {
-        emitAll(invoiceDAO.listIdsByTarificationsByCode(hcPartyId, codeCode, startValueDate, endValueDate))
+    override fun listInvoicesIdsByTarificationsByCode(hcPartyId: String, codeCode: String, startValueDate: Long, endValueDate: Long): Flow<String> = flow {
+        emitAll(invoiceDAO.listInvoiceIdsByTarificationsAndCode(hcPartyId, codeCode, startValueDate, endValueDate))
     }
 
     override fun listInvoiceIdsByTarificationsByCode(hcPartyId: String, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {

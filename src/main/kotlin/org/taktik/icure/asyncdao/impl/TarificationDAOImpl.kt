@@ -22,19 +22,18 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.TarificationDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Tarification
 import org.taktik.icure.properties.CouchDbProperties
-
 
 
 @Repository("tarificationDAO")
@@ -43,7 +42,7 @@ class TarificationDAOImpl(couchDbProperties: CouchDbProperties,
                           @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Tarification>(couchDbProperties, Tarification::class.java, couchDbDispatcher, idGenerator), TarificationDAO {
 
     @View(name = "by_type_code_version", map = "classpath:js/tarif/By_type_code_version.js", reduce = "_count")
-    override fun findTarifications(type: String?, code: String?, version: String?): Flow<Tarification> = flow {
+    override fun listTarificationsBy(type: String?, code: String?, version: String?): Flow<Tarification> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(
                 client.queryViewIncludeDocs<ComplexKey, String, Tarification>(createQuery(client, "by_type_code_version")
@@ -64,7 +63,7 @@ class TarificationDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_region_type_code_version", map = "classpath:js/tarif/By_region_type_code_version.js", reduce = "_count")
-    override fun findTarifications(region: String?, type: String?, code: String?, version: String?): Flow<Tarification> = flow {
+    override fun listTarificationsBy(region: String?, type: String?, code: String?, version: String?): Flow<Tarification> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(
                 client.queryViewIncludeDocs<Array<String>, String, Tarification>(
@@ -86,7 +85,7 @@ class TarificationDAOImpl(couchDbProperties: CouchDbProperties,
         )
     }
 
-    override fun findTarifications(region: String?, type: String?, code: String?, version: String?, pagination: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
+    override fun findTarificationsBy(region: String?, type: String?, code: String?, version: String?, pagination: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val from = ComplexKey.of(
                         region ?: "\u0000",

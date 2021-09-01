@@ -34,7 +34,7 @@ class TimeTableLogicImpl(private val timeTableDAO: TimeTableDAO, private val ses
     }
 
     override fun deleteTimeTables(ids: List<String>): Flow<DocIdentifier> {
-        return deleteByIds(ids)
+        return deleteEntities(ids)
     }
 
     override suspend fun getTimeTable(timeTableId: String): TimeTable? {

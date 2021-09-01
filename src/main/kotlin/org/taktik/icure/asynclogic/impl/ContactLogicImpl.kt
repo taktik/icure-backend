@@ -18,32 +18,18 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.dropWhile
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.entity.Option
 import org.taktik.couchdb.exception.UpdateConflictException
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asyncdao.ContactDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
-import org.taktik.couchdb.entity.Option
-import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.dto.data.LabelledOccurence
@@ -54,8 +40,6 @@ import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
-import java.util.*
-import kotlin.collections.HashSet
 
 @ExperimentalCoroutinesApi
 @Service
@@ -69,15 +53,15 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     }
 
     override fun getContacts(selectedIds: Collection<String>): Flow<Contact> = flow {
-        emitAll(contactDAO.get(selectedIds))
+        emitAll(contactDAO.getContacts(selectedIds))
     }
 
-    override fun getPaginatedContacts(selectedIds: Collection<String>): Flow<ViewQueryResultEvent> = flow {
-        emitAll(contactDAO.getPaginatedContacts(selectedIds))
+    override fun findContactsByIds(selectedIds: Collection<String>): Flow<ViewQueryResultEvent> = flow {
+        emitAll(contactDAO.findContactsByIds(selectedIds))
     }
 
-    override fun findByHCPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact> = flow {
-        emitAll(contactDAO.findByHcPartyPatient(hcPartyId, secretPatientKeys))
+    override fun listContactsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact> = flow {
+        emitAll(contactDAO.listContactsByHcPartyAndPatient(hcPartyId, secretPatientKeys))
     }
 
     override suspend fun addDelegation(contactId: String, delegation: Delegation): Contact? {
@@ -113,7 +97,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
 
     override fun deleteContacts(ids: Set<String>): Flow<DocIdentifier> {
         return try {
-            deleteByIds(ids)
+            deleteEntities(ids)
         } catch (e: Exception) {
             logger.error(e.message, e)
             flowOf()
@@ -143,7 +127,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
             val filteredCidSids = sortedCids
                     .filterIndexed { idx, cidsid -> idx == chunkedCids.size - 1 || cidsid.serviceId != sortedCids[idx+1].serviceId }
 
-            val contacts = contactDAO.get(HashSet(filteredCidSids.map { it.contactId }))
+            val contacts = contactDAO.getContacts(HashSet(filteredCidSids.map { it.contactId }))
             contacts.flatMapConcat { c ->
                 c.services.asFlow().mapNotNull { s ->
                     val sId = s.id
@@ -185,12 +169,12 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     }
 
     override fun listServiceIdsByTag(hcPartyId: String, patientSecretForeignKeys: List<String>?, tagType: String, tagCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
-        val toEmit = if (patientSecretForeignKeys == null) contactDAO.listServiceIdsByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate) else contactDAO.listServiceIdsByPatientTag(hcPartyId, patientSecretForeignKeys, tagType, tagCode, startValueDate, endValueDate)
+        val toEmit = if (patientSecretForeignKeys == null) contactDAO.listServiceIdsByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate) else contactDAO.listServiceIdsByPatientAndTag(hcPartyId, patientSecretForeignKeys, tagType, tagCode, startValueDate, endValueDate)
         emitAll(toEmit)
     }
 
     override fun listServiceIdsByCode(hcPartyId: String, patientSecretForeignKeys: List<String>?, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
-        val toEmit = if (patientSecretForeignKeys == null) contactDAO.listServiceIdsByCode(hcPartyId, codeType, codeCode, startValueDate, endValueDate) else contactDAO.findServicesByForeignKeys(hcPartyId, patientSecretForeignKeys, codeType, codeCode, startValueDate, endValueDate)
+        val toEmit = if (patientSecretForeignKeys == null) contactDAO.listServiceIdsByCode(hcPartyId, codeType, codeCode, startValueDate, endValueDate) else contactDAO.listServicesIdsByPatientForeignKeys(hcPartyId, patientSecretForeignKeys, codeType, codeCode, startValueDate, endValueDate)
         emitAll(toEmit)
     }
 
@@ -203,19 +187,19 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     }
 
     override fun listContactIds(hcPartyId: String): Flow<String> = flow {
-        emitAll(contactDAO.listContactIds(hcPartyId))
+        emitAll(contactDAO.listContactIdsByHealthcareParty(hcPartyId))
     }
 
     override fun listIdsByServices(services: Collection<String>): Flow<String> = flow {
         emitAll(contactDAO.listIdsByServices(services).map { it.contactId })
     }
 
-    override fun findServicesBySecretForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String> = flow {
-        emitAll(contactDAO.findServicesByForeignKeys(hcPartyId, patientSecretForeignKeys))
+    override fun listServicesByHcPartyAndSecretForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String> = flow {
+        emitAll(contactDAO.listServicesIdsByPatientForeignKeys(hcPartyId, patientSecretForeignKeys))
     }
 
-    override fun findContactsByHCPartyFormId(hcPartyId: String, formId: String): Flow<Contact> = flow {
-        emitAll(contactDAO.findByHcPartyFormId(hcPartyId, formId))
+    override fun listContactsByHcPartyAndFormId(hcPartyId: String, formId: String): Flow<Contact> = flow {
+        emitAll(contactDAO.listContactsByHcPartyAndFormId(hcPartyId, formId))
     }
 
     override suspend fun getServiceCodesOccurences(hcPartyId: String, codeType: String, minOccurences: Long): List<LabelledOccurence> {
@@ -225,8 +209,8 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
           return mapped.sortedByDescending { obj: LabelledOccurence -> obj.occurence }
     }
 
-    override fun findContactsByHCPartyFormIds(hcPartyId: String, ids: List<String>): Flow<Contact> = flow {
-        emitAll(contactDAO.findByHcPartyFormIds(hcPartyId, ids))
+    override fun listContactsByHcPartyAndFormIds(hcPartyId: String, ids: List<String>): Flow<Contact> = flow {
+        emitAll(contactDAO.listContactsByHcPartyAndFormIds(hcPartyId, ids))
     }
 
     override fun getGenericDAO(): ContactDAO {
@@ -242,7 +226,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
             ids
         }
         val selectedIds = sortedIds.take(paginationOffset.limit+1) // Fetching one more contacts for the start key of the next page
-        emitAll(contactDAO.getPaginatedContacts(selectedIds))
+        emitAll(contactDAO.findContactsByIds(selectedIds))
     }
 
     override fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<org.taktik.icure.entities.embed.Service>) = flow {

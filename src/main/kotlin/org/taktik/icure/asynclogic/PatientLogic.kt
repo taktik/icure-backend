@@ -88,8 +88,8 @@ interface PatientLogic {
     fun fuzzySearchPatients(firstName: String?, lastName: String?, dateOfBirth: Int?, healthcarePartyId: String? = null): Flow<Patient>
     fun deletePatients(ids: Set<String>): Flow<DocIdentifier>
     fun findDeletedPatientsByDeleteDate(start: Long, end: Long?, descending: Boolean, paginationOffset: PaginationOffset<Long>): Flow<ViewQueryResultEvent>
-    fun findDeletedPatientsByNames(firstName: String?, lastName: String?): Flow<Patient>
+    fun listDeletedPatientsByNames(firstName: String?, lastName: String?): Flow<Patient>
     fun undeletePatients(ids: Set<String>): Flow<DocIdentifier>
-    fun updateEntities(entities: Collection<Patient>): Flow<Patient>
+    fun modifyEntities(entities: Collection<Patient>): Flow<Patient>
     suspend fun hasEntities(): Boolean
 }

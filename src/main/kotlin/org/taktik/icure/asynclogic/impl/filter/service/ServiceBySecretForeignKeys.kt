@@ -33,7 +33,7 @@ class ServiceBySecretForeignKeys(private val contactLogic: ContactLogic,
     override fun resolve(filter: ServiceBySecretForeignKeys, context: Filters) = flow {
         try {
             val hcPartyId = if (filter.healthcarePartyId != null) filter.healthcarePartyId else getLoggedHealthCarePartyId(sessionLogic)
-            emitAll(contactLogic.findServicesBySecretForeignKeys(hcPartyId!!, filter.patientSecretForeignKeys))
+            emitAll(contactLogic.listServicesByHcPartyAndSecretForeignKeys(hcPartyId!!, filter.patientSecretForeignKeys))
         } catch (e: LoginException) {
             throw IllegalArgumentException(e)
         }

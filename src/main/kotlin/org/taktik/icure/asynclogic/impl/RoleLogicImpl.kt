@@ -18,13 +18,7 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.taktik.icure.asyncdao.GenericDAO
@@ -44,7 +38,7 @@ import org.taktik.icure.entities.embed.Permission
 class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogic, roleDAO: RoleDAO) : PrincipalLogicImpl<Role>(roleDAO, sessionLogic), RoleLogic {
 
     override suspend fun getRoleByName(name: String): Role? {
-        return roleDAO.getByName(name)
+        return roleDAO.getRoleByName(name)
     }
 
     override fun getDescendantRoles(roleId: String) = flow<Role> {
@@ -73,8 +67,8 @@ class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogi
         return roleDAO.get(id)
     }
 
-    override fun getUsers(role: Role) = flow<User> {
-        emitAll(userDAO.getList(role.users))
+    override fun getUsersByRole(role: Role) = flow<User> {
+        emitAll(userDAO.getEntities(role.users))
     }
 
     override suspend fun createDefaultRoleIfNecessary() {
@@ -97,7 +91,7 @@ class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogi
     }
 
     private fun getChildren(role: Role) = flow<Role> {
-        emitAll(roleDAO.getList(role.children))
+        emitAll(roleDAO.getEntities(role.children))
     }
 
     override fun createEntities(entities: Collection<Role>) = flow {
@@ -105,18 +99,18 @@ class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogi
     }
 
     @Throws(Exception::class)
-    override fun updateEntities(roles: Collection<Role>) = flow {
+    override fun modifyEntities(roles: Collection<Role>) = flow {
         roles.map { role: Role -> saveRole(role) }
                 .filterNotNull()
                 .onEach { emit(it) }
     }
 
-    override fun getAllEntities() = flow() {
-        emitAll(roleDAO.getAll())
+    override fun getEntities() = flow() {
+        emitAll(roleDAO.getEntities())
     }
 
-    override fun getAllEntityIds() = flow<String> {
-        emitAll(roleDAO.getAll().mapNotNull { it.id })
+    override fun getEntitiesIds() = flow<String> {
+        emitAll(roleDAO.getEntities().mapNotNull { it.id })
     }
 
     override suspend fun exists(id: String): Boolean {

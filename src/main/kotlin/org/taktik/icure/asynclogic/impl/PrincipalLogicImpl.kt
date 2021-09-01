@@ -17,14 +17,7 @@
  */
 package org.taktik.icure.asynclogic.impl
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.RoleDAO
@@ -42,7 +35,7 @@ abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO,
     protected val log = LoggerFactory.getLogger(javaClass)
 
     protected fun getParents(principal: Principal): Flow<Role> = flow {
-        emitAll(roleDAO.getList(principal.getParents()))
+        emitAll(roleDAO.getEntities(principal.getParents()))
     }
 
     override fun getProperties(principalId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<PropertyStub> = flow {
@@ -81,7 +74,7 @@ abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO,
             }
         }
         if (includeDefault) { // Get the default role and add property if not overridden in child role
-            roleDAO.getByName(Roles.DEFAULT_ROLE_NAME)?.let {
+            roleDAO.getRoleByName(Roles.DEFAULT_ROLE_NAME)?.let {
                 for (defaultProp in it.properties) {
                     if (!ignoredPropertyTypes.contains(defaultProp.type)) {
                         properties.add(defaultProp)

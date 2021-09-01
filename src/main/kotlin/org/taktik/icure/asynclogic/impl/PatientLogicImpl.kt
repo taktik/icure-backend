@@ -69,43 +69,43 @@ class PatientLogicImpl(
     }
 
     override fun listByHcPartyIdsOnly(healthcarePartyId: String) = flow<String> {
-        emitAll(patientDAO.listIdsByHcParty(healthcarePartyId))
+        emitAll(patientDAO.listPatientIdsByHcParty(healthcarePartyId))
     }
 
     override fun listByHcPartyAndSsinIdsOnly(ssin: String, healthcarePartyId: String) = flow<String> {
-        emitAll(patientDAO.listIdsByHcPartyAndSsin(ssin, healthcarePartyId))
+        emitAll(patientDAO.listPatientIdsByHcPartyAndSsin(ssin, healthcarePartyId))
     }
 
     override fun listByHcPartyAndSsinsIdsOnly(ssins: Collection<String>, healthcarePartyId: String) = flow<String> {
-        emitAll(patientDAO.listIdsByHcPartyAndSsins(ssins, healthcarePartyId))
+        emitAll(patientDAO.listPatientIdsByHcPartyAndSsins(ssins, healthcarePartyId))
     }
 
     override fun listByHcPartyDateOfBirthIdsOnly(date: Int, healthcarePartyId: String) = flow<String> {
-        emitAll(patientDAO.listIdsByHcPartyAndDateOfBirth(date, healthcarePartyId))
+        emitAll(patientDAO.listPatientIdsByHcPartyAndDateOfBirth(date, healthcarePartyId))
     }
 
     override fun listByHcPartyGenderEducationProfessionIdsOnly(healthcarePartyId: String, gender: Gender?, education: String?, profession: String?) = flow<String> {
-        emitAll(patientDAO.listIdsByHcPartyGenderEducationProfession(healthcarePartyId, gender, education, profession))
+        emitAll(patientDAO.listPatientIdsByHcPartyGenderEducationProfession(healthcarePartyId, gender, education, profession))
     }
 
     override fun listByHcPartyDateOfBirthIdsOnly(startDate: Int?, endDate: Int?, healthcarePartyId: String) = flow<String> {
-        emitAll(patientDAO.listIdsByHcPartyAndDateOfBirth(startDate, endDate, healthcarePartyId))
+        emitAll(patientDAO.listPatientIdsByHcPartyAndDateOfBirth(startDate, endDate, healthcarePartyId))
     }
 
     override fun listByHcPartyNameContainsFuzzyIdsOnly(searchString: String?, healthcarePartyId: String) = flow<String> {
-        emitAll(patientDAO.listIdsByHcPartyAndNameContainsFuzzy(searchString, healthcarePartyId, null))
+        emitAll(patientDAO.listPatientIdsByHcPartyAndNameContainsFuzzy(searchString, healthcarePartyId, null))
     }
 
     override fun listByHcPartyName(searchString: String?, healthcarePartyId: String) = flow<String> {
-        emitAll(patientDAO.listByHcPartyName(searchString, healthcarePartyId))
+        emitAll(patientDAO.listPatientsByHcPartyName(searchString, healthcarePartyId))
     }
 
     override fun listByHcPartyAndExternalIdsOnly(externalId: String?, healthcarePartyId: String) = flow<String> {
-        emitAll(patientDAO.listIdsByHcPartyAndExternalId(externalId, healthcarePartyId))
+        emitAll(patientDAO.listPatientIdsByHcPartyAndExternalId(externalId, healthcarePartyId))
     }
 
     override fun listByHcPartyAndActiveIdsOnly(active: Boolean, healthcarePartyId: String) = flow<String> {
-        emitAll(patientDAO.listIdsByActive(active, healthcarePartyId))
+        emitAll(patientDAO.listPatientIdsByActive(active, healthcarePartyId))
     }
 
     override fun listOfMergesAfter(date: Long?) = flow<Patient> {
@@ -113,7 +113,7 @@ class PatientLogicImpl(
     }
 
     override fun findByHcPartyIdsOnly(healthcarePartyId: String, offset: PaginationOffset<List<String>>) = flow<ViewQueryResultEvent> {
-        emitAll(patientDAO.findIdsByHcParty(healthcarePartyId, offset.toComplexKeyPaginationOffset()))
+        emitAll(patientDAO.findPatientIdsByHcParty(healthcarePartyId, offset.toComplexKeyPaginationOffset()))
     }
 
     override fun findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(healthcarePartyId: String, offset: PaginationOffset<List<String>>, searchString: String?, sorting: Sorting) = flow<ViewQueryResultEvent> {
@@ -150,7 +150,7 @@ class PatientLogicImpl(
 
     override fun listPatients(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?) = flow<ViewQueryResultEvent> {
         var ids = filters.resolve(filterChain.filter).toSet().sorted()
-        var forPagination = patientDAO.getForPagination(ids)
+        var forPagination = patientDAO.findPatients(ids)
         if (filterChain.predicate != null) {
             forPagination = forPagination.filterIsInstance<ViewRowWithDoc<*, *, *>>()
                     .filter { filterChain.predicate.apply(it.doc as Patient) }
@@ -193,9 +193,9 @@ class PatientLogicImpl(
         //TODO return usefull data from the view like 3 first letters of names and date of birth that can be used to presort and reduce the number of items that have to be fully fetched
         //We will get partial results but at least we will not overload the servers
         val limit = if (offset.startKey == null) min(1000, offset.limit * 10) else null
-        val ids = patientDAO.listIdsByHcPartyAndNameContainsFuzzy(searchString, healthcarePartyId, limit)
+        val ids = patientDAO.listPatientIdsByHcPartyAndNameContainsFuzzy(searchString, healthcarePartyId, limit)
         emitAll(
-                patientDAO.getForPagination(ids)
+                patientDAO.findPatients(ids)
         )
     }
 
@@ -203,9 +203,9 @@ class PatientLogicImpl(
         //TODO return usefull data from the view like 3 first letters of names and date of birth that can be used to presort and reduce the number of items that have to be fully fetched
         //We will get partial results but at least we will not overload the servers
         val limit = if (offset.startKey == null) min(1000, offset.limit * 10) else null
-        val ids = patientDAO.listIdsOfHcPartyNameContainsFuzzy(searchString, healthcarePartyId, limit)
+        val ids = patientDAO.listPatientIdsOfHcPartyNameContainsFuzzy(searchString, healthcarePartyId, limit)
         emitAll(
-                patientDAO.getForPagination(ids)
+                patientDAO.findPatients(ids)
         )
     }
 
@@ -270,7 +270,7 @@ class PatientLogicImpl(
     }
 
     override fun getPatients(patientIds: List<String>) = flow<Patient> {
-        emitAll(patientDAO.get(patientIds))
+        emitAll(patientDAO.getPatients(patientIds))
     }
 
     override suspend fun addDelegation(patientId: String, delegation: Delegation): Patient? {
@@ -317,7 +317,7 @@ class PatientLogicImpl(
         // checking requirements
         checkRequirements(patient)
         try {
-            updateEntities(setOf(patient)).firstOrNull()
+            modifyEntities(setOf(patient)).firstOrNull()
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid patient", e)
         }
@@ -328,9 +328,9 @@ class PatientLogicImpl(
         return super.createEntities(entities)
     }
 
-    override fun updateEntities(entities: Collection<Patient>): Flow<Patient> {
+    override fun modifyEntities(entities: Collection<Patient>): Flow<Patient> {
         entities.forEach { checkRequirements(it) }
-        return super.updateEntities(entities)
+        return super.modifyEntities(entities)
     }
 
     private fun checkRequirements(patient: Patient) {
@@ -391,7 +391,7 @@ class PatientLogicImpl(
     }
 
     override suspend fun getByExternalId(externalId: String): Patient? {
-        return patientDAO.getByExternalId(externalId)
+        return patientDAO.getPatientByExternalId(externalId)
     }
 
     override fun solveConflicts(): Flow<Patient> =
@@ -406,7 +406,7 @@ class PatientLogicImpl(
     }
 
     override fun listOfPatientsModifiedAfter(date: Long, startKey: Long?, startDocumentId: String?, limit: Int?) = flow<ViewQueryResultEvent> {
-        emitAll(patientDAO.listOfPatientsModifiedAfter(date, PaginationOffset(startKey, startDocumentId, 0, limit
+        emitAll(patientDAO.findPatientsModifiedAfter(date, PaginationOffset(startKey, startDocumentId, 0, limit
                 ?: 1000)))
     }
 
@@ -453,14 +453,14 @@ class PatientLogicImpl(
     }
 
     override fun deletePatients(ids: Set<String>) = flow<DocIdentifier> {
-        emitAll(deleteByIds(ids))
+        emitAll(deleteEntities(ids))
     }
 
     override fun findDeletedPatientsByDeleteDate(start: Long, end: Long?, descending: Boolean, paginationOffset: PaginationOffset<Long>) = flow<ViewQueryResultEvent> {
         emitAll(patientDAO.findDeletedPatientsByDeleteDate(start, end, descending, paginationOffset))
     }
 
-    override fun findDeletedPatientsByNames(firstName: String?, lastName: String?) = flow<Patient> {
+    override fun listDeletedPatientsByNames(firstName: String?, lastName: String?) = flow<Patient> {
         emitAll(patientDAO.findDeletedPatientsByNames(firstName, lastName))
     }
 

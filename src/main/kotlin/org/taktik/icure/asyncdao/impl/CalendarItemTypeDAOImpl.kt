@@ -22,9 +22,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.CalendarItemTypeDAO
@@ -39,7 +39,7 @@ class CalendarItemTypeDAOImpl(couchDbProperties: CouchDbProperties,
 ) : GenericDAOImpl<CalendarItemType>(couchDbProperties, CalendarItemType::class.java, couchDbDispatcher, idGenerator), CalendarItemTypeDAO {
 
     @View(name = "all_and_deleted", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItemType') emit( doc._id , null )}")
-    override fun getAllEntitiesIncludeDelete(): Flow<CalendarItemType> = flow {
+    override fun getCalendarItemsWithDeleted(): Flow<CalendarItemType> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val viewQuery = createQuery(client, "all_and_deleted").includeDocs(true)
 

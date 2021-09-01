@@ -50,26 +50,26 @@ class AccessLogLogicImpl(private val accessLogDAO: AccessLogDAO, private val ses
 
     override fun deleteAccessLogs(ids: List<String>): Flow<DocIdentifier> {
         try {
-            return deleteByIds(ids)
+            return deleteEntities(ids)
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }
     }
 
-    override fun findByHCPartySecretPatientKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<AccessLog> = flow {
-        emitAll(accessLogDAO.findByHCPartySecretPatientKeys(hcPartyId, secretForeignKeys))
+    override fun listAccessLogsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<AccessLog> = flow {
+        emitAll(accessLogDAO.findAccessLogsByHCPartyAndSecretPatientKeys(hcPartyId, secretForeignKeys))
     }
 
     override suspend fun getAccessLog(accessLogId: String): AccessLog? {
         return accessLogDAO.get(accessLogId)
     }
 
-    override fun listAccessLogs(fromEpoch: Long, toEpoch: Long, paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent> = flow {
-        emitAll(accessLogDAO.list(fromEpoch, toEpoch, paginationOffset, descending))
+    override fun listAccessLogsBy(fromEpoch: Long, toEpoch: Long, paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent> = flow {
+        emitAll(accessLogDAO.listAccessLogsByDate(fromEpoch, toEpoch, paginationOffset, descending))
     }
 
-    override fun findByUserAfterDate(userId: String, accessType: String?, startDate: Instant?, pagination: PaginationOffset<List<String>>, descending: Boolean): Flow<ViewQueryResultEvent> = flow {
-        emitAll(accessLogDAO.findByUserAfterDate(userId, accessType, startDate, pagination.toComplexKeyPaginationOffset(), descending))
+    override fun findAccessLogsByUserAfterDate(userId: String, accessType: String?, startDate: Instant?, pagination: PaginationOffset<List<String>>, descending: Boolean): Flow<ViewQueryResultEvent> = flow {
+        emitAll(accessLogDAO.findAccessLogsByUserAfterDate(userId, accessType, startDate, pagination.toComplexKeyPaginationOffset(), descending))
     }
 
     override suspend fun modifyAccessLog(accessLog: AccessLog) = fix(accessLog) { accessLog ->
