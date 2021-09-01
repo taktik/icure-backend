@@ -87,13 +87,10 @@ class TimeTableDAOImpl (couchDbProperties: CouchDbProperties,
 
 	override fun listTimeTableByPeriodAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable> =
 	        listTimeTableByStartDateAndAgendaId(
-                    startDate?.let {
-                        /* 1 day in the past to catch long lasting events that could bracket the search period */
-                        FuzzyValues.getFuzzyDateTime(FuzzyValues.getDateTime(it).minusDays(1), ChronoUnit.SECONDS)
-                    },
-                    endDate,
+                    null,
+                    null,
                     agendaId
             ).filter {
-                it.endTime?.let { et -> et > (startDate ?: 0) } ?: true
+                (it.endTime?.let { et -> et > (startDate ?: 0) } ?: true) && (it.startTime?.let { st -> st < (endDate ?: 999999999999L) } ?: true)
             }
 }

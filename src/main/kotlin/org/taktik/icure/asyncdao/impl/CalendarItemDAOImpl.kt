@@ -30,8 +30,10 @@ import org.taktik.icure.asyncdao.CalendarItemDAO
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.CalendarItem
 import org.taktik.icure.properties.CouchDbProperties
+import org.taktik.icure.utils.FuzzyValues
 
 import org.taktik.icure.utils.distinctById
+import java.time.temporal.ChronoUnit
 
 @FlowPreview
 @Repository("calendarItemDAO")
@@ -131,10 +133,16 @@ class CalendarItemDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     override fun listCalendarItemByPeriodAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<CalendarItem> {
-        val calendarItems = this.listCalendarItemByStartDateAndAgendaId(startDate, endDate, agendaId)
-        val calendarItemsEnd = this.listCalendarItemByEndDateAndAgendaId(startDate, endDate, agendaId)
-
-        return flowOf(calendarItems, calendarItemsEnd).flattenConcat().distinctById()
+        return listCalendarItemByStartDateAndAgendaId(
+                startDate?.let {
+                    /* 1 day in the past to catch long lasting events that could bracket the search period */
+                    FuzzyValues.getFuzzyDateTime(FuzzyValues.getDateTime(it).minusDays(1), ChronoUnit.SECONDS)
+                },
+                endDate,
+                agendaId
+        ).filter {
+            it.endTime?.let { et -> et > (startDate ?: 0) } ?: true
+        }
     }
 
     @View(name = "by_hcparty_patient", map = "classpath:js/calendarItem/by_hcparty_patient_map.js")
