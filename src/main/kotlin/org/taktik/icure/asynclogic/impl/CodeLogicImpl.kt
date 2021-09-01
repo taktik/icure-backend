@@ -179,7 +179,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
                     try {
                         codeDAO.save(stack.map { xc ->
                             existings[xc.id]?.let { xc.copy(rev = it.rev) } ?: xc
-                        })
+                        }).collect { log.debug("Code: ${it.id} from file ${type}.${md5}.xml is saved") }
                     } catch (e: BulkUpdateConflictException) {
                         log.error("${e.conflicts.size} conflicts for type $type")
                     }
@@ -228,6 +228,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
                         when (it.toUpperCase()) {
                             "VALUE" -> {
                                 runBlocking {
+                                    code["id"] = "${code["type"] as String}|${code["code"] as String}|${code["version"] as String}"
                                     batchSave(Code(args = code), false)
                                 }
                             }
@@ -237,8 +238,178 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 
                 }
             }
+
+            val beThesaurusHandler = object : DefaultHandler() {
+                var initialized = false
+                var version: String = "1.0"
+                var charsHandler: ((chars: String) -> Unit)? = null
+                var code: MutableMap<String, Any> = mutableMapOf()
+                var characters: String = ""
+
+                override fun characters(ch: CharArray?, start: Int, length: Int) {
+                    ch?.let { characters += String(it, start, length) }
+                }
+
+                override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
+                    if (!initialized && qName != "Root") {
+                        throw IllegalArgumentException("XML not supported : $type")
+                    }
+                    if (!initialized) {
+                        version = attributes?.getValue("version")?:
+                                throw IllegalArgumentException("Unknown version in : $type")
+                    }
+
+                    initialized = true
+                    characters = ""
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "CLINICAL_LABEL" -> {
+                                code = mutableMapOf(
+                                        "type" to type,
+                                        "version" to version,
+                                        "label" to mutableMapOf<String, String>(),
+                                        "searchTerms" to mutableMapOf<String, Set<String>>(),
+                                        "links" to mutableSetOf<String>()
+                                )
+                            }
+                            "IBUI" -> charsHandler = { ch -> code["code"] = ch }
+                            "ICPC_2_CODE_1", "ICPC_2_CODE_1X", "ICPC_2_CODE_1Y",
+                            "ICPC_2_CODE_2", "ICPC_2_CODE_2X", "ICPC_2_CODE_2Y" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) code["links"] = (code["links"] as Set<*>) + ("ICPC|$ch|2")
+                            }
+                            "ICD_10_CODE_1", "ICD_10_CODE_1X", "ICD_10_CODE_1Y",
+                            "ICD_10_CODE_2", "ICD_10_CODE_2X", "ICD_10_CODE_2Y" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) code["links"] = (code["links"] as Set<*>) + ("ICD|$ch|10")
+                            }
+                            "FR_CLINICAL_LABEL" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) {
+                                    code["label"] = (code["label"] as Map<*,*>) +
+                                            ("fr" to ch.replace("&apos;", "'"))
+                                }
+                            }
+                            "NL_CLINICAL_LABEL" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) {
+                                    code["label"] = (code["label"] as Map<*,*>) + ("nl" to ch)
+                                }
+                            }
+                            "CLEFS_RECHERCHE_FR" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) {
+                                    code["searchTerms"] = (code["searchTerms"] as Map<*,*>) +
+                                            ("fr" to ch.split(" ").map { it.trim() }.toSet())
+                                }
+                            }
+                            "ZOEKTERMEN_NL" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) {
+                                    code["searchTerms"] = (code["searchTerms"] as Map<*,*>) +
+                                            ("nl" to ch.split(" ").map { it.trim() }.toSet())
+                                }
+                            }
+                            else -> charsHandler = null
+                        }
+                    }
+                }
+
+                override fun endElement(uri: String?, localName: String?, qName: String?) {
+                    charsHandler?.let { it(characters) }
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "CLINICAL_LABEL" -> {
+                                runBlocking {
+                                    code["id"] = "${code["type"] as String}|${code["code"] as String}|${code["version"] as String}"
+                                    batchSave(Code(args = code), false)
+                                }
+                            }
+                            else -> null
+                        }
+                    }
+                }
+            }
+
+            val beThesaurusProcHandler = object : DefaultHandler() {
+                var initialized = false
+                var version: String = "1.0"
+                var charsHandler: ((chars: String) -> Unit)? = null
+                var code: MutableMap<String, Any> = mutableMapOf()
+                var characters: String = ""
+
+                override fun characters(ch: CharArray?, start: Int, length: Int) {
+                    ch?.let { characters += String(it, start, length) }
+                }
+
+                override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
+                    if (!initialized && qName != "Root") {
+                        throw IllegalArgumentException("XML not supported : $type")
+                    }
+                    if (!initialized) {
+                        version = attributes?.getValue("version")?:
+                                throw IllegalArgumentException("Unknown version in : $type")
+                    }
+
+                    initialized = true
+                    characters = ""
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "PROCEDURE" -> {
+                                code = mutableMapOf(
+                                        "type" to type,
+                                        "version" to version,
+                                        "label" to mutableMapOf<String, String>(),
+                                        "searchTerms" to mutableMapOf<String, Set<String>>()
+                                )
+                            }
+                            "CISP" -> charsHandler = { ch -> code["code"] = ch }
+                            "IBUI" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) code["links"] = setOf("BE-THESAURUS|$ch|$version")
+                            }
+                            "IBUI_NOT_EXACT" -> charsHandler = { ch ->
+                                if(ch.isNotBlank() && !code.containsKey("links"))
+                                    code["links"] = setOf("BE-THESAURUS|$ch|$version")
+                            }
+                            "LABEL_FR" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) code["label"] = (code["label"] as Map<*,*>) + ("fr" to ch)
+                            }
+                            "LABEL_NL" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) code["label"] = (code["label"] as Map<*,*>) + ("nl" to ch)
+                            }
+                            "SYN_FR" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) {
+                                    code["searchTerms"] = (code["searchTerms"] as Map<*,*>) +
+                                            ("fr" to ch.split(" ").map { it.trim() }.toSet())
+                                }
+                            }
+                            "SYN_NL" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) {
+                                    code["searchTerms"] = (code["searchTerms"] as Map<*,*>) +
+                                            ("nl" to ch.split(" ").map { it.trim() }.toSet())
+                                }
+                            }
+                            else -> charsHandler = null
+                        }
+                    }
+                }
+
+                override fun endElement(uri: String?, localName: String?, qName: String?) {
+                    charsHandler?.let { it(characters) }
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "PROCEDURE" -> {
+                                runBlocking {
+                                    code["id"] = "${code["type"] as String}|${code["code"] as String}|${code["version"] as String}"
+                                    batchSave(Code(args = code), false)
+                                }
+                            }
+                            else -> null
+                        }
+                    }
+                }
+            }
+
             try {
-                saxParser.parse(stream, handler)
+                when (type.toUpperCase()) {
+                    "BE-THESAURUS-PROCEDURES" -> saxParser.parse(stream, beThesaurusProcHandler)
+                    "BE-THESAURUS" -> saxParser.parse(stream, beThesaurusHandler)
+                    else -> saxParser.parse(stream, handler)
+                }
                 batchSave(null, true)
                 create(Code.from("ICURE-SYSTEM", md5, "1"))
             } catch (e: IllegalArgumentException) {
