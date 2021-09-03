@@ -68,15 +68,11 @@ class AccessLogController(
     @Operation(summary = "Deletes an access log")
     @PostMapping("/delete/batch")
     fun deleteAccessLogs(@RequestBody accessLogIds: ListOfIdsDto): Flux<DocIdentifier> {
-        return accessLogIds.ids.takeIf { it.isNotEmpty() }
-                ?.let { ids ->
-                    try {
-                        accessLogLogic.deleteAccessLogs(accessLogIds.ids).injectReactorContext()
-                    } catch (e: java.lang.Exception) {
-                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
-                    }
-                }
-                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
+        try {
+            return accessLogLogic.deleteAccessLogs(accessLogIds.ids).injectReactorContext()
+        } catch (e: java.lang.Exception) {
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+        }
     }
 
     @Operation(summary = "Gets an access log")
