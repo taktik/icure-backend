@@ -243,7 +243,7 @@ class MedicationSchemeExport : KmehrExport() {
                             }
 
                         },
-                        if (m.suspension?.size!! > 0)
+                        if (!m.suspension.isNullOrEmpty() && m.suspension?.size!! > 0)
                         TransactionType().apply {
                             ids.add(idKmehr(idkmehrIdx))
                             idkmehrIdx++
