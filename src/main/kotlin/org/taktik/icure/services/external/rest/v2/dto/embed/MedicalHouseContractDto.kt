@@ -22,6 +22,7 @@ package org.taktik.icure.services.external.rest.v2.dto.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -41,13 +42,13 @@ data class MedicalHouseContractDto(
         val startOfCoverage: Long? = null,  //yyyyMMdd
         val endOfContract: Long? = null,  //yyyyMMdd : signdate
         val endOfCoverage: Long? = null,  //yyyyMMdd
-        val kine: Boolean = false,
-        val gp: Boolean = false,
-        val ptd: Boolean = false,
-        val nurse: Boolean = false,
-        val noKine: Boolean = false,
-        val noGp: Boolean = false,
-        val noNurse: Boolean = false,
+        @Schema(defaultValue = "false") val kine: Boolean = false,
+        @Schema(defaultValue = "false") val gp: Boolean = false,
+        @Schema(defaultValue = "false") val ptd: Boolean = false,
+        @Schema(defaultValue = "false") val nurse: Boolean = false,
+        @Schema(defaultValue = "false") val noKine: Boolean = false,
+        @Schema(defaultValue = "false") val noGp: Boolean = false,
+        @Schema(defaultValue = "false") val noNurse: Boolean = false,
         val unsubscriptionReasonId: Int? = null,
 
         val ptdStart: Long? = null,
@@ -59,7 +60,7 @@ data class MedicalHouseContractDto(
         val endOfSuspension: Long? = null, //yyyyMMdd
         val suspensionReason: SuspensionReasonDto? = null,
         val suspensionSource: String? = null,
-        val forcedSuspension: Boolean = false, //no automatic unSuspension = false
+        @Schema(defaultValue = "false") val forcedSuspension: Boolean = false, //no automatic unSuspension = false
         val signatureType: MhcSignatureTypeDto? = null,
         val status: Int? = null,
 

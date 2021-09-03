@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.EncryptableDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
@@ -32,9 +33,10 @@ import org.taktik.icure.utils.DynamicInitializer
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
+@Schema(description = """This entity is a root level object. It represents a Message. It is serialized in JSON and saved in the underlying CouchDB database.""")
 data class MessageDto(
-        override val id: String,
-        override val rev: String? = null,
+        @Schema(description = "The ID of the message. We encourage using either a v4 UUID or a HL7 Id.") override val id: String,
+        @Schema(description = "The revision of the message in the database, used for conflict management / optimistic locking.") override val rev: String? = null,
         override val created: Long? = null,
         override val modified: Long? = null,
         override val author: String? = null,
@@ -45,17 +47,17 @@ data class MessageDto(
         override val endOfLife: Long? = null,
         override val deletionDate: Long? = null,
 
-        val fromAddress: String? = null,
-        val fromHealthcarePartyId: String? = null,
+        @Schema(description = "Address of the sender of the message") val fromAddress: String? = null,
+        @Schema(description = "ID of the healthcare party sending the message") val fromHealthcarePartyId: String? = null,
         val formId: String? = null,
-        val status: Int? = null,
-        val recipientsType: String? = null,
-        val recipients: Set<String> = setOf(), //The id of the hcp whose the message is addressed to
-        val toAddresses: Set<String> = setOf(), //The address of the recipient of the message. Format is of an email address with extra domains defined for mycarenet and ehealth: (efact.mycarenet.be/eattest.mycarenet.be/chapter4.mycarenet.be/ehbox.ehealth.fgov.be)
-        val received: Long? = null,
-        val sent: Long? = null,
+        @Schema(description = "Status of the message") val status: Int? = null,
+        @Schema(description = "The type of user who is the recipient of this message") val recipientsType: String? = null,
+        @Schema(description = "List of IDs of healthcare parties to whom the message is addressed") val recipients: Set<String> = setOf(), //The id of the hcp whose the message is addressed to
+        @Schema(description = "The address of the recipient of the message. Format is of an email address with extra domains defined for mycarenet and ehealth: (efact.mycarenet.be/eattest.mycarenet.be/chapter4.mycarenet.be/ehbox.ehealth.fgov.be)") val toAddresses: Set<String> = setOf(), //The address of the recipient of the message. Format is of an email address with extra domains defined for mycarenet and ehealth: (efact.mycarenet.be/eattest.mycarenet.be/chapter4.mycarenet.be/ehbox.ehealth.fgov.be)
+        @Schema(description = "The timestamp (unix epoch in ms) when the message was received") val received: Long? = null,
+        @Schema(description = "The timestamp (unix epoch in ms) when the message was sent") val sent: Long? = null,
         val metas: Map<String, String> = mapOf(),
-        val readStatus: Map<String, MessageReadStatusDto> = mapOf(),
+        @Schema(description = "Status showing whether the message is read or not and the time of reading") val readStatus: Map<String, MessageReadStatusDto> = mapOf(),
         /*
             CHAP4:IN:   ${Mycarenet message ref}
             CHAP4:OUT:  ${Mycarenet message ref}
@@ -73,9 +75,9 @@ data class MessageDto(
         val transportGuid: String? = null, //Each message should have a transportGuid: see above for formats
         val remark: String? = null,
         val conversationGuid: String? = null,
-        val subject: String? = null,
-        val invoiceIds: Set<String> = setOf(),
-        val parentId: String? = null, //ID of parent in a message conversation
+        @Schema(description = "Subject for the message") val subject: String? = null,
+        @Schema(description = "Set of IDs for invoices in the message") val invoiceIds: Set<String> = setOf(),
+        @Schema(description = "ID of a parent in a message conversation") val parentId: String? = null, //ID of parent in a message conversation
         val externalRef: String? = null,
         val unassignedResults: Set<String> = setOf(), //refs
         val assignedResults: Map<String, String> = mapOf(), //ContactId -> ref

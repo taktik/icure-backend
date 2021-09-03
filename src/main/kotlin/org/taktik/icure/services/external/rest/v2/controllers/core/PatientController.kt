@@ -148,12 +148,15 @@ class PatientController(
     @GetMapping("/{patientId}/keys")
     //@ApiResponse(content = { @Content(examples = { @ExampleObject(value="{ hcpartyId : aes key }") }) } )
     fun getPatientHcPartyKeysForDelegate(@Parameter(description = "The patient Id for which information is shared") @PathVariable patientId: String) = mono {
+        require(patientId.isNotBlank()) { "A required query parameter (patientId) was not specified for this request. " }
+
         patientLogic.getHcPartyKeysForDelegate(patientId)
     }
 
     @Operation(summary = "Get count of patients for a specific HcParty or for the current HcParty ", description = "Returns the count of patients")
     @GetMapping("/hcParty/{hcPartyId}/count")
     fun countOfPatients(@Parameter(description = "Healthcare party id") @PathVariable hcPartyId: String) = mono {
+        require(hcPartyId.isNotBlank()) { "A required query parameter (hcPartyId) was not specified for this request. " }
         ContentDto(numberValue = patientLogic.countByHcParty(hcPartyId).toDouble())
     }
 
@@ -186,6 +189,7 @@ class PatientController(
                         @Parameter(description = "The page first id") @RequestParam(required = false) startKey: String?,
                         @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                         @Parameter(description = "Page size") @RequestParam(required = false) limit: Int?) = mono {
+        require(hcPartyId.isNotBlank()) { "A required query parameter (hcPartyId) was not specified for this request." }
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
@@ -196,6 +200,7 @@ class PatientController(
     @GetMapping("/byExternalId/{externalId}")
     fun findByExternalId(@PathVariable("externalId")
                          @Parameter(description = "A external ID", required = true) externalId: String) = mono {
+        require(externalId.isNotBlank()) {"A required query parameter (externalId) was not specified for this request."}
         patientLogic.getByExternalId(externalId)?.let(patientToPatientDto)
     }
 
@@ -208,6 +213,7 @@ class PatientController(
                                      @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                                      @Parameter(description = "Number of rows") @RequestParam(defaultValue = DEFAULT_LIMIT.toString()) limit: Int): Mono<PaginatedList<PatientDto>> = mono {
 
+        require(userId.isNotBlank()){"A required query parameter (userId) was not specified for this request."}
         val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
         accessLogLogic.findAccessLogsByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, true).paginatedList<AccessLog>(limit)
@@ -297,16 +303,13 @@ class PatientController(
     @Operation(summary = "Delete patients.", description = "Response is an array containing the ID of deleted patient..")
     @PostMapping("/delete/batch")
     fun deletePatients(@RequestBody patientIds: ListOfIdsDto): Flux<DocIdentifier> {
-        return patientIds.ids.takeIf { it.isNotEmpty() }
-                ?.let { ids ->
-                    try{
-                        patientLogic.deletePatients(HashSet(ids)).injectReactorContext()
-                    }
-                    catch (e: Exception){
-                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Patients deletion failed").also { logger.error(it.message) }
-                    }
-                }
-                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
+        require(patientIds.ids.isNotEmpty()){"A required query parameter (patientIds) was not specified or is empty for this request."}
+        return try{
+            patientLogic.deletePatients(HashSet(patientIds.ids)).injectReactorContext()
+        }
+        catch (e: Exception){
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Patients deletion failed").also { logger.error(it.message) }
+        }
     }
 
     @Operation(summary = "Find deleted patients", description = "Returns a list of deleted patients, within the specified time period, if any.")
@@ -338,6 +341,7 @@ class PatientController(
     @Operation(summary = "undelete previously deleted patients", description = "Response is an array containing the ID of undeleted patient..")
     @PutMapping("/undelete/{patientIds}")
     fun undeletePatient(@PathVariable patientIds: String): Flux<DocIdentifier> {
+        require(patientIds.isNotEmpty()){"A required query parameter (patientIds) was not specified or is empty for this request."}
         val ids = patientIds.split(',')
         if (ids.isEmpty()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
         return patientLogic.undeletePatients(HashSet(ids))
@@ -349,6 +353,9 @@ class PatientController(
     @PostMapping("/{patientId}/delegate")
     fun newPatientDelegations(@PathVariable patientId: String,
                        @RequestBody ds: List<DelegationDto>) = mono {
+        require(patientId.isNotBlank()){"A required query parameter (patientIds) was not specified or is empty for this request."}
+        require(ds.isNotEmpty()){"A required query parameter (ds) was not specified or is empty for this request."}
+
         try {
             patientLogic.addDelegations(patientId, ds.map { d -> delegationV2Mapper.map(d) })
             val patientWithDelegations = patientLogic.getPatient(patientId)
@@ -364,25 +371,22 @@ class PatientController(
     @Operation(summary = "Get patients by id", description = "It gets patient administrative data.")
     @PostMapping("/byIds")
     fun getPatients(@RequestBody patientIds: ListOfIdsDto): Flux<PatientDto> {
-        require(patientIds.ids.isNotEmpty()){ "This call require at least 1 id provided"}
-        return patientIds.ids.takeIf { it.isNotEmpty() }
-                ?.let { ids ->
-                    try {
-                        patientLogic
-                                .getPatients(ids)
-                                .map { patientV2Mapper.map(it) }
-                                .injectReactorContext()
-                    }
-                    catch (e: java.lang.Exception) {
-                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
-                    }
-                }
-                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
+        require(patientIds.ids.isNotEmpty()){ "A required query parameter (patientIds) was not specified for this request."}
+        return try {
+            patientLogic
+                    .getPatients(patientIds.ids)
+                    .map { patientV2Mapper.map(it) }
+                    .injectReactorContext()
+        }
+        catch (e: java.lang.Exception) {
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+        }
     }
 
     @Operation(summary = "Get patient", description = "It gets patient administrative data.")
     @GetMapping("/{patientId}")
     fun getPatient(@PathVariable patientId: String) = mono {
+        require(patientId.isNotBlank()){"A required query parameter (patientId) was not specified or is empty for this request."}
         patientLogic.getPatient(patientId)?.let(patientToPatientDto)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting patient failed. Possible reasons: no such patient exists, or server error. Please try again or read the server log.")
     }
@@ -390,6 +394,7 @@ class PatientController(
     @Operation(summary = "Create patients in bulk", description = "Returns the id and _rev of created patients")
     @PostMapping( "/batch")
     fun createPatients(@RequestBody patientDtos: List<PatientDto>) = mono {
+        require(patientDtos.isNotEmpty()){"At least one patient must be passed in the request."}
         try {
             val patients = patientLogic.modifyEntities(patientDtos.map { p -> patientV2Mapper.map(p) }.toList())
             patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
@@ -402,6 +407,7 @@ class PatientController(
     @Operation(summary = "Modify patients in bulk", description = "Returns the id and _rev of modified patients")
     @PutMapping( "/batch")
     fun modifyPatients(@RequestBody patientDtos: List<PatientDto>) = mono {
+        require(patientDtos.isNotEmpty()){"At least one patient must be passed in the request."}
         try {
             val patients = patientLogic.modifyEntities(patientDtos.map { p -> patientV2Mapper.map(p) }.toList())
             patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
@@ -424,6 +430,9 @@ class PatientController(
                               @Parameter(description = "The referal id. Accepts 'none' for referral removal.") @PathVariable referralId: String,
                               @Parameter(description = "Optional value for start of referral") @RequestParam(required = false) start: Long?,
                               @Parameter(description = "Optional value for end of referral") @RequestParam(required = false) end: Long?) = mono {
+        require(patientId.isNotBlank()){"A required query parameter (patientId) was not specified or is empty for this request."}
+        require(referralId.isNotBlank()){"A required query parameter (referralId) was not specified or is empty for this request."}
+
         patientLogic.getPatient(patientId)
                 ?.let {
                     patientLogic.modifyPatientReferral(it, if (referralId == "none") null else referralId, if (start == null) null else Instant.ofEpochMilli(start), if (end == null) null else Instant.ofEpochMilli(end))?.let(patientToPatientDto)
@@ -434,6 +443,9 @@ class PatientController(
     @Operation(summary = "Merge a series of patients into another patient")
     @PutMapping("/mergeInto/{toId}/from/{fromIds}")
     fun mergeInto(@PathVariable("toId") patientId: String, @PathVariable fromIds: String) = mono {
+        require(patientId.isNotBlank()){"A required query parameter (patientId) was not specified or is empty for this request."}
+        require(fromIds.isNotBlank()){"A required query parameter (fromIds) was not specified or is empty for this request."}
+
         val patient = patientLogic.getPatient(patientId)
         patient?.let {
             val patientsFrom = fromIds

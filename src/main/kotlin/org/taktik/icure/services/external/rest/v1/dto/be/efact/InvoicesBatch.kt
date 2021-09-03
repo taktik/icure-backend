@@ -18,6 +18,8 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.be.efact
 
+import io.swagger.v3.oas.annotations.media.Schema
+
 /**
  * Created with IntelliJ IDEA.
  * User: aduchate
@@ -26,8 +28,8 @@ package org.taktik.icure.services.external.rest.v1.dto.be.efact
  * To change this template use File | Settings | File Templates.
  */
 class InvoicesBatch {
-    var invoicingYear: Int = 0
-    var invoicingMonth: Int = 0
+    @Schema(defaultValue = "0") var invoicingYear: Int = 0
+    @Schema(defaultValue = "0") var invoicingMonth: Int = 0
     var fileRef: String? = null //13 alphanumeric internal reference. Typically, we use a base36 representation of the 16 first hex of the UUID id of the Message
     var batchRef: String? = null //25 alphanumeric internal reference. Typically, we use a base36 representation of the UUID id of the Message
     var ioFederationCode: String? = null //3 digits code of the IO federation

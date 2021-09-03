@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
 import java.io.Serializable
@@ -41,12 +42,12 @@ data class ContentDto(
         @JsonDeserialize(using = InstantDeserializer::class)
         val instantValue: Instant? = null,
 
-        val fuzzyDateValue: Long? = null,
+        @Schema(description = "Known values in a date. The format could have a all three (day, month and year) or values on any of these three, whatever is known.") val fuzzyDateValue: Long? = null,
         val binaryValue: ByteArray? = null,
-        val documentId: String? = null,
-        val measureValue: MeasureDto? = null,
-        val medicationValue: MedicationDto? = null,
-        val compoundValue: List<ServiceDto>? = null
+        @Schema(description = "Id of the document in which the content is being filled.") val documentId: String? = null,
+        @Schema(description = "Values of measurements recorded. Fields included would be the value, permissible range (min. and max.), severity, unit of measurement, etc ") val measureValue: MeasureDto? = null,
+        @Schema(description = "The details of prescribed or suggested medication") val medicationValue: MedicationDto? = null,
+        @Schema(description = "The service for which the content is being filled") val compoundValue: List<ServiceDto>? = null
 ) : Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

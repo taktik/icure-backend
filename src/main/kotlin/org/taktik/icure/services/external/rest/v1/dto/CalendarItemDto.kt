@@ -49,7 +49,7 @@ data class CalendarItemDto(
         @NotNull val title: String? = null,
         val calendarItemTypeId: String? = null,
         val masterCalendarItemId: String? = null,
-        @Deprecated("Use crypedForeignKeys instead") val patientId: String? = null,
+        @get:Deprecated("Use crypedForeignKeys instead") val patientId: String? = null,
         val important: Boolean? = null,
         val homeVisit: Boolean? = null,
         val phoneNumber: String? = null,

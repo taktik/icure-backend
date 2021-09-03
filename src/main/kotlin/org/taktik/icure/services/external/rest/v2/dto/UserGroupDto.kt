@@ -23,7 +23,7 @@ class UserGroupDto {
     var userId: String? = null
     var groupName: String? = null
 
-    constructor()
+    constructor() {}
     constructor(groupId: String?, userId: String?, groupName: String?) {
         this.groupId = groupId
         this.userId = userId

@@ -54,7 +54,7 @@ class AccessLogController(
     private val DEFAULT_LIMIT = 1000
     private val accessLogToAccessLogDto = { it: AccessLog -> accessLogMapper.map(it) }
 
-    @Operation(summary = "Creates an access log")
+    @Operation(summary = "Create an access log")
     @PostMapping
     fun createAccessLog(@RequestBody accessLogDto: AccessLogDto) = mono {
         val accessLog = accessLogLogic.createAccessLog(accessLogMapper.map(accessLogDto))
@@ -62,13 +62,13 @@ class AccessLogController(
         accessLogMapper.map(accessLog)
     }
 
-    @Operation(summary = "Deletes an access log")
+    @Operation(summary = "Delete access logs by batch")
     @DeleteMapping("/{accessLogIds}")
     fun deleteAccessLog(@PathVariable accessLogIds: String): Flux<DocIdentifier> {
         return accessLogLogic.deleteAccessLogs(accessLogIds.split(',')).injectReactorContext()
     }
 
-    @Operation(summary = "Gets an access log")
+    @Operation(summary = "Get an access log")
     @GetMapping("/{accessLogId}")
     fun getAccessLog(@PathVariable accessLogId: String) = mono {
         val accessLog = accessLogLogic.getAccessLog(accessLogId)
@@ -77,7 +77,7 @@ class AccessLogController(
         accessLogMapper.map(accessLog)
     }
 
-    @Operation(summary = "Lists access logs")
+    @Operation(summary = "Get paginated list of Access Logs")
     @GetMapping
     fun listAccessLogs(@RequestParam(required = false) fromEpoch: Long?, @RequestParam(required = false) toEpoch: Long?, @RequestParam(required = false) startKey: Long?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: Int?, @RequestParam(required = false) descending: Boolean?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
@@ -86,7 +86,7 @@ class AccessLogController(
         accessLogs.paginatedList(accessLogToAccessLogDto, realLimit)
     }
 
-    @Operation(summary = "Get Paginated List of Access logs")
+    @Operation(summary = "Get paginated list of Access Logs")
     @GetMapping("/byUser")
     fun findByUserAfterDate(@Parameter(description = "A User ID", required = true) @RequestParam userId: String,
                                     @Parameter(description = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
@@ -104,7 +104,7 @@ class AccessLogController(
         accessLogs.paginatedList(accessLogToAccessLogDto, realLimit)
     }
 
-    @Operation(summary = "List access logs found By Healthcare Party and secret foreign keyelementIds.")
+    @Operation(summary = "List access logs found by Healthcare Party and secret foreign keyelementIds.")
     @GetMapping("/byHcPartySecretForeignKeys")
     fun findAccessLogsByHCPartyPatientForeignKeys(@RequestParam("hcPartyId") hcPartyId: String, @RequestParam("secretFKeys") secretFKeys: String) = flow {
         val secretPatientKeys = HashSet(secretFKeys.split(","))
