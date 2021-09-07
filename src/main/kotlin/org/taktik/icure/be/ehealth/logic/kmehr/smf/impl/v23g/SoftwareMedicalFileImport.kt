@@ -790,7 +790,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromMomentType(it) },
                 created = item.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
                 modified = item.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
-                qualifiedLinks = mfId?.let{ kmehrIndex.attestationOf[it]?.firstOrNull()?.let { kmehrIndex.itemIds[it]?.first?.toString()?.let { mapOf(LinkQualification.relatedService to listOf(it)) } } } ?: mapOf(),
+                qualifiedLinks = mfId?.let{ kmehrIndex.attestationOf[it]?.firstOrNull()?.let { kmehrIndex.itemIds[it]?.first?.toString()?.let { mapOf(LinkQualification.relatedService to mapOf( UUID.randomUUID().toString() to it)) } } } ?: mapOf(),
                 status = ((item.lifecycle?.cd?.value?.value()?.let { if (it == "inactive" || it == "aborted" || it == "canceled") 1 else if (it == "notpresent" || it == "excluded") 4 else 0 }
                         ?: 0) + if (item.isIsrelevant != true) 2 else 0),
                 content = when {

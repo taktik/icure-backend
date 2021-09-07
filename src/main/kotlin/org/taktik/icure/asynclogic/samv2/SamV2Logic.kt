@@ -28,8 +28,8 @@ import org.taktik.icure.entities.samv2.ProductId
 import org.taktik.icure.entities.samv2.SamVersion
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
-import org.taktik.icure.entities.samv2.embed.PharmaceuticalForm
-import org.taktik.icure.entities.samv2.embed.Substance
+import org.taktik.icure.entities.samv2.PharmaceuticalForm
+import org.taktik.icure.entities.samv2.Substance
 
 interface SamV2Logic {
     fun findAmpsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>

@@ -18,9 +18,10 @@
 
 package org.taktik.icure.asynclogic
 
-import org.taktik.icure.security.PermissionSet
+import org.taktik.icure.entities.security.Principal
 import org.taktik.icure.security.PermissionSetIdentifier
+import org.taktik.icure.security.PermissionSetWithAuthorities
 
 interface PermissionLogic {
-	fun getPermissionSet(permissionSetIdentifier: PermissionSetIdentifier): PermissionSet?
+    suspend fun getPermissionSet(permissionSetIdentifier: PermissionSetIdentifier, principal: Principal?): PermissionSetWithAuthorities?
 }

@@ -23,17 +23,10 @@ public interface Roles {
 
 	/* Spring Security Authorities */
 	interface GrantedAuthority {
-		String ROLE_ADMINISTRATOR	= "ROLE_ADMINISTRATOR";
-		String ROLE_USER			= "ROLE_USER";
-		String ROLE_BOOTSTRAP			= "ROLE_BOOTSTRAP";
-		String ROLE_ANONYMOUS		= "ROLE_ANONYMOUS";
-        String ROLE_DOCTOR		    = "ROLE_DOCTOR";
-        String ROLE_HC_PARTY		= "ROLE_HC_PARTY";
-	}
-
-	enum VirtualHostDependency {
-		NONE,
-		DIRECT,
-		FULL
+        String ROLE_ADMINISTRATOR	= "ROLE_ADMINISTRATOR";
+        String ROLE_USER			= "ROLE_USER";
+        String ROLE_ANONYMOUS		= "ROLE_ANONYMOUS";
+        String ROLE_HCP		= "ROLE_HCP";
+        String ROLE_PATIENT		= "ROLE_PATIENT";
 	}
 }

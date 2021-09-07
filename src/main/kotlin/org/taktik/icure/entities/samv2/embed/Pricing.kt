@@ -35,7 +35,7 @@ data class Pricing(
         if (this === other) return true
         if (other !is Pricing) return false
 
-        if (quantity?.compareTo(other.quantity) != 0 && quantity != other.quantity) return false
+        if (quantity != null && other.quantity == null || quantity == null && other.quantity != null || (quantity?.compareTo(other.quantity) != 0 && quantity != other.quantity)) return false
         if (label != other.label) return false
 
         return true

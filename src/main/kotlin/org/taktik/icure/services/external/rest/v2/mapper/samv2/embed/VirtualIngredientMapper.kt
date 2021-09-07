@@ -22,7 +22,9 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.VirtualIngredient
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.VirtualIngredientDto
-@Mapper(componentModel = "spring", uses = [StrengthRangeV2Mapper::class, SubstanceV2Mapper::class, IngredientTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+import org.taktik.icure.services.external.rest.v2.mapper.samv2.stub.SubstanceStubV2Mapper
+
+@Mapper(componentModel = "spring", uses = [StrengthRangeV2Mapper::class, SubstanceStubV2Mapper::class, IngredientTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface VirtualIngredientV2Mapper {
 	fun map(virtualIngredientDto: VirtualIngredientDto):VirtualIngredient
 	fun map(virtualIngredient: VirtualIngredient):VirtualIngredientDto

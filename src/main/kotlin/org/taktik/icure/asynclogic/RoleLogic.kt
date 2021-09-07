@@ -24,10 +24,8 @@ import org.taktik.icure.entities.User
 
 interface RoleLogic : EntityPersister<Role, String> {
     suspend fun getRoleByName(name: String): Role?
-    fun getDescendantRoles(roleId: String): Flow<Role>
 
     suspend fun getRole(id: String): Role?
-    fun getUsersByRole(role: Role): Flow<User>
     suspend fun createDefaultRoleIfNecessary()
 
     suspend fun newRole(role: Role): Role?

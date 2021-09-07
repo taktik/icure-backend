@@ -130,10 +130,6 @@ public class Measure extends Data implements Serializable {
         }
     }
 
-
-
-
-
     public String getRestriction() {
         if (getMinRef() == null) {
             if (getMaxRef() == null) {

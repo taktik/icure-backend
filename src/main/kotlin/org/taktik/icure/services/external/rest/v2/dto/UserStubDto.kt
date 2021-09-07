@@ -47,7 +47,6 @@ data class UserStubDto(
         @JsonSerialize(using = InstantSerializer::class)
         @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
-        val lastLoginDate: Instant? = null,
         val email: String? = null
 ) : StoredDocumentDto, Cloneable, Serializable {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)

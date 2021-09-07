@@ -30,7 +30,7 @@ import org.taktik.icure.constants.Permissions
 import org.taktik.icure.constants.Roles
 import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.User
-import org.taktik.icure.entities.embed.Permission
+import org.taktik.icure.entities.security.Permission
 
 @ExperimentalCoroutinesApi
 @Transactional
@@ -41,34 +41,8 @@ class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogi
         return roleDAO.getRoleByName(name)
     }
 
-    override fun getDescendantRoles(roleId: String) = flow<Role> {
-        val role = getRole(roleId)
-        role?.let {
-            emitAll(getDescendantRoles(it, mutableSetOf()))
-        }
-    }
-
-    private fun getDescendantRoles(role: Role, ignoredRoles: MutableSet<Role>): Flow<Role> = flow {
-        ignoredRoles.add(role)
-
-        // Process children
-        role.children?.let {
-            getChildren(role)
-                    .filterNotNull()
-                    .filter { !ignoredRoles.contains(it) }
-                    .onEach { r: Role ->
-                        emit(r)
-                        emitAll(getDescendantRoles(r, ignoredRoles))
-                    }
-        }
-    }
-
     override suspend fun getRole(id: String): Role? {
         return roleDAO.get(id)
-    }
-
-    override fun getUsersByRole(role: Role) = flow<User> {
-        emitAll(userDAO.getEntities(role.users))
     }
 
     override suspend fun createDefaultRoleIfNecessary() {
@@ -78,7 +52,7 @@ class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogi
         saveRole(Role(
                 id = Roles.DEFAULT_ROLE_NAME,
                 name = Roles.DEFAULT_ROLE_NAME,
-                permissions = setOf(Permission.granted(Permissions.Type.AUTHENTICATE))
+                permissions = setOf()
         ))
     }
 
@@ -88,10 +62,6 @@ class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogi
 
     override suspend fun newRole(role: Role): Role? {
         return saveRole(role)
-    }
-
-    private fun getChildren(role: Role) = flow<Role> {
-        emitAll(roleDAO.getEntities(role.children))
     }
 
     override fun createEntities(entities: Collection<Role>) = flow {

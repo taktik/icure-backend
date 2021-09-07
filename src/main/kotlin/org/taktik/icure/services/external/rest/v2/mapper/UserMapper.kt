@@ -26,11 +26,17 @@ import org.taktik.icure.entities.User
 import org.taktik.icure.services.external.rest.v2.dto.UserDto
 import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationTagV2Mapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.PermissionV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.security.PermissionV2Mapper
 
 @Mapper(componentModel = "spring", uses = [PermissionV2Mapper::class, DelegationTagV2Mapper::class, PropertyStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface UserV2Mapper {
     @Mappings(
+            Mapping(target = "lastLoginDate", ignore = true),
+            Mapping(target = "expirationDate", ignore = true),
+            Mapping(target = "activationToken", ignore = true),
+            Mapping(target = "activationTokenExpirationDate", ignore = true),
+            Mapping(target = "passwordToken", ignore = true),
+            Mapping(target = "passwordTokenExpirationDate", ignore = true),
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),
             Mapping(target = "conflicts", ignore = true),

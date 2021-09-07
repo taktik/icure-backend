@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.CryptoActor
@@ -65,17 +66,17 @@ import java.util.*
  * - Encryptable
  * - CryptoActor
  *
- * @property id the Id of the patient. We encourage using either a v4 UUID or a HL7 Id.
- * @property rev the revision of the patient in the database, used for conflict management / optimistic locking.
- * @property created the timestamp (unix epoch in ms) of creation of the patient, will be filled automatically if missing. Not enforced by the application server.
+ * @property id The Id of the patient. We encourage using either a v4 UUID or a HL7 Id.
+ * @property rev The revision of the patient in the database, used for conflict management / optimistic locking.
+ * @property created The timestamp (unix epoch in ms) of creation of the patient, will be filled automatically if missing. Not enforced by the application server.
  * @property modified the date (unix epoch in ms) of latest modification of the patient, will be filled automatically if missing. Not enforced by the application server.
  * @property author the id of the User that has created this patient, will be filled automatically if missing. Not enforced by the application server.
  * @property responsible the id of the HealthcareParty that is responsible for this patient, will be filled automatically if missing. Not enforced by the application server.
- * @property medicalLocationId
+ * @property medicalLocationId the medical location where this patient has been created
  * @property tags tags that qualify the patient as being member of a certain class.
  * @property codes codes that identify or qualify this particular patient.
  * @property endOfLife soft delete (unix epoch in ms) timestamp of the object. Unused for patient.
- * @property deletionDate hard delete (unix epoch in ms) timestamp of the object. Filled automatically when deletePatient is called.
+ * @property deletionDate Hard delete (unix epoch in ms) timestamp of the object. Filled automatically when deletePatient is called.
  * @property firstName the firstname (name) of the patient.
  * @property lastName the lastname (surname) of the patient. This is the official lastname that should be used for official administrative purposes.
  * @property companyName the name of the company this patient is member of.
@@ -128,12 +129,10 @@ data class Patient(
         @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
         @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
-        override val medicalLocationId: String? = null,
         @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
         @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
-
         override val firstName: String? = null,
         override val lastName: String? = null, //Is usually either maidenName or spouseName,
         override val companyName: String? = null,
@@ -141,11 +140,9 @@ data class Patient(
         override val addresses: List<Address> = listOf(),
         override val civility: String? = null,
         override val gender: Gender? = Gender.unknown,
-
+        val birthSex: Gender? = Gender.unknown,
         val mergeToPatientId: String? = null,
         val mergedIds: Set<String> = HashSet(),
-        @Deprecated("Do not use") val nonDuplicateIds: Set<String> = HashSet(),
-        @Deprecated("Do not use") val encryptedAdministrativesDocuments: Set<String> = HashSet(),
         val alias: String? = null,
         val active: Boolean = true,
         val deactivationReason: DeactivationReason = DeactivationReason.none,
@@ -155,6 +152,7 @@ data class Patient(
         val partnerName: String? = null, // Name of the partner, sometimes equal to spouseName,
         val personalStatus: PersonalStatus? = PersonalStatus.unknown,
         val dateOfBirth: Int? = null, // YYYYMMDD if unknown, 00, ex:20010000 or,
+        val deceased: Boolean? = null,
         val dateOfDeath: Int? = null, // YYYYMMDD if unknown, 00, ex:20010000 or,
         val timestampOfLatestEidReading: Long? = null,
         val placeOfBirth: String? = null,
@@ -163,8 +161,8 @@ data class Patient(
         val profession: String? = null,
         val note: String? = null,
         val administrativeNote: String? = null,
-        @Deprecated("Use note or administrativeNote") val comment: String? = null,
-        @Deprecated("Use note or administrativeNote") val warning: String? = null,
+        val race: String? = null,
+        val ethnicity: String? = null,
         val nationality: String? = null,
         val preferredUserId: String? = null,
         @JsonDeserialize(using = JacksonBase64LenientDeserializer::class) val picture: ByteArray? = null,
@@ -174,10 +172,12 @@ data class Patient(
         val patientHealthCareParties: List<PatientHealthCareParty> = listOf(),
         val financialInstitutionInformation: List<FinancialInstitutionInformation> = listOf(),
         val medicalHouseContracts: List<MedicalHouseContract> = listOf(),
-        val parameters: Map<String, List<String>> = mapOf(),
-
         @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) val patientProfessions: List<CodeStub> = listOf(),
-
+        val parameters: Map<String, List<String>> = mapOf(),
+        @Deprecated("Do not use") val nonDuplicateIds: Set<String> = HashSet(),
+        @Deprecated("Do not use") val encryptedAdministrativesDocuments: Set<String> = HashSet(),
+        @Deprecated("Use note or administrativeNote") val comment: String? = null,
+        @Deprecated("Use note or administrativeNote") val warning: String? = null,
         @Deprecated("Use properties instead") val fatherBirthCountry: CodeStub? = null,
         @Deprecated("Use properties instead") val birthCountry: CodeStub? = null,
         @Deprecated("Use properties instead") val nativeCountry: CodeStub? = null,
@@ -202,6 +202,8 @@ data class Patient(
         override val delegations: Map<String, Set<Delegation>> = mapOf(),
         override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
         override val encryptedSelf: String? = null,
+
+        override val medicalLocationId: String? = null,
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
@@ -215,6 +217,7 @@ data class Patient(
                     super<Person>.solveConflictsWith(other) +
                     super<Encryptable>.solveConflictsWith(other) +
                     super<CryptoActor>.solveConflictsWith(other) + mapOf(
+                    "birthSex" to (this.birthSex ?: other.birthSex),
                     "mergeToPatientId" to (this.mergeToPatientId ?: other.mergeToPatientId),
                     "mergedIds" to (other.mergedIds + this.mergedIds),
                     "nonDuplicateIds" to (other.nonDuplicateIds + this.nonDuplicateIds),
@@ -228,6 +231,7 @@ data class Patient(
                     "partnerName" to (this.partnerName ?: other.partnerName),
                     "personalStatus" to (this.personalStatus ?: other.personalStatus),
                     "dateOfBirth" to (this.dateOfBirth ?: other.dateOfBirth),
+                    "deceased" to (this.deceased ?: other.deceased),
                     "dateOfDeath" to (this.dateOfDeath ?: other.dateOfDeath),
                     "placeOfBirth" to (this.placeOfBirth ?: other.placeOfBirth),
                     "placeOfDeath" to (this.placeOfDeath ?: other.placeOfDeath),
@@ -237,6 +241,8 @@ data class Patient(
                     "administrativeNote" to (this.administrativeNote ?: other.administrativeNote),
                     "comment" to (this.comment ?: other.comment),
                     "warning" to (this.warning ?: other.warning),
+                    "race" to (this.race ?: other.race),
+                    "ethnicity" to (this.ethnicity ?: other.ethnicity),
                     "nationality" to (this.nationality ?: other.nationality),
                     "preferredUserId" to (this.preferredUserId ?: other.preferredUserId),
                     "picture" to (this.picture ?: other.picture),

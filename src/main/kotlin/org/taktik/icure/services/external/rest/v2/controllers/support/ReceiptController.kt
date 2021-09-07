@@ -106,7 +106,7 @@ class ReceiptController(
 
         var encryptedPayload = payload
         if (enckeys?.isNotEmpty() == true) {
-            encryptedPayload = CryptoUtils.encryptAESWithAnyKey(encryptedPayload, enckeys.split(',')[0])
+            CryptoUtils.encryptAESWithAnyKey(encryptedPayload, enckeys.split(',')[0])?.let { encryptedPayload = it }
         }
 
         val receipt = receiptLogic.getEntity(receiptId)

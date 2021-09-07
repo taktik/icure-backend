@@ -19,9 +19,9 @@ package org.taktik.icure.asynclogic
 
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.Role
-import org.taktik.icure.entities.base.Principal
+import org.taktik.icure.entities.security.Principal
 import org.taktik.icure.entities.base.PropertyStub
-import org.taktik.icure.entities.embed.Permission
+import org.taktik.icure.entities.security.Permission
 
 interface PrincipalLogic<P : Principal> {
     suspend fun getPrincipal(principalId: String): P?

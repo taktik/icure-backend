@@ -42,6 +42,57 @@ import javax.validation.Valid
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
+
+/**
+ * A Healthcare Element
+ *
+ * This entity is a root level object. It represents a healthcare element. It is serialized in JSON and saved in the underlying CouchDB database.
+ *
+ * A healthcare element is a patient centric representation of a healthcare problem.
+ * The healthcare element embeds the patient's view of their own health problem. It evolves over time in its name/label and characteristics.
+ * For example, a healthcare element that had been initially labelled “headache” by a patient, might evolve into a “migraine” after a consultation with a physician.
+ * The new and the old version of the healthcare element share the same healthElementId if they represent an evolution of the same problem.
+ *
+ * A healthcare element is a central element in the organisation of the electronic health record. All sorts of services (biometrics, technical acts, diagnosis, lab requests, results, ...) will be linked to it.
+ * Healthcare elements are used to filter the data inside a medical file in a meaningful way.
+ *
+ * A Healthcare Element conforms to a series of interfaces:
+ *
+ * - StoredICureDocument
+ * - Encryptable
+ *
+ * @property id The Id of the healthcare element. We encourage using either a v4 UUID or a HL7 Id.
+ * @property rev The revision of the patient in the database, used for conflict management / optimistic locking.
+ * @property healthElementId The logical id of the healthcare element, used to link together different versions of the same healthcare element. We encourage using either a v4 UUID or a HL7 Id.
+ * @property created The timestamp (unix epoch in ms) of creation of the healthcare element, will be filled automatically if missing. Not enforced by the application server.
+ * @property modified The date (unix epoch in ms) of latest modification of the healthcare element, will be filled automatically if missing. Not enforced by the application server.
+ * @property author The id of the User that has created this healthcare element, will be filled automatically if missing. Not enforced by the application server.
+ * @property responsible The id of the HealthcareParty that is responsible for this healthcare element, will be filled automatically if missing. Not enforced by the application server.
+ * @property medicalLocationId The id of the medical location where the healthcare element is recorded
+ * @property tags Tags that qualify the healthcare element as a member of a certain class.
+ * @property codes Codes that identify or qualify this particular healthcare element.
+ * @property endOfLife Soft delete (unix epoch in ms) timestamp of the object.
+ * @property deletionDate Hard delete (unix epoch in ms) timestamp of the object.
+ * @property valueDate The date (unix epoch in ms) when the healthcare element is noted to have started and also closes on the same date
+ * @property openingDate The date (unix epoch in ms) of the start of the healthcare element.
+ * @property closingDate The date (unix epoch in ms) marking the end of the healthcare element.
+ * @property descr Description of the healthcare element.
+ * @property note A text note (can be confidential, encrypted by default).
+ * @property relevant If the healthcare element is relevant or not (Set relevant by default).
+ * @property idOpeningContact Id of the opening contact when the healthcare element was created.
+ * @property idClosingContact Id of the closing contact for the healthcare element.
+ * @property idService Id of the service when a service is used to create a healthcare element.
+ * @property status bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
+ * @property laterality Left or Right dominance/preference.
+ * @property plansOfAction List of healthcare approaches.
+ * @property episodes List of episodes of occurrences of the healthcare element.
+ * @property careTeam List of care team members assigned for the healthcare element.
+ * @property delegations The delegations giving access to all connected healthcare information.
+ * @property encryptionKeys The patient secret encryption key used to encrypt the secured properties (like note for example), encrypted for separate Crypto Actors.
+ * @property encryptedSelf The encrypted fields of this healthcare element.
+ *
+ */
+
 data class HealthElement(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,
@@ -55,7 +106,7 @@ data class HealthElement(
         override val endOfLife: Long? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        @field:NotNull(autoFix = AutoFix.UUID) val healthElementId: String? = null, //Several versions of the same health element share the same healthElementId while having different ids
+        @field:NotNull(autoFix = AutoFix.UUID) val healthElementId: String? = null, //Several versions of the same healthcare element share the same healthElementId while having different ids
         //Usually one of the following is used (either valueDate or openingDate and closingDate)
         @field:NotNull(autoFix = AutoFix.FUZZYNOW) val valueDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
         @field:NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
@@ -77,10 +128,10 @@ data class HealthElement(
         override val delegations: Map<String, Set<Delegation>> = mapOf(),
         override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
         override val encryptedSelf: String? = null,
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
 
 ) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<HealthElement>

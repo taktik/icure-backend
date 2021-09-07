@@ -25,8 +25,6 @@ import org.taktik.icure.asyncdao.samv2.*
 import org.taktik.icure.asynclogic.samv2.SamV2Logic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.*
-import org.taktik.icure.entities.samv2.embed.PharmaceuticalForm
-import org.taktik.icure.entities.samv2.embed.Substance
 
 @Service
 class SamV2LogicImpl(val ampDAO: AmpDAO, val vmpDAO: VmpDAO, val vmpGroupDAO: VmpGroupDAO, val productIdDAO: ProductIdDAO, val nmpDAO: NmpDAO, val substanceDAO: SubstanceDAO, val pharmaceuticalFormDAO: PharmaceuticalFormDAO) : SamV2Logic {

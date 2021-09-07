@@ -25,10 +25,10 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.PrincipalLogic
 import org.taktik.icure.constants.Roles
 import org.taktik.icure.entities.Role
-import org.taktik.icure.entities.base.Principal
+import org.taktik.icure.entities.security.Principal
 import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.base.PropertyTypeStub
-import org.taktik.icure.entities.embed.Permission
+import org.taktik.icure.entities.security.Permission
 
 abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO, protected val sessionLogic: AsyncSessionLogic)  :  GenericLogicImpl<P, GenericDAO<P>>(sessionLogic), PrincipalLogic<P> {
 

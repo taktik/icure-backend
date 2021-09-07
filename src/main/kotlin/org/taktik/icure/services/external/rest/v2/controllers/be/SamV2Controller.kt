@@ -37,11 +37,11 @@ import org.taktik.icure.services.external.rest.v2.dto.samv2.AmpDto
 import org.taktik.icure.services.external.rest.v2.dto.samv2.NmpDto
 import org.taktik.icure.services.external.rest.v2.dto.samv2.VmpDto
 import org.taktik.icure.services.external.rest.v2.dto.samv2.VmpGroupDto
-import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.PharmaceuticalFormDto
-import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.SubstanceDto
+import org.taktik.icure.services.external.rest.v2.dto.samv2.PharmaceuticalFormDto
+import org.taktik.icure.services.external.rest.v2.dto.samv2.SubstanceDto
 import org.taktik.icure.services.external.rest.v2.mapper.samv2.*
-import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.PharmaceuticalFormV2Mapper
-import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.SubstanceV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.samv2.PharmaceuticalFormV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.samv2.SubstanceV2Mapper
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
