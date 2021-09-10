@@ -132,6 +132,18 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(relink(getContacts(result)))
     }
 
+    @View(name = "by_hcparty_serviceid", map = "classpath:js/contact/By_hcparty_serviceid_map.js")
+    override fun findContactsByHcPartyServiceId(hcPartyId: String, serviceId: String) = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+        val viewQuery = createQuery(client, "by_hcparty_serviceid")
+                .key(ComplexKey.of(hcPartyId, serviceId))
+                .includeDocs(true)
+
+        val result = client.queryViewIncludeDocs<Array<String>, String, Contact>(viewQuery).map { it.doc }
+        emitAll(relink(result))
+    }
+
 
     @ExperimentalCoroutinesApi
     @FlowPreview
@@ -147,6 +159,20 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                     res.filter { it.value!![0] == lt }
                 } ?: res).map { it.value!![1] }
         )
+    }
+
+    @ExperimentalCoroutinesApi
+    @FlowPreview
+    @View(name = "service_by_association_id", map = "classpath:js/contact/Service_by_association_id.js")
+    override fun findServiceIdsAssociationId(associationId: String) = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        val viewQuery = createQuery(client, "service_by_association_id")
+                .key(associationId)
+                .includeDocs(true)
+
+        val res = client.queryViewIncludeDocs<String, String, Contact>(viewQuery)
+        emitAll(res.mapNotNull { it.doc }
+                .flatMapConcat { it.services.filter { it.qualifiedLinks.values.flatMap { it.keys }.contains(associationId) }.asFlow() })
     }
 
     @View(name = "service_by_hcparty_tag", map = "classpath:js/contact/Service_by_hcparty_tag.js")
@@ -414,6 +440,17 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
             }
             c
         }
+    }
+
+    @View(name = "by_externalid", map = "classpath:js/contact/By_externalid.js")
+    override fun findContactsByExternalId(externalId: String) = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+        val viewQuery = createQuery(client,"by_externalid")
+                .key(externalId)
+                .includeDocs(true)
+
+        emitAll(client.queryViewIncludeDocs<String, String, Contact>(viewQuery).mapNotNull { it.doc })
     }
 
     @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Contact' && !doc.deleted && doc._conflicts) emit(doc._id )}")

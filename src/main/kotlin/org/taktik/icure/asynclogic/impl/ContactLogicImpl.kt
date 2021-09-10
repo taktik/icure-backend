@@ -151,6 +151,10 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(getServices(contactDAO.findServiceIdsByIdQualifiedLink(ids, linkType).toList()))
     }
 
+    override fun listServicesByAssociationId(associationId: String): Flow<org.taktik.icure.entities.embed.Service> = flow {
+        emitAll(contactDAO.findServiceIdsAssociationId(associationId))
+    }
+
     override fun pimpServiceWithContactInformation(s: org.taktik.icure.entities.embed.Service, c: Contact): org.taktik.icure.entities.embed.Service {
         val subContacts = c.subContacts.filter { sc: SubContact -> sc.services.filter { sc2: ServiceLink -> sc2.serviceId != null }.any { sl: ServiceLink -> sl.serviceId == s.id } }
         return s.copy(
@@ -200,6 +204,14 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
 
     override fun listContactsByHcPartyAndFormId(hcPartyId: String, formId: String): Flow<Contact> = flow {
         emitAll(contactDAO.listContactsByHcPartyAndFormId(hcPartyId, formId))
+    }
+
+    override fun listContactsByHCPartyServiceId(hcPartyId: String, formId: String): Flow<Contact> = flow {
+        emitAll(contactDAO.findContactsByHcPartyServiceId(hcPartyId, formId))
+    }
+
+    override fun listContactsByExternalId(externalId: String): Flow<Contact> {
+        TODO("Not yet implemented")
     }
 
     override suspend fun getServiceCodesOccurences(hcPartyId: String, codeType: String, minOccurences: Long): List<LabelledOccurence> {

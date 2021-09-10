@@ -66,7 +66,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Operation(summary = "Creates a document")
+    @Operation(summary = "Create a document", description = "Creates a document and returns an instance of created document afterward")
     @PostMapping
     fun createDocument(@RequestBody documentDto: DocumentDto) = mono {
         val document = documentMapper.map(documentDto)
@@ -75,7 +75,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         documentMapper.map(createdDocument)
     }
 
-    @Operation(summary = "Deletes a document")
+    @Operation(summary = "Delete a document", description = "Deletes a batch of documents and returns the list of deleted document ids")
     @DeleteMapping("/{documentIds}")
     fun deleteDocument(@PathVariable documentIds: String): Flux<DocIdentifier> {
         val documentIdsList = documentIds.split(',')
@@ -105,7 +105,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         emit(DefaultDataBufferFactory().wrap(attachment))
     }.injectReactorContext())
 
-    @Operation(summary = "Deletes a document's attachment")
+    @Operation(summary = "Delete a document's attachment", description = "Deletes a document's attachment and returns the modified document instance afterward")
     @DeleteMapping("/{documentId}/attachment")
     fun deleteAttachment(@PathVariable documentId: String) = mono {
 
@@ -116,7 +116,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         documentMapper.map(document)
     }
 
-    @Operation(summary = "Creates a document's attachment")
+    @Operation(summary = "Create a document's attachment", description = "Creates a document's attachment and returns the modified document instance afterward")
     @PutMapping("/{documentId}/attachment", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun setDocumentAttachment(@PathVariable documentId: String,
                       @RequestParam(required = false) enckeys: String?,
@@ -142,9 +142,9 @@ class DocumentController(private val documentLogic: DocumentLogic,
         documentMapper.map(document)
     }
 
-    @Operation(summary = "Creates a document's attachment")
+    @Operation(summary = "Create a document's attachment", description = "Creates a document attachment and returns the modified document instance afterward")
     @PutMapping("/attachment", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun setSafeDocumentAttachment(@RequestParam(required = true) documentId: String,
+    fun setDocumentAttachmentBody(@RequestParam(required = true) documentId: String,
                               @RequestParam(required = false) enckeys: String?,
                               @RequestBody payload: ByteArray) = mono {
         var newPayload = payload
@@ -175,7 +175,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
                            @RequestPart("attachment") payload: ByteArray) = setDocumentAttachment(documentId, enckeys, payload)
 
 
-    @Operation(summary = "Gets a document")
+    @Operation(summary = "Get a document", description = "Returns the document corresponding to the identifier passed in the request")
     @GetMapping("/{documentId}")
     fun getDocument(@PathVariable documentId: String) = mono {
         val document = documentLogic.getDocument(documentId)
@@ -183,7 +183,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         documentMapper.map(document)
     }
 
-    @Operation(summary = "Gets a document")
+    @Operation(summary = "Get a document", description = "Returns the first document corresponding to the externalUuid passed in the request")
     @GetMapping("/externaluuid/{externalUuid}")
     fun getDocumentByExternalUuid(@PathVariable externalUuid: String) = mono {
         val document = documentLogic.getDocumentsByExternalUuid(externalUuid).firstOrNull()
@@ -191,20 +191,20 @@ class DocumentController(private val documentLogic: DocumentLogic,
         documentMapper.map(document)
     }
 
-    @Operation(summary = "Get all documents with externalUuid")
+    @Operation(summary = "Get all documents with externalUuid", description = "Returns a list of document corresponding to the externalUuid passed in the request")
     @GetMapping("/externaluuid/{externalUuid}/all")
     fun getDocumentsByExternalUuid(@PathVariable externalUuid: String) = mono {
         documentLogic.getDocumentsByExternalUuid(externalUuid).map { documentMapper.map(it) }
     }
 
-    @Operation(summary = "Gets a document")
+    @Operation(summary = "Get a batch of document", description = "Returns a list of document corresponding to the identifiers passed in the body")
     @PostMapping("/batch")
     fun getDocuments(@RequestBody documentIds: ListOfIdsDto): Flux<DocumentDto> {
         val documents = documentLogic.getDocuments(documentIds.ids)
         return documents.map { doc -> documentMapper.map(doc) }.injectReactorContext()
     }
 
-    @Operation(summary = "Updates a document")
+    @Operation(summary = "Update a document", description = "Updates the document and returns an instance of the modified document afterward")
     @PutMapping
     fun modifyDocument(@RequestBody documentDto: DocumentDto) = mono {
         if (documentDto.id == null) {
@@ -225,7 +225,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     }
 
-    @Operation(summary = "Updates a batch of documents", description = "Returns the modified documents.")
+    @Operation(summary = "Update a batch of documents", description = "Returns the modified documents.")
     @PutMapping("/batch")
     fun modifyDocuments(@RequestBody documentDtos: List<DocumentDto>): Flux<DocumentDto> = flow{
         try {
