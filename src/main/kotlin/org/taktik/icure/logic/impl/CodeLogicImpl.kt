@@ -382,10 +382,58 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
                 }
             }
 
+            val iso6391Handler = object : DefaultHandler() {
+                var initialized = false
+                var version: String? = null
+                var charsHandler: ((chars: String) -> Unit)? = null
+                var code: Code? = null
+                var characters: String = ""
+
+                override fun characters(ch: CharArray?, start: Int, length: Int) {
+                    ch?.let { characters += String(it, start, length) }
+                }
+
+                override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
+                    if (!initialized && qName != "ISO639-1") {
+                        throw IllegalArgumentException("Not supported")
+                    }
+                    initialized = true
+                    characters = ""
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "VERSION" -> charsHandler = { ch ->
+                                version = ch
+                            }
+                            "VALUE" -> {
+                                code = Code(type, null, version).apply { label = HashMap() }
+                            }
+                            "CODE" -> charsHandler = { ch -> code?.code = ch }
+                            "DESCRIPTION" -> charsHandler = { ch -> code?.label?.put(attributes?.getValue("L"), ch.trim()) }
+                            else -> {
+                                charsHandler = null
+                            }
+                        }
+                    }
+                }
+
+                override fun endElement(uri: String?, localName: String?, qName: String?) {
+                    charsHandler?.let { it(characters) }
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "VALUE" -> {
+                                batchSave(code, false)
+                            }
+                            else -> null
+                        }
+                    }
+                }
+            }
+
             try {
                 when (type.toUpperCase()) {
                     "BE-THESAURUS-PROCEDURES" -> saxParser.parse(stream, beThesaurusProcHandler)
                     "BE-THESAURUS" -> saxParser.parse(stream, beThesaurusHandler)
+                    "ISO-639-1" -> saxParser.parse(stream, iso6391Handler)
                     else -> saxParser.parse(stream, handler)
                 }
                 batchSave(null, true)
