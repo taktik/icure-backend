@@ -6,6 +6,8 @@ import java.util.Set;
 
 public class CalendarItemDto extends IcureDto {
 
+    protected String recurrenceId;
+
     protected String title;
 
     private String calendarItemTypeId;
@@ -47,6 +49,14 @@ public class CalendarItemDto extends IcureDto {
     protected Set<CalendarItemTagDto> meetingTags;
 
     protected FlowItemDto flowItem;
+
+    public String getRecurrenceId() {
+        return recurrenceId;
+    }
+
+    public void setRecurrenceId(String recurrenceId) {
+        this.recurrenceId = recurrenceId;
+    }
 
     public String getTitle() {
         return title;

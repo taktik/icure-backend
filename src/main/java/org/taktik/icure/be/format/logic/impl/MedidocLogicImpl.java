@@ -30,6 +30,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -72,8 +73,8 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 	private final Pattern p5 = Pattern.compile("^#/[0-9]*\\s*$");
 	private final DateFormat df = new SimpleDateFormat("yyyyMMdd");
 	private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd");
-	private final DateFormat idf = new SimpleDateFormat("ddMMyyyy");
-	private final DateFormat sidf = new SimpleDateFormat("ddMMyy");
+    private final DateTimeFormatter idtf = DateTimeFormatter.ofPattern("ddMMyyyy");
+    private final DateTimeFormatter sidtf = DateTimeFormatter.ofPattern("ddMMyy");
 	private final Pattern onlyNumbersAndPercentSigns = Pattern.compile("^[0-9%]+$");
 
 	protected ContactLogic contactLogic;
@@ -144,7 +145,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 
 				try {
 					//noinspection ConstantConditions
-					ri.setDateOfBirth(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(parseDate(birthDateLine).getTime()), ZoneId.systemDefault()), ChronoUnit.DAYS));
+					ri.setDateOfBirth(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(parseDate(birthDateLine), ZoneId.of("UTC")), ChronoUnit.DAYS));
 				} catch (ParseException | NullPointerException ignored) {
 				}
 
@@ -153,9 +154,9 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 					ri.setSex(gender.equals("X") ? "F" : "M");
 				}
 
-				Date demandDate = getResultDate(lines, i, isStandardFormat);
-				if (demandDate!=null) { ri.setDemandDate(demandDate.getTime()); }
-				String code = getProtocolCode(lines, i, isStandardFormat, demandDate);
+				Instant demandDate = getResultDate(lines, i, isStandardFormat);
+				if (demandDate!=null) { ri.setDemandDate(demandDate.toEpochMilli()); }
+				String code = getProtocolCode(lines, i, isStandardFormat, demandDate, 0);
 
 				ri.setProtocol(code);
 				i += isStandardFormat?6:9;
@@ -171,16 +172,16 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 		return l;
 	}
 
-	private String getProtocolCode(List<String> lines, int i, boolean isStandardFormat, Date demandDate) {
+	private String getProtocolCode(List<String> lines, int i, boolean isStandardFormat, Instant demandDate, Integer offset) {
 		String code = null;
 		if (isStandardFormat) {
 				try {
 				//noinspection ConstantConditions
-					Date date = parseDate(lines.get(i + 2).trim());
+					Instant date = parseDate(lines.get(i + 2).trim());
 					code = computeProtocolCode(lines.get(i + 1).substring(0, Math.min(24,lines.get(i + 1).length())).trim(),
 						lines.get(i + 1).length()>24?lines.get(i + 1).substring(24).trim():"",
-						date != null ? date.getTime() : System.currentTimeMillis(),
-						demandDate.getTime(),
+						date != null ? date.toEpochMilli() + offset : 0,
+						demandDate.toEpochMilli() + offset,
 						lines.get(i + 5));
 			} catch (ParseException | NullPointerException e) {
 				e.printStackTrace();
@@ -190,8 +191,8 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 				//noinspection ConstantConditions
 				code = computeProtocolCode(lines.get(i + 1).substring(0, 24).trim(),
 						lines.get(i + 1).substring(24).trim(),
-						parseDate(lines.get(i + 5).trim()).getTime(),
-						demandDate.getTime(),
+						parseDate(lines.get(i + 5).trim()).toEpochMilli() + offset,
+						demandDate.toEpochMilli() + offset,
 						lines.get(i + 8));
 			} catch (ParseException | NullPointerException e) {
 				e.printStackTrace();
@@ -200,8 +201,8 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 		return code;
 	}
 
-	private Date getResultDate(List<String> lines, int i, boolean isStandardFormat) {
-		Date demandDate = null;
+	private Instant getResultDate(List<String> lines, int i, boolean isStandardFormat) {
+		Instant demandDate = null;
 		if (isStandardFormat) {
 			//noinspection Duplicates
 			try {
@@ -230,11 +231,13 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 				//come before the birth date.
 				boolean isStandardFormat = onlyNumbersAndPercentSigns.matcher(lines.get(i + 2).trim()).matches();
 
-				Date demandDate = getResultDate(lines, i, isStandardFormat);
-				String code = getProtocolCode(lines, i, isStandardFormat, demandDate);
+				Instant demandDate = getResultDate(lines, i, isStandardFormat);
+				String code = getProtocolCode(lines, i, isStandardFormat, demandDate, 0);
+                String legacyCode = getProtocolCode(lines, i, isStandardFormat, demandDate, -7200000);
+                String reverseLegacyCode = getProtocolCode(lines, i, isStandardFormat, demandDate, 7200000);
 				i += isStandardFormat?6:9;
 
-				if (protocolIds.contains(code) || (protocolIds.size() == 1 && protocolIds.get(0) != null && protocolIds.get(0).startsWith("***"))) {
+				if (protocolIds.contains(code) || protocolIds.contains(legacyCode) || protocolIds.contains(reverseLegacyCode) || (protocolIds.size() == 1 && protocolIds.get(0) != null && protocolIds.get(0).startsWith("***"))) {
 					Service s = new Service();
 
 					i = fillService(s, language, lines, i, demandDate);
@@ -255,11 +258,14 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 		return contactLogic.modifyContact(ctc);
 	}
 
-	private int fillService(Service s, String language, List<String> lines, int i, Date demandDate) {
+	private int fillService(Service s, String language, List<String> lines, int i, Instant demandDate) {
 		do {
 			i++;
 		} while (!p2.matcher(lines.get(i)).matches());
 		//Skip p2 and first empty line
+        if(!lines.get(i+1).trim().equals("")){
+            s.getContent().put("descr",new Content(lines.get(i+1).trim()));
+        }
 		i += 2;
 
 		StringBuilder b = new StringBuilder();
@@ -271,7 +277,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 		s.setId(uuidGen.newGUID().toString());
 		s.getContent().put(language, new Content(b.toString()));
 		s.setLabel("Protocol");
-		s.setValueDate(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(demandDate != null ? Instant.ofEpochMilli(demandDate.getTime()) : Instant.now(), ZoneId.systemDefault()), ChronoUnit.DAYS));
+		s.setValueDate(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(demandDate != null ? demandDate : Instant.now(), ZoneId.of("UTC")), ChronoUnit.DAYS));
 		return i;
 	}
 
@@ -382,7 +388,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 				+ StringUtils.substring(code, 0, 20);
 	}
 
-	private Date parseDate(String dateString) throws ParseException {
+	private Instant parseDate(String dateString) throws ParseException {
 		if (dateString.contains("%")) {
 			return null;
 		}
@@ -394,22 +400,22 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 		}
 		if (dateString.length() < 8) {
 			if (Integer.parseInt(dateString.substring(4, 6)) > 31) {
-				return sidf.parse(dateString);
+				return LocalDate.parse(dateString, sidtf).atTime(0,0,0,0).atZone(ZoneId.of("UTC")).toInstant();
 			} else {
 				if (Integer.parseInt(dateString.substring(0, 2)) < 18) {
-					return df.parse("20" + dateString);
+                    return LocalDate.parse("20" + dateString, dtf).atTime(0,0,0,0).atZone(ZoneId.of("UTC")).toInstant();
 				} else {
-					return df.parse("19" + dateString);
+                    return LocalDate.parse("19" + dateString, dtf).atTime(0,0,0,0).atZone(ZoneId.of("UTC")).toInstant();
 				}
 			}
 		}
 
 		if (Integer.parseInt(dateString.substring(4, 8)) > 1300) {
 			//Last digits are a year. Let's guess a ddMMyyyy
-			return idf.parse(dateString);
+            return LocalDate.parse(dateString, idtf).atTime(0,0,0,0).atZone(ZoneId.of("UTC")).toInstant();
 		} else {
 			//You won't believe it... It follows the doc
-			return df.parse(dateString);
+            return LocalDate.parse(dateString, dtf).atTime(0,0,0,0).atZone(ZoneId.of("UTC")).toInstant();
 		}
 	}
 }

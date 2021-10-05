@@ -60,15 +60,17 @@ class Importer {
     protected CouchDbConnector couchdbContact
     protected CouchDbConnector couchdbConfig
 
-    Importer() {
+    Importer(donotinit = false) {
         HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("${DB_PROTOCOL}://${DB_HOST}:" + DB_PORT).username(DB_USER).password(DB_PASSWORD).build()
         CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient)
 
-        // if the second parameter is true, the database will be created if it doesn't exists
-        couchdbBase = dbInstance.createConnector(DB_NAME + '-base', true)
-        couchdbPatient = dbInstance.createConnector(DB_NAME + '-patient', true)
-        couchdbContact = dbInstance.createConnector(DB_NAME + '-healthdata', true)
-        couchdbConfig = dbInstance.createConnector(DB_NAME + '-config', true)
+        if (!donotinit) {
+            // if the second parameter is true, the database will be created if it doesn't exists
+            couchdbBase = dbInstance.createConnector(DB_NAME + '-base', true)
+            couchdbPatient = dbInstance.createConnector(DB_NAME + '-patient', true)
+            couchdbContact = dbInstance.createConnector(DB_NAME + '-healthdata', true)
+            couchdbConfig = dbInstance.createConnector(DB_NAME + '-config', true)
+        }
 
         Security.addProvider(new BouncyCastleProvider())
 

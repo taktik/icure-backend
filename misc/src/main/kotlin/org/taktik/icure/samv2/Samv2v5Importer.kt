@@ -162,7 +162,6 @@ class Samv2v5Import : CliktCommand() {
                             nmpProductIds.putAll(importNonMedicinals(it, couchdbConfig, updateExistingDocs))
                             productIds.putAll(nmpProductIds)
                         }
-
                 }
             }
         }
@@ -339,8 +338,6 @@ class Samv2v5Import : CliktCommand() {
             }.filterNotNull().maxBy { it.to ?: Long.MAX_VALUE }?.let {
                 latestVmpGroup -> vmpGroupIds[vmpg.code] = latestVmpGroup.id
             }
-
-            null
         }
         export.vmp.flatMap { vmp ->
             vmp.data.map { d ->
@@ -660,6 +657,7 @@ class Samv2v5Import : CliktCommand() {
             }
         }.chunked(100).map { amps ->
             val currentAmpsWithDoc = retry(10) { ampDAO.getList(amps.map { it.id }.filter { currentAmps.contains(it) }) }
+            val updatedAmps = mutableListOf<Amp>()
             amps.forEach { amp ->
                 if (!currentAmps.contains(amp.id)) {
                     log.info("New AMP AMP:${amp.code}:${amp.from} with id ${amp.id}")
@@ -672,14 +670,32 @@ class Samv2v5Import : CliktCommand() {
                         prev.ampps.forEach { it.dmpps?.forEach { it.reimbursements = null } }
                     }
                     amp.rev = prev.rev
-                    if (prev != amp) {
+                    if (prev != amp && prev != Amp(
+                        id = amp.id,
+                        from = amp.from,
+                        to = amp.to,
+                        code = amp.code,
+                        vmp = amp.vmp,
+                        officialName = amp.officialName,
+                        status = amp.status,
+                        name = amp.name,
+                        blackTriangle = amp.blackTriangle,
+                        medicineType = amp.medicineType,
+                        company = amp.company,
+                        abbreviatedName = amp.abbreviatedName,
+                        proprietarySuffix = amp.proprietarySuffix,
+                        prescriptionName = SamText(fr = amp.prescriptionName?.fr, nl = amp.prescriptionName?.nl),
+                        ampps = amp.ampps,
+                        components = amp.components
+                    )) {
                         log.info("Modified AMP:${amp.code}:${amp.from} with id ${amp.id}")
                         updatedAmpIds.add(amp.id)
-                        retryOnTimeout(10) { ampDAO.update(amp) }
+                        updatedAmps.add(amp)
                     }
                     amp
                 } else amp
             }
+            retryOnTimeout(10) { ampDAO.save(updatedAmps) }
         }
 
         val currentSubstances = HashSet<String>(retry(10) { substanceDAO.allIds })

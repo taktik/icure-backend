@@ -435,10 +435,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
                 this.responsible = trnauthorhcpid
                 this.services = servlist.toSet()
-                this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
-                        trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
-                            it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                        }
+                this.openingDate = extractTransactionDateTime(trn)
                 this.closingDate = trn.isIscomplete.let { if (it) this.openingDate else null }
             })
 
@@ -493,10 +490,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 }
                 label = (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value)
                 tags.add(CodeStub( "CD-ITEM-EXT", "document", "1"))
-                valueDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
-                        trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
-                            it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                        }
+                valueDate = extractTransactionDateTime(trn)
             }
         } ?: listOf()
         val target = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISACHILDOF }?.map { lnk ->
@@ -510,10 +504,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 this.author = author.id
                 this.responsible = trnauthorhcpid
                 this.services = services.toSet()
-                this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
-                        trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
-                            it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                        }
+                this.openingDate = extractTransactionDateTime(trn)
                 this.closingDate = trn.isIscomplete.let { if (it) this.openingDate else null }
             })
 
@@ -540,10 +531,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
             this.author = author.id
             this.responsible = trnauthorhcpid
-            this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
-                    trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
-                        it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                    }
+            this.openingDate = extractTransactionDateTime(trn)
             this.closingDate = trn.isIscomplete.let { if (it) this.openingDate else null }
 
             this.location =
@@ -694,6 +682,11 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     it
                 }
             }?.firstOrNull()?.id ?: author.healthcarePartyId ?: throw IllegalArgumentException("The author's healthcarePartyId must be set")
+            
+    private fun extractTransactionDateTime(trn: TransactionType) =
+            trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
+                it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+            } ?: trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) }
 
     private fun isHealthElementTypeEqual(item: ItemType, checkItem: ItemType) =
             item.recorddatetime == checkItem.recorddatetime &&
