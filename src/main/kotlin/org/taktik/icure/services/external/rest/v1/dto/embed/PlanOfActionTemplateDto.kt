@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.dto.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.base.NamedDto
@@ -44,6 +45,6 @@ data class PlanOfActionTemplateDto(
         val descr: String? = null,
         val note: String? = null,
         val relevant: Boolean = true,
-        val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
+        @Schema(defaultValue = "0") val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
         var forms: List<FormSkeletonDto> = listOf()
 ) : ICureDocumentDto<String>, NamedDto

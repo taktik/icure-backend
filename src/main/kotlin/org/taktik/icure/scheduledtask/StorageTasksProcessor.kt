@@ -25,7 +25,7 @@ class StorageTasksProcessor(
     @Scheduled(fixedDelay = 3_600_000)
     fun handleIcureCloudAttachmentTasks() {
         runBlocking {
-            cloudStorageTasksDao.getAll()
+            cloudStorageTasksDao.getEntities()
                     .collect { value ->
                         log.info("Running objectStorage task ${value.id} for doc ${value.docId} : ${value.type}.")
                         when (value.type) {

@@ -18,23 +18,16 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
+import org.taktik.couchdb.entity.Option
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asyncdao.HealthElementDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
-import org.taktik.couchdb.entity.Option
-import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
@@ -68,33 +61,33 @@ class HealthElementLogicImpl(private val filters: Filters,
     }
 
     override fun getHealthElements(healthElementIds: List<String>): Flow<HealthElement> = flow {
-        emitAll(healthElementDAO.getList(healthElementIds))
+        emitAll(healthElementDAO.getEntities(healthElementIds))
     }
 
-    override fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<HealthElement> = flow {
-        emitAll(healthElementDAO.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys))
+    override fun findHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<HealthElement> = flow {
+        emitAll(healthElementDAO.listHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys))
     }
 
-    override suspend fun findLatestByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): List<HealthElement> {
-        return healthElementDAO.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys).toList()
+    override suspend fun findLatestHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): List<HealthElement> {
+        return healthElementDAO.listHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys).toList()
                 .groupBy { it.healthElementId }.values.mapNotNull { value -> value.maxBy { it.modified ?: it.created ?: 0L } }
     }
 
-    override fun findByHCPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String) = flow {
-        emitAll(healthElementDAO.findByHCPartyAndCodes(hcPartyId, codeType, codeNumber))
+    override fun findHealthElementsByHCPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String) = flow {
+        emitAll(healthElementDAO.listHealthElementsByHCPartyAndCodes(hcPartyId, codeType, codeNumber))
     }
 
-    override fun findByHCPartyAndTags(hcPartyId: String, tagType: String, tagCode: String) = flow {
-        emitAll(healthElementDAO.findByHCPartyAndTags(hcPartyId, tagType, tagCode))
+    override fun findHealthElementsByHCPartyAndTags(hcPartyId: String, tagType: String, tagCode: String) = flow {
+        emitAll(healthElementDAO.listHealthElementsByHCPartyAndTags(hcPartyId, tagType, tagCode))
     }
 
-    override fun findByHCPartyAndStatus(hcPartyId: String, status: Int): Flow<String> = flow {
-        emitAll(healthElementDAO.findByHCPartyAndStatus(hcPartyId, status))
+    override fun findHealthElementsByHCPartyAndStatus(hcPartyId: String, status: Int): Flow<String> = flow {
+        emitAll(healthElementDAO.listHealthElementsByHCPartyAndStatus(hcPartyId, status))
     }
 
     override fun deleteHealthElements(ids: Set<String>): Flow<DocIdentifier> {
         return try {
-            deleteByIds(ids)
+            deleteEntities(ids)
         } catch (e: Exception) {
             log.error(e.message, e)
             flowOf()
@@ -103,7 +96,7 @@ class HealthElementLogicImpl(private val filters: Filters,
 
     override suspend fun modifyHealthElement(healthElement: HealthElement) = fix(healthElement) { healthElement ->
         try {
-            updateEntities(setOf(healthElement)).firstOrNull()
+            modifyEntities(setOf(healthElement)).firstOrNull()
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid Health problem", e)
         }
@@ -128,17 +121,13 @@ class HealthElementLogicImpl(private val filters: Filters,
         }
     }
 
-    override suspend fun solveConflicts() {
-        val healthElementsInConflict = healthElementDAO.listConflicts().mapNotNull { healthElementDAO.get(it.id, Option.CONFLICTS) }
-        healthElementsInConflict.collect { he ->
-            var modifiedContact = he
-            he.conflicts?.mapNotNull { c: String -> healthElementDAO.get(he.id, c) }?.forEach { cp ->
-                modifiedContact = modifiedContact.merge(cp)
-                healthElementDAO.purge(cp)
-            }
-            healthElementDAO.save(modifiedContact)
-        }
-    }
+    override fun solveConflicts(): Flow<HealthElement> =
+           healthElementDAO.listConflicts().mapNotNull {healthElementDAO.get(it.id, Option.CONFLICTS)?.let {healthElement ->
+               healthElement.conflicts?.mapNotNull { conflictingRevision ->healthElementDAO.get(healthElement.id, conflictingRevision) }
+                        ?.fold(healthElement) { kept, conflict -> kept.merge(conflict).also {healthElementDAO.purge(conflict) } }
+                        ?.let { mergedHealthElement ->healthElementDAO.save(mergedHealthElement) }
+            } }
+
 
     override fun filter(filter: FilterChain<HealthElement>) = flow<HealthElement> {
         val ids = filters.resolve(filter.filter).toList()

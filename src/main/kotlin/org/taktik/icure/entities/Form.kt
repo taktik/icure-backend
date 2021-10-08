@@ -39,6 +39,40 @@ import org.taktik.icure.validation.ValidCode
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
+
+/**
+ * This entity is a root level object. It represents a Form. It is serialized in JSON and saved in the underlying CouchDB database.
+ *
+ * A form is used to visually structure medical information pertaining to one or several healthcare elements and collected on the course of a series of contacts.
+ * Forms are organised in a hierarchy. They are the building blocks of a folder structure, of input forms or dashboards.
+ * Contacts' services are linked to forms by means of the sub-contacts.
+ *
+ * A Form conforms to a series of interfaces:
+ * - StoredICureDocument
+ * - Encryptable
+ *
+ * @property id The Id of the form. We encourage using either a v4 UUID or a HL7 Id.
+ * @property rev The revision of the form in the database, used for conflict management / optimistic locking.
+ * @property created The timestamp (unix epoch in ms) of creation of the form, will be filled automatically if missing. Not enforced by the application server.
+ * @property modified The date (unix epoch in ms) of the latest modification of the form, will be filled automatically if missing. Not enforced by the application server.
+ * @property author The id of the User that has created this form, will be filled automatically if missing. Not enforced by the application server.
+ * @property responsible The id of the healthcare party that is responsible for this form, will be filled automatically if missing. Not enforced by the application server.
+ * @property medicalLocationId The id of the medical location where the form was created.
+ * @property tags Tags that qualify the form as being member of a certain class.
+ * @property codes Codes that identify or qualify this particular form.
+ * @property endOfLife Soft delete (unix epoch in ms) timestamp of the object.
+ * @property deletionDate Hard delete (unix epoch in ms) timestamp of the object.
+ * @property descr Name/basic description of the form
+ * @property formTemplateId Id of the form template being used to display the form
+ * @property contactId Id of the contact for which the form is being used.
+ * @property parent The parent of this form, used to determine the forms hierarchy
+ * @property externalUuid A unique external id (from another external source).
+ * @property delegations The delegations giving access to all connected healthcare information.
+ * @property encryptionKeys The patient secret encryption key used to encrypt the secured properties (like note for example), encrypted for separate Crypto Actors.
+ * @property encryptedSelf The encrypted fields of this Form.
+ *
+ */
+
 data class Form(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,
@@ -53,35 +87,40 @@ data class Form(
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         @field:NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-        @field:NotNull(autoFix = AutoFix.UUID) val groupId: String? = null, // Several contacts can be combined in a logical contact if they share the same groupId
 
+        val uniqueId: String? = null,
+        val status: String? = null,
+        val version: Int? = null,
+        val logicalUuid: String? = null,
         val descr: String? = null,
         val formTemplateId: String? = null,
         val contactId: String? = null,
         @Deprecated("Use sub-contacts in contact") val healthElementId: String? = null,
         @Deprecated("Use sub-contacts in contact") val planOfActionId: String? = null,
         val parent: String? = null,
-        val externalUuid: String? = null,
 
         override val secretForeignKeys: Set<String> = setOf(),
         override val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(),
         override val delegations: Map<String, Set<Delegation>> = mapOf(),
         override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
         override val encryptedSelf: String? = null,
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
 
 ) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<Form>
 
     fun merge(other: Form) = Form(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: Form) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+            "status" to (this.status ?: other.status),
+            "version" to (this.version ?: other.version),
             "descr" to (this.descr ?: other.descr),
             "formTemplateId" to (this.formTemplateId ?: other.formTemplateId),
             "contactId" to (this.contactId ?: other.contactId),
-            "externalUuid" to (this.externalUuid ?: other.externalUuid),
+            "uniqueId" to (this.uniqueId ?: other.uniqueId),
+            "logicalUuid" to (this.logicalUuid ?: other.logicalUuid),
             "healthElementId" to (this.healthElementId ?: other.healthElementId),
             "planOfActionId" to (this.planOfActionId ?: other.planOfActionId),
             "parent" to (this.parent ?: other.parent)

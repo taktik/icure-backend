@@ -29,11 +29,11 @@ import java.math.BigDecimal
 data class Quantity(val value: BigDecimal? = null, val unit: String? = null) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other !is Quantity) return false
 
         other as Quantity
 
-        if (value?.compareTo(other.value) != 0 && value != other.value) return false
+        if (value != null && other.value == null || value == null && other.value != null || (value?.compareTo(other.value) != 0 && value != other.value)) return false
         if (unit != other.unit) return false
 
         return true

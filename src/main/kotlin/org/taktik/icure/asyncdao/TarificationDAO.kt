@@ -22,12 +22,11 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Tarification
-import java.net.URI
 
 interface TarificationDAO: GenericDAO<Tarification> {
-    fun findTarifications(type: String?, code: String?, version: String?): Flow<Tarification>
-    fun findTarifications(region: String?, type: String?, code: String?, version: String?): Flow<Tarification>
-    fun findTarifications(region: String?, type: String?, code: String?, version: String?, pagination: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
+    fun listTarificationsBy(type: String?, code: String?, version: String?): Flow<Tarification>
+    fun listTarificationsBy(region: String?, type: String?, code: String?, version: String?): Flow<Tarification>
+    fun findTarificationsBy(region: String?, type: String?, code: String?, version: String?, pagination: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
     fun findTarificationsByLabel(region: String?, language: String?, label: String?, pagination: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
     fun findTarificationsByLabel(region: String?, language: String?, type: String?, label: String?, pagination: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
 }

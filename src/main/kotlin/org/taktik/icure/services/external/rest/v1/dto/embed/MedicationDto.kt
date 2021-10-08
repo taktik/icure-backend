@@ -49,7 +49,7 @@ data class MedicationDto(
         val knownUsage: Boolean? = null,
         val regimen: List<RegimenItemDto>? = null,
         val posology: String? = null, // replace structured posology by text
-        //val options: Map<String, ContentDto>? = null, Evil
+        // Obsolete and Evil, must go away, has been removed from here because it provokes a loop in mapping val options: Map<String, ContentDto>? = null,
         val agreements: Map<String, ParagraphAgreementDto>? = null,
         val medicationSchemeIdOnSafe: String? = null,
         val medicationSchemeSafeVersion: Int? = null,

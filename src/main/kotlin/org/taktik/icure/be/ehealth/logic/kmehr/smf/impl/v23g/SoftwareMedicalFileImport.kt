@@ -387,11 +387,12 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
         val contactDate = extractTransactionDateTime(trn)
         val trnCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value
+        val trnTypeCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION_TYPE }?.value
 
         return Contact(
                 id = transactionMfid?.let{ kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString(),
                 author = author.id,
-                tags = trnCd?.let { setOf(CodeStub.from("CD-TRANSACTION", it, "1.0")) } ?: emptySet(),
+                tags = listOfNotNull(trnCd, trnTypeCd).map { CodeStub.from("CD-TRANSACTION", it, "1.0") }.toSet(),
                 responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
                     createOrProcessHcp(it, saveToDatabase, v)
                 }?.firstOrNull()?.id ?: author.healthcarePartyId,
@@ -417,7 +418,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }?.firstOrNull()?.id ?: author.healthcarePartyId ?: throw IllegalArgumentException("The author's healthcarePartyId must be set")
 
         val transactionMfid = getTransactionMFID(trn)
+
         val trnCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value
+        val trnTypeCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION_TYPE }?.value
+
         val contactId = transactionMfid?.let{ kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString()
         val trnItems = trn.findItems()
         val formId = kmehrIndex.formIdMask.xor(UUID.fromString(contactId)).toString()
@@ -488,7 +492,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 modified = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
                 openingDate = contactDate,
                 closingDate = trn.isIscomplete.let { if (it) contactDate else null },
-                tags = trnCd?.let { setOf(CodeStub.from("CD-TRANSACTION", it, "1.0")) } ?: emptySet(),
+                tags = listOfNotNull(trnCd, trnTypeCd).map { CodeStub.from("CD-TRANSACTION", it, "1.0") }.toSet(),
                 location =
                 trn.findItem { it -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterlocation" } }
                         ?.let {
@@ -786,7 +790,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromMomentType(it) },
                 created = item.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
                 modified = item.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
-                qualifiedLinks = mfId?.let{ kmehrIndex.attestationOf[it]?.firstOrNull()?.let { kmehrIndex.itemIds[it]?.first?.toString()?.let { mapOf(LinkQualification.relatedService to listOf(it)) } } } ?: mapOf(),
+                qualifiedLinks = mfId?.let{ kmehrIndex.attestationOf[it]?.firstOrNull()?.let { kmehrIndex.itemIds[it]?.first?.toString()?.let { mapOf(LinkQualification.relatedService to mapOf( UUID.randomUUID().toString() to it)) } } } ?: mapOf(),
                 status = ((item.lifecycle?.cd?.value?.value()?.let { if (it == "inactive" || it == "aborted" || it == "canceled") 1 else if (it == "notpresent" || it == "excluded") 4 else 0 }
                         ?: 0) + if (item.isIsrelevant != true) 2 else 0),
                 content = when {
@@ -939,16 +943,16 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
 
         // test if already exist in db
-        existing = existing ?: (nihii?.let { healthcarePartyLogic.listByNihii(it).firstOrNull() }?.also {
+        existing = existing ?: (nihii?.let { healthcarePartyLogic.listHealthcarePartiesByNihii(it).firstOrNull() }?.also {
             v?.hcps?.add(it) // do not create it, but should appear in patient external hcparties (duplicates are removed at the end)
-        } ?: niss?.let { healthcarePartyLogic.listBySsin(niss).firstOrNull() })?.also {
+        } ?: niss?.let { healthcarePartyLogic.listHealthcarePartiesBySsin(niss).firstOrNull() })?.also {
             v?.hcps?.add(it) // do not create it, but should appear in patient external hcparties
         }
 
         if (existing == null && ((nihii == null || nihii.trim() == "") && (niss == null || niss.trim() == ""))
                 && p.firstname?.trim()?.let { it == "" } != false
                 && p.familyname?.trim()?.let { it == "" } != false) {
-            existing = healthcarePartyLogic.listByName(p.name).firstOrNull()
+            existing = healthcarePartyLogic.listHealthcarePartiesByName(p.name).firstOrNull()
             existing?.let {
                 v?.hcps?.add(it) // do not create it, but should appear in patient external hcparties
             }

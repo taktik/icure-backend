@@ -28,15 +28,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AccessLogLogic
@@ -44,11 +36,10 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.services.external.rest.v1.dto.AccessLogDto
 import org.taktik.icure.services.external.rest.v1.mapper.AccessLogMapper
+import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
 import java.time.Instant
-import java.util.*
 
 
 @ExperimentalCoroutinesApi
@@ -63,7 +54,7 @@ class AccessLogController(
     private val DEFAULT_LIMIT = 1000
     private val accessLogToAccessLogDto = { it: AccessLog -> accessLogMapper.map(it) }
 
-    @Operation(summary = "Creates an access log")
+    @Operation(summary = "Create an access log")
     @PostMapping
     fun createAccessLog(@RequestBody accessLogDto: AccessLogDto) = mono {
         val accessLog = accessLogLogic.createAccessLog(accessLogMapper.map(accessLogDto))
@@ -71,13 +62,13 @@ class AccessLogController(
         accessLogMapper.map(accessLog)
     }
 
-    @Operation(summary = "Deletes an access log")
+    @Operation(summary = "Delete access logs by batch")
     @DeleteMapping("/{accessLogIds}")
     fun deleteAccessLog(@PathVariable accessLogIds: String): Flux<DocIdentifier> {
         return accessLogLogic.deleteAccessLogs(accessLogIds.split(',')).injectReactorContext()
     }
 
-    @Operation(summary = "Gets an access log")
+    @Operation(summary = "Get an access log")
     @GetMapping("/{accessLogId}")
     fun getAccessLog(@PathVariable accessLogId: String) = mono {
         val accessLog = accessLogLogic.getAccessLog(accessLogId)
@@ -86,16 +77,16 @@ class AccessLogController(
         accessLogMapper.map(accessLog)
     }
 
-    @Operation(summary = "Lists access logs")
+    @Operation(summary = "Get paginated list of Access Logs")
     @GetMapping
     fun listAccessLogs(@RequestParam(required = false) fromEpoch: Long?, @RequestParam(required = false) toEpoch: Long?, @RequestParam(required = false) startKey: Long?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: Int?, @RequestParam(required = false) descending: Boolean?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1) // fetch one more for nextKeyPair
-        val accessLogs = accessLogLogic.listAccessLogs(fromEpoch ?: if(descending == true) Long.MAX_VALUE else 0, toEpoch ?: if(descending == true) 0 else Long.MAX_VALUE, paginationOffset, descending == true)
+        val accessLogs = accessLogLogic.listAccessLogsBy(fromEpoch ?: if(descending == true) Long.MAX_VALUE else 0, toEpoch ?: if(descending == true) 0 else Long.MAX_VALUE, paginationOffset, descending == true)
         accessLogs.paginatedList(accessLogToAccessLogDto, realLimit)
     }
 
-    @Operation(summary = "Get Paginated List of Access logs")
+    @Operation(summary = "Get paginated list of Access Logs")
     @GetMapping("/byUser")
     fun findByUserAfterDate(@Parameter(description = "A User ID", required = true) @RequestParam userId: String,
                                     @Parameter(description = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
@@ -107,17 +98,17 @@ class AccessLogController(
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
-        val accessLogs = accessLogLogic.findByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, descending
+        val accessLogs = accessLogLogic.findAccessLogsByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, descending
                 ?: false)
 
         accessLogs.paginatedList(accessLogToAccessLogDto, realLimit)
     }
 
-    @Operation(summary = "List access logs found By Healthcare Party and secret foreign keyelementIds.")
+    @Operation(summary = "List access logs found by Healthcare Party and secret foreign keyelementIds.")
     @GetMapping("/byHcPartySecretForeignKeys")
     fun findAccessLogsByHCPartyPatientForeignKeys(@RequestParam("hcPartyId") hcPartyId: String, @RequestParam("secretFKeys") secretFKeys: String) = flow {
         val secretPatientKeys = HashSet(secretFKeys.split(","))
-        emitAll(accessLogLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys)).map { accessLogMapper.map(it) } )
+        emitAll(accessLogLogic.listAccessLogsByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys)).map { accessLogMapper.map(it) } )
     }.injectReactorContext()
 
     @Operation(summary = "Modifies an access log")

@@ -80,43 +80,6 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
         invalidateCurrentAuthentication()
     }
 
-    override suspend fun logout(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse) {
-        var logoutURL = propertyLogic.getSystemPropertyValue<String>(PropertyTypes.System.AUTH_URL_LOGOUT.identifier)
-
-        // Invalidate session
-        val httpSession = httpRequest.getSession(false)
-        if (httpSession != null) {
-            try {
-                httpSession.invalidate()
-            } catch (e: IllegalStateException) {
-                log.error("Exception", e)
-            }
-        }
-
-        // Get SessionContext
-        val sessionContext = getCurrentSessionContext()
-
-        // Get UserDetails
-        val userDetails = sessionContext?.getUserDetails()
-
-        // Determine logout URL
-        if (userDetails != null && userDetails.getLogoutURL() != null && !userDetails.getLogoutURL().isEmpty()) {
-            logoutURL = userDetails.getLogoutURL()
-        }
-
-        if (logoutURL != null && !logoutURL.isEmpty()) {
-            // Check for relative path
-            if (logoutURL[0] == '/') {
-                logoutURL = logoutURL.substring(1)
-            }
-
-            // Redirect to logout URL
-            httpResponse.sendRedirect(logoutURL)
-        }
-    }
-
-    /* SessionContext related */
-
     override fun getSessionContext(authentication: Authentication?): AsyncSessionLogic.AsyncSessionContext? {
         return authentication?.let { SessionContextImpl(it) }
     }

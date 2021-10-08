@@ -18,21 +18,11 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.support
 
-import com.sendgrid.Method
-import com.sendgrid.Request
-import com.sendgrid.SendGrid
-import com.sendgrid.helpers.mail.Mail
-import com.sendgrid.helpers.mail.objects.Content
-import com.sendgrid.helpers.mail.objects.Email
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactor.mono
-import org.apache.commons.lang3.text.StrSubstitutor
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -56,7 +46,7 @@ import org.taktik.icure.services.external.rest.v1.mapper.UserMapper
 import org.taktik.icure.services.external.rest.v1.mapper.base.PropertyStubMapper
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.paginatedList
+import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 
 /* Useful notes:
  * @RequestParam is required by default, but @ApiParam (which is useful to add a description)
@@ -143,7 +133,7 @@ class UserController(private val userLogic: UserLogic,
     @DeleteMapping("/{userId}")
     fun deleteUser(@PathVariable userId: String) = mono {
         try {
-            userLogic.deleteByIds(setOf(userId)).firstOrNull()
+            userLogic.deleteEntities(setOf(userId)).firstOrNull()
         } catch (e: Exception) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)

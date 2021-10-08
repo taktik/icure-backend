@@ -18,23 +18,17 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.taktik.couchdb.entity.Option
 import org.taktik.couchdb.exception.CouchDbException
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asynclogic.DocumentLogic
-import org.taktik.couchdb.entity.Option
 import org.taktik.icure.entities.Document
 import org.taktik.icure.exceptions.CreationException
 import org.taktik.icure.utils.firstOrNull
 import java.nio.ByteBuffer
-import java.util.*
 
 @ExperimentalCoroutinesApi
 @Service
@@ -48,16 +42,12 @@ class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessio
         }
     }
 
-    override suspend fun get(documentId: String): Document? {
+    override suspend fun getDocument(documentId: String): Document? {
         return documentDAO.get(documentId)
     }
 
-    override suspend fun getAllByExternalUuid(documentId: String): List<Document> {
-        return documentDAO.getAllByExternalUuid(documentId)
-    }
-
-    override fun get(documentIds: List<String>): Flow<Document> = flow {
-        emitAll(documentDAO.getList(documentIds))
+    override suspend fun getDocumentsByExternalUuid(documentId: String): List<Document> {
+        return documentDAO.listDocumentsByExternalUuid(documentId)
     }
 
     override fun getAttachment(documentId: String, attachmentId: String): Flow<ByteBuffer> = flow {
@@ -77,37 +67,34 @@ class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessio
         }
     }
 
-    override fun findDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> = flow {
-        emitAll(documentDAO.findDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode, hcPartyId, secretForeignKeys))
+    override fun listDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> = flow {
+        emitAll(documentDAO.listDocumentsByDocumentTypeHcPartySecretMessageKeys(documentTypeCode, hcPartyId, secretForeignKeys))
     }
 
-    override fun findDocumentsByHCPartySecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> = flow {
-        emitAll(documentDAO.findDocumentsByHCPartySecretMessageKeys(hcPartyId, secretForeignKeys))
+    override fun listDocumentsByHCPartySecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> = flow {
+        emitAll(documentDAO.listDocumentsByHcPartyAndSecretMessageKeys(hcPartyId, secretForeignKeys))
     }
 
-    override fun findWithoutDelegation(limit: Int): Flow<Document> = flow {
-        emitAll(documentDAO.findDocumentsWithNoDelegations(limit))
+    override fun listDocumentsWithoutDelegation(limit: Int): Flow<Document> = flow {
+        emitAll(documentDAO.listDocumentsWithNoDelegations(limit))
     }
 
     override fun getDocuments(documentIds: List<String>): Flow<Document> = flow {
-        emitAll(documentDAO.getList(documentIds))
+        emitAll(documentDAO.getEntities(documentIds))
     }
 
-    override fun updateDocuments(documents: List<Document>): Flow<Document> = flow {
+    override fun modifyDocuments(documents: List<Document>): Flow<Document> = flow {
         emitAll(documentDAO.save(documents))
     }
 
-    override suspend fun solveConflicts(ids: List<String>?) {
-        val documentsInConflict = ids?.asFlow()?.map { documentDAO.get(it, Option.CONFLICTS) }
-                ?: documentDAO.listConflicts().map { documentDAO.get(it.id, Option.CONFLICTS) }
-        documentsInConflict.collect { doc ->
-            if (doc != null && doc.conflicts != null) {
-                val conflicted = doc.conflicts.mapNotNull { c -> documentDAO.get(doc.id, c) }
-                conflicted.forEach { other -> doc.solveConflictsWith(other) }
-                documentDAO.save(doc)
-                conflicted.forEach { cp -> documentDAO.purge(cp) }
-            }
-        }
+    override fun solveConflicts(ids: List<String>?): Flow<Document> {
+        val documentsInConflict = ids?.asFlow()?.mapNotNull { documentDAO.get(it, Option.CONFLICTS) }
+                ?: documentDAO.listConflicts().mapNotNull { documentDAO.get(it.id, Option.CONFLICTS) }
+        return documentsInConflict.mapNotNull { documentDAO.get(it.id, Option.CONFLICTS)?.let { document ->
+            document.conflicts?.mapNotNull { conflictingRevision -> documentDAO.get(document.id, conflictingRevision) }
+                    ?.fold(document) { kept, conflict -> kept.merge(conflict).also { documentDAO.purge(conflict) } }
+                    ?.let { mergedDocument -> documentDAO.save(mergedDocument) }
+        } }
     }
 
     override fun getGenericDAO(): DocumentDAO {

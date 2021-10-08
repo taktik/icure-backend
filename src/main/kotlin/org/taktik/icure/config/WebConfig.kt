@@ -92,10 +92,6 @@ class WebConfig : WebFluxConfigurer {
     @Bean
     fun webSocketService() = HandshakeWebSocketService(ReactorNettyRequestUpgradeStrategy(WebsocketServerSpec.builder().maxFramePayloadLength(64 * 1024 * 1024)))
 
-    @Bean
-    fun webSessionIdResolver() = CookieWebSessionIdResolver().apply { addCookieInitializer { cb -> cb.sameSite("None").secure(true) } }
-
-
    @Bean
     fun reactiveWebServerFactory(): ReactiveWebServerFactory? {
         val factory = NettyReactiveWebServerFactory()

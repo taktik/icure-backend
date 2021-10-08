@@ -25,7 +25,7 @@ import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
 import org.taktik.icure.asyncdao.impl.InternalDAOImpl
 import org.taktik.icure.asyncdao.samv2.SubstanceDAO
 import org.taktik.couchdb.id.IDGenerator
-import org.taktik.icure.entities.samv2.embed.Substance
+import org.taktik.icure.entities.samv2.Substance
 import org.taktik.icure.properties.CouchDbProperties
 
 @Repository("substanceDAO")

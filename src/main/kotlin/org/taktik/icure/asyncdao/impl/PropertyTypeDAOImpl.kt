@@ -19,17 +19,15 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.map
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
-
 import org.springframework.stereotype.Repository
+import org.taktik.couchdb.annotation.View
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.PropertyTypeDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.PropertyType
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
-import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.firstOrNull
 
 @Repository("propertyTypeDAO")
@@ -42,12 +40,12 @@ class PropertyTypeDAOImpl(couchDbProperties: CouchDbProperties,
             "            emit(doc.identifier,doc._id);\n" +
             "}\n" +
             "}")
-    override suspend fun getByIdentifier(propertyTypeIdentifier: String): PropertyType? {
+    override suspend fun getPropertyByIdentifier(propertyTypeIdentifier: String): PropertyType? {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val wrappedValue = getWrapperFromCache("PID:$propertyTypeIdentifier")
         if (wrappedValue == null) {
-            val result = client.queryViewIncludeDocs<String, String, PropertyType>(createQuery<PropertyType>("by_identifier").includeDocs(true).key(propertyTypeIdentifier)).map { it.doc }.firstOrNull()
+            val result = client.queryViewIncludeDocs<String, String, PropertyType>(createQuery(client, "by_identifier").includeDocs(true).key(propertyTypeIdentifier)).map { it.doc }.firstOrNull()
 
             if (result?.id != null) {
                 putInCache(result.id, result)

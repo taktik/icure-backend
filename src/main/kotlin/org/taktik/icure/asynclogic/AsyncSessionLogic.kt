@@ -33,11 +33,6 @@ interface AsyncSessionLogic {
     suspend fun login(username: String, password: String, request : ServerHttpRequest, session: WebSession): Authentication?
 
     suspend fun logout()
-
-    suspend fun logout(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse)
-
-    /* SessionContext related */
-
     fun getSessionContext(authentication: Authentication?): AsyncSessionContext?
 
     suspend fun getCurrentSessionContext(): AsyncSessionContext

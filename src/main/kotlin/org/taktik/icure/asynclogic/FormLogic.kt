@@ -27,7 +27,7 @@ import org.taktik.icure.entities.embed.Delegation
 interface FormLogic : EntityPersister<Form, String> {
     suspend fun getForm(id: String): Form?
     fun getForms(selectedIds: Collection<String>): Flow<Form>
-    fun findByHCPartyPatient(hcPartyId: String, secretPatientKeys: List<String>, healthElementId: String?, planOfActionId: String?, formTemplateId: String?): Flow<Form>
+    fun listFormsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>, healthElementId: String?, planOfActionId: String?, formTemplateId: String?): Flow<Form>
 
     suspend fun addDelegation(formId: String, delegation: Delegation): Form?
 
@@ -35,10 +35,10 @@ interface FormLogic : EntityPersister<Form, String> {
     fun deleteForms(ids: Set<String>): Flow<DocIdentifier>
 
     suspend fun modifyForm(form: Form): Form?
-    fun findByHcPartyParentId(hcPartyId: String, formId: String): Flow<Form>
+    fun listByHcPartyAndParentId(hcPartyId: String, formId: String): Flow<Form>
 
     suspend fun addDelegations(formId: String, delegations: List<Delegation>): Form?
     fun getGenericDAO(): FormDAO
-    suspend fun solveConflicts()
-    suspend fun getAllByExternalUuid(documentId: String): List<Form>
+    fun solveConflicts(): Flow<Form>
+    suspend fun getFormsByExternalUuid(documentId: String): List<Form>
 }

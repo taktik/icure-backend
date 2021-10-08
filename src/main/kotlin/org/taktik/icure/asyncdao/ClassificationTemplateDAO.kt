@@ -22,13 +22,11 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.ClassificationTemplate
-import java.net.URI
-import java.util.*
 
 interface ClassificationTemplateDAO : GenericDAO<ClassificationTemplate> {
     suspend fun getClassificationTemplate(classificationTemplateId: String): ClassificationTemplate?
 
-    fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate>
+    fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate>
 
-    fun listClassificationTemplates(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
+    fun findClassificationTemplates(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
 }

@@ -48,10 +48,10 @@ data class ApplicationSettings(
         override val endOfLife: Long? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
         val settings: Map<String, String> = mapOf(),
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
 
 ) : StoredICureDocument {
     companion object : DynamicInitializer<ApplicationSettings>

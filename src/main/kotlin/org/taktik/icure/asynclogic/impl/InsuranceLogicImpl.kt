@@ -40,7 +40,7 @@ class InsuranceLogicImpl(private val insuranceDAO: InsuranceDAO,
 
     override suspend fun deleteInsurance(insuranceId: String): DocIdentifier? {
         return try {
-            deleteByIds(listOf(insuranceId)).firstOrNull()
+            deleteEntities(listOf(insuranceId)).firstOrNull()
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }
@@ -51,11 +51,11 @@ class InsuranceLogicImpl(private val insuranceDAO: InsuranceDAO,
     }
 
     override fun listInsurancesByCode(code: String): Flow<Insurance> = flow {
-        emitAll(insuranceDAO.listByCode(code))
+        emitAll(insuranceDAO.listInsurancesByCode(code))
     }
 
     override fun listInsurancesByName(name: String): Flow<Insurance> = flow {
-        emitAll(insuranceDAO.listByName(name))
+        emitAll(insuranceDAO.listInsurancesByName(name))
     }
 
     override suspend fun modifyInsurance(insurance: Insurance) = fix(insurance) { insurance ->
@@ -63,7 +63,7 @@ class InsuranceLogicImpl(private val insuranceDAO: InsuranceDAO,
     }
 
     override fun getInsurances(ids: Set<String>): Flow<Insurance> = flow {
-        emitAll(insuranceDAO.getList(ids))
+        emitAll(insuranceDAO.getEntities(ids))
     }
 
     override fun getGenericDAO(): InsuranceDAO {

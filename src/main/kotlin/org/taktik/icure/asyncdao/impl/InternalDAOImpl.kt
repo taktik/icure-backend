@@ -22,36 +22,36 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import org.apache.commons.lang3.ArrayUtils
-import org.taktik.couchdb.support.StdDesignDocumentFactory
 import org.slf4j.LoggerFactory
-import org.taktik.couchdb.BulkUpdateResult
-import org.taktik.couchdb.entity.DesignDocument
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.dao.designDocName
+import org.taktik.couchdb.entity.DesignDocument
+import org.taktik.couchdb.entity.Option
 import org.taktik.couchdb.entity.ViewQuery
 import org.taktik.couchdb.exception.DocumentNotFoundException
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryView
+import org.taktik.couchdb.support.StdDesignDocumentFactory
 import org.taktik.couchdb.update
 import org.taktik.icure.asyncdao.InternalDAO
-import org.taktik.couchdb.entity.Option
-import org.taktik.couchdb.id.IDGenerator
+import org.taktik.icure.asyncdao.VersionnedDesignDocumentQueries
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.properties.CouchDbProperties
 import java.net.URI
 
 @ExperimentalCoroutinesApi
 @FlowPreview
-open class InternalDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val couchDbProperties: CouchDbProperties, val couchDbDispatcher: CouchDbDispatcher, val idGenerator: IDGenerator) : InternalDAO<T> {
+open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T>, val couchDbProperties: CouchDbProperties, val couchDbDispatcher: CouchDbDispatcher, val idGenerator: IDGenerator) : InternalDAO<T>, VersionnedDesignDocumentQueries<T>(entityClass, couchDbProperties) {
     private val log = LoggerFactory.getLogger(javaClass)
     private val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
 
-    override fun getAll() = couchDbDispatcher.getClient(URI(couchDbProperties.url)).queryView(ViewQuery()
+    override fun getEntities() = couchDbDispatcher.getClient(URI(couchDbProperties.url)).queryView(ViewQuery()
             .designDocId(designDocName(entityClass))
             .viewName("all").includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
 
 
-    override fun getAllIds(): Flow<String> {
+    override fun getEntityIds(): Flow<String> {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".getAllIds")
         }
@@ -74,7 +74,7 @@ open class InternalDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val co
         }
     }
 
-    override fun getList(ids: Collection<String>): Flow<T> {
+    override fun getEntities(ids: Collection<String>): Flow<T> {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + ids)
         }
@@ -116,7 +116,7 @@ open class InternalDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val co
         return client.update(entity, entityClass)
     }
 
-    override fun list(ids: List<String>) =
+    override fun getEntities(ids: List<String>) =
             couchDbDispatcher.getClient(URI(couchDbProperties.url)).queryView(ViewQuery()
                     .designDocId(designDocName(entityClass))
                     .viewName("all").keys(ids).includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
@@ -136,13 +136,13 @@ open class InternalDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val co
     }
 
     override suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean) {
-        val designDocId = designDocName(this.entityClass)
-        val fromDatabase = client.get(designDocId, DesignDocument::class.java)
-        val generated = StdDesignDocumentFactory().generateFrom(designDocId, this)
-        val (merged, changed) = fromDatabase?.mergeWith(generated, true) ?: generated to true
-        if (changed && (updateIfExists || fromDatabase == null)) {
-            client.update(fromDatabase?.let { merged.copy(rev = it.rev) } ?: merged)
+        val baseId = designDocName(this.entityClass)
+        val generated = StdDesignDocumentFactory().generateFrom(baseId, this)
+        val fromDatabase = client.get(generated.id, DesignDocument::class.java)
+                ?: client.get(baseId, DesignDocument::class.java)
+        val (_, changed) = fromDatabase?.mergeWith(generated, true) ?: generated to true
+        if (changed && updateIfExists) {
+            client.update(generated)
         }
     }
-
 }

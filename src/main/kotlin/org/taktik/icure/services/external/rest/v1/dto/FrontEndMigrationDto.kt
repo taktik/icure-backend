@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.FrontEndMigrationStatusDto
 
@@ -40,8 +41,11 @@ data class FrontEndMigrationDto(
         val userId: String? = null,
         val startKey: String? = null,
         val startKeyDocId: String? = null,
-        val processCount: Long? = null
-) : StoredDocumentDto {
+        val processCount: Long? = null,
+
+        @Schema(description = "Extra properties for the fem. Those properties are typed (see class Property)") val properties: Set<PropertyStubDto> = setOf(),
+
+        ) : StoredDocumentDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

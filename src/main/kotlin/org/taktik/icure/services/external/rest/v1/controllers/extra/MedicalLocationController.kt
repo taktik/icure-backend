@@ -23,14 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.MedicalLocationLogic
 import org.taktik.icure.services.external.rest.v1.dto.MedicalLocationDto
@@ -67,7 +60,7 @@ class MedicalLocationController(
 
     @Operation(summary = "Gets all medical locations")
     @GetMapping
-    fun getMedicalLocations() = medicalLocationLogic.getAllEntities().map { c -> medicalLocationMapper.map(c) }.injectReactorContext()
+    fun getMedicalLocations() = medicalLocationLogic.getEntities().map { c -> medicalLocationMapper.map(c) }.injectReactorContext()
 
     @Operation(summary = "Modifies a medical location")
     @PutMapping

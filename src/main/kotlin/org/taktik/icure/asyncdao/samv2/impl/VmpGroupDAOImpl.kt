@@ -20,6 +20,8 @@ package org.taktik.icure.asyncdao.samv2.impl
 
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -36,8 +38,8 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.samv2.VmpGroup
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
-import org.taktik.icure.utils.pagedViewQuery
+
+
 import java.net.URI
 
 @FlowPreview
@@ -45,39 +47,39 @@ import java.net.URI
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.samv2.VmpGroup' && !doc.deleted) emit( null, doc._id )}")
 class VmpGroupDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : InternalDAOImpl<VmpGroup>(VmpGroup::class.java, couchDbProperties, couchDbDispatcher, idGenerator), VmpGroupDAO {
     @View(name = "by_groupcode", map = "classpath:js/vmpgroup/By_groupcode.js")
-    override fun findVmpGroupsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
+    override fun findVmpGroupsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
         val from = vmpgCode
         val to = vmpgCode
 
-        val viewQuery = pagedViewQuery<VmpGroup,String>("by_groupcode", from, to, paginationOffset, false)
-        return client.queryView(viewQuery, String::class.java, Int::class.java, VmpGroup::class.java)
+        val viewQuery = pagedViewQuery<VmpGroup,String>(client, "by_groupcode", from, to, paginationOffset, false)
+        emitAll(client.queryView(viewQuery, String::class.java, Int::class.java, VmpGroup::class.java))
     }
 
-    override fun listVmpGroupsByVmpGroupCodes(vmpgCodes: List<String>): Flow<VmpGroup> {
+    override fun listVmpGroupsByVmpGroupCodes(vmpgCodes: List<String>): Flow<VmpGroup> = flow {
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
-        val viewQuery = createQuery<VmpGroup>("by_groupcode")
+        val viewQuery = createQuery(client, "by_groupcode")
                 .keys(vmpgCodes)
                 .reduce(false)
                 .includeDocs(true)
-        return client.queryViewIncludeDocs<String, Int, VmpGroup>(viewQuery).map { it.doc }
+        emitAll(client.queryViewIncludeDocs<String, Int, VmpGroup>(viewQuery).map { it.doc })
     }
 
-    override fun findVmpGroups(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
+    override fun findVmpGroups(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
-        val viewQuery = pagedViewQuery<VmpGroup,String>("all", null, "\ufff0", paginationOffset, false)
-        return client.queryView(viewQuery, String::class.java, Nothing::class.java, VmpGroup::class.java)
+        val viewQuery = pagedViewQuery<VmpGroup,String>(client, "all", null, "\ufff0", paginationOffset, false)
+        emitAll(client.queryView(viewQuery, String::class.java, Nothing::class.java, VmpGroup::class.java))
     }
 
 
     @View(name = "by_language_label", map = "classpath:js/vmpgroup/By_language_label.js")
-    override fun findVmpGroupsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> {
+    override fun findVmpGroupsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> = flow {
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
@@ -91,16 +93,17 @@ class VmpGroupDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouc
                 if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
         )
         val viewQuery = pagedViewQuery<VmpGroup, ComplexKey>(
+                client,
                 "by_language_label",
                 from,
                 to,
                 paginationOffset.toPaginationOffset { sk -> ComplexKey.of(*sk.mapIndexed { i, s -> if (i==1) s.let { StringUtils.sanitizeString(it)} else s }.toTypedArray()) },
                 false
         )
-        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, VmpGroup::class.java)
+        emitAll(client.queryView(viewQuery, ComplexKey::class.java, String::class.java, VmpGroup::class.java))
     }
 
-    override fun listVmpGroupIdsByLabel(language: String?, label: String?): Flow<String> {
+    override fun listVmpGroupIdsByLabel(language: String?, label: String?): Flow<String> = flow {
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
@@ -113,12 +116,12 @@ class VmpGroupDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouc
                 language ?: ComplexKey.emptyObject(),
                 if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
         )
-        val viewQuery = createQuery<VmpGroup>("by_language_label")
+        val viewQuery = createQuery(client, "by_language_label")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
                 .includeDocs(false)
-        return client.queryView<ComplexKey,String>(viewQuery).map { it.id }
+        emitAll(client.queryView<ComplexKey,String>(viewQuery).map { it.id })
     }
 
 }

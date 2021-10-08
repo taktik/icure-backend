@@ -54,10 +54,10 @@ data class MedicalLocation(
         val address: Address? = null,
         val agendaIds: Set<String> = setOf(),
         val options: Map<String,String> = mapOf(),
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
 
 ) : StoredDocument, Named {
     companion object : DynamicInitializer<MedicalLocation>

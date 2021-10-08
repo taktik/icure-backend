@@ -42,5 +42,9 @@ interface DocumentMapper {
             Mapping(target = "revisionsInfo", ignore = true)
             )
 	fun map(documentDto: DocumentDto):Document
+    @Mappings(
+            Mapping(target = "encryptedAttachment", ignore = true),
+            Mapping(target = "decryptedAttachment", ignore = true)
+    )
 	fun map(document: Document):DocumentDto
 }

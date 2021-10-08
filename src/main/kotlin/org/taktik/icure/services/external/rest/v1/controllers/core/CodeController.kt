@@ -24,35 +24,24 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flattenMerge
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.predicate.Predicate
 import org.taktik.icure.entities.base.Code
-import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
+import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
@@ -70,7 +59,7 @@ class CodeController(
     private val DEFAULT_LIMIT = 1000
     private val codeToCodeDto = { it: Code -> codeMapper.map(it) }
 
-    @Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, pagination is not supported")
+    @Operation(summary = "Get paginated list of codes by code, type and version.", description = "Returns a list of codes matched with given input. If several types are provided, pagination is not supported")
     @GetMapping("/byLabel")
     fun findPaginatedCodesByLabel(
             @RequestParam(required = false) region: String?,
@@ -107,7 +96,7 @@ class CodeController(
 
     }
 
-    @Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a list of codes matched with given input.")
+    @Operation(summary = "Gets paginated list of codes by code, type and version.", description = "Returns a list of codes matched with given input.")
     @GetMapping
     fun findPaginatedCodes(
             @RequestParam(required = false) region: String?,
@@ -138,7 +127,7 @@ class CodeController(
             null
         }
     }
-    @Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a list of codes matched with given input.")
+    @Operation(summary = "Gets paginated list of codes by link and link type.", description = "Returns a list of codes matched with given input.")
     @GetMapping("link/{linkType}")
     fun findPaginatedCodesWithLink(
             @PathVariable linkType: String,
@@ -157,7 +146,7 @@ class CodeController(
 
 
 
-    @Operation(summary = "Finding codes by code, type and version", description = "Returns a list of codes matched with given input.")
+    @Operation(summary = "Gets list of codes by code, type and version", description = "Returns a list of codes matched with given input.")
     @GetMapping("/byRegionTypeCode")
     fun findCodes(
             @Parameter(description = "Code region") @RequestParam(required = false) region: String?,
@@ -170,7 +159,7 @@ class CodeController(
                 .injectReactorContext()
     }
 
-    @Operation(summary = "Finding code types.", description = "Returns a list of code types matched with given input.")
+    @Operation(summary = "Get list of code types by region and type.", description = "Returns a list of code types matched with given input.")
     @GetMapping("/codetype/byRegionType")
     fun findCodeTypes(
             @Parameter(description = "Code region") @RequestParam(required = false) region: String?,
@@ -179,7 +168,7 @@ class CodeController(
                 .injectReactorContext()
     }
 
-    @Operation(summary = "Finding tag types.", description = "Returns a list of tag types matched with given input.")
+    @Operation(summary = "Gets list of tag types by region and type.", description = "Returns a list of tag types matched with given input.")
     @GetMapping("/tagtype/byRegionType")
     fun findTagTypes(
             @Parameter(description = "Code region") @RequestParam(required = false) region: String?,
@@ -190,23 +179,23 @@ class CodeController(
                 .injectReactorContext()
     }
 
-    @Operation(summary = "Create a Code", description = "Type, Code and Version are required.")
+    @Operation(summary = "Create a code", description = "Create a code entity. Fields Type, Code and Version are required.")
     @PostMapping
     fun createCode(@RequestBody c: CodeDto) = mono {
         val code = codeLogic.create(codeMapper.map(c))
         code?.let { codeMapper.map(it) }
     }
 
-    @Operation(summary = "Get a list of codes by ids", description = "Keys must be delimited by coma")
+    @Operation(summary = "Gets a list of codes by ids", description = "Get a list of codes by ids/keys. Keys must be delimited by coma")
     @GetMapping("/byIds/{codeIds}")
     fun getCodes(@PathVariable codeIds: String): Flux<CodeDto> {
-        val codes = codeLogic.get(codeIds.split(','))
+        val codes = codeLogic.getCodes(codeIds.split(','))
         return codes
                 .map { f -> codeMapper.map(f) }
                 .injectReactorContext()
     }
 
-    @Operation(summary = "Get a code", description = "Get a code based on ID or (code,type,version) as query strings. (code,type,version) is unique.")
+    @Operation(summary = "Get a code by id", description = "Get a code based on its id")
     @GetMapping("/{codeId}")
     fun getCode(@Parameter(description = "Code id") @PathVariable codeId: String) = mono {
         val c = codeLogic.get(codeId)
@@ -214,7 +203,7 @@ class CodeController(
         codeMapper.map(c)
     }
 
-    @Operation(summary = "Get a code", description = "Get a code based on ID or (code,type,version) as query strings. (code,type,version) is unique.")
+    @Operation(summary = "Get a code", description = "Get a code based on (type, code, version) as query strings. (type, code, version) is unique.")
     @GetMapping("/{type}/{code}/{version}")
     fun getCodeWithParts(
             @Parameter(description = "Code type") @PathVariable type: String,
@@ -237,7 +226,7 @@ class CodeController(
         modifiedCode?.let { codeMapper.map(it) }
     }
 
-    @Operation(summary = "Filter codes ", description = "Returns a list of codes along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
+    @Operation(summary = "Filter codes", description = "Returns a list of codes along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
     fun filterCodesBy(
             @Parameter(description = "The start key for pagination, depends on the filters used") @RequestParam(required = false) startKey: String?,
@@ -254,7 +243,7 @@ class CodeController(
 
         var codes: Flow<ViewQueryResultEvent>? = null
         val timing = System.currentTimeMillis()
-        filterChain?.let {
+        filterChain.let {
             codes = codeLogic.listCodes(paginationOffset, filterChainMapper.map(filterChain), sort, desc)
         }
         logger.info("Filter codes in " + (System.currentTimeMillis() - timing) + " ms.")

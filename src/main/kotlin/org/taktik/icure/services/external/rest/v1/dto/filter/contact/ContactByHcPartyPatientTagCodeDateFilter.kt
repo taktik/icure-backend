@@ -34,7 +34,7 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 data class ContactByHcPartyPatientTagCodeDateFilter(
         override val desc:String? = null,
         override val healthcarePartyId: String? = null,
-        @Deprecated("Use patientSecretForeignKeys instead")
+        @get:Deprecated("Use patientSecretForeignKeys instead")
         override val patientSecretForeignKey: String? = null,
         override val patientSecretForeignKeys: List<String>? = null,
         override val tagType: String? = null,

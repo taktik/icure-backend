@@ -26,11 +26,11 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.constants.Users
-import org.taktik.icure.entities.base.Principal
+import org.taktik.icure.entities.security.Principal
 import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.DelegationTag
-import org.taktik.icure.entities.embed.Permission
+import org.taktik.icure.entities.security.Permission
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.utils.MergeUtil.mergeMapsOfSetsDistinct
 import org.taktik.icure.utils.DynamicInitializer
@@ -45,28 +45,39 @@ import java.time.Instant
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
+
 /**
- *
+ * A User
  * This entity is a root level object. It represents an user that can log in to the iCure platform. It is serialized in JSON and saved in the underlying icure-base CouchDB database.
  * A User conforms to a series of interfaces:
  * - StoredDocument
  * - Principal
  *
- * @property id the Id of the patient. We encourage using either a v4 UUID or a HL7 Id.
- * @property rev the revision of the patient in the database, used for conflict management / optimistic locking.
- * @property created the timestamp (unix epoch in ms) of creation of the patient, will be filled automatically if missing. Not enforced by the application server.
- * @property deletionDate hard delete (unix epoch in ms) timestamp of the object. Filled automatically when deletePatient is called.
- * @property name
- * @property properties
- * @property roles
- * @property permissions
- * @property type
- * @property status
- * @property login
- * @property passwordHash
- * @property secret
- *
+ * @property id the Id of the user. We encourage using either a v4 UUID or a HL7 Id.
+ * @property rev the revision of the user in the database, used for conflict management / optimistic locking.
+ * @property created the timestamp (unix epoch in ms) of creation of the user, will be filled automatically if missing. Not enforced by the application server.
+ * @property deletionDate hard delete (unix epoch in ms) timestamp of the object. Filled automatically when user is deleted.
+ * @property name Last name of the user. This is the official last name that should be used for official administrative purposes.
+ * @property properties Extra properties for the user. Those properties are typed (see class Property)
+ * @property roles Roles specified for the user
+ * @property permissions If permission to modify patient data is granted or revoked
+ * @property type Authorization source for user. 'Database', 'ldap' or 'token'
+ * @property status State of user's activeness: 'Active', 'Disabled' or 'Registering'
+ * @property login Username for this user. We encourage using an email address
+ * @property passwordHash Hashed version of the password (BCrypt is used for hashing)
+ * @property secret Secret token used to verify 2fa
+ * @property use2fa Whether the user has activated two factors authentication
+ * @property groupId id of the group (practice/hospital) the user is member of
+ * @property healthcarePartyId Id of the healthcare party if the user is a healthcare party.
+ * @property patientId Id of the patient if the user is a patient
+ * @property autoDelegations Delegations that are automatically generated client side when a new database object is created by this user
+ * @property createdDate the timestamp (unix epoch in ms) of creation of the user, will be filled automatically if missing. Not enforced by the application server.
+ * @property lastLoginDate the timestamp (unix epoch in ms) of last login of the user.
+ * @property termsOfUseDate the timestamp (unix epoch in ms) of the latest validation of the terms of use of the application
+ * @property email email address of the user.
+ * @property applicationTokens Long lived authentication tokens used for inter-applications authentication.
  */
+
 data class User(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,
@@ -122,10 +133,10 @@ data class User(
         val email: String? = null,
         val applicationTokens: Map<String, String> = mapOf(),
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
 
 ) : StoredDocument, Principal, Cloneable, Serializable {
     companion object : DynamicInitializer<User>

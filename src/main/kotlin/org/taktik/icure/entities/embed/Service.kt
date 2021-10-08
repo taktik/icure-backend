@@ -33,14 +33,51 @@ import org.taktik.icure.validation.ValidCode
 import java.util.*
 
 /**
- * Services are created in the course a contact. Information like temperature, blood pressure and so on.
+ * This entity represents a Service.
+ * A Service is created in the course a contact. Information like temperature, blood pressure, etc. are the temporal structural element of a medical file.
+ * A contact contains a series of services (acts, observations, exchanges) performed on the patient. These services can be linked to healthcare elements
+ *
+ * A Service conforms to a series of interfaces:
+ * - StoredICureDocument
+ * - Encryptable
+ *
+ * @property id The Id of the Service. We encourage using either a v4 UUID or a HL7 Id.
+ * @property contactId Id of the contact during which the service is provided
+ * @property subContactIds List of IDs of all sub-contacts that link the service to structural elements. Only used when the Service is emitted outside of its contact
+ * @property plansOfActionIds List of IDs of all plans of actions (healthcare approaches) as a part of which the Service is provided. Only used when the Service is emitted outside of its contact
+ * @property healthElementsIds List of IDs of all healthcare elements for which the service is provided. Only used when the Service is emitted outside of its contact
+ * @property formIds List of Ids of all forms linked to the Service. Only used when the Service is emitted outside of its contact.
+ * @property secretForeignKeys The secret patient key, encrypted in the patient document, in clear here. Only used when the Service is emitted outside of its contact
+ * @property cryptedForeignKeys The public patient key, encrypted here for separate Crypto Actors. Only used when the Service is emitted outside of its contact
+ * @property delegations The delegations giving access to connected healthcare information. Only used when the Service is emitted outside of its contact
+ * @property encryptionKeys The contact secret encryption key used to encrypt the secured properties (like services for example), encrypted for separate Crypto Actors. Only used when the Service is emitted outside of its contact
+ * @property label
+ * @property dataClassName
+ * @property index Used for sorting
+ * @property content
+ * @property textIndexes
+ * @property valueDate The date (YYYYMMDDhhmmss) when the Service is noted to have started and also closes on the same date
+ * @property openingDate The date (YYYYMMDDhhmmss) of the start of the Service.
+ * @property closingDate The date (YYYYMMDDhhmmss) marking the end of the Service.
+ * @property formId Id of the form used during the Service.
+ * @property created The timestamp (unix epoch in ms) of creation of the Service, will be filled automatically if missing. Not enforced by the application server.
+ * @property modified The date (unix epoch in ms) of the latest modification of the Service, will be filled automatically if missing. Not enforced by the application server.
+ * @property endOfLife Soft delete (unix epoch in ms) timestamp of the object.
+ * @property author The id of the User that has created this service, will be filled automatically if missing. Not enforced by the application server.
+ * @property responsible The id of the HealthcareParty that is responsible for this service, will be filled automatically if missing. Not enforced by the application server.
+ * @property medicalLocationId The id of the medical location where the service was recorded.
+ * @property comment Text, comments on the Service provided
+ * @property invoicingCodes List of invoicing codes
+ * @property qualifiedLinks Links towards related services (possibly in other contacts)
+ * @property codes Codes that identify or qualify this particular service.
+ * @property tags Tags that qualify the service as being member of a certain class.
+ * @property encryptedSelf The encrypted fields of this service.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class Service(
         @JsonProperty("_id") override val id: String = UUID.randomUUID().toString(),//Only used when the Service is emitted outside of its contact
-        @JsonIgnore val contactId: String? = null,
         @JsonIgnore val subContactIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
         @JsonIgnore val plansOfActionIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
         @JsonIgnore val healthElementsIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
@@ -49,6 +86,7 @@ data class Service(
         @JsonIgnore val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(), //Only used when the Service is emitted outside of its contact
         @JsonIgnore val delegations: Map<String, Set<Delegation>> = mapOf(), //Only used when the Service is emitted outside of its contact
         @JsonIgnore val encryptionKeys: Map<String, Set<Delegation>> = mapOf(), //Only used when the Service is emitted outside of its contact
+        val contactId: String? = null,
         val label: String = "<invalid>",
         val dataClassName: String? = null,
         val index: Long? = null, //Used for sorting
@@ -68,7 +106,7 @@ data class Service(
         val comment: String? = null,
         val status: Int? = null, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit2 : present/absent, ex: 0 = active,relevant and present
         val invoicingCodes: Set<String> = setOf(),
-        val qualifiedLinks: Map<LinkQualification, List<String>> = mapOf(), //Links towards related services (possibly in other contacts)
+        val qualifiedLinks: Map<LinkQualification, Map<String, String>> = mapOf(), //Links towards related services (possibly in other contacts)
         @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(), //stub object of the Code used to qualify the content of the Service
         @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(), //stub object of the tag used to qualify the type of the Service
         override val encryptedSelf: String? = null
@@ -80,6 +118,7 @@ data class Service(
             "label" to if (this.label.isBlank()) other.label else this.label,
             "dataClassName" to (this.dataClassName ?: other.dataClassName),
             "index" to (this.index ?: other.index),
+            "contactId" to (this.contactId ?: other.contactId),
             "content" to (other.content + this.content),
             "encryptedContent" to (this.encryptedContent ?: other.encryptedContent),
             "textIndexes" to (other.textIndexes + this.textIndexes),

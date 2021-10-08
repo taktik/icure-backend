@@ -21,25 +21,20 @@ package org.taktik.icure.services.external.rest.v1.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.EncryptableDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.IdentityDocumentReaderDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.InvoiceInterventionTypeDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.InvoiceTypeDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.InvoicingCodeDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.MediumTypeDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.PaymentDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.PaymentTypeDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
+@Schema(description = """This entity is a root level object. It represents an Invoice. It is serialized in JSON and saved in the underlying iCure CouchDB database.""")
 data class InvoiceDto(
-        override val id: String,
-        override val rev: String? = null,
+        @Schema(description = "The Id of the Invoice. We encourage using either a v4 UUID or a HL7 Id.") override val id: String,
+        @Schema(description = "The revision of the invoice in the database, used for conflict management / optimistic locking.") override val rev: String? = null,
         override val created: Long? = null,
         override val modified: Long? = null,
         override val author: String? = null,
@@ -50,25 +45,25 @@ data class InvoiceDto(
         override val endOfLife: Long? = null,
         override val deletionDate: Long? = null,
 
-        val invoiceDate: Long? = null, // yyyyMMdd
-        val sentDate: Long? = null,
-        val printedDate: Long? = null,
+        @Schema(description = "The timestamp (unix epoch in ms) when the invoice was drafted, will be filled automatically if missing. Not enforced by the application server.") val invoiceDate: Long? = null, // yyyyMMdd
+        @Schema(description = "The timestamp (unix epoch in ms) when the invoice was sent, will be filled automatically if missing. Not enforced by the application server.") val sentDate: Long? = null,
+        @Schema(description = "The timestamp (unix epoch in ms) when the invoice is printed, will be filled automatically if missing. Not enforced by the application server.") val printedDate: Long? = null,
         val invoicingCodes: List<InvoicingCodeDto> = listOf(),
-        val receipts: Map<String, String> = mapOf(),
-        val recipientType: String? = null, // org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto,
+        @Schema(description = "") val receipts: Map<String, String> = mapOf(),
+        @Schema(description = "The type of user that receives the invoice, a patient or a healthcare party") val recipientType: String? = null, // org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto,
 
         // org.taktik.icure.services.external.rest.v1.dto.InsuranceDto, org.taktik.icure.services.external.rest.v1.dto.PatientDto
-        val recipientId: String? = null, // for hcps and insurance, patient link happens through secretForeignKeys
+        @Schema(description = "Id of the recipient of the invoice. For healthcare party and insurance, patient link happens through secretForeignKeys") val recipientId: String? = null, // for hcps and insurance, patient link happens through secretForeignKeys
         val invoiceReference: String? = null,
         val thirdPartyReference: String? = null,
         val thirdPartyPaymentJustification: String? = null,
         val thirdPartyPaymentReason: String? = null,
         val reason: String? = null,
-        val invoiceType: InvoiceTypeDto? = null,
-        val sentMediumType: MediumTypeDto? = null,
+        @Schema(description = "The format the invoice should follow based on the recipient which could be a patient, mutual fund or paying agency such as the CPAS") val invoiceType: InvoiceTypeDto? = null,
+        @Schema(description = "Medium of the invoice: CD ROM, Email, paper, etc.") val sentMediumType: MediumTypeDto? = null,
         val interventionType: InvoiceInterventionTypeDto? = null,
         val groupId: String? = null,
-        val paymentType: PaymentTypeDto? = null,
+        @Schema(description = "Type of payment, ex: cash, wired, insurance, debit card, etc.") val paymentType: PaymentTypeDto? = null,
         val paid: Double? = null,
         val payments: List<PaymentDto>? = null,
         val gnotionNihii: String? = null,

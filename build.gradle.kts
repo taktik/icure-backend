@@ -100,13 +100,7 @@ tasks.withType<BootJar> {
 
 tasks.withType<BootRun> {
     if ( project.hasProperty("jvmArgs") ) {
-        jvmArgs = (project.getProperties()["jvmArgs"] as String).split("\\s+")
-    }
-}
-
-tasks.withType<PublishToMavenRepository> {
-    doFirst {
-        println("Artifact >>> ${project.group}:${project.name}:${project.version} <<< published to Maven repository")
+        jvmArgs = (project.getProperties()["jvmArgs"] as String).split(Regex("\\s+"))
     }
 }
 
@@ -122,6 +116,7 @@ configurations {
         it.get().outgoing.artifact(tasks.withType<BootJar>().first())
     }
 }
+
 dependencies {
     api("com.github.pozo:mapstruct-kotlin:1.3.1.2")
     kapt("com.github.pozo:mapstruct-kotlin-processor:1.3.1.2")
@@ -142,7 +137,7 @@ dependencies {
     implementation(group = "org.mapstruct", name = "mapstruct", version = "1.4.2.Final")
 
     //Krouch
-    implementation(group = "org.taktik.couchdb", name = "krouch", version = "jack211-1.0.2-41-g34e2d0b155")
+    implementation(group = "org.taktik.couchdb", name = "krouch", version = "jack211-1.0.2-56-g894ce7ad06")
 
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-mail", version = "2.4.0")
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-webflux", version = "2.4.0")

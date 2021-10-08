@@ -29,5 +29,5 @@ interface MedicalLocationLogic : EntityPersister<MedicalLocation, String> {
     suspend fun getMedicalLocation(medicalLocation: String): MedicalLocation?
 
     suspend fun modifyMedicalLocation(medicalLocation: MedicalLocation): MedicalLocation?
-    fun findByPostCode(postCode: String): Flow<MedicalLocation>
+    fun findMedicalLocationByPostCode(postCode: String): Flow<MedicalLocation>
 }
