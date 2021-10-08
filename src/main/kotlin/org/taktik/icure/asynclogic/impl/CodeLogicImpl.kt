@@ -214,7 +214,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
                             }
                             "CODE" -> charsHandler = { code["code"] = it }
                             "PARENT" -> charsHandler = { code["qualifiedLinks"] = mapOf(LinkQualification.parent to listOf("$type|$it|$version")) }
-                            "DESCRIPTION" -> charsHandler = { attributes?.getValue("L")?.let { attributesValue -> code["label"] = (code["label"] as Map<String,String>) + (attributesValue to it) } }
+                            "DESCRIPTION" -> charsHandler = { attributes?.getValue("L")?.let { attributesValue -> code["label"] = (code["label"] as Map<String,String>) + (attributesValue to it.trim()) } }
                             else -> {
                                 charsHandler = null
                             }
