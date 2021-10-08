@@ -222,7 +222,7 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
                             }
                             "CODE" -> charsHandler = { code?.code = it }
                             "PARENT" -> charsHandler = { code?.qualifiedLinks = mapOf(pair = Pair(LinkQualification.parent, listOf("$type|$it|$version"))) }
-                            "DESCRIPTION" -> charsHandler = { code?.label?.put(attributes?.getValue("L"), it) }
+                            "DESCRIPTION" -> charsHandler = { code?.label?.put(attributes?.getValue("L"), it.trim()) }
                             else -> {
                                 charsHandler = null
                             }
