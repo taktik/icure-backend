@@ -51,7 +51,7 @@ interface ContactDAO: GenericDAO<Contact> {
     fun listIdsByServices(services: Collection<String>): Flow<ContactIdServiceId>
     fun relink(cs: Flow<Contact>): Flow<Contact>
     fun findContactsByExternalId(externalId: String): Flow<Contact>
-    fun findServiceIdsByAssociationId(associationId: String): Flow<Service>
+    fun findServiceIdsAssociationId(associationId: String): Flow<Service>
     fun findContactsByHcPartyServiceId(hcPartyId: String, formId: String): Flow<Contact>
 
 
