@@ -384,16 +384,13 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                                 saveToDatabase: Boolean,
                                                 state: InternalState): Pair<List<Service>, String?> {
 
-        val trnhcpid = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-            createOrProcessHcp(it, saveToDatabase, v)
-        }?.firstOrNull()?.id ?:
-                author.healthcarePartyId
+        val trnauthorhcpid = extractTransactionAuthor(trn, saveToDatabase, author, v);
         val target = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISACHILDOF }?.map { lnk ->
             extractMFIDFromUrl(lnk.url)
         }?.firstOrNull()
         val servlist = trn.findItems { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "medication" } }.map {item ->
             val cdItem = "medication"
-            val service = parseGenericItem(cdItem, "Prescription", item, author, trnhcpid, language)
+            val service = parseGenericItem(cdItem, "Prescription", item, author, trnauthorhcpid, language)
             // in topaz, CD-ITEM/treatment is a prescription, CD-ITEM/medication is a medication
             // parseGenericItem added a medication tag, remove it because it's a prescription
             service.tags.removeIf { it.type == "CD-ITEM" && it.code == "medication"}
@@ -436,7 +433,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 this.author = author.id
 
 
-                this.responsible = trnhcpid
+                this.responsible = trnauthorhcpid
                 this.services = servlist.toSet()
                 this.openingDate = extractTransactionDateTime(trn)
                 this.closingDate = trn.isIscomplete.let { if (it) this.openingDate else null }
@@ -452,7 +449,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                            v: ImportResult,
                                            language: String,
                                            saveToDatabase: Boolean): Pair<Service, String?>? {
-
+        val trnauthorhcpid = extractTransactionAuthor(trn, saveToDatabase, author, v);
         val services = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.MULTIMEDIA }?.map { lnk ->
             Service().apply {
                 id = idGenerator.newGUID().toString()
@@ -461,9 +458,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     documentId = Document().apply {
                         id = idGenerator.newGUID().toString()
                         this.author = author.id
-                        this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-                            createOrProcessHcp(it, saveToDatabase, v)
-                        }?.firstOrNull()?.id ?: author.healthcarePartyId
+                        this.responsible = trnauthorhcpid
                         this.created = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli()
                         modified = created
                         attachment = lnk.value
@@ -507,13 +502,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             v.ctcs.add( Contact().apply {
                 this.id = idGenerator.newGUID().toString()
                 this.author = author.id
-
-
-                this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-                    createOrProcessHcp(it, saveToDatabase, v)
-                }?.firstOrNull()?.id ?:
-                        author.healthcarePartyId
-
+                this.responsible = trnauthorhcpid
                 this.services = services.toSet()
                 this.openingDate = extractTransactionDateTime(trn)
                 this.closingDate = trn.isIscomplete.let { if (it) this.openingDate else null }
@@ -538,10 +527,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         return Contact().apply {
             val contact = this
             this.id = idGenerator.newGUID().toString()
-            val trnauthorhcpid = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-                createOrProcessHcp(it, saveToDatabase, v)
-            }?.firstOrNull()?.id ?:
-                    author.healthcarePartyId
+            val trnauthorhcpid = extractTransactionAuthor(trn, saveToDatabase, author, v)
 
             this.author = author.id
             this.responsible = trnauthorhcpid
@@ -689,6 +675,14 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
     }
 
+    private fun extractTransactionAuthor(trn: TransactionType, saveToDatabase: Boolean, author: User, v: ImportResult) =
+            trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
+                createOrProcessHcp(it, saveToDatabase)?.let {
+                    v.hcps.add(it)
+                    it
+                }
+            }?.firstOrNull()?.id ?: author.healthcarePartyId ?: throw IllegalArgumentException("The author's healthcarePartyId must be set")
+            
     private fun extractTransactionDateTime(trn: TransactionType) =
             trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
                 it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
