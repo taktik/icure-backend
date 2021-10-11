@@ -164,7 +164,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     @ExperimentalCoroutinesApi
     @FlowPreview
     @View(name = "service_by_association_id", map = "classpath:js/contact/Service_by_association_id.js")
-    override fun findServiceIdsAssociationId(associationId: String) = flow {
+    override fun findServiceIdsByAssociationId(associationId: String) = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val viewQuery = createQuery(client, "service_by_association_id")
                 .key(associationId)

@@ -152,7 +152,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     }
 
     override fun listServicesByAssociationId(associationId: String): Flow<org.taktik.icure.entities.embed.Service> = flow {
-        emitAll(contactDAO.findServiceIdsAssociationId(associationId))
+        emitAll(contactDAO.findServiceIdsByAssociationId(associationId))
     }
 
     override fun pimpServiceWithContactInformation(s: org.taktik.icure.entities.embed.Service, c: Contact): org.taktik.icure.entities.embed.Service {
