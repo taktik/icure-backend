@@ -214,7 +214,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
                             }
                             "CODE" -> charsHandler = { code["code"] = it }
                             "PARENT" -> charsHandler = { code["qualifiedLinks"] = mapOf(LinkQualification.parent to listOf("$type|$it|$version")) }
-                            "DESCRIPTION" -> charsHandler = { attributes?.getValue("L")?.let { attributesValue -> code["label"] = (code["label"] as Map<String,String>) + (attributesValue to it) } }
+                            "DESCRIPTION" -> charsHandler = { attributes?.getValue("L")?.let { attributesValue -> code["label"] = (code["label"] as Map<String,String>) + (attributesValue to it.trim()) } }
                             else -> {
                                 charsHandler = null
                             }
@@ -404,10 +404,64 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
                 }
             }
 
+            val iso6391Handler = object : DefaultHandler() {
+                var initialized = false
+                var version: String = "1.0"
+                var charsHandler: ((chars: String) -> Unit)? = null
+                var code: MutableMap<String, Any> = mutableMapOf()
+                var characters: String = ""
+
+                override fun characters(ch: CharArray?, start: Int, length: Int) {
+                    ch?.let { characters += String(it, start, length) }
+                }
+
+                override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
+                    if (!initialized && qName != "ISO639-1") {
+                        throw IllegalArgumentException("XML not supported : $type")
+                    }
+
+                    initialized = true
+                    characters = ""
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "VERSION" -> charsHandler = { ch ->
+                                version = ch
+                            }
+                            "VALUE" -> {
+                                code = mutableMapOf("type" to type, "version" to version, "label" to mapOf<String,String>())
+                            }
+                            "CODE" -> charsHandler = { ch -> code["code"] = ch }
+                            "DESCRIPTION" -> charsHandler = {
+                                attributes?.getValue("L")?.let {
+                                    attributesValue -> code["label"] = (code["label"] as Map<*,*>) + (attributesValue to it.trim())
+                                }
+                            }
+                            else -> charsHandler = null
+                        }
+                    }
+                }
+
+                override fun endElement(uri: String?, localName: String?, qName: String?) {
+                    charsHandler?.let { it(characters) }
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "VALUE" -> {
+                                runBlocking {
+                                    code["id"] = "${code["type"] as String}|${code["code"] as String}|${code["version"] as String}"
+                                    batchSave(Code(args = code), false)
+                                }
+                            }
+                            else -> null
+                        }
+                    }
+                }
+            }
+
             try {
                 when (type.toUpperCase()) {
                     "BE-THESAURUS-PROCEDURES" -> saxParser.parse(stream, beThesaurusProcHandler)
                     "BE-THESAURUS" -> saxParser.parse(stream, beThesaurusHandler)
+                    "ISO-639-1" -> saxParser.parse(stream, iso6391Handler)
                     else -> saxParser.parse(stream, handler)
                 }
                 batchSave(null, true)
