@@ -97,7 +97,7 @@ class CodeController(
 
     }
 
-    @Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a list of codes matched with given input.")
+    @Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a paginated list of codes matched with given input.")
     @GetMapping
     fun findCodesByType(
             @RequestParam(required = false) region: String?,
@@ -128,7 +128,7 @@ class CodeController(
             null
         }
     }
-    @Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a list of codes matched with given input.")
+    @Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a paginated list of codes matched with given input.")
     @GetMapping("/byLink/{linkType}")
     fun findCodesByLink(
             @PathVariable linkType: String,
@@ -180,14 +180,14 @@ class CodeController(
                 .injectReactorContext()
     }
 
-    @Operation(summary = "Create a Code", description = "Type, Code and Version are required.")
+    @Operation(summary = "Create a Code", description = "Create a code and return an instance of the created code afterward. Parameters type, code and version are required.")
     @PostMapping
     fun createCode(@RequestBody c: CodeDto) = mono {
         val code = codeLogic.create(codeV2Mapper.map(c))
         code?.let { codeV2Mapper.map(it) }
     }
 
-    @Operation(summary = "Get a list of codes by ids", description = "Keys must be delimited by coma")
+    @Operation(summary = "Get a list of codes by ids", description = "Returns a list of code according to provided identifiers. Keys must be delimited by coma.")
     @PostMapping("/byIds")
     fun getCodes(@RequestBody codeIds: ListOfIdsDto): Flux<CodeDto> {
         return codeIds.ids.takeIf { it.isNotEmpty() }
@@ -205,7 +205,7 @@ class CodeController(
                 ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
-    @Operation(summary = "Get a code", description = "Get a code based on ID or (code,type,version) as query strings. (code,type,version) is unique.")
+    @Operation(summary = "Get a code", description = "Return a code based on its identifier or (type, code, version) as query strings. (type, code, version) is unique.")
     @GetMapping("/{codeId}")
     fun getCode(@Parameter(description = "Code id") @PathVariable codeId: String) = mono {
         val c = codeLogic.get(codeId)
@@ -213,7 +213,7 @@ class CodeController(
         codeV2Mapper.map(c)
     }
 
-    @Operation(summary = "Get a code", description = "Get a code based on ID or (code,type,version) as query strings. (code,type,version) is unique.")
+    @Operation(summary = "Get a code", description = "Returns a code based on its identifier or (type, code, version) as query strings. (type, code, version) is unique.")
     @GetMapping("/{type}/{code}/{version}")
     fun getCodeWithParts(
             @Parameter(description = "Code type") @PathVariable type: String,
@@ -225,7 +225,7 @@ class CodeController(
         codeV2Mapper.map(c)
     }
 
-    @Operation(summary = "Modify a code", description = "Modification of (type, code, version) is not allowed.")
+    @Operation(summary = "Modify a code", description = "Modifies a code and returns an instance of the modified code afterward. Modification of (type, code, version) is not allowed.")
     @PutMapping
     fun modifyCode(@RequestBody codeDto: CodeDto) = mono {
         val modifiedCode = try {
@@ -236,7 +236,7 @@ class CodeController(
         modifiedCode?.let { codeV2Mapper.map(it) }
     }
 
-    @Operation(summary = "Filter codes ", description = "Returns a list of codes along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
+    @Operation(summary = "Filter codes ", description = "Returns a paginated list of codes along with next start keys and document identifier. If the nextStartKey is Null, it means that this is the last page.")
     @PostMapping("/filter")
     fun filterCodesBy(
             @Parameter(description = "The start key for pagination, depends on the filters used") @RequestParam(required = false) startKey: String?,

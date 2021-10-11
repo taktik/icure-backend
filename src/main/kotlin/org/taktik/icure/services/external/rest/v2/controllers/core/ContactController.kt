@@ -76,11 +76,11 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     val DEFAULT_LIMIT = 1000
     private val contactToContactDto = { it: Contact -> contactV2Mapper.map(it) }
 
-    @Operation(summary = "Get an empty content")
+    @Operation(summary = "Get an empty content", description = "Returns an empty contact instance.")
     @GetMapping("/service/content/empty")
     fun getEmptyContent() = ContentDto()
 
-    @Operation(summary = "Create a contact with the current user", description = "Returns an instance of created contact.")
+    @Operation(summary = "Create a contact with the current user", description = "Create a contact with the current user and returns an instance of created contact afterward.")
     @PostMapping
     fun createContact(@RequestBody c: ContactDto) = mono {
         val contact = try {
@@ -107,7 +107,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
         )
     } else c
 
-    @Operation(summary = "Get a contact")
+    @Operation(summary = "Get a contact", description = "Returns a contact instance according to provided identifier.")
     @GetMapping("/{contactId}")
     fun getContact(@PathVariable contactId: String) = mono {
         val contact = contactLogic.getContact(contactId)
@@ -115,7 +115,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
         contactV2Mapper.map(contact)
     }
 
-    @Operation(summary = "Get contacts")
+    @Operation(summary = "Get contacts", description = "Returns a batch of contact instances according to provided identifiers.")
     @PostMapping("/byIds")
     fun getContacts(@RequestBody contactIds: ListOfIdsDto): Flux<ContactDto> {
         return contactIds.ids.takeIf { it.isNotEmpty() }
@@ -133,7 +133,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
                 ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
     }
 
-    @Operation(summary = "Get the list of all used codes frequencies in services")
+    @Operation(summary = "Get the list of all used codes frequencies in services", description = "Returns a list of all used codes frequencies in service")
     @GetMapping("/service/codes/{codeType}/{minOccurences}")
     fun getServiceCodesOccurences(@PathVariable codeType: String,
                                   @PathVariable minOccurences: Long) = mono {
@@ -141,7 +141,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
                 .map { LabelledOccurenceDto(it.label, it.occurence) }
     }
 
-    @Operation(summary = "List contacts found By Healthcare Party and form Id.")
+    @Operation(summary = "List contacts found by Healthcare Party and form Id", description = "Returns a list of contacts according to provided healthcare party and form identifiers.")
     @GetMapping("/byHcPartyFormId")
     fun listContactsByHCPartyAndFormId(@RequestParam hcPartyId: String, @RequestParam formId: String): Flux<ContactDto> {
         val contactList = contactLogic.listContactsByHcPartyAndFormId(hcPartyId, formId)

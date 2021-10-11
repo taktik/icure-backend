@@ -57,7 +57,7 @@ class AccessLogController(
     private val accessLogToAccessLogDto = { it: AccessLog -> accessLogV2Mapper.map(it) }
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    @Operation(summary = "Creates an access log")
+    @Operation(summary = "Create an access log", description = "Creates an access log and return an instance of the created access log afterward.")
     @PostMapping
     fun createAccessLog(@RequestBody accessLogDto: AccessLogDto) = mono {
         val accessLog = accessLogLogic.createAccessLog(accessLogV2Mapper.map(accessLogDto))
@@ -65,7 +65,7 @@ class AccessLogController(
         accessLogV2Mapper.map(accessLog)
     }
 
-    @Operation(summary = "Deletes an access log")
+    @Operation(summary = "Delete a batch of access log", description = "Deletes a batch fo access logs and return the deleted access logs identifier afterward.")
     @PostMapping("/delete/batch")
     fun deleteAccessLogs(@RequestBody accessLogIds: ListOfIdsDto): Flux<DocIdentifier> {
         try {
@@ -75,7 +75,7 @@ class AccessLogController(
         }
     }
 
-    @Operation(summary = "Gets an access log")
+    @Operation(summary = "Get an access log", description = "Returns an instance of an access log from the provided id.")
     @GetMapping("/{accessLogId}")
     fun getAccessLog(@PathVariable accessLogId: String) = mono {
         val accessLog = accessLogLogic.getAccessLog(accessLogId)
@@ -84,7 +84,7 @@ class AccessLogController(
         accessLogV2Mapper.map(accessLog)
     }
 
-    @Operation(summary = "Get Paginated List of Access logs")
+    @Operation(summary = "Get paginated list of access logs", description = "Returns a paginated list of access logs according to provided parameters.")
     @GetMapping
     fun findAccessLogsBy(@RequestParam(required = false) fromEpoch: Long?, @RequestParam(required = false) toEpoch: Long?, @RequestParam(required = false) startKey: Long?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: Int?, @RequestParam(required = false) descending: Boolean?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
@@ -93,7 +93,7 @@ class AccessLogController(
         accessLogs.paginatedList(accessLogToAccessLogDto, realLimit)
     }
 
-    @Operation(summary = "Get Paginated List of Access logs by user after date")
+    @Operation(summary = "Get paginated list of access logs by user after date", description = "Returns a paginated list of access logs according to provided user and date.")
     @GetMapping("/byUser")
     fun findAccessLogsByUserAfterDate(@Parameter(description = "A User ID", required = true) @RequestParam userId: String,
                                       @Parameter(description = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
@@ -111,14 +111,14 @@ class AccessLogController(
         accessLogs.paginatedList(accessLogToAccessLogDto, realLimit)
     }
 
-    @Operation(summary = "List access logs found By Healthcare Party and secret foreign keyelementIds.")
+    @Operation(summary = "List access logs by Healthcare Party and secret foreign key", description = "Returns a list of access logs according to provided healthcare party identifier and secret foreign keys." )
     @GetMapping("/byHcPartySecretForeignKeys")
     fun listAccessLogsByHCPartyAndPatientForeignKeys(@RequestParam("hcPartyId") hcPartyId: String, @RequestParam("secretFKeys") secretFKeys: String) = flow {
         val secretPatientKeys = HashSet(secretFKeys.split(","))
         emitAll(accessLogLogic.listAccessLogsByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys)).map { accessLogV2Mapper.map(it) } )
     }.injectReactorContext()
 
-    @Operation(summary = "Modifies an access log")
+    @Operation(summary = "Modify an access log", description = "Modifies an access log and return an instance of the modified access log afterward.")
     @PutMapping
     fun modifyAccessLog(@RequestBody accessLogDto: AccessLogDto) = mono {
         val accessLog = accessLogLogic.modifyAccessLog(accessLogV2Mapper.map(accessLogDto))
