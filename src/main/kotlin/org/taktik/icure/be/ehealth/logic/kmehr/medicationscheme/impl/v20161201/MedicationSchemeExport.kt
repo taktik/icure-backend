@@ -31,6 +31,7 @@ import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Medication
 import org.taktik.icure.entities.embed.PatientHealthCarePartyType
 import org.taktik.icure.entities.embed.Service
+import org.taktik.icure.entities.embed.Suspension
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
@@ -146,6 +147,9 @@ class MedicationSchemeExport : KmehrExport() {
                         TransactionType().apply {
                             ids.add(idKmehr(idkmehrIdx))
                             currentMedicationIdx = idkmehrIdx
+                            if(m.suspension.isNullOrEmpty()){
+                                m.suspension = emptyList<Suspension>();
+                            }
                             idkmehrIdx++
                             m.idOnSafes?.let{idOnSafe ->
                                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = m.safeIdName; sv = "1.0"; value = m.idOnSafes})
