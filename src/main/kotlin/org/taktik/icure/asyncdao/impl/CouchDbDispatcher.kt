@@ -29,7 +29,6 @@ import org.taktik.couchdb.ClientImpl
 import org.taktik.net.web.WebClient
 import java.net.URI
 import java.util.concurrent.TimeUnit
-import kotlin.concurrent.thread
 
 class CouchDbDispatcher(
         private val httpClient: WebClient,
