@@ -72,7 +72,7 @@ class CouchDbDispatcher(
                         .onFailure { e ->
                             when (n) {
                                 in 0 until retry -> Thread.sleep(100)
-                                else -> e
+                                else -> result = Result.failure(e)
                             }
                         }
             }
