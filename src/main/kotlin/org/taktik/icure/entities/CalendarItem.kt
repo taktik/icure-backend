@@ -107,6 +107,7 @@ data class CalendarItem(
             "details" to (this.details ?: other.details),
             "wasMigrated" to (this.wasMigrated ?: other.wasMigrated),
             "agendaId" to (this.agendaId ?: other.agendaId),
+            "recurrenceId" to (this.recurrenceId ?: other.recurrenceId),
             "meetingTags" to (other.meetingTags + this.meetingTags),
             "flowItem" to (this.flowItem ?: other.flowItem)
     )

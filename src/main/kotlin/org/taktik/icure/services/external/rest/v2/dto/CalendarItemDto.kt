@@ -65,6 +65,7 @@ data class CalendarItemDto(
         val details: String? = null,
         val wasMigrated: Boolean? = null,
         val agendaId: String? = null,
+        val recurrenceId: String? =null,
         val meetingTags: Set<CalendarItemTagDto> = setOf(),
         val flowItem: FlowItemDto? = null,
         override val secretForeignKeys: Set<String> = setOf(),
