@@ -70,6 +70,7 @@ data class CalendarItem(
         val details: String? = null,
         val wasMigrated: Boolean? = null,
         val agendaId: String? = null,
+        val recurrenceId: String? = null,
         val meetingTags: Set<CalendarItemTag> = setOf(),
         val flowItem: FlowItem? = null,
         override val secretForeignKeys: Set<String> = setOf(),
@@ -106,6 +107,7 @@ data class CalendarItem(
             "details" to (this.details ?: other.details),
             "wasMigrated" to (this.wasMigrated ?: other.wasMigrated),
             "agendaId" to (this.agendaId ?: other.agendaId),
+            "recurrenceId" to (this.recurrenceId ?: other.recurrenceId),
             "meetingTags" to (other.meetingTags + this.meetingTags),
             "flowItem" to (this.flowItem ?: other.flowItem)
     )
