@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.dto.samv2.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import org.taktik.icure.services.external.rest.v1.dto.samv2.stub.PharmaceuticalFormStubDto
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -29,7 +30,7 @@ data class AmpComponentDto(
         override val from: Long? = null,
         override val to: Long? = null,
         val ingredients: List<IngredientDto>? = null,
-        val pharmaceuticalForms: List<PharmaceuticalFormDto>? = null,
+        val pharmaceuticalForms: List<PharmaceuticalFormStubDto>? = null,
         val routeOfAdministrations: List<RouteOfAdministrationDto>? = null,
         val dividable: String? = null,
         val scored: String? = null,

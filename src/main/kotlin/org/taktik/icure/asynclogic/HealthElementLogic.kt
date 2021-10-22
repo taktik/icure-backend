@@ -32,12 +32,12 @@ interface HealthElementLogic : EntityPersister<HealthElement, String> {
 
     suspend fun getHealthElement(healthElementId: String): HealthElement?
     fun getHealthElements(healthElementIds: List<String>): Flow<HealthElement>
-    fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<HealthElement>
+    fun findHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<HealthElement>
 
-    suspend fun findLatestByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): List<HealthElement>
-    fun findByHCPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String): Flow<String>
-    fun findByHCPartyAndTags(hcPartyId: String, tagType: String, tagCode: String): Flow<String>
-    fun findByHCPartyAndStatus(hcPartyId: String, status: Int): Flow<String>
+    suspend fun findLatestHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): List<HealthElement>
+    fun findHealthElementsByHCPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String): Flow<String>
+    fun findHealthElementsByHCPartyAndTags(hcPartyId: String, tagType: String, tagCode: String): Flow<String>
+    fun findHealthElementsByHCPartyAndStatus(hcPartyId: String, status: Int): Flow<String>
     fun deleteHealthElements(ids: Set<String>): Flow<DocIdentifier>
 
     suspend fun modifyHealthElement(healthElement: HealthElement): HealthElement?
@@ -46,7 +46,7 @@ interface HealthElementLogic : EntityPersister<HealthElement, String> {
 
     suspend fun addDelegations(healthElementId: String, delegations: List<Delegation>): HealthElement?
 
-    suspend fun solveConflicts()
+    fun solveConflicts(): Flow<HealthElement>
 
     fun filter(filter: FilterChain<HealthElement>): Flow<HealthElement>
 }

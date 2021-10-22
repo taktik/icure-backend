@@ -39,19 +39,19 @@ interface InvoiceLogic : EntityPersister<Invoice, String> {
     fun getInvoices(ids: List<String>): Flow<Invoice>
 
     suspend fun modifyInvoice(invoice: Invoice): Invoice?
-    fun updateInvoices(invoices: List<Invoice>): Flow<Invoice>
+    fun modifyInvoices(invoices: List<Invoice>): Flow<Invoice>
 
     suspend fun addDelegation(invoiceId: String, delegation: Delegation): Invoice?
-    fun findByAuthor(hcPartyId: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
-    fun listByHcPartyContacts(hcParty: String, contactIds: Set<String>): Flow<Invoice>
-    fun listByHcPartyRecipientIds(hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
-    fun listByHcPartyPatientSks(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice>
-    fun listByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty: String, sentMediumType: MediumType, invoiceType: InvoiceType, sent: Boolean, fromDate: Long?, toDate: Long?): Flow<Invoice>
-    fun listByHcPartySendingModeStatus(hcParty: String, sendingMode: String?, status: String?, fromDate: Long?, toDate: Long?): Flow<Invoice>
-    fun listByHcPartyGroupId(hcParty: String, inputGroupId: String): Flow<Invoice>
-    fun listByHcPartyRecipientIdsUnsent(hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
-    fun listByHcPartyPatientSksUnsent(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice>
-    fun listByServiceIds(serviceIds: Set<String>): Flow<Invoice>
+    fun findInvoicesByAuthor(hcPartyId: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
+    fun listInvoicesByHcPartyContacts(hcParty: String, contactIds: Set<String>): Flow<Invoice>
+    fun listInvoicesByHcPartyAndRecipientIds(hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
+    fun listInvoicesByHcPartyAndPatientSks(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice>
+    fun listInvoicesByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty: String, sentMediumType: MediumType, invoiceType: InvoiceType, sent: Boolean, fromDate: Long?, toDate: Long?): Flow<Invoice>
+    fun listInvoicesByHcPartySendingModeStatus(hcParty: String, sendingMode: String?, status: String?, fromDate: Long?, toDate: Long?): Flow<Invoice>
+    fun listInvoicesByHcPartyAndGroupId(hcParty: String, inputGroupId: String): Flow<Invoice>
+    fun listInvoicesByHcPartyAndRecipientIdsUnsent(hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
+    fun listInvoicesByHcPartyAndPatientSksUnsent(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice>
+    fun listInvoicesByServiceIds(serviceIds: Set<String>): Flow<Invoice>
 
     suspend fun mergeInvoices(hcParty: String, invoices: List<Invoice>, destination: Invoice?): Invoice?
 
@@ -60,12 +60,12 @@ interface InvoiceLogic : EntityPersister<Invoice, String> {
 
     suspend fun addDelegations(invoiceId: String, delegations: List<Delegation>): Invoice?
     fun removeCodes(userId: String, secretPatientKeys: Set<String>, serviceId: String, tarificationIds: List<String>): Flow<Invoice>
-    fun listAllHcpsByStatus(status: String, from: Long?, to: Long?, hcpIds: List<String>): Flow<Invoice>
+    fun listInvoicesHcpsByStatus(status: String, from: Long?, to: Long?, hcpIds: List<String>): Flow<Invoice>
 
-    suspend fun solveConflicts()
+    fun solveConflicts(): Flow<Invoice>
 
     suspend fun getTarificationsCodesOccurences(hcPartyId: String, minOccurences: Long): List<LabelledOccurence>
-    fun listIdsByTarificationsByCode(hcPartyId: String, codeCode: String, startValueDate: Long, endValueDate: Long): Flow<String>
+    fun listInvoicesIdsByTarificationsByCode(hcPartyId: String, codeCode: String, startValueDate: Long, endValueDate: Long): Flow<String>
     fun listInvoiceIdsByTarificationsByCode(hcPartyId: String, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
 
     fun filter(filter: FilterChain<Invoice>): Flow<Invoice>

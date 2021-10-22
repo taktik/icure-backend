@@ -19,6 +19,7 @@
 package org.taktik.icure.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -41,6 +42,10 @@ class CouchDbConfig(val couchDbProperties: CouchDbProperties) {
     @Value("\${icure.couchdb.prefix}")
     private val couchDbPrefix: String? = null
 
+    val webClientWithTimeoutLogger: Log = LogFactory.getLog("org.taktik.icure.config.WebClientWithTimeout")
+    val webClientLogger: Log = LogFactory.getLog("org.taktik.icure.config.WebClient")
+
+
     @Bean
     fun connectionProvider(): ConnectionProvider {
         return ConnectionProvider.builder("LARGE_POOL")
@@ -50,13 +55,24 @@ class CouchDbConfig(val couchDbProperties: CouchDbProperties) {
     }
 
     @Bean
+    fun httpClientWithTimeout(connectionProvider: ConnectionProvider) = SpringWebfluxWebClient(
+            ReactorClientHttpConnector(HttpClient.create(connectionProvider).compress(true).responseTimeout(Duration.ofSeconds(2)))
+    ) { xff ->
+        xff.add(ExchangeFilterFunction.ofRequestProcessor { req ->
+            if (webClientWithTimeoutLogger.isDebugEnabled) {
+                webClientWithTimeoutLogger.debug("-> ${req.method().name} ${req.url()}")
+            }
+            Mono.just(req)
+        })
+    }
+
+    @Bean
     fun httpClient(connectionProvider: ConnectionProvider) = SpringWebfluxWebClient(
             ReactorClientHttpConnector(HttpClient.create(connectionProvider).compress(true))
     ) { xff ->
-        val log = LogFactory.getLog("org.taktik.icure.config.WebClient")
         xff.add(ExchangeFilterFunction.ofRequestProcessor { req ->
-            if (log.isDebugEnabled) {
-                log.debug("-> ${req.method().name} ${req.url()}")
+            if (webClientLogger.isDebugEnabled) {
+                webClientLogger.debug("-> ${req.method().name} ${req.url()}")
             }
             Mono.just(req)
         })

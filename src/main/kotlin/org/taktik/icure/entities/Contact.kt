@@ -40,6 +40,45 @@ import javax.validation.Valid
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
+
+/**
+ * This entity is a root level object. It represents a contact. It is serialized in JSON and saved in the underlying icure-contact CouchDB database.
+ *
+ * A contact is an entry in the day to day journal of the medical file of a patient. A contact happens between one patient, one or several healthcare parties (with one healthcare party promoted as the responsible of the contact), at one place during one (fairly short) period of time.
+ * A contact contains a series of services (acts, observations, exchanges) performed on the patient. These services can be linked to healthcare elements
+
+ * A Contact conforms to a series of interfaces:
+ * - StoredICureDocument
+ * - Encryptable
+ *
+ * @property id The Id of the contact. We encourage using either a v4 UUID or a HL7 Id.
+ * @property rev The revision of the contact in the database, used for conflict management / optimistic locking.
+ * @property created The timestamp (unix epoch in ms) of creation of the contact, will be filled automatically if missing. Not enforced by the application server.
+ * @property modified The date (unix epoch in ms) of the latest modification of the contact, will be filled automatically if missing. Not enforced by the application server.
+ * @property author The id of the User that has created this contact, will be filled automatically if missing. Not enforced by the application server.
+ * @property responsible The id of the HealthcareParty that is responsible for this patient, will be filled automatically if missing. Not enforced by the application server.
+ * @property medicalLocationId The id of the medical location where the contact was recorded.
+ * @property tags Tags that qualify the contact as being member of a certain class.
+ * @property codes Codes that identify or qualify this particular contact.
+ * @property endOfLife Soft delete (unix epoch in ms) timestamp of the object.
+ * @property deletionDate Hard delete (unix epoch in ms) timestamp of the object.
+ * @property groupId Separate contacts can merged in one logical contact if they share the same groupId. When a contact must be split to selectively assign rights to healthcare parties, the split contacts all share the same groupId
+ * @property openingDate The date (YYYYMMDDhhmmss) of the start of the contact.
+ * @property deletionDate The date (YYYYMMDDhhmmss) marking the end of the contact.
+ * @property descr Description of the contact
+ * @property location Location where the contact was recorded.
+ * @property externalId An external (from another source) id with no guarantee or requirement for unicity.
+ * @property encounterType The type of encounter made for the contact
+ * @property subContacts Set of all sub-contacts recorded during the given contact. Sub-contacts are used to link services embedded inside this contact to healthcare elements, healthcare approaches and/or forms.
+ * @property services Set of all services provided to the patient during the contact.
+ * @property delegations The delegations giving access to connected healthcare information.
+ * @property secretForeignKeys The secret patient key, encrypted in the patient document, in clear here.
+ * @property cryptedForeignKeys The public patient key, encrypted here for separate Crypto Actors.
+ * @property encryptionKeys The contact secret encryption key used to encrypt the secured properties (like services for example), encrypted for separate Crypto Actors.
+ * @property encryptedSelf The encrypted fields of this contact.
+ *
+ */
+
 data class Contact(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,
@@ -62,7 +101,7 @@ data class Contact(
         val location: String? = null,
         @Deprecated("Replaced by responsible") val healthcarePartyId: String? = null, //Redundant and obsolete... Should be responsible
         val externalId: String? = null,
-        val modifiedContactId: String? = null,
+        @Deprecated("Contacts should be linked together using formId in subcontact") val modifiedContactId: String? = null,
         val encounterType: CodeStub? = null,
         @field:Valid val subContacts: Set<SubContact> = setOf(),
         @field:Valid val services: Set<Service> = setOf(),
@@ -72,10 +111,10 @@ data class Contact(
         override val delegations: Map<String, Set<Delegation>> = mapOf(),
         override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
         override val encryptedSelf: String? = null,
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
 ) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<Contact>
 

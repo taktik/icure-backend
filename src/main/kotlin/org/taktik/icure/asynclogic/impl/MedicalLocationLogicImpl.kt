@@ -41,7 +41,7 @@ class MedicalLocationLogicImpl(private val medicalLocationDAO: MedicalLocationDA
 
     override fun deleteMedicalLocations(ids: List<String>): Flow<DocIdentifier> {
         return try {
-            deleteByIds(ids)
+            deleteEntities(ids)
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }
@@ -55,7 +55,7 @@ class MedicalLocationLogicImpl(private val medicalLocationDAO: MedicalLocationDA
         medicalLocationDAO.save(medicalLocation)
     }
 
-    override fun findByPostCode(postCode: String): Flow<MedicalLocation> = flow {
+    override fun findMedicalLocationByPostCode(postCode: String): Flow<MedicalLocation> = flow {
         emitAll(medicalLocationDAO.byPostCode(postCode))
     }
 

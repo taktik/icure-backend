@@ -20,48 +20,32 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import org.apache.commons.lang3.ArrayUtils
-import org.taktik.couchdb.support.StdDesignDocumentFactory
 import org.slf4j.LoggerFactory
-import org.taktik.couchdb.Client
-import org.taktik.couchdb.entity.DesignDocument
-import org.taktik.couchdb.DocIdentifier
-import org.taktik.couchdb.entity.View
-import org.taktik.couchdb.ViewRowWithDoc
+import org.taktik.couchdb.*
 import org.taktik.couchdb.dao.designDocName
+import org.taktik.couchdb.entity.DesignDocument
 import org.taktik.couchdb.entity.Option
-import org.taktik.couchdb.id.IDGenerator
+import org.taktik.couchdb.entity.View
 import org.taktik.couchdb.exception.DocumentNotFoundException
-import org.taktik.couchdb.get
-import org.taktik.couchdb.queryView
-import org.taktik.couchdb.update
+import org.taktik.couchdb.exception.UpdateConflictException
+import org.taktik.couchdb.id.IDGenerator
+import org.taktik.couchdb.support.StdDesignDocumentFactory
 import org.taktik.icure.asyncdao.GenericDAO
+import org.taktik.icure.asyncdao.VersionnedDesignDocumentQueries
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.exceptions.PersistenceException
-import org.taktik.couchdb.exception.UpdateConflictException
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
 import java.net.URI
 import java.nio.ByteBuffer
-import java.util.*
 
 @FlowPreview
 @ExperimentalCoroutinesApi
 abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProperties,
-                                                  protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator
-) : GenericDAO<T> {
+                                                  protected override val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator
+) : GenericDAO<T>, VersionnedDesignDocumentQueries<T>(entityClass, couchDbProperties) {
     private val log = LoggerFactory.getLogger(this.javaClass)
     protected val dbInstanceUrl = URI(couchDbProperties.url)
 
@@ -76,7 +60,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
 
     override suspend fun hasAny(): Boolean {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return designDocContainsAllView(dbInstanceUrl) && client.queryView<String, String>(createQuery("all", entityClass).limit(1)).count() > 0
+        return designDocContainsAllView(dbInstanceUrl) && client.queryView<String, String>(createQuery(client,"all").limit(1)).count() > 0
     }
 
     private suspend fun designDocContainsAllView(dbInstanceUrl: URI): Boolean {
@@ -85,27 +69,29 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
                 ?: false
     }
 
-    override fun getAllIds(limit: Int?): Flow<String> = flow {
+    override fun getEntityIds(limit: Int?): Flow<String> = flow {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".getAllIds")
         }
         if (designDocContainsAllView(dbInstanceUrl)) {
             val client = couchDbDispatcher.getClient(dbInstanceUrl)
-            client.queryView<String, String>(if (limit != null) createQuery("all", entityClass).limit(limit) else createQuery("all", entityClass)).onEach { emit(it.id) }.collect()
+            client.queryView<String, String>(if (limit != null) createQuery(client,"all", entityClass).limit(limit) else createQuery(client,"all", entityClass)).onEach { emit(it.id) }.collect()
         }
     }
 
-    override fun getAll(): Flow<T> {
+    override fun getEntities(): Flow<T> = flow {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".getAll")
         }
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.queryView(createQuery("all", entityClass).includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
+        emitAll(
+            client.queryView(createQuery(client, "all").includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
+        )
     }
 
-    override fun getAttachment(documentId: String, attachmentId: String, rev: String?): Flow<ByteBuffer> {
+    override fun getAttachment(documentId: String, attachmentId: String, rev: String?): Flow<ByteBuffer> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.getAttachment(documentId, attachmentId, rev)
+        emitAll(client.getAttachment(documentId, attachmentId, rev))
     }
 
     override suspend fun createAttachment(documentId: String, attachmentId: String, rev: String, contentType: String, data: Flow<ByteBuffer>): String {
@@ -126,7 +112,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
             log.debug(entityClass.simpleName + ".get: " + id + " [" + ArrayUtils.toString(options) + "]")
         }
         try {
-            return rev?.let { client.get(id, entityClass, *options) }
+            return rev?.let { client.get(id, it, entityClass, *options) }
                     ?: client.get(id, entityClass, *options)?.let { postLoad(it) }
         } catch (e: DocumentNotFoundException) {
             log.warn("Document not found", e)
@@ -135,20 +121,20 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
         return null
     }
 
-    override fun getList(ids: Collection<String>): Flow<T> {
+    override fun getEntities(ids: Collection<String>): Flow<T> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + ids)
         }
-        return client.get(ids, entityClass).map { this.postLoad(it) }
+        emitAll(client.get(ids, entityClass).map { this@GenericDAOImpl.postLoad(it) })
     }
 
-    override fun getList(ids: Flow<String>): Flow<T> {
+    override fun getEntities(ids: Flow<String>): Flow<T> = flow  {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + ids)
         }
-        return client.get(ids, entityClass).map { this.postLoad(it) }
+        emitAll(client.get(ids, entityClass).map { this@GenericDAOImpl.postLoad(it) })
     }
 
     override suspend fun create(entity: T): T? {
@@ -328,17 +314,19 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
         }.map { afterSave(it) })
     }
 
-    override suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean) {
-        forceInitStandardDesignDocument(couchDbDispatcher.getClient(dbInstanceUrl), updateIfExists)
+    override suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean, useVersioning: Boolean) {
+        forceInitStandardDesignDocument(couchDbDispatcher.getClient(dbInstanceUrl), updateIfExists, useVersioning)
     }
 
-    override suspend fun forceInitStandardDesignDocument(client: Client, updateIfExists: Boolean) {
+    override suspend fun forceInitStandardDesignDocument(client: Client, updateIfExists: Boolean, useVersioning: Boolean) {
         val designDocId = designDocName(this.entityClass)
-        val fromDatabase = client.get(designDocId, DesignDocument::class.java)
         val generated = StdDesignDocumentFactory().generateFrom(designDocId, this)
+
+        val fromDatabase = client.get(generated.id, DesignDocument::class.java) ?: client.get(designDocId, DesignDocument::class.java)
+
         val (merged, changed) = fromDatabase?.mergeWith(generated, true) ?: generated to true
         if (changed && (updateIfExists || fromDatabase == null)) {
-            client.update(fromDatabase?.let { merged.copy(rev = it.rev) } ?: merged)
+            client.update(fromDatabase?.let { if (it.id == generated.id) merged.copy(rev = it.rev) else merged } ?: merged)
         }
     }
 

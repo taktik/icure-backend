@@ -103,9 +103,8 @@ suspend fun Flow<ByteBuffer>.toInputStream(): InputStream {
     }
 }
 
-fun emitMessage(folder : FolderType, message: Kmehrmessage): Flow<DataBuffer>{
+fun emitMessage(message: Kmehrmessage): Flow<DataBuffer>{
     val os = ByteArrayOutputStream(10000)
-    message.folders.add(folder)
 
     val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
     // output pretty printed
@@ -115,9 +114,8 @@ fun emitMessage(folder : FolderType, message: Kmehrmessage): Flow<DataBuffer>{
     return DataBufferUtils.read(ByteArrayResource(os.toByteArray()), DefaultDataBufferFactory(), 10000).asFlow()
 }
 
-fun emitMessage(folder : org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.FolderType, message: org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage): Flow<DataBuffer>{
+fun emitMessage(message: org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage): Flow<DataBuffer>{
     val os = ByteArrayOutputStream(10000)
-    message.folders.add(folder)
 
     val jaxbMarshaller = JAXBContext.newInstance(org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage::class.java).createMarshaller()
     // output pretty printed
@@ -128,9 +126,8 @@ fun emitMessage(folder : org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov
 }
 
 
-fun emitMessage(folder: org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.FolderType, message: org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage): Flow<DataBuffer> {
+fun emitMessage(message: org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage): Flow<DataBuffer> {
     val os = ByteArrayOutputStream(10000)
-    message.folders.add(folder)
 
     val jaxbMarshaller = JAXBContext.newInstance(org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage::class.java).createMarshaller()
     // output pretty printed
@@ -140,9 +137,8 @@ fun emitMessage(folder: org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.
     return DataBufferUtils.read(ByteArrayResource(os.toByteArray()), DefaultDataBufferFactory(), 10000).asFlow()
 }
 
-fun emitMessage(folder: org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.FolderType, message: org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage): Flow<DataBuffer> {
+fun emitMessage(message: org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage): Flow<DataBuffer> {
     val os = ByteArrayOutputStream(10000)
-    message.folders.add(folder)
 
     val jaxbMarshaller = JAXBContext.newInstance(org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage::class.java).createMarshaller()
     // output pretty printed

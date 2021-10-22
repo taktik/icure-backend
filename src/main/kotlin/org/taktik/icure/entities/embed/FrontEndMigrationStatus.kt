@@ -27,5 +27,5 @@ import java.io.Serializable
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 enum class FrontEndMigrationStatus : Serializable {
-    STARTED, ERROR, SUCCESS
+    STARTED, PAUSED, ERROR, SUCCESS
 }

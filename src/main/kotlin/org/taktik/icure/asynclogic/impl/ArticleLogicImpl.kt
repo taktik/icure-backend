@@ -36,7 +36,7 @@ class ArticleLogicImpl(private val articleDAO: ArticleDAO, private val sessionLo
 
     override fun deleteArticles(ids: List<String>): Flow<DocIdentifier> {
         try {
-            return deleteByIds(ids)
+            return deleteEntities(ids)
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }

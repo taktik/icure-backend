@@ -37,7 +37,7 @@ class PlaceLogicImpl(private val placeDAO: PlaceDAO,
 
     override fun deletePlace(ids: List<String>): Flow<DocIdentifier> {
         return try {
-            deleteByIds(ids)
+            deleteEntities(ids)
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }

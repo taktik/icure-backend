@@ -18,23 +18,23 @@
 
 package org.taktik.icure.asyncdao.impl
 
+
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.ClassificationTemplateDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.ClassificationTemplate
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.createQuery
-import org.taktik.icure.utils.pagedViewQuery
 import org.taktik.icure.utils.subsequentDistinctById
-import java.util.*
 
 /**
  * Created by dlm on 16-07-18
@@ -49,17 +49,17 @@ internal class ClassificationTemplateDAOImpl(couchDbProperties: CouchDbPropertie
     }
 
     @View(name = "by_hcparty_patient", map = "classpath:js/classificationtemplate/By_hcparty_patient_map.js")
-    override fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate> {
+    override fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val keys = secretPatientKeys.map { ComplexKey.of(hcPartyId, it) }
 
-        val viewQuery = createQuery<ClassificationTemplate>("by_hcparty_patient").includeDocs(true).keys(keys)
-        return client.queryViewIncludeDocs<ComplexKey, String, ClassificationTemplate>(viewQuery).map { it.doc }.subsequentDistinctById()
+        val viewQuery = createQuery(client, "by_hcparty_patient").includeDocs(true).keys(keys)
+        emitAll(client.queryViewIncludeDocs<ComplexKey, String, ClassificationTemplate>(viewQuery).map { it.doc }.subsequentDistinctById())
     }
 
-    override fun listClassificationTemplates(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
+    override fun findClassificationTemplates(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow{
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = pagedViewQuery<ClassificationTemplate,String>("all", null, "\ufff0", paginationOffset, false)
-        return client.queryView(viewQuery, String::class.java, String::class.java, ClassificationTemplate::class.java)
+        val viewQuery = pagedViewQuery<ClassificationTemplate,String>(client, "all", null, "\ufff0", paginationOffset, false)
+        emitAll(client.queryView(viewQuery, String::class.java, String::class.java, ClassificationTemplate::class.java))
     }
 }

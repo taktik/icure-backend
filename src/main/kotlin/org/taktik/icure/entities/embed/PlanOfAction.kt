@@ -33,7 +33,44 @@ import org.taktik.icure.validation.ValidCode
 
 /**
  * Created by aduchate on 09/07/13, 16:30
+ *
+ * A Healthcare Approach
+
+ * This entity represents a healthcare approach. It is serialized in JSON and saved in the underlying CouchDB database.
+ * A healthcare approach (plan of action) is a sub element of healthcare element and represents the steps for follow-up plans for a given healthcare element.
+ *
+ * A Healthcare approach conforms to a series of interfaces:
+ * - StoredICureDocument
+ * - Encryptable
+ *
+ * @property id The Id of the healthcare approach. We encourage using either a v4 UUID or a HL7 Id.
+ * @property created The timestamp (unix epoch in ms) of creation of the healthcare approach, will be filled automatically if missing. Not enforced by the application server.
+ * @property modified The date (unix epoch in ms) of latest modification of the healthcare approach, will be filled automatically if missing. Not enforced by the application server.
+ * @property author The id of the User that created this healthcare approach, will be filled automatically if missing. Not enforced by the application server.
+ * @property responsible The id of the HealthcareParty that is responsible for this healthcare approach, will be filled automatically if missing. Not enforced by the application server.
+ * @property medicalLocationId The id of the medical location where the healthcare approach is carried out.
+ * @property tags Tags that qualify the healthcare approach as a member of a certain class.
+ * @property codes Codes that identify or qualify this particular healthcare approach.
+ * @property endOfLife Soft delete (unix epoch in ms) timestamp of the object.
+ * @property valueDate The date (unix epoch in ms) when the healthcare approach is started (used if also closed on the same date)
+ * @property openingDate The date (unix epoch in ms) of the start of the healthcare approach. Either one of the value date or the opening date is usually used.
+ * @property closingDate  The date (unix epoch in ms) marking the end of the healthcare approach.
+ * @property deadlineDate The date (YYYYMMDDHHMMSS) which is the last allowed date for carrying out the healthcare approach, recommended by the healthcare party.
+ * @property name Name of the healthcare approach.
+ * @property descr Description for the healthcare approach.
+ * @property note A text note (can be confidential, encrypted by default).
+ * @property relevant If the healthcare approach is relevant or not (Set relevant by default).
+ * @property idOpeningContact Id of the opening contact when the healthcare approach was initiated/prescribed.
+ * @property idClosingContact Id of the closing contact for the healthcare approach.
+ * @property status bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
+ * @property documentIds List of Ids of all documents related to the healthcare approach
+ * @property prescriberId Id of the healthcare party that prescribed the healthcare approach
+ * @property numberOfCares Number of members in the team assigned to execute the healthcare approach
+ * @property careTeamMemberships List of healthcare party members involved in the healthcare approach
+ * @property encryptedSelf The encrypted fields of this healthcare approach.
+ *
  */
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder

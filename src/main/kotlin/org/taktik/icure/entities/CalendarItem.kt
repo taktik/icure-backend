@@ -70,6 +70,7 @@ data class CalendarItem(
         val details: String? = null,
         val wasMigrated: Boolean? = null,
         val agendaId: String? = null,
+        val recurrenceId: String? = null,
         val meetingTags: Set<CalendarItemTag> = setOf(),
         val flowItem: FlowItem? = null,
         override val secretForeignKeys: Set<String> = setOf(),
@@ -77,10 +78,10 @@ data class CalendarItem(
         override val delegations: Map<String, Set<Delegation>> = mapOf(),
         override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
         override val encryptedSelf: String? = null,
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
 
 ) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<CalendarItem>
@@ -106,6 +107,7 @@ data class CalendarItem(
             "details" to (this.details ?: other.details),
             "wasMigrated" to (this.wasMigrated ?: other.wasMigrated),
             "agendaId" to (this.agendaId ?: other.agendaId),
+            "recurrenceId" to (this.recurrenceId ?: other.recurrenceId),
             "meetingTags" to (other.meetingTags + this.meetingTags),
             "flowItem" to (this.flowItem ?: other.flowItem)
     )

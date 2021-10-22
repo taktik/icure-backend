@@ -33,7 +33,7 @@ interface CodeLogic : EntityPersister<Code, String> {
     suspend fun get(id: String): Code?
 
     suspend fun get(type: String, code: String, version: String): Code?
-    fun get(ids: List<String>): Flow<Code>
+    fun getCodes(ids: List<String>): Flow<Code>
     suspend fun create(code: Code): Code?
 
     @Throws(Exception::class)

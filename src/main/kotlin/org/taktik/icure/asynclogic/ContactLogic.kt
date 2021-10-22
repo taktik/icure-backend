@@ -32,8 +32,8 @@ import org.taktik.icure.entities.embed.Service
 interface ContactLogic : EntityPersister<Contact, String> {
     suspend fun getContact(id: String): Contact?
     fun getContacts(selectedIds: Collection<String>): Flow<Contact>
-        fun getPaginatedContacts(selectedIds: Collection<String>): Flow<ViewQueryResultEvent>
-    fun findByHCPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact>
+        fun findContactsByIds(selectedIds: Collection<String>): Flow<ViewQueryResultEvent>
+    fun listContactsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact>
 
     suspend fun addDelegation(contactId: String, delegation: Delegation): Contact?
 
@@ -51,16 +51,16 @@ interface ContactLogic : EntityPersister<Contact, String> {
     fun listContactIdsByCode(hcPartyId: String, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listContactIds(hcPartyId: String): Flow<String>
     fun listIdsByServices(services: Collection<String>): Flow<String>
-    fun findServicesBySecretForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String>
-    fun findContactsByHCPartyFormId(hcPartyId: String, formId: String): Flow<Contact>
+    fun listServicesByHcPartyAndSecretForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String>
+    fun listContactsByHcPartyAndFormId(hcPartyId: String, formId: String): Flow<Contact>
 
     suspend fun getServiceCodesOccurences(hcPartyId: String, codeType: String, minOccurences: Long): List<LabelledOccurence>
-    fun findContactsByHCPartyFormIds(hcPartyId: String, ids: List<String>): Flow<Contact>
+    fun listContactsByHcPartyAndFormIds(hcPartyId: String, ids: List<String>): Flow<Contact>
     fun getGenericDAO(): ContactDAO
     fun filterContacts(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<Contact>): Flow<ViewQueryResultEvent>
     fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<Service>): Flow<Service>
 
-    suspend fun solveConflicts()
+    fun solveConflicts(): Flow<Contact>
     fun listContactsByOpeningDate(hcPartyId: String, startOpeningDate: Long, endOpeningDate: Long, offset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
     suspend fun addDelegations(contactId: String, delegations: List<Delegation>): Contact?
 }

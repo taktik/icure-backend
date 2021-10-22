@@ -23,6 +23,7 @@ package org.taktik.icure.services.external.rest.v1.dto.be.mikrono
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.services.external.rest.v1.dto.base.MimeAttachmentDto
 import java.io.Serializable
 
@@ -33,10 +34,10 @@ data class EmailOrSmsMessageDto(
         val attachments: List<MimeAttachmentDto> = listOf(),
         val destination //email or phone number (international format)
         : String? = null,
-        val destinationIsNotPatient: Boolean = false, //Messages is sent to other patient's doctor but should appear in patient emails list and be highlighted.
+        @Schema(defaultValue = "false") val destinationIsNotPatient: Boolean = false, //Messages is sent to other patient's doctor but should appear in patient emails list and be highlighted.
         val destinationName // Case of a doc.
         : String? = null,
-        val sendCopyToSender: Boolean = false,
+        @Schema(defaultValue = "false") val sendCopyToSender: Boolean = false,
         val senderName: String? = null,
         val replyToEmail: String? = null,
         val content: String? = null,

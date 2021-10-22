@@ -32,14 +32,7 @@ import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpResponse
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
@@ -63,7 +56,7 @@ class DocumentTemplateController(
     @Operation(summary = "Gets a document template")
     @GetMapping("/{documentTemplateId}")
     fun getDocumentTemplate(@PathVariable documentTemplateId: String) = mono {
-        val documentTemplate = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
+        val documentTemplate = documentTemplateLogic.getDocumentTemplate(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "DocumentTemplate fetching failed")
         documentTemplateMapper.map(documentTemplate)
     }
@@ -73,7 +66,7 @@ class DocumentTemplateController(
     fun deleteDocumentTemplate(@PathVariable documentTemplateIds: String): Flux<DocIdentifier> {
         val documentTemplateIdsList = documentTemplateIds.split(',')
         return try {
-            documentTemplateLogic.deleteByIds(documentTemplateIdsList).injectReactorContext()
+            documentTemplateLogic.deleteEntities(documentTemplateIdsList).injectReactorContext()
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document template deletion failed")
         }
@@ -118,7 +111,7 @@ class DocumentTemplateController(
     @Operation(summary = "Gets all document templates for all users")
     @GetMapping("/find/all")
     fun findAllDocumentTemplates(): Flux<DocumentTemplateDto> {
-        val documentTemplates = documentTemplateLogic.getAllEntities()
+        val documentTemplates = documentTemplateLogic.getEntities()
         return documentTemplates.map { ft -> documentTemplateMapper.map(ft) }.injectReactorContext()
     }
 
@@ -144,7 +137,7 @@ class DocumentTemplateController(
     fun getDocumentTemplateAttachment(@PathVariable documentTemplateId: String,
                                       @PathVariable attachmentId: String,
                                       response: ServerHttpResponse) = mono<ByteArray> {
-        val document = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
+        val document = documentTemplateLogic.getDocumentTemplate(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
         document.attachment ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "AttachmentDto not found")
     }
@@ -153,7 +146,7 @@ class DocumentTemplateController(
     @GetMapping("/{documentTemplateId}/attachmentText/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun getAttachmentText(@PathVariable documentTemplateId: String, @PathVariable attachmentId: String,
                           response: ServerHttpResponse) = response.writeWith(flow {
-        val document = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
+        val document = documentTemplateLogic.getDocumentTemplate(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
         if (document.attachment != null) {
             emit(DefaultDataBufferFactory().wrap(document.attachment))
@@ -165,7 +158,7 @@ class DocumentTemplateController(
     @Operation(summary = "Creates a document's attachment")
     @PutMapping("/{documentTemplateId}/attachment", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun setDocumentTemplateAttachment(@PathVariable documentTemplateId: String, @RequestBody payload: ByteArray) = mono {
-        val documentTemplate = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
+        val documentTemplate = documentTemplateLogic.getDocumentTemplate(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         documentTemplateLogic.modifyDocumentTemplate(documentTemplate.copy(attachment = payload))?.let { documentTemplateMapper.map(it) }
     }
@@ -173,7 +166,7 @@ class DocumentTemplateController(
     @Operation(summary = "Creates a document's attachment")
     @PutMapping("/{documentTemplateId}/attachmentJson", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun setDocumentTemplateAttachmentJson(@PathVariable documentTemplateId: String, @RequestBody payload: ByteArrayDto) = mono {
-        val documentTemplate = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
+        val documentTemplate = documentTemplateLogic.getDocumentTemplate(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         documentTemplateLogic.modifyDocumentTemplate(documentTemplate.copy(attachment = payload.data))?.let { documentTemplateMapper.map(it) }
     }

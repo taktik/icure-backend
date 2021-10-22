@@ -24,10 +24,10 @@ import kotlinx.coroutines.flow.flowOf
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asyncdao.ClassificationDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.ClassificationLogic
-import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.entities.Classification
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.utils.firstOrNull
@@ -62,13 +62,13 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
         return classificationDAO.getClassification(classificationId)
     }
 
-    override fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification> = flow {
-        emitAll(classificationDAO.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys))
+    override fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification> = flow {
+        emitAll(classificationDAO.listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys))
     }
 
     override fun deleteClassifications(ids: Set<String>): Flow<DocIdentifier> {
         return try {
-            deleteByIds(ids)
+            deleteEntities(ids)
         } catch (e: Exception) {
             log.error(e.message, e)
             flowOf()
@@ -79,7 +79,7 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
         try {
             classification.id.let {
                 getClassification(it)?.let { toEdit ->
-                    updateEntities(setOf(toEdit.copy(label = classification.label))).firstOrNull()
+                    modifyEntities(setOf(toEdit.copy(label = classification.label))).firstOrNull()
                 }
             } ?: throw IllegalArgumentException("Non-existing Classification")
         } catch (e: Exception) {
@@ -106,8 +106,8 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
         }
     }
 
-    override fun getClassificationByIds(ids: List<String>): Flow<Classification> = flow {
-        emitAll(classificationDAO.getList(ids))
+    override fun getClassifications(ids: List<String>): Flow<Classification> = flow {
+        emitAll(classificationDAO.getEntities(ids))
     }
 
     companion object {

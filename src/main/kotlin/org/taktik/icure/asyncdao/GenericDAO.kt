@@ -37,10 +37,10 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
     suspend fun contains(id: String): Boolean
     suspend fun hasAny(): Boolean
 
-    fun getAll(): Flow<T>
-    fun getAllIds(limit: Int? = null): Flow<String>
-    fun getList(ids: Collection<String>): Flow<T>
-    fun getList(ids: Flow<String>): Flow<T>
+    fun getEntities(): Flow<T>
+    fun getEntityIds(limit: Int? = null): Flow<String>
+    fun getEntities(ids: Collection<String>): Flow<T>
+    fun getEntities(ids: Flow<String>): Flow<T>
 
     suspend fun remove(entity: T): DocIdentifier
     fun remove(entities: Collection<T>): Flow<DocIdentifier>
@@ -48,8 +48,8 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
     suspend fun purge(entities: Collection<T>)
     fun unRemove(entities: Collection<T>): Flow<DocIdentifier>
     suspend fun unRemove(entity: T): DocIdentifier
-    suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean = true)
-    suspend fun forceInitStandardDesignDocument(client: Client, updateIfExists: Boolean = true)
+    suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean = true, useVersioning: Boolean = true)
+    suspend fun forceInitStandardDesignDocument(client: Client, updateIfExists: Boolean = true, useVersioning: Boolean = true)
     suspend fun initSystemDocumentIfAbsent(dbInstanceUrl: URI)
     suspend fun initSystemDocumentIfAbsent(client: Client)
 }

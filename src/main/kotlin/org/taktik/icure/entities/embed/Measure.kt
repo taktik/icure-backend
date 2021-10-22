@@ -34,6 +34,7 @@ data class Measure(
         val max: Double? = null,
         val ref: Double? = null,
         val severity: Int? = null,
+        val evolution: Int? = null,
         val severityCode: String? = null,
         val unit: String? = null,
 

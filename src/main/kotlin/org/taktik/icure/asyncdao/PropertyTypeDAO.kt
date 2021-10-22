@@ -27,7 +27,7 @@ interface PropertyTypeDAO: GenericDAO<PropertyType> {
             "            emit(doc.identifier,doc._id);\n" +
             "}\n" +
             "}")
-    suspend fun getByIdentifier(propertyTypeIdentifier: String): PropertyType?
+    suspend fun getPropertyByIdentifier(propertyTypeIdentifier: String): PropertyType?
 
     suspend fun evictFromCache(entity: PropertyType)
     suspend fun putInCache(key: String, entity: PropertyType)

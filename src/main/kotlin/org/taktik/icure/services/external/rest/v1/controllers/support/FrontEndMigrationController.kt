@@ -56,7 +56,6 @@ class FrontEndMigrationController(
     @GetMapping
     fun getFrontEndMigrations(): Flux<FrontEndMigrationDto> = flow {
         val userId = sessionLogic.getCurrentSessionContext().getUser().id
-                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Not authorized")
         emitAll(
                 frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, null)
                         .map { frontEndMigrationMapper.map(it) }
@@ -90,7 +89,7 @@ class FrontEndMigrationController(
     @Operation(summary = "Gets an front end migration")
     @GetMapping("/byName/{frontEndMigrationName}")
     fun getFrontEndMigrationByName(@PathVariable frontEndMigrationName: String): Flux<FrontEndMigrationDto> = flow {
-        val userId = sessionLogic.getCurrentSessionContext().getUserDetails().id
+        val userId = sessionLogic.getCurrentSessionContext().getUser().id
 
         emitAll(
                 frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, frontEndMigrationName)

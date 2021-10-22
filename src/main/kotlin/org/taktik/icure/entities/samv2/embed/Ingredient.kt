@@ -21,6 +21,7 @@ package org.taktik.icure.entities.samv2.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import org.taktik.icure.entities.samv2.stub.SubstanceStub
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -34,5 +35,5 @@ data class Ingredient(
         val strengthDescription: String? = null,
         val strength: Quantity? = null,
         val additionalInformation: String? = null,
-        val substance: Substance? = null
+        val substance: SubstanceStub? = null
 ) : DataPeriod

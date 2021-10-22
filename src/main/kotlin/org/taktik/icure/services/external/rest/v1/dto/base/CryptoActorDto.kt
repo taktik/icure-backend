@@ -18,15 +18,13 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.base
 
+import io.swagger.v3.oas.annotations.media.Schema
 
 interface CryptoActorDto {
-    //One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
-    //For a pair of HcParties, this key is called the AES exchange key
-    //Each HcParty always has one AES exchange key for himself
-    // The map's keys are the delegate id.
-    // In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
-    // the key encrypted using delegate's public key.
+    @get:Schema(description = "For each couple of HcParties (delegator and delegate), this map contains the exchange AES key. The delegator is always this hcp, the key of the map is the id of the delegate. The AES exchange key is encrypted using RSA twice : once using this hcp public key (index 0 in the Array) and once using the other hcp public key (index 1 in the Array). For a pair of HcParties. Each HcParty always has one AES exchange key for himself.")
     val hcPartyKeys: Map<String, Array<String>>
-    val privateKeyShamirPartitions: Map<String, String> //Format is hcpId of key that has been partitionned : "threshold|partition in hex"
+    @get:Schema(description = "The privateKeyShamirPartitions are used to share this hcp's private RSA key with a series of other hcParties using Shamir's algorithm. The key of the map is the hcp Id with whom this partition has been shared. The value is \"threshold⎮partition in hex\" encrypted using the the partition's holder's public RSA key")
+    val privateKeyShamirPartitions: Map<String, String>
+    @get:Schema(description = "The public key of this hcp")
     val publicKey: String?
 }

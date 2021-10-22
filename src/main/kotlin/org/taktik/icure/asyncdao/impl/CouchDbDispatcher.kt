@@ -19,12 +19,14 @@
 package org.taktik.icure.asyncdao.impl
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.common.cache.CacheBuilder
-import com.google.common.cache.CacheLoader
+import com.github.benmanes.caffeine.cache.Caffeine
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.delay
 import org.apache.http.client.utils.URIBuilder
+import org.springframework.cache.caffeine.CaffeineCache
+import org.taktik.couchdb.Client
 import org.taktik.couchdb.ClientImpl
+import org.taktik.icure.asynccache.AsyncSafeCache
 import org.taktik.net.web.WebClient
 import java.net.URI
 import java.util.concurrent.TimeUnit
@@ -39,27 +41,42 @@ class CouchDbDispatcher(
         private val createdReplicasIfNotExists: Int? = null
 ) {
     @ExperimentalCoroutinesApi
-    private val connectors = CacheBuilder.newBuilder()
+    private val connectors = AsyncSafeCache<CouchDbConnectorReference, Client>(CaffeineCache("Connectors", Caffeine.newBuilder()
             .maximumSize(10000)
             .expireAfterAccess(240, TimeUnit.MINUTES)
-            .build<CouchDbConnectorReference, ClientImpl>(object : CacheLoader<CouchDbConnectorReference, ClientImpl>() {
-                @Throws(Exception::class)
-                override fun load(key: CouchDbConnectorReference): ClientImpl {
-                    return ClientImpl(httpClient, URIBuilder(key.dbInstanceUrl).setPath("$prefix-$dbFamily").build(), username, password, objectMapper).also {
-                        if (createdReplicasIfNotExists != null) {
-                            runBlocking {
-                                if (!it.exists()) {
-                                    it.create(3,createdReplicasIfNotExists)
+            .build()))
+
+    @ExperimentalCoroutinesApi
+    suspend fun getClient(dbInstanceUrl: URI, retry: Int = 5): Client {
+        var result: Result<Client> = Result.failure(Exception("Client not initialized"))
+        run retry@{
+            (0..retry).forEach { n ->
+                runCatching {
+                    connectors.get(CouchDbConnectorReference(dbInstanceUrl.toString()), object : AsyncSafeCache.AsyncValueProvider<CouchDbConnectorReference, Client> {
+                        override suspend fun getValue(key: CouchDbConnectorReference): Client {
+                            return ClientImpl(httpClient, URIBuilder(key.dbInstanceUrl).setPath("$prefix-$dbFamily").build(), username, password, objectMapper).also {
+                                if (createdReplicasIfNotExists != null) {
+                                    if (!it.exists()) {
+                                        it.create(3, createdReplicasIfNotExists)
+                                    }
                                 }
                             }
                         }
+                    })
+                }.onSuccess { client ->
+                    result = Result.success(client!!)
+                    return@retry
+                }
+                 .onFailure { e ->
+                    when (n) {
+                        in 0 until retry -> delay(100)
+                        else -> result = Result.failure(e)
                     }
                 }
-            })
+            }
+        }
 
-    @ExperimentalCoroutinesApi
-    fun getClient(dbInstanceUrl: URI): ClientImpl {
-        return connectors.get(CouchDbConnectorReference(dbInstanceUrl.toString()))
+        return result.getOrThrow()
     }
 
     private data class CouchDbConnectorReference(internal val dbInstanceUrl: String)

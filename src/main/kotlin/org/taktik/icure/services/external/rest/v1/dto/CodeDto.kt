@@ -21,11 +21,8 @@ package org.taktik.icure.services.external.rest.v1.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
-import org.taktik.icure.services.external.rest.v1.dto.base.AppendixTypeDto
-import org.taktik.icure.services.external.rest.v1.dto.base.CodeFlagDto
-import org.taktik.icure.services.external.rest.v1.dto.base.CodeIdentificationDto
-import org.taktik.icure.services.external.rest.v1.dto.base.LinkQualificationDto
-import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
+import io.swagger.v3.oas.annotations.media.Schema
+import org.taktik.icure.services.external.rest.v1.dto.base.*
 import org.taktik.icure.services.external.rest.v1.dto.embed.PeriodicityDto
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -52,7 +49,7 @@ data class CodeDto(
         val searchTerms: Map<String, Set<String>> = mapOf(), //Extra search terms/ language
         val data: String? = null,
         val appendices: Map<AppendixTypeDto, String> = mapOf(),
-        val disabled: Boolean = false
+        @Schema(defaultValue = "false") val disabled: Boolean = false
 ) : StoredDocumentDto, CodeIdentificationDto<String> {
     companion object {
         fun from(type: String, code: String, version: String) = CodeDto(id = "$type|$code|$version", type = type, code = code, version = version)

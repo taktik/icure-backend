@@ -34,15 +34,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AccessLogLogic
@@ -67,12 +59,12 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.AddressMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.PatientHealthCarePartyMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
+import org.taktik.icure.services.external.rest.v1.utils.paginatedList
+import org.taktik.icure.services.external.rest.v1.utils.paginatedListOfIds
 import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.paginatedList
-import org.taktik.icure.utils.paginatedListOfIds
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.time.Instant
-import java.util.*
 import javax.security.auth.login.LoginException
 
 @ExperimentalCoroutinesApi
@@ -222,7 +214,7 @@ class PatientController(
         patientLogic.findByHcPartyIdsOnly(hcPartyId, paginationOffset).paginatedListOfIds(realLimit)
     }
 
-    @Operation(summary = "Get Paginated List of Patients sorted by Access logs descending")
+    @Operation(summary = "Get the patient having the provided externalId")
     @GetMapping("/byExternalId/{externalId}")
     fun findByExternalId(@PathVariable("externalId")
                          @Parameter(description = "A external ID", required = true) externalId: String) = mono {
@@ -236,11 +228,11 @@ class PatientController(
                                      @Parameter(description = "The start search epoch") @RequestParam(required = false) startDate: Long?,
                                      @Parameter(description = "The start key for pagination") @RequestParam(required = false) startKey: String?,
                                      @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-                                     @Parameter(description = "Number of rows") @RequestParam(defaultValue = DEFAULT_LIMIT.toString()) limit: Int) = mono {
+                                     @Parameter(description = "Number of rows") @RequestParam(defaultValue = DEFAULT_LIMIT.toString()) limit: Int): Mono<PaginatedList<PatientDto>> = mono {
 
         val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
-        accessLogLogic.findByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, true).paginatedList<AccessLog>(limit)
+        accessLogLogic.findAccessLogsByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, true).paginatedList<AccessLog>(limit)
                 .let {
                     val patientIds = it.rows.sortedBy { accessLog -> accessLog.date }.mapNotNull { it.patientId }.distinct()
                     PaginatedList(
@@ -352,7 +344,7 @@ class PatientController(
             @Parameter(description = "First name prefix") @RequestParam(required = false) firstName: String?,
             @Parameter(description = "Last name prefix") @RequestParam(required = false) lastName: String?) =
             try {
-                patientLogic.findDeletedPatientsByNames(firstName, lastName).map { patientMapper.map(it) }.injectReactorContext()
+                patientLogic.listDeletedPatientsByNames(firstName, lastName).map { patientMapper.map(it) }.injectReactorContext()
             } catch (e: Exception) {
                 log.warn(e.message, e)
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -400,10 +392,10 @@ class PatientController(
     }
 
     @Operation(summary = "Create patients in bulk", description = "Returns the id and _rev of created patients")
-    @PostMapping("/bulk")
+    @PostMapping("/bulk", "/batch")
     fun bulkCreatePatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
-            val patients = patientLogic.updateEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
+            val patients = patientLogic.modifyEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
             patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
         } catch (e: Exception) {
             log.warn(e.message, e)
@@ -412,10 +404,10 @@ class PatientController(
     }
 
     @Operation(summary = "Modify patients in bulk", description = "Returns the id and _rev of modified patients")
-    @PutMapping("/bulk")
+    @PutMapping("/bulk", "/batch")
     fun bulkUpdatePatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
-            val patients = patientLogic.updateEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
+            val patients = patientLogic.modifyEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
             patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
         } catch (e: Exception) {
             log.warn(e.message, e)

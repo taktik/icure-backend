@@ -47,24 +47,24 @@ class DocumentTemplateLogicImpl(private val documentTemplateDAO: DocumentTemplat
         documentTemplateDAO.createDocumentTemplate(documentTemplate.owner?.let { documentTemplate } ?: documentTemplate.copy(owner = sessionLogic.getCurrentUserId()))
     }
 
-    override suspend fun getDocumentTemplateById(documentTemplateId: String): DocumentTemplate? {
+    override suspend fun getDocumentTemplate(documentTemplateId: String): DocumentTemplate? {
         return documentTemplateDAO.get(documentTemplateId)
     }
 
     override fun getDocumentTemplatesBySpecialty(specialityCode: String): Flow<DocumentTemplate> = flow {
-        emitAll(documentTemplateDAO.findBySpecialtyGuid(specialityCode, null))
+        emitAll(documentTemplateDAO.listDocumentTemplatesBySpecialtyAndGuid(specialityCode, null))
     }
 
     override fun getDocumentTemplatesByDocumentType(documentTypeCode: String): Flow<DocumentTemplate> = flow {
-        emitAll(documentTemplateDAO.findByTypeUserGuid(documentTypeCode, null, null))
+        emitAll(documentTemplateDAO.listDocumentsByTypeUserGuid(documentTypeCode, null, null))
     }
 
     override fun getDocumentTemplatesByDocumentTypeAndUser(documentTypeCode: String, userId: String): Flow<DocumentTemplate> = flow {
-        emitAll(documentTemplateDAO.findByTypeUserGuid(documentTypeCode, userId, null))
+        emitAll(documentTemplateDAO.listDocumentsByTypeUserGuid(documentTypeCode, userId, null))
     }
 
     override fun getDocumentTemplatesByUser(userId: String): Flow<DocumentTemplate> = flow {
-        emitAll(documentTemplateDAO.findByUserGuid(userId, null))
+        emitAll(documentTemplateDAO.listDocumentTemplatesByUserGuid(userId, null))
     }
 
     override suspend fun modifyDocumentTemplate(documentTemplate: DocumentTemplate) = fix(documentTemplate) { documentTemplate ->

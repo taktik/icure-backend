@@ -24,14 +24,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.CalendarItemTypeLogic
@@ -50,7 +43,7 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
     @Operation(summary = "Gets all calendarItemTypes")
     @GetMapping
     fun getCalendarItemTypes(): Flux<CalendarItemTypeDto> =
-            calendarItemTypeLogic.getAllEntities().map { calendarItemTypeMapper.map(it) }.injectReactorContext()
+            calendarItemTypeLogic.getEntities().map { calendarItemTypeMapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "Gets all calendarItemTypes include deleted")
     @GetMapping("/includeDeleted")

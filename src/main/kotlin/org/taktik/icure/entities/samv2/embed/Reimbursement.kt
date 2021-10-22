@@ -44,13 +44,16 @@ data class Reimbursement(
         var pricingSlice: Pricing? = null,
         var reimbursementCriterion: ReimbursementCriterion? = null,
         var copayments: Set<Copayment>? = null
-) : DataPeriod {
+) : DataPeriod, Comparable<Reimbursement> {
+    override fun compareTo(other: Reimbursement): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.from }, { it.code }, { it.deliveryEnvironment }, { it.flatRateSystem })
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        if (!super.equals(other)) return false
-
-        other as Reimbursement
+        if (other !is Reimbursement) return false
 
         if (deliveryEnvironment != other.deliveryEnvironment) return false
         if (code != other.code) return false
@@ -60,9 +63,9 @@ data class Reimbursement(
         if (reference != other.reference) return false
         if (legalReferencePath != other.legalReferencePath) return false
         if (flatRateSystem != other.flatRateSystem) return false
-        if (reimbursementBasePrice?.compareTo(other.reimbursementBasePrice) != 0 && reimbursementBasePrice != other.reimbursementBasePrice) return false
-        if (referenceBasePrice?.compareTo(other.referenceBasePrice) != 0 && referenceBasePrice != other.referenceBasePrice) return false
-        if (copaymentSupplement?.compareTo(other.copaymentSupplement) != 0 && copaymentSupplement != other.copaymentSupplement) return false
+        if (reimbursementBasePrice != null && other.reimbursementBasePrice == null || reimbursementBasePrice == null && other.reimbursementBasePrice != null || (reimbursementBasePrice?.compareTo(other.reimbursementBasePrice) != 0 && reimbursementBasePrice != other.reimbursementBasePrice)) return false
+        if (referenceBasePrice != null && other.referenceBasePrice == null || referenceBasePrice == null && other.referenceBasePrice != null || (referenceBasePrice?.compareTo(other.referenceBasePrice) != 0 && referenceBasePrice != other.referenceBasePrice)) return false
+        if (copaymentSupplement != null && other.copaymentSupplement == null || copaymentSupplement == null && other.copaymentSupplement != null || (copaymentSupplement?.compareTo(other.copaymentSupplement) != 0 && copaymentSupplement != other.copaymentSupplement)) return false
         if (pricingUnit != other.pricingUnit) return false
         if (pricingSlice != other.pricingSlice) return false
         if (reimbursementCriterion != other.reimbursementCriterion) return false
@@ -72,7 +75,8 @@ data class Reimbursement(
     }
 
     override fun hashCode(): Int {
-        var result = super.hashCode()
+        var result = from?.hashCode() ?: 0
+        result = 31 * result + (to?.hashCode() ?: 0)
         result = 31 * result + (deliveryEnvironment?.hashCode() ?: 0)
         result = 31 * result + (code?.hashCode() ?: 0)
         result = 31 * result + (codeType?.hashCode() ?: 0)
@@ -81,9 +85,9 @@ data class Reimbursement(
         result = 31 * result + (reference?.hashCode() ?: 0)
         result = 31 * result + (legalReferencePath?.hashCode() ?: 0)
         result = 31 * result + (flatRateSystem?.hashCode() ?: 0)
-        result = 31 * result + (reimbursementBasePrice?.hashCode() ?: 0)
-        result = 31 * result + (referenceBasePrice?.hashCode() ?: 0)
-        result = 31 * result + (copaymentSupplement?.hashCode() ?: 0)
+        result = 31 * result + (reimbursementBasePrice?.toInt() ?: 0)
+        result = 31 * result + (referenceBasePrice?.toInt() ?: 0)
+        result = 31 * result + (copaymentSupplement?.toInt() ?: 0)
         result = 31 * result + (pricingUnit?.hashCode() ?: 0)
         result = 31 * result + (pricingSlice?.hashCode() ?: 0)
         result = 31 * result + (reimbursementCriterion?.hashCode() ?: 0)

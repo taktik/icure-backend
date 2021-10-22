@@ -21,15 +21,7 @@ package org.taktik.icure.asynclogic.impl
 
 import com.google.common.collect.ImmutableMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.fold
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.logging.LogFactory
@@ -53,7 +45,6 @@ import java.io.InputStream
 import java.lang.reflect.InvocationTargetException
 import java.util.*
 import javax.xml.parsers.SAXParserFactory
-import kotlin.collections.HashMap
 
 @ExperimentalCoroutinesApi
 @Service
@@ -78,8 +69,8 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
         return codeDAO.get("$type|$code|$version")
     }
 
-    override fun get(ids: List<String>) = flow<Code> {
-        emitAll(codeDAO.getList(ids))
+    override fun getCodes(ids: List<String>) = flow<Code> {
+        emitAll(codeDAO.getEntities(ids))
     }
 
     override suspend fun create(code: Code) = fix(code) { code: Code ->
@@ -92,27 +83,27 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 
     @Throws(Exception::class)
     override suspend fun modify(code: Code) = fix(code) { code ->
-        updateEntities(setOf(code)).firstOrNull()
+        modifyEntities(setOf(code)).firstOrNull()
     }
 
     override fun findCodeTypes(type: String?) = flow<String> {
-        emitAll(codeDAO.findCodeTypes(type))
+        emitAll(codeDAO.listCodesByType(type))
     }
 
     override fun findCodeTypes(region: String?, type: String?) = flow<String> {
-        emitAll(codeDAO.findCodeTypes(region, type))
+        emitAll(codeDAO.listCodesByRegionAndType(region, type))
     }
 
     override fun findCodesBy(type: String?, code: String?, version: String?) = flow<Code> {
-        emitAll(codeDAO.findCodes(type, code, version))
+        emitAll(codeDAO.listCodesBy(type, code, version))
     }
 
     override fun findCodesBy(region: String?, type: String?, code: String?, version: String?) = flow<Code> {
-        emitAll(codeDAO.findCodes(region, type, code, version))
+        emitAll(codeDAO.listCodesBy(region, type, code, version))
     }
 
     override fun findCodesBy(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>) = flow<ViewQueryResultEvent> {
-        emitAll(codeDAO.findCodes(region, type, code, version, paginationOffset))
+        emitAll(codeDAO.findCodesBy(region, type, code, version, paginationOffset))
     }
 
     override fun findCodesByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>) = flow<ViewQueryResultEvent> {
@@ -173,7 +164,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
     }
 
     override suspend fun importCodesFromXml(md5: String, type: String, stream: InputStream) {
-        val check = get(listOf(Code.from("ICURE-SYSTEM", md5, version = "1").id)).toList()
+        val check = getCodes(listOf(Code.from("ICURE-SYSTEM", md5, version = "1").id)).toList()
 
         if (check.isEmpty()) {
             val factory = SAXParserFactory.newInstance();
@@ -184,11 +175,11 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
             val batchSave: suspend (Code?, Boolean?) -> Unit = { c, flush ->
                 c?.let { stack.add(it) }
                 if (stack.size == 100 || flush == true) {
-                    val existings = get(stack.map { it.id }).fold(HashMap<String, Code>()) { map, c -> map[c.id] = c; map }
+                    val existings = getCodes(stack.map { it.id }).fold(HashMap<String, Code>()) { map, c -> map[c.id] = c; map }
                     try {
                         codeDAO.save(stack.map { xc ->
                             existings[xc.id]?.let { xc.copy(rev = it.rev) } ?: xc
-                        })
+                        }).collect { log.debug("Code: ${it.id} from file ${type}.${md5}.xml is saved") }
                     } catch (e: BulkUpdateConflictException) {
                         log.error("${e.conflicts.size} conflicts for type $type")
                     }
@@ -223,7 +214,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
                             }
                             "CODE" -> charsHandler = { code["code"] = it }
                             "PARENT" -> charsHandler = { code["qualifiedLinks"] = mapOf(LinkQualification.parent to listOf("$type|$it|$version")) }
-                            "DESCRIPTION" -> charsHandler = { attributes?.getValue("L")?.let { attributesValue -> code["label"] = (code["label"] as Map<String,String>) + (attributesValue to it) } }
+                            "DESCRIPTION" -> charsHandler = { attributes?.getValue("L")?.let { attributesValue -> code["label"] = (code["label"] as Map<String,String>) + (attributesValue to it.trim()) } }
                             else -> {
                                 charsHandler = null
                             }
@@ -237,6 +228,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
                         when (it.toUpperCase()) {
                             "VALUE" -> {
                                 runBlocking {
+                                    code["id"] = "${code["type"] as String}|${code["code"] as String}|${code["version"] as String}"
                                     batchSave(Code(args = code), false)
                                 }
                             }
@@ -246,8 +238,232 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 
                 }
             }
+
+            val beThesaurusHandler = object : DefaultHandler() {
+                var initialized = false
+                var version: String = "1.0"
+                var charsHandler: ((chars: String) -> Unit)? = null
+                var code: MutableMap<String, Any> = mutableMapOf()
+                var characters: String = ""
+
+                override fun characters(ch: CharArray?, start: Int, length: Int) {
+                    ch?.let { characters += String(it, start, length) }
+                }
+
+                override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
+                    if (!initialized && qName != "Root") {
+                        throw IllegalArgumentException("XML not supported : $type")
+                    }
+                    if (!initialized) {
+                        version = attributes?.getValue("version")?:
+                                throw IllegalArgumentException("Unknown version in : $type")
+                    }
+
+                    initialized = true
+                    characters = ""
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "CLINICAL_LABEL" -> {
+                                code = mutableMapOf(
+                                        "type" to type,
+                                        "version" to version,
+                                        "label" to mutableMapOf<String, String>(),
+                                        "searchTerms" to mutableMapOf<String, Set<String>>(),
+                                        "links" to mutableSetOf<String>()
+                                )
+                            }
+                            "IBUI" -> charsHandler = { ch -> code["code"] = ch }
+                            "ICPC_2_CODE_1", "ICPC_2_CODE_1X", "ICPC_2_CODE_1Y",
+                            "ICPC_2_CODE_2", "ICPC_2_CODE_2X", "ICPC_2_CODE_2Y" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) code["links"] = (code["links"] as Set<*>) + ("ICPC|$ch|2")
+                            }
+                            "ICD_10_CODE_1", "ICD_10_CODE_1X", "ICD_10_CODE_1Y",
+                            "ICD_10_CODE_2", "ICD_10_CODE_2X", "ICD_10_CODE_2Y" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) code["links"] = (code["links"] as Set<*>) + ("ICD|$ch|10")
+                            }
+                            "FR_CLINICAL_LABEL" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) {
+                                    code["label"] = (code["label"] as Map<*,*>) +
+                                            ("fr" to ch.replace("&apos;", "'"))
+                                }
+                            }
+                            "NL_CLINICAL_LABEL" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) {
+                                    code["label"] = (code["label"] as Map<*,*>) + ("nl" to ch)
+                                }
+                            }
+                            "CLEFS_RECHERCHE_FR" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) {
+                                    code["searchTerms"] = (code["searchTerms"] as Map<*,*>) +
+                                            ("fr" to ch.split(" ").map { it.trim() }.toSet())
+                                }
+                            }
+                            "ZOEKTERMEN_NL" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) {
+                                    code["searchTerms"] = (code["searchTerms"] as Map<*,*>) +
+                                            ("nl" to ch.split(" ").map { it.trim() }.toSet())
+                                }
+                            }
+                            else -> charsHandler = null
+                        }
+                    }
+                }
+
+                override fun endElement(uri: String?, localName: String?, qName: String?) {
+                    charsHandler?.let { it(characters) }
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "CLINICAL_LABEL" -> {
+                                runBlocking {
+                                    code["id"] = "${code["type"] as String}|${code["code"] as String}|${code["version"] as String}"
+                                    batchSave(Code(args = code), false)
+                                }
+                            }
+                            else -> null
+                        }
+                    }
+                }
+            }
+
+            val beThesaurusProcHandler = object : DefaultHandler() {
+                var initialized = false
+                var version: String = "1.0"
+                var charsHandler: ((chars: String) -> Unit)? = null
+                var code: MutableMap<String, Any> = mutableMapOf()
+                var characters: String = ""
+
+                override fun characters(ch: CharArray?, start: Int, length: Int) {
+                    ch?.let { characters += String(it, start, length) }
+                }
+
+                override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
+                    if (!initialized && qName != "Root") {
+                        throw IllegalArgumentException("XML not supported : $type")
+                    }
+                    if (!initialized) {
+                        version = attributes?.getValue("version")?:
+                                throw IllegalArgumentException("Unknown version in : $type")
+                    }
+
+                    initialized = true
+                    characters = ""
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "PROCEDURE" -> {
+                                code = mutableMapOf(
+                                        "type" to type,
+                                        "version" to version,
+                                        "label" to mutableMapOf<String, String>(),
+                                        "searchTerms" to mutableMapOf<String, Set<String>>()
+                                )
+                            }
+                            "CISP" -> charsHandler = { ch -> code["code"] = ch }
+                            "IBUI" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) code["links"] = setOf("BE-THESAURUS|$ch|$version")
+                            }
+                            "IBUI_NOT_EXACT" -> charsHandler = { ch ->
+                                if(ch.isNotBlank() && !code.containsKey("links"))
+                                    code["links"] = setOf("BE-THESAURUS|$ch|$version")
+                            }
+                            "LABEL_FR" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) code["label"] = (code["label"] as Map<*,*>) + ("fr" to ch)
+                            }
+                            "LABEL_NL" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) code["label"] = (code["label"] as Map<*,*>) + ("nl" to ch)
+                            }
+                            "SYN_FR" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) {
+                                    code["searchTerms"] = (code["searchTerms"] as Map<*,*>) +
+                                            ("fr" to ch.split(" ").map { it.trim() }.toSet())
+                                }
+                            }
+                            "SYN_NL" -> charsHandler = { ch ->
+                                if(ch.isNotBlank()) {
+                                    code["searchTerms"] = (code["searchTerms"] as Map<*,*>) +
+                                            ("nl" to ch.split(" ").map { it.trim() }.toSet())
+                                }
+                            }
+                            else -> charsHandler = null
+                        }
+                    }
+                }
+
+                override fun endElement(uri: String?, localName: String?, qName: String?) {
+                    charsHandler?.let { it(characters) }
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "PROCEDURE" -> {
+                                runBlocking {
+                                    code["id"] = "${code["type"] as String}|${code["code"] as String}|${code["version"] as String}"
+                                    batchSave(Code(args = code), false)
+                                }
+                            }
+                            else -> null
+                        }
+                    }
+                }
+            }
+
+            val iso6391Handler = object : DefaultHandler() {
+                var initialized = false
+                var version: String = "1.0"
+                var charsHandler: ((chars: String) -> Unit)? = null
+                var code: MutableMap<String, Any> = mutableMapOf()
+                var characters: String = ""
+
+                override fun characters(ch: CharArray?, start: Int, length: Int) {
+                    ch?.let { characters += String(it, start, length) }
+                }
+
+                override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
+                    if (!initialized && qName != "ISO639-1") {
+                        throw IllegalArgumentException("XML not supported : $type")
+                    }
+
+                    initialized = true
+                    characters = ""
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "VERSION" -> charsHandler = { ch ->
+                                version = ch
+                            }
+                            "VALUE" -> {
+                                code = mutableMapOf("type" to type, "version" to version, "label" to mapOf<String,String>())
+                            }
+                            "CODE" -> charsHandler = { ch -> code["code"] = ch }
+                            "DESCRIPTION" -> charsHandler = {
+                                attributes?.getValue("L")?.let {
+                                    attributesValue -> code["label"] = (code["label"] as Map<*,*>) + (attributesValue to it.trim())
+                                }
+                            }
+                            else -> charsHandler = null
+                        }
+                    }
+                }
+
+                override fun endElement(uri: String?, localName: String?, qName: String?) {
+                    charsHandler?.let { it(characters) }
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "VALUE" -> {
+                                runBlocking {
+                                    code["id"] = "${code["type"] as String}|${code["code"] as String}|${code["version"] as String}"
+                                    batchSave(Code(args = code), false)
+                                }
+                            }
+                            else -> null
+                        }
+                    }
+                }
+            }
+
             try {
-                saxParser.parse(stream, handler)
+                when (type.toUpperCase()) {
+                    "BE-THESAURUS-PROCEDURES" -> saxParser.parse(stream, beThesaurusProcHandler)
+                    "BE-THESAURUS" -> saxParser.parse(stream, beThesaurusHandler)
+                    "ISO-639-1" -> saxParser.parse(stream, iso6391Handler)
+                    else -> saxParser.parse(stream, handler)
+                }
                 batchSave(null, true)
                 create(Code.from("ICURE-SYSTEM", md5, "1"))
             } catch (e: IllegalArgumentException) {
@@ -262,7 +478,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 
     override fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Code>, sort: String?, desc: Boolean?) = flow<ViewQueryResultEvent> {
         var ids = filters.resolve(filterChain.filter).toList().sorted()
-        var codes = codeDAO.getForPagination(ids)
+        var codes = codeDAO.getCodesByIdsForPagination(ids)
         if (filterChain.predicate != null || sort != null && sort != "id") {
             filterChain.predicate?.let {
                 codes.filter {

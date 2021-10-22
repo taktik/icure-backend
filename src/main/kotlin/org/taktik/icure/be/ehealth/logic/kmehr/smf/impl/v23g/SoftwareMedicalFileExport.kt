@@ -21,71 +21,23 @@ package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 import com.github.mustachejava.DefaultMustacheFactory
 import com.github.mustachejava.Mustache
 import com.github.mustachejava.MustacheFactory
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.couchdb.exception.DocumentNotFoundException
-import org.taktik.icure.asynclogic.AsyncSessionLogic
-import org.taktik.icure.asynclogic.CodeLogic
-import org.taktik.icure.asynclogic.ContactLogic
-import org.taktik.icure.asynclogic.DocumentLogic
-import org.taktik.icure.asynclogic.FormLogic
-import org.taktik.icure.asynclogic.FormTemplateLogic
-import org.taktik.icure.asynclogic.HealthElementLogic
-import org.taktik.icure.asynclogic.HealthcarePartyLogic
-import org.taktik.icure.asynclogic.InsuranceLogic
-import org.taktik.icure.asynclogic.PatientLogic
-import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.couchdb.id.UUIDGenerator
+import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeMomentType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXMLGregorianCalendarFromFuzzyLong
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXmlGregorianCalendar
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENT
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTY
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITY
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITYREASON
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITYREASONvalues
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITYvalues
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEM
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDLIFECYCLE
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDLIFECYCLEvalues
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDLNKvalues
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDMEDIATYPEvalues
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTION
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.LnkType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCE
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCEschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AuthorType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ContentType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.FolderType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.IncapacityType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.IncapacityreasonType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.InsuranceType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.LifecycleType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.RecipientType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
 import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
-import org.taktik.couchdb.id.UUIDGenerator
-import org.taktik.icure.entities.Contact
-import org.taktik.icure.entities.Form
-import org.taktik.icure.entities.HealthElement
-import org.taktik.icure.entities.HealthcareParty
-import org.taktik.icure.entities.Patient
+import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.embed.Insurability
@@ -95,13 +47,14 @@ import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
+import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
 import org.taktik.icure.services.external.rest.v1.mapper.ContactMapper
+import org.taktik.icure.services.external.rest.v1.mapper.DocumentMapper
 import org.taktik.icure.utils.FuzzyValues
 import java.io.StringWriter
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.util.*
 import javax.xml.datatype.DatatypeConstants
 
 /**
@@ -121,13 +74,15 @@ class SoftwareMedicalFileExport(
         sessionLogic: AsyncSessionLogic,
         userLogic: UserLogic,
         filters: org.taktik.icure.asynclogic.impl.filter.Filters,
-        val contactMapper: ContactMapper
+        val contactMapper: ContactMapper,
+        val documentMapper: DocumentMapper,
 ) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 	private var hesByContactId: Map<String?, List<HealthElement>> = HashMap()
     private var servicesByContactId: Map<String?, List<Service>> = HashMap()
     private var newestServicesById: MutableMap<String?, Service> = HashMap()
 	private var itemByServiceId: MutableMap<String, ItemType> = HashMap()
 	private var oldestHeByHeId: Map<String?, HealthElement> = HashMap()
+    private var heById:  Map<String?, List<HealthElement>> = HashMap()
 
 	fun exportSMF(
 			patient: Patient,
@@ -170,7 +125,7 @@ class SoftwareMedicalFileExport(
 		})
 
         val folder = makePatientFolder(1, patient, sfksUniq, sender, config, language, decryptor, progressor)
-        emitMessage(folder, message).collect { emit(it) }
+        emitMessage(message.apply { folders.add(folder) }).collect { emit(it) }
 	}
 
 
@@ -240,7 +195,7 @@ class SoftwareMedicalFileExport(
 		hesByContactId[null].orEmpty().map { he -> addHealthCareElement(folder.transactions.first(), he, 0, config) }
 		hesByContactId = hesByContactId.filterKeys { it != null }
 
-		val heById = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
+		heById = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
 			// retrive the healthElementId property of an HE by his couchdb id
 			it.id
 		}
@@ -254,12 +209,14 @@ class SoftwareMedicalFileExport(
 			progressor?.progress((1.0 * index) / (contacts.size + documents.size))
             log.info("Treating contact ${index}/${contacts.size}")
 
-            log.info("Decrypt "+encContact.id)
-
             val contact = if (decryptor != null && (encContact.services.isNotEmpty())) {
+                log.info("Decrypt ${encContact.id}")
                 val ctcDto = contactMapper.map(encContact)
-				decryptor.decrypt(listOf(ctcDto), ContactDto::class.java).firstOrNull()?.let { contactMapper.map(it) } ?: encContact
-			} else {
+                val decryptedContact = decryptor.decrypt(listOf(ctcDto), ContactDto::class.java).firstOrNull()?.let { contactMapper.map(it) }
+                        ?: encContact
+                log.info("${encContact.id} decrypted")
+                decryptedContact
+            } else {
 				encContact
 			}
 
@@ -310,7 +267,7 @@ class SoftwareMedicalFileExport(
                                     formLogic.getForm(it)?.let { form ->
                                         form.formTemplateId?.let {
                                             try {
-                                                formTemplateLogic.getFormTemplateById(it)?.let {
+                                                formTemplateLogic.getFormTemplate(it)?.let {
                                                     when (it.guid) {
                                                         "FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00" -> { // ITT
                                                             services = services.filterNot { subcon.services.map { it.serviceId }.contains(it.id) } // remove form services from main list
@@ -337,7 +294,6 @@ class SoftwareMedicalFileExport(
                                                             specialPrescriptions.add(makeNursePrescriptionTransaction(contact, subcon, subformsubcons, form))
                                                         }
                                                         else -> Unit
-
                                                     }
                                                 }
                                             } catch (e:Exception) {
@@ -352,16 +308,15 @@ class SoftwareMedicalFileExport(
                         contact.services.filter { s -> s.tags.find { t -> t.code == "incapacity" } != null }.forEach { incapacityService ->
                             headingsAndItemsAndTexts.add(makeIncapacityItem(healthcareParty, incapacityService))
                             incapacityService.content[language]?.documentId?.let { docId ->
-                                createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config)
+                                createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config, decryptor)
                             }
                         }
                         contact.services.filter { s -> s.tags.find { t -> t.code == "physiotherapy" } != null }.forEach { kineService ->
-                            specialPrescriptions.add(makeKinePrescriptionTransaction(kineService))
+                            specialPrescriptions.add(makeKinePrescriptionTransaction(kineService, decryptor))
                         }
                         contact.services.filter { s -> s.tags.find { t -> t.code == "medicalcares" } != null }.forEach { nurseService ->
-                            specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService))
+                            specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService, decryptor))
                         }
-
                         contact.services.filter { s -> isSummary(s) }.forEach { summaryService ->
                             summaries.add(makeSummaryTransaction(contact, summaryService))
                         }
@@ -417,7 +372,7 @@ class SoftwareMedicalFileExport(
                                         } ?: emptyList()
                                     } + codesToKmehr(svc.codes)
                                     if (contents.isNotEmpty()) {
-                                        val item = createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID")?.apply {
+                                        createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID")?.apply {
                                             this.ids.add(IDKMEHR().apply {
                                                 this.s = IDKMEHRschemes.LOCAL
                                                 this.sv = "1.0"
@@ -468,9 +423,9 @@ class SoftwareMedicalFileExport(
                                                     this.contents.add(ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
                                                 }
                                             }
-
-                                            addHistoryLinkAndCacheService(this, svc, config)
-                                            headingsAndItemsAndTexts.add(this)
+                                        }?.let {
+                                            addHistoryLinkAndCacheService(it, svc, config)
+                                            headingsAndItemsAndTexts.add(it)
                                         }
                                     }
                                 }
@@ -502,7 +457,7 @@ class SoftwareMedicalFileExport(
             )
 			Unit
 		}
-
+        log.info("Exporting pharmaceutical prescriptions")
 		pharmaceuticalPrescriptions.forEachIndexed{ index, it ->
 			progressor?.progress((1.0 * (index + contacts.size)) / (contacts.size + documents.size))
 			val (svc, con) = it
@@ -559,15 +514,22 @@ class SoftwareMedicalFileExport(
                         }
                         addHistoryLinkAndCacheService(this, svc, config)
                         headingsAndItemsAndTexts.add(this)
+                        svc.formId?.let{
+                            (it != "") && it.let{
+                                this.lnks.add(LnkType().apply { type = CDLNKvalues.ISATTESTATIONOF; url = makeLnkUrl(it) })
+                            }
+                        }
                     }
                 }
                 // FIXME: prescriptions should be linked to medication with a ISATTESTATIONOF link but there is no such link in topaz
 				headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(con.id) })
+                addServiceLinkToHealthElement(con);
 			})
 		}
 
         documents.forEachIndexed{ index, it ->
             try {
+                log.info("Exporting document $index/${documents.size}")
                 progressor?.progress((1.0 * (index + contacts.size)) / (contacts.size + documents.size))
                 val (docid, svc, con) = it
                 folder.transactions.add(TransactionType().apply {
@@ -593,7 +555,9 @@ class SoftwareMedicalFileExport(
                             value = svc.comment
                         })
                     }
-                    documentLogic?.get(docid)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(d); value = it }) } }
+                    documentLogic.getDocument(docid)?.let { d ->
+                        d.attachment?.let { headingsAndItemsAndTexts.add(makeMultimediaLnkType(d, it, decryptor)) }
+                    }
                     headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(con.id) })
                 })
             } catch(e:Exception) {
@@ -613,6 +577,34 @@ class SoftwareMedicalFileExport(
 		return folder
 	}
 
+    private fun addServiceLinkToHealthElement(contact: Contact){
+        // add link from items to HEs
+        val subContactsByFormId = contact.subContacts.groupBy { it.formId }
+        val subContactServicesByFormId = subContactsByFormId.mapValues {
+            it.value.flatMap { subContact -> subContact.services }
+        }
+        contact.subContacts.forEach { subcon ->
+            if (subcon.healthElementId != null) {
+                subContactServicesByFormId[subcon.formId]?.forEach {
+                    itemByServiceId[it.serviceId]?.lnks?.let { it ->
+                        val lnk = LnkType().apply {
+                            type = CDLNKvalues.ISASERVICEFOR
+                            // link should point to He.healthElementId and not He.id
+                            subcon.healthElementId.let { heId ->
+                                heById[heId]?.firstOrNull()?.let { healthElement ->
+                                    url = makeLnkUrl(healthElement.healthElementId ?: healthElement.id)
+                                }
+                            }
+                        }
+                        if (it.none { (it.type == lnk.type) && (it.url == lnk.url) }) {
+                            it.add(lnk)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun addHistoryLinkAndCacheService(item: ItemType, svc: Service, config: Config) {
         svc.id.let { svcId ->
             if (itemByServiceId[svcId] != null && config.format != Config.Format.PMF) {
@@ -628,15 +620,15 @@ class SoftwareMedicalFileExport(
         }
     }
 
-    private suspend fun makeNursePrescriptionTransaction(contact: Service): TransactionType {
-        return makeSpecialPrescriptionTransaction(contact, "nursing")
+    private suspend fun makeNursePrescriptionTransaction(contact: Service, decryptor: AsyncDecrypt?): TransactionType {
+        return makeSpecialPrescriptionTransaction(contact, "nursing", decryptor)
     }
 
-    private suspend fun makeKinePrescriptionTransaction(contact: Service): TransactionType {
-        return makeSpecialPrescriptionTransaction(contact, "physiotherapy")
+    private suspend fun makeKinePrescriptionTransaction(contact: Service, decryptor: AsyncDecrypt?): TransactionType {
+        return makeSpecialPrescriptionTransaction(contact, "physiotherapy", decryptor)
     }
 
-    private suspend fun makeSpecialPrescriptionTransaction(service: Service, transactionType: String): TransactionType {
+    private suspend fun makeSpecialPrescriptionTransaction(service: Service, transactionType: String, decryptor: AsyncDecrypt?): TransactionType {
         val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
 
         return TransactionType().apply {
@@ -659,7 +651,7 @@ class SoftwareMedicalFileExport(
 
             service.content[lang]?.documentId?.let {
                 try{
-                    documentLogic?.get(it)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(d); value = it }) } }
+                    documentLogic.getDocument(it)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(makeMultimediaLnkType(d, it, decryptor)) } }
                 } catch(e:Exception) {
                     log.error("Cannot export document ${it}")
                 }
@@ -783,7 +775,7 @@ class SoftwareMedicalFileExport(
         }
     }
 
-    private suspend fun createLinkToDocument(documentId: String, healthcareParty: HealthcareParty, service: Service, folder: FolderType, language: String, config: Config){
+    private suspend fun createLinkToDocument(documentId: String, healthcareParty: HealthcareParty, service: Service, folder: FolderType, language: String, config: Config, decryptor: AsyncDecrypt?){
         try {
             folder.transactions.add(TransactionType().apply {
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = "1.0"; value = service.id })
@@ -808,12 +800,28 @@ class SoftwareMedicalFileExport(
                         value = service.comment
                     })
                 }
-                documentLogic?.get(documentId)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(d); value = it }) } }
+                documentLogic.getDocument(documentId)?.let { d -> d.attachment?.let {
+                    val element = makeMultimediaLnkType(d, it, decryptor)
+                    headingsAndItemsAndTexts.add(element)
+                } }
                 LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(service.id!!) }.also { headingsAndItemsAndTexts.add(it) }
             })
         } catch(e:Exception) {
           log.error("Cannot export document ${documentId}")
         }
+    }
+
+    private suspend fun makeMultimediaLnkType(
+            document: Document,
+            attachment: ByteArray,
+            decryptor: AsyncDecrypt?
+    ): LnkType {
+        val data = if (document.encryptionKeys.isNotEmpty() && decryptor != null) {
+            decryptor.decrypt(listOf(documentMapper.map(document).copy(encryptedAttachment = document.attachment)), DocumentDto::class.java).firstOrNull()?.decryptedAttachment
+                    ?: attachment
+        } else attachment
+        val element = LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(document); value = data }
+        return element
     }
 
     private fun makeIncapacityItem(contact: Contact, subcon: SubContact, form: Form, index: Number = 0): ItemType {
@@ -1043,7 +1051,7 @@ class SoftwareMedicalFileExport(
 						s = CDCONTENTschemes.LOCAL
 						sl = "ICURE.MEDICALCODEID"
 						dn = "ICURE.MEDICALCODEID"
-						sv = code.version
+						sv = code.version ?: "1.0"
 						value = code.code
 					}
 				}
@@ -1103,9 +1111,9 @@ class SoftwareMedicalFileExport(
 	suspend fun getHealthElements(hcp: HealthcareParty, sfks: List<String>, config: Config): List<HealthElement> {
         var res : List<HealthElement> = emptyList()
         if(hcp.parentId != null) {
-            res = res + (healthElementLogic?.findByHCPartySecretPatientKeys(hcp.parentId, sfks)?.toList() ?: emptyList())
+            res = res + (healthElementLogic?.findHealthElementsByHCPartyAndSecretPatientKeys(hcp.parentId, sfks)?.toList() ?: emptyList())
         }
-        res = res + (healthElementLogic?.findByHCPartySecretPatientKeys(hcp.id, sfks)?.toList() ?: emptyList())
+        res = res + (healthElementLogic?.findHealthElementsByHCPartyAndSecretPatientKeys(hcp.id, sfks)?.toList() ?: emptyList())
         res = res.distinctBy { it.id }
         return excludeHealthElementsForPMF(
 				res?.filterNot {
@@ -1190,9 +1198,9 @@ class SoftwareMedicalFileExport(
     private suspend fun getAllContacts(hcp : HealthcareParty, sfks: List<String>) : List<Contact> {
         var res : List<Contact> = emptyList()
         if(hcp.parentId != null) {
-            res = contactLogic.findByHCPartyPatient(hcp.parentId, sfks.toList()).toList()
+            res = contactLogic.listContactsByHCPartyAndPatient(hcp.parentId, sfks.toList()).toList()
         }
-        res = res + contactLogic.findByHCPartyPatient(hcp.id, sfks.toList()).toList()
+        res = res + contactLogic.listContactsByHCPartyAndPatient(hcp.id, sfks.toList()).toList()
         res = res.filterNot { it.services.isEmpty() &&  it.subContacts.isEmpty()}
         return res.distinctBy { it.id }
     }

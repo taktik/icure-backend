@@ -23,14 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.KeywordLogic
@@ -66,7 +59,7 @@ class KeywordController(private val keywordLogic: KeywordLogic, private val keyw
     @Operation(summary = "Gets all keywords")
     @GetMapping
     fun getKeywords(): Flux<KeywordDto> {
-        return keywordLogic.getAllEntities().map { c -> keywordMapper.map(c) }.injectReactorContext()
+        return keywordLogic.getEntities().map { c -> keywordMapper.map(c) }.injectReactorContext()
     }
 
     @Operation(summary = "Delete keywords.", description = "Response is a set containing the ID's of deleted keywords.")

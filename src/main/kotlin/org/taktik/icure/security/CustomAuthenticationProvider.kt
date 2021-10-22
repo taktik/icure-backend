@@ -119,20 +119,19 @@ class CustomAuthenticationProvider(
 
         // Build permissionSetIdentifier
         val permissionSetIdentifier = PermissionSetIdentifier(User::class.java, user.id)
-
-        val permissionSet = permissionLogic.getPermissionSet(permissionSetIdentifier)
-        val authorities = if (permissionSet == null) HashSet() else permissionSet.grantedAuthorities
-
-        val userDetails = DatabaseUserDetails(permissionSetIdentifier, authorities, user.passwordHash, user.secret, user.use2fa)
-        userDetails.id = user.id
-        userDetails.rev = user.rev
-        userDetails.applicationTokens = user.applicationTokens
-
-        for ((key, value) in user.applicationTokens) {
-            if (value == authentication.credentials) {
-                userDetails.application = key
-            }
-        }
+        val authorities = permissionLogic.getPermissionSet(permissionSetIdentifier, user)?.grantedAuthorities ?: setOf()
+        val userDetails = DatabaseUserDetails(
+                permissionSetIdentifier = permissionSetIdentifier,
+                authorities = authorities,
+                principalPermissions = user.permissions,
+                passwordHash = user.passwordHash,
+                secret = user.secret,
+                use2fa = user.use2fa ?: false,
+                rev = user.rev,
+                applicationTokens = user.applicationTokens,
+                application = user.applicationTokens.filterValues { it == authentication.credentials }.keys.firstOrNull(),
+                groupIdUserIdMatching = matchingUsers.map { it.id },
+        )
 
         UsernamePasswordAuthenticationToken(
                 userDetails,
