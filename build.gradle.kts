@@ -153,6 +153,8 @@ dependencies {
     implementation(group = "org.hibernate.validator", name = "hibernate-validator-annotation-processor", version = "6.1.5.Final")
     implementation(group = "org.hibernate.validator", name = "hibernate-validator-cdi", version = "6.1.5.Final")
 
+    implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.0.4")
+
     // Logging
     implementation(group = "ch.qos.logback", name = "logback-classic", version = "1.2.3")
     implementation(group = "ch.qos.logback", name = "logback-access", version = "1.2.3")
