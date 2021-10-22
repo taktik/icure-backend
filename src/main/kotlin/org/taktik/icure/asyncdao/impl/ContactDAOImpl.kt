@@ -53,14 +53,14 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         return get(id)
     }
 
-    override fun getContacts(contactIds: Flow<String>): Flow<Contact> {
+    override fun getContacts(contactIds: Flow<String>): Flow<Contact> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.get(contactIds, Contact::class.java)
+        emitAll(client.get(contactIds, Contact::class.java))
     }
 
-    override fun getContacts(contactIds: Collection<String>): Flow<Contact> {
+    override fun getContacts(contactIds: Collection<String>): Flow<Contact> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.get(contactIds, Contact::class.java)
+        emitAll(client.get(contactIds, Contact::class.java))
     }
 
     @View(name = "by_hcparty_openingdate", map = "classpath:js/contact/By_hcparty_openingdate.js")
@@ -80,14 +80,14 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView(viewQuery, String::class.java, String::class.java, Contact::class.java))
     }
 
-    override fun findContactsByIds(contactIds: Flow<String>): Flow<ViewQueryResultEvent> {
+    override fun findContactsByIds(contactIds: Flow<String>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.getForPagination(contactIds, Contact::class.java)
+        emitAll(client.getForPagination(contactIds, Contact::class.java))
     }
 
-    override fun findContactsByIds(contactIds: Collection<String>): Flow<ViewQueryResultEvent> {
+    override fun findContactsByIds(contactIds: Collection<String>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.getForPagination(contactIds, Contact::class.java)
+        emitAll(client.getForPagination(contactIds, Contact::class.java))
     }
 
     override fun listContactIdsByHealthcareParty(hcPartyId: String): Flow<String> = flow {

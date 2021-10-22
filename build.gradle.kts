@@ -13,8 +13,8 @@ val repoPassword: String by project
 val mavenReleasesRepository: String by project
 
 plugins {
-    kotlin("jvm") version "1.4.31"
-    kotlin("kapt") version "1.4.31"
+    kotlin("jvm") version "1.4.32"
+    kotlin("kapt") version "1.4.32"
     `maven-publish`
 }
 
@@ -121,8 +121,8 @@ dependencies {
     api("com.github.pozo:mapstruct-kotlin:1.3.1.2")
     kapt("com.github.pozo:mapstruct-kotlin-processor:1.3.1.2")
 
-    implementation(group = "io.projectreactor", name = "reactor-core", version = "3.4.2")
-    implementation(group = "io.projectreactor", name = "reactor-tools", version = "3.4.2")
+    implementation(group = "io.projectreactor", name = "reactor-core", version = "3.4.10")
+    implementation(group = "io.projectreactor", name = "reactor-tools", version = "3.4.10")
     implementation(group = "io.projectreactor.netty", name = "reactor-netty", version = "1.0.1")
 
     implementation(group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8")

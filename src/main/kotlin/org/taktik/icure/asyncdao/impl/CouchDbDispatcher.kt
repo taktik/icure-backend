@@ -59,7 +59,7 @@ class CouchDbDispatcher(
             })
 
     @ExperimentalCoroutinesApi
-    fun getClient(dbInstanceUrl: URI, retry: Int = 5): ClientImpl {
+    suspend fun getClient(dbInstanceUrl: URI, retry: Int = 5): ClientImpl {
         var result: Result<ClientImpl> = Result.failure(Exception("Client not initialized"))
         run retry@ {
             (0..retry).forEach { n ->

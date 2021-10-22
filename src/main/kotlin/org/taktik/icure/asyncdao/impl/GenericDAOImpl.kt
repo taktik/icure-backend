@@ -89,9 +89,9 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
         )
     }
 
-    override fun getAttachment(documentId: String, attachmentId: String, rev: String?): Flow<ByteBuffer> {
+    override fun getAttachment(documentId: String, attachmentId: String, rev: String?): Flow<ByteBuffer> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.getAttachment(documentId, attachmentId, rev)
+        emitAll(client.getAttachment(documentId, attachmentId, rev))
     }
 
     override suspend fun createAttachment(documentId: String, attachmentId: String, rev: String, contentType: String, data: Flow<ByteBuffer>): String {
@@ -121,20 +121,20 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
         return null
     }
 
-    override fun getEntities(ids: Collection<String>): Flow<T> {
+    override fun getEntities(ids: Collection<String>): Flow<T> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + ids)
         }
-        return client.get(ids, entityClass).map { this.postLoad(it) }
+        emitAll(client.get(ids, entityClass).map { this@GenericDAOImpl.postLoad(it) })
     }
 
-    override fun getEntities(ids: Flow<String>): Flow<T> {
+    override fun getEntities(ids: Flow<String>): Flow<T> = flow  {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + ids)
         }
-        return client.get(ids, entityClass).map { this.postLoad(it) }
+        emitAll(client.get(ids, entityClass).map { this@GenericDAOImpl.postLoad(it) })
     }
 
     override suspend fun create(entity: T): T? {

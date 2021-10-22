@@ -296,9 +296,9 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
                         .endKey(to)).mapNotNull { it.id })
     }
 
-    override fun getCodesByIdsForPagination(ids: List<String>): Flow<ViewQueryResultEvent> {
+    override fun getCodesByIdsForPagination(ids: List<String>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.getForPagination(ids, Code::class.java)
+        emitAll(client.getForPagination(ids, Code::class.java))
     }
 
 	override suspend fun isValid(codeType: String, codeCode: String, codeVersion: String?) = listCodesBy(codeType, codeCode, codeVersion).firstOrNull() != null
