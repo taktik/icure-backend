@@ -23,6 +23,7 @@ import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlin.runCatching
 import org.apache.http.client.utils.URIBuilder
 import org.taktik.couchdb.ClientImpl
 import org.taktik.net.web.WebClient
@@ -58,8 +59,25 @@ class CouchDbDispatcher(
             })
 
     @ExperimentalCoroutinesApi
-    fun getClient(dbInstanceUrl: URI): ClientImpl {
-        return connectors.get(CouchDbConnectorReference(dbInstanceUrl.toString()))
+    fun getClient(dbInstanceUrl: URI, retry: Int = 5): ClientImpl {
+        var result: Result<ClientImpl> = Result.failure(Exception("Client not initialized"))
+        run retry@ {
+            (0..retry).forEach { n ->
+                runCatching { connectors.get(CouchDbConnectorReference(dbInstanceUrl.toString())) }
+                        .onSuccess { client ->
+                            result = Result.success(client)
+                            return@retry
+                        }
+                        .onFailure { e ->
+                            when (n) {
+                                in 0 until retry -> Thread.sleep(100)
+                                else -> result = Result.failure(e)
+                            }
+                        }
+            }
+        }
+
+        return result.getOrThrow()
     }
 
     private data class CouchDbConnectorReference(internal val dbInstanceUrl: String)
