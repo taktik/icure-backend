@@ -465,14 +465,14 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         return this.getDuplicatesFromView("by_hcparty_name", healthcarePartyId, paginationOffset)
     }
 
-    override fun findPatients(ids: Collection<String>): Flow<ViewQueryResultEvent> {
+    override fun findPatients(ids: Collection<String>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.getForPagination(ids, Patient::class.java)
+        emitAll(client.getForPagination(ids, Patient::class.java))
     }
 
-    override fun findPatients(ids: Flow<String>): Flow<ViewQueryResultEvent> {
+    override fun findPatients(ids: Flow<String>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.getForPagination(ids, Patient::class.java)
+        emitAll(client.getForPagination(ids, Patient::class.java))
     }
 
     private fun getDuplicatesFromView(viewName: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {

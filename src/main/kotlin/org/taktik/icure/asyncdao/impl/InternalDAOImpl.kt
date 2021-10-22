@@ -44,25 +44,26 @@ import java.net.URI
 @FlowPreview
 open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T>, val couchDbProperties: CouchDbProperties, val couchDbDispatcher: CouchDbDispatcher, val idGenerator: IDGenerator) : InternalDAO<T>, VersionnedDesignDocumentQueries<T>(entityClass, couchDbProperties) {
     private val log = LoggerFactory.getLogger(javaClass)
-    private val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
+    //private val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
 
-    override fun getEntities() = couchDbDispatcher.getClient(URI(couchDbProperties.url)).queryView(ViewQuery()
+    override fun getEntities() : Flow<T> = flow { emitAll(couchDbDispatcher.getClient(URI(couchDbProperties.url)).queryView(ViewQuery()
             .designDocId(designDocName(entityClass))
-            .viewName("all").includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
+            .viewName("all").includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()) }
 
 
-    override fun getEntityIds(): Flow<String> {
+    override fun getEntityIds(): Flow<String> = flow {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".getAllIds")
         }
-        return couchDbDispatcher.getClient(URI(couchDbProperties.url)).queryView<String, String>(ViewQuery()
+        emitAll(couchDbDispatcher.getClient(URI(couchDbProperties.url)).queryView<String, String>(ViewQuery()
                 .designDocId(designDocName(entityClass))
-                .viewName("all").includeDocs(false)).map { it.id }.filterNotNull()
+                .viewName("all").includeDocs(false)).map { it.id }.filterNotNull())
     }
 
     override suspend fun get(id: String, vararg options: Option): T? = get(id, null, *options)
 
     override suspend fun get(id: String, rev: String?, vararg options: Option): T? {
+        val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + id + " [" + ArrayUtils.toString(options) + "]")
         }
@@ -74,14 +75,16 @@ open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T
         }
     }
 
-    override fun getEntities(ids: Collection<String>): Flow<T> {
+    override fun getEntities(ids: Collection<String>): Flow<T> = flow {
+        val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + ids)
         }
-        return client.get(ids, entityClass)
+        emitAll(client.get(ids, entityClass))
     }
 
     override suspend fun save(entity: T): T? {
+        val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".save: " + entity.id + ":" + entity.rev)
         }
@@ -96,6 +99,7 @@ open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T
     }
 
     override fun save(entities: Flow<T>): Flow<DocIdentifier> = flow {
+        val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".save flow of entities")
         }
@@ -103,6 +107,7 @@ open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T
     }
 
     override fun save(entities: List<T>): Flow<DocIdentifier> = flow {
+        val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".save flow of entities")
         }
@@ -110,18 +115,20 @@ open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T
     }
 
     override suspend fun update(entity: T): T? {
+        val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".save: " + entity.id + ":" + entity.rev)
         }
         return client.update(entity, entityClass)
     }
 
-    override fun getEntities(ids: List<String>) =
-            couchDbDispatcher.getClient(URI(couchDbProperties.url)).queryView(ViewQuery()
+    override fun getEntities(ids: List<String>): Flow<T> = flow {
+            emitAll(couchDbDispatcher.getClient(URI(couchDbProperties.url)).queryView(ViewQuery()
                     .designDocId(designDocName(entityClass))
-                    .viewName("all").keys(ids).includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
+                    .viewName("all").keys(ids).includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull())}
 
     override fun purge(entities: Flow<T>) = flow {
+        val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".purge flow of entities ")
         }
@@ -129,6 +136,7 @@ open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T
     }
 
     override fun remove(entities: Flow<T>) = flow {
+        val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".remove flow of entities ")
         }
@@ -136,6 +144,7 @@ open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T
     }
 
     override suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean) {
+        val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
         val baseId = designDocName(this.entityClass)
         val generated = StdDesignDocumentFactory().generateFrom(baseId, this)
         val fromDatabase = client.get(generated.id, DesignDocument::class.java)
