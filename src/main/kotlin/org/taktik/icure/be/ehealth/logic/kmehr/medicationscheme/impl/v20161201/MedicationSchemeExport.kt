@@ -71,7 +71,7 @@ class MedicationSchemeExport : KmehrExport() {
                                         )) {
 
         config.defaultLanguage = if(sender.languages.firstOrNull() == "nl") "nl-BE" else if(sender.languages.firstOrNull() == "de") "de-BE" else "fr-BE"
-        config.format = Config.Format.SUMEHR //sumehr and medicationscheme have same exception of patient/usuallanguage field (vitalink)
+        config.format = Config.Format.MEDICATIONSCHEME //sumehr and medicationscheme have same exception of patient/usuallanguage field (vitalink)
 		val message = initializeMessage(sender, config)
 		message.header.recipients.add(RecipientType().apply {
 			hcparties.add(HcpartyType().apply {
@@ -188,7 +188,7 @@ class MedicationSchemeExport : KmehrExport() {
                                                     }})
                                                 })
                                             },
-                                            createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!), language = language, texts = listOf(makeText(language, cnt)!!))))
+                                            createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!), language = language, texts = listOf(makeText(language, cnt)!!), config = config)))
                             //handle treatmentsuspension
                             //      ITEM: transactionreason: Text
                             //      ITEM: medication contains Link to medication <lnk TYPE="isplannedfor" URL="//transaction[id[@S='ID-KMEHR']='18']"/>
@@ -282,7 +282,7 @@ class MedicationSchemeExport : KmehrExport() {
                                                         link = LnkType().apply {
                                                             type = CDLNKvalues.ISPLANNEDFOR
                                                             url = "//transaction[id[@S='ID-KMEHR']='${currentMedicationIdx}']"
-                                                        }
+                                                        }, config = config
                                                 ),
                                                 ItemType().apply {
                                                     ids.add(idKmehr(itemsIdx++))
