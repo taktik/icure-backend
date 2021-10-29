@@ -19,8 +19,10 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.v20161201
 
+import com.sun.org.apache.xpath.internal.operations.Bool
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.logging.LogFactory
+import org.joda.time.DateTimeZone
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.taktik.commons.uti.UTI
@@ -159,7 +161,7 @@ open class KmehrExport {
             p.placeOfBirth?.let { birthlocation = AddressTypeBase().apply { city= it }}
             p.placeOfDeath?.let { deathlocation = AddressTypeBase().apply { city= it }}
             p.profession?.let { profession = ProfessionType().apply { text = TextType().apply { l= "fr"; value = it } } }
-            usuallanguage= if (config.format == Config.Format.SUMEHR) config.defaultLanguage else p.languages.firstOrNull()
+            usuallanguage= if (config.format == Config.Format.SUMEHR || config.format == Config.Format.MEDICATIONSCHEME) config.defaultLanguage else p.languages.firstOrNull()
             addresses.addAll(makeAddresses(p.addresses))
             telecoms.addAll(makeTelecoms(p.addresses))
             if(!p.nationality.isNullOrBlank()) {
@@ -178,11 +180,11 @@ open class KmehrExport {
             familyname= p.lastName
             sex= SexType().apply {cd = CDSEX().apply { s= "CD-SEX"; sv= "1.0"; value = p.gender?.let { CDSEXvalues.fromValue(it.name) } ?: CDSEXvalues.UNKNOWN }}
             p.dateOfBirth?.let { birthdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
-            recorddatetime = makeXGC(p.modified)
+            recorddatetime = makeXGC(p.modified, false,config.format == Config.Format.MEDICATIONSCHEME);
         }
     }
 
-    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service", language: String, texts: List<TextType>? = null, link: LnkType? = null) : ItemType? {
+    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service", language: String, texts: List<TextType>? = null, link: LnkType? = null, config: Config = Config()) : ItemType? {
         return ItemType().apply {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = svc.id })
@@ -283,7 +285,7 @@ open class KmehrExport {
             isIsrelevant = ServiceStatus.isRelevant(svc.status)
             beginmoment = (svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.beginMoment ?: svc.valueDate ?: svc.openingDate)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
             endmoment = (svc.closingDate ?: svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.endMoment)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
-            recorddatetime = makeXGC(svc.modified ?: svc.created)
+            recorddatetime = makeXGC(svc.modified ?: svc.created, false, config!!.format == Config.Format.MEDICATIONSCHEME)
         }
     }
 
@@ -385,10 +387,10 @@ open class KmehrExport {
         return lst
     }
 
-    fun  makeXGC(date: Long?, unsetMillis: Boolean = false): XMLGregorianCalendar? {
+    fun  makeXGC(date: Long?, unsetMillis: Boolean = false, setTimeZone: Boolean = false): XMLGregorianCalendar? {
         return date?.let {
             DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar.getInstance().apply { time = Date(date) } as GregorianCalendar).apply {
-                timezone = DatatypeConstants.FIELD_UNDEFINED
+                timezone = if (setTimeZone) DateTimeZone.forID("Europe/Brussels").getOffset(date) / 60000 else DatatypeConstants.FIELD_UNDEFINED
                 if (unsetMillis) {
                     millisecond = DatatypeConstants.FIELD_UNDEFINED
                 }
@@ -397,11 +399,13 @@ open class KmehrExport {
     }
 
     fun makeText(language: String, content: Content): TextType?{
-        return (content.medicationValue?.compoundPrescription ?: content.medicationValue?.medicinalProduct?.intendedname)?.let {
+        return if((content.medicationValue?.endMoment ?: -1) > 0 && !content.medicationValue?.endCondition.isNullOrEmpty()){
             TextType().apply {
                 l = language
-                value = it
+                value = content.medicationValue?.endCondition
             }
+        } else {
+            null
         }
     }
 

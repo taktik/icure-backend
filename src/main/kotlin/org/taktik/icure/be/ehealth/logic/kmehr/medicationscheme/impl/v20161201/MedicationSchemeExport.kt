@@ -31,6 +31,7 @@ import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Medication
 import org.taktik.icure.entities.embed.PatientHealthCarePartyType
 import org.taktik.icure.entities.embed.Service
+import org.taktik.icure.entities.embed.Suspension
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
@@ -70,7 +71,7 @@ class MedicationSchemeExport : KmehrExport() {
                                         )) {
 
         config.defaultLanguage = if(sender.languages.firstOrNull() == "nl") "nl-BE" else if(sender.languages.firstOrNull() == "de") "de-BE" else "fr-BE"
-        config.format = Config.Format.SUMEHR //sumehr and medicationscheme have same exception of patient/usuallanguage field (vitalink)
+        config.format = Config.Format.MEDICATIONSCHEME //sumehr and medicationscheme have same exception of patient/usuallanguage field (vitalink)
 		val message = initializeMessage(sender, config)
 		message.header.recipients.add(RecipientType().apply {
 			hcparties.add(HcpartyType().apply {
@@ -139,12 +140,16 @@ class MedicationSchemeExport : KmehrExport() {
             //TODO: decide what tho do with the Version On Safe
             this.version = (version ?: (_medicationSchemeSafeVersion ?: 0)+1).toString()
 		})
-
+        var currentMedicationIdx: Int
         var trs = medicationServices.map { svc ->
             svc.content.values.find { c -> c.medicationValue != null }?.let { cnt -> cnt.medicationValue?.let { m ->
                 listOf(
                         TransactionType().apply {
                             ids.add(idKmehr(idkmehrIdx))
+                            currentMedicationIdx = idkmehrIdx
+                            if(m.suspension.isNullOrEmpty()){
+                                m.suspension = emptyList<Suspension>();
+                            }
                             idkmehrIdx++
                             m.idOnSafes?.let{idOnSafe ->
                                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = m.safeIdName; sv = "1.0"; value = m.idOnSafes})
@@ -183,7 +188,8 @@ class MedicationSchemeExport : KmehrExport() {
                                                     }})
                                                 })
                                             },
-                                            createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!), language = language, texts = listOf(makeText(language, cnt)!!))))
+                                            createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!), language = language, texts = listOfNotNull(makeText(language, cnt)), config = config)))
+
                             //handle treatmentsuspension
                             //      ITEM: transactionreason: Text
                             //      ITEM: medication contains Link to medication <lnk TYPE="isplannedfor" URL="//transaction[id[@S='ID-KMEHR']='18']"/>
@@ -243,57 +249,52 @@ class MedicationSchemeExport : KmehrExport() {
                             }
 
                         },
-                        if (!m.suspension.isNullOrEmpty() && m.suspension?.size!! > 0)
-                        TransactionType().apply {
-                            ids.add(idKmehr(idkmehrIdx))
-                            idkmehrIdx++
-                            m.idOnSafes?.let{idOnSafe ->
-                                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = m.safeIdName; sv = "1.0"; value = m.idOnSafes})
-                            }
-                            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.10"; value = "treatmentsuspension" })
-                            date = config.date
-                            time = config.time
-                            var tmp = serviceAuthors?.find{aut -> aut.id == svc.author}
-
-                            if(tmp != null){
-                                author = AuthorType().apply {
-                                    hcparties.add(createParty(tmp))
+                        *(m.suspension ?: listOf()).map{ suspension ->
+                            TransactionType().apply {
+                                ids.add(idKmehr(idkmehrIdx))
+                                idkmehrIdx++
+                                m.idOnSafes?.let{idOnSafe ->
+                                    ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = m.safeIdName; sv = "1.0"; value = m.idOnSafes})
                                 }
-                            }else {
-                                author = AuthorType().apply {
-                                    hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(svc.author?.let { userLogic!!.getUser(it)?.healthcarePartyId } ?: healthcareParty.id)))
+                                cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.10"; value = "treatmentsuspension" })
+                                date = config.date
+                                time = config.time
+                                var tmp = serviceAuthors?.find{aut -> aut.id == svc.author}
+                                if(tmp != null){
+                                    author = AuthorType().apply {
+                                        hcparties.add(createParty(tmp))
+                                    }
+                                }else {
+                                    author = AuthorType().apply {
+                                        hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(svc.author?.let { userLogic!!.getUser(it)?.healthcarePartyId } ?: healthcareParty.id)))
+                                    }
                                 }
+                                isIscomplete = true
+                                isIsvalidated = true
+                                var itemsIdx = 1
+                                //The treatmentsuspension transaction contains a copy of the medication where only beginmoment and endmoment are changed and equal to the duration of the suspension
+                                if(svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull() != null){
+                                    svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.beginMoment = suspension.beginMoment
+                                    svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.endMoment = suspension.endMoment
+                                }
+                                headingsAndItemsAndTexts.addAll(
+                                        listOf(
+                                                createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!), language = language, texts = listOfNotNull(makeText(language, cnt)),
+                                                        link = LnkType().apply {
+                                                            type = CDLNKvalues.ISPLANNEDFOR
+                                                            url = "//transaction[id[@S='ID-KMEHR']='${currentMedicationIdx}']"
+                                                        }, config = config
+                                                ),
+                                                ItemType().apply {
+                                                    ids.add(idKmehr(itemsIdx++))
+                                                    cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "transactionreason" })
+                                                    contents.add(ContentType().apply { texts.add(TextType().apply { l=language; value=suspension.suspensionReason!! }) })
+                                                }
+                                        )
+                                )
                             }
-
-                            isIscomplete = true
-                            isIsvalidated = true
-
-                            var itemsIdx = 1
-                            //The treatmentsuspension transaction contains a copy of the medication where only beginmoment and endmoment are changed and equal to the duration of the suspension
-                            if(svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull() != null){
-                                svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.beginMoment = m.suspension[0].beginMoment
-                                svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.endMoment = m.suspension[0].endMoment
-                            }
-
-                            headingsAndItemsAndTexts.addAll(
-                                    listOf(
-                                            createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!), language = language, texts = listOf(makeText(language, cnt)!!),
-                                                    link = LnkType().apply {
-                                                        type = CDLNKvalues.ISPLANNEDFOR
-                                                        url = "//transaction[id[@S='ID-KMEHR']='${idkmehrIdx - 2}']"
-                                                    }
-                                            ),
-                                            ItemType().apply {
-                                                ids.add(idKmehr(itemsIdx++))
-                                                cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "transactionreason" })
-                                                contents.add(ContentType().apply { texts.add(TextType().apply { l=language; value=m.suspension[0].suspensionReason!! }) })
-                                            }
-                                    )
-                            )
-                        }
-                else
-                    null
-                ).filterNotNull()
+                        }.toTypedArray()
+                )
             }}
         }
 
