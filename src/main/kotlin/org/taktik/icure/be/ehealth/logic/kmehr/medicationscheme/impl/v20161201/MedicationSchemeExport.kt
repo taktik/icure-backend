@@ -188,7 +188,8 @@ class MedicationSchemeExport : KmehrExport() {
                                                     }})
                                                 })
                                             },
-                                            createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!), language = language, texts = listOf(makeText(language, cnt)!!), config = config)))
+                                            createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!), language = language, texts = listOfNotNull(makeText(language, cnt)), config = config)))
+
                             //handle treatmentsuspension
                             //      ITEM: transactionreason: Text
                             //      ITEM: medication contains Link to medication <lnk TYPE="isplannedfor" URL="//transaction[id[@S='ID-KMEHR']='18']"/>
@@ -248,7 +249,7 @@ class MedicationSchemeExport : KmehrExport() {
                             }
 
                         },
-                        *m.suspension.map{ suspension ->
+                        *(m.suspension ?: listOf()).map{ suspension ->
                             TransactionType().apply {
                                 ids.add(idKmehr(idkmehrIdx))
                                 idkmehrIdx++
@@ -278,7 +279,7 @@ class MedicationSchemeExport : KmehrExport() {
                                 }
                                 headingsAndItemsAndTexts.addAll(
                                         listOf(
-                                                createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!), language = language, texts = listOf(makeText(language, cnt)!!),
+                                                createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!), language = language, texts = listOfNotNull(makeText(language, cnt)),
                                                         link = LnkType().apply {
                                                             type = CDLNKvalues.ISPLANNEDFOR
                                                             url = "//transaction[id[@S='ID-KMEHR']='${currentMedicationIdx}']"

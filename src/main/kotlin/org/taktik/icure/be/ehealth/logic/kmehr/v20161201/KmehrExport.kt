@@ -399,12 +399,13 @@ open class KmehrExport {
     }
 
     fun makeText(language: String, content: Content): TextType?{
-        //TODO: we might not need this, only add text on stopped medication ?
-        return (content.medicationValue?.compoundPrescription ?: content.medicationValue?.medicinalProduct?.intendedname ?: content.medicationValue?.substanceProduct?.intendedname)?.let {
+        return if((content.medicationValue?.endMoment ?: -1) > 0 && !content.medicationValue?.endCondition.isNullOrEmpty()){
             TextType().apply {
                 l = language
-                value = it
+                value = content.medicationValue?.endCondition
             }
+        } else {
+            null
         }
     }
 
