@@ -227,6 +227,7 @@ public abstract class GenericResultFormatLogicImpl implements ResultFormatLogic 
 		protected Timestamp dn;
 		protected String sex;
 		protected String protocol;
+        protected String ssin;
 
 		public String getLastName() {
 			return lastName;
@@ -267,6 +268,10 @@ public abstract class GenericResultFormatLogicImpl implements ResultFormatLogic 
 		public void setProtocol(String protocol) {
 			this.protocol = protocol;
 		}
+
+        public String getSsin() { return ssin; }
+
+        public void setSsin(String ssin) { this.ssin = ssin; }
 	}
 
 	class PatientAddressLine {

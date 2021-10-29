@@ -19,8 +19,10 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.v20161201
 
+import com.sun.org.apache.xpath.internal.operations.Bool
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.logging.LogFactory
+import org.joda.time.DateTimeZone
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.taktik.commons.uti.UTI
@@ -112,6 +114,18 @@ open class KmehrExport {
         }
     }
 
+    fun createHubHcParty(m : HealthcareParty) : HcpartyType {
+        return HcpartyType().apply {
+            if(!m.nihii.isNullOrBlank()) {
+                m.nihii?.let { nihii -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; sv = "1.0"; value = nihii }) }
+            }
+            this.cds.addAll(
+                    listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "hub" })
+            )
+            name = m.name?.trim()
+        }
+    }
+
     fun createSpecialistParty(m: HealthcareParty, cds: List<CDHCPARTY>? = listOf() ): HcpartyType {
         return HcpartyType().apply {
             cds?.let {this.cds.addAll(it)}
@@ -141,13 +155,13 @@ open class KmehrExport {
         }
     }
 
-    fun makePerson(p : Patient, config: Config) : PersonType {
-        return makePersonBase(p, config).apply {
+    fun makePerson(p : Patient, config: Config, useINSSId: Boolean? = false) : PersonType {
+        return makePersonBase(p, config, useINSSId).apply {
             p.dateOfDeath?.let { if(it != 0) deathdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
             p.placeOfBirth?.let { birthlocation = AddressTypeBase().apply { city= it }}
             p.placeOfDeath?.let { deathlocation = AddressTypeBase().apply { city= it }}
             p.profession?.let { profession = ProfessionType().apply { text = TextType().apply { l= "fr"; value = it } } }
-            usuallanguage= if (config.format == Config.Format.SUMEHR) config.defaultLanguage else p.languages.firstOrNull()
+            usuallanguage= if (config.format == Config.Format.SUMEHR || config.format == Config.Format.MEDICATIONSCHEME) config.defaultLanguage else p.languages.firstOrNull()
             addresses.addAll(makeAddresses(p.addresses))
             telecoms.addAll(makeTelecoms(p.addresses))
             if(!p.nationality.isNullOrBlank()) {
@@ -156,28 +170,30 @@ open class KmehrExport {
         }
     }
 
-    fun makePersonBase(p : Patient, config: Config) : PersonType {
+    fun makePersonBase(p : Patient, config: Config, useINSSId: Boolean? = false) : PersonType {
         val ssin = p.ssin?.replace("[^0-9]".toRegex(), "")?.let { if (org.taktik.icure.utils.Math.isNissValid(it)) it else null }
 
         return PersonType().apply {
-            ssin?.let { ssin -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.ID_PATIENT; sv = "1.0"; value = ssin }) }
+            ssin?.let { ssin -> if (useINSSId == true) ids.add(IDPATIENT().apply { s = IDPATIENTschemes.INSS; sv = "1.0"; value = ssin }) else ids.add(IDPATIENT().apply { s = IDPATIENTschemes.ID_PATIENT; sv = "1.0"; value = ssin }) }
             p.id?.let { id -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.LOCAL; sv = config.soft?.version; sl = "${config.soft?.name}-Person-Id"; value = id }) }
             firstnames.add(p.firstName)
             familyname= p.lastName
             sex= SexType().apply {cd = CDSEX().apply { s= "CD-SEX"; sv= "1.0"; value = p.gender?.let { CDSEXvalues.fromValue(it.name) } ?: CDSEXvalues.UNKNOWN }}
             p.dateOfBirth?.let { birthdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
-            recorddatetime = makeXGC(p.modified)
+            recorddatetime = makeXGC(p.modified, false,config.format == Config.Format.MEDICATIONSCHEME);
         }
     }
 
-    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service", language: String) : ItemType? {
+    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service", language: String, texts: List<TextType>? = null, link: LnkType? = null, config: Config = Config()) : ItemType? {
         return ItemType().apply {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = svc.id })
             cds.add(CDITEM().apply {s(CDITEMschemes.CD_ITEM); value = cdItem } )
 			svc.tags.find { t -> t.type == "CD-LAB" }?.let { cds.add(CDITEM().apply {s(CDITEMschemes.CD_LAB); value = it.code } ) }
-
+            val suspension = svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.suspension?.firstOrNull()
             this.contents.addAll(filterEmptyContent(contents))
+            if (texts != null) this.texts.addAll(texts.filterNotNull())
+            if (link != null) this.lnks.add(link)
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
                 value = if (ServiceStatus.isIrrelevant(svc.status) || (svc.closingDate ?: 99999999 <= FuzzyValues.getCurrentFuzzyDate())) {
 					CDLIFECYCLEvalues.INACTIVE
@@ -190,7 +206,7 @@ open class KmehrExport {
                             CDLIFECYCLEvalues.CORRECTED
                         }
                     }
-                            ?: if(cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else CDLIFECYCLEvalues.ACTIVE
+                            ?: if(cdItem == "medication") (if (suspension != null) CDLIFECYCLEvalues.fromValue(suspension.lifecycle) else CDLIFECYCLEvalues.PRESCRIBED) else CDLIFECYCLEvalues.ACTIVE
                 }
 			} }
             if(cdItem == "medication") {
@@ -269,7 +285,7 @@ open class KmehrExport {
             isIsrelevant = ServiceStatus.isRelevant(svc.status)
             beginmoment = (svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.beginMoment ?: svc.valueDate ?: svc.openingDate)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
             endmoment = (svc.closingDate ?: svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.endMoment)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
-            recorddatetime = makeXGC(svc.modified ?: svc.created)
+            recorddatetime = makeXGC(svc.modified ?: svc.created, false, config!!.format == Config.Format.MEDICATIONSCHEME)
         }
     }
 
@@ -371,14 +387,25 @@ open class KmehrExport {
         return lst
     }
 
-    fun  makeXGC(date: Long?, unsetMillis: Boolean = false): XMLGregorianCalendar? {
+    fun  makeXGC(date: Long?, unsetMillis: Boolean = false, setTimeZone: Boolean = false): XMLGregorianCalendar? {
         return date?.let {
             DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar.getInstance().apply { time = Date(date) } as GregorianCalendar).apply {
-                timezone = DatatypeConstants.FIELD_UNDEFINED
+                timezone = if (setTimeZone) DateTimeZone.forID("Europe/Brussels").getOffset(date) / 60000 else DatatypeConstants.FIELD_UNDEFINED
                 if (unsetMillis) {
                     millisecond = DatatypeConstants.FIELD_UNDEFINED
                 }
             }
+        }
+    }
+
+    fun makeText(language: String, content: Content): TextType?{
+        return if((content.medicationValue?.endMoment ?: -1) > 0 && !content.medicationValue?.endCondition.isNullOrEmpty()){
+            TextType().apply {
+                l = language
+                value = content.medicationValue?.endCondition
+            }
+        } else {
+            null
         }
     }
 
@@ -406,11 +433,13 @@ open class KmehrExport {
                     mv.value?.let { decimal = BigDecimal.valueOf(it) }
                 }
                 content.medicationValue?.medicinalProduct?.let {
-                    val medicationType = content.medicationValue?.options?.get("type")?.stringValue
-                    medicinalproduct = MedicinalProductType().apply {
-                        intendedname = content.medicationValue?.medicinalProduct?.intendedname
-                        if (medicationType != "FRE") {
-                            intendedcds.add(CDDRUGCNK().apply { s(CDDRUGCNKschemes.CD_DRUG_CNK); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.medicinalProduct?.intendedcds?.find { it.type == "CD-DRUG-CNK" }?.code })
+                    if(content.medicationValue?.compoundPrescription == null) {
+                        val medicationType = content.medicationValue?.options?.get("type")?.stringValue
+                        medicinalproduct = MedicinalProductType().apply {
+                            intendedname = content.medicationValue?.medicinalProduct?.intendedname
+                            if (medicationType != "FRE") {
+                                intendedcds.add(CDDRUGCNK().apply { s(CDDRUGCNKschemes.CD_DRUG_CNK); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.medicinalProduct?.intendedcds?.find { it.type == "CD-DRUG-CNK" }?.code })
+                            }
                         }
                     }
                 }
@@ -426,7 +455,8 @@ open class KmehrExport {
                     }
                 }
                 content.medicationValue?.compoundPrescription?.let {
-                    compoundprescription = CompoundprescriptionType().apply { this.content.add(ObjectFactory().createCompoundprescriptionTypeMagistraltext(TextType().apply { l = language; value = content.medicationValue?.compoundPrescription })) }
+                    medicinalproduct = null //todo check if this works (remove the if(content.medicationValue?.compoundPrescription == null) { ...)
+                    compoundprescription = CompoundprescriptionType().apply { l= language; this.content.add(ObjectFactory().createCompoundprescriptionTypeMagistraltext(TextType().apply { l = language; value = content.medicationValue?.compoundPrescription })) }
                 }
                 content.binaryValue?.let {
                     if (Arrays.equals(content.binaryValue.slice(0..4).toByteArray(), "{\\rtf".toByteArray())) {

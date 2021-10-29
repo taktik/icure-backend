@@ -21,8 +21,10 @@ package org.taktik.icure.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.Nullable;
+import org.taktik.icure.dao.JacksonLenientBase64Deserializer;
 import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.base.CryptoActor;
 import org.taktik.icure.entities.base.Encryptable;
@@ -82,7 +84,7 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
 
 	protected String preferredUserId;
 
-    protected byte[] picture;
+    @JsonDeserialize(using = JacksonLenientBase64Deserializer.class) protected byte[] picture;
 
     //No guarantee of unicity
     protected String externalId;
