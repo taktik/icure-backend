@@ -424,6 +424,11 @@ class SoftwareMedicalFileExport : KmehrExport() {
                                                         text = TextType().apply { l = language; value = it.medicationValue!!.instructionForPatient }
                                                     }
                                                 }
+                                                if(svc.formId !== svc.id) {
+                                                    svc.formId?.let {
+                                                        this.lnks.add(LnkType().apply { type = CDLNKvalues.ISANEWVERSIONOF; url = makeLnkUrl(it) })
+                                                    }
+                                                }
                                             }
                                             if (cdItem == "problem") {
                                                 svc.tags.find { it.type == "ICURE" && it.code == "ANTEC" }?.let {

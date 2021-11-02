@@ -403,15 +403,12 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             CodeStub("CD-ITEM", "treatment", "1")
                     )
             )
-            val oldMedicationServiceLink =  item.lnks.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISATTESTATIONOF }?.map { lnk ->
+            item.lnks.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISATTESTATIONOF }?.map { lnk ->
                 state.serviceVersionLinks.find { it.mfId == extractMFIDFromUrl(lnk.url) }
-            }?.firstOrNull()
-
-            oldMedicationServiceLink?.let {
-                if(it != null){
-                    service.formId = it.service.id
-                }
+            }?.firstOrNull()?.let{
+                service.formId = it.service.id
             }
+
             target?.let {
                 item.lnks.filter { it.type == CDLNKvalues.ISASERVICEFOR && it.url != null }.mapNotNull {
                     extractMFIDFromUrl(it.url)
@@ -657,7 +654,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                             mfId = mfid!!,
                                             isANewVersionOfId = item.lnks.find { it.type == CDLNKvalues.ISANEWVERSIONOF}?.let {
                                                 extractMFIDFromUrl(it.url)
-                                            },
+                                            }?.also { service.formId = it },
                                             versionId = null
                                     )
                             )
