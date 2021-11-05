@@ -168,7 +168,7 @@ open class KmehrExport {
 			svc.tags.find { t -> t.type == "CD-LAB" }?.let { cds.add(CDITEM().apply {s(CDITEMschemes.CD_LAB); value = it.code } ) }
 
             this.contents.addAll(filterEmptyContent(contents))
-            if(cdItem == "medication" || cdItem == "healthcareelement") {
+            if(cdItem == "medication" || cdItem == "healthcareelement" || cdItem == "acts") {
                 lifecycle = LifecycleType().apply {
                     cd = CDLIFECYCLE().apply {
                         s = "CD-LIFECYCLE"
