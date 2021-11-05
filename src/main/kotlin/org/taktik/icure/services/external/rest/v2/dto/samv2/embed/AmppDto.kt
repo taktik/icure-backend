@@ -46,6 +46,7 @@ data class AmppDto(
         val deliveryModusCode: String? = null,
         val deliveryModus: SamTextDto? = null,
         val deliveryModusSpecification: SamTextDto? = null,
+        val deliveryModusSpecificationCode: String? = null,
         val dhpcLink: SamTextDto? = null,
         val distributorCompany: CompanyDto? = null,
         val singleUse: Boolean? = null,

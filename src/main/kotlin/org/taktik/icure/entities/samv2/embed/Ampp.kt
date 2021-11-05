@@ -46,6 +46,7 @@ data class Ampp(
         val deliveryModusCode: String? = null,
         val deliveryModus: SamText? = null,
         val deliveryModusSpecification: SamText? = null,
+        val deliveryModusSpecificationCode: String? = null,
         var dhpcLink: SamText? = null,
         val distributorCompany: Company? = null,
         val singleUse: Boolean? = null,
