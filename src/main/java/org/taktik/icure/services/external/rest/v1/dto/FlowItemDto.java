@@ -64,6 +64,10 @@ public class FlowItemDto  {
 
     protected String patientFirstName;
 
+    protected String description;
+
+    protected String interventionCode;
+
     public String getId() {
         return id;
     }
@@ -71,6 +75,14 @@ public class FlowItemDto  {
     public void setId(String id) {
         this.id = id;
     }
+
+    public String getDescription() { return description; }
+
+    public void setDescription(String description) { this.description = description; }
+
+    public String getInterventionCode() { return interventionCode; }
+
+    public void setInterventionCode(String interventionCode) { this.interventionCode = interventionCode; }
 
     public String getTitle() {
         return title;
