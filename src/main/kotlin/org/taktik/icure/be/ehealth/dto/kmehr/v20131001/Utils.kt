@@ -20,6 +20,7 @@
 package org.taktik.icure.be.ehealth.dto.kmehr.v20131001
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
+import org.joda.time.DateTimeZone
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.DateType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType
 import java.time.Instant
@@ -145,16 +146,16 @@ object Utils {
         }
     }
 
-    fun makeXGC(epochMillisTimestamp: Long?, unsetMillis: Boolean = false): XMLGregorianCalendar? {
-        return epochMillisTimestamp?.let {
-            DatatypeFactory.newInstance()
-                    .newXMLGregorianCalendar(GregorianCalendar.getInstance().apply { time = Date(epochMillisTimestamp) } as GregorianCalendar)
-                    .apply {
-                        timezone = FIELD_UNDEFINED
-                        if (unsetMillis) {
-                            millisecond = FIELD_UNDEFINED
-                        }
-                    }
+    fun makeXGC(date: Long?, unsetMillis: Boolean = false, setTimeZone: Boolean = false, timeZone: String = "Europe/Brussels"): XMLGregorianCalendar? {
+        val zoneId = ZoneId.of(timeZone)
+        return date?.let {
+            val atZone = LocalDateTime.ofInstant(Instant.ofEpochMilli(it), zoneId).atZone(zoneId)
+            DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar.from(atZone)).apply {
+                timezone = if (setTimeZone) atZone.offset.totalSeconds / 60 else FIELD_UNDEFINED
+                if (unsetMillis) {
+                    millisecond = FIELD_UNDEFINED
+                }
+            }
         }
     }
 

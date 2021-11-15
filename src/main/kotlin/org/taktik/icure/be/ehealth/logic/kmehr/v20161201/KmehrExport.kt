@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.be.drugs.logic.DrugsLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.*
@@ -387,17 +388,6 @@ open class KmehrExport {
         return lst
     }
 
-    fun  makeXGC(date: Long?, unsetMillis: Boolean = false, setTimeZone: Boolean = false): XMLGregorianCalendar? {
-        return date?.let {
-            DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar.getInstance().apply { time = Date(date) } as GregorianCalendar).apply {
-                timezone = if (setTimeZone) DateTimeZone.forID("Europe/Brussels").getOffset(date) / 60000 else DatatypeConstants.FIELD_UNDEFINED
-                if (unsetMillis) {
-                    millisecond = DatatypeConstants.FIELD_UNDEFINED
-                }
-            }
-        }
-    }
-
     fun makeText(language: String, content: Content): TextType?{
         return if((content.medicationValue?.endMoment ?: -1) > 0 && !content.medicationValue?.endCondition.isNullOrEmpty()){
             TextType().apply {
@@ -420,7 +410,7 @@ open class KmehrExport {
                         texts.add(TextType().apply { l = language; value = content.stringValue })
                     }
                 }
-                Utils.makeXGC(content.instantValue?.toEpochMilli(), true)?.let { date = it; time = it; }
+                makeXGC(content.instantValue?.toEpochMilli(), true)?.let { date = it; time = it; }
                 content.measureValue?.let { mv ->
                     mv.unitCodes?.find { it.type == "CD-UNIT" }?.code?.let { unitCode ->
                         if (unitCode.isNotEmpty()) {

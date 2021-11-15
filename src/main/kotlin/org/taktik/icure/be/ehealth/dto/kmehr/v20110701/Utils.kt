@@ -27,7 +27,6 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
-import java.util.Date
 import java.util.GregorianCalendar
 import javax.xml.datatype.XMLGregorianCalendar
 
@@ -143,16 +142,16 @@ object Utils {
         }
     }
 
-    fun makeXGC(epochMillisTimestamp: Long?, unsetMillis: Boolean = false): XMLGregorianCalendar? {
-        return epochMillisTimestamp?.let {
-            DatatypeFactory.newInstance()
-                    .newXMLGregorianCalendar(GregorianCalendar.getInstance().apply { time = Date(epochMillisTimestamp) } as GregorianCalendar)
-                    .apply {
-                        timezone = FIELD_UNDEFINED
-                        if (unsetMillis) {
-                            millisecond = FIELD_UNDEFINED
-                        }
-                    }
+    fun makeXGC(date: Long?, unsetMillis: Boolean = false, setTimeZone: Boolean = false, timeZone: String = "Europe/Brussels"): XMLGregorianCalendar? {
+        val zoneId = ZoneId.of(timeZone)
+        return date?.let {
+            val atZone = LocalDateTime.ofInstant(Instant.ofEpochMilli(it), zoneId).atZone(zoneId)
+            DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar.from(atZone)).apply {
+                timezone = if (setTimeZone) atZone.offset.totalSeconds / 60 else FIELD_UNDEFINED
+                if (unsetMillis) {
+                    millisecond = FIELD_UNDEFINED
+                }
+            }
         }
     }
 
