@@ -21,6 +21,7 @@ package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
