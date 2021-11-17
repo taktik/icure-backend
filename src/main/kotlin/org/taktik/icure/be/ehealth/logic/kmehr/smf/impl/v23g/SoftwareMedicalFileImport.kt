@@ -668,7 +668,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
     }
 
     private fun extractTransactionAuthor(trn: TransactionType, saveToDatabase: Boolean, author: User, v: ImportResult) =
-            trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
+            trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY } }?.mapNotNull {
                 createOrProcessHcp(it, saveToDatabase, v)
             }?.firstOrNull()?.id ?: author.healthcarePartyId ?: throw IllegalArgumentException("The author's healthcarePartyId must be set")
 
