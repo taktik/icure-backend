@@ -26,7 +26,7 @@ import org.taktik.couchdb.entity.ReplicationTask
 import org.taktik.icure.asyncdao.ICureDAO
 import org.taktik.icure.entities.embed.DatabaseSynchronization
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.net.web.WebClient
+import io.icure.asyncjacksonhttpclient.net.web.WebClient
 import java.net.URI
 
 @ExperimentalCoroutinesApi

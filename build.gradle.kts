@@ -139,6 +139,9 @@ dependencies {
     //Krouch
     implementation(group = "org.taktik.couchdb", name = "krouch", version = "jack211-1.0.2-56-g894ce7ad06")
 
+    //Http client
+    implementation(group = "io.icure", name = "async-jackson-http-client", version = "0.1.6-2da275e27f")
+
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-mail", version = "2.4.0")
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-webflux", version = "2.4.0")
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-security", version = "2.4.0")

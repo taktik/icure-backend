@@ -27,7 +27,7 @@ import org.springframework.cache.caffeine.CaffeineCache
 import org.taktik.couchdb.Client
 import org.taktik.couchdb.ClientImpl
 import org.taktik.icure.asynccache.AsyncSafeCache
-import org.taktik.net.web.WebClient
+import io.icure.asyncjacksonhttpclient.net.web.WebClient
 import java.lang.IllegalStateException
 import java.net.URI
 import java.util.concurrent.TimeUnit

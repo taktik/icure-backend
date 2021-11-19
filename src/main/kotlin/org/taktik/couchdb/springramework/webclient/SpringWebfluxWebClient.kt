@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactor.asFlux
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
-import org.taktik.net.web.*
+import io.icure.asyncjacksonhttpclient.net.web.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.net.URI
