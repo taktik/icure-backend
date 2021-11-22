@@ -18,22 +18,19 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.mapNotNull
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.RoleDAO
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.RoleLogic
-import org.taktik.icure.constants.Permissions
 import org.taktik.icure.constants.Roles
 import org.taktik.icure.entities.Role
-import org.taktik.icure.entities.User
-import org.taktik.icure.entities.security.Permission
 
 @ExperimentalCoroutinesApi
-@Transactional
 @Service
 class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogic, roleDAO: RoleDAO) : PrincipalLogicImpl<Role>(roleDAO, sessionLogic), RoleLogic {
 
