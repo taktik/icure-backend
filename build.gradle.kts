@@ -27,11 +27,11 @@ buildscript {
       maven { url = uri("https://repo.spring.io/plugins-release") }
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.4.0")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.31")
-        classpath("org.jetbrains.kotlin:kotlin-allopen:1.4.31")
-        classpath("com.taktik.gradle:gradle-plugin-docker-java:2.0.6")
-        classpath("com.taktik.gradle:gradle-plugin-git-version:1.0.13")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.5.5")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.32")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:1.4.32")
+        classpath("com.taktik.gradle:gradle-plugin-docker-java:2.1.0")
+        classpath("com.taktik.gradle:gradle-plugin-git-version:2.0.1")
     }
 }
 
@@ -125,29 +125,31 @@ dependencies {
     implementation(group = "io.projectreactor", name = "reactor-tools", version = "3.4.10")
     implementation(group = "io.projectreactor.netty", name = "reactor-netty", version = "1.0.1")
 
-    implementation(group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8")
-    implementation(group = "org.jetbrains.kotlin", name = "kotlin-reflect")
+    implementation(group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version = "1.4.32")
+    implementation(group = "org.jetbrains.kotlin", name = "kotlin-reflect", version = "1.4.32")
     implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.4.3")
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core-jvm", version = "1.4.3")
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactive", version = "1.4.3")
     implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactor", version = "1.4.3")
     implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable-jvm", version = "0.3")
 
     //Jackson
-    implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.11.3")
-    implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = "2.11.3")
-    implementation(group = "org.mapstruct", name = "mapstruct", version = "1.4.2.Final")
+    implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.12.5")
+    implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = "2.12.5")
+    implementation(group = "com.fasterxml.jackson.datatype", name="jackson-datatype-jsr310", version = "2.12.5")
+    implementation(group = "org.mapstruct", name = "mapstruct", version = "1.3.1.Final")
 
     //Krouch
-    implementation(group = "org.taktik.couchdb", name = "krouch", version = "jack211-1.0.2-56-g894ce7ad06")
+    implementation(group = "org.taktik.couchdb", name = "krouch", version = "jack211-1.0.2-75-gd61c567eb8")
+    implementation(group = "io.icure", name = "async-jackson-http-client", version = "0.1.12-dd2039b194")
+    implementation(group = "org.springframework.boot", name = "spring-boot-starter-mail", version = "2.5.5")
+    implementation(group = "org.springframework.boot", name = "spring-boot-starter-webflux", version = "2.5.5")
+    implementation(group = "org.springframework.boot", name = "spring-boot-starter-security", version = "2.5.5")
 
-    implementation(group = "org.springframework.boot", name = "spring-boot-starter-mail", version = "2.4.0")
-    implementation(group = "org.springframework.boot", name = "spring-boot-starter-webflux", version = "2.4.0")
-    implementation(group = "org.springframework.boot", name = "spring-boot-starter-security", version = "2.4.0")
+    implementation(group = "org.springframework", name = "spring-aspects", version = "5.3.10")
+    implementation(group = "org.springframework", name = "spring-websocket", version = "5.3.10")
 
-    implementation(group = "org.springframework", name = "spring-aspects", version = "5.3.1")
-    implementation(group = "org.springframework", name = "spring-websocket", version = "5.3.1")
-    implementation(group = "org.springframework", name = "spring-orm", version = "5.3.1")
-
-    implementation(group = "org.springframework.session", name = "spring-session-core", version = "2.2.1.RELEASE")
+    implementation(group = "org.springframework.session", name = "spring-session-core", version = "2.5.2")
 
     implementation(group = "org.hibernate.validator", name = "hibernate-validator", version = "6.1.5.Final")
     implementation(group = "org.hibernate.validator", name = "hibernate-validator-annotation-processor", version = "6.1.5.Final")
@@ -156,13 +158,13 @@ dependencies {
     implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.0.4")
 
     // Logging
-    implementation(group = "ch.qos.logback", name = "logback-classic", version = "1.2.3")
-    implementation(group = "ch.qos.logback", name = "logback-access", version = "1.2.3")
+    implementation(group = "ch.qos.logback", name = "logback-classic", version = "1.2.6")
+    implementation(group = "ch.qos.logback", name = "logback-access", version = "1.2.6")
 
-    implementation(group = "org.slf4j", name = "slf4j-api", version = "1.7.12")
-    implementation(group = "org.slf4j", name = "jul-to-slf4j", version = "1.7.12")
-    implementation(group = "org.slf4j", name = "jcl-over-slf4j", version = "1.7.12")
-    implementation(group = "org.slf4j", name = "log4j-over-slf4j", version = "1.7.12")
+    implementation(group = "org.slf4j", name = "slf4j-api", version = "1.7.32")
+    implementation(group = "org.slf4j", name = "jul-to-slf4j", version = "1.7.32")
+    implementation(group = "org.slf4j", name = "jcl-over-slf4j", version = "1.7.32")
+    implementation(group = "org.slf4j", name = "log4j-over-slf4j", version = "1.7.32")
 
     // Java Commons
     implementation(group = "org.taktik.commons", name = "commons-uti", version = "1.0")
@@ -176,26 +178,26 @@ dependencies {
 
     implementation(group = "org.glassfish.jaxb", name = "jaxb-runtime", version = "2.3.1")
     implementation(group = "org.glassfish", name = "javax.el", version = "3.0.0")
-    implementation(group = "org.reflections", name = "reflections", version = "0.9.11")
+    implementation(group = "org.reflections", name = "reflections", version = "0.9.12")
 
     // Commons
-    implementation(group = "com.google.guava", name = "guava", version = "20.0")
-    implementation(group = "commons-io", name = "commons-io", version = "2.5")
-    implementation(group = "org.apache.commons", name = "commons-lang3", version = "3.5")
-    implementation(group = "org.apache.commons", name = "commons-compress", version = "1.12")
-    implementation(group = "org.apache.commons", name = "commons-math3", version = "3.2")
-    implementation(group = "commons-beanutils", name = "commons-beanutils", version = "1.9.3")
+    implementation(group = "com.google.guava", name = "guava", version = "30.1.1-jre")
+    implementation(group = "commons-io", name = "commons-io", version = "2.11.0")
+    implementation(group = "org.apache.commons", name = "commons-lang3", version = "3.12.0")
+    implementation(group = "org.apache.commons", name = "commons-compress", version = "1.21")
+    implementation(group = "org.apache.commons", name = "commons-math3", version = "3.6.1")
+    implementation(group = "commons-beanutils", name = "commons-beanutils", version = "1.9.4")
 
     // Bouncy Castle
-    implementation(group = "org.bouncycastle", name = "bcprov-jdk15on", version = "1.53")
-    implementation(group = "org.bouncycastle", name = "bcmail-jdk15on", version = "1.53")
+    implementation(group = "org.bouncycastle", name = "bcprov-jdk15on", version = "1.69")
+    implementation(group = "org.bouncycastle", name = "bcmail-jdk15on", version = "1.69")
 
     //2FA
     implementation(group = "org.jboss.aerogear", name = "aerogear-otp-java", version = "1.0.0")
 
     // Swagger
-    implementation(group = "org.springdoc", name = "springdoc-openapi-webflux-ui", version = "1.5.5")
-    implementation(group = "org.springdoc", name = "springdoc-openapi-kotlin", version = "1.5.5")
+    implementation(group = "org.springdoc", name = "springdoc-openapi-webflux-ui", version = "1.5.11")
+    implementation(group = "org.springdoc", name = "springdoc-openapi-kotlin", version = "1.5.11")
 
     //Saxon
     implementation(group = "net.sf.saxon", name = "Saxon-HE", version = "9.6.0-6")
@@ -205,13 +207,13 @@ dependencies {
     implementation(files("libs/ehvalidator-service-core-2.1.1.jar"))
 
     // Mustache
-    implementation(group = "com.github.spullara.mustache.java", name = "compiler", version = "0.9.5")
+    implementation(group = "com.github.spullara.mustache.java", name = "compiler", version = "0.9.10")
 
     //Sendgrid
     implementation(group = "com.sendgrid", name = "sendgrid-java", version = "4.4.7")
 
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.4.2")
-    testImplementation(group = "org.springframework.boot", name = "spring-boot-starter-test", version = "2.3.6.RELEASE")
+    testImplementation(group = "org.springframework.boot", name = "spring-boot-starter-test", version = "2.5.5")
 
 }
 
