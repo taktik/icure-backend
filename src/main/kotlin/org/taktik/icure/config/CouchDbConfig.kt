@@ -19,6 +19,7 @@
 package org.taktik.icure.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.icure.asyncjacksonhttpclient.net.web.WebClient
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Value
@@ -31,7 +32,6 @@ import org.taktik.couchdb.springramework.webclient.SpringWebfluxWebClient
 import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncMapCacheManager
-import io.icure.asyncjacksonhttpclient.net.web.WebClient
 import reactor.core.publisher.Mono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.resources.ConnectionProvider

@@ -52,21 +52,44 @@ class SpringWebfluxRequest(
     override fun body(producer: Flow<ByteBuffer>): Request = SpringWebfluxRequest(client, uri, method, headers, producer)
     override fun retrieve() = SpringWebfluxResponse(headers.entries().fold(client.method(method.toSpringMethod()).uri(uri)) { acc, (name, value) -> acc.header(name, value) }.let {
             bodyPublisher?.let { bp -> it.body(bp.asFlux(), ByteBuffer::class.java) } ?: it
-        }.retrieve())
+        })
 }
 
-class SpringWebfluxResponse(private val responseSpec: org.springframework.web.reactive.function.client.WebClient.ResponseSpec) : Response {
-    override fun onStatus(status: Int, handler: (ResponseStatus) -> Mono<out Throwable>) =
-            SpringWebfluxResponse(responseSpec.onStatus({it.value() == status}, { response ->
-                response.bodyToMono(ByteBuffer::class.java).flatMap { byteBuffer ->
-                    val arr = ByteArray(byteBuffer.remaining())
-                    byteBuffer.get(arr)
-                    handler(object : ResponseStatus(response.statusCode().value()) {
-                        override fun responseBodyAsString() = arr.toString(Charsets.UTF_8)
-                    })
+class SpringWebfluxResponse(
+        private val requestHeaderSpec: org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec<*>,
+        private val statusHandlers: Map<Int, (ResponseStatus) -> Mono<out Throwable>> = mapOf(),
+        private val headerHandler: Map<String, (String) -> Mono<Unit>> = mapOf(),
+) : Response {
+    override fun onStatus(status: Int, handler: (ResponseStatus) -> Mono<out Throwable>): Response {
+        return SpringWebfluxResponse(requestHeaderSpec, statusHandlers + (status to handler), headerHandler)
+    }
+
+    override fun onHeader(header: String, handler: (String) -> Mono<Unit>): Response {
+        return SpringWebfluxResponse(requestHeaderSpec, statusHandlers, headerHandler + (header to handler))
+    }
+
+    override fun toFlux(): Flux<ByteBuffer> = requestHeaderSpec.exchangeToFlux { cr ->
+        val statusCode: Int = cr.statusCode().value()
+
+        val headerHandlers = if (headerHandler.isNotEmpty()) {
+            cr.headers().asHttpHeaders().flatMap { (k, values) -> values.map { k to it} }.fold(Mono.empty()) { m: Mono<*>, (k, v) -> m.then(headerHandler[k]?.let { it(v) } ?: Mono.empty()) }
+        } else Mono.empty()
+
+        headerHandlers.thenMany(statusHandlers[statusCode]?.let { handler ->
+            cr.bodyToMono(ByteBuffer::class.java).flatMapMany { byteBuffer ->
+                val arr = ByteArray(byteBuffer.remaining())
+                byteBuffer.get(arr)
+                val res = handler(object : ResponseStatus(statusCode) {
+                    override fun responseBodyAsString() = arr.toString(Charsets.UTF_8)
+                })
+                if (res == Mono.empty<Throwable>()) {
+                    Mono.just(ByteBuffer.wrap(arr))
+                } else {
+                    res.flatMap { Mono.error(it) }
                 }
-            }))
-    override fun toFlux(): Flux<ByteBuffer> = responseSpec.bodyToFlux(ByteBuffer::class.java)
+            }
+        } ?: cr.bodyToFlux(ByteBuffer::class.java))
+    }
 }
 
 private fun HttpMethod?.toSpringMethod(): org.springframework.http.HttpMethod {

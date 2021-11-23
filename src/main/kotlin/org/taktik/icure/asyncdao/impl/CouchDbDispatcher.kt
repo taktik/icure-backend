@@ -20,14 +20,13 @@ package org.taktik.icure.asyncdao.impl
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.benmanes.caffeine.cache.Caffeine
+import io.icure.asyncjacksonhttpclient.net.web.WebClient
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import org.apache.http.client.utils.URIBuilder
 import org.springframework.cache.caffeine.CaffeineCache
 import org.taktik.couchdb.Client
 import org.taktik.couchdb.ClientImpl
 import org.taktik.icure.asynccache.AsyncSafeCache
-import io.icure.asyncjacksonhttpclient.net.web.WebClient
 import java.lang.IllegalStateException
 import java.net.URI
 import java.util.concurrent.TimeUnit

@@ -23,7 +23,6 @@ import org.apache.commons.lang3.Validate
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asyncdao.GenericDAO
@@ -50,7 +49,6 @@ import java.time.Duration
 import java.time.Instant
 import java.util.regex.Pattern
 
-@Transactional
 @Service
 class UserLogicImpl(
         couchDbProperties: CouchDbProperties,
