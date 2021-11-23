@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.taktik.icure.entities.CalendarItem;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.exceptions.DeletionException;
@@ -88,23 +89,22 @@ public class CalendarItemFacade implements OpenApiFacade {
 
 
     @ApiOperation(value = "Deletes calendarItems")
-    @DELETE
-    @Path("/{calendarItemIds}")
-    public Response deleteCalendarItem(@PathParam("calendarItemIds") String calendarItemIds) throws DeletionException {
+    @POST
+    @Path("/deleteCalendarItems")
+    public Response deleteCalendarItems(@RequestBody List<String> calendarItemIds) throws DeletionException {
         Response response;
 
         if (calendarItemIds == null) {
             response = ResponseUtils.badRequest("Cannot delete access log: supplied calendarItemIds is null");
 
         } else {
-            List<String> deletedCalendarItemIds = calendarItemLogic.deleteCalendarItems(Arrays.asList(calendarItemIds.split(",")));
+            List<String> deletedCalendarItemIds = calendarItemLogic.deleteCalendarItems(calendarItemIds);
             if (deletedCalendarItemIds != null) {
                 response = Response.ok().entity(deletedCalendarItemIds).build();
             } else {
                 return Response.status(500).type("text/plain").entity("CalendarItem deletion failed.").build();
             }
         }
-
         return response;
     }
 
