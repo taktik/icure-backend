@@ -40,4 +40,6 @@ public interface CalendarItemDAO extends GenericDAO<CalendarItem> {
     List<CalendarItem> listCalendarItemByPeriodAndAgendaId(Long startDate, Long endDate, String agendaId);
 
     List<CalendarItem> findByHCPartySecretPatientKeys(String hcPartyId, List<String> secretPatientKeys);
+
+    List<CalendarItem> findByRecurrenceId (String recurrenceId);
 }

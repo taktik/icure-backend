@@ -43,4 +43,6 @@ public interface CalendarItemLogic extends EntityPersister<CalendarItem, String>
     List<String> deleteCalendarItems(List<String> ids) throws DeletionException;
 
     List<CalendarItem> getCalendarItemByIds(List<String> ids);
+
+    List<CalendarItem> getCalendarItemsByRecurrenceId(String recurenceId);
 }

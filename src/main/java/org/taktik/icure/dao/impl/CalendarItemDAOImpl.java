@@ -29,6 +29,7 @@ import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.entities.AccessLog;
 import org.taktik.icure.entities.CalendarItem;
+import org.taktik.icure.entities.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +89,13 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
 
         return calendarItems;
     }
+
+    @Override
+    @View(name = "by_recurrence_id", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.CalendarItem' && !doc.deleted) {emit(doc.recurrenceId,doc._id)}}")
+    public List<CalendarItem> findByRecurrenceId(String recurrenceId) {
+        return queryView("by_recurrence_id", recurrenceId);
+    }
+
 
     @Override
     public List<CalendarItem> listCalendarItemByPeriodAndHcPartyId(Long startDate, Long endDate, String hcPartyId) {

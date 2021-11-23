@@ -86,7 +86,8 @@ public class CalendarItemFacade implements OpenApiFacade {
         return response;
     }
 
-    @ApiOperation(value = "Deletes an calendarItem")
+
+    @ApiOperation(value = "Deletes calendarItems")
     @DELETE
     @Path("/{calendarItemIds}")
     public Response deleteCalendarItem(@PathParam("calendarItemIds") String calendarItemIds) throws DeletionException {
@@ -276,6 +277,27 @@ public class CalendarItemFacade implements OpenApiFacade {
 
         } else {
             response = ResponseUtils.internalServerError("CalendarItemTypes fetching failed");
+        }
+        return response;
+    }
+
+    @ApiOperation(
+            value = "Gets calendarItems by recurrenceId",
+            response = CalendarItemDto.class,
+            responseContainer = "Array",
+            httpMethod = "GET",
+            notes = ""
+    )
+    @GET
+    @Path("/byRecurrenceId")
+    public Response getCalendarItemsByRecurrenceId(@QueryParam("recurrenceId") String recurrenceId) {
+        Response response;
+        List<CalendarItem> calendarItems = calendarItemLogic.getCalendarItemsByRecurrenceId(recurrenceId);
+        if (calendarItems != null) {
+            response = Response.ok().entity(calendarItems.stream().map(c -> mapper.map(c, CalendarItemDto.class)).collect(Collectors.toList())).build();
+
+        } else {
+            response = ResponseUtils.internalServerError("CalendarItems by recurrenceId fetching failed");
         }
         return response;
     }
