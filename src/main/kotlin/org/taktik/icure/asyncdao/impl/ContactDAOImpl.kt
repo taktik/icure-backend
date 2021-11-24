@@ -289,6 +289,23 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
     }
 
+    @View(name = "service_by_hcparty_identifier", map = "classpath:js/contact/Service_by_hcparty_identifier.js")
+    override fun listServiceIdsByIdentifier(hcPartyId: String, identifierSystem: String, identifierValue: String): Flow<String> = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+        val searchKey = ComplexKey.of(
+                hcPartyId,
+                identifierSystem,
+                identifierValue,
+        )
+
+        val viewQuery = createQuery(client,"service_by_hcparty_identifier")
+                .key(searchKey)
+                .includeDocs(false)
+
+        emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
+    }
+
     @View(name = "by_hcparty_code", map = "classpath:js/contact/By_hcparty_code.js", reduce = "_count")
     override fun listContactIdsByCode(hcPartyId: String, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
