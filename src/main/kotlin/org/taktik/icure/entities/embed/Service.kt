@@ -42,6 +42,7 @@ import java.util.*
  * - Encryptable
  *
  * @property id The Id of the Service. We encourage using either a v4 UUID or a HL7 Id.
+ * @property identifier The identifier of the Service.
  * @property contactId Id of the contact during which the service is provided
  * @property subContactIds List of IDs of all sub-contacts that link the service to structural elements. Only used when the Service is emitted outside of its contact
  * @property plansOfActionIds List of IDs of all plans of actions (healthcare approaches) as a part of which the Service is provided. Only used when the Service is emitted outside of its contact
@@ -78,6 +79,7 @@ import java.util.*
 @KotlinBuilder
 data class Service(
         @JsonProperty("_id") override val id: String = UUID.randomUUID().toString(),//Only used when the Service is emitted outside of its contact
+        val identifier: List<Identifier> = listOf(),
         @JsonIgnore val subContactIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
         @JsonIgnore val plansOfActionIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
         @JsonIgnore val healthElementsIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
