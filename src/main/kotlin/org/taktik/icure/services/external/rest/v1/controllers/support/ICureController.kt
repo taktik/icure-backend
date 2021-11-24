@@ -83,7 +83,7 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
         IndexingInfoDto(iCureLogic.getIndexingStatus())
     }
 
-    @Operation(summary = "Get index info")
+    @Operation(summary = "Get replication info")
     @GetMapping("/r")
     fun getReplicationInfo() = mono {
         iCureLogic.getReplicationInfo()
