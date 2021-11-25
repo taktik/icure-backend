@@ -44,6 +44,8 @@ data class PatientDto(
         override val deletionDate: Long? = null,
         @Schema(description = "the firstname (name) of the patient.") override val firstName: String? = null,
         @Schema(description = "the lastname (surname) of the patient. This is the official lastname that should be used for official administrative purposes.") override val lastName: String? = null, //Is usually either maidenName or spouseName,
+        @Schema(description = "the next firstnames of the patient") val additionalFirstNames: List<String> = listOf(),
+        @Schema(description = "the other names corresponding to the patient, using another denomination") val otherNames: List<PersonNameDto> = listOf(),
         @Schema(description = "the name of the company this patient is member of.") override val companyName: String? = null,
         @Schema(description = "the list of languages spoken by the patient ordered by fluency (alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html).") override val languages: List<String> = listOf(), //alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html,
         @Schema(description = "the list of addresses (with address type).") override val addresses: List<AddressDto> = listOf(),
@@ -109,7 +111,7 @@ data class PatientDto(
         @get:Deprecated("Use properties instead") val schoolingInfos: List<SchoolingInfoDto> = listOf(),
         @get:Deprecated("Use properties instead") val employementInfos: List<EmploymentInfoDto> = listOf(),
 
-) : StoredDocumentDto, ICureDocumentDto<String>, PersonDto, EncryptableDto, CryptoActorDto {
+        ) : StoredDocumentDto, ICureDocumentDto<String>, PersonDto, EncryptableDto, CryptoActorDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }
