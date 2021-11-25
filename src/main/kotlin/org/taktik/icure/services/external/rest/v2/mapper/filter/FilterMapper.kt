@@ -36,6 +36,7 @@ import org.taktik.icure.services.external.rest.v2.dto.filter.healthelement.Healt
 import org.taktik.icure.services.external.rest.v2.dto.filter.invoice.InvoiceByHcPartyCodeDateFilter
 import org.taktik.icure.services.external.rest.v2.dto.filter.patient.*
 import org.taktik.icure.services.external.rest.v2.dto.filter.service.ServiceByContactsAndSubcontactsFilter
+import org.taktik.icure.services.external.rest.v2.dto.filter.service.ServiceByHcPartyIdentifierFilter
 import org.taktik.icure.services.external.rest.v2.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
 import org.taktik.icure.services.external.rest.v2.dto.filter.service.ServiceBySecretForeignKeys
 
@@ -60,6 +61,7 @@ abstract class FilterV2Mapper {
     abstract fun map(filterDto: PatientByIdsFilter): org.taktik.icure.domain.filter.impl.patient.PatientByIdsFilter
     abstract fun map(filterDto: ServiceByContactsAndSubcontactsFilter): org.taktik.icure.domain.filter.impl.service.ServiceByContactsAndSubcontactsFilter
     abstract fun map(filterDto: ServiceByHcPartyTagCodeDateFilter): org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyTagCodeDateFilter
+    abstract fun map(filterDto: ServiceByHcPartyIdentifierFilter): org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyIdentifierFilter
     abstract fun map(filterDto: ServiceBySecretForeignKeys): org.taktik.icure.domain.filter.impl.service.ServiceBySecretForeignKeys
     fun <O: Identifiable<String>>map(filterDto: UnionFilter<O>): org.taktik.icure.domain.filter.impl.UnionFilter<O> {
         val filters: List<AbstractFilter<O>> = filterDto.filters.map { map(it) as AbstractFilter<O> }
@@ -110,6 +112,7 @@ abstract class FilterV2Mapper {
             is PatientByIdsFilter -> map(filterDto)
             is ServiceByContactsAndSubcontactsFilter -> map(filterDto)
             is ServiceByHcPartyTagCodeDateFilter -> map(filterDto)
+            is ServiceByHcPartyIdentifierFilter -> map(filterDto)
             is ServiceBySecretForeignKeys -> map(filterDto)
             is UnionFilter -> map(filterDto)
             is IntersectionFilter -> map(filterDto)
@@ -138,6 +141,7 @@ abstract class FilterV2Mapper {
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.patient.PatientByIdsFilter): PatientByIdsFilter
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceByContactsAndSubcontactsFilter): ServiceByContactsAndSubcontactsFilter
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyTagCodeDateFilter): ServiceByHcPartyTagCodeDateFilter
+    abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyIdentifierFilter): ServiceByHcPartyIdentifierFilter
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceBySecretForeignKeys): ServiceBySecretForeignKeys
     fun <O: Identifiable<String>>map(filterDto: org.taktik.icure.domain.filter.impl.UnionFilter<O>): UnionFilter<O> {
         val filters: List<AbstractFilterDto<O>> = filterDto.filters.map { map(it) as AbstractFilterDto<O> }
@@ -188,6 +192,7 @@ abstract class FilterV2Mapper {
             is org.taktik.icure.domain.filter.impl.patient.PatientByIdsFilter -> map(filter)
             is org.taktik.icure.domain.filter.impl.service.ServiceByContactsAndSubcontactsFilter -> map(filter)
             is org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyTagCodeDateFilter -> map(filter)
+            is org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyIdentifierFilter -> map(filter)
             is org.taktik.icure.domain.filter.impl.service.ServiceBySecretForeignKeys -> map(filter)
             is org.taktik.icure.domain.filter.impl.UnionFilter -> map(filter)
             is org.taktik.icure.domain.filter.impl.IntersectionFilter -> map(filter)

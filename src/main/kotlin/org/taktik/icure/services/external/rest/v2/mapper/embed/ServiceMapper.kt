@@ -25,8 +25,9 @@ import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.rest.v2.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.IdentifierV2Mapper
 
-@Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class, DelegationV2Mapper::class, MedicationV2Mapper::class, MeasureV2Mapper::class, ContractChangeTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [IdentifierV2Mapper::class, CodeStubV2Mapper::class, DelegationV2Mapper::class, MedicationV2Mapper::class, MeasureV2Mapper::class, ContractChangeTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ServiceV2Mapper {
 	fun map(serviceDto: ServiceDto):Service
 	fun map(service: Service):ServiceDto

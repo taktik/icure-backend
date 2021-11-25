@@ -22,27 +22,9 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.github.pozo.KotlinBuilder
-import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.couchdb.entity.Attachment
-import org.taktik.icure.entities.base.CodeStub
-import org.taktik.icure.entities.base.CryptoActor
-import org.taktik.icure.entities.base.Encryptable
-import org.taktik.icure.entities.base.Person
-import org.taktik.icure.entities.base.PropertyStub
-import org.taktik.icure.entities.base.StoredICureDocument
-import org.taktik.icure.entities.embed.Address
-import org.taktik.icure.entities.embed.DeactivationReason
-import org.taktik.icure.entities.embed.Delegation
-import org.taktik.icure.entities.embed.EmploymentInfo
-import org.taktik.icure.entities.embed.FinancialInstitutionInformation
-import org.taktik.icure.entities.embed.Gender
-import org.taktik.icure.entities.embed.Insurability
-import org.taktik.icure.entities.embed.MedicalHouseContract
-import org.taktik.icure.entities.embed.Partnership
-import org.taktik.icure.entities.embed.PatientHealthCareParty
-import org.taktik.icure.entities.embed.PersonalStatus
-import org.taktik.icure.entities.embed.RevisionInfo
-import org.taktik.icure.entities.embed.SchoolingInfo
+import org.taktik.icure.entities.base.*
+import org.taktik.icure.entities.embed.*
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.handlers.JacksonBase64LenientDeserializer
 import org.taktik.icure.utils.DynamicInitializer
@@ -50,7 +32,6 @@ import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
-import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -68,6 +49,7 @@ import java.util.*
  *
  * @property id The Id of the patient. We encourage using either a v4 UUID or a HL7 Id.
  * @property rev The revision of the patient in the database, used for conflict management / optimistic locking.
+ * @property identifier The patient's identifier.
  * @property created The timestamp (unix epoch in ms) of creation of the patient, will be filled automatically if missing. Not enforced by the application server.
  * @property modified the date (unix epoch in ms) of latest modification of the patient, will be filled automatically if missing. Not enforced by the application server.
  * @property author the id of the User that has created this patient, will be filled automatically if missing. Not enforced by the application server.
@@ -125,6 +107,7 @@ import java.util.*
 data class Patient(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,
+        val identifier: List<Identifier> = listOf(),
         @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
         @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
         @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
