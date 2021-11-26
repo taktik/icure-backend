@@ -29,6 +29,7 @@ import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.CalendarItemDAO
 import org.taktik.icure.entities.CalendarItem
+import org.taktik.icure.entities.User
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.distinctById
@@ -150,5 +151,12 @@ class CalendarItemDAOImpl(couchDbProperties: CouchDbProperties,
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
         val viewQuery = createQuery(client, "by_hcparty_patient").keys(keys).includeDocs(true)
         emitAll(client.queryViewIncludeDocs<Array<String>, String, CalendarItem>(viewQuery).distinctUntilChangedBy { it.id }.map { it.doc })
+    }
+
+    @View(name = "by_recurrence_id", map = "classpath:js/calendarItem/by_recurrence_id.js")
+    override fun listCalendarItemsByRecurrenceId(recurrenceId: String): Flow<CalendarItem> = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        val viewQuery = createQuery(client, "by_recurrence_id").key(recurrenceId).includeDocs(true)
+        emitAll(client.queryViewIncludeDocsNoValue<String, CalendarItem>(viewQuery).map { it.doc })
     }
 }

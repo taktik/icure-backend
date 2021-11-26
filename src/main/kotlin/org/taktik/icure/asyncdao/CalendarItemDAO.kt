@@ -37,4 +37,6 @@ interface CalendarItemDAO : GenericDAO<CalendarItem> {
     fun listCalendarItemByPeriodAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<CalendarItem>
 
     fun listAccessLogsByHcPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<CalendarItem>
+
+    fun listCalendarItemsByRecurrenceId (recurrenceId:String): Flow<CalendarItem>
 }
