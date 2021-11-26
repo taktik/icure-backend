@@ -26,6 +26,7 @@ import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.ReportVersion
 import org.taktik.icure.entities.base.StoredICureDocument
+import org.taktik.icure.entities.embed.DocumentType
 import org.taktik.icure.entities.embed.DocumentGroup
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.utils.DynamicInitializer
@@ -63,6 +64,7 @@ data class DocumentTemplate(
         val descr: String? = null,
         val disabled: String? = null,
         val specialty: CodeStub? = null,
+        val documentType: DocumentType? = null,
 
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
@@ -86,7 +88,8 @@ data class DocumentTemplate(
             "disabled" to (this.disabled ?: other.disabled),
             "specialty" to (this.specialty ?: other.specialty),
             "attachment" to (this.attachment?.let { if (it.size >= other.attachment?.size ?: 0) it else other.attachment }
-                    ?: other.attachment)
+                    ?: other.attachment),
+             "documentType" to (this.documentType ?: other.documentType)
     )
 
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
