@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 import org.springframework.boot.gradle.tasks.run.BootRun
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.*
 
 val repoUsername: String by project
 val repoPassword: String by project
@@ -140,7 +140,7 @@ dependencies {
     implementation(group = "org.mapstruct", name = "mapstruct", version = "1.3.1.Final")
 
     //Krouch
-    implementation(group = "org.taktik.couchdb", name = "krouch", version = "jack211-1.0.2-75-gd61c567eb8")
+    implementation(group = "org.taktik.couchdb", name = "krouch", version = "jack211-1.0.2-86-g19ba0eee4c")
     implementation(group = "io.icure", name = "async-jackson-http-client", version = "0.1.12-dd2039b194")
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-mail", version = "2.5.5")
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-webflux", version = "2.5.5")
