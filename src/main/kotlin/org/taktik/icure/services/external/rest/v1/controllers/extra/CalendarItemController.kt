@@ -66,7 +66,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     }
 
     @Operation(summary = "Deletes calendarItems")
-    @PostMapping("/deleteCalendarItems")
+    @PostMapping("/delete")
     fun deleteCalendarItems(@RequestBody calendarItemIds: org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto): Flux<DocIdentifier> {
         return calendarItemIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
