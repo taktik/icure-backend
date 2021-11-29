@@ -24,6 +24,7 @@ import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.ContactIdServiceId
 import org.taktik.icure.entities.Contact
+import org.taktik.icure.entities.embed.Service
 
 interface ContactDAO: GenericDAO<Contact> {
     suspend fun getContact(id: String): Contact?
@@ -50,6 +51,10 @@ interface ContactDAO: GenericDAO<Contact> {
     fun listContactsByServices(services: Collection<String>): Flow<Contact>
     fun listIdsByServices(services: Collection<String>): Flow<ContactIdServiceId>
     fun relink(cs: Flow<Contact>): Flow<Contact>
+    fun findContactsByExternalId(externalId: String): Flow<Contact>
+    fun findServiceIdsByAssociationId(associationId: String): Flow<Service>
+    fun findContactsByHcPartyServiceId(hcPartyId: String, formId: String): Flow<Contact>
+
 
     fun listConflicts(): Flow<Contact>
 }

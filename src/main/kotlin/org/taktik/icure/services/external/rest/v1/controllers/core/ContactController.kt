@@ -130,6 +130,19 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
                 .map { LabelledOccurenceDto(it.label, it.occurence) }
     }
 
+    @GetMapping("/byHcPartyServiceId")
+    fun listContactByHCPartyServiceId(@RequestParam hcPartyId: String, @RequestParam serviceId: String): Flux<ContactDto> {
+        val contactList = contactLogic.listContactsByHCPartyServiceId(hcPartyId, serviceId)
+        return contactList.map { contact -> contactV2Mapper.map(contact) }.injectReactorContext()
+    }
+
+    @Operation(summary = "List contacts found By externalId.")
+    @PostMapping("/byExternalId")
+    fun listContactsByExternalId(@RequestParam externalId: String): Flux<ContactDto> {
+        val contactList = contactLogic.listContactsByExternalId(externalId)
+        return contactList.map { contact -> contactV2Mapper.map(contact) }.injectReactorContext()
+    }
+
     @Operation(summary = "Get a list of contacts found by Healthcare Party and form's id.")
     @GetMapping("/byHcPartyFormId")
     fun findByHCPartyFormId(@RequestParam hcPartyId: String, @RequestParam formId: String): Flux<ContactDto> {
@@ -175,6 +188,21 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
             contactList.filter { c -> skipClosedContacts == null || !skipClosedContacts || c.closingDate == null }.map { contact -> contactMapper.map(contact) }.injectReactorContext()
         }
     }
+
+    @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
+    @PostMapping("/delegations")
+    fun setContactsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
+        val contacts = contactLogic.getContacts(stubs.map { it.id }).map { contact ->
+            stubs.find { s -> s.id == contact.id }?.let { stub ->
+                contact.copy(
+                        delegations = contact.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels },
+                        encryptionKeys = contact.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels },
+                        cryptedForeignKeys = contact.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels }
+                )
+            } ?: contact
+        }
+        emitAll(contactLogic.modifyEntities(contacts.toList()).map { contactV2Mapper.map(it) })
+    }.injectReactorContext()
 
     @Operation(summary = "List contacts found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys/delegations")
@@ -335,6 +363,12 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
             @Parameter(description = "The type of the link") @RequestParam(required = false) linkType: String?,
             @RequestBody ids: ListOfIdsDto
     ) = contactLogic.getServicesLinkedTo(ids.ids, linkType).map { svc -> serviceMapper.map(svc) }.injectReactorContext()
+
+    @Operation(summary = "List services by related association id", description = "Returns a list of services")
+    @GetMapping("/service/associationId")
+    fun listServicesByAssociationId(
+            @RequestParam associationId: String,
+    ) = contactLogic.listServicesByAssociationId(associationId).map { svc -> serviceV2Mapper.map(svc) }.injectReactorContext()
 
     @Operation(summary = "List contacts bu opening date parties with(out) pagination", description = "Returns a list of contacts.")
     @GetMapping("/byOpeningDate")
