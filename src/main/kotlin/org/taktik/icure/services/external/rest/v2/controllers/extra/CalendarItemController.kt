@@ -68,7 +68,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     }
 
     @Operation(summary = "Deletes calendarItems")
-    @PostMapping("/deleteCalendarItems")
+    @PostMapping("/delete")
     fun deleteCalendarItems(@RequestBody calendarItemIds: ListOfIdsDto): Flux<DocIdentifier> {
         return calendarItemIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
