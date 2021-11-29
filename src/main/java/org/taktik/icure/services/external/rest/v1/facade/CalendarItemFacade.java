@@ -90,7 +90,7 @@ public class CalendarItemFacade implements OpenApiFacade {
 
     @ApiOperation(value = "Deletes calendarItems")
     @POST
-    @Path("/deleteCalendarItems")
+    @Path("/delete")
     public Response deleteCalendarItems(@RequestBody List<String> calendarItemIds) throws DeletionException {
         Response response;
 

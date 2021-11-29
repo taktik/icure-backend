@@ -91,7 +91,7 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
     }
 
     @Override
-    @View(name = "by_recurrence_id", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.CalendarItem' && !doc.deleted) {emit(doc.recurrenceId,doc._id)}}")
+    @View(name = "by_recurrence_id", map = "classpath:js/calendarItem/by_recurrence_id.js")
     public List<CalendarItem> findByRecurrenceId(String recurrenceId) {
         return queryView("by_recurrence_id", recurrenceId);
     }
