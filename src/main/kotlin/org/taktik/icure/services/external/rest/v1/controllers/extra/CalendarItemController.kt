@@ -65,10 +65,18 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
         calendarItemMapper.map(calendarItem)
     }
 
-    @Operation(summary = "Deletes an calendarItem")
-    @DeleteMapping("/{calendarItemIds}")
-    fun deleteCalendarItem(@PathVariable calendarItemIds: String): Flux<DocIdentifier> {
-        return calendarItemLogic.deleteCalendarItems(calendarItemIds.split(',')).injectReactorContext()
+    @Operation(summary = "Deletes calendarItems")
+    @PostMapping("/delete")
+    fun deleteCalendarItems(@RequestBody calendarItemIds: org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto): Flux<DocIdentifier> {
+        return calendarItemIds.ids.takeIf { it.isNotEmpty() }
+                ?.let { ids ->
+                    try {
+                        calendarItemLogic.deleteEntities(HashSet(ids)).injectReactorContext()
+                    } catch (e: java.lang.Exception) {
+                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
+                    }
+                }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
     }
 
     @Operation(summary = "Gets an calendarItem")
@@ -148,5 +156,12 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
         }
         emitAll(calendarItemLogic.modifyEntities(calendarItems.toList()).map { calendarItemMapper.map(it) })
     }.injectReactorContext()
+
+    @Operation(summary = "Find CalendarItems by recurrenceId", description = "")
+    @GetMapping("/byRecurrenceId")
+    fun findCalendarItemsByRecurrenceId (@RequestParam recurrenceId: String): Flux<CalendarItemDto> {
+        val elementList = calendarItemLogic.getCalendarItemsByRecurrenceId(recurrenceId)
+        return elementList.map { calendarItemMapper.map(it) }.injectReactorContext()
+    }
 
 }

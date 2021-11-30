@@ -67,8 +67,8 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
         calendarItemV2Mapper.map(calendarItem)
     }
 
-    @Operation(summary = "Deletes an calendarItem")
-    @DeleteMapping("/delete/batch")
+    @Operation(summary = "Deletes calendarItems")
+    @PostMapping("/delete")
     fun deleteCalendarItems(@RequestBody calendarItemIds: ListOfIdsDto): Flux<DocIdentifier> {
         return calendarItemIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
@@ -141,6 +141,13 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val elementList = calendarItemLogic.listCalendarItemsByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
+        return elementList.map { calendarItemV2Mapper.map(it) }.injectReactorContext()
+    }
+
+    @Operation(summary = "Find CalendarItems by recurrenceId", description = "")
+    @GetMapping("/byRecurrenceId")
+    fun findCalendarItemsByRecurrenceId (@RequestParam recurrenceId: String): Flux<CalendarItemDto> {
+        val elementList = calendarItemLogic.getCalendarItemsByRecurrenceId(recurrenceId)
         return elementList.map { calendarItemV2Mapper.map(it) }.injectReactorContext()
     }
 
