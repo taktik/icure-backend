@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.facade;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import kotlin.Deprecated;
 import ma.glasnost.orika.MapperFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +88,27 @@ public class CalendarItemFacade implements OpenApiFacade {
         return response;
     }
 
+
+    @Deprecated(message = "Use deleteCalendarItems instead")
+    @ApiOperation(value = "Deletes an calendarItem")
+    @DELETE
+    @Path("/{calendarItemIds}")
+    public Response deleteCalendarItem(@PathParam("calendarItemIds") String calendarItemIds) throws DeletionException {
+        Response response;
+
+        if (calendarItemIds == null) {
+            response = ResponseUtils.badRequest("Cannot delete access log: supplied calendarItemIds is null");
+
+        } else {
+            List<String> deletedCalendarItemIds = calendarItemLogic.deleteCalendarItems(Arrays.asList(calendarItemIds.split(",")));
+            if (deletedCalendarItemIds != null) {
+                response = Response.ok().entity(deletedCalendarItemIds).build();
+            } else {
+                return Response.status(500).type("text/plain").entity("CalendarItem deletion failed.").build();
+            }
+        }
+        return response;
+    }
 
     @ApiOperation(value = "Deletes calendarItems")
     @POST
