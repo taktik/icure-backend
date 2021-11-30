@@ -66,18 +66,15 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     }
 
     @Operation(summary = "Deletes calendarItems")
-    @PostMapping("/delete")
-    fun deleteCalendarItems(@RequestBody calendarItemIds: org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto): Flux<DocIdentifier> {
-        return calendarItemIds.ids.takeIf { it.isNotEmpty() }
-                ?.let { ids ->
-                    try {
-                        calendarItemLogic.deleteEntities(HashSet(ids)).injectReactorContext()
-                    } catch (e: java.lang.Exception) {
-                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
-                    }
-                }
-                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
-    }
+    @PostMapping("/delete/byIds")
+    fun deleteCalendarItems(@RequestBody calendarItemIds: ListOfIdsDto): Flux<DocIdentifier> =
+            calendarItemLogic.deleteCalendarItems(calendarItemIds.ids).injectReactorContext()
+
+    @Deprecated(message = "Use deleteItemCalendars instead")
+    @Operation(summary = "Deletes an calendarItem")
+    @DeleteMapping("/{calendarItemIds}")
+    fun deleteCalendarItem(@PathVariable calendarItemIds: String): Flux<DocIdentifier> =
+            calendarItemLogic.deleteCalendarItems(calendarItemIds.split(',')).injectReactorContext()
 
     @Operation(summary = "Gets an calendarItem")
     @GetMapping("/{calendarItemId}")

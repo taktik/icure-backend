@@ -68,18 +68,16 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     }
 
     @Operation(summary = "Deletes calendarItems")
-    @PostMapping("/delete")
-    fun deleteCalendarItems(@RequestBody calendarItemIds: ListOfIdsDto): Flux<DocIdentifier> {
-        return calendarItemIds.ids.takeIf { it.isNotEmpty() }
-                ?.let { ids ->
-                    try {
-                        calendarItemLogic.deleteEntities(HashSet(ids)).injectReactorContext()
-                    } catch (e: java.lang.Exception) {
-                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
-                    }
-                }
-                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
-    }
+    @PostMapping("/delete/batch")
+    fun deleteCalendarItems(@RequestBody calendarItemIds: ListOfIdsDto): Flux<DocIdentifier> =
+            calendarItemLogic.deleteCalendarItems(calendarItemIds.ids).injectReactorContext()
+
+    @Deprecated(message = "Use deleteItemCalendars instead")
+    @Operation(summary = "Deletes an calendarItem")
+    @DeleteMapping("/{calendarItemIds}")
+    fun deleteCalendarItem(@PathVariable calendarItemIds: String): Flux<DocIdentifier> =
+            calendarItemLogic.deleteCalendarItems(calendarItemIds.split(',')).injectReactorContext()
+
 
     @Operation(summary = "Gets an calendarItem")
     @GetMapping("/{calendarItemId}")
