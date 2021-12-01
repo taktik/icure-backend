@@ -5,6 +5,6 @@ import java.io.Serializable
 
 @EnumVersion(1L)
 enum class PersonNameUse : Serializable {
-    usual, official, temp, anonymous, old;
+    usual, official, temp, nickname, anonymous, maiden, old, other;
 }
 
