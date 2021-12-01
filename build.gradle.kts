@@ -196,8 +196,8 @@ dependencies {
     implementation(group = "org.jboss.aerogear", name = "aerogear-otp-java", version = "1.0.0")
 
     // Swagger
-    implementation(group = "org.springdoc", name = "springdoc-openapi-webflux-ui", version = "1.5.11")
-    implementation(group = "org.springdoc", name = "springdoc-openapi-kotlin", version = "1.5.11")
+    implementation(group = "org.springdoc", name = "springdoc-openapi-webflux-ui", version = "1.5.13")
+    implementation(group = "org.springdoc", name = "springdoc-openapi-kotlin", version = "1.5.13")
 
     //Saxon
     implementation(group = "net.sf.saxon", name = "Saxon-HE", version = "9.6.0-6")

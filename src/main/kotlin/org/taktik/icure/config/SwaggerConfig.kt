@@ -24,6 +24,7 @@ import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
+import org.springdoc.core.GroupedOpenApi
 import org.springdoc.core.customizers.OperationCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -41,16 +42,60 @@ class SwaggerConfig {
     }
 
     @Bean
-    fun springOpenAPI(): OpenAPI? {
+    fun iCureOpenAPI(): OpenAPI? {
         return OpenAPI()
                 .components(Components()
                         .addSecuritySchemes("basicScheme", SecurityScheme()
                                 .type(SecurityScheme.Type.HTTP).scheme("basic")))
-                .info(Info().title("iCure Cloud API Documentation")
-                .description("Spring shop sample application")
-                .version("v0.0.1"))
                 .addSecurityItem(SecurityRequirement().addList("basicScheme"))
     }
+
+    @Bean
+    fun iCureOpenAPIV1(): GroupedOpenApi? = groupedOpenApiBuilder(
+            description = "The iCure Data Stack Application API is the native interface to iCure. This version is obsolete, please use v2.",
+            version = "v1",
+            paths = arrayOf("/rest/v1/**"),
+            packages = arrayOf("org.taktik.icure.services.external.rest.v1"),
+            packagesToExclude = arrayOf(
+                    "org.taktik.icure.services.external.rest.v1.error",
+                    "org.taktik.icure.services.external.rest.v1.mapper",
+                    "org.taktik.icure.services.external.rest.v1.utils",
+                    "org.taktik.icure.services.external.rest.v1.wscontrollers"
+            )
+    )
+
+    @Bean
+    fun iCureOpenAPIV2(): GroupedOpenApi? = groupedOpenApiBuilder(
+            description = "The iCure Data Stack Application API is the native interface to iCure.",
+            version = "v2",
+            paths = arrayOf("/rest/v2/**"),
+            packages = arrayOf("org.taktik.icure.services.external.rest.v2"),
+            packagesToExclude = arrayOf(
+                    "org.taktik.icure.services.external.rest.v2.mapper",
+                    "org.taktik.icure.services.external.rest.v2.utils",
+                    "org.taktik.icure.services.external.rest.v2.wscontrollers"
+            )
+    )
+
+    private fun groupedOpenApiBuilder(
+            description: String,
+            version: String,
+            paths: Array<String>,
+            packages: Array<String>,
+            packagesToExclude: Array<String>): GroupedOpenApi? = GroupedOpenApi.builder()
+                .group(version)
+                .pathsToMatch(*paths)
+                .packagesToScan(*packages)
+                .packagesToExclude(*packagesToExclude)
+                .addOpenApiCustomiser { openApi ->
+                    openApi
+                            .info(Info()
+                                    .title("iCure Data Stack API Documentation")
+                                    .description(description)
+                                    .version(version))
+                }
+                .build()
+
 
     @Bean
     fun springOperationCustomizer() = object : OperationCustomizer {
