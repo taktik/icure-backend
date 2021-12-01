@@ -29,7 +29,7 @@ import org.taktik.icure.services.external.rest.v1.mapper.base.IdentifierMapper
 import org.taktik.icure.services.external.rest.v1.mapper.base.PropertyStubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.*
 
-@Mapper(componentModel = "spring", uses = [IdentifierMapper::class, GenderMapper::class, FinancialInstitutionInformationMapper::class, PersonalStatusMapper::class, SchoolingInfoMapper::class, AddressMapper::class, EmploymentInfoMapper::class, MedicalHouseContractMapper::class, DeactivationReasonMapper::class, PatientHealthCarePartyMapper::class, PropertyStubMapper::class, CodeStubMapper::class, DelegationMapper::class, InsurabilityMapper::class, PartnershipMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [IdentifierMapper::class, GenderMapper::class, FinancialInstitutionInformationMapper::class, PersonalStatusMapper::class, SchoolingInfoMapper::class, AddressMapper::class, EmploymentInfoMapper::class, MedicalHouseContractMapper::class, DeactivationReasonMapper::class, PatientHealthCarePartyMapper::class, PropertyStubMapper::class, CodeStubMapper::class, DelegationMapper::class, InsurabilityMapper::class, PartnershipMapper::class, PersonNameMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface PatientMapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
