@@ -37,7 +37,7 @@ data class GroupDto(
         @Schema(description ="Password for the group access") val password: String? = null,
         @Schema(description ="List of servers accessible to the group") val servers: List<String>? = null,
         @Schema(description ="Whether the group has a super admin permission, originally set to no access.") val superAdmin: Boolean = false,
-        @Schema (description = "Extra properties for the user. Those properties are typed (see class Property)") val properties: Set<PropertyStubDto> = setOf(),
+        @Schema (description = "Extra properties for the user. Those properties are typed (see class Property)") val properties: Set<PropertyStubDto> = emptySet(),
 
         val superGroup: String? = null
 ) : StoredDocumentDto {

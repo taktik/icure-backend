@@ -26,7 +26,7 @@ import java.io.Serializable
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class DatabaseInitialisationDto(
-        val users: List<UserDto>? = listOf(),
-        val healthcareParties: List<HealthcarePartyDto>? = listOf(),
+        val users: List<UserDto>? = emptyList(),
+        val healthcareParties: List<HealthcarePartyDto>? = emptyList(),
         val replication: ReplicationDto? = null
 ) : Serializable

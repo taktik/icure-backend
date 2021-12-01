@@ -37,9 +37,9 @@ data class CalendarItemTypeDto(
         @Schema(defaultValue = "0") val duration: Int = 0, // mikrono: int durationInMinutes; = 0
         val externalRef: String? = null, // same as topaz Id, to be used by mikrono
         val mikronoId: String? = null,
-        val docIds: Set<String> = setOf(),
-        val otherInfos: Map<String, String> = mapOf(),
-        val subjectByLanguage: Map<String, String> = mapOf()
+        val docIds: Set<String> = emptySet(),
+        val otherInfos: Map<String, String> = emptyMap(),
+        val subjectByLanguage: Map<String, String> = emptyMap()
 ) : StoredDocumentDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

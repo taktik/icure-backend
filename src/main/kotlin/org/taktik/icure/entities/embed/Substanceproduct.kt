@@ -30,10 +30,10 @@ import java.io.Serializable
 @KotlinBuilder
 data class Substanceproduct(
         @field:ValidCode(autoFix = AutoFix.NORMALIZECODE)
-        val intendedcds: List<CodeStub> = listOf(),
+        val intendedcds: List<CodeStub> = emptyList(),
 
         @field:ValidCode(autoFix = AutoFix.NORMALIZECODE)
-        val deliveredcds: List<CodeStub> = listOf(),
+        val deliveredcds: List<CodeStub> = emptyList(),
         val intendedname: String? = null,
         val deliveredname: String? = null,
         val productId: String? = null

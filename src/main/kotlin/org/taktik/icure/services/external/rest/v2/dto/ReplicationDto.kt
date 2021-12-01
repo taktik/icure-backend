@@ -36,7 +36,7 @@ data class ReplicationDto(
 
         override val name: String? = null,
         var context: String? = null,
-        var databaseSynchronizations: List<DatabaseSynchronizationDto> = listOf()
+        var databaseSynchronizations: List<DatabaseSynchronizationDto> = emptyList()
 ) : StoredDocumentDto, IdentifiableDto<String>, NamedDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

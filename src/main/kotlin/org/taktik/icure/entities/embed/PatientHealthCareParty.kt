@@ -36,7 +36,7 @@ data class PatientHealthCareParty(
         val type: PatientHealthCarePartyType? = null,
         val referral: Boolean = false, // mark this phcp as THE active referral link (gmd)
         val healthcarePartyId: String? = null,
-        val sendFormats: Map<TelecomType, String> = mapOf(),  // String is in fact a UTI (uniform type identifier / a sort of super-MIME)
+        val sendFormats: Map<TelecomType, String> = emptyMap(),  // String is in fact a UTI (uniform type identifier / a sort of super-MIME)
         val referralPeriods: SortedSet<ReferralPeriod> = sortedSetOf(), // History of DMG ownerships
         override val encryptedSelf: String? = null
 ) : Encrypted, Serializable {

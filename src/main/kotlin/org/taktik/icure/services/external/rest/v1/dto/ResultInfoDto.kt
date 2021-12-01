@@ -32,6 +32,6 @@ class ResultInfoDto {
     var demandDate: Long? = null
     var labo: String? = null
     var engine: String? = null
-    var codes: Set<CodeStubDto> = setOf()
-    var services: List<ServiceDto> = listOf()
+    var codes: Set<CodeStubDto> = emptySet()
+    var services: List<ServiceDto> = emptyList()
 }

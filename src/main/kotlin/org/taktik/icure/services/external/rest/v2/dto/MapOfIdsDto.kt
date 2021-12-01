@@ -24,4 +24,4 @@ import com.github.pozo.KotlinBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
-data class MapOfIdsDto(val mapOfIds: Map<String, List<String>> = mapOf())
+data class MapOfIdsDto(val mapOfIds: Map<String, List<String>> = emptyMap())

@@ -33,5 +33,5 @@ data class PharmaceuticalFormStubDto(
 
         val code: String? = null,
         val name: SamTextDto? = null,
-        val standardForms: List<CodeStubDto> = listOf()
+        val standardForms: List<CodeStubDto> = emptyList()
 ) : Serializable

@@ -22,5 +22,5 @@ data class PharmaceuticalFormStub(
         @JsonProperty("_id") val id: String? = null,
         val code: String? = null,
         val name: SamText? = null,
-        val standardForms: Set<CodeStub> = setOf(),
+        val standardForms: Set<CodeStub> = emptySet(),
 ) : Serializable

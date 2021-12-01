@@ -101,8 +101,8 @@ data class HealthElement(
         @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
         override val endOfLife: Long? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
@@ -119,19 +119,19 @@ data class HealthElement(
         val idService: String? = null, //When a service is used to create the healthElement
         val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
         val laterality: Laterality? = null,
-        @field:Valid val plansOfAction: List<PlanOfAction> = listOf(),
-        @field:Valid val episodes: List<Episode> = listOf(),
-        val careTeam: List<CareTeamMember> = listOf(),
+        @field:Valid val plansOfAction: List<PlanOfAction> = emptyList(),
+        @field:Valid val episodes: List<Episode> = emptyList(),
+        val careTeam: List<CareTeamMember> = emptyList(),
 
-        override val secretForeignKeys: Set<String> = setOf(),
-        override val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(),
-        override val delegations: Map<String, Set<Delegation>> = mapOf(),
-        override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val secretForeignKeys: Set<String> = emptySet(),
+        override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
+        override val delegations: Map<String, Set<Delegation>> = emptyMap(),
+        override val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(),
         override val encryptedSelf: String? = null,
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<HealthElement>

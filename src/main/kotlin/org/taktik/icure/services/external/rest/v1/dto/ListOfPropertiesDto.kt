@@ -1,5 +1,5 @@
 package org.taktik.icure.services.external.rest.v1.dto
 
 class ListOfPropertiesDto {
-    var properties: Set<PropertyStubDto> = setOf()
+    var properties: Set<PropertyStubDto> = emptySet()
 }

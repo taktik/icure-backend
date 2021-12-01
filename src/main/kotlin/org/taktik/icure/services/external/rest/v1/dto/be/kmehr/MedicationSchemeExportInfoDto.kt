@@ -22,8 +22,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import java.io.Serializable
 
 class MedicationSchemeExportInfoDto : Serializable {
-    var secretForeignKeys: List<String> = listOf()
-    var services: List<ServiceDto> = listOf()
+    var secretForeignKeys: List<String> = emptyList()
+    var services: List<ServiceDto> = emptyList()
     var recipient: HealthcarePartyDto? = null
     var comment: String? = null
 

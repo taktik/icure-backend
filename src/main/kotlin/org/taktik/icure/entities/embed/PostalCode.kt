@@ -27,7 +27,7 @@ import java.io.Serializable
 @KotlinBuilder
 data class PostalCode(
         val code: String? = null,
-        val label: Map<String, String> = mapOf()
+        val label: Map<String, String> = emptyMap()
 ) : Serializable {
     override fun toString(): String {
         return code ?: "N/A"

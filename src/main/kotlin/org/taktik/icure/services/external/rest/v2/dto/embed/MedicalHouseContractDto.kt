@@ -65,7 +65,7 @@ data class MedicalHouseContractDto(
         val status: Int? = null,
 
         val options: Map<String, String> = HashMap(),
-        val receipts: Map<String,String> = mapOf(),
+        val receipts: Map<String,String> = emptyMap(),
 
         override val encryptedSelf: String? = null
 ) : EncryptedDto

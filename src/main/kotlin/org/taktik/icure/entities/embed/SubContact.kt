@@ -43,8 +43,8 @@ data class SubContact(
         @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
         override val endOfLife: Long? = null,
         val descr: String? = null,
         val protocol: String? = null,
@@ -53,7 +53,7 @@ data class SubContact(
         val planOfActionId: String? = null,
         val healthElementId: String? = null,
         val classificationId: String? = null,
-        val services: List<ServiceLink> = listOf(),
+        val services: List<ServiceLink> = emptyList(),
         override val encryptedSelf: String? = null
 ) : Encrypted, ICureDocument<String?> {
     companion object : DynamicInitializer<SubContact> {

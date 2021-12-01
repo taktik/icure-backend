@@ -41,8 +41,8 @@ data class PlanOfActionTemplate(
         @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
         override val endOfLife: Long? = null,
 
         //Usually one of the following is used (either valueDate or openingDate and closingDate)
@@ -51,7 +51,7 @@ data class PlanOfActionTemplate(
         val note: String? = null,
         val relevant: Boolean = true,
         val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
-        var forms: List<FormSkeleton> = listOf()
+        var forms: List<FormSkeleton> = emptyList()
 ) : ICureDocument<String>, Named {
     companion object : DynamicInitializer<PlanOfActionTemplate>
 

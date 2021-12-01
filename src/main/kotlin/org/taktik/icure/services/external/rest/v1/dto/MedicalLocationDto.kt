@@ -43,8 +43,8 @@ data class MedicalLocationDto(
         val nihii: String? = null,
         val ssin: String? = null,
         val address: AddressDto? = null,
-        val agendaIds: Set<String> = setOf(),
-        val options: Map<String,String> = mapOf()
+        val agendaIds: Set<String> = emptySet(),
+        val options: Map<String,String> = emptyMap()
         ) : StoredDocumentDto, NamedDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

@@ -82,17 +82,17 @@ data class Service(
         @JsonIgnore val plansOfActionIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
         @JsonIgnore val healthElementsIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
         @JsonIgnore val formIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
-        @JsonIgnore val secretForeignKeys: Set<String>? = HashSet(), //Only used when the Service is emitted outside of its contact
-        @JsonIgnore val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(), //Only used when the Service is emitted outside of its contact
-        @JsonIgnore val delegations: Map<String, Set<Delegation>> = mapOf(), //Only used when the Service is emitted outside of its contact
-        @JsonIgnore val encryptionKeys: Map<String, Set<Delegation>> = mapOf(), //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val secretForeignKeys: Set<String>? = emptySet(), //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(), //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val delegations: Map<String, Set<Delegation>> = emptyMap(), //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(), //Only used when the Service is emitted outside of its contact
         val contactId: String? = null,
         val label: String = "<invalid>",
         val dataClassName: String? = null,
         val index: Long? = null, //Used for sorting
-        val content: Map<String /* ISO language code */, Content> = mapOf(), //Localized, in the case when the service contains a document, the document id is the SerializableValue
+        val content: Map<String /* ISO language code */, Content> = emptyMap(), //Localized, in the case when the service contains a document, the document id is the SerializableValue
         @Deprecated("use encryptedSelf instead") val encryptedContent: String? = null, //Crypted (AES+base64) version of the above, deprecated, use encryptedSelf instead
-        val textIndexes: Map<String, String> = mapOf(), //Same structure as content but used for full text indexation
+        val textIndexes: Map<String, String> = emptyMap(), //Same structure as content but used for full text indexation
         @field:NotNull(autoFix = AutoFix.FUZZYNOW) val valueDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
         @field:NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
         val closingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
@@ -105,10 +105,10 @@ data class Service(
         override val medicalLocationId: String? = null,
         val comment: String? = null,
         val status: Int? = null, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit2 : present/absent, ex: 0 = active,relevant and present
-        val invoicingCodes: Set<String> = setOf(),
-        val qualifiedLinks: Map<LinkQualification, Map<String, String>> = mapOf(), //Links towards related services (possibly in other contacts)
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(), //stub object of the Code used to qualify the content of the Service
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(), //stub object of the tag used to qualify the type of the Service
+        val invoicingCodes: Set<String> = emptySet(),
+        val qualifiedLinks: Map<LinkQualification, Map<String, String>> = emptyMap(), //Links towards related services (possibly in other contacts)
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(), //stub object of the Code used to qualify the content of the Service
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(), //stub object of the tag used to qualify the type of the Service
         override val encryptedSelf: String? = null
 ) : Encrypted, ICureDocument<String>, Comparable<Service> {
     companion object : DynamicInitializer<Service>

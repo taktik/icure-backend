@@ -18,5 +18,5 @@
 package org.taktik.icure.services.external.rest.v2.dto
 
 class ListOfIdsDto {
-    var ids: List<String> = listOf()
+    var ids: List<String> = emptyList()
 }

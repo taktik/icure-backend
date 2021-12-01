@@ -43,21 +43,21 @@ data class Code(
         override val label: Map<String, String>? = null, //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
 
         val author: String? = null,
-        val regions: Set<String> = setOf(), //ex: be,fr
-        val periodicity: Set<Periodicity> = setOf(),
+        val regions: Set<String> = emptySet(), //ex: be,fr
+        val periodicity: Set<Periodicity> = emptySet(),
         val level: Int? = null, //ex: 0 = System, not to be modified by user, 1 = optional, created or modified by user
-        val links: Set<String> = setOf(), //Links towards related codes (corresponds to an approximate link in qualifiedLinks)
-        val qualifiedLinks: Map<LinkQualification, List<String>> = mapOf(), //Links towards related codes
-        val flags: Set<CodeFlag> = setOf(), //flags (like female only) for the code
-        val searchTerms: Map<String, Set<String>> = mapOf(), //Extra search terms/ language
+        val links: Set<String> = emptySet(), //Links towards related codes (corresponds to an approximate link in qualifiedLinks)
+        val qualifiedLinks: Map<LinkQualification, List<String>> = emptyMap(), //Links towards related codes
+        val flags: Set<CodeFlag> = emptySet(), //flags (like female only) for the code
+        val searchTerms: Map<String, Set<String>> = emptyMap(), //Extra search terms/ language
         val data: String? = null,
-        val appendices: Map<AppendixType, String> = mapOf(),
+        val appendices: Map<AppendixType, String> = emptyMap(),
         val disabled: Boolean = false,
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredDocument, CodeIdentification {
     companion object : DynamicInitializer<Code> {

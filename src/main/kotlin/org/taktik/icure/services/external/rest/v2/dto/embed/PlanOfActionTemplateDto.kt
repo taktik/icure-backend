@@ -36,8 +36,8 @@ data class PlanOfActionTemplateDto(
         override val author: String? = null,
         override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        override val tags: Set<CodeStubDto> = setOf(),
-        override val codes: Set<CodeStubDto> = setOf(),
+        override val tags: Set<CodeStubDto> = emptySet(),
+        override val codes: Set<CodeStubDto> = emptySet(),
         override val endOfLife: Long? = null,
 
         //Usually one of the following is used (either valueDate or openingDate and closingDate)
@@ -46,5 +46,5 @@ data class PlanOfActionTemplateDto(
         val note: String? = null,
         val relevant: Boolean = true,
         @Schema(defaultValue = "0") val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
-        var forms: List<FormSkeletonDto> = listOf()
+        var forms: List<FormSkeletonDto> = emptyList()
 ) : ICureDocumentDto<String>, NamedDto

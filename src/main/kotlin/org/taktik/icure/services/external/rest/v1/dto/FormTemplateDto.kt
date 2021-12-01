@@ -58,8 +58,8 @@ data class FormTemplateDto(
         val shortReport: String? = null,
         val mediumReport: String? = null,
         val longReport: String? = null,
-        val reports: Set<String> = setOf(),
-        val tags: Set<CodeStubDto> = setOf(),
+        val reports: Set<String> = emptySet(),
+        val tags: Set<CodeStubDto> = emptySet(),
         val layoutAttachmentId: String? = null
         ) : StoredDocumentDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)

@@ -27,4 +27,4 @@ import java.io.Serializable
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
-data class VirtualFormDto(val name: SamTextDto? = null, val standardForms: List<CodeStubDto> = listOf()) : Serializable
+data class VirtualFormDto(val name: SamTextDto? = null, val standardForms: List<CodeStubDto> = emptyList()) : Serializable

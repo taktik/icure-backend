@@ -44,24 +44,24 @@ data class TarificationDto(
         override val version: String? = null, //ex: 10. Must be lexicographically searchable
 
         val author: String? = null,
-        val regions: Set<String> = setOf(), //ex: be,fr
-        val periodicity: List<PeriodicityDto> = listOf(),
+        val regions: Set<String> = emptySet(), //ex: be,fr
+        val periodicity: List<PeriodicityDto> = emptyList(),
         val level: Int? = null, //ex: 0 = System, not to be modified by user, 1 = optional, created or modified by user
-        val links: List<String> = listOf(), //Links towards related codes (corresponds to an approximate link in qualifiedLinks)
-        val qualifiedLinks: Map<LinkQualificationDto, List<String>> = mapOf(), //Links towards related codes
-        val flags: Set<CodeFlagDto> = setOf(), //flags (like female only) for the code
-        val searchTerms: Map<String, Set<String>> = mapOf(), //Extra search terms/ language
+        val links: List<String> = emptyList(), //Links towards related codes (corresponds to an approximate link in qualifiedLinks)
+        val qualifiedLinks: Map<LinkQualificationDto, List<String>> = emptyMap(), //Links towards related codes
+        val flags: Set<CodeFlagDto> = emptySet(), //flags (like female only) for the code
+        val searchTerms: Map<String, Set<String>> = emptyMap(), //Extra search terms/ language
         val data: String? = null,
-        val appendices: Map<AppendixTypeDto, String> = mapOf(),
+        val appendices: Map<AppendixTypeDto, String> = emptyMap(),
         val disabled: Boolean = false,
-        val valorisations: Set<ValorisationDto> = setOf(),
-        val category: Map<String, String> = mapOf(),
+        val valorisations: Set<ValorisationDto> = emptySet(),
+        val category: Map<String, String> = emptyMap(),
         val consultationCode: Boolean? = null,
         val hasRelatedCode: Boolean? = null,
         val needsPrescriber: Boolean? = null,
-        val relatedCodes: Set<String> = setOf(),
+        val relatedCodes: Set<String> = emptySet(),
         val nGroup: String? = null,
-        val letterValues: List<LetterValueDto> = listOf()
+        val letterValues: List<LetterValueDto> = emptyList()
 ) : StoredDocumentDto, CodeIdentificationDto<String> {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
