@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.github.pozo.KotlinBuilder
-import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.CryptoActor
@@ -30,19 +29,7 @@ import org.taktik.icure.entities.base.Encryptable
 import org.taktik.icure.entities.base.Person
 import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.base.StoredICureDocument
-import org.taktik.icure.entities.embed.Address
-import org.taktik.icure.entities.embed.DeactivationReason
-import org.taktik.icure.entities.embed.Delegation
-import org.taktik.icure.entities.embed.EmploymentInfo
-import org.taktik.icure.entities.embed.FinancialInstitutionInformation
-import org.taktik.icure.entities.embed.Gender
-import org.taktik.icure.entities.embed.Insurability
-import org.taktik.icure.entities.embed.MedicalHouseContract
-import org.taktik.icure.entities.embed.Partnership
-import org.taktik.icure.entities.embed.PatientHealthCareParty
-import org.taktik.icure.entities.embed.PersonalStatus
-import org.taktik.icure.entities.embed.RevisionInfo
-import org.taktik.icure.entities.embed.SchoolingInfo
+import org.taktik.icure.entities.embed.*
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.handlers.JacksonBase64LenientDeserializer
 import org.taktik.icure.utils.DynamicInitializer
@@ -79,6 +66,7 @@ import java.util.*
  * @property deletionDate Hard delete (unix epoch in ms) timestamp of the object. Filled automatically when deletePatient is called.
  * @property firstName the firstname (name) of the patient.
  * @property lastName the lastname (surname) of the patient. This is the official lastname that should be used for official administrative purposes.
+ * @property denominations The list of all denominations of the patient, also containing the official full name information. Ordered by preference of use. First element is therefore the official name used for the patient in the application.
  * @property companyName the name of the company this patient is member of.
  * @property languages the list of languages spoken by the patient ordered by fluency (alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html).
  * @property addresses the list of addresses (with address type).
@@ -140,6 +128,7 @@ data class Patient(
         override val addresses: List<Address> = emptyList(),
         override val civility: String? = null,
         override val gender: Gender? = Gender.unknown,
+        override val denominations: List<PersonName> = emptyList(),
         val birthSex: Gender? = Gender.unknown,
         val mergeToPatientId: String? = null,
         val mergedIds: Set<String> = emptySet(),

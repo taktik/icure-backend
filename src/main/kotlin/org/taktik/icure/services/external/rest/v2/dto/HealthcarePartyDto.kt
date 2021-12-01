@@ -37,6 +37,7 @@ data class HealthcarePartyDto(
         @Schema(description = "The full name of the healthcare party, used mainly when the healthcare party is an organization") override val name: String? = null,
         @Schema(description = "the lastname (surname) of the healthcare party. This is the official lastname that should be used for official administrative purposes.") override val lastName: String? = null,
         @Schema(description = "the firstname (name) of the healthcare party.") override val firstName: String? = null,
+        @Schema(description = "the list of all denominations of the healthcare party, also containing the official full name information. Ordered by preference of use. First element is therefore the official name used for the healthcare party in the application") override val denominations: List<PersonNameDto> = emptyList(),
         @Schema(description = "the gender of the healthcare party: male, female, indeterminate, changed, changedToMale, changedToFemale, unknown") override val gender: GenderDto? = null,
         @Schema(description = "Mr., Ms., Pr., Dr. ...") override val civility: String? = null,
         @Schema(description = "The name of the company this healthcare party is member of") override val companyName: String? = null,

@@ -54,6 +54,7 @@ import org.taktik.icure.validation.ValidCode
  * @property name The full name of the healthcare party, used mainly when the healthcare party is an organization
  * @property firstName the firstname (name) of the healthcare party.
  * @property lastName the lastname (surname) of the healthcare party. This is the official lastname that should be used for official administrative purposes.
+ * @property denominations The list of all denominations of the healthcare party, also containing the official full name information. Ordered by preference of use. First element is therefore the official name used for the healthcare party in the application.
  * @property gender the gender of the healthcare party: male, female, indeterminate, changed, changedToMale, changedToFemale, unknown
  * @property civility Mr., Ms., Pr., Dr. ...
  * @property companyName The name of the company this healthcare party is member of
@@ -93,6 +94,7 @@ data class HealthcareParty(
         override val gender: Gender? = null,
         override val civility: String? = null,
         override val companyName: String? = null,
+        override val denominations: List<PersonName> = emptyList(),
         val speciality: String? = null,
         val bankAccount: String? = null,
         val bic: String? = null,
