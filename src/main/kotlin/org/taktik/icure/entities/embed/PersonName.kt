@@ -20,11 +20,11 @@ import java.io.Serializable
 @KotlinBuilder
 data class PersonName(
         val lastName: String? = null,
-        val firstNames: List<String> = listOf(),
+        val firstNames: List<String> = emptyList(),
         val start: Long? = null,
         val end: Long? = null,
-        val prefix: List<String> = listOf(),
-        val suffix: List<String> = listOf(),
+        val prefix: List<String> = emptyList(),
+        val suffix: List<String> = emptyList(),
         val text: String? = null,
         val use: PersonNameUse? = null
 ) : Serializable
