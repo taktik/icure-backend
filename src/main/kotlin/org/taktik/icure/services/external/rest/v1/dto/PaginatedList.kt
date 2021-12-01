@@ -28,6 +28,6 @@ import java.io.Serializable
 data class PaginatedList<T : Serializable?>(
         val pageSize: Int = 0,
         val totalSize: Int = 0,
-        val rows: List<T> = listOf(),
+        val rows: List<T> = emptyList(),
         val nextKeyPair: PaginatedDocumentKeyIdPair<*>? = null
 ) : Serializable

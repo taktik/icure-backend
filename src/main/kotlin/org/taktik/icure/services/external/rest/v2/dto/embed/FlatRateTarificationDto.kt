@@ -30,6 +30,6 @@ data class FlatRateTarificationDto(
         val code: String? = null,
         val flatRateType: FlatRateTypeDto? = null,
         val label: Map<String, String>? = null,
-        val valorisations: List<ValorisationDto> = listOf(),
+        val valorisations: List<ValorisationDto> = emptyList(),
         override val encryptedSelf: String? = null
 ) : EncryptedDto, Serializable

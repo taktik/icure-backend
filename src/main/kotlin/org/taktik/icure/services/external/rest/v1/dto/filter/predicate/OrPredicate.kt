@@ -29,4 +29,4 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
-data class OrPredicate(val predicates: List<Predicate> = listOf()) : Predicate
+data class OrPredicate(val predicates: List<Predicate> = emptyList()) : Predicate

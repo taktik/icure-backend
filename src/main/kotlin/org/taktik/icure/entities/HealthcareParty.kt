@@ -107,26 +107,26 @@ data class HealthcareParty(
         val nihii: String? = null, //institution, person
         val nihiiSpecCode: String? = null, //don't show field in the GUI
         val ssin: String? = null,
-        override val addresses: List<Address> = listOf(),
-        override val languages: List<String> = listOf(),
+        override val addresses: List<Address> = emptyList(),
+        override val languages: List<String> = emptyList(),
         val picture: ByteArray? = null,
-        val statuses: Set<HealthcarePartyStatus> = setOf(),
-        val statusHistory: List<HealthcarePartyHistoryStatus> = listOf(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) val specialityCodes: Set<CodeStub> = setOf(), //Speciality codes, default is first
+        val statuses: Set<HealthcarePartyStatus> = emptySet(),
+        val statusHistory: List<HealthcarePartyHistoryStatus> = emptyList(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) val specialityCodes: Set<CodeStub> = emptySet(), //Speciality codes, default is first
 
-        val sendFormats: Map<TelecomType, String> = mapOf(),
+        val sendFormats: Map<TelecomType, String> = emptyMap(),
         val notes: String? = null,
-        val financialInstitutionInformation: List<FinancialInstitutionInformation> = listOf(),
+        val financialInstitutionInformation: List<FinancialInstitutionInformation> = emptyList(),
 
         // Medical houses
         var billingType: String? = null, // "serviceFee" (à l'acte) or "flatRate" (forfait)
         var type: String? = null, // "persphysician" or "medicalHouse" or "perstechnician"
         var contactPerson: String? = null,
         var contactPersonHcpId: String? = null,
-        var flatRateTarifications: List<FlatRateTarification> = listOf(),
-        var importedData: Map<String, String> = mapOf(),
+        var flatRateTarifications: List<FlatRateTarification> = emptyList(),
+        var importedData: Map<String, String> = emptyMap(),
 
-        val options: Map<String, String> = mapOf(),
+        val options: Map<String, String> = emptyMap(),
 
         //One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
         //For a pair of HcParties, this key is called the AES exchange key
@@ -134,14 +134,14 @@ data class HealthcareParty(
         // The map's keys are the delegate id.
         // In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
         // the key encrypted using delegate's public key.
-        override val hcPartyKeys: Map<String, Array<String>> = mapOf(),
-        override val privateKeyShamirPartitions: Map<String, String> = mapOf(), //Format is hcpId of key that has been partitioned : "threshold|partition in hex"
+        override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
+        override val privateKeyShamirPartitions: Map<String, String> = emptyMap(), //Format is hcpId of key that has been partitioned : "threshold|partition in hex"
         override val publicKey: String? = null,
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredDocument, Named, Person, CryptoActor {
     companion object : DynamicInitializer<HealthcareParty>

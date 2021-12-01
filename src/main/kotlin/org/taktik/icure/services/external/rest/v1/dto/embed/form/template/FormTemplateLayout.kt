@@ -9,7 +9,7 @@ import com.github.pozo.KotlinBuilder
 @KotlinBuilder
 data class FormTemplateLayout(
     val form: String,
-    val sections: List<Section> = listOf(),
+    val sections: List<Section> = emptyList(),
     val description: String? = null,
     val keywords: List<String>? = null,
 )

@@ -41,12 +41,12 @@ data class Replication(
 
         override val name: String? = null,
         var context: String? = null,
-        var databaseSynchronizations: List<DatabaseSynchronization> = listOf(),
+        var databaseSynchronizations: List<DatabaseSynchronization> = emptyList(),
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredDocument, Identifiable<String>, Named {
     companion object : DynamicInitializer<Replication>

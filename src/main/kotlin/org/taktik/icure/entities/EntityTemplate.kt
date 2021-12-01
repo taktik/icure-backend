@@ -43,12 +43,12 @@ data class EntityTemplate(
         val entityType: String? = null,
         val subType: String? = null,
         @JsonProperty("isDefaultTemplate") val defaultTemplate: Boolean? = null,
-        val entity: List<Map<String, Any>> = listOf(),
+        val entity: List<Map<String, Any>> = emptyList(),
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredDocument {
     companion object : DynamicInitializer<EntityTemplate>

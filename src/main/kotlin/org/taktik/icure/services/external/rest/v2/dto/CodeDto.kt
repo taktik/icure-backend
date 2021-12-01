@@ -40,15 +40,15 @@ data class CodeDto(
         override val label: Map<String, String>? = null, //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
 
         val author: String? = null,
-        val regions: Set<String> = setOf(), //ex: be,fr
-        val periodicity: Set<PeriodicityDto> = setOf(),
+        val regions: Set<String> = emptySet(), //ex: be,fr
+        val periodicity: Set<PeriodicityDto> = emptySet(),
         val level: Int? = null, //ex: 0 = System, not to be modified by userDto, 1 = optional, created or modified by userDto
-        val links: Set<String> = setOf(), //Links towards related codes (corresponds to an approximate link in qualifiedLinks)
-        val qualifiedLinks: Map<LinkQualificationDto, List<String>> = mapOf(), //Links towards related codes
-        val flags: Set<CodeFlagDto> = setOf(), //flags (like female only) for the code
-        val searchTerms: Map<String, Set<String>> = mapOf(), //Extra search terms/ language
+        val links: Set<String> = emptySet(), //Links towards related codes (corresponds to an approximate link in qualifiedLinks)
+        val qualifiedLinks: Map<LinkQualificationDto, List<String>> = emptyMap(), //Links towards related codes
+        val flags: Set<CodeFlagDto> = emptySet(), //flags (like female only) for the code
+        val searchTerms: Map<String, Set<String>> = emptyMap(), //Extra search terms/ language
         val data: String? = null,
-        val appendices: Map<AppendixTypeDto, String> = mapOf(),
+        val appendices: Map<AppendixTypeDto, String> = emptyMap(),
         @Schema(defaultValue = "false") val disabled: Boolean = false
 ) : StoredDocumentDto, CodeIdentificationDto<String> {
     companion object {

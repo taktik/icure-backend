@@ -34,6 +34,6 @@ data class Valorisation(
         val patientIntervention: Double? = null,
         val doctorSupplement: Double? = null,
         val vat: Double? = null,
-        val label: Map<String, String>? = mapOf(), //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
+        val label: Map<String, String>? = emptyMap(), //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
         override val encryptedSelf: String? = null
 ) : Encrypted, Serializable

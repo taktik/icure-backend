@@ -41,7 +41,7 @@ data class Ampp(
         val packAmount: Quantity? = null,
         val packDisplayValue: String? = null,
         val status: AmpStatus? = null,
-        val atcs: Set<Atc> = setOf(),
+        val atcs: Set<Atc> = emptySet(),
         val crmLink: SamText? = null,
         val deliveryModusCode: String? = null,
         val deliveryModus: SamText? = null,
@@ -55,7 +55,7 @@ data class Ampp(
         val prescriptionName: SamText? = null,
         val note: SamText? = null,
         val posologyNote: SamText? = null,
-        val noGenericPrescriptionReasons: Set<SamText>? = setOf(),
+        val noGenericPrescriptionReasons: Set<SamText>? = emptySet(),
         val exFactoryPrice: Double? = null,
         val reimbursementCode: Int? = null,
         val definedDailyDose: Quantity? = null,
@@ -65,6 +65,6 @@ data class Ampp(
         val components: Set<AmppComponent?>? = null,
         val commercializations: Set<Commercialization>? = null,
         var supplyProblems: Set<SupplyProblem>? = null,
-        val dmpps: Set<Dmpp> = setOf(),
+        val dmpps: Set<Dmpp> = emptySet(),
         val vaccineIndicationCodes: Set<String>? = null
 ) : DataPeriod

@@ -27,8 +27,8 @@ import java.io.Serializable
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class SubstanceproductDto(
-        val intendedcds: List<CodeStubDto> = listOf(),
-        val deliveredcds: List<CodeStubDto> = listOf(),
+        val intendedcds: List<CodeStubDto> = emptyList(),
+        val deliveredcds: List<CodeStubDto> = emptyList(),
         val intendedname: String? = null,
         val deliveredname: String? = null,
         val productId: String? = null

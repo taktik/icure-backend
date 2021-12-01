@@ -40,14 +40,14 @@ data class Role(
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         override val name: String? = null,
-        override val properties: Set<PropertyStub> = setOf(),
-        override val permissions: Set<Permission> = setOf(),
-        private val parents: Set<String> = setOf(),
+        override val properties: Set<PropertyStub> = emptySet(),
+        override val permissions: Set<Permission> = emptySet(),
+        private val parents: Set<String> = emptySet(),
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredDocument, Principal, Cloneable, Serializable {
     companion object : DynamicInitializer<Role>

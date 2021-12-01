@@ -24,8 +24,8 @@ import org.taktik.icure.services.external.rest.v2.dto.embed.ServiceDto
 import java.io.Serializable
 
 class SumehrExportInfoDto : Serializable {
-    var secretForeignKeys: List<String> = listOf()
-    var excludedIds: List<String> = listOf()
+    var secretForeignKeys: List<String> = emptyList()
+    var excludedIds: List<String> = emptyList()
     var recipient: HealthcarePartyDto? = null
     var softwareName: String? = null
     var softwareVersion: String? = null

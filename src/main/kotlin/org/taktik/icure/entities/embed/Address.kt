@@ -42,7 +42,7 @@ data class Address(
         val state: String? = null,
         val country: String? = null,
         val note: String? = null,
-        val telecoms: List<Telecom> = listOf(),
+        val telecoms: List<Telecom> = emptyList(),
         override val encryptedSelf: String? = null
 ) : Encrypted, Serializable, Comparable<Address> {
     companion object : DynamicInitializer<Address>

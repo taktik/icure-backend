@@ -45,16 +45,16 @@ data class ServiceDto(
         @Schema(description = "List of IDs of all plans of actions (healthcare approaches) as a part of which the Service is provided. Only used when the Service is emitted outside of its contact") val plansOfActionIds: Set<String>? = null, //Only used when the ServiceDto is emitted outside of its contact
         @Schema(description = "List of IDs of all healthcare elements for which the service is provided. Only used when the Service is emitted outside of its contact") val healthElementsIds: Set<String>? = null, //Only used when the ServiceDto is emitted outside of its contact
         @Schema(description = "List of Ids of all forms linked to the Service. Only used when the Service is emitted outside of its contact.") val formIds: Set<String>? = null, //Only used when the ServiceDto is emitted outside of its contact
-        @Schema(description = "The secret patient key, encrypted in the patient document, in clear here.") val secretForeignKeys: Set<String>? = HashSet(), //Only used when the ServiceDto is emitted outside of its contact
-        @Schema(description = "The public patient key, encrypted here for separate Crypto Actors.") val cryptedForeignKeys: Map<String, Set<DelegationDto>> = mapOf(), //Only used when the ServiceDto is emitted outside of its contact
-        @Schema(description = "The delegations giving access to connected healthcare information.") val delegations: Map<String, Set<DelegationDto>> = mapOf(), //Only used when the ServiceDto is emitted outside of its contact
-        @Schema(description = "The contact secret encryption key used to encrypt the secured properties (like services for example), encrypted for separate Crypto Actors.") val encryptionKeys: Map<String, Set<DelegationDto>> = mapOf(), //Only used when the ServiceDto is emitted outside of its contact
+        @Schema(description = "The secret patient key, encrypted in the patient document, in clear here.") val secretForeignKeys: Set<String>? = emptySet(), //Only used when the ServiceDto is emitted outside of its contact
+        @Schema(description = "The public patient key, encrypted here for separate Crypto Actors.") val cryptedForeignKeys: Map<String, Set<DelegationDto>> = emptyMap(), //Only used when the ServiceDto is emitted outside of its contact
+        @Schema(description = "The delegations giving access to connected healthcare information.") val delegations: Map<String, Set<DelegationDto>> = emptyMap(), //Only used when the ServiceDto is emitted outside of its contact
+        @Schema(description = "The contact secret encryption key used to encrypt the secured properties (like services for example), encrypted for separate Crypto Actors.") val encryptionKeys: Map<String, Set<DelegationDto>> = emptyMap(), //Only used when the ServiceDto is emitted outside of its contact
         val label: String = "<invalid>",
         val dataClassName: String? = null,
         val index: Long? = null, //Used for sorting
-        @Schema(description = "The type of the content recorded in the documents for the service") val content: Map<String, ContentDto> = mapOf(), //Localized, in the case when the service contains a document, the document id is the SerializableValue
+        @Schema(description = "The type of the content recorded in the documents for the service") val content: Map<String, ContentDto> = emptyMap(), //Localized, in the case when the service contains a document, the document id is the SerializableValue
         @get:Deprecated("use encryptedSelf instead") val encryptedContent: String? = null, //Crypted (AES+base64) version of the above, deprecated, use encryptedSelf instead
-        val textIndexes: Map<String, String> = mapOf(), //Same structure as content but used for full text indexation
+        val textIndexes: Map<String, String> = emptyMap(), //Same structure as content but used for full text indexation
         @Schema(description = "") val valueDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
         @Schema(description = "") val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
         @Schema(description = "") val closingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
@@ -67,10 +67,10 @@ data class ServiceDto(
         override val medicalLocationId: String? = null,
         @Schema(description = "Text, comments on the Service provided") val comment: String? = null,
         val status: Int? = null, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit2 : present/absent, ex: 0 = active,relevant and present
-        @Schema(description = "List of invoicing codes") val invoicingCodes: Set<String> = setOf(),
-        @Schema(description = "Links towards related services (possibly in other contacts)") val qualifiedLinks: Map<LinkQualificationDto, Map<String, String>> = mapOf(), //Links towards related services (possibly in other contacts)
-        override val codes: Set<CodeStubDto> = setOf(), //stub object of the CodeDto used to qualify the content of the ServiceDto
-        override val tags: Set<CodeStubDto> = setOf(), //stub object of the tag used to qualify the type of the ServiceDto
+        @Schema(description = "List of invoicing codes") val invoicingCodes: Set<String> = emptySet(),
+        @Schema(description = "Links towards related services (possibly in other contacts)") val qualifiedLinks: Map<LinkQualificationDto, Map<String, String>> = emptyMap(), //Links towards related services (possibly in other contacts)
+        override val codes: Set<CodeStubDto> = emptySet(), //stub object of the CodeDto used to qualify the content of the ServiceDto
+        override val tags: Set<CodeStubDto> = emptySet(), //stub object of the tag used to qualify the type of the ServiceDto
         override val encryptedSelf: String? = null
 ) : EncryptedDto, ICureDocumentDto<String>, Comparable<ServiceDto> {
     override fun compareTo(other: ServiceDto): Int {

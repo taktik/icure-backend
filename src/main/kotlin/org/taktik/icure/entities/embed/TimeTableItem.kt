@@ -27,9 +27,9 @@ import java.io.Serializable
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class TimeTableItem(
-        val days: List<String> = listOf(),
-        val hours: List<TimeTableHour> = listOf(),
-        val recurrenceTypes: List<String> = listOf(),
+        val days: List<String> = emptyList(),
+        val hours: List<TimeTableHour> = emptyList(),
+        val recurrenceTypes: List<String> = emptyList(),
         val calendarItemTypeId: String? = null,
 
         @JsonProperty("isHomeVisit") val homeVisit: Boolean = false,

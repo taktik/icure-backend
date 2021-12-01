@@ -37,13 +37,13 @@ data class IcureStubDto(
         override val author: String? = null,
         override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        override val tags: Set<CodeStubDto> = setOf(),
-        override val codes: Set<CodeStubDto> = setOf(),
+        override val tags: Set<CodeStubDto> = emptySet(),
+        override val codes: Set<CodeStubDto> = emptySet(),
         override val endOfLife: Long? = null,
-        override val secretForeignKeys: Set<String> = setOf(),
-        override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = mapOf(),
-        override val delegations: Map<String, Set<DelegationDto>> = mapOf(),
-        override val encryptionKeys: Map<String, Set<DelegationDto>> = mapOf(),
+        override val secretForeignKeys: Set<String> = emptySet(),
+        override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = emptyMap(),
+        override val delegations: Map<String, Set<DelegationDto>> = emptyMap(),
+        override val encryptionKeys: Map<String, Set<DelegationDto>> = emptyMap(),
         override val encryptedSelf: String? = null
 ) : ICureDocumentDto<String>, VersionableDto<String>, EncryptableDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)

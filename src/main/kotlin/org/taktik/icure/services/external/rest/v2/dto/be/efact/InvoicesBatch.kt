@@ -36,5 +36,5 @@ class InvoicesBatch {
     var uniqueSendNumber: Long? = null //3 digits number for batch (typically the number of the day * 2 + 1 if 306)
     var sender: InvoiceSender? = null
     var numericalRef: Long? = null
-    var invoices: List<EfactInvoice> = listOf()
+    var invoices: List<EfactInvoice> = emptyList()
 }
