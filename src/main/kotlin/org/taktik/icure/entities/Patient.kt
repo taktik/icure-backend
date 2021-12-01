@@ -66,6 +66,7 @@ import java.util.*
  * @property deletionDate Hard delete (unix epoch in ms) timestamp of the object. Filled automatically when deletePatient is called.
  * @property firstName the firstname (name) of the patient.
  * @property lastName the lastname (surname) of the patient. This is the official lastname that should be used for official administrative purposes.
+ * @property denominations The list of all denominations of the patient, also containing the official full name information. Ordered by preference of use. First element is therefore the official name used for the patient in the application.
  * @property companyName the name of the company this patient is member of.
  * @property languages the list of languages spoken by the patient ordered by fluency (alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html).
  * @property addresses the list of addresses (with address type).
@@ -127,8 +128,7 @@ data class Patient(
         override val addresses: List<Address> = listOf(),
         override val civility: String? = null,
         override val gender: Gender? = Gender.unknown,
-        val additionalFirstNames: List<String> = emptyList(),
-        val otherNames: List<PersonName> = emptyList(),
+        override val denominations: List<PersonName> = emptyList(),
         val birthSex: Gender? = Gender.unknown,
         val mergeToPatientId: String? = null,
         val mergedIds: Set<String> = HashSet(),
@@ -256,14 +256,6 @@ data class Patient(
                     "patientHealthCareParties" to mergeListsDistinct(patientHealthCareParties, other.patientHealthCareParties,
                             { a, b -> a.healthcarePartyId == b.healthcarePartyId && a.type == b.type },
                             { a, b -> a.merge(b) }
-                    ),
-                    "additionalFirstNames" to mergeListsDistinct(this.additionalFirstNames, other.additionalFirstNames,
-                            { a, b -> a.equals(b, true) },
-                            { a, _ -> a }
-                    ),
-                    "otherNames" to mergeListsDistinct(this.otherNames, other.otherNames,
-                            { a, b -> a.use == b.use && a.lastName == b.lastName},
-                            { a, _ -> a }
                     )
             )
 
