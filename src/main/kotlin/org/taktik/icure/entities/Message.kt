@@ -45,8 +45,8 @@ data class Message(
         @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
         override val endOfLife: Long? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
@@ -55,12 +55,12 @@ data class Message(
         @Deprecated("Never used") val formId: String? = null,
         val status: Int? = null,
         val recipientsType: String? = null,
-        val recipients: Set<String> = setOf(), //The id of the hcp whose the message is addressed to
-        val toAddresses: Set<String> = setOf(), //The address of the recipient of the message. Format is of an email address with extra domains defined for mycarenet and ehealth: (efact.mycarenet.be/eattest.mycarenet.be/chapter4.mycarenet.be/ehbox.ehealth.fgov.be)
+        val recipients: Set<String> = emptySet(), //The id of the hcp whose the message is addressed to
+        val toAddresses: Set<String> = emptySet(), //The address of the recipient of the message. Format is of an email address with extra domains defined for mycarenet and ehealth: (efact.mycarenet.be/eattest.mycarenet.be/chapter4.mycarenet.be/ehbox.ehealth.fgov.be)
         val received: Long? = null,
         val sent: Long? = null,
-        val metas: Map<String, String> = mapOf(),
-        val readStatus: Map<String, MessageReadStatus> = mapOf(),
+        val metas: Map<String, String> = emptyMap(),
+        val readStatus: Map<String, MessageReadStatus> = emptyMap(),
         /*
             CHAP4:IN:   ${Mycarenet message ref}
             CHAP4:OUT:  ${Mycarenet message ref}
@@ -79,22 +79,22 @@ data class Message(
         val remark: String? = null,
         val conversationGuid: String? = null,
         val subject: String? = null,
-        val invoiceIds: Set<String> = setOf(),
+        val invoiceIds: Set<String> = emptySet(),
         val parentId: String? = null, //ID of parent in a message conversation
         val externalRef: String? = null,
-        val unassignedResults: Set<String> = setOf(), //refs
-        val assignedResults: Map<String, String> = mapOf(), //ContactId -> ref
-        val senderReferences: Map<String, String> = mapOf(),
+        val unassignedResults: Set<String> = emptySet(), //refs
+        val assignedResults: Map<String, String> = emptyMap(), //ContactId -> ref
+        val senderReferences: Map<String, String> = emptyMap(),
 
-        override val secretForeignKeys: Set<String> = setOf(),
-        override val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(),
-        override val delegations: Map<String, Set<Delegation>> = mapOf(),
-        override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val secretForeignKeys: Set<String> = emptySet(),
+        override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
+        override val delegations: Map<String, Set<Delegation>> = emptyMap(),
+        override val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(),
         override val encryptedSelf: String? = null,
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<Message> {

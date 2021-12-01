@@ -54,27 +54,27 @@ data class HealthcarePartyDto(
         @Schema(description = "National Institute for Health and Invalidity Insurance number assigned to healthcare parties (institution or person).") val nihii: String? = null, //institution, person
         val nihiiSpecCode: String? = null, //don't show field in the GUI
         @Schema(description = "Social security inscription number.") val ssin: String? = null,
-        @Schema(description = "The list of addresses (with address type).") override val addresses: List<AddressDto> = listOf(),
-        @Schema(description = "The list of languages spoken by the patient ordered by fluency (alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html).") override val languages: List<String> = listOf(),
+        @Schema(description = "The list of addresses (with address type).") override val addresses: List<AddressDto> = emptyList(),
+        @Schema(description = "The list of languages spoken by the patient ordered by fluency (alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html).") override val languages: List<String> = emptyList(),
         @Schema(description = "A picture usually saved in JPEG format.") val picture: ByteArray? = null,
-        @Schema(description = "The healthcare party's status: 'trainee' or 'withconvention' or 'accredited'") val statuses: Set<HealthcarePartyStatusDto> = setOf(),
-        @Schema(description = "The healthcare party's status history") val statusHistory: List<HealthcarePartyHistoryStatusDto> = listOf(),
+        @Schema(description = "The healthcare party's status: 'trainee' or 'withconvention' or 'accredited'") val statuses: Set<HealthcarePartyStatusDto> = emptySet(),
+        @Schema(description = "The healthcare party's status history") val statusHistory: List<HealthcarePartyHistoryStatusDto> = emptyList(),
 
-        @Schema(description = "Medical specialty of the healthcare party codified using FHIR or Kmehr codificaiton scheme") val specialityCodes: Set<CodeStubDto> = setOf(), //Speciality codes, default is first
+        @Schema(description = "Medical specialty of the healthcare party codified using FHIR or Kmehr codificaiton scheme") val specialityCodes: Set<CodeStubDto> = emptySet(), //Speciality codes, default is first
 
-        @Schema(description = "The type of format for contacting the healthcare party, ex: mobile, phone, email, etc.") val sendFormats: Map<TelecomTypeDto, String> = mapOf(),
+        @Schema(description = "The type of format for contacting the healthcare party, ex: mobile, phone, email, etc.") val sendFormats: Map<TelecomTypeDto, String> = emptyMap(),
         @Schema(description = "Text notes.") val notes: String? = null,
-        @Schema(description = "List of financial information (Bank, bank account).") val financialInstitutionInformation: List<FinancialInstitutionInformationDto> = listOf(),
+        @Schema(description = "List of financial information (Bank, bank account).") val financialInstitutionInformation: List<FinancialInstitutionInformationDto> = emptyList(),
 
         // Medical houses
         @Schema(description = "The invoicing scheme this healthcare party adheres to : 'service fee' or 'flat rate'") var billingType: String? = null, // "serviceFee" (à l'acte) or "flatRate" (forfait)
         var type: String? = null, // "persphysician" or "medicalHouse" or "perstechnician"
         var contactPerson: String? = null,
         var contactPersonHcpId: String? = null,
-        var flatRateTarifications: List<FlatRateTarificationDto> = listOf(),
-        var importedData: Map<String, String> = mapOf(),
+        var flatRateTarifications: List<FlatRateTarificationDto> = emptyList(),
+        var importedData: Map<String, String> = emptyMap(),
 
-        val options: Map<String, String> = mapOf(),
+        val options: Map<String, String> = emptyMap(),
 
         //One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
         //For a pair of HcParties, this key is called the AES exchange key
@@ -82,8 +82,8 @@ data class HealthcarePartyDto(
         // The map's keys are the delegate id.
         // In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
         // the key encrypted using delegate's public key.
-        override val hcPartyKeys: Map<String, Array<String>> = mapOf(),
-        override val privateKeyShamirPartitions: Map<String, String> = mapOf(), //Format is hcpId of key that has been partitionned : "threshold⎮partition in hex"
+        override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
+        override val privateKeyShamirPartitions: Map<String, String> = emptyMap(), //Format is hcpId of key that has been partitionned : "threshold⎮partition in hex"
         override val publicKey: String? = null
 ) : StoredDocumentDto, NamedDto, PersonDto, CryptoActorDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)

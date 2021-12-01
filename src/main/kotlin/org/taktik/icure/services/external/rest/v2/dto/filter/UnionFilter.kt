@@ -34,5 +34,5 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @KotlinBuilder
 data class UnionFilter<O : Identifiable<String>>(
         override val desc: String? = null,
-        override val filters: List<AbstractFilterDto<O>> = listOf()
+        override val filters: List<AbstractFilterDto<O>> = emptyList()
 ) : AbstractFilterDto<O>, Filters.UnionFilter<String, O>

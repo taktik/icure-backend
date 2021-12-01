@@ -30,7 +30,7 @@ import java.io.Serializable
 @KotlinBuilder
 data class Insurability(
         //Key from InsuranceParameter
-        val parameters: Map<String, String> = mapOf(),
+        val parameters: Map<String, String> = emptyMap(),
         val hospitalisation: Boolean? = null,
         val ambulatory: Boolean? = null,
         val dental: Boolean? = null,

@@ -43,8 +43,8 @@ data class DocumentDto(
         override val author: String? = null,
         override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        override val tags: Set<CodeStubDto> = setOf(),
-        override val codes: Set<CodeStubDto> = setOf(),
+        override val tags: Set<CodeStubDto> = emptySet(),
+        override val codes: Set<CodeStubDto> = emptySet(),
         override val endOfLife: Long? = null,
         override val deletionDate: Long? = null,
 
@@ -56,7 +56,7 @@ data class DocumentDto(
         @Schema(description = "The main Uniform Type Identifier of the document (https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/understanding_utis/understand_utis_conc/understand_utis_conc.html#//apple_ref/doc/uid/TP40001319-CH202-CHDHIJDE)") val mainUti: String? = null,
         @Schema(description = "Name of the document") val name: String? = null,
         @Schema(description = "The document version") val version: String? = null,
-        @Schema(description = "Extra Uniform Type Identifiers") val otherUtis: Set<String> = setOf(),
+        @Schema(description = "Extra Uniform Type Identifiers") val otherUtis: Set<String> = emptySet(),
         @Schema(description = "The ICureDocument (Form, Contact, ...) that has been used to generate the document") val storedICureDocumentId: String? = null, //The ICureDocumentDto (FormDto, ContactDto, ...) that has been used to generate the document
         @Schema(description = "A unique external id (from another external source).") val externalUuid: String? = null,
         @Schema(description = "Size of the document file") val size: Long? = null,
@@ -68,10 +68,10 @@ data class DocumentDto(
         val encryptedAttachment: ByteArray? = null,
         val decryptedAttachment: ByteArray? = null,
 
-        override val secretForeignKeys: Set<String> = setOf(),
-        override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = mapOf(),
-        override val delegations: Map<String, Set<DelegationDto>> = mapOf(),
-        override val encryptionKeys: Map<String, Set<DelegationDto>> = mapOf(),
+        override val secretForeignKeys: Set<String> = emptySet(),
+        override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = emptyMap(),
+        override val delegations: Map<String, Set<DelegationDto>> = emptyMap(),
+        override val encryptionKeys: Map<String, Set<DelegationDto>> = emptyMap(),
 
         override val encryptedSelf: String? = null
 ) : StoredDocumentDto, ICureDocumentDto<String>, EncryptableDto {

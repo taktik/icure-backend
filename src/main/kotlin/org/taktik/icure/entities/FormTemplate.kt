@@ -61,14 +61,14 @@ data class FormTemplate(
         val shortReport: String? = null,
         val mediumReport: String? = null,
         val longReport: String? = null,
-        val reports: Set<String> = setOf(),
+        val reports: Set<String> = emptySet(),
         val layoutAttachmentId: String? = null,
-        override val tags: Set<CodeStub> = setOf(),
+        override val tags: Set<CodeStub> = emptySet(),
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
          //userId
 ) : StoredDocument, HasTags {
     companion object : DynamicInitializer<FormTemplate>

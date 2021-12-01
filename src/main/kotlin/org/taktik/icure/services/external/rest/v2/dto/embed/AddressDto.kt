@@ -42,7 +42,7 @@ data class AddressDto(
         @Schema(description = "Name of state in the Address") val state: String? = null,
         @Schema(description = "Name / code of country in the address") val country: String? = null,
         @Schema(description = "Additional notes") val note: String? = null,
-        @Schema(description = "List of other contact details available through telecom services, ex: email, phone number, fax, etc.") val telecoms: List<TelecomDto> = listOf(),
+        @Schema(description = "List of other contact details available through telecom services, ex: email, phone number, fax, etc.") val telecoms: List<TelecomDto> = emptyList(),
         override val encryptedSelf: String? = null
 ) : EncryptedDto, Serializable, Comparable<AddressDto> {
     override fun compareTo(other: AddressDto): Int {

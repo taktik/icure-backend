@@ -43,7 +43,7 @@ data class FrontEndMigrationDto(
         val startKeyDocId: String? = null,
         val processCount: Long? = null,
 
-        @Schema(description = "Extra properties for the fem. Those properties are typed (see class Property)") val properties: Set<PropertyStubDto> = setOf(),
+        @Schema(description = "Extra properties for the fem. Those properties are typed (see class Property)") val properties: Set<PropertyStubDto> = emptySet(),
 
         ) : StoredDocumentDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)

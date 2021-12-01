@@ -81,8 +81,8 @@ data class PlanOfAction(
         @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
         override val endOfLife: Long? = null,
 
         //Usually one of the following is used (either valueDate or openingDate and closingDate)
@@ -98,10 +98,10 @@ data class PlanOfAction(
         val idClosingContact: String? = null,
         val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
 
-        val documentIds: Set<String> = setOf(),
+        val documentIds: Set<String> = emptySet(),
         val prescriberId: String? = null, //healthcarePartyId
         val numberOfCares: Int? = null,
-        val careTeamMemberships: List<CareTeamMembership?> = listOf(),
+        val careTeamMemberships: List<CareTeamMembership?> = emptyList(),
         override val encryptedSelf: String? = null
 ) : Encrypted, ICureDocument<String>, Named {
     companion object : DynamicInitializer<PlanOfAction> {

@@ -85,9 +85,9 @@ data class User(
         @field:NotNull(autoFix = AutoFix.NOW) val created: Long? = null,
 
         override val name: String? = null,
-        override val properties: Set<PropertyStub> = setOf(),
-        val roles: Set<String> = setOf(),
-        override val permissions: Set<Permission> = setOf(),
+        override val properties: Set<PropertyStub> = emptySet(),
+        val roles: Set<String> = emptySet(),
+        override val permissions: Set<Permission> = emptySet(),
         val type: Users.Type? = null,
         val status: Users.Status? = null,
         val login: String? = null,
@@ -97,7 +97,7 @@ data class User(
         val groupId: String? = null,
         val healthcarePartyId: String? = null,
         val patientId: String? = null,
-        val autoDelegations: Map<DelegationTag, Set<String>> = mapOf(), //DelegationTag -> healthcarePartyIds
+        val autoDelegations: Map<DelegationTag, Set<String>> = emptyMap(), //DelegationTag -> healthcarePartyIds
         @JsonSerialize(using = InstantSerializer::class)
         @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
@@ -131,12 +131,12 @@ data class User(
         val termsOfUseDate: Instant? = null,
 
         val email: String? = null,
-        val applicationTokens: Map<String, String> = mapOf(),
+        val applicationTokens: Map<String, String> = emptyMap(),
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredDocument, Principal, Cloneable, Serializable {
     companion object : DynamicInitializer<User>

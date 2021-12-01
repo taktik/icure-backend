@@ -12,7 +12,7 @@ import java.io.Serializable
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
-data class Permission(val grants: Set<PermissionItem> = setOf(), val revokes: Set<PermissionItem> = setOf()) : Cloneable, Serializable {
+data class Permission(val grants: Set<PermissionItem> = emptySet(), val revokes: Set<PermissionItem> = emptySet()) : Cloneable, Serializable {
     fun grant(permissionItem: PermissionItem): Permission {
         return this.copy(grants = if (this.grants.any { it.type == permissionItem.type }) this.grants.map { if(it.type == permissionItem.type) it.merge(permissionItem) else it }.toSet() else this.grants + permissionItem)
     }

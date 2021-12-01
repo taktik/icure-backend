@@ -33,5 +33,5 @@ data class SecurityDto(
     @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
-data class RightDto(val names: Set<String> = setOf(), val roles: Set<String> = setOf())
+data class RightDto(val names: Set<String> = emptySet(), val roles: Set<String> = emptySet())
 }

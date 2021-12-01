@@ -40,13 +40,13 @@ data class CalendarItemType(
         val duration: Int = 0, // mikrono: int durationInMinutes; = 0
         val externalRef: String? = null, // same as topaz Id, to be used by mikrono
         val mikronoId: String? = null,
-        val docIds: Set<String> = setOf(),
-        val otherInfos: Map<String, String> = mapOf(),
-        val subjectByLanguage: Map<String, String> = mapOf(),
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
+        val docIds: Set<String> = emptySet(),
+        val otherInfos: Map<String, String> = emptyMap(),
+        val subjectByLanguage: Map<String, String> = emptyMap(),
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredDocument {
     companion object : DynamicInitializer<CalendarItemType>
