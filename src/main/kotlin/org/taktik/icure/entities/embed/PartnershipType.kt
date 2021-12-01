@@ -20,7 +20,7 @@ package org.taktik.icure.entities.embed
 import org.taktik.icure.entities.base.EnumVersion
 
 @EnumVersion(1L)
-enum class PartnershipType(fhirCode: String? = null) {
+enum class PartnershipType(val fhirCode: String? = null) {
     primary_contact("C"), primary_contact_for, family, friend, counselor, contact,  //From Kmehr
     brother, brotherinlaw, child, daughter, employer("E"), father, grandchild, grandparent, husband, lawyer, mother, neighbour, notary, partner, sister, sisterinlaw, son, spouse, stepdaughter, stepfather, stepmother, stepson, tutor,
     next_of_kin("N"), federal_agency("F"), insurance_company("I"), state_agency("S"), unknown("U") //from FHIR : http://terminology.hl7.org/CodeSystem/v2-0131
