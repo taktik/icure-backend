@@ -122,7 +122,7 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
     }
 
     companion object {
-        val SESSION_LOCALE_ATTRIBUTE = "locale";
+        const val SESSION_LOCALE_ATTRIBUTE = "locale";
 
         private suspend fun getCurrentAuthentication() =
                 loadSecurityContext()?.map { it.authentication }?.awaitSingleOrNull()

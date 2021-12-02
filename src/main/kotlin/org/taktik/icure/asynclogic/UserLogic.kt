@@ -70,7 +70,10 @@ interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
     suspend fun setProperties(user: User, properties: List<PropertyStub>): User?
     suspend fun undeleteUser(id: String)
     suspend fun undeleteUser(user: User)
-    suspend fun verifyActivationToken(userId: String, token: String): Boolean
-    suspend fun verifyPasswordToken(userId: String, token: String): Boolean
-    suspend fun getToken(user: User, key: String): String
+    suspend fun verifyAuthenticationToken(userId: String, token: String): Boolean
+
+    /**
+     * @param tokenValidity Token validity time in seconds. By default, token will be valid during one hour
+     */
+    suspend fun getToken(user: User, key: String, tokenValidity: Long = 3600): String
 }
