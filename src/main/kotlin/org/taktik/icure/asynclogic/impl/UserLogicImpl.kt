@@ -230,13 +230,13 @@ class UserLogicImpl(
 
     override fun createEntities(users: Collection<User>): Flow<User> = flow {
         for (user in users) {
-            fix(encryptingUserPasswords(user)) { userDAO.create(user) }?.let { emit(it) }
+            fix(hashPasswordAndTokens(user)) { userDAO.create(user) }?.let { emit(it) }
         }
     }
 
-    private fun encryptingUserPasswords(user: User) : User {
+    private suspend fun hashPasswordAndTokens(user: User) : User {
         return user.let { u ->
-            if (u.passwordHash != null && !u.passwordHash.matches(passwordRegex)) {
+            if (u.passwordHash != null && u.passwordHash != "*" && !u.passwordHash.matches(passwordRegex)) {
                 u.copy(passwordHash = encodePassword(u.passwordHash))
             } else u
         }.let { u ->
@@ -248,12 +248,23 @@ class UserLogicImpl(
                     )
                 }.toMap())
             } else u
-        }.let { u->
+        }.let { u ->
             if (!u.applicationTokens.isNullOrEmpty()) {
                 u.copy(applicationTokens = emptyMap(),
-                        authenticationTokens = (u.authenticationTokens + u.applicationTokens.map { (application, rawToken) ->
-                            application to AuthenticationToken(token = encodePassword(rawToken), validity = AuthenticationToken.LONG_LIVING_TOKEN_VALIDITY)
-                        }.toMap())
+                        authenticationTokens = (u.authenticationTokens + u.applicationTokens.mapValues { (_, rawToken) ->
+                            AuthenticationToken(token = encodePassword(rawToken), validity = AuthenticationToken.LONG_LIVING_TOKEN_VALIDITY)
+                        })
+                )
+            } else u
+        }.let { u ->
+            if (u.rev != null) {
+                val prev = getUser(user.id)
+                u.copy(
+                        applicationTokens = mapOf(),
+                        authenticationTokens = (prev?.authenticationTokens ?: mapOf()) + u.authenticationTokens + (prev?.applicationTokens?.mapValues { (_, rawToken) ->
+                            AuthenticationToken(token = encodePassword(rawToken), validity = AuthenticationToken.LONG_LIVING_TOKEN_VALIDITY)
+                        } ?: mapOf()),
+                        passwordHash = if (u.passwordHash == "*") prev?.passwordHash else u.passwordHash
                 )
             } else u
         }
@@ -309,7 +320,7 @@ class UserLogicImpl(
 
     override suspend fun modifyUser(modifiedUser: User) = fix(modifiedUser) { modifiedUser ->
         // Save user
-        userDAO.save(encryptingUserPasswords(modifiedUser))
+        userDAO.save(hashPasswordAndTokens(modifiedUser))
     }
 
     override suspend fun getToken(user: User, key: String, tokenValidity: Long): String {
@@ -399,7 +410,7 @@ class UserLogicImpl(
     }
 
     override suspend fun save(user: User): User? {
-        return userDAO.save(encryptingUserPasswords(user))
+        return userDAO.save(hashPasswordAndTokens(user))
     }
 
     override fun listUsers(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
