@@ -19,6 +19,7 @@
 package org.taktik.icure.services.external.rest.v2.controllers.core
 
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emitAll
@@ -315,7 +316,7 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
     @Operation(summary = "Update a form template's layout")
     @PutMapping("/template/{formTemplateId}/attachment/multipart", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun setTemplateAttachmentMulti(@PathVariable formTemplateId: String,
-                                   @RequestPart("attachment") payload: ByteArray) = mono {
+                                   @Schema(type = "string", format = "byte") @RequestPart("attachment") payload: ByteArray) = mono {
         val formTemplate = formTemplateLogic.getFormTemplate(formTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "FormTemplate with id $formTemplateId not found")
         formTemplateLogic.modifyFormTemplate(formTemplate.copy(layout = payload))?.rev ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form Template modification failed")
