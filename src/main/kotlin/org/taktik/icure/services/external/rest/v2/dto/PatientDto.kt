@@ -34,6 +34,7 @@ import org.taktik.icure.services.external.rest.v2.dto.embed.*
 @Schema(description = """This entity is a root level object. It represents a patient It is serialized in JSON and saved in the underlying icure-patient CouchDB database.""", extensions = [ Extension(name="is-deprecated", properties = [ ExtensionProperty(name = "fatherBirthCountry", value = "true"), ExtensionProperty(name = "birthCountry", value = "true") , ExtensionProperty(name = "nativeCountry", value = "true") , ExtensionProperty(name = "socialStatus", value = "true"), ExtensionProperty(name = "mainSourceOfIncome", value = "true") ])])
 data class PatientDto(
         @Schema(description = "the Id of the patient. We encourage using either a v4 UUID or a HL7 Id.") override val id: String,
+        val identifier: List<IdentifierDto> = listOf(),
         @Schema(description = "the revision of the patient in the database, used for conflict management / optimistic locking.") override val rev: String? = null,
         override val created: Long? = null,
         override val modified: Long? = null,
