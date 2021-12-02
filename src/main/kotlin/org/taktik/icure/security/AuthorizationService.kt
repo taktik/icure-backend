@@ -3,7 +3,6 @@ package org.taktik.icure.security
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import org.springframework.context.annotation.Profile
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.taktik.icure.asyncdao.HealthcarePartyDAO
