@@ -27,7 +27,13 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
+import org.springframework.context.annotation.Profile
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.be.format.logic.HealthOneLogic

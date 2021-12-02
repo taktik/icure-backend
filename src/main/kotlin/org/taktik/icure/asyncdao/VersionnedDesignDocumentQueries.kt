@@ -7,7 +7,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.firstOrNull
+import org.taktik.icure.utils.firstOrNull
 import kotlinx.coroutines.flow.map
 import org.taktik.couchdb.Client
 import org.taktik.couchdb.dao.designDocName

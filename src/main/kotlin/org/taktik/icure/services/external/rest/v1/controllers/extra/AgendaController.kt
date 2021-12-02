@@ -38,7 +38,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AgendaLogic
 import org.taktik.icure.services.external.rest.v1.dto.AgendaDto
 import org.taktik.icure.services.external.rest.v1.mapper.AgendaMapper
-import kotlinx.coroutines.flow.firstOrNull
+import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
