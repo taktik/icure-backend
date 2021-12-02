@@ -57,7 +57,7 @@ data class HealthcarePartyDto(
         @Schema(description = "Social security inscription number.") val ssin: String? = null,
         @Schema(description = "The list of addresses (with address type).") override val addresses: List<AddressDto> = emptyList(),
         @Schema(description = "The list of languages spoken by the patient ordered by fluency (alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html).") override val languages: List<String> = emptyList(),
-        @Schema(description = "A picture usually saved in JPEG format.") val picture: ByteArray? = null,
+        @Schema(description = "A picture usually saved in JPEG format.", type = "string", format = "byte") val picture: ByteArray? = null,
         @Schema(description = "The healthcare party's status: 'trainee' or 'withconvention' or 'accredited'") val statuses: Set<HealthcarePartyStatusDto> = emptySet(),
         @Schema(description = "The healthcare party's status history") val statusHistory: List<HealthcarePartyHistoryStatusDto> = emptyList(),
 
@@ -69,11 +69,12 @@ data class HealthcarePartyDto(
 
         // Medical houses
         @Schema(description = "The invoicing scheme this healthcare party adheres to : 'service fee' or 'flat rate'") var billingType: String? = null, // "serviceFee" (à l'acte) or "flatRate" (forfait)
-        var type: String? = null, // "persphysician" or "medicalHouse" or "perstechnician"
-        var contactPerson: String? = null,
-        var contactPersonHcpId: String? = null,
-        var flatRateTarifications: List<FlatRateTarificationDto> = emptyList(),
-        var importedData: Map<String, String> = emptyMap(),
+        val type: String? = null, // "persphysician" or "medicalHouse" or "perstechnician"
+        val contactPerson: String? = null,
+        val contactPersonHcpId: String? = null,
+        val supervisorId: String? = null,
+        val flatRateTarifications: List<FlatRateTarificationDto> = emptyList(),
+        val importedData: Map<String, String> = emptyMap(),
 
         val options: Map<String, String> = emptyMap(),
 

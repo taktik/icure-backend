@@ -65,8 +65,8 @@ data class DocumentDto(
 
         @Schema(description = "Id of attachment to this document") val attachmentId: String? = null,
 
-        val encryptedAttachment: ByteArray? = null,
-        val decryptedAttachment: ByteArray? = null,
+        @Schema(type = "string", format = "byte") val encryptedAttachment: ByteArray? = null,
+        @Schema(type = "string", format = "byte") val decryptedAttachment: ByteArray? = null,
 
         override val secretForeignKeys: Set<String> = emptySet(),
         override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = emptyMap(),
