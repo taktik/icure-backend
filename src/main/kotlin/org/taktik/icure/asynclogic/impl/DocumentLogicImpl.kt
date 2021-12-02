@@ -51,10 +51,6 @@ class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessio
     }
 
     override fun getAttachment(documentId: String, attachmentId: String): Flow<ByteBuffer> = flow {
-        emitAll(documentDAO.getAttachment(documentId, attachmentId))
-    }
-
-    override fun readAttachment(documentId: String, attachmentId: String): Flow<ByteBuffer> = flow {
         emitAll(documentDAO.readAttachment(documentId, attachmentId, null))
     }
 

@@ -90,7 +90,7 @@ class PatientController(
     @Operation(summary = "Find patients for the current user (HcParty) ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/byNameBirthSsinAuto")
     fun findByNameBirthSsinAuto(
-            @Parameter(description = "HealthcareParty Id, if unset will user user's hcpId") @RequestParam(required = false) healthcarePartyId: String?,
+            @Parameter(description = "HealthcareParty Id. If not set, will use user's hcpId") @RequestParam(required = false) healthcarePartyId: String?,
             @Parameter(description = "Optional value for filtering results") @RequestParam(required = false) filterValue: String?,
             @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
             @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
@@ -107,12 +107,12 @@ class PatientController(
             val hcp = healthcarePartyLogic.getHealthcareParty(currentHcpId)
             (hcp?.parentId?.let { if (it.isNotEmpty()) it else null } ?: hcp?.id)?.let { hcpId ->
                 patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(
-                    hcpId,
-                    paginationOffset,
-                    filterValue,
-                    Sorting(null, sortDirection))
-                    .let { it.paginatedList(patientToPatientDto, realLimit) }
-        } ?: PaginatedList() }
+                        hcpId,
+                        paginationOffset,
+                        filterValue,
+                        Sorting(null, sortDirection))
+                        .let { it.paginatedList(patientToPatientDto, realLimit) }
+            } ?: PaginatedList() }
     }
 
     @Operation(summary = "List patients of a specific HcParty or of the current HcParty ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
@@ -194,17 +194,17 @@ class PatientController(
             val hcp = healthcarePartyLogic.getHealthcareParty(currentHcpId)
             (hcp?.parentId ?: hcp?.id)?.let { hcpId ->
                 patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(
-                hcpId,
-                paginationOffset,
-                null,
-                Sorting(sortField, sortDirection)).paginatedList<Patient, PatientDto>(patientToPatientDto, realLimit)
+                        hcpId,
+                        paginationOffset,
+                        null,
+                        Sorting(sortField, sortDirection)).paginatedList<Patient, PatientDto>(patientToPatientDto, realLimit)
             } ?: PaginatedList()
         }
     }
 
     @Operation(summary = "List patients by pages for a specific HcParty", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/idsPages")
-    fun listPatientsIds(@Parameter(description = "Healthcare party id")@RequestParam hcPartyId: String,
+    fun listPatientsIds(@Parameter(description = "Healthcare party id") @RequestParam hcPartyId: String,
                         @Parameter(description = "The page first id") @RequestParam(required = false) startKey: String?,
                         @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                         @Parameter(description = "Page size") @RequestParam(required = false) limit: Int?) = mono {
@@ -285,7 +285,9 @@ class PatientController(
 
     @Operation(summary = "Get ids of patients matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    fun matchPatientsBy(@RequestBody filter: AbstractFilterDto<Patient>): Flux<String> = filters.resolve(filter).injectReactorContext()
+    fun matchPatientsBy(@RequestBody filter: AbstractFilterDto<Patient>) = mono {
+        filters.resolve(filter).toList()
+    }
 
     @Operation(summary = "Filter patients for the current user (HcParty) ", description = "Returns a list of patients")
     @GetMapping("/fuzzy")

@@ -56,7 +56,7 @@ class ResultExportController(private var healthOneLogic: HealthOneLogic,
                       @PathVariable patId: String,
                       @PathVariable date: Long,
                       @PathVariable ref: String,
-                      @RequestBody bodyText: ByteArray
+                      @Schema(type = "string", format = "binary") @RequestBody bodyText: ByteArray
     ) = mono {
         DefaultDataBufferFactory().join(medidocLogic.doExport(healthcarePartyLogic.getHealthcareParty(fromHcpId), healthcarePartyLogic.getHealthcareParty(toHcpId), patientLogic.getPatient(patId), FuzzyValues.getDateTime(date), ref, String(bodyText, Charsets.UTF_8)).toList()).asByteBuffer()
     }
@@ -68,7 +68,7 @@ class ResultExportController(private var healthOneLogic: HealthOneLogic,
                         @PathVariable patId: String,
                         @PathVariable date: Long,
                         @PathVariable ref: String,
-                        @RequestBody bodyText: ByteArray
+                        @Schema(type = "string", format = "binary") @RequestBody bodyText: ByteArray
     ) = mono {
         DefaultDataBufferFactory().join(healthOneLogic.doExport(healthcarePartyLogic.getHealthcareParty(fromHcpId), healthcarePartyLogic.getHealthcareParty(toHcpId), patientLogic.getPatient(patId), FuzzyValues.getDateTime(date), ref, String(bodyText, Charsets.UTF_8)).toList()).asByteBuffer()
     }
@@ -81,7 +81,7 @@ class ResultExportController(private var healthOneLogic: HealthOneLogic,
                           @PathVariable date: Long,
                           @PathVariable ref: String,
                           @RequestParam(required = false) mimeType: Boolean?,
-                          @RequestBody bodyText: ByteArray
+                          @Schema(type = "string", format = "binary") @RequestBody bodyText: ByteArray
     ) = mono {
         DefaultDataBufferFactory().join(kmehrReportLogic.doExport(healthcarePartyLogic.getHealthcareParty(fromHcpId), healthcarePartyLogic.getHealthcareParty(toHcpId), patientLogic.getPatient(patId), FuzzyValues.getDateTime(date), ref, String(bodyText, Charsets.UTF_8)).toList()).asByteBuffer()
     }
