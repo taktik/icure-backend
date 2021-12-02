@@ -33,10 +33,10 @@ interface StoredDocument : Versionable<String> {
         if (this::class.qualifiedName != value) throw IllegalArgumentException("Object with ID ${this.id} is not of expected type ${this::class.qualifiedName} but of type $value")
     }
 
+    val deletionDate: Long?
     val revisionsInfo: List<RevisionInfo>?
     val conflicts: List<String>?
     val attachments: Map<String, Attachment>?
-    val deletionDate: Long?
 
     fun solveConflictsWith(other: StoredDocument): Map<String, Any?> {
         return mapOf(

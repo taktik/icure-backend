@@ -202,6 +202,10 @@ data class Patient(
                     super<Person>.solveConflictsWith(other) +
                     super<Encryptable>.solveConflictsWith(other) +
                     super<CryptoActor>.solveConflictsWith(other) + mapOf(
+                    "encryptionKeys" to this.encryptionKeys, // Only keep this ones
+                    "identifier" to mergeListsDistinct(this.identifier, other.identifier,
+                            { a, b -> a.system == b.system && a.value == b.value },
+                    ),
                     "birthSex" to (this.birthSex ?: other.birthSex),
                     "mergeToPatientId" to (this.mergeToPatientId ?: other.mergeToPatientId),
                     "mergedIds" to (other.mergedIds + this.mergedIds),

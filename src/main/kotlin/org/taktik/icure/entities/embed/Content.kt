@@ -45,7 +45,9 @@ data class Content(
         @JsonProperty("d") val documentId: String? = null,
         @JsonProperty("m") val measureValue: Measure? = null,
         @JsonProperty("p") val medicationValue: Medication? = null,
-        @JsonProperty("c") val compoundValue: Set<Service>? = null
+        @JsonProperty("c") val compoundValue: Set<Service>? = null,
+        val ratio: List<Measure>? = null,
+        val range: List<Measure>? = null
 ) : Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -64,6 +66,8 @@ data class Content(
         if (measureValue != other.measureValue) return false
         if (medicationValue != other.medicationValue) return false
         if (compoundValue != other.compoundValue) return false
+        if (ratio != other.ratio) return false
+        if (range != other.range) return false
 
         return true
     }
@@ -79,6 +83,8 @@ data class Content(
         result = 31 * result + (measureValue?.hashCode() ?: 0)
         result = 31 * result + (medicationValue?.hashCode() ?: 0)
         result = 31 * result + (compoundValue?.hashCode() ?: 0)
+        result = 31 * result + (ratio?.hashCode() ?: 0)
+        result = 31 * result + (range?.hashCode() ?: 0)
         return result
     }
 }

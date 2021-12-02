@@ -125,6 +125,7 @@ data class HealthcareParty(
         var type: String? = null, // "persphysician" or "medicalHouse" or "perstechnician"
         var contactPerson: String? = null,
         var contactPersonHcpId: String? = null,
+        var supervisorId: String? = null,
         var flatRateTarifications: List<FlatRateTarification> = emptyList(),
         var importedData: Map<String, String> = emptyMap(),
 
