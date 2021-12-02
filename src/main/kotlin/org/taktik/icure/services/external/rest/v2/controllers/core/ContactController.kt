@@ -68,7 +68,6 @@ import java.util.*
 
 @ExperimentalCoroutinesApi
 @RestController("contactControllerV2")
-@Profile("app")
 @RequestMapping("/rest/v2/contact")
 @Tag(name = "contact")
 class ContactController(private val filters: org.taktik.icure.asynclogic.impl.filter.Filters,

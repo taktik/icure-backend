@@ -10,7 +10,6 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.constants.Roles
 
 @Service
-@Profile("app")
 class AuthorizationService(val sessionLogic: AsyncSessionLogic, val healthcarePartyDAO: HealthcarePartyDAO) {
     fun <T>apply(condition: suspend () -> Boolean, protectedMethod: () -> Flow<T>): Flow<T> = flow {
         if (condition()) {

@@ -50,6 +50,8 @@ class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessio
         return documentDAO.listDocumentsByExternalUuid(documentId)
     }
 
+    override fun getDocuments(documentIds: List<String>) = documentDAO.getEntities(documentIds)
+
     override fun getAttachment(documentId: String, attachmentId: String): Flow<ByteBuffer> = flow {
         emitAll(documentDAO.readAttachment(documentId, attachmentId, null))
     }
@@ -73,10 +75,6 @@ class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessio
 
     override fun listDocumentsWithoutDelegation(limit: Int): Flow<Document> = flow {
         emitAll(documentDAO.listDocumentsWithNoDelegations(limit))
-    }
-
-    override fun getDocuments(documentIds: List<String>): Flow<Document> = flow {
-        emitAll(documentDAO.getEntities(documentIds))
     }
 
     override fun modifyDocuments(documents: List<Document>): Flow<Document> = flow {

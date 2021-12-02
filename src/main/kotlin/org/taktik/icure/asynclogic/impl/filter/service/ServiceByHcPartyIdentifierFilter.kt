@@ -13,6 +13,7 @@ import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.utils.getLoggedHealthCarePartyId
 import javax.security.auth.login.LoginException
 
+@org.springframework.stereotype.Service
 class ServiceByHcPartyIdentifierFilter(
         private val contactLogic: ContactLogic,
         private val sessionLogic: AsyncSessionLogic,

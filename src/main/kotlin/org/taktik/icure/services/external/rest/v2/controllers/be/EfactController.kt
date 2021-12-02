@@ -40,7 +40,6 @@ import java.util.*
 
 
 @RestController("efactControllerV2")
-@Profile("app")
 @RequestMapping("/rest/v2/be_efact")
 @Tag(name = "beefact")
 class EfactController(val efactLogic: EfactLogic,

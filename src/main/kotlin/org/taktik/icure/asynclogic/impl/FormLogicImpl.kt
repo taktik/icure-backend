@@ -79,7 +79,7 @@ class FormLogicImpl(private val formDAO: FormDAO,
             createEntities(setOf(form)).firstOrNull()
         } catch (e: Exception) {
             logger.error("createContact: " + e.message)
-            throw IllegalArgumentException("Invalid contact", e)
+            throw IllegalArgumentException("Invalid form", e)
         }
     }
 

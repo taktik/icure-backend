@@ -28,9 +28,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -84,7 +82,6 @@ class PatientController(
         private val delegationMapper: DelegationMapper,
         private val objectMapper: ObjectMapper
 ) {
-
     private val patientToPatientDto = { it: Patient -> patientMapper.map(it) }
 
     @Operation(summary = "Find patients for the current user (HcParty) ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
@@ -365,7 +362,7 @@ class PatientController(
     @Operation(summary = "Delegates a patients to a healthcare party", description = "It delegates a patient to a healthcare party (By current healthcare party). A modified patient with new delegation gets returned.")
     @PostMapping("/{patientId}/delegate")
     fun newPatientDelegations(@PathVariable patientId: String,
-                       @RequestBody ds: List<DelegationDto>) = mono {
+                              @RequestBody ds: List<DelegationDto>) = mono {
         try {
             patientLogic.addDelegations(patientId, ds.map { d -> delegationMapper.map(d) })
             val patientWithDelegations = patientLogic.getPatient(patientId)
@@ -391,6 +388,23 @@ class PatientController(
     fun getPatient(@PathVariable patientId: String) = mono {
         patientLogic.getPatient(patientId)?.let(patientToPatientDto)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting patient failed. Possible reasons: no such patient exists, or server error. Please try again or read the server log.")
+    }
+
+    @Operation(summary = "Get patient by identifier", description = "It gets patient administrative data based on the identifier (root & extension) parameters.")
+    @GetMapping("/{hcPartyId}/{id}")
+    fun getPatientByHealthcarepartyAndIdentifier(@PathVariable hcPartyId: String, @RequestParam(required = false) system: String?, @PathVariable id: String) = mono {
+        when {
+            !system.isNullOrEmpty() -> {
+                val patient = patientLogic.findByHealthcarepartyAndIdentifier(hcPartyId, system, id)
+                        .map { patientMapper.map(it) }
+
+                when(patient.count()){
+                    0 -> patientLogic.getPatient(id)?.let { patientMapper.map(it) }
+                    else -> patient.first()
+                }
+            }
+            else -> patientLogic.getPatient(id)?.let { patientMapper.map(it) }
+        }
     }
 
     @Operation(summary = "Create patients in bulk", description = "Returns the id and _rev of created patients")
@@ -452,6 +466,37 @@ class PatientController(
     }
 
     // TODO MB add missing methods like findDuplicatesBySsin or findDuplicatesByName  (compare this controller with the master branch)
+
+
+    @Operation(summary = "Provides a paginated list of patients with duplicate ssin for an hecparty")
+    @PostMapping("/duplicates/ssin")
+    fun findDuplicatesBySsin(
+            @Parameter(description = "Healthcare party id") @RequestParam hcPartyId: String,
+            @Parameter(description = "The start key for pagination, depends on the filters used") @RequestParam(required = false) startKey: String?,
+            @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?
+    ) = mono {
+        val realLimit = limit ?: DEFAULT_LIMIT
+        val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
+
+        patientLogic.getDuplicatePatientsBySsin(hcPartyId, paginationOffset).paginatedList(patientToPatientDto, realLimit)
+    }
+
+    @Operation(summary = "Provides a paginated list of patients with duplicate name for an hecparty")
+    @PostMapping("/duplicates/name")
+    fun findDuplicatesByName(
+            @Parameter(description = "Healthcare party id") @RequestParam hcPartyId: String,
+            @Parameter(description = "The start key for pagination, depends on the filters used") @RequestParam(required = false) startKey: String?,
+            @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?
+    ) = mono {
+        val realLimit = limit ?: DEFAULT_LIMIT
+        val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
+
+        patientLogic.getDuplicatePatientsByName(hcPartyId, paginationOffset).paginatedList(patientToPatientDto, realLimit)
+    }
 
     companion object {
         private val log = LoggerFactory.getLogger(javaClass)

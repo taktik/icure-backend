@@ -37,6 +37,7 @@ import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Gender
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.distinct
+import java.net.URI
 import java.util.*
 import kotlin.collections.set
 
@@ -455,6 +456,13 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         }
 
         return resultMap
+    }
+
+    @View(name = "by_hcparty_identifier", map = "classpath:js/patient/By_hcparty_identifier_map.js")
+    override fun findPatientByHealthcarepartyAndIdentifier(healthcarePartyId: String, system: String, id: String) = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        val queryView = createQuery(client, "by_hcparty_identifier").includeDocs(true).key(ComplexKey.of(healthcarePartyId, system, id))
+        emitAll(client.queryViewIncludeDocs<ComplexKey, String, Patient>(queryView).map { it.doc })
     }
 
     override fun getDuplicatePatientsBySsin(healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {

@@ -35,7 +35,6 @@ import org.taktik.icure.services.external.rest.v2.mapper.EntityReferenceV2Mapper
 import kotlinx.coroutines.flow.firstOrNull
 
 @RestController("entityReferenceControllerV2")
-@Profile("app")
 @RequestMapping("/rest/v2/entityref")
 @Tag(name = "entityref")
 class EntityReferenceController(
