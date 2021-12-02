@@ -43,7 +43,7 @@ data class ContentDto(
         val instantValue: Instant? = null,
 
         @Schema(description = "Value as date. The format could have a all three (day, month and year) or values on any of these three, whatever is known.") val fuzzyDateValue: Long? = null,
-        val binaryValue: ByteArray? = null,
+        @Schema(type = "string", format = "byte") val binaryValue: ByteArray? = null,
         @Schema(description = "Linked document.") val documentId: String? = null,
         @Schema(description = "Values of measurements recorded. Fields included would be the value, permissible range (min. and max.), severity, unit of measurement, etc ") val measureValue: MeasureDto? = null,
         @Schema(description = "The details of prescribed or suggested medication") val medicationValue: MedicationDto? = null,
