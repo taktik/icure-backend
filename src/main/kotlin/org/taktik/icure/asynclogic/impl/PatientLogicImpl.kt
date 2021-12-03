@@ -38,10 +38,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.Sorting
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.Patient
-import org.taktik.icure.entities.embed.Delegation
-import org.taktik.icure.entities.embed.Gender
-import org.taktik.icure.entities.embed.PatientHealthCareParty
-import org.taktik.icure.entities.embed.ReferralPeriod
+import org.taktik.icure.entities.embed.*
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto
 import org.taktik.icure.utils.FuzzyValues
@@ -465,6 +462,10 @@ class PatientLogicImpl(
 
     override fun undeletePatients(ids: Set<String>) = flow<DocIdentifier> {
         emitAll(undeleteByIds(ids))
+    }
+
+    override fun listPatientByHealthcarepartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>) = flow {
+        emitAll(patientDAO.listPatientByHealthcarepartyAndIdentifier(healthcarePartyId, identifiers))
     }
 
     companion object {

@@ -24,6 +24,7 @@ import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Gender
+import org.taktik.icure.entities.embed.Identifier
 
 interface PatientDAO : GenericDAO<Patient> {
 
@@ -87,4 +88,5 @@ interface PatientDAO : GenericDAO<Patient> {
 
     fun findPatients(ids: Flow<String>):  Flow<ViewQueryResultEvent>
 
+    fun listPatientByHealthcarepartyAndIdentifier(healthcarePartyId: String, identifiers: List<Identifier>): Flow<String>
 }

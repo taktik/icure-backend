@@ -27,6 +27,7 @@ import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Gender
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto
 import java.time.Instant
@@ -92,4 +93,6 @@ interface PatientLogic {
     fun undeletePatients(ids: Set<String>): Flow<DocIdentifier>
     fun modifyEntities(entities: Collection<Patient>): Flow<Patient>
     suspend fun hasEntities(): Boolean
+
+    fun listPatientByHealthcarepartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>) : Flow<String>
 }

@@ -35,6 +35,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Gender
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.distinct
 import java.util.*
@@ -473,6 +474,19 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findPatients(ids: Flow<String>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(client.getForPagination(ids, Patient::class.java))
+    }
+
+    @View(name = "by_hcparty_identifier", map = "classpath:js/patient/By_hcparty_identifier_map.js")
+    override fun listPatientByHealthcarepartyAndIdentifier(healthcarePartyId: String, identifiers: List<Identifier>) = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+        val queryView = createQuery(client, "by_hcparty_identifier")
+                .includeDocs(true)
+                .keys(identifiers.map {
+                    ComplexKey.of(healthcarePartyId, it.system, it.id)
+                })
+
+        emitAll(client.queryView<Array<String>, String>(queryView).mapNotNull { it.value })
     }
 
     private fun getDuplicatesFromView(viewName: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {

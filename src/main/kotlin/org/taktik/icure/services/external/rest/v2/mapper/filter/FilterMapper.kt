@@ -58,6 +58,7 @@ abstract class FilterV2Mapper {
     abstract fun map(filterDto: PatientByHcPartyGenderEducationProfession): org.taktik.icure.domain.filter.impl.patient.PatientByHcPartyGenderEducationProfession
     abstract fun map(filterDto: PatientByHcPartyNameContainsFuzzyFilter): org.taktik.icure.domain.filter.impl.patient.PatientByHcPartyNameContainsFuzzyFilter
     abstract fun map(filterDto: PatientByHcPartyNameFilter): org.taktik.icure.domain.filter.impl.patient.PatientByHcPartyNameFilter
+    abstract fun map(filterDto: PatientByHcPartyAndIdentifiersFilter): org.taktik.icure.domain.filter.impl.patient.PatientByHcPartyAndIdentifiersFilter
     abstract fun map(filterDto: PatientByIdsFilter): org.taktik.icure.domain.filter.impl.patient.PatientByIdsFilter
     abstract fun map(filterDto: ServiceByContactsAndSubcontactsFilter): org.taktik.icure.domain.filter.impl.service.ServiceByContactsAndSubcontactsFilter
     abstract fun map(filterDto: ServiceByHcPartyTagCodeDateFilter): org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyTagCodeDateFilter
@@ -109,6 +110,7 @@ abstract class FilterV2Mapper {
             is PatientByHcPartyGenderEducationProfession -> map(filterDto)
             is PatientByHcPartyNameContainsFuzzyFilter -> map(filterDto)
             is PatientByHcPartyNameFilter -> map(filterDto)
+            is PatientByHcPartyAndIdentifiersFilter -> map(filterDto)
             is PatientByIdsFilter -> map(filterDto)
             is ServiceByContactsAndSubcontactsFilter -> map(filterDto)
             is ServiceByHcPartyTagCodeDateFilter -> map(filterDto)
@@ -138,6 +140,7 @@ abstract class FilterV2Mapper {
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.patient.PatientByHcPartyGenderEducationProfession): PatientByHcPartyGenderEducationProfession
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.patient.PatientByHcPartyNameContainsFuzzyFilter): PatientByHcPartyNameContainsFuzzyFilter
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.patient.PatientByHcPartyNameFilter): PatientByHcPartyNameFilter
+    abstract fun map(filter: org.taktik.icure.domain.filter.impl.patient.PatientByHcPartyAndIdentifiersFilter): PatientByHcPartyAndIdentifiersFilter
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.patient.PatientByIdsFilter): PatientByIdsFilter
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceByContactsAndSubcontactsFilter): ServiceByContactsAndSubcontactsFilter
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyTagCodeDateFilter): ServiceByHcPartyTagCodeDateFilter
@@ -189,6 +192,7 @@ abstract class FilterV2Mapper {
             is org.taktik.icure.domain.filter.impl.patient.PatientByHcPartyGenderEducationProfession -> map(filter)
             is org.taktik.icure.domain.filter.impl.patient.PatientByHcPartyNameContainsFuzzyFilter -> map(filter)
             is org.taktik.icure.domain.filter.impl.patient.PatientByHcPartyNameFilter -> map(filter)
+            is org.taktik.icure.domain.filter.impl.patient.PatientByHcPartyAndIdentifiersFilter -> map(filter)
             is org.taktik.icure.domain.filter.impl.patient.PatientByIdsFilter -> map(filter)
             is org.taktik.icure.domain.filter.impl.service.ServiceByContactsAndSubcontactsFilter -> map(filter)
             is org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyTagCodeDateFilter -> map(filter)
