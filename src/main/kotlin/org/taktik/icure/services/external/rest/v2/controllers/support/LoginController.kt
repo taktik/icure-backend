@@ -31,7 +31,6 @@ import kotlin.coroutines.CoroutineContext
 
 @ExperimentalCoroutinesApi
 @RestController
-@Profile("app")
 @RequestMapping("/rest/v2/auth")
 @Tag(name = "auth")
 class LoginController(
