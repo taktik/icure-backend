@@ -27,7 +27,16 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestPart
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
@@ -78,11 +87,41 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
         return forms.map { formMapper.map(it) }.injectReactorContext()
     }
 
-    @Operation(summary = "Gets a form")
-    @GetMapping("/externaluuid/{externalUuid}")
-    fun getFormByExternalUuid(@PathVariable externalUuid: String) = mono {
-        val form = formLogic.getFormsByExternalUuid(externalUuid).firstOrNull()
+    @Operation(summary = "Gets the most recent form with the given logicalUuid")
+    @GetMapping("/logicalUuid/{logicalUuid}")
+    fun getFormByLogicalUuid(@PathVariable logicalUuid: String) = mono {
+        val form = formLogic.getAllByLogicalUuid(logicalUuid)
+                    .sortedByDescending { it.created }
+                    .firstOrNull()
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Form not found")
+        formMapper.map(form)
+    }
+
+    @Operation(summary = "Gets all forms with given logicalUuid")
+    @GetMapping("/all/logicalUuid/{logicalUuid}")
+    fun getFormsByLogicalUuid(@PathVariable logicalUuid: String) = flow {
+            formLogic.getAllByLogicalUuid(logicalUuid)
+                    .map { form -> formMapper.map(form) }
+                    .forEach { emit(it) }
+
+    }.injectReactorContext()
+
+    @Operation(summary = "Gets all forms by uniqueId")
+    @GetMapping("/all/uniqueId/{uniqueId}")
+    fun getFormsByUniqueId(@PathVariable uniqueId: String) = flow {
+            formLogic.getAllByUniqueId(uniqueId)
+                    .map { form -> formMapper.map(form) }
+                    .forEach { emit(it) }
+
+    }.injectReactorContext()
+
+    @Operation(summary = "Gets the most recent form with the given uniqueId")
+    @GetMapping("/uniqueId/{uniqueId}")
+    fun getFormByUniqueId(@PathVariable uniqueId: String) = mono {
+        val form = formLogic.getAllByUniqueId(uniqueId)
+                    .sortedByDescending { it.created }
+                    .firstOrNull()
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Form not found")
         formMapper.map(form)
     }
 

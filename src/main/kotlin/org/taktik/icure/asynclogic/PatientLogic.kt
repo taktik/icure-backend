@@ -61,6 +61,7 @@ interface PatientLogic {
     suspend fun findByUserId(id: String): Patient?
 
     suspend fun getPatient(patientId: String): Patient?
+    fun findByHealthcarepartyAndIdentifier(healthcarePartyId: String, system: String, id: String): Flow<Patient>
     fun getPatientSummary(patientDto: PatientDto?, propertyExpressions: List<String?>?): Map<String, Any>?
     fun getPatients(patientIds: List<String>): Flow<Patient>
 

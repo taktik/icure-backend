@@ -70,6 +70,7 @@ data class InvoicingCodeDto(
         val prescriberCdHcParty: String? = null,
         val locationNihii: String? = null,
         val locationCdHcParty: String? = null,
+        val locationService: Int? = null,
         val canceled: Boolean? = null,
         val accepted: Boolean? = null,
         val pending: Boolean? = null,

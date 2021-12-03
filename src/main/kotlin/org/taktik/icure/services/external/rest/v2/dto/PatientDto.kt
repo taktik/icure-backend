@@ -34,6 +34,7 @@ import org.taktik.icure.services.external.rest.v2.dto.embed.*
 @Schema(description = """This entity is a root level object. It represents a patient It is serialized in JSON and saved in the underlying icure-patient CouchDB database.""", extensions = [ Extension(name="is-deprecated", properties = [ ExtensionProperty(name = "fatherBirthCountry", value = "true"), ExtensionProperty(name = "birthCountry", value = "true") , ExtensionProperty(name = "nativeCountry", value = "true") , ExtensionProperty(name = "socialStatus", value = "true"), ExtensionProperty(name = "mainSourceOfIncome", value = "true") ])])
 data class PatientDto(
         @Schema(description = "the Id of the patient. We encourage using either a v4 UUID or a HL7 Id.") override val id: String,
+        val identifier: List<IdentifierDto> = listOf(),
         @Schema(description = "the revision of the patient in the database, used for conflict management / optimistic locking.") override val rev: String? = null,
         override val created: Long? = null,
         override val modified: Long? = null,
@@ -45,7 +46,7 @@ data class PatientDto(
         override val deletionDate: Long? = null,
         @Schema(description = "the firstname (name) of the patient.") override val firstName: String? = null,
         @Schema(description = "the lastname (surname) of the patient. This is the official lastname that should be used for official administrative purposes.") override val lastName: String? = null, //Is usually either maidenName or spouseName,
-        @Schema(description = "the list of all denominations of the patient, also containing the official full name information. Ordered by preference of use. First element is therefore the official name used for the patient in the application") override val denominations: List<PersonNameDto> = emptyList(),
+        @Schema(description = "the list of all names of the patient, also containing the official full name information. Ordered by preference of use. First element is therefore the official name used for the patient in the application") override val names: List<PersonNameDto> = emptyList(),
         @Schema(description = "the name of the company this patient is member of.") override val companyName: String? = null,
         @Schema(description = "the list of languages spoken by the patient ordered by fluency (alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html).") override val languages: List<String> = emptyList(), //alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html,
         @Schema(description = "the list of addresses (with address type).") override val addresses: List<AddressDto> = emptyList(),
@@ -76,7 +77,7 @@ data class PatientDto(
         @Schema(description = "The race of the patient.") val race: String? = null,
         @Schema(description = "The ethnicity of the patient.") val ethnicity: String? = null,
         @Schema(description = "The id of the user that usually handles this patient.") val preferredUserId: String? = null,
-        @Schema(description = "A picture usually saved in JPEG format.") val picture: ByteArray? = null,
+        @Schema(description = "A picture usually saved in JPEG format.", type = "string", format = "byte") val picture: ByteArray? = null,
         @Schema(description = "An external (from another source) id with no guarantee or requirement for unicity .") val externalId: String? = null, //No guarantee of unicity
         @Schema(description = "List of insurance coverages (of class Insurability, see below).") val insurabilities: List<InsurabilityDto> = emptyList(),
         @Schema(description = "List of partners, or persons of contact (of class Partnership, see below).") val partnerships: List<PartnershipDto> = emptyList(),

@@ -45,9 +45,14 @@ class FormLogicImpl(private val formDAO: FormDAO,
         emitAll(formDAO.getEntities(selectedIds))
     }
 
-    override suspend fun getFormsByExternalUuid(documentId: String): List<Form> {
-        return formDAO.getFormsByExternalUuid(documentId)
+    override suspend fun getAllByLogicalUuid(formUuid: String): List<Form> {
+        return formDAO.getAllByLogicalUuid(formUuid)
     }
+
+    override suspend fun getAllByUniqueId(lid: String): List<Form> {
+        return formDAO.getAllByUniqueId(lid)
+    }
+
 
     override fun listFormsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>, healthElementId: String?, planOfActionId: String?, formTemplateId: String?): Flow<Form> = flow {
         val forms = formDAO.listFormsByHcPartyPatient(hcPartyId, secretPatientKeys)
@@ -73,7 +78,7 @@ class FormLogicImpl(private val formDAO: FormDAO,
             createEntities(setOf(form)).firstOrNull()
         } catch (e: Exception) {
             logger.error("createContact: " + e.message)
-            throw IllegalArgumentException("Invalid contact", e)
+            throw IllegalArgumentException("Invalid form", e)
         }
     }
 

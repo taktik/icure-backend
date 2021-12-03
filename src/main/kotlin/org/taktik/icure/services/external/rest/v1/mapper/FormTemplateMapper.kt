@@ -35,7 +35,9 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.DocumentGroupMapp
 
 @Mapper(componentModel = "spring", uses = [DocumentGroupMapper::class, CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 abstract class FormTemplateMapper {
-    val json: ObjectMapper = ObjectMapper().registerModule(KotlinModule()).apply { setSerializationInclusion(JsonInclude.Include.NON_NULL) }
+    val json: ObjectMapper = ObjectMapper().registerModule(KotlinModule.Builder()
+            .nullIsSameAsDefault(true)
+            .build()).apply { setSerializationInclusion(JsonInclude.Include.NON_NULL) }
 
     @Mappings(
             Mapping(target = "isAttachmentDirty", ignore = true),

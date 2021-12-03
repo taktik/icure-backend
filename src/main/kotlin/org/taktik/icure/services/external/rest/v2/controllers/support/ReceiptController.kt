@@ -30,7 +30,14 @@ import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.ReceiptLogic
@@ -67,7 +74,7 @@ class ReceiptController(
     }
 
     @Operation(summary = "Deletes receipts")
-    @DeleteMapping("/delete/batch")
+    @PostMapping("/delete/batch")
     fun deleteReceipts(@RequestBody receiptIds: ListOfIdsDto): Flux<DocIdentifier> {
         return receiptIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
@@ -102,7 +109,7 @@ class ReceiptController(
             @PathVariable receiptId: String,
             @PathVariable blobType: String,
             @RequestParam(required = false) enckeys: String?,
-            @RequestBody payload: ByteArray) = mono {
+            @Schema(type = "string", format = "binary") @RequestBody payload: ByteArray) = mono {
 
         var encryptedPayload = payload
         if (enckeys?.isNotEmpty() == true) {

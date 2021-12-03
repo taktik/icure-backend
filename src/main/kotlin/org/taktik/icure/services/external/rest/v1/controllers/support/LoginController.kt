@@ -20,36 +20,25 @@ package org.taktik.icure.services.external.rest.v1.controllers.support
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.ReactorContext
 import kotlinx.coroutines.reactor.asCoroutineContext
 import kotlinx.coroutines.reactor.mono
 import kotlinx.coroutines.withContext
-import org.springframework.core.io.buffer.DataBuffer
-import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.http.HttpMethod
 import org.springframework.http.server.reactive.ServerHttpRequest
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextImpl
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.WebSession
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.security.SecurityToken
 import org.taktik.icure.services.external.rest.v1.dto.AuthenticationResponse
 import org.taktik.icure.services.external.rest.v1.dto.LoginCredentials
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.nio.CharBuffer
-import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
@@ -60,41 +49,26 @@ import kotlin.coroutines.CoroutineContext
 @Tag(name = "auth")
 class LoginController(
         private val sessionLogic: AsyncSessionLogic,
-        private val objectMapper: ObjectMapper,
         asyncCacheManager: AsyncCacheManager
 ) {
     val cache = asyncCacheManager.getCache<String, SecurityToken>("spring.security.tokens")
 
     @Operation(summary = "login", description = "Login using username and password")
     @PostMapping("/login")
-    fun login(request : ServerHttpRequest, session: WebSession) = mono {
-        val body: Flux<DataBuffer> = request.body
-        val bodyText =
-        body.awaitFirstOrNull()?.let { buffer: DataBuffer ->
-            val charBuffer: CharBuffer = StandardCharsets.UTF_8.decode(buffer.asByteBuffer())
-            DataBufferUtils.release(buffer)
-            charBuffer.toString()
-        } ?: throw IllegalArgumentException("Missing body")
-
-        withContext(Dispatchers.Default) {
-            val loginInfo = objectMapper.readValue(bodyText, LoginCredentials::class.java)
-            return@withContext loginInfo?.let {
-                val response = AuthenticationResponse()
-                val authentication = sessionLogic.login(loginInfo.username!!, loginInfo.password!!, request, session)
-                response.successful = authentication != null && authentication.isAuthenticated
-                if (response.successful) {
-                    val secContext =  SecurityContextImpl(authentication)
-                    val securityContext = kotlin.coroutines.coroutineContext[ReactorContext]?.context?.put(SecurityContext::class.java, Mono.just(secContext))
-                    withContext(kotlin.coroutines.coroutineContext.plus(securityContext?.asCoroutineContext() as CoroutineContext)){
-                        response.healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
-                        response.username = loginInfo.username
-
-                        session.attributes["SPRING_SECURITY_CONTEXT"] = secContext
-                    }
-                }
-                response
-            } ?: throw BadCredentialsException("bad credentials")
+    fun login(request : ServerHttpRequest, @RequestBody loginCredentials: LoginCredentials, @Parameter(hidden = true) session: WebSession,) = mono {
+        val response = AuthenticationResponse()
+        val authentication = sessionLogic.login(loginCredentials.username!!, loginCredentials.password!!, request, session)
+        response.successful = authentication != null && authentication.isAuthenticated
+        if (response.successful) {
+            val secContext =  SecurityContextImpl(authentication)
+            val securityContext = kotlin.coroutines.coroutineContext[ReactorContext]?.context?.put(SecurityContext::class.java, Mono.just(secContext))
+            withContext(kotlin.coroutines.coroutineContext.plus(securityContext?.asCoroutineContext() as CoroutineContext)){
+                response.healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
+                response.username = loginCredentials.username
+                session.attributes["SPRING_SECURITY_CONTEXT"] = secContext
+            }
         }
+        response
     }
 
     @Operation(summary = "logout", description = "Logout")

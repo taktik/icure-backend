@@ -28,7 +28,6 @@ interface DocumentLogic : EntityPersister<Document, String> {
 
     suspend fun getDocument(documentId: String): Document?
     fun getAttachment(documentId: String, attachmentId: String): Flow<ByteBuffer>
-    fun readAttachment(documentId: String, attachmentId: String): Flow<ByteBuffer>
 
     suspend fun modifyDocument(document: Document): Document?
     fun listDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>

@@ -24,7 +24,6 @@ import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Gender
-import org.taktik.icure.entities.embed.Identifier
 
 interface PatientDAO : GenericDAO<Patient> {
 

@@ -28,7 +28,7 @@ interface PersonDto : Serializable, IdentifiableDto<String> {
     val firstName: String?
     val lastName: String?
     val companyName: String?
-    val denominations: List<PersonNameDto>
+    val names: List<PersonNameDto>
     val addresses: List<AddressDto>
     val languages: List<String>
 }

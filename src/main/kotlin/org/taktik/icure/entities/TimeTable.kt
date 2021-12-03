@@ -57,6 +57,7 @@ data class TimeTable(
         @field:NotNull(autoFix = AutoFix.FUZZYNOW) val endTime: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
         val items: List<TimeTableItem> = emptyList(),
 
+        val publicTimeTable: Boolean = false,
         override val secretForeignKeys: Set<String> = emptySet(),
         override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
         override val delegations: Map<String, Set<Delegation>> = emptyMap(),
@@ -74,6 +75,7 @@ data class TimeTable(
             super<Encryptable>.solveConflictsWith(other) + mapOf(
             "name" to (this.name ?: other.name),
             "agendaId" to (this.agendaId ?: other.agendaId),
+            "publicTimeTable" to this.publicTimeTable,
             "startTime" to (this.startTime ?: other.startTime),
             "endTime" to (this.endTime ?: other.endTime),
             "items" to mergeListsDistinct(this.items, other.items)

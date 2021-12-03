@@ -28,7 +28,15 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.HealthElementLogic
@@ -58,7 +66,7 @@ class HealthElementController(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Operation(summary = "Create a health element with the current user", description = "Returns an instance of created health element.")
+    @Operation(summary = "Create a healthcare element with the current user", description = "Returns an instance of created healthcare element.")
     @PostMapping
     fun createHealthElement(@RequestBody c: HealthElementDto) = mono {
         val element = healthElementLogic.createHealthElement(healthElementMapper.map(c))
@@ -67,16 +75,16 @@ class HealthElementController(
         healthElementMapper.map(element)
     }
 
-    @Operation(summary = "Get a health element")
+    @Operation(summary = "Get a healthcare element")
     @GetMapping("/{healthElementId}")
     fun getHealthElement(@PathVariable healthElementId: String) = mono {
         val element = healthElementLogic.getHealthElement(healthElementId)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting health element failed. Possible reasons: no such health element exists, or server error. Please try again or read the server log.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting healthcare element failed. Possible reasons: no such healthcare element exists, or server error. Please try again or read the server log.")
 
         healthElementMapper.map(element)
     }
 
-    @Operation(summary = "List health elements found By Healthcare Party and secret foreign keyelementIds.", description = "Keys hast to delimited by coma")
+    @Operation(summary = "List healthcare elements found By Healthcare Party and secret foreign keyelementIds.", description = "Keys hast to delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
     fun findHealthElementsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<HealthElementDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
@@ -112,7 +120,7 @@ class HealthElementController(
         emitAll(healthElementLogic.modifyEntities(healthElements.toList()).map { healthElementMapper.map(it) })
     }.injectReactorContext()
 
-    @Operation(summary = "Delete health elements.", description = "Response is a set containing the ID's of deleted health elements.")
+    @Operation(summary = "Delete healthcare elements.", description = "Response is a set containing the ID's of deleted healthcare elements.")
     @DeleteMapping("/{healthElementIds}")
     fun deleteHealthElements(@PathVariable healthElementIds: String): Flux<DocIdentifier> {
         val ids = healthElementIds.split(',')
@@ -124,7 +132,7 @@ class HealthElementController(
                 .injectReactorContext()
     }
 
-    @Operation(summary = "Modify a health element", description = "Returns the modified health element.")
+    @Operation(summary = "Modify a healthcare element", description = "Returns the modified healthcare element.")
     @PutMapping
     fun modifyHealthElement(@RequestBody healthElementDto: HealthElementDto) = mono {
         val modifiedHealthElement = healthElementLogic.modifyHealthElement(healthElementMapper.map(healthElementDto))
@@ -132,7 +140,7 @@ class HealthElementController(
         healthElementMapper.map(modifiedHealthElement)
     }
 
-    @Operation(summary = "Modify a batch of health elements", description = "Returns the modified health elements.")
+    @Operation(summary = "Modify a batch of healthcare elements", description = "Returns the modified healthcare elements.")
     @PutMapping("/batch")
     fun modifyHealthElements(@RequestBody healthElementDtos: List<HealthElementDto>): Flux<HealthElementDto> =
         try {
@@ -154,7 +162,7 @@ class HealthElementController(
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
 
-    @Operation(summary = "Delegates a health element to a healthcare party", description = "It delegates a health element to a healthcare party (By current healthcare party). Returns the element with new delegations.")
+    @Operation(summary = "Delegates a healthcare element to a healthcare party", description = "It delegates a healthcare element to a healthcare party (By current healthcare party). Returns the element with new delegations.")
     @PostMapping("/{healthElementId}/delegate")
     fun newHealthElementDelegations(@PathVariable healthElementId: String, @RequestBody ds: List<DelegationDto>) = mono {
         healthElementLogic.addDelegations(healthElementId, ds.map { d -> delegationMapper.map(d) })
@@ -164,11 +172,11 @@ class HealthElementController(
         if (succeed) {
             healthElementWithDelegation?.let { healthElementMapper.map(it) }
         } else {
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Delegation creation for health element failed.")
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Delegation creation for healthcare element failed.")
         }
     }
 
-    @Operation(summary = "Filter health elements for the current user (HcParty)", description = "Returns a list of health elements along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
+    @Operation(summary = "Filter healthcare elements for the current user (HcParty)", description = "Returns a list of healthcare elements along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
     fun filterHealthElementsBy(@RequestBody filterChain: FilterChain<HealthElement>) =
             healthElementLogic.filter(filterChainMapper.map(filterChain))

@@ -34,11 +34,12 @@ data class Measure(
         val max: Double? = null,
         val ref: Double? = null,
         val severity: Int? = null,
-        val evolution: Int? = null,
         val severityCode: String? = null,
+        val evolution: Int? = null,
         val unit: String? = null,
 
         @field:ValidCode(autoFix = AutoFix.NORMALIZECODE)
         val unitCodes: Set<CodeStub>? = null,
-        val comment: String? = null
+        val comment: String? = null,
+        val comparator: String? = null
 ) : Serializable

@@ -11,5 +11,5 @@ data class RegistrationInformationDto(
     val firstName: String,
     val lastName: String,
     val emailAddress: String,
-    val userOptions: Map<String, String>? = null
+    val userOptions: String? = null
 )

@@ -48,4 +48,6 @@ interface AsyncSessionLogic {
         fun isAnonymous(): Boolean
         suspend fun getUser(): User
     }
+
+    suspend fun getCurrentPatientId(): String?
 }
