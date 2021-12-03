@@ -29,7 +29,7 @@ import kotlin.coroutines.CoroutineContext
 
 
 @ExperimentalCoroutinesApi
-@RestController
+@RestController("loginControllerV2")
 @RequestMapping("/rest/v2/auth")
 @Tag(name = "auth")
 class LoginController(
