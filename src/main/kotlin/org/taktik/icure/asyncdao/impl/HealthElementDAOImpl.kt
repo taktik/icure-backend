@@ -32,7 +32,6 @@ import org.taktik.icure.asyncdao.HealthElementDAO
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.firstOrNull
 
 /**
  * Created by aduchate on 18/07/13, 13:36
