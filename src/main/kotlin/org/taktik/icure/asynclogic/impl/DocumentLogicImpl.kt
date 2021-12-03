@@ -27,7 +27,6 @@ import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.entities.Document
 import org.taktik.icure.exceptions.CreationException
-import org.taktik.icure.utils.firstOrNull
 import java.nio.ByteBuffer
 
 @ExperimentalCoroutinesApi

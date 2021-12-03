@@ -18,10 +18,7 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
@@ -33,7 +30,6 @@ import org.taktik.icure.asynclogic.ClassificationTemplateLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.ClassificationTemplate
 import org.taktik.icure.entities.embed.Delegation
-import org.taktik.icure.utils.firstOrNull
 
 /**
  * Created by dlm on 16-07-18

@@ -21,10 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.core
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -57,7 +54,6 @@ import org.taktik.icure.services.external.rest.v1.mapper.FormTemplateMapper
 import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
-import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 

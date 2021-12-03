@@ -51,7 +51,6 @@ import org.taktik.icure.services.external.rest.v1.mapper.MessageMapper
 import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.utils.paginatedList
-import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import kotlin.streams.toList
