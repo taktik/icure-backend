@@ -31,6 +31,8 @@ import java.io.Serializable
 import java.util.*
 import javax.xml.bind.JAXBContext
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.hibernate.Transaction
+import org.hibernate.engine.transaction.spi.TransactionImplementor
 import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
 import org.taktik.icure.db.StringUtils
@@ -86,54 +88,44 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         kmehrMessage.folders.forEach { folder ->
             createOrProcessPatient(folder.patient, author, res, saveToDatabase, dest)?.let { patient ->
                 res.patient = patient
-                folder.transactions.forEach { trn ->
-                    val ctc: Contact? = when (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) {
-                        "contactreport" -> parseContactReport(trn, author, res, language, mymappings, saveToDatabase, state)
-                        "clinicalsummary" -> parseClinicalSummary(trn, author, res, language, mymappings, saveToDatabase, state)
+                folder.transactions.forEach { transaction ->
+                    val ctc: Contact? = when (transaction.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) {
+                        "contactreport" -> parseContactReport(transaction, author, res, language, mymappings, saveToDatabase, state)
+                        "clinicalsummary" -> parseClinicalSummary(transaction, author, res, language, mymappings, saveToDatabase, state)
                         "labresult", "result", "note", "prescription", "report" -> {
-                            parseDocumentInTransaction(trn, author, res, language, saveToDatabase)?.let{
+                            parseDocumentInTransaction(transaction, author, res, language, saveToDatabase)?.let {
                                 state.docLinks.add(it)
                             }
                             null
                         }
                         "pharmaceuticalprescription" -> {
-                            parsePharmaceuticalPrescription(trn, author, res, language, saveToDatabase, state).let {
+                            parsePharmaceuticalPrescription(transaction, author, res, language, saveToDatabase, state).let {
                                 state.prescLinks.add(it)
                             }
                             null
                         }
-                        else -> parseGenericTransaction(trn, author, res, language, mymappings, saveToDatabase, state)
+                        else -> parseGenericTransaction(transaction, author, res, language, mymappings, saveToDatabase, state)
                     }
-                    ctc?.let{con ->
-                        if (saveToDatabase) {
-                            contactLogic.createContact(con)
+                    ctc?.let { contact ->
+                        val form = Form().apply {
+                            id =  idGenerator.newGUID().toString()
+                            formTemplateId = getFormTemplateIdByGuid(author, "FFFFFFFF-FFFF-FFFF-FFFF-CONSULTATION") // Consultation FormTemplate
+                            this.contactId =  contact.id
+                            responsible =  contact.responsible
+                            this.author =  contact.author
+                            descr =  "Consultation"
                         }
-                        getTransactionMFID(trn)?.let {
-                            state.contactsByMFID[it] = con
-                        }
-                        res.ctcs.add(con)
-                    }
-                }
-
-                // convert links ISASERVICEFOR to subcontacts
-                val approachsByMFID = state.approachLinks.groupBy { it.second }
-                state.subcontactLinks.groupBy{ it["contactId"] }.forEach{
-                    state.contactsByMFID[it.key]?.let { contact ->
-                        it.value.groupBy{ it["heMFID"] as String }.forEach { subentry ->
-                            // in kmehr, a service can be linked to an He or to an HealthcareApproach which is linked to an He
-                            val heid = state.hesByMFID[subentry.key]?.id
-                            val approachHeId = approachsByMFID[subentry.key]?.firstOrNull()?.let {
-                                state.hesByMFID[it.third]?.id
-                            }
-                            (heid ?: approachHeId) ?.let { hid ->
-                                contact.subContacts.add(
-                                        SubContact().apply {
-                                            healthElementId = hid
-                                            services = subentry.value.map {
-                                                ServiceLink( (it["service"] as Service).id )
-                                            }
-                                        }
-                                )
+                        res.forms.add(form)
+                        contact.subContacts.add(SubContact().apply {
+                            formId = form.id
+                            this.services = contact.services.map { ServiceLink(it.id) }
+                        })
+                        getTransactionMFID(transaction)?.let{
+                            state.contactsByMFID[it] = contact
+                            extractMFIDFromLinks(transaction.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java), CDLNKvalues.ISACHILDOF)?.let { parentContactMFID ->
+                                state.transactionLinkedSubContact.add(Pair(it, parentContactMFID))
+                            } ?: run {
+                                state.transactionLinkedSubContact.add(Pair(it, null))
                             }
                         }
                     }
@@ -150,92 +142,65 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 state.heVersionLinksByMFID = state.heVersionLinks.groupBy { it.mfId } // speed up lookup
                 makeHeVersioning(state.heVersionLinks, state)
 
-                // make sure all service versions have the same id (medications)
-                state.serviceVersionLinksByMFID = state.serviceVersionLinks.groupBy { it.mfId } // speed up lookup
-                makeServiceVersioning(state.serviceVersionLinks, state)
+                state.docLinks.forEach {(service, targetedMFID) ->
+                    state.contactsByMFID[targetedMFID]?.let{
+                        it.services = it.services.plus(service)
+                        it.subContacts.first()?.services = it.subContacts.first()?.services?.plus(ServiceLink(service.id))
+                    }
+                }
 
-                // add prescriptions from separate transactions to linked contacts
-                state.prescLinks.forEach {(servlist, conid) ->
-                    state.contactsByMFID[conid]?.let { con ->
-                        servlist.forEach { serv ->
-                            con.services.add(serv)
-                            /*
-                            val form = decorateMedication(serv, con, res, state)
-                            if(prescForms[con.id] == null) {
-                                prescForms[con.id] = mutableListOf<Form>()
+                state.prescLinks.forEach {(services, targetedMFID) ->
+                    state.contactsByMFID[targetedMFID]?.let{
+                        it.services = it.services.plus(services)
+                        it.subContacts.first()?.services = it.subContacts.first()?.services?.plus(services.map { ServiceLink(it.id) })
+                    }
+                }
+
+                val approachsByMFID = state.approachLinks.groupBy { it.second }
+                state.healthElementLinks.groupBy{ it.second }.forEach {
+                    state.contactsByMFID[it.key]?.let { contact ->
+                        it.value.groupBy { it.first }.forEach { healthElementLink ->
+                            val healthElementId: String? = state.hesByMFID[healthElementLink.key]?.id
+                            val approachHeId = approachsByMFID[healthElementLink.key]?.firstOrNull()?.let {
+                                state.hesByMFID[it.third]?.id
                             }
-                            prescForms[con.id]?.add(form)
-                            */
+                            val serviceLinks: List<ServiceLink> = healthElementLink.value.map {
+                                ServiceLink(it.third.id)
+                            }
+                            val formId: String? = contact.subContacts.first()?.formId
+                            (healthElementId ?: approachHeId) ?.let { heId ->
+                                contact.subContacts.add(
+                                        SubContact().apply {
+                                            this.formId = formId
+                                            this.healthElementId = heId
+                                            services = serviceLinks
+                                        }
+                                )
+                            }
                         }
                     }
                 }
 
-                // add documents from separate transactions to linked contacts
-                state.docLinks.forEach {(serv, conid) ->
-                    state.contactsByMFID[conid]?.let {
-                        it.services?.add(serv)
-                        state.formServices[serv.id ?: ""] = serv
-                        it.subContacts.add(
-                                SubContact().apply {
-                                    services = listOf(ServiceLink().apply {
-                                        serviceId = serv.id
-                                    })
-                                }
-                        )
-                    }
-
-                    // documents can be linked to incapacity items, not just to contacts
-                    state.incapacitySubcontactLinks[conid]?.let {
-                        it.second.services?.add(serv)
-                        state.formServices[serv.id ?: ""] = serv
-                        it.first.services.add(
-                                ServiceLink().apply {
-                                    serviceId = serv.id
-                                }
-                        )
-                    }
-                }
-
-
-                // make consultation form
-                // (previously: make dynamic form for each service)
-                val incapacityFormsByConId = state.incapacityForms.groupBy { it.contactId }
-                res.ctcs.forEach {con ->
-                    val formid = idGenerator.newGUID().toString()
-
-
-                    val form = Form().apply {
-                        id =  formid
-                        formTemplateId = getFormTemplateIdByGuid(author, "FFFFFFFF-FFFF-FFFF-FFFF-CONSULTATION") // Consultation FormTemplate
-                        contactId =  con.id
-                        responsible =  con.responsible
-                        this.author =  con.author
-                        descr =  "Consultation"
-                    }
-                    incapacityFormsByConId[con.id]?.map {
-                        it.parent = formid
-                    }
-                    /*
-                    prescForms[con.id]?.forEach { pform ->
-                        pform.parent = formid
-                    }
-                    */
-                    res.forms.add(form)
-                    con.services.filter{ state.formServices[it.id] == null }.map { ServiceLink(it.id) }.let {servlist ->
-                        if(servlist.isNotEmpty()) {
-                            val subcon = SubContact().apply {
-                                //formId = form.id
-                                //formId = con.id // non-existent formId so dynamic form is generated
-                                formId = formid // Consultation FormTemplate
-                                services = servlist
+                //Merge childContact with his parent, since we use subContacts
+                state.transactionLinkedSubContact.filter { it.second == null }?.forEach {(contactMFID) ->
+                    state.contactsByMFID[contactMFID]?.let{ parentContact ->
+                        state.transactionLinkedSubContact.filter { it.second == contactMFID }?.forEach {
+                            state.contactsByMFID[it.first]?.let{ childContact ->
+                                parentContact.services = parentContact.services.plus(childContact.services)
+                                parentContact.subContacts = parentContact.subContacts.plus(childContact.subContacts)
                             }
-                            con.subContacts.add(subcon)
                         }
+                        res.ctcs.add(parentContact)
                     }
                 }
 
-                res.forms.forEach{
-                    if (saveToDatabase) { formLogic.createForm(it) }
+                if(saveToDatabase){
+                    res.ctcs.forEach{
+                        contactLogic.createContact(it)
+                    }
+                    res.forms.forEach{
+                        formLogic.createForm(it)
+                    }
                 }
 
                 patient.patientHealthCareParties.addAll(res.hcps.distinctBy{ it.id }.map {
@@ -296,7 +261,6 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         services.forEach { servlink ->
             servlink.service.id = servlink.versionId
         }
-
     }
 
     private fun findHeAncestor(parentHe: HeVersionType, walkedmap: MutableMap<String, String?>?, state: InternalState) : String? {
@@ -380,9 +344,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                                 state: InternalState): Pair<List<Service>, String?> {
 
         val trnauthorhcpid = extractTransactionAuthor(trn, saveToDatabase, author, v);
-        val target = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISACHILDOF }?.map { lnk ->
-            extractMFIDFromUrl(lnk.url)
-        }?.firstOrNull()
+        val target = extractMFIDFromLinks(trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java), CDLNKvalues.ISACHILDOF)
         val servlist = trn.findItems { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "medication" } }.map {item ->
             val cdItem = "medication"
             val service = parseGenericItem(cdItem, "Prescription", item, author, trnauthorhcpid, language)
@@ -405,13 +367,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 item.lnks.filter { it.type == CDLNKvalues.ISASERVICEFOR && it.url != null }.mapNotNull {
                     extractMFIDFromUrl(it.url)
                 }.map {
-                    state.subcontactLinks.add(
-                            mapOf(
-                                    "service" to service,
-                                    "heMFID" to it,
-                                    "contactId" to target
-                            )
-                    )
+                    state.healthElementLinks.add(Triple(it, target, service))
                 }
             }
 
@@ -618,52 +574,43 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         }
                         val proceduresItemsTypes = listOf("vaccine", "acts") // vaccine have medication data but is not a medication
                         if(proceduresItemsTypes.contains(cdItem)) {
-                            val mfid = getItemMFID(item)
-                            state.serviceVersionLinks.add(
-                                    // need to add the link even if there is no link in xml to know the original version
-                                    ServiceVersionType(
-                                            service = service,
-                                            mfId = mfid!!,
-                                            isANewVersionOfId = item.lnks.find { it.type == CDLNKvalues.ISANEWVERSIONOF}?.let {
-                                                extractMFIDFromUrl(it.url)
-                                            }?.also { service.formId = it },
-                                            versionId = null
-                                    )
-                            )
                             service.label = "Actes"
-
+                            checkIfNewerVersionOfMFID(service, item, state)
                         } else if(isMedication(service)) {
                             service.label = "Medication"
-                            //decorateMedication(service, contact, v) // forms for medications appear empty, do not create them (do it only for prescriptions)
-
-                            val mfid = getItemMFID(item)
-                            state.serviceVersionLinks.add(
-                                    // need to add the link even if there is no link in xml to know the original version
-                                    ServiceVersionType(
-                                            service = service,
-                                            mfId = mfid!!,
-                                            isANewVersionOfId = item.lnks.find { it.type == CDLNKvalues.ISANEWVERSIONOF}?.let {
-                                                extractMFIDFromUrl(it.url)
-                                            },
-                                            versionId = null
-                                    )
-                            )
+                            checkIfNewerVersionOfMFID(service, item, state)
                         }
+
                         item.lnks.filter { it.type == CDLNKvalues.ISASERVICEFOR && it.url != null }.mapNotNull {
                             extractMFIDFromUrl(it.url)
-                        }.map {
-                            state.subcontactLinks.add(
-                                    mapOf(
-                                            "service" to service,
-                                            "heMFID" to it,
-                                            "contactId" to this.id
-                                    )
-                            )
+                        }.map { heMFID ->
+                            val transactionMFID: String? = getTransactionMFID(trn)
+                            transactionMFID?.let{
+                                state.healthElementLinks.add(Triple(heMFID, it, service))
+                            }
                         }
                     }
                 }
                 Unit
             }
+        }
+    }
+
+    private fun checkIfNewerVersionOfMFID(service: Service, item: ItemType, state: InternalState){
+        extractMFIDFromLinks(item.lnks, CDLNKvalues.ISANEWVERSIONOF)?.let{ isANewVersionOfMFID ->
+            state.serviceVersionLinks.find { it.mfId == isANewVersionOfMFID }?.let{
+                service.id = it.service.id
+            }
+        } ?: run{
+            state.serviceVersionLinks.add(
+                    // need to add the link even if there is no link in xml to know the original version
+                    ServiceVersionType(
+                            service = service,
+                            mfId = getItemMFID(item)!!,
+                            isANewVersionOfId = getItemMFID(item)!!,
+                            versionId = null
+                    )
+            )
         }
     }
 
@@ -1361,6 +1308,12 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         return null
     }
 
+    fun extractMFIDFromLinks(lnks: List<LnkType>?, linkType: CDLNKvalues) : String? {
+        return lnks?.find { it.type == linkType}?.let {
+            extractMFIDFromUrl(it.url)
+        }
+    }
+
     val consultationFormMeasureLabels : Map<String, String>  = mapOf(
             // theses labels are used to identify services associated to form consultation
             // should be lower case
@@ -1390,19 +1343,21 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
     // internal bookkeeping
     private data class InternalState(
-            var subcontactLinks : MutableList<Map<String,Any>> = mutableListOf(),// bookkeeping for linking He to Services (map of heId and linked Service/He)
+            var healthElementLinks : MutableList<Triple<String, String, Service>> = mutableListOf(),// bookkeeping for linking He to Services (map of heId and linked Service/He)
             var heVersionLinks : MutableList<HeVersionType> = mutableListOf(), // bookkeeping for versioning HealthElements
             var heVersionLinksByMFID : Map<String, List<HeVersionType>> = mapOf(),
             var hesByMFID : MutableMap<String,HealthElement> = mutableMapOf(),
             var contactsByMFID : MutableMap<String,Contact> = mutableMapOf(),
             var docLinks : MutableList<Pair<Service, String?>> = mutableListOf(), // services, linked parent contactMFId
+            var contactLinks : MutableList<Triple<String, List<Service>, String>> = mutableListOf(), // services, linked parent contactMFId
             var prescLinks : MutableList<Pair<List<Service>, String?>> = mutableListOf(), // services, linked parent contactMFId
             var approachLinks : MutableList<Triple<PlanOfAction, String?, String?>> = mutableListOf(), // planOfAction, MFId, linked target heMFId
             var formServices : MutableMap<String,Service> = mutableMapOf(), // services to not add to dynamic form because already in a form
             var incapacityForms : MutableList<Form> = mutableListOf(), // to add them to parent consultation form
             var serviceVersionLinks : MutableList<ServiceVersionType> = mutableListOf(), // bookkeeping for versioning services (medications)
             var serviceVersionLinksByMFID : Map<String, List<ServiceVersionType>> = mapOf(),
-            var incapacitySubcontactLinks:  MutableMap<String,Pair<SubContact, Contact>> = mutableMapOf() // map incapacity item MFID to (subcontact, contact) pair, used to link incapacity documents to the same subcontact as the other incapacity services
+            var incapacitySubcontactLinks:  MutableMap<String,Pair<SubContact, Contact>> = mutableMapOf(), // map incapacity item MFID to (subcontact, contact) pair, used to link incapacity documents to the same subcontact as the other incapacity services
+            var transactionLinkedSubContact: MutableList<Pair<String, String?>> = mutableListOf()
     )
 }
 
