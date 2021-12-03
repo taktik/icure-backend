@@ -1,4 +1,4 @@
-function(doc) {
+map = function(doc) {
     if (doc.java_type === 'org.taktik.icure.entities.Patient' && !doc.deleted && doc.identifier) {
         if (doc.delegations) {
             Object.keys(doc.delegations).forEach(function (d) {
