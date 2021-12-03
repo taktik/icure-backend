@@ -379,7 +379,7 @@ class PatientController(
 
     @Operation(summary = "Get patient by identifier", description = "It gets patient administrative data based on the identifier (root & extension) parameters.")
     @GetMapping("/{hcPartyId}/{id}")
-    fun getPatientByHealthcarepartyAndIdentifier(@PathVariable hcPartyId: String, @RequestParam(required = false) system: String?, @PathVariable id: String) = mono {
+    fun getPatientByHealthcarepartyAndIdentifier(@PathVariable hcPartyId: String, @PathVariable id: String, @RequestParam(required = false) system: String?) = mono {
         when {
             !system.isNullOrEmpty() -> {
                 val patient = patientLogic.findByHealthcarepartyAndIdentifier(hcPartyId, system, id)
