@@ -18,29 +18,52 @@
 
 package org.taktik.icure.asynclogic.impl
 
+import javax.security.auth.login.LoginException
+import kotlin.math.roundToLong
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.id.UUIDGenerator
-import org.taktik.icure.asynclogic.*
-import org.taktik.icure.entities.*
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.DocumentLogic
+import org.taktik.icure.asynclogic.EfactLogic
+import org.taktik.icure.asynclogic.EntityReferenceLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.InsuranceLogic
+import org.taktik.icure.asynclogic.InvoiceLogic
+import org.taktik.icure.asynclogic.MessageLogic
+import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.entities.EntityReference
+import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.entities.Insurance
+import org.taktik.icure.entities.Invoice
+import org.taktik.icure.entities.Message
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Telecom
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.exceptions.MissingRequirementsException
-import org.taktik.icure.services.external.rest.v1.dto.be.efact.*
+import org.taktik.icure.services.external.rest.v1.dto.be.efact.EIDItem
+import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoiceItem
+import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoiceSender
+import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicesBatch
+import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingPercentNorm
+import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingPrescriberCode
+import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingSideCode
+import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingTimeOfDay
+import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingTreatmentReasonCode
+import org.taktik.icure.services.external.rest.v1.dto.be.efact.MessageWithBatch
 import org.taktik.icure.services.external.rest.v1.mapper.MessageMapper
 import org.taktik.icure.services.external.rest.v1.mapper.PatientMapper
 import org.taktik.icure.utils.FuzzyValues
-import org.taktik.icure.utils.firstOrNull
 import java.math.BigInteger
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.*
-import javax.security.auth.login.LoginException
-import kotlin.math.roundToLong
+import java.util.Arrays
+import java.util.Calendar
+import java.util.UUID
 
 @ExperimentalCoroutinesApi
 @Service

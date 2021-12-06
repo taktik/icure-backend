@@ -20,7 +20,7 @@ package org.taktik.icure.asynclogic.impl
 import com.google.common.base.Preconditions
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
-import org.taktik.icure.utils.firstOrNull
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
