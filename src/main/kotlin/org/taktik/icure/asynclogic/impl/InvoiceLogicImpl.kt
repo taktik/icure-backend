@@ -43,6 +43,7 @@ import org.taktik.icure.entities.embed.InvoicingCode
 import org.taktik.icure.entities.embed.MediumType
 import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.utils.FuzzyValues
+import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
 import java.text.DecimalFormat
 import java.text.NumberFormat

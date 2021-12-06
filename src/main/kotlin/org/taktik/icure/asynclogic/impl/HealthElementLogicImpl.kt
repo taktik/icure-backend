@@ -31,6 +31,7 @@ import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.utils.firstOrNull
 
 /**
  * Created by emad7105 on 24/06/2014.

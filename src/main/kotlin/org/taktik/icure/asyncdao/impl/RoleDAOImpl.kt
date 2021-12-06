@@ -18,7 +18,6 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
@@ -29,6 +28,7 @@ import org.taktik.icure.asyncdao.RoleDAO
 import org.taktik.icure.entities.Role
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
+import org.taktik.icure.utils.firstOrNull
 
 @Repository("roleDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Role' && !doc.deleted) emit( null, doc._id )}")

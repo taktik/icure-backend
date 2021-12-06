@@ -45,6 +45,7 @@ import org.taktik.icure.entities.embed.ReferralPeriod
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto
 import org.taktik.icure.utils.FuzzyValues
+import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
 import java.time.Instant
 import kotlin.math.min

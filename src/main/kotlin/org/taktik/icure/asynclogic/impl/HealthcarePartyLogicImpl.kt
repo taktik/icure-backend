@@ -19,7 +19,10 @@ package org.taktik.icure.asynclogic.impl
 
 import com.google.common.base.Preconditions
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
@@ -35,6 +38,7 @@ import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.exceptions.DocumentNotFoundException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.properties.CouchDbProperties
+import org.taktik.icure.utils.firstOrNull
 import java.net.URI
 
 @ExperimentalCoroutinesApi
