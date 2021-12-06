@@ -220,7 +220,7 @@ open class KmehrExport {
                     KmehrPrescriptionHelper.inferPeriodFromRegimen(med.regimen, med.frequency)?.let {
                         frequency = KmehrPrescriptionHelper.mapPeriodToFrequency(it)
                     }
-                    duration = KmehrPrescriptionHelper.toDurationType(med.duration)
+                    duration = KmehrPrescriptionHelper.toDurationType(if (config.format == Config.Format.MEDICATIONSCHEME) null else med.duration)
                     med.regimen?.let { intakes ->
                         if (intakes.isNotEmpty()) {
                             regimen = ItemType.Regimen().apply {
@@ -388,11 +388,16 @@ open class KmehrExport {
         return lst
     }
 
-    fun makeText(language: String, content: Content): TextType?{
-        return if((content.medicationValue?.endMoment ?: -1) > 0 && !content.medicationValue?.endCondition.isNullOrEmpty()){
+    fun makeText(language: String, content: Content): TextType? {
+        return if (!content.medicationValue?.compoundPrescription.isNullOrEmpty()){
             TextType().apply {
                 l = language
-                value = content.medicationValue?.endCondition
+                value = content.medicationValue?.medicinalProduct?.intendedname
+            }
+        } else if((content.medicationValue?.endMoment ?: -1) > 0 && !content.medicationValue?.endCondition.isNullOrEmpty()){
+            TextType().apply {
+                l = language
+                value = content.medicationValue?.endCondition //set endreason as text of the medication item, NOTE: endreason does not exist yet on the medication object, endcondition is used instead MS-6840
             }
         } else {
             null
