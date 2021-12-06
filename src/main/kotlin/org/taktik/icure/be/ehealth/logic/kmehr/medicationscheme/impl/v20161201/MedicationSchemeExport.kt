@@ -223,19 +223,20 @@ class MedicationSchemeExport : KmehrExport() {
                                         })
                             }
 
-                            m.endCondition?.let { cond ->
-                                headingsAndItemsAndTexts.add(
-                                        ItemType().apply {
-                                            ids.add(idKmehr(itemsIdx++))
-                                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
-                                            contents.add(ContentType().apply {
-                                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "endcondition" })
-                                            })
-                                            contents.add(ContentType().apply {
-                                                texts.add(TextType().apply { l = language; value = m.endCondition })
-                                            })
-                                        })
-                            }
+                            //endcondition is now used as 'endreason', Medication will need extra field for endreason --> MS-6840
+//                            m.endCondition?.let { cond ->
+//                                headingsAndItemsAndTexts.add(
+//                                        ItemType().apply {
+//                                            ids.add(idKmehr(itemsIdx++))
+//                                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
+//                                            contents.add(ContentType().apply {
+//                                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "endcondition" })
+//                                            })
+//                                            contents.add(ContentType().apply {
+//                                                texts.add(TextType().apply { l = language; value = m.endCondition })
+//                                            })
+//                                        })
+//                            }
 
                             m.origin?.let { cond ->
                                 headingsAndItemsAndTexts.add(
