@@ -458,7 +458,6 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         return resultMap
     }
 
-    @View(name = "by_hcparty_identifier", map = "classpath:js/patient/By_hcparty_identifier_map.js")
     override fun listPatientByHealthcarepartyAndIdentifier(healthcarePartyId: String, system: String, id: String) = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val queryView = createQuery(client, "by_hcparty_identifier").includeDocs(true).key(ComplexKey.of(healthcarePartyId, system, id))
