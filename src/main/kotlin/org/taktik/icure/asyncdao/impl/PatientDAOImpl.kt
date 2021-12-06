@@ -18,6 +18,7 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import kotlin.collections.set
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -38,9 +39,7 @@ import org.taktik.icure.entities.embed.Gender
 import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.distinct
-import java.net.URI
 import java.util.*
-import kotlin.collections.set
 
 @ExperimentalCoroutinesApi
 @FlowPreview
@@ -460,7 +459,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_identifier", map = "classpath:js/patient/By_hcparty_identifier_map.js")
-    override fun findPatientByHealthcarepartyAndIdentifier(healthcarePartyId: String, system: String, id: String) = flow {
+    override fun listPatientByHealthcarepartyAndIdentifier(healthcarePartyId: String, system: String, id: String) = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val queryView = createQuery(client, "by_hcparty_identifier").includeDocs(true).key(ComplexKey.of(healthcarePartyId, system, id))
         emitAll(client.queryViewIncludeDocs<ComplexKey, String, Patient>(queryView).map { it.doc })
@@ -485,16 +484,15 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_identifier", map = "classpath:js/patient/By_hcparty_identifier_map.js")
-    override fun listPatientByHealthcarepartyAndIdentifier(healthcarePartyId: String, identifiers: List<Identifier>) = flow {
+    override fun listPatientByHealthcarepartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>) = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val queryView = createQuery(client, "by_hcparty_identifier")
-                .includeDocs(true)
                 .keys(identifiers.map {
                     ComplexKey.of(healthcarePartyId, it.system, it.id)
                 })
 
-        emitAll(client.queryView<Array<String>, String>(queryView).mapNotNull { it.value })
+        emitAll(client.queryView<Array<ComplexKey>, String>(queryView).mapNotNull { it.value })
     }
 
     private fun getDuplicatesFromView(viewName: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {

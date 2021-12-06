@@ -95,5 +95,5 @@ interface PatientLogic {
     fun modifyEntities(entities: Collection<Patient>): Flow<Patient>
     suspend fun hasEntities(): Boolean
 
-    fun listPatientByHealthcarepartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>) : Flow<String>
+    fun listPatientByHealthcarepartyAndIdentifiersIdsOnly(healthcarePartyId: String, identifiers: List<Identifier>) : Flow<String>
 }

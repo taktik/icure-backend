@@ -88,5 +88,7 @@ interface PatientDAO : GenericDAO<Patient> {
 
     fun findPatients(ids: Flow<String>):  Flow<ViewQueryResultEvent>
 
-    fun listPatientByHealthcarepartyAndIdentifier(healthcarePartyId: String, identifiers: List<Identifier>): Flow<String>
+    fun listPatientByHealthcarepartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>): Flow<String>
+
+    fun listPatientByHealthcarepartyAndIdentifier(healthcarePartyId: String, system: String, id: String): Flow<Patient>
 }
