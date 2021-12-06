@@ -20,6 +20,7 @@ package org.taktik.icure.asynclogic.impl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
@@ -28,7 +29,6 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.InsuranceLogic
 import org.taktik.icure.entities.Insurance
 import org.taktik.icure.exceptions.DeletionException
-import org.taktik.icure.utils.firstOrNull
 
 @ExperimentalCoroutinesApi
 @Service
