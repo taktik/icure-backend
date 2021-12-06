@@ -27,7 +27,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.CalendarItemLogic
@@ -141,7 +149,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
 
     @Operation(summary = "Update delegations in calendarItems")
     @PostMapping("/delegations")
-    fun setCalendarItemsDelegations(stubs: List<IcureStubDto>) = flow {
+    fun setCalendarItemsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
         val calendarItems = calendarItemLogic.getCalendarItems(stubs.map { obj: IcureStubDto -> obj.id }).map { ci ->
             stubs.find { s -> s.id == ci.id }?.let { stub ->
                 ci.copy(

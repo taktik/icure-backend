@@ -2,12 +2,14 @@ package org.taktik.icure.entities.security
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.predicate.Predicate
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "java_type")
 interface PermissionItem : Cloneable, Serializable {
     val type: PermissionType
     val predicate: Predicate

@@ -27,7 +27,15 @@ import kotlinx.coroutines.reactor.mono
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
@@ -55,7 +63,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
                                 private val sessionLogic: AsyncSessionLogic,
                                 private val healthcarePartyMapper: HealthcarePartyMapper
 ) {
-    private val logger: Logger = LoggerFactory.getLogger(javaClass)
+    private val log: Logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000
     private val healthcarePartyToHealthcarePartyDto = { it: HealthcareParty -> healthcarePartyMapper.map(it) }
 
@@ -141,7 +149,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
         val hcParty = try {
             healthcarePartyLogic.createHealthcareParty(healthcarePartyMapper.map(h))
         } catch (e: MissingRequirementsException) {
-            logger.warn(e.message, e)
+            log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
 
@@ -195,7 +203,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
         val publicKey = try {
             healthcarePartyLogic.getPublicKey(healthcarePartyId)
         } catch (e: DocumentNotFoundException) {
-            logger.warn(e.message, e)
+            log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.NOT_FOUND, e.message)
         } ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "No public key is found.")
 
@@ -208,7 +216,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
         return try {
             healthcarePartyLogic.deleteHealthcareParties(healthcarePartyIds.split(',')).injectReactorContext()
         } catch (e: DeletionException) {
-            logger.warn(e.message, e)
+            log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
         }
     }
@@ -221,7 +229,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
                 healthcarePartyMapper.map(it)
             }
         } catch (e: MissingRequirementsException) {
-            logger.warn(e.message, e)
+            log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
     }
@@ -232,7 +240,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
         return try {
             healthcarePartyLogic.deleteHealthcareParties(groupId, healthcarePartyIds.split(',')).injectReactorContext()
         } catch (e: DeletionException) {
-            logger.warn(e.message, e)
+            log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
         }
     }
@@ -244,7 +252,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
             val modifiedHealthcareParty = healthcarePartyLogic.modifyHealthcareParty(groupId, healthcarePartyMapper.map(healthcarePartyDto)) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the healthcare party failed. Read the server log.")
             healthcarePartyMapper.map(modifiedHealthcareParty)
         } catch (e: MissingRequirementsException) {
-            logger.warn(e.message, e)
+            log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
     }
@@ -255,7 +263,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
         val hcParty = try {
             healthcarePartyLogic.createHealthcareParty(groupId, healthcarePartyMapper.map(h))
         } catch (e: MissingRequirementsException) {
-            logger.warn(e.message, e)
+            log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
 

@@ -65,7 +65,7 @@ class AgendaController(private val agendaLogic: AgendaLogic,
         agendaMapper.map(agenda)
     }
 
-    @Operation(summary = "Deletes an agenda")
+    @Operation(summary = "Delete agendas by id")
     @DeleteMapping("/{agendaIds}")
     fun deleteAgenda(@PathVariable agendaIds: String): Flux<DocIdentifier> {
         return agendaLogic.deleteAgendas(agendaIds.split(',')).injectReactorContext()

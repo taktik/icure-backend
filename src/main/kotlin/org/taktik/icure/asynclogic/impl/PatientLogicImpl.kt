@@ -276,6 +276,8 @@ class PatientLogicImpl(
         return patientDAO.get(patientId)
     }
 
+    override fun findByHealthcarepartyAndIdentifier(healthcarePartyId: String, system: String, id: String) = patientDAO.findPatientByHealthcarepartyAndIdentifier(healthcarePartyId, system, id)
+
     override fun getPatientSummary(patientDto: PatientDto?, propertyExpressions: List<String?>?): Map<String, Any>? { //		return patientDtoBeans.getAsMapOfValues(patientDto, propertyExpressions);
         return null
     }

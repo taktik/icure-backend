@@ -21,11 +21,13 @@ package org.taktik.icure.services.external.rest.v1.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ReportVersionDto
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentGroupDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentTypeDto
 import org.taktik.icure.utils.DynamicInitializer
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -44,7 +46,8 @@ data class DocumentTemplateDto(
         override val endOfLife: Long? = null,
         override val deletionDate: Long? = null,
 
-        val attachment: ByteArray? = null,
+        @Schema(type = "string", format = "byte") val attachment: ByteArray? = null,
+        @Schema(description = "The type of document, ex: admission, clinical path, document report,invoice, etc.") val documentType: DocumentTypeDto? = null,
         val mainUti: String? = null,
         val name: String? = null,
         val otherUtis: Set<String> = emptySet(),

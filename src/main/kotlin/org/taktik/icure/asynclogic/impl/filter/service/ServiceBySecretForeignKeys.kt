@@ -28,6 +28,7 @@ import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.utils.getLoggedHealthCarePartyId
 import javax.security.auth.login.LoginException
 
+@org.springframework.stereotype.Service
 class ServiceBySecretForeignKeys(private val contactLogic: ContactLogic,
                                  private val sessionLogic: AsyncSessionLogic) : Filter<String, Service, ServiceBySecretForeignKeys> {
     override fun resolve(filter: ServiceBySecretForeignKeys, context: Filters) = flow {

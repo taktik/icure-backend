@@ -75,7 +75,7 @@ class ReceiptController(
     }
 
     @Operation(summary = "Deletes receipts")
-    @DeleteMapping("/delete/batch")
+    @PostMapping("/delete/batch")
     fun deleteReceipts(@RequestBody receiptIds: ListOfIdsDto): Flux<DocIdentifier> {
         return receiptIds.ids.takeIf { it.isNotEmpty() }
                 ?.let { ids ->
@@ -110,7 +110,7 @@ class ReceiptController(
             @PathVariable receiptId: String,
             @PathVariable blobType: String,
             @RequestParam(required = false) enckeys: String?,
-            @RequestBody payload: ByteArray) = mono {
+            @Schema(type = "string", format = "binary") @RequestBody payload: ByteArray) = mono {
 
         var encryptedPayload = payload
         if (enckeys?.isNotEmpty() == true) {
