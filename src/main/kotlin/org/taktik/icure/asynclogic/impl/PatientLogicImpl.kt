@@ -53,6 +53,7 @@ import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Gender
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.entities.embed.ReferralPeriod
 import org.taktik.icure.exceptions.MissingRequirementsException
@@ -276,7 +277,7 @@ class PatientLogicImpl(
         return patientDAO.get(patientId)
     }
 
-    override fun findByHealthcarepartyAndIdentifier(healthcarePartyId: String, system: String, id: String) = patientDAO.findPatientByHealthcarepartyAndIdentifier(healthcarePartyId, system, id)
+    override fun findByHealthcarepartyAndIdentifier(healthcarePartyId: String, system: String, id: String) = patientDAO.listPatientByHealthcarepartyAndIdentifier(healthcarePartyId, system, id)
 
     override fun getPatientSummary(patientDto: PatientDto?, propertyExpressions: List<String?>?): Map<String, Any>? { //		return patientDtoBeans.getAsMapOfValues(patientDto, propertyExpressions);
         return null
@@ -479,6 +480,10 @@ class PatientLogicImpl(
 
     override fun undeletePatients(ids: Set<String>) = flow<DocIdentifier> {
         emitAll(undeleteByIds(ids))
+    }
+
+    override fun listPatientByHealthcarepartyAndIdentifiersIdsOnly(healthcarePartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
+        emitAll(patientDAO.listPatientByHealthcarepartyAndIdentifiers(healthcarePartyId, identifiers))
     }
 
     companion object {

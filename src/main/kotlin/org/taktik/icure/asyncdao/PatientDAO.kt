@@ -20,11 +20,11 @@ package org.taktik.icure.asyncdao
 
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
-import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Gender
+import org.taktik.icure.entities.embed.Identifier
 
 interface PatientDAO : GenericDAO<Patient> {
 
@@ -88,6 +88,7 @@ interface PatientDAO : GenericDAO<Patient> {
 
     fun findPatients(ids: Flow<String>):  Flow<ViewQueryResultEvent>
 
-    @View(map = "classpath:js/patient/By_hcparty_identifier_map.js", name = "by_hcparty_identifier")
-    fun findPatientByHealthcarepartyAndIdentifier(healthcarePartyId: String, system: String, id: String): Flow<Patient>
+    fun listPatientByHealthcarepartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>): Flow<String>
+
+    fun listPatientByHealthcarepartyAndIdentifier(healthcarePartyId: String, system: String, id: String): Flow<Patient>
 }
