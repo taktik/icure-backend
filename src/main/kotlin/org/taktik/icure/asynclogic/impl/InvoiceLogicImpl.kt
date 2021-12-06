@@ -18,8 +18,17 @@
 package org.taktik.icure.asynclogic.impl
 
 import com.google.common.base.Strings
+import kotlin.math.abs
+import kotlin.math.max
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
@@ -43,16 +52,13 @@ import org.taktik.icure.entities.embed.InvoicingCode
 import org.taktik.icure.entities.embed.MediumType
 import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.utils.FuzzyValues
-import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
-import java.util.*
-import kotlin.math.abs
-import kotlin.math.max
+import java.util.LinkedList
 
 @ExperimentalCoroutinesApi
 @Service

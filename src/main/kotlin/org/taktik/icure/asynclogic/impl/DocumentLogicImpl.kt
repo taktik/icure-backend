@@ -18,7 +18,12 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.mapNotNull
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.entity.Option
@@ -27,7 +32,6 @@ import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.entities.Document
 import org.taktik.icure.exceptions.CreationException
-import org.taktik.icure.utils.firstOrNull
 import java.nio.ByteBuffer
 
 @ExperimentalCoroutinesApi

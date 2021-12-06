@@ -18,9 +18,22 @@
 package org.taktik.icure.asynclogic.impl
 
 
+import kotlin.math.min
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flattenConcat
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.toSet
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
@@ -45,10 +58,8 @@ import org.taktik.icure.entities.embed.ReferralPeriod
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto
 import org.taktik.icure.utils.FuzzyValues
-import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
 import java.time.Instant
-import kotlin.math.min
 
 
 @FlowPreview

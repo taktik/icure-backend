@@ -20,15 +20,19 @@ package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import javax.xml.bind.JAXBContext
+import javax.xml.bind.JAXBElement
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentHashMapOf
 import kotlinx.collections.immutable.plus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import org.taktik.commons.uti.UTI
 import org.taktik.commons.uti.impl.SimpleUTIDetector
 import org.taktik.couchdb.exception.UpdateConflictException
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.FormLogic
@@ -42,7 +46,6 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.be.ehealth.logic.kmehr.toInputStream
 import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
-import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.domain.mapping.ImportMapping
 import org.taktik.icure.domain.result.CheckSMFPatientResult
@@ -100,13 +103,11 @@ import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
 import org.taktik.icure.utils.FuzzyValues
-import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.xor
 import java.io.Serializable
 import java.nio.ByteBuffer
-import java.util.*
-import javax.xml.bind.JAXBContext
-import javax.xml.bind.JAXBElement
+import java.util.LinkedList
+import java.util.UUID
 
 @Suppress("NestedLambdaShadowedImplicitParameter")
 @org.springframework.stereotype.Service

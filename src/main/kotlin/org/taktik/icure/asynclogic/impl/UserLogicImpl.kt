@@ -17,7 +17,16 @@
  */
 package org.taktik.icure.asynclogic.impl
 
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.toList
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.lang3.Validate
 import org.slf4j.LoggerFactory
@@ -43,7 +52,6 @@ import org.taktik.icure.exceptions.CreationException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.exceptions.UserRegistrationException
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.firstOrNull
 import java.net.URI
 import java.time.Duration
 import java.time.Instant
