@@ -34,6 +34,7 @@ import org.taktik.icure.entities.embed.MessageReadStatus
 import org.taktik.icure.exceptions.CreationException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.exceptions.PersistenceException
+import org.taktik.icure.utils.firstOrNull
 import javax.security.auth.login.LoginException
 
 @ExperimentalCoroutinesApi

@@ -22,7 +22,6 @@ import com.google.common.base.Charsets
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -31,6 +30,7 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FormTemplateLogic
 import org.taktik.icure.dto.gui.layout.FormLayout
 import org.taktik.icure.entities.FormTemplate
+import org.taktik.icure.utils.firstOrNull
 
 @ExperimentalCoroutinesApi
 @Service

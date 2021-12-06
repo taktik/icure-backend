@@ -36,6 +36,7 @@ import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
+import org.taktik.icure.utils.firstOrNull
 
 
 @Repository("codeDAO")

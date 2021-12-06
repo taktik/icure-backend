@@ -18,16 +18,17 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
-import org.taktik.couchdb.annotation.View
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.EntityReferenceDAO
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.EntityReference
 import org.taktik.icure.properties.CouchDbProperties
+
+import org.taktik.icure.utils.firstOrNull
 
 
 @Repository("entityReferenceDAO")

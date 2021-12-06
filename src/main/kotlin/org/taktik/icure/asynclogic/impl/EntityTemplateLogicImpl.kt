@@ -19,12 +19,12 @@ package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
 import org.springframework.stereotype.Service
 import org.taktik.icure.asyncdao.EntityTemplateDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.EntityTemplateLogic
 import org.taktik.icure.entities.EntityTemplate
+import org.taktik.icure.utils.firstOrNull
 
 @ExperimentalCoroutinesApi
 @Service

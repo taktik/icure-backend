@@ -38,6 +38,7 @@ import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.ServiceLink
 import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.exceptions.BulkUpdateConflictException
+import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
 
 @ExperimentalCoroutinesApi

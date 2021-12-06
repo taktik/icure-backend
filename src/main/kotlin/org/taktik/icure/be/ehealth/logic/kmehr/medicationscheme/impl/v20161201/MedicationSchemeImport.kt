@@ -23,7 +23,6 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asynclogic.*
@@ -48,6 +47,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.utils.FuzzyValues
+import org.taktik.icure.utils.firstOrNull
 import java.io.InputStream
 import java.io.Serializable
 import java.nio.ByteBuffer
