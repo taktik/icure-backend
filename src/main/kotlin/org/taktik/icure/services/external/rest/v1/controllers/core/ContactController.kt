@@ -51,6 +51,7 @@ import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
@@ -377,7 +378,7 @@ class ContactController(
     fun getServiceByHealthcarepartyAndIdentifier(@PathVariable hcPartyId: String, @RequestParam(required = false) system: String?, @PathVariable value: String) = mono<ServiceDto> {
         when {
             !system.isNullOrEmpty() -> {
-                val serviceIds = contactLogic.listServiceIdsByIdentifiers(hcPartyId,).takeIf { it.count() > 0 }?.toList() ?: listOf(value)
+                val serviceIds = contactLogic.listServiceIdsByIdentifiers(hcPartyId, listOf(Identifier(system= system, value = value))).takeIf { it.count() > 0 }?.toList() ?: listOf(value)
                 contactLogic.getServices(serviceIds).map { serviceMapper.map(it) }.firstOrNull() ?: throw IllegalArgumentException("No service found for identifier $value")
             }
             else -> contactLogic.getServices(listOf(value)).map { serviceMapper.map(it) }.firstOrNull() ?: throw IllegalArgumentException("No service found for identifier $value")
