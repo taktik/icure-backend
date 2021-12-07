@@ -322,7 +322,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
 
         val queryView = createQuery(client, "service_by_hcparty_identifier")
             .keys(identifiers.map {
-                ComplexKey.of(hcPartyId, it.system, it.id)
+                ComplexKey.of(hcPartyId, it.system, it.value)
             })
 
         emitAll(client.queryView<Array<ComplexKey>, String>(queryView).mapNotNull { it.value })
