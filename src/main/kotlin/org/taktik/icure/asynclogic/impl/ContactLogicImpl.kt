@@ -50,6 +50,7 @@ import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.dto.data.LabelledOccurence
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.ServiceLink
 import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.exceptions.BulkUpdateConflictException
@@ -200,8 +201,8 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(contactDAO.listContactIdsByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate))
     }
 
-    override fun listServiceIdsByIdentifier(hcPartyId: String, identifierSystem: String, identifierValue: String): Flow<String> = flow {
-        emitAll(contactDAO.listServiceIdsByIdentifier(hcPartyId, identifierSystem, identifierValue))
+    override fun listServiceIdsByIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
+        emitAll(contactDAO.listServiceIdsByIdentifiers(hcPartyId, identifiers))
     }
 
     override fun listContactIdsByCode(hcPartyId: String, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?) = flow {

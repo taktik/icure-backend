@@ -22,11 +22,28 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
@@ -34,6 +51,7 @@ import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
@@ -57,7 +75,7 @@ import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.Collections
 
 @ExperimentalCoroutinesApi
 @RestController
@@ -360,7 +378,7 @@ class ContactController(
     fun getServiceByHealthcarepartyAndIdentifier(@PathVariable hcPartyId: String, @RequestParam(required = false) system: String?, @PathVariable value: String) = mono<ServiceDto> {
         when {
             !system.isNullOrEmpty() -> {
-                val serviceIds = contactLogic.listServiceIdsByIdentifier(hcPartyId, system, value).takeIf { it.count() > 0 }?.toList() ?: listOf(value)
+                val serviceIds = contactLogic.listServiceIdsByIdentifiers(hcPartyId, listOf(Identifier(system= system, value = value))).takeIf { it.count() > 0 }?.toList() ?: listOf(value)
                 contactLogic.getServices(serviceIds).map { serviceMapper.map(it) }.firstOrNull() ?: throw IllegalArgumentException("No service found for identifier $value")
             }
             else -> contactLogic.getServices(listOf(value)).map { serviceMapper.map(it) }.firstOrNull() ?: throw IllegalArgumentException("No service found for identifier $value")

@@ -488,7 +488,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
 
         val queryView = createQuery(client, "by_hcparty_identifier")
                 .keys(identifiers.map {
-                    ComplexKey.of(healthcarePartyId, it.system, it.id)
+                    ComplexKey.of(healthcarePartyId, it.system, it.value)
                 })
 
         emitAll(client.queryView<Array<ComplexKey>, String>(queryView).mapNotNull { it.value })
