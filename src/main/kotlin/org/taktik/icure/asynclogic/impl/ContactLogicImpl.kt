@@ -201,7 +201,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(contactDAO.listContactIdsByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate))
     }
 
-    override fun listServiceIdsByIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
+    override fun listServiceIdsByIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<Pair<Identifier, String>> = flow {
         emitAll(contactDAO.listServiceIdsByIdentifiers(hcPartyId, identifiers))
     }
 

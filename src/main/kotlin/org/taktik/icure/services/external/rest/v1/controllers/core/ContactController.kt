@@ -58,6 +58,7 @@ import org.taktik.icure.services.external.rest.v1.dto.ContactDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair
+import org.taktik.icure.services.external.rest.v1.dto.base.IdentifierDto
 import org.taktik.icure.services.external.rest.v1.dto.data.LabelledOccurenceDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
@@ -66,6 +67,7 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.ContactMapper
 import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
+import org.taktik.icure.services.external.rest.v1.mapper.base.IdentifierMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
@@ -90,6 +92,7 @@ class ContactController(
         private val delegationMapper: DelegationMapper,
         private val filterChainMapper: FilterChainMapper,
         private val stubMapper: StubMapper,
+        private val identifierMapper: IdentifierMapper
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
     val DEFAULT_LIMIT = 1000
@@ -374,16 +377,23 @@ class ContactController(
     fun listServices(@RequestBody ids: ListOfIdsDto) = contactLogic.getServices(ids.ids).map { svc -> serviceMapper.map(svc) }.injectReactorContext()
 
     @Operation(summary = "Get service by identifier", description = "It gets service data based on the identifier (root & extension) parameters.")
-    @GetMapping("/{hcPartyId}/{value}")
-    fun getServiceByHealthcarepartyAndIdentifier(@PathVariable hcPartyId: String, @RequestParam(required = false) system: String?, @PathVariable value: String) = mono<ServiceDto> {
+    @GetMapping("/service/{hcPartyId}/{value}")
+    fun getServiceByHealthcarepartyAndIdentifier(@PathVariable hcPartyId: String, @RequestParam(required = false) system: String?, @PathVariable value: String) = mono {
         when {
             !system.isNullOrEmpty() -> {
-                val serviceIds = contactLogic.listServiceIdsByIdentifiers(hcPartyId, listOf(Identifier(system= system, value = value))).takeIf { it.count() > 0 }?.toList() ?: listOf(value)
+                val serviceIds = contactLogic.listServiceIdsByIdentifiers(hcPartyId, listOf(Identifier(system= system, value = value))).map { (_, serviceId) -> serviceId }.takeIf { it.count() > 0 }?.toList() ?: listOf(value)
                 contactLogic.getServices(serviceIds).map { serviceMapper.map(it) }.firstOrNull() ?: throw IllegalArgumentException("No service found for identifier $value")
             }
             else -> contactLogic.getServices(listOf(value)).map { serviceMapper.map(it) }.firstOrNull() ?: throw IllegalArgumentException("No service found for identifier $value")
         }
     }
+
+    @Operation(summary = "Get services ids by identifiers", description = "It gets service data based on the provided identifiers (root & extension)")
+    @PostMapping("/services/ids/{hcPartyId}/byIdentifiers")
+    fun getServicesIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
+                                                      @RequestBody identifiers: List<IdentifierDto>
+    ) = contactLogic.listServiceIdsByIdentifiers(hcPartyId, identifiers.map { identifierMapper.map(it) })
+
 
     @Operation(summary = "List services linked to provided ids ", description = "Returns a list of services")
     @PostMapping("/service/linkedTo")

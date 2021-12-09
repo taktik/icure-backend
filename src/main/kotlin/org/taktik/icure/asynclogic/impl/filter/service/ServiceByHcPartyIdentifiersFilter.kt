@@ -3,6 +3,7 @@ package org.taktik.icure.asynclogic.impl.filter.service
 import javax.security.auth.login.LoginException
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
@@ -19,7 +20,7 @@ class ServiceByHcPartyIdentifiersFilter(
     override fun resolve(filter: ServiceByHcPartyIdentifiersFilter, context: Filters) = flow {
         try {
             val hcPartyId = filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic)
-            emitAll(contactLogic.listServiceIdsByIdentifiers(hcPartyId, filter.identifiers))
+            emitAll(contactLogic.listServiceIdsByIdentifiers(hcPartyId, filter.identifiers).map { (_, serviceId) -> serviceId })
         } catch (e: LoginException) {
             throw IllegalArgumentException(e)
         }
