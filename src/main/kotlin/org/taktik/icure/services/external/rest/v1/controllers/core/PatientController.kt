@@ -520,7 +520,7 @@ class PatientController(
     @PostMapping("/ids/{hcPartyId}/byIdentifiers")
     fun getPatientIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
                                                       @RequestBody identifiers: List<IdentifierDto>
-    ) = patientLogic.listPatientByHealthcarepartyAndIdentifiersIdsOnly(hcPartyId, identifiers.map { identifierMapper.map(it) }).onEach { indexedIdentifierMapper.map(it) }
+    ) = patientLogic.listPatientIdsByHcpartyAndIdentifiers(hcPartyId, identifiers.map { identifierMapper.map(it) }).onEach { indexedIdentifierMapper.map(it) }
 
     companion object {
         private val log = LoggerFactory.getLogger(javaClass)

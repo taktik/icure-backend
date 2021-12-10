@@ -384,7 +384,7 @@ class ContactController(
     fun getServiceByHealthcarepartyAndIdentifier(@PathVariable hcPartyId: String, @PathVariable value: String, @RequestParam(required = false) system: String?) = mono {
         when {
             !system.isNullOrEmpty() -> {
-                val serviceIds = contactLogic.listServiceIdsByIdentifiers(hcPartyId, listOf(Identifier(system= system, value = value))).map { (serviceId, _) -> serviceId }.takeIf { it.count() > 0 }?.toList() ?: listOf(value)
+                val serviceIds = contactLogic.listServiceIdsByHcpartyAndIdentifiers(hcPartyId, listOf(Identifier(system= system, value = value))).map { (serviceId, _) -> serviceId }.takeIf { it.count() > 0 }?.toList() ?: listOf(value)
                 contactLogic.getServices(serviceIds).map { serviceMapper.map(it) }.firstOrNull() ?: throw IllegalArgumentException("No service found for identifier $value")
             }
             else -> contactLogic.getServices(listOf(value)).map { serviceMapper.map(it) }.firstOrNull() ?: throw IllegalArgumentException("No service found for identifier $value")
@@ -395,7 +395,7 @@ class ContactController(
     @PostMapping("/services/ids/{hcPartyId}/byIdentifiers")
     fun getServicesIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
                                                       @RequestBody identifiers: List<IdentifierDto>
-    ) = contactLogic.listServiceIdsByIdentifiers(hcPartyId, identifiers.map { identifierMapper.map(it) }).onEach { indexedIdentifierMapper.map(it) }
+    ) = contactLogic.listServiceIdsByHcpartyAndIdentifiers(hcPartyId, identifiers.map { identifierMapper.map(it) }).onEach { indexedIdentifierMapper.map(it) }
 
 
     @Operation(summary = "List services linked to provided ids ", description = "Returns a list of services")

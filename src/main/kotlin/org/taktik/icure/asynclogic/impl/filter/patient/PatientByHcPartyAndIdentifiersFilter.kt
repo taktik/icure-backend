@@ -15,7 +15,7 @@ class PatientByHcPartyAndIdentifiersFilter (private val patientLogic: PatientLog
 
     override fun resolve(filter: org.taktik.icure.domain.filter.patient.PatientByHcPartyAndIdentifiersFilter, context: Filters) = flow {
         try {
-            emitAll(patientLogic.listPatientByHealthcarepartyAndIdentifiersIdsOnly( filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic), filter.identifiers).map { (patientId, _) -> patientId })
+            emitAll(patientLogic.listPatientIdsByHcpartyAndIdentifiers( filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic), filter.identifiers).map { (patientId, _) -> patientId })
         } catch (e: LoginException) {
             throw IllegalArgumentException(e)
         }
