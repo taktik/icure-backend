@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
@@ -65,6 +66,7 @@ import org.taktik.icure.services.external.rest.v2.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
+import org.taktik.icure.services.external.rest.v2.mapper.IndexedIdentifierV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.PatientV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.base.IdentifierV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressV2Mapper
@@ -84,18 +86,19 @@ import java.time.Instant
 @RequestMapping("/rest/v2/patient")
 @Tag(name = "patient")
 class PatientController(
-        private val sessionLogic: AsyncSessionLogic,
-        private val accessLogLogic: AccessLogLogic,
-        private val filters: Filters,
-        private val patientLogic: PatientLogic,
-        private val healthcarePartyLogic: HealthcarePartyLogic,
-        private val patientV2Mapper: PatientV2Mapper,
-        private val filterChainV2Mapper: FilterChainV2Mapper,
-        private val addressV2Mapper: AddressV2Mapper,
-        private val patientHealthCarePartyV2Mapper: PatientHealthCarePartyV2Mapper,
-        private val delegationV2Mapper: DelegationV2Mapper,
-        private val objectMapper: ObjectMapper,
-        private val identifierMapper: IdentifierV2Mapper
+    private val sessionLogic: AsyncSessionLogic,
+    private val accessLogLogic: AccessLogLogic,
+    private val filters: Filters,
+    private val patientLogic: PatientLogic,
+    private val healthcarePartyLogic: HealthcarePartyLogic,
+    private val patientV2Mapper: PatientV2Mapper,
+    private val filterChainV2Mapper: FilterChainV2Mapper,
+    private val addressV2Mapper: AddressV2Mapper,
+    private val patientHealthCarePartyV2Mapper: PatientHealthCarePartyV2Mapper,
+    private val delegationV2Mapper: DelegationV2Mapper,
+    private val objectMapper: ObjectMapper,
+    private val identifierV2Mapper: IdentifierV2Mapper,
+    private val indexedIdentifierMapper: IndexedIdentifierV2Mapper
 ) {
 
     private val patientToPatientDto = { it: Patient -> patientV2Mapper.map(it) }
@@ -502,7 +505,7 @@ class PatientController(
     @PostMapping("/ids/{hcPartyId}/byIdentifiers")
     fun getPatientIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
                                                      @RequestBody identifiers: List<IdentifierDto>
-    ) = patientLogic.listPatientByHealthcarepartyAndIdentifiersIdsOnly(hcPartyId, identifiers.map { identifierMapper.map(it) })
+    ) = patientLogic.listPatientByHealthcarepartyAndIdentifiersIdsOnly(hcPartyId, identifiers.map { identifierV2Mapper.map(it) }).onEach { indexedIdentifierMapper.map(it) }
 
     companion object {
         private val log = LoggerFactory.getLogger(javaClass)

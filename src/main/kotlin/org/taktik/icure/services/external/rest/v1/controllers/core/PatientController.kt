@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
@@ -66,6 +67,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
+import org.taktik.icure.services.external.rest.v1.mapper.IndexedIdentifierMapper
 import org.taktik.icure.services.external.rest.v1.mapper.PatientMapper
 import org.taktik.icure.services.external.rest.v1.mapper.base.IdentifierMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.AddressMapper
@@ -95,7 +97,8 @@ class PatientController(
         private val patientHealthCarePartyMapper: PatientHealthCarePartyMapper,
         private val delegationMapper: DelegationMapper,
         private val objectMapper: ObjectMapper,
-        private val identifierMapper: IdentifierMapper
+        private val identifierMapper: IdentifierMapper,
+        private val indexedIdentifierMapper: IndexedIdentifierMapper
 ) {
     private val patientToPatientDto = { it: Patient -> patientMapper.map(it) }
 
@@ -517,7 +520,7 @@ class PatientController(
     @PostMapping("/ids/{hcPartyId}/byIdentifiers")
     fun getPatientIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
                                                       @RequestBody identifiers: List<IdentifierDto>
-    ) = patientLogic.listPatientByHealthcarepartyAndIdentifiersIdsOnly(hcPartyId, identifiers.map { identifierMapper.map(it) })
+    ) = patientLogic.listPatientByHealthcarepartyAndIdentifiersIdsOnly(hcPartyId, identifiers.map { identifierMapper.map(it) }).onEach { indexedIdentifierMapper.map(it) }
 
     companion object {
         private val log = LoggerFactory.getLogger(javaClass)

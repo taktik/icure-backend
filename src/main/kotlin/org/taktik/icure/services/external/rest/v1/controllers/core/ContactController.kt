@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
@@ -66,6 +67,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.ContactMapper
+import org.taktik.icure.services.external.rest.v1.mapper.IndexedIdentifierMapper
 import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.base.IdentifierMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
@@ -92,7 +94,8 @@ class ContactController(
         private val delegationMapper: DelegationMapper,
         private val filterChainMapper: FilterChainMapper,
         private val stubMapper: StubMapper,
-        private val identifierMapper: IdentifierMapper
+        private val identifierMapper: IdentifierMapper,
+        private val indexedIdentifierMapper: IndexedIdentifierMapper
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
     val DEFAULT_LIMIT = 1000
@@ -378,10 +381,10 @@ class ContactController(
 
     @Operation(summary = "Get service by identifier", description = "It gets service data based on the identifier (root & extension) parameters.")
     @GetMapping("/service/{hcPartyId}/{value}")
-    fun getServiceByHealthcarepartyAndIdentifier(@PathVariable hcPartyId: String, @RequestParam(required = false) system: String?, @PathVariable value: String) = mono {
+    fun getServiceByHealthcarepartyAndIdentifier(@PathVariable hcPartyId: String, @PathVariable value: String, @RequestParam(required = false) system: String?) = mono {
         when {
             !system.isNullOrEmpty() -> {
-                val serviceIds = contactLogic.listServiceIdsByIdentifiers(hcPartyId, listOf(Identifier(system= system, value = value))).map { (_, serviceId) -> serviceId }.takeIf { it.count() > 0 }?.toList() ?: listOf(value)
+                val serviceIds = contactLogic.listServiceIdsByIdentifiers(hcPartyId, listOf(Identifier(system= system, value = value))).map { (serviceId, _) -> serviceId }.takeIf { it.count() > 0 }?.toList() ?: listOf(value)
                 contactLogic.getServices(serviceIds).map { serviceMapper.map(it) }.firstOrNull() ?: throw IllegalArgumentException("No service found for identifier $value")
             }
             else -> contactLogic.getServices(listOf(value)).map { serviceMapper.map(it) }.firstOrNull() ?: throw IllegalArgumentException("No service found for identifier $value")
@@ -392,7 +395,7 @@ class ContactController(
     @PostMapping("/services/ids/{hcPartyId}/byIdentifiers")
     fun getServicesIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
                                                       @RequestBody identifiers: List<IdentifierDto>
-    ) = contactLogic.listServiceIdsByIdentifiers(hcPartyId, identifiers.map { identifierMapper.map(it) })
+    ) = contactLogic.listServiceIdsByIdentifiers(hcPartyId, identifiers.map { identifierMapper.map(it) }).onEach { indexedIdentifierMapper.map(it) }
 
 
     @Operation(summary = "List services linked to provided ids ", description = "Returns a list of services")

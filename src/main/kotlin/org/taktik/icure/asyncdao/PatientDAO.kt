@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.IndexedIdentifier
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Gender
 import org.taktik.icure.entities.embed.Identifier
@@ -88,7 +89,7 @@ interface PatientDAO : GenericDAO<Patient> {
 
     fun findPatients(ids: Flow<String>):  Flow<ViewQueryResultEvent>
 
-    fun listPatientByHealthcarepartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>): Flow<Pair<Identifier, String>>
+    fun listPatientByHealthcarepartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier>
 
     fun listPatientByHealthcarepartyAndIdentifier(healthcarePartyId: String, system: String, id: String): Flow<Patient>
 }

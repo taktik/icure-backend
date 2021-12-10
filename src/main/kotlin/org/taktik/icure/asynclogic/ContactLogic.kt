@@ -26,6 +26,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.dto.data.LabelledOccurence
 import org.taktik.icure.entities.Contact
+import org.taktik.icure.entities.IndexedIdentifier
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.Service
@@ -49,7 +50,7 @@ interface ContactLogic : EntityPersister<Contact, String> {
     fun listServiceIdsByTag(hcPartyId: String, patientSecretForeignKeys: List<String>?, tagType: String, tagCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listServiceIdsByCode(hcPartyId: String, patientSecretForeignKeys: List<String>?, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listContactIdsByTag(hcPartyId: String, tagType: String, tagCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
-    fun listServiceIdsByIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<Pair<Identifier, String>>
+    fun listServiceIdsByIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier>
     fun listContactIdsByCode(hcPartyId: String, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listContactIds(hcPartyId: String): Flow<String>
     fun listIdsByServices(services: Collection<String>): Flow<String>

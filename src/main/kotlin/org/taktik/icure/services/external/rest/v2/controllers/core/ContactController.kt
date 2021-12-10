@@ -22,7 +22,15 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -44,11 +52,11 @@ import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.exceptions.MissingRequirementsException
-import org.taktik.icure.services.external.rest.v2.dto.base.IdentifierDto
 import org.taktik.icure.services.external.rest.v2.dto.ContactDto
 import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.PaginatedDocumentKeyIdPair
+import org.taktik.icure.services.external.rest.v2.dto.base.IdentifierDto
 import org.taktik.icure.services.external.rest.v2.dto.data.LabelledOccurenceDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
@@ -56,6 +64,7 @@ import org.taktik.icure.services.external.rest.v2.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v2.mapper.ContactV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.IndexedIdentifierV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.StubV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.base.IdentifierV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
@@ -67,7 +76,7 @@ import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.Collections
 
 @ExperimentalCoroutinesApi
 @RestController("contactControllerV2")
@@ -81,7 +90,8 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
                         private val delegationV2Mapper: DelegationV2Mapper,
                         private val filterChainV2Mapper: FilterChainV2Mapper,
                         private val stubV2Mapper: StubV2Mapper,
-                        private val identifierV2Mapper: IdentifierV2Mapper
+                        private val identifierV2Mapper: IdentifierV2Mapper,
+                        private val indexedIdentifierV2Mapper: IndexedIdentifierV2Mapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     val DEFAULT_LIMIT = 1000
@@ -402,7 +412,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     fun getServiceByHealthcarepartyAndIdentifier(@PathVariable hcPartyId: String, @RequestParam(required = false) system: String?, @PathVariable value: String) = mono {
         when {
             !system.isNullOrEmpty() -> {
-                val serviceIds = contactLogic.listServiceIdsByIdentifiers(hcPartyId, listOf(Identifier(system= system, value = value))).map { (_, serviceId) -> serviceId }.takeIf { it.count() > 0 }?.toList() ?: listOf(value)
+                val serviceIds = contactLogic.listServiceIdsByIdentifiers(hcPartyId, listOf(Identifier(system= system, value = value))).map { (serviceId, _) -> serviceId }.takeIf { it.count() > 0 }?.toList() ?: listOf(value)
                 contactLogic.getServices(serviceIds).map { serviceV2Mapper.map(it) }.firstOrNull() ?: throw IllegalArgumentException("No service found for identifier $value")
             }
             else -> contactLogic.getServices(listOf(value)).map { serviceV2Mapper.map(it) }.firstOrNull() ?: throw IllegalArgumentException("No service found for identifier $value")
@@ -413,7 +423,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     @GetMapping("/services/ids/{hcPartyId}/byIdentifiers")
     fun getServicesIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
                                                       @RequestParam(required = true) identifiers: List<IdentifierDto>
-    ) = contactLogic.listServiceIdsByIdentifiers(hcPartyId, identifiers.map { identifierV2Mapper.map(it) })
+    ) = contactLogic.listServiceIdsByIdentifiers(hcPartyId, identifiers.map { identifierV2Mapper.map(it) }).onEach { indexedIdentifierV2Mapper.map(it) }
 
     @Operation(summary = "List contacts by opening date parties with(out) pagination", description = "Returns a list of contacts.")
     @GetMapping("/byOpeningDate")
