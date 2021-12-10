@@ -59,6 +59,12 @@
     <DESCRIPTION L='nl'>Angola</DESCRIPTION>
   </VALUE>
   <VALUE>
+      <CODE>aq</CODE>
+      <DESCRIPTION L='de'>Antarktis</DESCRIPTION>
+      <DESCRIPTION L='fr'>Antarctique</DESCRIPTION>
+      <DESCRIPTION L='nl'>Antarctica</DESCRIPTION>
+  </VALUE>
+  <VALUE>
     <CODE>ar</CODE>
     <DESCRIPTION L='de'>Argentinien</DESCRIPTION>
     <DESCRIPTION L='fr'>Argentine</DESCRIPTION>
@@ -81,6 +87,18 @@
     <DESCRIPTION L='de'>Australien</DESCRIPTION>
     <DESCRIPTION L='fr'>Australie</DESCRIPTION>
     <DESCRIPTION L='nl'>Australië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>aw</CODE>
+      <DESCRIPTION L='de'>Aruba</DESCRIPTION>
+      <DESCRIPTION L='fr'>Aruba</DESCRIPTION>
+      <DESCRIPTION L='nl'>Aruba</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>ax</CODE>
+      <DESCRIPTION L='de'>Åland</DESCRIPTION>
+      <DESCRIPTION L='fr'>Îles Åland</DESCRIPTION>
+      <DESCRIPTION L='nl'>Åland</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>az</CODE>
@@ -161,6 +179,12 @@
     <DESCRIPTION L='nl'>Bolivïe</DESCRIPTION>
   </VALUE>
   <VALUE>
+      <CODE>bq</CODE>
+      <DESCRIPTION L='de'>Caribisch Nederland</DESCRIPTION>
+      <DESCRIPTION L='fr'>Pays-Bas caribéens</DESCRIPTION>
+      <DESCRIPTION L='nl'>Caribisch Nederland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
     <CODE>br</CODE>
     <DESCRIPTION L='de'>Brasilien</DESCRIPTION>
     <DESCRIPTION L='fr'>Brésil</DESCRIPTION>
@@ -177,6 +201,12 @@
     <DESCRIPTION L='de'>Bhutan</DESCRIPTION>
     <DESCRIPTION L='fr'>Bhoutan</DESCRIPTION>
     <DESCRIPTION L='nl'>Bhutan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>bv</CODE>
+      <DESCRIPTION L='de'>Bouvetinsel</DESCRIPTION>
+      <DESCRIPTION L='fr'>Île Bouvet</DESCRIPTION>
+      <DESCRIPTION L='nl'>Bouvet</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>bw</CODE>
@@ -201,6 +231,12 @@
     <DESCRIPTION L='de'>Kanada</DESCRIPTION>
     <DESCRIPTION L='fr'>Canada</DESCRIPTION>
     <DESCRIPTION L='nl'>Canada</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>cc</CODE>
+      <DESCRIPTION L='de'>Kokosinseln</DESCRIPTION>
+      <DESCRIPTION L='fr'>Îles Cocos</DESCRIPTION>
+      <DESCRIPTION L='nl'>Cocoseilanden</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>cd</CODE>
@@ -285,6 +321,18 @@
     <DESCRIPTION L='de'>Kap Verde</DESCRIPTION>
     <DESCRIPTION L='fr'>Cap-Vert, République du</DESCRIPTION>
     <DESCRIPTION L='nl'>Kaapverdië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>cw</CODE>
+      <DESCRIPTION L='de'>Curaçao</DESCRIPTION>
+      <DESCRIPTION L='fr'>Curaçao</DESCRIPTION>
+      <DESCRIPTION L='nl'>Curaçao</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>cx</CODE>
+      <DESCRIPTION L='de'>Weihnachtsinsel</DESCRIPTION>
+      <DESCRIPTION L='fr'>Île Christmas</DESCRIPTION>
+      <DESCRIPTION L='nl'>Christmaseiland</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>cy</CODE>
@@ -401,6 +449,12 @@
     <DESCRIPTION L='nl'>Micronesia</DESCRIPTION>
   </VALUE>
   <VALUE>
+      <CODE>fo</CODE>
+      <DESCRIPTION L='de'>Färöer</DESCRIPTION>
+      <DESCRIPTION L='fr'>Îles Féroé</DESCRIPTION>
+      <DESCRIPTION L='nl'>Faeröer</DESCRIPTION>
+  </VALUE>
+  <VALUE>
     <CODE>fr</CODE>
     <DESCRIPTION L='de'>Frankreich</DESCRIPTION>
     <DESCRIPTION L='fr'>France</DESCRIPTION>
@@ -437,10 +491,28 @@
     <DESCRIPTION L='nl'>Frankrijk - Frans-Guyana</DESCRIPTION>
   </VALUE>
   <VALUE>
+      <CODE>gg</CODE>
+      <DESCRIPTION L='de'>Guernsey (Kanalinsel)</DESCRIPTION>
+      <DESCRIPTION L='fr'>Guernesey</DESCRIPTION>
+      <DESCRIPTION L='nl'>Guernsey</DESCRIPTION>
+  </VALUE>
+  <VALUE>
     <CODE>gh</CODE>
     <DESCRIPTION L='de'>Ghana</DESCRIPTION>
     <DESCRIPTION L='fr'>Ghana</DESCRIPTION>
     <DESCRIPTION L='nl'>Ghana</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>gi</CODE>
+      <DESCRIPTION L='de'>Gibraltar</DESCRIPTION>
+      <DESCRIPTION L='fr'>Gibraltar</DESCRIPTION>
+      <DESCRIPTION L='nl'>Gibraltar</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>gl</CODE>
+      <DESCRIPTION L='de'>Grönland</DESCRIPTION>
+      <DESCRIPTION L='fr'>Groenland</DESCRIPTION>
+      <DESCRIPTION L='nl'>Groenland</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>gm</CODE>
@@ -473,6 +545,12 @@
     <DESCRIPTION L='nl'>Griekenland</DESCRIPTION>
   </VALUE>
   <VALUE>
+      <CODE>gs</CODE>
+      <DESCRIPTION L='de'>Südgeorgien und die Südlichen Sandwichinseln</DESCRIPTION>
+      <DESCRIPTION L='fr'>Géorgie du Sud-et-les îles Sandwich du Sud</DESCRIPTION>
+      <DESCRIPTION L='nl'>Zuid-Georgia en de Zuidelijke Sandwicheilanden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
     <CODE>gt</CODE>
     <DESCRIPTION L='de'>Guatemala</DESCRIPTION>
     <DESCRIPTION L='fr'>Guatemala</DESCRIPTION>
@@ -495,6 +573,12 @@
     <DESCRIPTION L='de'>Guyana</DESCRIPTION>
     <DESCRIPTION L='fr'>Guyana</DESCRIPTION>
     <DESCRIPTION L='nl'>Guyana</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>hk</CODE>
+      <DESCRIPTION L='de'>Hong Kong</DESCRIPTION>
+      <DESCRIPTION L='fr'>Hong Kong</DESCRIPTION>
+      <DESCRIPTION L='nl'>Hong Kong</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>hm</CODE>
@@ -545,10 +629,22 @@
     <DESCRIPTION L='nl'>Israël</DESCRIPTION>
   </VALUE>
   <VALUE>
+      <CODE>im</CODE>
+      <DESCRIPTION L='de'>Isle of Man</DESCRIPTION>
+      <DESCRIPTION L='fr'>Île de Man</DESCRIPTION>
+      <DESCRIPTION L='nl'>Man</DESCRIPTION>
+  </VALUE>
+  <VALUE>
     <CODE>in</CODE>
     <DESCRIPTION L='de'>Indien</DESCRIPTION>
     <DESCRIPTION L='fr'>Inde</DESCRIPTION>
     <DESCRIPTION L='nl'>India</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>io</CODE>
+      <DESCRIPTION L='de'>Britisches Territorium im Indischen Ozean</DESCRIPTION>
+      <DESCRIPTION L='fr'>Territoire britannique de l'océan Indien</DESCRIPTION>
+      <DESCRIPTION L='nl'>Brits Indische Oceaanterritorium</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>iq</CODE>
@@ -573,6 +669,12 @@
     <DESCRIPTION L='de'>Italien</DESCRIPTION>
     <DESCRIPTION L='fr'>Italie</DESCRIPTION>
     <DESCRIPTION L='nl'>Italië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>je</CODE>
+      <DESCRIPTION L='de'>Jersey</DESCRIPTION>
+      <DESCRIPTION L='fr'>Jersey</DESCRIPTION>
+      <DESCRIPTION L='nl'>Jersey</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>jm</CODE>
@@ -749,6 +851,12 @@
     <DESCRIPTION L='nl'>Montenegro</DESCRIPTION>
   </VALUE>
   <VALUE>
+      <CODE>mf</CODE>
+      <DESCRIPTION L='de'>Saint-Martin (france)</DESCRIPTION>
+      <DESCRIPTION L='fr'>Saint-Martin (france)</DESCRIPTION>
+      <DESCRIPTION L='nl'>Saint-Martin (france)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
     <CODE>mg</CODE>
     <DESCRIPTION L='de'>Madagaskar</DESCRIPTION>
     <DESCRIPTION L='fr'>Madagascar</DESCRIPTION>
@@ -783,6 +891,12 @@
     <DESCRIPTION L='de'>Mongolei</DESCRIPTION>
     <DESCRIPTION L='fr'>Mongolie</DESCRIPTION>
     <DESCRIPTION L='nl'>Mongolië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>mo</CODE>
+      <DESCRIPTION L='de'>Macau</DESCRIPTION>
+      <DESCRIPTION L='fr'>Macao</DESCRIPTION>
+      <DESCRIPTION L='nl'>Macau</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>mp</CODE>
@@ -867,6 +981,12 @@
     <DESCRIPTION L='de'>Niger</DESCRIPTION>
     <DESCRIPTION L='fr'>Niger</DESCRIPTION>
     <DESCRIPTION L='nl'>Niger</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>nf</CODE>
+      <DESCRIPTION L='de'>Norfolkinsel</DESCRIPTION>
+      <DESCRIPTION L='fr'>Île Norfolk</DESCRIPTION>
+      <DESCRIPTION L='nl'>Norfolk</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>ng</CODE>
@@ -1091,6 +1211,12 @@
     <DESCRIPTION L='nl'>Slovenië</DESCRIPTION>
   </VALUE>
   <VALUE>
+      <CODE>sj</CODE>
+      <DESCRIPTION L='de'>Spitzbergen und Jan Mayen</DESCRIPTION>
+      <DESCRIPTION L='fr'>Svalbard et ile Jan Mayen</DESCRIPTION>
+      <DESCRIPTION L='nl'>Spitsbergen en Jan Mayen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
     <CODE>sk</CODE>
     <DESCRIPTION L='de'>Slowakei</DESCRIPTION>
     <DESCRIPTION L='fr'>Slovaquie</DESCRIPTION>
@@ -1127,6 +1253,12 @@
     <DESCRIPTION L='nl'>Suriname</DESCRIPTION>
   </VALUE>
   <VALUE>
+      <CODE>ss</CODE>
+      <DESCRIPTION L='de'>Südsudan</DESCRIPTION>
+      <DESCRIPTION L='fr'>Soudan du Sud</DESCRIPTION>
+      <DESCRIPTION L='nl'>Zuid-Soedan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
     <CODE>st</CODE>
     <DESCRIPTION L='de'>São Tomé</DESCRIPTION>
     <DESCRIPTION L='fr'>Sao Tomé-et-Principe</DESCRIPTION>
@@ -1137,6 +1269,12 @@
     <DESCRIPTION L='de'>El Salvador</DESCRIPTION>
     <DESCRIPTION L='fr'>El Salvador</DESCRIPTION>
     <DESCRIPTION L='nl'>El Salvador</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>sx</CODE>
+      <DESCRIPTION L='de'>Sint Maarten</DESCRIPTION>
+      <DESCRIPTION L='fr'>Saint-Martin</DESCRIPTION>
+      <DESCRIPTION L='nl'>Sint Maarten</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>sy</CODE>
@@ -1161,6 +1299,12 @@
     <DESCRIPTION L='de'>Tschad</DESCRIPTION>
     <DESCRIPTION L='fr'>Tchad</DESCRIPTION>
     <DESCRIPTION L='nl'>Tsjaad</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>tf</CODE>
+      <DESCRIPTION L='de'>Französische Süd- und Antarktisgebiete</DESCRIPTION>
+      <DESCRIPTION L='fr'>Terres australes et antarctiques françaises</DESCRIPTION>
+      <DESCRIPTION L='nl'>Franse Zuidelijke Gebieden</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>tg</CODE>
@@ -1251,6 +1395,12 @@
     <DESCRIPTION L='de'>Uganda</DESCRIPTION>
     <DESCRIPTION L='fr'>Ouganda</DESCRIPTION>
     <DESCRIPTION L='nl'>Oeganda</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>um</CODE>
+      <DESCRIPTION L='de'>United States Minor Outlying Islands</DESCRIPTION>
+      <DESCRIPTION L='fr'>Îles mineures éloignées des États-Unis</DESCRIPTION>
+      <DESCRIPTION L='nl'>Kleine afgelegen eilanden van de Verenigde Staten</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>us</CODE>
