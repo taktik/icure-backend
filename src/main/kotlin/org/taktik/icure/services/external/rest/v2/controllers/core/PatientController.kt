@@ -27,12 +27,24 @@ import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+import javax.security.auth.login.LoginException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AccessLogLogic
@@ -64,7 +76,6 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.io.Serializable
 import java.time.Instant
-import javax.security.auth.login.LoginException
 
 @ExperimentalCoroutinesApi
 @RestController("patientControllerV2")
@@ -81,7 +92,7 @@ class PatientController(
         private val addressV2Mapper: AddressV2Mapper,
         private val patientHealthCarePartyV2Mapper: PatientHealthCarePartyV2Mapper,
         private val delegationV2Mapper: DelegationV2Mapper,
-        private val objectMapper: ObjectMapper
+        private val objectMapper: ObjectMapper,
 ) {
 
     private val patientToPatientDto = { it: Patient -> patientV2Mapper.map(it) }
