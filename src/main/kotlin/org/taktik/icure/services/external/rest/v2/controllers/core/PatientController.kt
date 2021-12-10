@@ -60,11 +60,13 @@ import org.taktik.icure.services.external.rest.v2.dto.IdWithRevDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.PaginatedList
 import org.taktik.icure.services.external.rest.v2.dto.PatientDto
+import org.taktik.icure.services.external.rest.v2.dto.base.IdentifierDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v2.mapper.PatientV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.IdentifierV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.PatientHealthCarePartyV2Mapper
@@ -93,6 +95,7 @@ class PatientController(
         private val patientHealthCarePartyV2Mapper: PatientHealthCarePartyV2Mapper,
         private val delegationV2Mapper: DelegationV2Mapper,
         private val objectMapper: ObjectMapper,
+        private val identifierMapper: IdentifierV2Mapper
 ) {
 
     private val patientToPatientDto = { it: Patient -> patientV2Mapper.map(it) }
@@ -494,6 +497,12 @@ class PatientController(
 
         patientLogic.getDuplicatePatientsByName(hcPartyId, paginationOffset).paginatedList(patientToPatientDto, realLimit)
     }
+
+    @Operation(summary = "Get patient ids by identifiers", description = "It gets patient data based on the provided identifiers (root & extension)")
+    @PostMapping("/ids/{hcPartyId}/byIdentifiers")
+    fun getPatientIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
+                                                     @RequestBody identifiers: List<IdentifierDto>
+    ) = patientLogic.listPatientByHealthcarepartyAndIdentifiersIdsOnly(hcPartyId, identifiers.map { identifierMapper.map(it) })
 
     companion object {
         private val log = LoggerFactory.getLogger(javaClass)
