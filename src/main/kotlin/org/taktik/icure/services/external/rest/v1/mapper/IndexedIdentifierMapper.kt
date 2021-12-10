@@ -7,7 +7,7 @@ import org.taktik.icure.services.external.rest.v1.dto.IndexedIdentifierDto
 import org.taktik.icure.services.external.rest.v1.mapper.base.IdentifierMapper
 
 @Mapper(componentModel = "spring", uses = [IdentifierMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-abstract class IndexedIdentifierMapper {
-    abstract fun map(indexedIdentifierDto: IndexedIdentifierDto): IndexedIdentifier
-    abstract fun map(indexedIdentifier: IndexedIdentifier): IndexedIdentifierDto
+interface IndexedIdentifierMapper {
+    fun map(indexedIdentifierDto: IndexedIdentifierDto): IndexedIdentifier
+    fun map(indexedIdentifier: IndexedIdentifier): IndexedIdentifierDto
 }
