@@ -91,5 +91,5 @@ interface PatientDAO : GenericDAO<Patient> {
 
     fun listPatientIdsByHcPartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier>
 
-    fun listPatientByHealthcarepartyAndIdentifier(healthcarePartyId: String, system: String, id: String): Flow<Patient>
+    fun listPatientsByHcPartyAndIdentifier(healthcarePartyId: String, system: String, id: String): Flow<Patient>
 }
