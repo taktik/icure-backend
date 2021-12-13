@@ -50,13 +50,13 @@ interface ContactLogic : EntityPersister<Contact, String> {
     fun listServiceIdsByTag(hcPartyId: String, patientSecretForeignKeys: List<String>?, tagType: String, tagCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listServiceIdsByCode(hcPartyId: String, patientSecretForeignKeys: List<String>?, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listContactIdsByTag(hcPartyId: String, tagType: String, tagCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
-    fun listServiceIdsByHcpartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier>
+    fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier>
     fun listContactIdsByCode(hcPartyId: String, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listContactIds(hcPartyId: String): Flow<String>
     fun listIdsByServices(services: Collection<String>): Flow<String>
     fun listServicesByHcPartyAndSecretForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String>
     fun listContactsByHcPartyAndFormId(hcPartyId: String, formId: String): Flow<Contact>
-    fun listContactsByHCPartyServiceId(hcPartyId: String, formId: String): Flow<Contact>
+    fun listContactsByHcPartyServiceId(hcPartyId: String, formId: String): Flow<Contact>
     fun listContactsByExternalId(externalId: String): Flow<Contact>
     fun listServicesByAssociationId(associationId: String): Flow<Service>
 

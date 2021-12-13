@@ -164,7 +164,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     @Operation(summary = "List contacts found By Healthcare Party and service Id.")
     @GetMapping("/byHcPartyServiceId")
     fun listContactByHCPartyServiceId(@RequestParam hcPartyId: String, @RequestParam serviceId: String): Flux<ContactDto> {
-        val contactList = contactLogic.listContactsByHCPartyServiceId(hcPartyId, serviceId)
+        val contactList = contactLogic.listContactsByHcPartyServiceId(hcPartyId, serviceId)
         return contactList.map { contact -> contactV2Mapper.map(contact) }.injectReactorContext()
     }
 
@@ -411,7 +411,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     fun getServiceByHealthcarepartyAndIdentifier(@PathVariable hcPartyId: String, @PathVariable value: String, @RequestParam(required = false) system: String?) = mono {
         when {
             !system.isNullOrEmpty() -> {
-                val serviceIds = contactLogic.listServiceIdsByHcpartyAndIdentifiers(hcPartyId, listOf(Identifier(system= system, value = value))).map { (serviceId, _) -> serviceId }.takeIf { it.count() > 0 }?.toList() ?: listOf(value)
+                val serviceIds = contactLogic.listServiceIdsByHcPartyAndIdentifiers(hcPartyId, listOf(Identifier(system= system, value = value))).map { (serviceId, _) -> serviceId }.takeIf { it.count() > 0 }?.toList() ?: listOf(value)
                 contactLogic.getServices(serviceIds).map { serviceV2Mapper.map(it) }.firstOrNull() ?: throw IllegalArgumentException("No service found for identifier $value")
             }
             else -> contactLogic.getServices(listOf(value)).map { serviceV2Mapper.map(it) }.firstOrNull() ?: throw IllegalArgumentException("No service found for identifier $value")
@@ -422,7 +422,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     @GetMapping("/services/ids/{hcPartyId}/byIdentifiers")
     fun getServicesIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
                                                       @RequestParam(required = true) identifiers: List<IdentifierDto>
-    ) = contactLogic.listServiceIdsByHcpartyAndIdentifiers(hcPartyId, identifiers.map { identifierV2Mapper.map(it) }).map { indexedIdentifierV2Mapper.map(it) }
+    ) = contactLogic.listServiceIdsByHcPartyAndIdentifiers(hcPartyId, identifiers.map { identifierV2Mapper.map(it) }).map { indexedIdentifierV2Mapper.map(it) }
 
     @Operation(summary = "List contacts by opening date parties with(out) pagination", description = "Returns a list of contacts.")
     @GetMapping("/byOpeningDate")
