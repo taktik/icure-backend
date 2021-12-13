@@ -33,7 +33,6 @@ import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
@@ -520,7 +519,7 @@ class PatientController(
     @PostMapping("/ids/{hcPartyId}/byIdentifiers")
     fun getPatientIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
                                                       @RequestBody identifiers: List<IdentifierDto>
-    ) = patientLogic.listPatientIdsByHcpartyAndIdentifiers(hcPartyId, identifiers.map { identifierMapper.map(it) }).onEach { indexedIdentifierMapper.map(it) }
+    ) = patientLogic.listPatientIdsByHcpartyAndIdentifiers(hcPartyId, identifiers.map { identifierMapper.map(it) }).map { indexedIdentifierMapper.map(it) }
 
     companion object {
         private val log = LoggerFactory.getLogger(javaClass)

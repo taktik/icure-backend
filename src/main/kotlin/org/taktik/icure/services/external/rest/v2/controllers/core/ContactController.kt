@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
@@ -423,7 +422,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     @GetMapping("/services/ids/{hcPartyId}/byIdentifiers")
     fun getServicesIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
                                                       @RequestParam(required = true) identifiers: List<IdentifierDto>
-    ) = contactLogic.listServiceIdsByHcpartyAndIdentifiers(hcPartyId, identifiers.map { identifierV2Mapper.map(it) }).onEach { indexedIdentifierV2Mapper.map(it) }
+    ) = contactLogic.listServiceIdsByHcpartyAndIdentifiers(hcPartyId, identifiers.map { identifierV2Mapper.map(it) }).map { indexedIdentifierV2Mapper.map(it) }
 
     @Operation(summary = "List contacts by opening date parties with(out) pagination", description = "Returns a list of contacts.")
     @GetMapping("/byOpeningDate")

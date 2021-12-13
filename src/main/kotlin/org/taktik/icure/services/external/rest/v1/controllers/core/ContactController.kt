@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
@@ -395,7 +394,7 @@ class ContactController(
     @PostMapping("/services/ids/{hcPartyId}/byIdentifiers")
     fun getServicesIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
                                                       @RequestBody identifiers: List<IdentifierDto>
-    ) = contactLogic.listServiceIdsByHcpartyAndIdentifiers(hcPartyId, identifiers.map { identifierMapper.map(it) }).onEach { indexedIdentifierMapper.map(it) }
+    ) = contactLogic.listServiceIdsByHcpartyAndIdentifiers(hcPartyId, identifiers.map { identifierMapper.map(it) }).map { indexedIdentifierMapper.map(it) }
 
 
     @Operation(summary = "List services linked to provided ids ", description = "Returns a list of services")
