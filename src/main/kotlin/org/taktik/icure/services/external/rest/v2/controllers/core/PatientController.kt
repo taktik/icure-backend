@@ -97,7 +97,7 @@ class PatientController(
     private val delegationV2Mapper: DelegationV2Mapper,
     private val objectMapper: ObjectMapper,
     private val identifierV2Mapper: IdentifierV2Mapper,
-    private val indexedIdentifierMapper: IndexedIdentifierV2Mapper
+    private val indexedIdentifierV2Mapper: IndexedIdentifierV2Mapper
 ) {
 
     private val patientToPatientDto = { it: Patient -> patientV2Mapper.map(it) }
@@ -504,7 +504,7 @@ class PatientController(
     @PostMapping("/ids/{hcPartyId}/byIdentifiers")
     fun getPatientIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
                                                      @RequestBody identifiers: List<IdentifierDto>
-    ) = patientLogic.listPatientIdsByHcpartyAndIdentifiers(hcPartyId, identifiers.map { identifierV2Mapper.map(it) }).map { indexedIdentifierMapper.map(it) }
+    ) = patientLogic.listPatientIdsByHcpartyAndIdentifiers(hcPartyId, identifiers.map { identifierV2Mapper.map(it) }).map { indexedIdentifierV2Mapper.map(it) }
 
     companion object {
         private val log = LoggerFactory.getLogger(javaClass)
