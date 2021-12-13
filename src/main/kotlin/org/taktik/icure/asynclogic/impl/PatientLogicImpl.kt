@@ -483,7 +483,7 @@ class PatientLogicImpl(
     }
 
     override fun listPatientIdsByHcpartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>) = flow {
-        emitAll(patientDAO.listPatientByHealthcarepartyAndIdentifiers(healthcarePartyId, identifiers))
+        emitAll(patientDAO.listPatientIdsByHcPartyAndIdentifiers(healthcarePartyId, identifiers))
     }
 
     companion object {

@@ -203,7 +203,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     }
 
     override fun listServiceIdsByHcpartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier> = flow {
-        emitAll(contactDAO.listServiceIdsByIdentifiers(hcPartyId, identifiers))
+        emitAll(contactDAO.listServiceIdsByHcPartyAndIdentifiers(hcPartyId, identifiers))
     }
 
     override fun listContactIdsByCode(hcPartyId: String, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?) = flow {

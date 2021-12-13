@@ -318,7 +318,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "service_by_hcparty_identifier", map = "classpath:js/contact/Service_by_hcparty_identifier.js")
-    override fun listServiceIdsByIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier> = flow {
+    override fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val queryView = createQuery(client, "service_by_hcparty_identifier")

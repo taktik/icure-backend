@@ -484,7 +484,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_identifier", map = "classpath:js/patient/By_hcparty_identifier_map.js")
-    override fun listPatientByHealthcarepartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier> = flow {
+    override fun listPatientIdsByHcPartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val queryView = createQuery(client, "by_hcparty_identifier")
