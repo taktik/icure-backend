@@ -277,7 +277,7 @@ class PatientLogicImpl(
         return patientDAO.get(patientId)
     }
 
-    override fun findByHealthcarepartyAndIdentifier(healthcarePartyId: String, system: String, id: String) = patientDAO.listPatientByHealthcarepartyAndIdentifier(healthcarePartyId, system, id)
+    override fun findByHealthcarepartyAndIdentifier(healthcarePartyId: String, system: String, id: String) = patientDAO.listPatientsByHcPartyAndIdentifier(healthcarePartyId, system, id)
 
     override fun getPatientSummary(patientDto: PatientDto?, propertyExpressions: List<String?>?): Map<String, Any>? { //		return patientDtoBeans.getAsMapOfValues(patientDto, propertyExpressions);
         return null
@@ -482,8 +482,8 @@ class PatientLogicImpl(
         emitAll(undeleteByIds(ids))
     }
 
-    override fun listPatientByHealthcarepartyAndIdentifiersIdsOnly(healthcarePartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
-        emitAll(patientDAO.listPatientByHealthcarepartyAndIdentifiers(healthcarePartyId, identifiers))
+    override fun listPatientIdsByHcpartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>) = flow {
+        emitAll(patientDAO.listPatientIdsByHcPartyAndIdentifiers(healthcarePartyId, identifiers))
     }
 
     companion object {

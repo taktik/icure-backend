@@ -27,12 +27,25 @@ import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+import javax.security.auth.login.LoginException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AccessLogLogic
@@ -48,11 +61,14 @@ import org.taktik.icure.services.external.rest.v1.dto.IdWithRevDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto
+import org.taktik.icure.services.external.rest.v1.dto.base.IdentifierDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
+import org.taktik.icure.services.external.rest.v1.mapper.IndexedIdentifierMapper
 import org.taktik.icure.services.external.rest.v1.mapper.PatientMapper
+import org.taktik.icure.services.external.rest.v1.mapper.base.IdentifierMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.AddressMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.PatientHealthCarePartyMapper
@@ -63,7 +79,6 @@ import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.Instant
-import javax.security.auth.login.LoginException
 
 @ExperimentalCoroutinesApi
 @RestController
@@ -80,7 +95,9 @@ class PatientController(
         private val addressMapper: AddressMapper,
         private val patientHealthCarePartyMapper: PatientHealthCarePartyMapper,
         private val delegationMapper: DelegationMapper,
-        private val objectMapper: ObjectMapper
+        private val objectMapper: ObjectMapper,
+        private val identifierMapper: IdentifierMapper,
+        private val indexedIdentifierMapper: IndexedIdentifierMapper
 ) {
     private val patientToPatientDto = { it: Patient -> patientMapper.map(it) }
 
@@ -497,6 +514,12 @@ class PatientController(
 
         patientLogic.getDuplicatePatientsByName(hcPartyId, paginationOffset).paginatedList(patientToPatientDto, realLimit)
     }
+
+    @Operation(summary = "Get patient ids by identifiers", description = "It gets patient data based on the provided identifiers (root & extension)")
+    @PostMapping("/ids/{hcPartyId}/byIdentifiers")
+    fun getPatientIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
+                                                      @RequestBody identifiers: List<IdentifierDto>
+    ) = patientLogic.listPatientIdsByHcpartyAndIdentifiers(hcPartyId, identifiers.map { identifierMapper.map(it) }).map { indexedIdentifierMapper.map(it) }
 
     companion object {
         private val log = LoggerFactory.getLogger(javaClass)

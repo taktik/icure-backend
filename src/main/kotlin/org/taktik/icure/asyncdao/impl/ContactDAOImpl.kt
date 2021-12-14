@@ -34,6 +34,7 @@ import org.taktik.icure.asyncdao.ContactDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.ContactIdServiceId
 import org.taktik.icure.entities.Contact
+import org.taktik.icure.entities.IndexedIdentifier
 import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.properties.CouchDbProperties
@@ -317,7 +318,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "service_by_hcparty_identifier", map = "classpath:js/contact/Service_by_hcparty_identifier.js")
-    override fun listServiceIdsByIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
+    override fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val queryView = createQuery(client, "service_by_hcparty_identifier")
@@ -325,7 +326,21 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                 ComplexKey.of(hcPartyId, it.system, it.value)
             })
 
-        emitAll(client.queryView<Array<ComplexKey>, String>(queryView).mapNotNull { it.value })
+        emitAll(client.queryView<ComplexKey, String>(queryView)
+                .mapNotNull {
+                    if (it.key == null || it.key!!.components.size < 3) {
+                        null
+                    }
+                    else {
+                        IndexedIdentifier(
+                            it.id,
+                            Identifier(
+                                system = it.key!!.components[1] as String,
+                                value = it.key!!.components[2] as String
+                            )
+                        )
+                    }
+                })
     }
 
     @View(name = "by_hcparty_code", map = "classpath:js/contact/By_hcparty_code.js", reduce = "_count")

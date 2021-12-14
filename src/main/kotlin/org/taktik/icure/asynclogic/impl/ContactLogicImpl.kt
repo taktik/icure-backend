@@ -49,6 +49,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.dto.data.LabelledOccurence
 import org.taktik.icure.entities.Contact
+import org.taktik.icure.entities.IndexedIdentifier
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.ServiceLink
@@ -201,8 +202,8 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(contactDAO.listContactIdsByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate))
     }
 
-    override fun listServiceIdsByIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
-        emitAll(contactDAO.listServiceIdsByIdentifiers(hcPartyId, identifiers))
+    override fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier> = flow {
+        emitAll(contactDAO.listServiceIdsByHcPartyAndIdentifiers(hcPartyId, identifiers))
     }
 
     override fun listContactIdsByCode(hcPartyId: String, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?) = flow {
@@ -225,7 +226,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(contactDAO.listContactsByHcPartyAndFormId(hcPartyId, formId))
     }
 
-    override fun listContactsByHCPartyServiceId(hcPartyId: String, formId: String): Flow<Contact> = flow {
+    override fun listContactsByHcPartyServiceId(hcPartyId: String, formId: String): Flow<Contact> = flow {
         emitAll(contactDAO.findContactsByHcPartyServiceId(hcPartyId, formId))
     }
 
