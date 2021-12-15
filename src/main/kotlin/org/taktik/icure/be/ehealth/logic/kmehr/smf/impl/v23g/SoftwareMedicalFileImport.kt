@@ -546,16 +546,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     //"careplansubscription" -> parseCarePlanSubscription(cdItem, label, item, author, language, v)
                     "healthcareapproach" -> parseHealthcareApproach(cdItem, label, item, author, trnauthorhcpid, state)
                     "incapacity" -> parseIncapacity(item, author, trnauthorhcpid, language, contact.id).let {
-                        val (services, subcontact, form) = it
-                        val mfid = getItemMFID(item)
-                        state.incapacityForms.add(form)
-                        state.incapacitySubcontactLinks[mfid!!] = Pair(subcontact, contact)
+                        val (services) = it
                         this.services.addAll(services)
-                        this.subContacts.add(subcontact)
-                        services.forEach {
-                            state.formServices[it.id ?: ""] = it
-                        }
-                        v.forms.add(form)
                     }
                     else -> {
                         if(cdItem == "treatment") {

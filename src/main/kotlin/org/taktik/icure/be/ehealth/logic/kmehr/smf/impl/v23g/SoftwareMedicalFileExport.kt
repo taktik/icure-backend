@@ -256,6 +256,8 @@ class SoftwareMedicalFileExport : KmehrExport() {
                                     }
                                 }
                             }
+                            var parentContactId: String? = null;
+                            if(index > 0) parentContactId = contact.id
 
                             ids.add(idKmehr(startIndex))
                             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; value = transactionMFID })
@@ -281,63 +283,59 @@ class SoftwareMedicalFileExport : KmehrExport() {
                             hesByContactId = hesByContactId.filterKeys { it != contact.id } // prevent re-using the same He for the next subcontact
 
                             // Special code for specific forms
-                            contact.subContacts.forEach{subcon ->
-                                //TODO: Please explain
-                                if(subcon.healthElementId == null) { // discard form <-> he links
-                                    subcon.formId?.let {
-                                        formLogic!!.getForm(it)?.let {form ->
-                                            form.formTemplateId?.let {
-                                                formTemplateLogic!!.getFormTemplateById(it)?.let {
-                                                    when(it.guid) {
-                                                        "FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00" ->  { // ITT
-                                                            services = services.filterNot { subcon.services.map{it.serviceId}.contains(it.id)} // remove form services from main list
-                                                            trn.headingsAndItemsAndTexts.add( makeIncapacityItem
-                                                            (contact, subcon, form, language) )
-                                                        }
-                                                        "AEFED10A-9A72-4B40-981B-1D79ADB05516" ->  { // Prescription Kine
-                                                            services = services.filterNot { subcon.services.map{it.serviceId}.contains(it.id)}
-                                                            specialPrescriptions.add( makeKinePrescriptionTransaction(contact, subcon, form, language) )
-                                                        }
-                                                        "64DAB551-B007-4B5C-BD64-F886301F5326" ->  { // Prescription Nurse
-                                                            services = services.filterNot { subcon.services.map{it.serviceId}.contains(it.id)}
-                                                            // get subforms
-                                                            val subformsubcons = contact.subContacts.filter { subformsubcon ->
-                                                                subformsubcon.formId?.let {
-                                                                    formLogic!!.getForm(it)?.let { subform ->
-                                                                        subform.parent == form.id
-
-                                                                    }
-                                                                } == true
-                                                            }
-                                                            subformsubcons.forEach { subformsubcon ->
-                                                                services = services.filterNot { subformsubcon.services.map{it.serviceId}.contains(it.id)}
-                                                            }
-                                                            specialPrescriptions.add( makeNursePrescriptionTransaction(contact, subcon, subformsubcons, form, language) )
-                                                        }
-                                                        else -> Unit
-
-                                                    }
+                            //TODO: Please explain // discard form <-> he links
+                            subContact.formId?.let {
+                                formLogic!!.getForm(it)?.let {form ->
+                                    form.formTemplateId?.let {
+                                        formTemplateLogic!!.getFormTemplateById(it)?.let {
+                                            when(it.guid) {
+                                                "FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00" ->  { // ITT
+                                                    services = services.filterNot { subContact.services.map{it.serviceId}.contains(it.id)} // remove form services from main list
+                                                    trn.headingsAndItemsAndTexts.add( makeIncapacityItem
+                                                    (contact, subContact, form, language) )
                                                 }
+                                                "AEFED10A-9A72-4B40-981B-1D79ADB05516" ->  { // Prescription Kine
+                                                    services = services.filterNot { subContact.services.map{it.serviceId}.contains(it.id)}
+                                                    specialPrescriptions.add( makeKinePrescriptionTransaction(contact, subContact, form, language) )
+                                                }
+                                                "64DAB551-B007-4B5C-BD64-F886301F5326" ->  { // Prescription Nurse
+                                                    services = services.filterNot { subContact.services.map{it.serviceId}.contains(it.id)}
+                                                    // get subforms
+                                                    val subformsubcons = contact.subContacts.filter { subformsubcon ->
+                                                        subformsubcon.formId?.let {
+                                                            formLogic!!.getForm(it)?.let { subform ->
+                                                                subform.parent == form.id
+
+                                                            }
+                                                        } == true
+                                                    }
+                                                    subformsubcons.forEach { subformsubcon ->
+                                                        services = services.filterNot { subformsubcon.services.map{it.serviceId}.contains(it.id)}
+                                                    }
+                                                    specialPrescriptions.add( makeNursePrescriptionTransaction(contact, subContact, subformsubcons, form, language) )
+                                                }
+                                                else -> Unit
+
                                             }
                                         }
                                     }
                                 }
                             }
 
-                            contact.services.filter { s -> s.tags.find { t -> t.code == "incapacity" } != null }.forEach { incapacityService ->
+                            services.filter { s -> s.tags.find { t -> t.code == "incapacity" } != null }.forEach { incapacityService ->
                                 headingsAndItemsAndTexts.add(makeIncapacityItem(healthcareParty, incapacityService, language))
                                 incapacityService.content[language]?.documentId?.let { docId ->
-                                    createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config)
+                                    createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config, transactionMFID)
                                 }
                             }
-                            contact.services.filter { s -> s.tags.find { t -> t.code == "physiotherapy" } != null }.forEach { kineService ->
-                                specialPrescriptions.add(makeKinePrescriptionTransaction(kineService, language))
+                            services.filter { s -> s.tags.find { t -> t.code == "physiotherapy" } != null }.forEach { kineService ->
+                                specialPrescriptions.add(makeKinePrescriptionTransaction(kineService, language, transactionMFID))
                             }
-                            contact.services.filter { s -> s.tags.find { t -> t.code == "medicalcares" } != null }.forEach { nurseService ->
-                                specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService, language))
+                            services.filter { s -> s.tags.find { t -> t.code == "medicalcares" } != null }.forEach { nurseService ->
+                                specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService, language, transactionMFID))
                             }
 
-                            contact.services.filter { s -> isSummary(s) }.forEach { summaryService ->
+                            services.filter { s -> isSummary(s) }.forEach { summaryService ->
                                 summaries.add(makeSummaryTransaction(contact, summaryService, language))
                             }
 
@@ -348,7 +346,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
                                 }
                             } else {
                                 services.forEach servicesLoop@{ svc ->
-                                    val incapacityTag = svc.tags.find { t -> t.code == "incapacity" }
+                                    val incapacityTag = svc.tags.find { t -> listOf("incapacity", "physiotherapy","medicalcares").contains(t.code) }
                                     if (incapacityTag != null) return@servicesLoop
 
                                     var forSeparateTransaction = false
@@ -473,7 +471,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
                                     }
                                 }
                             }
-                            if(index > 0) headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(contact.id) })
+                            parentContactId?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(it) })}
                         }
                 )
                 //getSubContactFormId
@@ -623,15 +621,15 @@ class SoftwareMedicalFileExport : KmehrExport() {
         }
     }
 
-    private fun makeNursePrescriptionTransaction(contact: Service, language: String): TransactionType {
-        return makeSpecialPrescriptionTransaction(contact, "nursing", language)
+    private fun makeNursePrescriptionTransaction(contact: Service, language: String, parentContactId: String?): TransactionType {
+        return makeSpecialPrescriptionTransaction(contact, "nursing", language, parentContactId)
     }
 
-    private fun makeKinePrescriptionTransaction(contact: Service, language: String): TransactionType {
-        return makeSpecialPrescriptionTransaction(contact, "physiotherapy", language)
+    private fun makeKinePrescriptionTransaction(contact: Service, language: String, parentContactId: String?): TransactionType {
+        return makeSpecialPrescriptionTransaction(contact, "physiotherapy", language, parentContactId)
     }
 
-    private fun makeSpecialPrescriptionTransaction(service: Service, transactionType: String, language: String): TransactionType {
+    private fun makeSpecialPrescriptionTransaction(service: Service, transactionType: String, language: String, parentContactId: String?): TransactionType {
         return TransactionType().apply {
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = "1" })
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; value = service.id })
@@ -652,6 +650,9 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
             service.content[language]?.documentId?.let {
                 documentLogic?.get(it)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(d); value = it }) } }
+            }
+            parentContactId?.let{ parentContactId ->
+                headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(parentContactId) })
             }
         }
     }
@@ -769,7 +770,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
         }
     }
 
-    private fun createLinkToDocument(documentId: String, healthcareParty: HealthcareParty, service: Service, folder: FolderType, language: String, config: Config){
+    private fun createLinkToDocument(documentId: String, healthcareParty: HealthcareParty, service: Service, folder: FolderType, language: String, config: Config, parentContactId: String?){
         folder.transactions.add(TransactionType().apply {
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = "1.0"; value = service.id })
             cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note" })
@@ -794,7 +795,10 @@ class SoftwareMedicalFileExport : KmehrExport() {
                 })
             }
             documentLogic?.get(documentId)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(d); value = it }) } }
-            LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(service.id!!) }.also {headingsAndItemsAndTexts.add(it) }
+            parentContactId?.let{ parentContactId ->
+                LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(parentContactId) }.also {headingsAndItemsAndTexts.add(it) }
+            }
+
         })
     }
 
