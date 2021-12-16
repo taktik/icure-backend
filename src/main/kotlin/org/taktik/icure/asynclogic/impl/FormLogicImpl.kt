@@ -18,7 +18,13 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.mapNotNull
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
@@ -30,7 +36,6 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FormLogic
 import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.embed.Delegation
-import org.taktik.icure.utils.firstOrNull
 
 @ExperimentalCoroutinesApi
 @Service
@@ -46,9 +51,14 @@ class FormLogicImpl(private val formDAO: FormDAO,
         emitAll(formDAO.getEntities(selectedIds))
     }
 
-    override suspend fun getFormsByExternalUuid(documentId: String): List<Form> {
-        return formDAO.getFormsByExternalUuid(documentId)
+    override suspend fun getAllByLogicalUuid(formUuid: String): List<Form> {
+        return formDAO.getAllByLogicalUuid(formUuid)
     }
+
+    override suspend fun getAllByUniqueId(lid: String): List<Form> {
+        return formDAO.getAllByUniqueId(lid)
+    }
+
 
     override fun listFormsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>, healthElementId: String?, planOfActionId: String?, formTemplateId: String?): Flow<Form> = flow {
         val forms = formDAO.listFormsByHcPartyPatient(hcPartyId, secretPatientKeys)
@@ -74,7 +84,7 @@ class FormLogicImpl(private val formDAO: FormDAO,
             createEntities(setOf(form)).firstOrNull()
         } catch (e: Exception) {
             logger.error("createContact: " + e.message)
-            throw IllegalArgumentException("Invalid contact", e)
+            throw IllegalArgumentException("Invalid form", e)
         }
     }
 

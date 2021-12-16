@@ -34,6 +34,8 @@ import org.taktik.icure.asyncdao.ContactDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.ContactIdServiceId
 import org.taktik.icure.entities.Contact
+import org.taktik.icure.entities.IndexedIdentifier
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.distinct
@@ -316,20 +318,29 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "service_by_hcparty_identifier", map = "classpath:js/contact/Service_by_hcparty_identifier.js")
-    override fun listServiceIdsByIdentifier(hcPartyId: String, identifierSystem: String, identifierValue: String): Flow<String> = flow {
+    override fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val searchKey = ComplexKey.of(
-                hcPartyId,
-                identifierSystem,
-                identifierValue,
-        )
+        val queryView = createQuery(client, "service_by_hcparty_identifier")
+            .keys(identifiers.map {
+                ComplexKey.of(hcPartyId, it.system, it.value)
+            })
 
-        val viewQuery = createQuery(client,"service_by_hcparty_identifier")
-                .key(searchKey)
-                .includeDocs(false)
-
-        emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
+        emitAll(client.queryView<ComplexKey, String>(queryView)
+                .mapNotNull {
+                    if (it.key == null || it.key!!.components.size < 3) {
+                        null
+                    }
+                    else {
+                        IndexedIdentifier(
+                            it.id,
+                            Identifier(
+                                system = it.key!!.components[1] as String,
+                                value = it.key!!.components[2] as String
+                            )
+                        )
+                    }
+                })
     }
 
     @View(name = "by_hcparty_code", map = "classpath:js/contact/By_hcparty_code.js", reduce = "_count")

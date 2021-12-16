@@ -44,7 +44,12 @@ abstract class TypedValueV2Mapper {
                     stringValue = typedValueDto.stringValue,
                     dateValue = typedValueDto.dateValue
             )
-        }
+        } ?: TypedValue<String>(
+                booleanValue = typedValueDto.booleanValue,
+                integerValue = typedValueDto.integerValue,
+                doubleValue = typedValueDto.doubleValue,
+                stringValue = typedValueDto.stringValue,
+                dateValue = typedValueDto.dateValue)
     }
     fun map(typedValue: TypedValue<*>?): TypedValueDto<*>? {
         return if (typedValue == null) null else when(typedValue.type) {

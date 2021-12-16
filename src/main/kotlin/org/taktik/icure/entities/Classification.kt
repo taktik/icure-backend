@@ -52,6 +52,7 @@ data class Classification(
 
         val parentId: String?,
         val label: String = "",
+        val templateId: String? = null,
 
         override val secretForeignKeys: Set<String> = emptySet(),
         override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),

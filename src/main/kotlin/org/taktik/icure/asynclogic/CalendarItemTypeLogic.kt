@@ -32,4 +32,5 @@ interface CalendarItemTypeLogic : EntityPersister<CalendarItemType, String> {
     suspend fun modifyCalendarTypeItem(calendarItemType: CalendarItemType): CalendarItemType?
     fun getAllEntitiesIncludeDelete(): Flow<CalendarItemType>
     fun getGenericDAO(): CalendarItemTypeDAO
+    fun getCalendarItemTypes(calendarItemTypeIds: Collection<String>): Flow<CalendarItemType>
 }

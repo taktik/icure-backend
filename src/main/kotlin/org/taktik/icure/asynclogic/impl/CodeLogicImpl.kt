@@ -20,6 +20,7 @@ package org.taktik.icure.asynclogic.impl
 
 
 import com.google.common.collect.ImmutableMap
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
@@ -45,6 +46,7 @@ import java.io.InputStream
 import java.lang.reflect.InvocationTargetException
 import java.util.*
 import javax.xml.parsers.SAXParserFactory
+import kotlin.coroutines.coroutineContext
 
 @ExperimentalCoroutinesApi
 @Service
@@ -167,8 +169,11 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
         val check = getCodes(listOf(Code.from("ICURE-SYSTEM", md5, version = "1").id)).toList()
 
         if (check.isEmpty()) {
-            val factory = SAXParserFactory.newInstance();
-            val saxParser = factory.newSAXParser();
+
+            val coroutineScope = CoroutineScope(coroutineContext)
+
+            val factory = SAXParserFactory.newInstance()
+            val saxParser = factory.newSAXParser()
 
             val stack = LinkedList<Code>()
 
@@ -227,7 +232,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
                     qName?.let {
                         when (it.toUpperCase()) {
                             "VALUE" -> {
-                                runBlocking {
+                                runBlocking(coroutineScope.coroutineContext) {
                                     code["id"] = "${code["type"] as String}|${code["code"] as String}|${code["version"] as String}"
                                     batchSave(Code(args = code), false)
                                 }
@@ -314,7 +319,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
                     qName?.let {
                         when (it.toUpperCase()) {
                             "CLINICAL_LABEL" -> {
-                                runBlocking {
+                                runBlocking(coroutineScope.coroutineContext) {
                                     code["id"] = "${code["type"] as String}|${code["code"] as String}|${code["version"] as String}"
                                     batchSave(Code(args = code), false)
                                 }
@@ -393,7 +398,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
                     qName?.let {
                         when (it.toUpperCase()) {
                             "PROCEDURE" -> {
-                                runBlocking {
+                                runBlocking(coroutineScope.coroutineContext) {
                                     code["id"] = "${code["type"] as String}|${code["code"] as String}|${code["version"] as String}"
                                     batchSave(Code(args = code), false)
                                 }
@@ -446,7 +451,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
                     qName?.let {
                         when (it.toUpperCase()) {
                             "VALUE" -> {
-                                runBlocking {
+                                runBlocking(coroutineScope.coroutineContext) {
                                     code["id"] = "${code["type"] as String}|${code["code"] as String}|${code["version"] as String}"
                                     batchSave(Code(args = code), false)
                                 }

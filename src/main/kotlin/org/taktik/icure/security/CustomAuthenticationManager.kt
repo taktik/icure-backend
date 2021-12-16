@@ -18,13 +18,9 @@
 
 package org.taktik.icure.security
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.apache.commons.logging.LogFactory
@@ -44,11 +40,9 @@ import org.taktik.icure.entities.User
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.security.database.DatabaseUserDetails
 import reactor.core.publisher.Mono
-import java.net.URI
-import java.util.*
 
 @ExperimentalCoroutinesApi
-class CustomAuthenticationProvider(
+class CustomAuthenticationManager(
         couchDbProperties: CouchDbProperties,
         private val userDAO: UserDAO, //prevent cyclic dependnecies
         private val permissionLogic: PermissionLogic,
@@ -56,8 +50,6 @@ class CustomAuthenticationProvider(
         private val messageSourceAccessor: MessageSourceAccessor = SpringSecurityMessageSource.getAccessor()
 ) : ReactiveAuthenticationManager {
     private val log = LogFactory.getLog(javaClass)
-    private val dbInstanceUri = URI(couchDbProperties.url)
-    private val scope = CoroutineScope(Job() + Dispatchers.Default)
 
     override fun authenticate(authentication: Authentication?): Mono<Authentication> = mono {
         authentication?.principal ?: throw BadCredentialsException("Invalid username or password")
@@ -93,7 +85,7 @@ class CustomAuthenticationProvider(
         val password: String = authentication.credentials.toString()
 
         for (candidate in users) {
-            if (candidate != null && isPasswordValid(candidate, password)) {
+            if (isPasswordValid(candidate, password)) {
                 matchingUsers.add(candidate)
             }
         }
@@ -105,15 +97,15 @@ class CustomAuthenticationProvider(
             throw BadCredentialsException("Invalid username or password")
         }
 
-        if (user.use2fa == true && user.secret?.isNotBlank() == true && !user.applicationTokens.containsValue(password)) {
+        if (user.use2fa == true && user.secret?.isNotBlank() == true && !doesUserContainsToken(user, password)) {
             val splittedPassword = password.split("\\|")
             if (splittedPassword.size < 2) {
-                throw BadCredentialsException("Missing verfication code")
+                throw BadCredentialsException("Missing verification code")
             }
             val verificationCode = splittedPassword[1]
             val totp = Totp(user.secret)
             if (!isValidLong(verificationCode) || !totp.verify(verificationCode)) {
-                throw BadCredentialsException("Invalid verfication code")
+                throw BadCredentialsException("Invalid verification code")
             }
         }
 
@@ -129,7 +121,8 @@ class CustomAuthenticationProvider(
                 use2fa = user.use2fa ?: false,
                 rev = user.rev,
                 applicationTokens = user.applicationTokens,
-                application = user.applicationTokens.filterValues { it == authentication.credentials }.keys.firstOrNull(),
+                authenticationTokens = user.authenticationTokens,
+                application = applicationsContainingToken(user, authentication.credentials.toString()).firstOrNull(),
                 groupIdUserIdMatching = matchingUsers.map { it.id },
         )
 
@@ -141,7 +134,7 @@ class CustomAuthenticationProvider(
     }
 
     private fun isPasswordValid(u: User, password: String): Boolean {
-        if (u.applicationTokens.containsValue(password)) {
+        if (doesUserContainsToken(u, appToken = password)) {
             return true
         }
         return when {
@@ -155,6 +148,23 @@ class CustomAuthenticationProvider(
             }
         }
     }
+
+    private fun applicationsContainingToken(u: User, appToken: String) : List<String> {
+        return (
+                u.applicationTokens
+                        .filterValues { it == appToken }
+                        + u.authenticationTokens
+                        .filter { (_, authToken) -> !authToken.isExpired() }
+                        .filterValues { it.token == appToken  }
+                )
+                .map { (application, _) -> application }
+    }
+
+    private fun doesUserContainsToken(u: User, appToken: String) = u.applicationTokens.containsValue(appToken)
+            || u.authenticationTokens
+            .filter { (_, authToken) -> !authToken.isExpired() }
+            .map { (_, authToken) -> authToken.token }
+            .any { token -> passwordEncoder.matches(appToken, token) }
 
     private fun isValidLong(code: String): Boolean {
         try {

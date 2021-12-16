@@ -18,7 +18,22 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.dropWhile
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
@@ -34,11 +49,12 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.dto.data.LabelledOccurence
 import org.taktik.icure.entities.Contact
+import org.taktik.icure.entities.IndexedIdentifier
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.ServiceLink
 import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.exceptions.BulkUpdateConflictException
-import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
 
 @ExperimentalCoroutinesApi
@@ -186,8 +202,8 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(contactDAO.listContactIdsByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate))
     }
 
-    override fun listServiceIdsByIdentifier(hcPartyId: String, identifierSystem: String, identifierValue: String): Flow<String> = flow {
-        emitAll(contactDAO.listServiceIdsByIdentifier(hcPartyId, identifierSystem, identifierValue))
+    override fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier> = flow {
+        emitAll(contactDAO.listServiceIdsByHcPartyAndIdentifiers(hcPartyId, identifiers))
     }
 
     override fun listContactIdsByCode(hcPartyId: String, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?) = flow {
@@ -210,7 +226,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(contactDAO.listContactsByHcPartyAndFormId(hcPartyId, formId))
     }
 
-    override fun listContactsByHCPartyServiceId(hcPartyId: String, formId: String): Flow<Contact> = flow {
+    override fun listContactsByHcPartyServiceId(hcPartyId: String, formId: String): Flow<Contact> = flow {
         emitAll(contactDAO.findContactsByHcPartyServiceId(hcPartyId, formId))
     }
 

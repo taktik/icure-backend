@@ -30,4 +30,5 @@ interface AgendaLogic : EntityPersister<Agenda, String> {
     suspend fun modifyAgenda(agenda: Agenda): Agenda?
     fun getAgendasByUser(userId: String): Flow<Agenda>
     fun getReadableAgendaForUser(userId: String): Flow<Agenda>
+    fun getAnonymousAgendasByUser(userId: String): Flow<Agenda>
 }

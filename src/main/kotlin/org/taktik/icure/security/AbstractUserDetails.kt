@@ -12,6 +12,9 @@ abstract class AbstractUserDetails(
     protected var principalPermissions: Set<Permission>
 ) : UserDetails {
     val authoritiesSet:Set<GrantedAuthority> = authorities
+
+    fun getPermissions(): Set<Permission> = principalPermissions
+
     override fun getAuthorities(): Collection<GrantedAuthority> = authoritiesSet
 
     override var isRealAuth = true

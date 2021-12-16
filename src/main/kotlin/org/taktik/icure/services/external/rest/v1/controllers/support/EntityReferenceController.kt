@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.support
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
@@ -32,7 +33,6 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.EntityReferenceLogic
 import org.taktik.icure.services.external.rest.v1.dto.EntityReferenceDto
 import org.taktik.icure.services.external.rest.v1.mapper.EntityReferenceMapper
-import org.taktik.icure.utils.firstOrNull
 
 @RestController
 @RequestMapping("/rest/v1/entityref")

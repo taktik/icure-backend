@@ -40,5 +40,4 @@ interface UserDAO : GenericDAO<User>{
     fun getUsersOnDb(dbInstanceUrl: URI): Flow<User>
     suspend fun evictFromCache(userIds: Flow<String>)
     suspend fun saveOnFallback(user: User): User
-    suspend fun save(newEntity: Boolean?, entity: User): User?
 }

@@ -17,7 +17,16 @@
  */
 package org.taktik.icure.asynclogic.impl
 
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.toList
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.lang3.Validate
 import org.slf4j.LoggerFactory
@@ -39,11 +48,11 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.User
 import org.taktik.icure.entities.base.PropertyStub
+import org.taktik.icure.entities.security.AuthenticationToken
 import org.taktik.icure.exceptions.CreationException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.exceptions.UserRegistrationException
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.firstOrNull
 import java.net.URI
 import java.time.Duration
 import java.time.Instant
@@ -206,20 +215,66 @@ class UserLogicImpl(
             userByEmail?.let { throw CreationException("User already exists (" + user.email + ")") }
             fix(user.copy(
                     createdDate = Instant.now(),
-                    login = user.email
+                    login = user.email,
+                    passwordHash = if (user.passwordHash != null && !user.passwordHash.matches(passwordRegex))
+                        encodePassword(user.passwordHash) else user.passwordHash,
+                    applicationTokens = emptyMap(),
+                    authenticationTokens = encryptedAuthTokensFor(user)
             )) { createEntities(setOf(it)).firstOrNull() }
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid User", e)
         }
     }
 
+    private fun encryptedAuthTokensFor(user: User) : Map<String, AuthenticationToken> {
+        return (user.authenticationTokens.map { (application, authToken) ->
+            application to authToken.copy(
+                    token = (if (!authToken.token.matches(passwordRegex)) encodePassword(authToken.token) else authToken.token)
+            )
+        } + user.applicationTokens.map { (application, rawToken) ->
+            application to AuthenticationToken(token = encodePassword(rawToken), validity = AuthenticationToken.LONG_LIVING_TOKEN_VALIDITY)
+        }).toMap()
+    }
+
     override fun createEntities(users: Collection<User>): Flow<User> = flow {
         for (user in users) {
-            fix(
-                    if (user.passwordHash != null && !user.passwordHash.matches(passwordRegex)) {
-                        user.copy(passwordHash = encodePassword(user.passwordHash))
-                    } else user
-            ) { userDAO.create(user) }?.let { emit(it) }
+            fix(hashPasswordAndTokens(user)) { userDAO.create(user) }?.let { emit(it) }
+        }
+    }
+
+    private suspend fun hashPasswordAndTokens(user: User) : User {
+        return user.let { u ->
+            if (u.passwordHash != null && u.passwordHash != "*" && !u.passwordHash.matches(passwordRegex)) {
+                u.copy(passwordHash = encodePassword(u.passwordHash))
+            } else u
+        }.let { u ->
+            if (!u.authenticationTokens.isNullOrEmpty()
+                    && u.authenticationTokens.any { (_, authToken) -> !authToken.token.matches(passwordRegex)}) {
+                u.copy(authenticationTokens = u.authenticationTokens.map { (application, authToken) ->
+                    application to authToken.copy(
+                            token = (if (!authToken.token.matches(passwordRegex)) encodePassword(authToken.token) else authToken.token)
+                    )
+                }.toMap())
+            } else u
+        }.let { u ->
+            if (!u.applicationTokens.isNullOrEmpty()) {
+                u.copy(applicationTokens = emptyMap(),
+                        authenticationTokens = (u.authenticationTokens + u.applicationTokens.mapValues { (_, rawToken) ->
+                            AuthenticationToken(token = encodePassword(rawToken), validity = AuthenticationToken.LONG_LIVING_TOKEN_VALIDITY)
+                        })
+                )
+            } else u
+        }.let { u ->
+            if (u.rev != null) {
+                val prev = getUser(user.id)
+                u.copy(
+                        applicationTokens = mapOf(),
+                        authenticationTokens = (prev?.authenticationTokens ?: mapOf()) + u.authenticationTokens + (prev?.applicationTokens?.mapValues { (_, rawToken) ->
+                            AuthenticationToken(token = encodePassword(rawToken), validity = AuthenticationToken.LONG_LIVING_TOKEN_VALIDITY)
+                        } ?: mapOf()),
+                        passwordHash = if (u.passwordHash == "*") prev?.passwordHash else u.passwordHash
+                )
+            } else u
         }
     }
 
@@ -239,30 +294,16 @@ class UserLogicImpl(
     override suspend fun isUserActive(userId: String) = getUser(userId)?.let {
         if (it.status == null || it.status != Users.Status.ACTIVE) {
             false
-        } else it.expirationDate == null || !it.expirationDate!!.isBefore(Instant.now())
+        } else it.expirationDate == null || !it.expirationDate.isBefore(Instant.now())
     } ?: false
 
     override suspend fun checkPassword(password: String) =
             sessionLogic.getCurrentSessionContext().getUser().let { passwordEncoder.matches(password, it?.passwordHash) }
 
-    override suspend fun verifyPasswordToken(userId: String, token: String): Boolean {
-        getUser(userId)?.takeIf { it.passwordToken?.isNotEmpty() ?: false }
-                ?.let {
-                    if (it.passwordToken == token) {
-                        return it.passwordTokenExpirationDate == null || it.passwordTokenExpirationDate!!.isAfter(Instant.now())
-                    }
-                }
-        return false
-    }
-
-    override suspend fun verifyActivationToken(userId: String, token: String): Boolean {
-        getUser(userId)?.let {
-            if (it.activationToken != null && it.activationToken == token) {
-                return it.activationTokenExpirationDate == null || it.activationTokenExpirationDate!!.isAfter(Instant.now())
-            }
-        }
-        return false
-    }
+    override suspend fun verifyAuthenticationToken(userId: String, token: String): Boolean =
+        getUser(userId)?.takeIf { it.authenticationTokens.isNotEmpty() }?.authenticationTokens?.any { (_, tok) ->
+            !tok.isExpired() && passwordEncoder.matches(token, tok.token)
+        } ?: false
 
     override fun getExpiredUsers(fromExpirationDate: Instant, toExpirationDate: Instant): Flow<User> = flow {
         emitAll(userDAO.getExpiredUsers(fromExpirationDate, toExpirationDate))
@@ -287,16 +328,19 @@ class UserLogicImpl(
 
     override suspend fun modifyUser(modifiedUser: User) = fix(modifiedUser) { modifiedUser ->
         // Save user
-        userDAO.save(if (modifiedUser.passwordHash != null && !modifiedUser.passwordHash.matches(passwordRegex)) {
-                    modifiedUser.copy(passwordHash = encodePassword(modifiedUser.passwordHash))
-                } else modifiedUser)
+        userDAO.save(hashPasswordAndTokens(modifiedUser))
     }
 
-    override suspend fun getToken(user: User, key: String): String {
-        return user.applicationTokens[key]
-                ?: (userDAO.getUserOnUserDb(user.id, false).let {
-                    userDAO.save(it.copy(applicationTokens = it.applicationTokens + (key to uuidGenerator.newGUID().toString()))) ?: throw IllegalStateException("Cannot create token for user")
-                }.applicationTokens[key] ?: error("Cannot create token for user"))
+    override suspend fun getToken(user: User, key: String, tokenValidity: Long): String {
+        val authenticationToken = uuidGenerator.newGUID().toString()
+
+        userDAO.getUserOnUserDb(user.id, false).let {
+            userDAO.save(
+                    it.copy(authenticationTokens = it.authenticationTokens + (key to AuthenticationToken(encodePassword(authenticationToken), validity = tokenValidity)))
+            ) ?: throw IllegalStateException("Cannot create token for user")
+        }
+
+        return authenticationToken
     }
 
 
@@ -336,12 +380,6 @@ class UserLogicImpl(
         emitAll(users.asFlow().mapNotNull { modifyUser(it) })
     }
 
-    /* override fun deleteEntities(userIds: Collection<String>) { //TODO MB was override here
-        for (userId in userIds) {
-            deleteUser(userId)
-        }
-    }*/
-
     suspend fun undeleteEntities(userIds: Collection<String>) { //TODO MB was override here
         for (userId in userIds) {
             undeleteUser(userId)
@@ -380,7 +418,7 @@ class UserLogicImpl(
     }
 
     override suspend fun save(user: User): User? {
-        return userDAO.save(user)
+        return userDAO.save(hashPasswordAndTokens(user))
     }
 
     override fun listUsers(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
@@ -414,7 +452,12 @@ class UserLogicImpl(
             getUserByEmailOnUserDb(user.email)?.let { throw CreationException("User already exists (" + user.email + ")") }
 
             return fix(user.copy(createdDate = Instant.now(),
-                    login = user.email)) { getGenericDAO().create(it) }
+                    login = user.email,
+                    passwordHash = if (user.passwordHash != null && !user.passwordHash.matches(passwordRegex))
+                        encodePassword(user.passwordHash) else user.passwordHash,
+                    applicationTokens = emptyMap(),
+                    authenticationTokens = encryptedAuthTokensFor(user))
+            ) { getGenericDAO().create(it) }
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid User", e)
         }

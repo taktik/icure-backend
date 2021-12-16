@@ -18,7 +18,14 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.toList
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
@@ -31,7 +38,6 @@ import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
-import org.taktik.icure.utils.firstOrNull
 
 /**
  * Created by emad7105 on 24/06/2014.
@@ -70,7 +76,9 @@ class HealthElementLogicImpl(private val filters: Filters,
 
     override suspend fun findLatestHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): List<HealthElement> {
         return healthElementDAO.listHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys).toList()
-                .groupBy { it.healthElementId }.values.mapNotNull { value -> value.maxBy { it.modified ?: it.created ?: 0L } }
+                .groupBy { it.healthElementId }.values.mapNotNull { value -> value.maxByOrNull { it: HealthElement ->
+                    it.modified ?: it.created ?: 0L
+                } }
     }
 
     override fun findHealthElementsByHCPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String) = flow {

@@ -163,13 +163,4 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         return client.update(user)
     }
-
-    override suspend fun save(newEntity: Boolean?, entity: User): User? {
-        return super.save(
-                newEntity,
-                if (entity.use2fa == true && !entity.applicationTokens.containsKey("ICC"))
-                    entity.copy(applicationTokens = entity.applicationTokens + ("ICC" to UUID.randomUUID().toString()))
-                else entity
-        )
-    }
 }

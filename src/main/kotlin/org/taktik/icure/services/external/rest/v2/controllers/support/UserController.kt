@@ -22,10 +22,20 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.UserLogic
@@ -36,7 +46,6 @@ import org.taktik.icure.services.external.rest.v2.dto.UserDto
 import org.taktik.icure.services.external.rest.v2.mapper.UserV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubV2Mapper
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
-import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 
 /* Useful notes:
@@ -179,4 +188,17 @@ class UserController(private val userLogic: UserLogic,
         userLogic.encodePassword(password)
     }
 
+    @Operation(summary = "Require a new temporary token for authentication")
+    @PostMapping("/token/{userId}/{key}")
+    fun getToken(@PathVariable userId: String, @Parameter(description = "The token key. Only one instance of a token with a defined key can exist at the same time") @PathVariable key: String, @Parameter(description = "The token validity in seconds", required = false) @RequestParam(required = false) tokenValidity: Long?) = mono {
+        userLogic.getUser(userId)?.let {
+            userLogic.getToken(it, key, tokenValidity ?: 3600)
+        } ?: throw IllegalStateException("Invalid User")
+    }
+
+    @Operation(summary = "Check token validity")
+    @GetMapping("/token/{userId}")
+    fun checkTokenValidity(@PathVariable userId: String, @RequestHeader token: String) = mono {
+        userLogic.verifyAuthenticationToken(userId, token)
+    }
 }

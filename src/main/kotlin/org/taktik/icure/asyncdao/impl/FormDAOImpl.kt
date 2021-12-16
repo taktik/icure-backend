@@ -32,6 +32,7 @@ import org.taktik.icure.asyncdao.FormDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Form
 import org.taktik.icure.properties.CouchDbProperties
+import java.net.URI
 
 
 /**
@@ -73,15 +74,26 @@ internal class FormDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryViewIncludeDocsNoValue<String, Form>(createQuery(client, "conflicts").includeDocs(true)).map { it.doc })
     }
 
-    @View(name = "by_externalUuid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Form' && !doc.deleted && doc.externalUuid) emit( doc.externalUuid, doc._id )}")
-    override suspend fun getFormsByExternalUuid(externalUuid: String): List<Form> {
+    @View(name = "by_logicalUuid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Form' && !doc.deleted && doc.logicalUuid) emit( doc.logicalUuid, doc._id )}")
+    override suspend fun getAllByLogicalUuid(formUuid: String): List<Form> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery(client, "by_externalUuid")
+        val viewQuery = createQuery(client, "by_logicalUuid")
+                .key(formUuid)
+                .includeDocs(true)
+
+        return client.queryViewIncludeDocs<String, String, Form>(viewQuery).map { it.doc /*postLoad(dbInstanceUrl, groupId, it.doc)*/ }.toList().sortedByDescending { it.created ?: 0 }
+    }
+
+    @View(name = "by_uniqueId", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Form' && !doc.deleted && doc.uniqueId) emit( doc.uniqueId, doc._id )}")
+    override suspend fun getAllByUniqueId(externalUuid: String): List<Form> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+        val viewQuery = createQuery(client, "by_uniqueId")
                 .key(externalUuid)
                 .includeDocs(true)
 
-        return client.queryViewIncludeDocs<String, String, Form>(viewQuery).map { it.doc /*postLoad(it.doc)*/ }.toList().sortedByDescending { it.created ?: 0 }
+        return client.queryViewIncludeDocs<String, String, Form>(viewQuery).map { it.doc /*postLoad(dbInstanceUrl, groupId, it.doc)*/ }.toList().sortedByDescending { it.created ?: 0 }
     }
 
 }

@@ -61,7 +61,7 @@ import org.taktik.icure.validation.ValidCode
  * @property deletionDate Hard delete (unix epoch in ms) timestamp of the object. Filled automatically when deletePatient is called.
  * @property firstName the firstname (name) of the patient.
  * @property lastName the lastname (surname) of the patient. This is the official lastname that should be used for official administrative purposes.
- * @property denominations The list of all denominations of the patient, also containing the official full name information. Ordered by preference of use. First element is therefore the official name used for the patient in the application.
+ * @property names The list of all names of the patient, also containing the official full name information. Ordered by preference of use. First element is therefore the official name used for the patient in the application.
  * @property companyName the name of the company this patient is member of.
  * @property languages the list of languages spoken by the patient ordered by fluency (alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html).
  * @property addresses the list of addresses (with address type).
@@ -124,7 +124,7 @@ data class Patient(
         override val addresses: List<Address> = emptyList(),
         override val civility: String? = null,
         override val gender: Gender? = Gender.unknown,
-        override val denominations: List<PersonName> = emptyList(),
+        override val names: List<PersonName> = emptyList(),
         val birthSex: Gender? = Gender.unknown,
         val mergeToPatientId: String? = null,
         val mergedIds: Set<String> = emptySet(),
@@ -202,6 +202,10 @@ data class Patient(
                     super<Person>.solveConflictsWith(other) +
                     super<Encryptable>.solveConflictsWith(other) +
                     super<CryptoActor>.solveConflictsWith(other) + mapOf(
+                    "encryptionKeys" to this.encryptionKeys, // Only keep this ones
+                    "identifier" to mergeListsDistinct(this.identifier, other.identifier,
+                            { a, b -> a.system == b.system && a.value == b.value },
+                    ),
                     "birthSex" to (this.birthSex ?: other.birthSex),
                     "mergeToPatientId" to (this.mergeToPatientId ?: other.mergeToPatientId),
                     "mergedIds" to (other.mergedIds + this.mergedIds),

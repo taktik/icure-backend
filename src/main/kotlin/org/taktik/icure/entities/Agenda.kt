@@ -56,7 +56,6 @@ data class Agenda(
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
         @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
-
 ) : StoredICureDocument {
     companion object : DynamicInitializer<Agenda>
 

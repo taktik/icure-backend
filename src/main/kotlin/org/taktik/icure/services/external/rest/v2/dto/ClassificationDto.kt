@@ -47,6 +47,7 @@ data class ClassificationDto(
 
         val parentId: String?,
         @Schema(defaultValue = "\"\"") val label: String = "",
+        val templateId: String? = null,
 
         override val secretForeignKeys: Set<String> = emptySet(),
         override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = emptyMap(),

@@ -22,11 +22,28 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
@@ -34,12 +51,14 @@ import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair
+import org.taktik.icure.services.external.rest.v1.dto.base.IdentifierDto
 import org.taktik.icure.services.external.rest.v1.dto.data.LabelledOccurenceDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
@@ -47,7 +66,9 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.ContactMapper
+import org.taktik.icure.services.external.rest.v1.mapper.IndexedIdentifierMapper
 import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
+import org.taktik.icure.services.external.rest.v1.mapper.base.IdentifierMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
@@ -57,20 +78,23 @@ import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.Collections
 
 @ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/contact")
 @Tag(name = "contact")
-class ContactController(private val filters: org.taktik.icure.asynclogic.impl.filter.Filters,
-                        private val contactLogic: ContactLogic,
-                        private val sessionLogic: AsyncSessionLogic,
-                        private val contactMapper: ContactMapper,
-                        private val serviceMapper: ServiceMapper,
-                        private val delegationMapper: DelegationMapper,
-                        private val filterChainMapper: FilterChainMapper,
-                        private val stubMapper: StubMapper
+class ContactController(
+        private val filters: org.taktik.icure.asynclogic.impl.filter.Filters,
+        private val contactLogic: ContactLogic,
+        private val sessionLogic: AsyncSessionLogic,
+        private val contactMapper: ContactMapper,
+        private val serviceMapper: ServiceMapper,
+        private val delegationMapper: DelegationMapper,
+        private val filterChainMapper: FilterChainMapper,
+        private val stubMapper: StubMapper,
+        private val identifierMapper: IdentifierMapper,
+        private val indexedIdentifierMapper: IndexedIdentifierMapper
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
     val DEFAULT_LIMIT = 1000
@@ -124,29 +148,32 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
 
     @Operation(summary = "Get the list of all used codes frequencies in services")
     @GetMapping("/service/codes/{codeType}/{minOccurences}")
-    fun getServiceCodesOccurences(@PathVariable codeType: String,
-                                  @PathVariable minOccurences: Long) = mono {
+    fun getServiceCodesOccurences(
+            @PathVariable codeType: String,
+            @PathVariable minOccurences: Long,
+    ) = mono {
         contactLogic.getServiceCodesOccurences(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, codeType, minOccurences)
                 .map { LabelledOccurenceDto(it.label, it.occurence) }
-    }
-
-    @GetMapping("/byHcPartyServiceId")
-    fun listContactByHCPartyServiceId(@RequestParam hcPartyId: String, @RequestParam serviceId: String): Flux<ContactDto> {
-        val contactList = contactLogic.listContactsByHCPartyServiceId(hcPartyId, serviceId)
-        return contactList.map { contact -> contactMapper.map(contact) }.injectReactorContext()
-    }
-
-    @Operation(summary = "List contacts found By externalId.")
-    @PostMapping("/byExternalId")
-    fun listContactsByExternalId(@RequestParam externalId: String): Flux<ContactDto> {
-        val contactList = contactLogic.listContactsByExternalId(externalId)
-        return contactList.map { contact -> contactMapper.map(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "Get a list of contacts found by Healthcare Party and form's id.")
     @GetMapping("/byHcPartyFormId")
     fun findByHCPartyFormId(@RequestParam hcPartyId: String, @RequestParam formId: String): Flux<ContactDto> {
         val contactList = contactLogic.listContactsByHcPartyAndFormId(hcPartyId, formId)
+        return contactList.map { contact -> contactMapper.map(contact) }.injectReactorContext()
+    }
+
+    @Operation(summary = "List contacts found By Healthcare Party and service Id.")
+    @GetMapping("/byHcPartyServiceId")
+    fun findByHCPartyServiceId(@RequestParam hcPartyId: String, @RequestParam serviceId: String): Flux<ContactDto> {
+        val contactList = contactLogic.listContactsByHcPartyServiceId(hcPartyId, serviceId)
+        return contactList.map { contact -> contactMapper.map(contact) }.injectReactorContext()
+    }
+
+    @Operation(summary = "List contacts found By externalId.")
+    @PostMapping("/byExternalId")
+    fun findContactsByExternalId(@RequestParam externalId: String): Flux<ContactDto> {
+        val contactList = contactLogic.listContactsByExternalId(externalId)
         return contactList.map { contact -> contactMapper.map(contact) }.injectReactorContext()
     }
 
@@ -174,10 +201,12 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
 
     @Operation(summary = "Get a list of contacts found by Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
-                                        @RequestParam secretFKeys: String,
-                                        @RequestParam(required = false) planOfActionsIds: String?,
-                                        @RequestParam(required = false) skipClosedContacts: Boolean?): Flux<ContactDto> {
+    fun findByHCPartyPatientSecretFKeys(
+            @RequestParam hcPartyId: String,
+            @RequestParam secretFKeys: String,
+            @RequestParam(required = false) planOfActionsIds: String?,
+            @RequestParam(required = false) skipClosedContacts: Boolean?,
+    ): Flux<ContactDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val contactList = contactLogic.listContactsByHCPartyAndPatient(hcPartyId, ArrayList(secretPatientKeys))
 
@@ -191,8 +220,10 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
 
     @Operation(summary = "List contacts found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys/delegations")
-    fun findContactsDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
-                                                        @RequestParam secretFKeys: String): Flux<IcureStubDto> {
+    fun findContactsDelegationsStubsByHCPartyPatientForeignKeys(
+            @RequestParam hcPartyId: String,
+            @RequestParam secretFKeys: String,
+    ): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         return contactLogic.listContactsByHCPartyAndPatient(hcPartyId, secretPatientKeys).map { contact -> stubMapper.mapToStub(contact) }.injectReactorContext()
     }
@@ -215,8 +246,10 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
 
     @Operation(summary = "Close contacts for Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @PutMapping("/byHcPartySecretForeignKeys/close")
-    fun closeForHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
-                                          @RequestParam secretFKeys: String): Flux<ContactDto> {
+    fun closeForHCPartyPatientForeignKeys(
+            @RequestParam hcPartyId: String,
+            @RequestParam secretFKeys: String,
+    ): Flux<ContactDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val contactFlow = contactLogic.listContactsByHCPartyAndPatient(hcPartyId, secretPatientKeys)
 
@@ -297,7 +330,8 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     fun filterContactsBy(
             @Parameter(description = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
-            @RequestBody filterChain: FilterChain<Contact>) = mono {
+            @RequestBody filterChain: FilterChain<Contact>,
+    ) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
 
@@ -310,7 +344,9 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
 
     @Operation(summary = "Get ids of contacts matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    fun matchContactsBy(@RequestBody filter: AbstractFilterDto<Contact>) = filters.resolve(filter).injectReactorContext()
+    fun matchContactsBy(@RequestBody filter: AbstractFilterDto<Contact>) = mono {
+        filters.resolve(filter).toList()
+    }
 
     // TODO SH MB test this for PaginatedList construction...
     @Operation(summary = "List services for the current user (HcParty) or the given hcparty in the filter ", description = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
@@ -318,14 +354,14 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     fun filterServicesBy(
             @Parameter(description = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
-            @RequestBody filterChain: FilterChain<Service>) = mono {
+            @RequestBody filterChain: FilterChain<Service>,
+    ) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
 
         val paginationOffset = PaginationOffset(null, startDocumentId, null, realLimit+1)
 
-        val services: List<ServiceDto> = filterChainMapper.map(filterChain).applyTo(contactLogic.filterServices(paginationOffset, filterChainMapper.map(filterChain)))
-                .map { serviceMapper.map(it) }.toList()
+        val services: List<ServiceDto> = filterChainMapper.map(filterChain).applyTo(contactLogic.filterServices(paginationOffset, filterChainMapper.map(filterChain))).map { serviceMapper.map(it) }.toList()
 
         val totalSize = services.size // TODO SH AD: this is wrong! totalSize is ids.size from filterServices, which can be retrieved from the TotalCount ViewQueryResultEvent, but we can't easily recover it...
 
@@ -342,17 +378,36 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     @PostMapping("/service/byIds")
     fun listServices(@RequestBody ids: ListOfIdsDto) = contactLogic.getServices(ids.ids).map { svc -> serviceMapper.map(svc) }.injectReactorContext()
 
+    @Operation(summary = "Get service by identifier", description = "It gets service data based on the identifier (root & extension) parameters.")
+    @GetMapping("/service/{hcPartyId}/{value}")
+    fun getServiceByHealthcarepartyAndIdentifier(@PathVariable hcPartyId: String, @PathVariable value: String, @RequestParam(required = false) system: String?) = mono {
+        when {
+            !system.isNullOrEmpty() -> {
+                val serviceIds = contactLogic.listServiceIdsByHcPartyAndIdentifiers(hcPartyId, listOf(Identifier(system= system, value = value))).map { (serviceId, _) -> serviceId }.takeIf { it.count() > 0 }?.toList() ?: listOf(value)
+                contactLogic.getServices(serviceIds).map { serviceMapper.map(it) }.firstOrNull() ?: throw IllegalArgumentException("No service found for identifier $value")
+            }
+            else -> contactLogic.getServices(listOf(value)).map { serviceMapper.map(it) }.firstOrNull() ?: throw IllegalArgumentException("No service found for identifier $value")
+        }
+    }
+
+    @Operation(summary = "Get services ids by identifiers", description = "It gets service data based on the provided identifiers (root & extension)")
+    @PostMapping("/services/ids/{hcPartyId}/byIdentifiers")
+    fun getServicesIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
+                                                      @RequestBody identifiers: List<IdentifierDto>
+    ) = contactLogic.listServiceIdsByHcPartyAndIdentifiers(hcPartyId, identifiers.map { identifierMapper.map(it) }).map { indexedIdentifierMapper.map(it) }
+
+
     @Operation(summary = "List services linked to provided ids ", description = "Returns a list of services")
     @PostMapping("/service/linkedTo")
     fun listServicesLinkedTo(
             @Parameter(description = "The type of the link") @RequestParam(required = false) linkType: String?,
-            @RequestBody ids: ListOfIdsDto
+            @RequestBody ids: ListOfIdsDto,
     ) = contactLogic.getServicesLinkedTo(ids.ids, linkType).map { svc -> serviceMapper.map(svc) }.injectReactorContext()
 
     @Operation(summary = "List services by related association id", description = "Returns a list of services")
     @GetMapping("/service/associationId")
     fun listServicesByAssociationId(
-            @RequestParam associationId: String,
+           @RequestParam associationId: String,
     ) = contactLogic.listServicesByAssociationId(associationId).map { svc -> serviceMapper.map(svc) }.injectReactorContext()
 
     @Operation(summary = "List contacts bu opening date parties with(out) pagination", description = "Returns a list of contacts.")
@@ -362,7 +417,8 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
             @Parameter(description = "The contact max openingDate", required = true) @RequestParam endKey: Long,
             @Parameter(description = "hcpartyid", required = true) @RequestParam hcpartyid: String,
             @Parameter(description = "A contact party document ID") @RequestParam(required = false) startDocumentId: String?,
-            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+    ) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
 
@@ -370,6 +426,12 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
         val contacts = contactLogic.listContactsByOpeningDate(hcpartyid, startKey, endKey, paginationOffset)
 
         contacts.paginatedList<Contact, ContactDto>(contactToContactDto, realLimit)
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handle(e: java.lang.Exception?) {
+        log.warn("Returning HTTP 400 Bad Request", e)
     }
 }
 
