@@ -15,8 +15,8 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.exceptions
 
-package org.taktik.icure.exceptions;
+import java.lang.IllegalArgumentException
 
-public class DuplicatedDocumentException extends Exception {
-}
+class DuplicateDocumentException(msg: String) : IllegalArgumentException(msg)

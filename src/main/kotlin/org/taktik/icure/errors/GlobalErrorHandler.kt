@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.ServerWebInputException
+import org.taktik.icure.exceptions.MissingRequirementsException
 import reactor.core.publisher.Mono
 import java.io.IOException
 
@@ -22,6 +23,7 @@ class GlobalErrorHandler(private val objectMapper: ObjectMapper): ErrorWebExcept
         r.writeWith(Mono.just(when (ex) {
             is IOException -> bufferFactory.toBuffer(ex.message).also { r.statusCode = HttpStatus.BAD_REQUEST }
             is IllegalArgumentException -> bufferFactory.toBuffer(ex.message).also { r.statusCode = HttpStatus.BAD_REQUEST }
+            is MissingRequirementsException ->  bufferFactory.toBuffer(ex.message).also { r.statusCode = HttpStatus.BAD_REQUEST }
             is ServerWebInputException -> bufferFactory.toBuffer(ex.reason).also { r.statusCode = HttpStatus.BAD_REQUEST }
             else -> bufferFactory.toBuffer(ex.message).also { r.statusCode = HttpStatus.INTERNAL_SERVER_ERROR }
         }))

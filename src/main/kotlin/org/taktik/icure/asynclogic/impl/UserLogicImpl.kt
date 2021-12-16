@@ -49,7 +49,7 @@ import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.User
 import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.security.AuthenticationToken
-import org.taktik.icure.exceptions.CreationException
+import org.taktik.icure.exceptions.DuplicateDocumentException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.exceptions.UserRegistrationException
 import org.taktik.icure.properties.CouchDbProperties
@@ -158,7 +158,7 @@ class UserLogicImpl(
         type.takeIf { it == Users.Type.database }
                 .let { Validate.isTrue(isPasswordValid(password!!), "Password is invalid") }
 
-        getUserByLogin(email)?.let { throw CreationException("User already exists") }
+        getUserByLogin(email)?.let { throw DuplicateDocumentException("User already exists") }
         val user =  setHealthcarePartyIdIfExists(healthcarePartyId, newUser(type, Users.Status.ACTIVE, email, Instant.now()))
 
         return fix(password?.let { user.copy(passwordHash = encodePassword(password)) } ?: user) { userDAO.create(it) }
@@ -207,17 +207,15 @@ class UserLogicImpl(
     }
 
     override suspend fun createUser(user: User): User? { // checking requirements
-        if (user.login != null || user.email == null) {
-            throw MissingRequirementsException("createUser: Requirements are not met. Email has to be set and the Login has to be null.")
-        }
-        return try { // check whether user exists
-            val userByEmail = getUserByEmail(user.email)
-            userByEmail?.let { throw CreationException("User already exists (" + user.email + ")") }
+        return try {
+            val login = user.login ?: user.email ?: throw MissingRequirementsException("createUser: Requirements are not met. One of Email or Login has to be not null.")
+            (user.email?.let { getUserByEmail(it) } ?: getUserByLogin(login))?.let { throw DuplicateDocumentException("User already exists ($login)") }
             fix(user.copy(
                     createdDate = Instant.now(),
-                    login = user.email,
+                    status = user.status ?: Users.Status.ACTIVE,
                     passwordHash = if (user.passwordHash != null && !user.passwordHash.matches(passwordRegex))
                         encodePassword(user.passwordHash) else user.passwordHash,
+                    login = user.login ?: user.email,
                     applicationTokens = emptyMap(),
                     authenticationTokens = encryptedAuthTokensFor(user)
             )) { createEntities(setOf(it)).firstOrNull() }
@@ -445,22 +443,17 @@ class UserLogicImpl(
     }
 
     override suspend fun createUserOnUserDb(user: User): User? {
-        if (user.login != null || user.email == null) {
-            throw MissingRequirementsException("createUser: Requirements are not met. Email has to be set and the Login has to be null.")
-        }
-        try { // check whether user exists
-            getUserByEmailOnUserDb(user.email)?.let { throw CreationException("User already exists (" + user.email + ")") }
-
-            return fix(user.copy(createdDate = Instant.now(),
-                    login = user.email,
-                    passwordHash = if (user.passwordHash != null && !user.passwordHash.matches(passwordRegex))
-                        encodePassword(user.passwordHash) else user.passwordHash,
-                    applicationTokens = emptyMap(),
-                    authenticationTokens = encryptedAuthTokensFor(user))
-            ) { getGenericDAO().create(it) }
-        } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid User", e)
-        }
+        val login = user.login ?: user.email ?: throw MissingRequirementsException("createUser: Requirements are not met. One of Email or Login has to be not null.")
+        (user.email?.let { getUserByEmailOnUserDb(it) } ?: getUserByLogin(login))?.let { throw DuplicateDocumentException("User already exists ($login)") }
+        return fix(user.copy(
+                createdDate = Instant.now(),
+                status = user.status ?: Users.Status.ACTIVE,
+                passwordHash = if (user.passwordHash != null && !user.passwordHash.matches(passwordRegex))
+                    encodePassword(user.passwordHash) else user.passwordHash,
+                login = user.login ?: user.email,
+                applicationTokens = emptyMap(),
+                authenticationTokens = encryptedAuthTokensFor(user))
+        ) { userDAO.create(it) }
     }
 
     override suspend fun getUserByEmailOnUserDb(email: String): User? {
