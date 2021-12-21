@@ -80,14 +80,14 @@ internal class HealthElementDAOImpl(couchDbProperties: CouchDbProperties,
    }
 
     @View(name = "by_hcparty_and_status", map = "classpath:js/healthelement/By_hcparty_status_map.js")
-    override fun listHealthElementsByHcPartyAndStatus(hcPartyId: String, status: Int?): Flow<String> = flow {
+    override fun listHealthElementsByHcPartyAndStatus(hcPartyId: String, status: Int?) = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(client.queryView<Array<String>, String>(createQuery(client, "by_hcparty_and_status").key(ComplexKey.of(hcPartyId, status)).includeDocs(false)).mapNotNull { it.value })
     }
 
     @View(name = "by_hcparty_and_identifiers", map = "classpath:js/healthelement/By_hcparty_identifiers_map.js")
-    override fun listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
+    override fun listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>) = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val queryView = createQuery(client, "by_hcparty_and_identifiers")

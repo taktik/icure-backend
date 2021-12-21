@@ -1,9 +1,8 @@
 package org.taktik.icure.asynclogic.impl.filter.healthelement
 
 import javax.security.auth.login.LoginException
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.toSet
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
@@ -16,15 +15,10 @@ class HealthElementByHcPartyIdentifiersFilter(
     private val healthElementLogic: HealthElementLogic,
     private val sessionLogic: AsyncSessionLogic
 ) : Filter<String, HealthElement, HealthElementByHcPartyIdentifiersFilter> {
-    override fun resolve(filter: HealthElementByHcPartyIdentifiersFilter, context: Filters): Flow<String> = flow {
+    override fun resolve(filter: HealthElementByHcPartyIdentifiersFilter, context: Filters) = flow {
         try {
             val hcPartyId: String = filter.hcPartyId ?: getLoggedHealthCarePartyId(sessionLogic)
-
-            healthElementLogic.listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId, filter.identifiers)
-                .toSet()
-                .forEach {
-                    emit(it)
-                }
+            emitAll(healthElementLogic.listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId, filter.identifiers))
         } catch (e: LoginException) {
             throw IllegalArgumentException(e)
         }

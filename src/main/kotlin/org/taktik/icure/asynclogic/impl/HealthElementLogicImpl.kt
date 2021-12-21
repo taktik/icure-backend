@@ -71,7 +71,7 @@ class HealthElementLogicImpl(private val filters: Filters,
         emitAll(healthElementDAO.getEntities(healthElementIds))
     }
 
-    override fun listHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<HealthElement> = flow {
+    override fun listHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>) = flow {
         emitAll(healthElementDAO.listHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys))
     }
 
@@ -90,11 +90,11 @@ class HealthElementLogicImpl(private val filters: Filters,
         emitAll(healthElementDAO.listHealthElementsByHcPartyAndTags(hcPartyId, tagType, tagCode))
     }
 
-    override fun listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
+    override fun listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>) = flow {
         emitAll(healthElementDAO.listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId, identifiers))
     }
 
-    override fun listHealthElementIdsByHcPartyAndStatus(hcPartyId: String, status: Int): Flow<String> = flow {
+    override fun listHealthElementIdsByHcPartyAndStatus(hcPartyId: String, status: Int) = flow {
         emitAll(healthElementDAO.listHealthElementsByHcPartyAndStatus(hcPartyId, status))
     }
 

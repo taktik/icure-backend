@@ -140,7 +140,7 @@ data class HealthElement(
 
     fun merge(other: HealthElement) = HealthElement(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: HealthElement) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
-            "identifier" to mergeListsDistinct(this.identifiers, other.identifiers,
+            "identifiers" to mergeListsDistinct(this.identifiers, other.identifiers,
                     { a, b -> a.system == b.system && a.value == b.value },
             ),
             "healthElementId" to (this.healthElementId ?: other.healthElementId),
