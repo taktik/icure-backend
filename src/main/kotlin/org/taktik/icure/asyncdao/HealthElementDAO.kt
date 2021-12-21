@@ -21,17 +21,20 @@ package org.taktik.icure.asyncdao
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.embed.Identifier
 
 interface HealthElementDAO: GenericDAO<HealthElement> {
     fun listHealthElementsByPatient(patientId: String): Flow<HealthElement>
 
     fun listHealthElementsByPatientAndCodes(patientId: String, codes: Set<Code>): Flow<HealthElement>
 
-    fun listHealthElementsByHCPartyAndCodes(healthCarePartyId: String, codeType: String, codeNumber: String): Flow<String>
+    fun listHealthElementsByHcPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String): Flow<String>
 
-    fun listHealthElementsByHCPartyAndTags(healthCarePartyId: String, tagType: String, tagCode: String): Flow<String>
+    fun listHealthElementsByHcPartyAndTags(hcPartyId: String, tagType: String, tagCode: String): Flow<String>
 
-    fun listHealthElementsByHCPartyAndStatus(healthCarePartyId: String, status: Int?): Flow<String>
+    fun listHealthElementsByHcPartyAndStatus(hcPartyId: String, status: Int?): Flow<String>
+
+    fun listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String>
 
     suspend fun getHealthElementByPlanOfActionId(planOfActionId: String): HealthElement?
 

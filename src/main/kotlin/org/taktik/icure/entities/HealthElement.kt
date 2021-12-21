@@ -21,18 +21,24 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
+import javax.validation.Valid
 import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.Encryptable
 import org.taktik.icure.entities.base.StoredICureDocument
-import org.taktik.icure.entities.embed.*
+import org.taktik.icure.entities.embed.CareTeamMember
+import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.Episode
+import org.taktik.icure.entities.embed.Identifier
+import org.taktik.icure.entities.embed.Laterality
+import org.taktik.icure.entities.embed.PlanOfAction
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
-import javax.validation.Valid
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -91,7 +97,7 @@ import javax.validation.Valid
 data class HealthElement(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,
-        val identifier: List<Identifier> = listOf(),
+        val identifiers: List<Identifier> = emptyList(),
         @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
         @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
         @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
@@ -134,7 +140,7 @@ data class HealthElement(
 
     fun merge(other: HealthElement) = HealthElement(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: HealthElement) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
-            "identifier" to mergeListsDistinct(this.identifier, other.identifier,
+            "identifier" to mergeListsDistinct(this.identifiers, other.identifiers,
                     { a, b -> a.system == b.system && a.value == b.value },
             ),
             "healthElementId" to (this.healthElementId ?: other.healthElementId),

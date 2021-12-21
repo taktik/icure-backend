@@ -24,6 +24,7 @@ import org.taktik.icure.asyncdao.HealthElementDAO
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.Identifier
 
 interface HealthElementLogic : EntityPersister<HealthElement, String> {
     fun getGenericDAO(): HealthElementDAO
@@ -32,12 +33,13 @@ interface HealthElementLogic : EntityPersister<HealthElement, String> {
 
     suspend fun getHealthElement(healthElementId: String): HealthElement?
     fun getHealthElements(healthElementIds: List<String>): Flow<HealthElement>
-    fun findHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<HealthElement>
+    fun listHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<HealthElement>
 
-    suspend fun findLatestHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): List<HealthElement>
-    fun findHealthElementsByHCPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String): Flow<String>
-    fun findHealthElementsByHCPartyAndTags(hcPartyId: String, tagType: String, tagCode: String): Flow<String>
-    fun findHealthElementsByHCPartyAndStatus(hcPartyId: String, status: Int): Flow<String>
+    suspend fun listLatestHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): List<HealthElement>
+    fun listHealthElementIdsByHcPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String): Flow<String>
+    fun listHealthElementIdsByHcPartyAndTags(hcPartyId: String, tagType: String, tagCode: String): Flow<String>
+    fun listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String>
+    fun listHealthElementIdsByHcPartyAndStatus(hcPartyId: String, status: Int): Flow<String>
     fun deleteHealthElements(ids: Set<String>): Flow<DocIdentifier>
 
     suspend fun modifyHealthElement(healthElement: HealthElement): HealthElement?

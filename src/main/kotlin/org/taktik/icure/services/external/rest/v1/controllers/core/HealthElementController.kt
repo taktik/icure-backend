@@ -96,7 +96,7 @@ class HealthElementController(
     @GetMapping("/byHcPartySecretForeignKeys")
     fun findHealthElementsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<HealthElementDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        val elementList = healthElementLogic.findHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
+        val elementList = healthElementLogic.listHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
         return elementList
                 .map { element -> healthElementMapper.map(element) }
@@ -108,7 +108,7 @@ class HealthElementController(
     fun findHealthElementsDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        return healthElementLogic.findHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys)
+        return healthElementLogic.listHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys)
                 .map { healthElement -> stubMapper.mapToStub(healthElement) }
                 .injectReactorContext()
     }

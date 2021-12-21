@@ -38,6 +38,7 @@ import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.Identifier
 
 /**
  * Created by emad7105 on 24/06/2014.
@@ -70,27 +71,31 @@ class HealthElementLogicImpl(private val filters: Filters,
         emitAll(healthElementDAO.getEntities(healthElementIds))
     }
 
-    override fun findHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<HealthElement> = flow {
+    override fun listHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<HealthElement> = flow {
         emitAll(healthElementDAO.listHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys))
     }
 
-    override suspend fun findLatestHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): List<HealthElement> {
+    override suspend fun listLatestHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): List<HealthElement> {
         return healthElementDAO.listHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys).toList()
                 .groupBy { it.healthElementId }.values.mapNotNull { value -> value.maxByOrNull { it: HealthElement ->
                     it.modified ?: it.created ?: 0L
                 } }
     }
 
-    override fun findHealthElementsByHCPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String) = flow {
-        emitAll(healthElementDAO.listHealthElementsByHCPartyAndCodes(hcPartyId, codeType, codeNumber))
+    override fun listHealthElementIdsByHcPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String) = flow {
+        emitAll(healthElementDAO.listHealthElementsByHcPartyAndCodes(hcPartyId, codeType, codeNumber))
     }
 
-    override fun findHealthElementsByHCPartyAndTags(hcPartyId: String, tagType: String, tagCode: String) = flow {
-        emitAll(healthElementDAO.listHealthElementsByHCPartyAndTags(hcPartyId, tagType, tagCode))
+    override fun listHealthElementIdsByHcPartyAndTags(hcPartyId: String, tagType: String, tagCode: String) = flow {
+        emitAll(healthElementDAO.listHealthElementsByHcPartyAndTags(hcPartyId, tagType, tagCode))
     }
 
-    override fun findHealthElementsByHCPartyAndStatus(hcPartyId: String, status: Int): Flow<String> = flow {
-        emitAll(healthElementDAO.listHealthElementsByHCPartyAndStatus(hcPartyId, status))
+    override fun listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
+        emitAll(healthElementDAO.listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId, identifiers))
+    }
+
+    override fun listHealthElementIdsByHcPartyAndStatus(hcPartyId: String, status: Int): Flow<String> = flow {
+        emitAll(healthElementDAO.listHealthElementsByHcPartyAndStatus(hcPartyId, status))
     }
 
     override fun deleteHealthElements(ids: Set<String>): Flow<DocIdentifier> {
