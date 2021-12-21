@@ -1160,9 +1160,9 @@ class SoftwareMedicalFileExport(
 	suspend fun getHealthElements(hcp: HealthcareParty, sfks: List<String>, config: Config): List<HealthElement> {
         var res : List<HealthElement> = emptyList()
         if(hcp.parentId != null) {
-            res = res + (healthElementLogic?.findHealthElementsByHCPartyAndSecretPatientKeys(hcp.parentId, sfks)?.toList() ?: emptyList())
+            res = res + (healthElementLogic?.listHealthElementsByHcPartyAndSecretPatientKeys(hcp.parentId, sfks)?.toList() ?: emptyList())
         }
-        res = res + (healthElementLogic?.findHealthElementsByHCPartyAndSecretPatientKeys(hcp.id, sfks)?.toList() ?: emptyList())
+        res = res + (healthElementLogic?.listHealthElementsByHcPartyAndSecretPatientKeys(hcp.id, sfks)?.toList() ?: emptyList())
         res = res.distinctBy { it.id }
         return excludeHealthElementsForPMF(
 				res?.filterNot {

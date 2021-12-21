@@ -81,7 +81,6 @@ import org.taktik.icure.utils.FuzzyValues
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.util.*
 
 /**
  * Created with IntelliJ IDEA.
@@ -299,7 +298,7 @@ class SumehrExport(
     }
 
     suspend fun getHealthElements(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, treatedServiceIds: MutableSet<String>, healthElements: List<HealthElement>? = null): List<HealthElement> {
-        return (healthElements ?: ArrayList(hcPartyIds).flatMap { healthElementLogic.findLatestHealthElementsByHCPartyAndSecretPatientKeys(it, sfks) }).map {
+        return (healthElements ?: ArrayList(hcPartyIds).flatMap { healthElementLogic.listLatestHealthElementsByHcPartyAndSecretPatientKeys(it, sfks) }).map {
             it.idService?.let { treatedServiceIds.add(it) }
             it
         }.filter {
