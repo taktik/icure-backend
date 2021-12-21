@@ -6,4 +6,4 @@ map = function (doc) {
             });
         });
     }
-};x
+};

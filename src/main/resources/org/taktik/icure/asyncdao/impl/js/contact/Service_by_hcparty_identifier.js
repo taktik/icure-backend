@@ -1,4 +1,4 @@
-function(doc) {
+map = function(doc) {
     var emit_services_by_identifier = function (hcparty, doc) {
         doc.services.forEach(function (service) {
             if (service.identifier && service.identifier.length) {
