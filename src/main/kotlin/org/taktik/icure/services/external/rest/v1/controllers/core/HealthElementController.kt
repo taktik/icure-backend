@@ -42,8 +42,10 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.services.external.rest.v1.dto.ContactDto
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
+import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.HealthElementMapper
@@ -82,6 +84,13 @@ class HealthElementController(
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting healthcare element failed. Possible reasons: no such healthcare element exists, or server error. Please try again or read the server log.")
 
         healthElementMapper.map(element)
+    }
+
+    @Operation(summary = "Get healthElements by batch", description = "Get a list of healthElement by ids/keys.")
+    @PostMapping("/byIds")
+    fun getHealthElements(@RequestBody healthElementIds: ListOfIdsDto): Flux<HealthElementDto> {
+        val healthElements = healthElementLogic.getHealthElements(healthElementIds.ids)
+        return healthElements.map { c -> healthElementMapper.map(c) }.injectReactorContext()
     }
 
     @Operation(summary = "List healthcare elements found By Healthcare Party and secret foreign keyelementIds.", description = "Keys hast to delimited by coma")

@@ -85,6 +85,13 @@ class HealthElementController(
         healthElementV2Mapper.map(element)
     }
 
+    @Operation(summary = "Get healthElements by batch", description = "Get a list of healthElement by ids/keys.")
+    @PostMapping("/byIds")
+    fun getHealthElements(@RequestBody healthElementIds: ListOfIdsDto): Flux<HealthElementDto> {
+        val healthElements = healthElementLogic.getHealthElements(healthElementIds.ids)
+        return healthElements.map { c -> healthElementMapper.map(c) }.injectReactorContext()
+    }
+
     @Operation(summary = "List health elements found By Healthcare Party and secret foreign keyelementIds.", description = "Keys hast to delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
     fun listHealthElementsByHCPartyAndPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<HealthElementDto> {
