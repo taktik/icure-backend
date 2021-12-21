@@ -29,7 +29,7 @@ import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.base.IdentifierDto
 import org.taktik.icure.services.external.rest.v1.dto.base.LinkQualificationDto
-import java.util.*
+import java.util.UUID
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -49,7 +49,7 @@ data class ServiceDto(
         @Schema(description = "The public patient key, encrypted here for separate Crypto Actors.") val cryptedForeignKeys: Map<String, Set<DelegationDto>> = emptyMap(), //Only used when the ServiceDto is emitted outside of its contact
         @Schema(description = "The delegations giving access to connected healthcare information.") val delegations: Map<String, Set<DelegationDto>> = emptyMap(), //Only used when the ServiceDto is emitted outside of its contact
         @Schema(description = "The contact secret encryption key used to encrypt the secured properties (like services for example), encrypted for separate Crypto Actors.") val encryptionKeys: Map<String, Set<DelegationDto>> = emptyMap(), //Only used when the ServiceDto is emitted outside of its contact
-        val label: String = "<invalid>",
+        val label: String? = null,
         val dataClassName: String? = null,
         val index: Long? = null, //Used for sorting
         @Schema(description = "The type of the content recorded in the documents for the service") val content: Map<String, ContentDto> = emptyMap(), //Localized, in the case when the service contains a document, the document id is the SerializableValue
