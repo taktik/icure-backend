@@ -34,7 +34,6 @@ import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.PatientDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
-import org.taktik.icure.entities.IndexedIdentifier
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Gender
 import org.taktik.icure.entities.embed.Identifier
@@ -484,7 +483,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_identifier", map = "classpath:js/patient/By_hcparty_identifier_map.js")
-    override fun listPatientIdsByHcPartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier> = flow {
+    override fun listPatientIdsByHcPartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val queryView = createQuery(client, "by_hcparty_identifier")
@@ -495,14 +494,9 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView<ComplexKey, String>(queryView)
             .mapNotNull {
                 if (it.key == null || it.key!!.components.size < 3) {
-                    null
+                    return@mapNotNull null
                 }
-                else {
-                    IndexedIdentifier(
-                        it.id,
-                        Identifier(system = it.key!!.components[1] as String, value = it.key!!.components[2] as String)
-                    )
-                }
+                return@mapNotNull it.id
             })
     }
 

@@ -482,7 +482,7 @@ class PatientLogicImpl(
         emitAll(undeleteByIds(ids))
     }
 
-    override fun listPatientIdsByHcpartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>) = flow {
+    override fun listPatientIdsByHcpartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
         emitAll(patientDAO.listPatientIdsByHcPartyAndIdentifiers(healthcarePartyId, identifiers))
     }
 

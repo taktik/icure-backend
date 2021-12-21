@@ -61,14 +61,11 @@ import org.taktik.icure.services.external.rest.v1.dto.IdWithRevDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto
-import org.taktik.icure.services.external.rest.v1.dto.base.IdentifierDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
-import org.taktik.icure.services.external.rest.v1.mapper.IndexedIdentifierMapper
 import org.taktik.icure.services.external.rest.v1.mapper.PatientMapper
-import org.taktik.icure.services.external.rest.v1.mapper.base.IdentifierMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.AddressMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.PatientHealthCarePartyMapper
@@ -85,19 +82,17 @@ import java.time.Instant
 @RequestMapping("/rest/v1/patient")
 @Tag(name = "patient")
 class PatientController(
-        private val sessionLogic: AsyncSessionLogic,
-        private val accessLogLogic: AccessLogLogic,
-        private val filters: Filters,
-        private val patientLogic: PatientLogic,
-        private val healthcarePartyLogic: HealthcarePartyLogic,
-        private val patientMapper: PatientMapper,
-        private val filterChainMapper: FilterChainMapper,
-        private val addressMapper: AddressMapper,
-        private val patientHealthCarePartyMapper: PatientHealthCarePartyMapper,
-        private val delegationMapper: DelegationMapper,
-        private val objectMapper: ObjectMapper,
-        private val identifierMapper: IdentifierMapper,
-        private val indexedIdentifierMapper: IndexedIdentifierMapper
+    private val sessionLogic: AsyncSessionLogic,
+    private val accessLogLogic: AccessLogLogic,
+    private val filters: Filters,
+    private val patientLogic: PatientLogic,
+    private val healthcarePartyLogic: HealthcarePartyLogic,
+    private val patientMapper: PatientMapper,
+    private val filterChainMapper: FilterChainMapper,
+    private val addressMapper: AddressMapper,
+    private val patientHealthCarePartyMapper: PatientHealthCarePartyMapper,
+    private val delegationMapper: DelegationMapper,
+    private val objectMapper: ObjectMapper
 ) {
     private val patientToPatientDto = { it: Patient -> patientMapper.map(it) }
 
@@ -514,12 +509,6 @@ class PatientController(
 
         patientLogic.getDuplicatePatientsByName(hcPartyId, paginationOffset).paginatedList(patientToPatientDto, realLimit)
     }
-
-    @Operation(summary = "Get patient ids by identifiers", description = "It gets patient data based on the provided identifiers (root & extension)")
-    @PostMapping("/ids/{hcPartyId}/byIdentifiers")
-    fun getPatientIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
-                                                      @RequestBody identifiers: List<IdentifierDto>
-    ) = patientLogic.listPatientIdsByHcpartyAndIdentifiers(hcPartyId, identifiers.map { identifierMapper.map(it) }).map { indexedIdentifierMapper.map(it) }
 
     companion object {
         private val log = LoggerFactory.getLogger(javaClass)
