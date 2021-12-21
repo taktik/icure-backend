@@ -30,7 +30,7 @@ import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
-import java.util.*
+import java.util.UUID
 
 /**
  * This entity represents a Service.
@@ -89,7 +89,7 @@ data class Service(
         @JsonIgnore val delegations: Map<String, Set<Delegation>> = emptyMap(), //Only used when the Service is emitted outside of its contact
         @JsonIgnore val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(), //Only used when the Service is emitted outside of its contact
         val contactId: String? = null,
-        val label: String = "<invalid>",
+        val label: String? = null,
         val dataClassName: String? = null,
         val index: Long? = null, //Used for sorting
         val content: Map<String /* ISO language code */, Content> = emptyMap(), //Localized, in the case when the service contains a document, the document id is the SerializableValue
@@ -117,7 +117,7 @@ data class Service(
 
     fun merge(other: Service) = Service(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: Service) = super<Encrypted>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + mapOf(
-            "label" to if (this.label.isBlank()) other.label else this.label,
+            "label" to if (this.label.isNullOrBlank()) other.label else this.label,
             "dataClassName" to (this.dataClassName ?: other.dataClassName),
             "index" to (this.index ?: other.index),
             "contactId" to (this.contactId ?: other.contactId),
