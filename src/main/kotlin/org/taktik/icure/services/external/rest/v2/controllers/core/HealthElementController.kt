@@ -89,7 +89,7 @@ class HealthElementController(
     @PostMapping("/byIds")
     fun getHealthElements(@RequestBody healthElementIds: ListOfIdsDto): Flux<HealthElementDto> {
         val healthElements = healthElementLogic.getHealthElements(healthElementIds.ids)
-        return healthElements.map { c -> healthElementMapper.map(c) }.injectReactorContext()
+        return healthElements.map { c -> healthElementV2Mapper.map(c) }.injectReactorContext()
     }
 
     @Operation(summary = "List health elements found By Healthcare Party and secret foreign keyelementIds.", description = "Keys hast to delimited by coma")
