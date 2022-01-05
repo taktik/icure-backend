@@ -19,7 +19,7 @@ import java.util.*
  * @property created The timestamp (unix epoch in ms) of creation of the note, will be filled automatically if missing. Not enforced by the application server.
  * @property modified The date (unix epoch in ms) of the latest modification of the note, will be filled automatically if missing. Not enforced by the application server.
  * @property text Text contained in the note, written as markdown.
- * @property location Where the text node was recorded. Could be the id of a medical location or a free description about the location.
+ * @property location Defines to which part of the corresponding information the note is related to
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)

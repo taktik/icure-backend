@@ -19,7 +19,7 @@ data class AnnotationDto(
         @get:Schema(description = "The timestamp (unix epoch in ms) of creation of this note, will be filled automatically if missing. Not enforced by the application server.") val created: Long? = null,
         @get:Schema(description = "The timestamp (unix epoch in ms) of the latest modification of this note, will be filled automatically if missing. Not enforced by the application server.") val modified: Long? = null,
         @get:Schema(description = "Text contained in the note, written as markdown.") val text: String? = null,
-        @get:Schema(description = "Where the text node was recorded. Could be the id of a medical location or a free description about the location.") val location: String? = null
+        @get:Schema(description = "Defines to which part of the corresponding information the note is related to.") val location: String? = null
 ) : IdentifiableDto<String> {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
