@@ -29,11 +29,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import javax.security.auth.login.LoginException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -407,13 +403,9 @@ class PatientController(
     fun getPatientByHealthcarepartyAndIdentifier(@PathVariable hcPartyId: String, @PathVariable id: String, @RequestParam(required = false) system: String?) = mono {
         when {
             !system.isNullOrEmpty() -> {
-                val patient = patientLogic.findByHealthcarepartyAndIdentifier(hcPartyId, system, id)
+                patientLogic.findByHealthcarepartyAndIdentifier(hcPartyId, system, id)
                         .map { patientMapper.map(it) }
-
-                when(patient.count()){
-                    0 -> patientLogic.getPatient(id)?.let { patientMapper.map(it) }
-                    else -> patient.first()
-                }
+                        .firstOrNull() ?: patientLogic.getPatient(id)?.let { patientMapper.map(it) }
             }
             else -> patientLogic.getPatient(id)?.let { patientMapper.map(it) }
         }
