@@ -18,6 +18,7 @@
 
 package org.taktik.icure.be.ehealth.dto.kmehr.v20170901
 
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.DateType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType
 import java.time.Instant
@@ -160,17 +161,17 @@ object Utils {
         }
     }
 
-    fun makeMomentType(instant: Instant, precision: ChronoUnit = ChronoUnit.SECONDS): org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType {
+    fun makeMomentType(instant: Instant, precision: ChronoUnit = ChronoUnit.SECONDS): org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType? {
         val dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
         return when (precision) {
-            ChronoUnit.YEARS -> org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType().apply {
+            ChronoUnit.YEARS -> MomentType().apply {
                 year = xmlDtf.newXMLGregorianCalendarDate(dateTime.year, FIELD_UNDEFINED, FIELD_UNDEFINED, FIELD_UNDEFINED)
             }
-            ChronoUnit.MONTHS -> org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType().apply {
+            ChronoUnit.MONTHS -> MomentType().apply {
                 yearmonth = xmlDtf.newXMLGregorianCalendarDate(dateTime.year, dateTime.monthValue, FIELD_UNDEFINED, FIELD_UNDEFINED)
             }
             ChronoUnit.DAYS, ChronoUnit.HOURS, ChronoUnit.MINUTES, ChronoUnit.SECONDS, ChronoUnit.MILLIS -> {
-                org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType().apply {
+                MomentType().apply {
                     date = xmlDtf.newXMLGregorianCalendarDate(dateTime.year, dateTime.monthValue, dateTime.dayOfMonth, FIELD_UNDEFINED)
                     time = when (precision) {
                         ChronoUnit.HOURS -> xmlDtf.newXMLGregorianCalendarTime(dateTime.hour, FIELD_UNDEFINED, FIELD_UNDEFINED, FIELD_UNDEFINED)
@@ -204,6 +205,16 @@ object Utils {
             time?.let {
                 d * 1000000L + (it.hour ?: 0) * 10000 + (it.minute ?: 0) * 100 + (it.second ?: 0)
             } ?: d.toLong()
+        }
+    }
+
+    fun makeFuzzyLongFromMomentType(moment: MomentType): Long? {
+        if(moment.year != null) {
+            return Utils.makeFuzzyLongFromDateAndTime(moment.year, moment.time)
+        } else if(moment.yearmonth != null) {
+            return Utils.makeFuzzyLongFromDateAndTime(moment.yearmonth, moment.time)
+        } else {
+            return Utils.makeFuzzyLongFromDateAndTime(moment.date, moment.time)
         }
     }
 

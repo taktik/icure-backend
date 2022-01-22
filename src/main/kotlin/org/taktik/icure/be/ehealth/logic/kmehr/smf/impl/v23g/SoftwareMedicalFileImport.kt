@@ -38,7 +38,7 @@ import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.InsuranceLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils
 import org.taktik.icure.be.ehealth.logic.kmehr.toInputStream
 import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
@@ -77,28 +77,28 @@ import org.taktik.icure.entities.embed.Substanceproduct
 import org.taktik.icure.entities.embed.Telecom
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.exceptions.MissingRequirementsException
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDADDRESSschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITY
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDLNKvalues
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDSEXvalues
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTELECOMschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.LnkType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCEschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDADDRESSschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITY
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDLNKvalues
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDSEXvalues
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDTELECOMschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.LnkType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCEschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.xor
@@ -678,13 +678,18 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         // this method is used for comparison so should not have side effects
         val heDate = extractValueDate(item)
         val mfId = getItemMFID(item)
+
+        val tags: MutableSet<CodeStub> = mutableSetOf();
+        item.certainty?.let { tags.add(CodeStub("CD-CERTAINTY", it.cd.value.value(), "1")) }
+        item.severity?.let { tags.add(CodeStub("CD-SEVERITY", it.cd.value.value(), "1" )) }
+        item.lifecycle?.let { tags.add(CodeStub.from("CD-LIFECYCLE", it.cd.value.value(), "1")) }
+
         return HealthElement(
                 id = idGenerator.newGUID().toString(),
                 healthElementId = mfId?.let{ kmehrIndex.itemIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString(),
                 descr = getItemDescription(item, label),
                 idService = linkedService?.id,
-                tags = setOf(CodeStub.from("CD-ITEM", cdItem, "1")) + extractTags(item) + (item.lifecycle?.let { listOf(CodeStub.from("CD-LIFECYCLE", it.cd.value.value(), "1")) }
-                        ?: listOf()),
+                tags = tags.toSet() + setOf(CodeStub.from("CD-ITEM", cdItem, "1")) + extractTags(item),
                 author = author.id,
                 responsible = trnAuthorHcpId,
                 codes = extractCodes(item),
@@ -754,6 +759,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
     private fun extractTags(item: ItemType): Collection<CodeStub> {
         return (item.cds.filter { it.s == CDITEMschemes.CD_PARAMETER || it.s == CDITEMschemes.CD_LAB || it.s == CDITEMschemes.CD_TECHNICAL }.map { CodeStub.from(it.s.value(), it.value, it.sv) } +
+                item.cds.filter { (it.s == CDITEMschemes.LOCAL && it.sl.equals("LOCAL-PARAMETER")) }.map { CodeStub.from(it.sl, it.value, it.sv) } +
                 item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
                     it.cds.filter {
                         listOf(CDCONTENTschemes.CD_LAB).contains(it.s)
@@ -799,7 +805,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 substanceProduct = item.contents.filter { it.substanceproduct != null }.firstOrNull()?.let {
                                     it.substanceproduct?.let {
                                         Substanceproduct(
-                                                intendedcds = it.intendedcd?.let { listOf(CodeStub.from(it.s, it.value, it.sv)) }
+                                                intendedcds = it.intendedcd?.let { listOf(CodeStub.from(it.s.value(), it.value, it.sv)) }
                                                         ?: listOf(),
                                                 intendedname = it.intendedname.toString()
                                         )
@@ -846,13 +852,6 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                         item.lnks.mapNotNull { it.value?.toString(Charsets.UTF_8) }
                                         ).filterNotNull().joinToString(", ").let { if (it.isNotBlank()) it else null },
                                 posology = item.posology?.text?.value, // posology can be complex but SMF spec recommends text type
-                                regimen = item.regimen?.let {
-                                    it.daynumbersAndQuantitiesAndDaytimes.map {
-                                        RegimenItem().apply {
-                                            //TODO finish this optional parsing
-                                        }
-                                    }
-                                },
                                 duration = item.duration?.let { dt ->
                                     Duration(
                                             value = dt.decimal.toDouble(),
@@ -866,9 +865,15 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         ))
                     }
                     (item.contents.any { it.decimal != null }) -> item.contents.firstOrNull { it.decimal != null }?.let {
+                        val comment = getItemDescription(item, "")
                         if (it.unit != null) {
                             Content(measureValue = Measure(value = it.decimal.toDouble(), unit = it.unit?.cd?.value))
-                        } else {
+                        }
+                        else if (comment != null) {
+                            Content(measureValue = Measure(value = it.decimal.toDouble(), comment = comment))
+                        }
+                        else
+                        {
                             Content(numberValue = it.decimal.toDouble())
                         }
                     }

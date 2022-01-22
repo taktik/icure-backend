@@ -67,9 +67,9 @@ public class CDSEVERITY
 
     private final static long serialVersionUID = 20170901L;
     @XmlValue
-    protected String value;
+    protected CDSEVERITYvalues value;
     @XmlAttribute(name = "S", required = true)
-    protected CDSEVERITYschemes s;
+    protected String s;
     @XmlAttribute(name = "SV", required = true)
     protected String sv;
     @XmlAttribute(name = "DN")
@@ -87,7 +87,7 @@ public class CDSEVERITY
      *     {@link String }
      *
      */
-    public String getValue() {
+    public CDSEVERITYvalues getValue() {
         return value;
     }
 
@@ -99,7 +99,7 @@ public class CDSEVERITY
      *     {@link String }
      *
      */
-    public void setValue(String value) {
+    public void setValue(CDSEVERITYvalues value) {
         this.value = value;
     }
 
@@ -111,8 +111,12 @@ public class CDSEVERITY
      *     {@link CDSEVERITYschemes }
      *
      */
-    public CDSEVERITYschemes getS() {
-        return s;
+    public String getS() {
+        if (s == null) {
+            return "CD-SEVERITY";
+        } else {
+            return s;
+        }
     }
 
     /**
@@ -123,7 +127,7 @@ public class CDSEVERITY
      *     {@link CDSEVERITYschemes }
      *
      */
-    public void setS(CDSEVERITYschemes value) {
+    public void setS(String value) {
         this.s = value;
     }
 

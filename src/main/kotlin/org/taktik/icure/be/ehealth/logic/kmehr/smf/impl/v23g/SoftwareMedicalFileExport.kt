@@ -94,7 +94,7 @@ class SoftwareMedicalFileExport(
 			config: Config = Config(
                     _kmehrId = System.currentTimeMillis().toString(),
 					date = makeXGC(Instant.now().toEpochMilli())!!,
-					time = makeXGC(Instant.now().toEpochMilli(), true)!!,
+					time = makeXGC(Instant.now().toEpochMilli())!!,
 					soft = Config.Software(name = "iCure", version = ICUREVERSION),
 					clinicalSummaryType = "TODO", // not used
 					defaultLanguage = "en",
@@ -105,7 +105,7 @@ class SoftwareMedicalFileExport(
         // fill missing config with default values
         config._kmehrId = config._kmehrId ?: System.currentTimeMillis().toString()
         config.date = config.date ?: makeXGC(Instant.now().toEpochMilli())!!
-        config.time = config.time ?: makeXGC(Instant.now().toEpochMilli(), true)!!
+        config.time = config.time ?: makeXGC(Instant.now().toEpochMilli())!!
         config.soft = config.soft ?: Config.Software(name = "iCure", version = ICUREVERSION)
         config.defaultLanguage = config.defaultLanguage ?: "en"
         config.format = config.format ?: Config.Format.SMF
@@ -133,6 +133,7 @@ class SoftwareMedicalFileExport(
     suspend fun makePatientFolder(patientIndex: Int, patient: Patient, sfks: List<String>,
 								  healthcareParty: HealthcareParty, config: Config, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): FolderType {
         log.info("Make patient export for "+patient.id)
+        config.format = Config.Format.PMF
 		val folder = FolderType().apply {
 			ids.add(idKmehr(patientIndex))
 			this.patient = makePatient(patient, config)
@@ -205,20 +206,19 @@ class SoftwareMedicalFileExport(
 		val specialPrescriptions = mutableListOf<TransactionType>()
         val summaries = mutableListOf<TransactionType>()
 
-		contacts.forEachIndexed { index, encContact ->
+		contacts.forEachIndexed contactsLoop@ { index, encContact ->
 			progressor?.progress((1.0 * index) / (contacts.size + documents.size))
             log.info("Treating contact ${index}/${contacts.size}")
 
-            val contact = if (decryptor != null && (encContact.services.isNotEmpty())) {
+            var contact: Contact? = null;
+            if (decryptor != null && (encContact.services.isNotEmpty())) {
                 log.info("Decrypt ${encContact.id}")
                 val ctcDto = contactMapper.map(encContact)
-                val decryptedContact = decryptor.decrypt(listOf(ctcDto), ContactDto::class.java).firstOrNull()?.let { contactMapper.map(it) }
-                        ?: encContact
+                contact = decryptor.decrypt(listOf(ctcDto), ContactDto::class.java).firstOrNull()?.let { contactMapper.map(it) }
                 log.info("${encContact.id} decrypted")
-                decryptedContact
-            } else {
-				encContact
-			}
+            }
+
+            if(contact == null) return@contactsLoop
 
 			folder.transactions.add(
                     TransactionType().apply {
@@ -241,10 +241,10 @@ class SoftwareMedicalFileExport(
                         cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = cdTransactionRef })
                         (contact.modified ?: contact.created)?.let {
                             date = makeXGC(it)
-                            time = makeXGC(it, unsetMillis = true)
+                            time = makeXGC(it)
                         } ?: also {
                             date = config.date
-                            time = makeXGC(0L, unsetMillis = true)
+                            time = makeXGC(0L)
                         }
                         (contact.responsible ?: healthcareParty.id)?.let {
                             author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic.getHealthcareParty(it)!!, emptyList())) }
@@ -380,11 +380,14 @@ class SoftwareMedicalFileExport(
                                                 this.value = svc.label
                                             })
                                             if (cdItem == "parameter") {
+                                                svc.content.values.firstOrNull { it.measureValue != null }?.measureValue?.comment?.let { measureNote ->
+                                                    this.contents.add(ContentType().apply { texts.add(TextType().apply { l = language; value = measureNote }) })
+                                                }
+
                                                 svc.tags.find { it.type == "CD-PARAMETER" }?.let {
                                                     this.cds.add(
                                                             CDITEM().apply {
                                                                 s = CDITEMschemes.CD_PARAMETER
-
                                                                 value = it.code
                                                             }
                                                     )
@@ -467,10 +470,10 @@ class SoftwareMedicalFileExport(
                 cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "pharmaceuticalprescription" })
                 (svc.modified ?: svc.created) ?.let {
                     date = makeXGC(it)
-                    time = makeXGC(it, unsetMillis = true)
+                    time = makeXGC(it)
                 } ?: also {
                     date = config.date
-                    time = makeXGC(0L, unsetMillis = true)
+                    time = makeXGC(0L)
                 }
                 (svc.responsible ?: healthcareParty.id) ?.let {
                     author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
@@ -538,10 +541,10 @@ class SoftwareMedicalFileExport(
                     cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note"; dn = svc.content["fr"]?.stringValue })
                     (svc.modified ?: svc.created)?.let {
                         date = makeXGC(it)
-                        time = makeXGC(it, unsetMillis = true)
+                        time = makeXGC(it)
                     } ?: also {
                         date = config.date
-                        time = makeXGC(0L, unsetMillis = true)
+                        time = makeXGC(0L)
                     }
                     (svc.responsible ?: healthcareParty.id)?.let {
                         author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
@@ -638,7 +641,7 @@ class SoftwareMedicalFileExport(
             cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION_TYPE; value = transactionType })
             (service.modified ?: service.created)?.let {
                 date = makeXGC(it)
-                time = makeXGC(it, unsetMillis = true)
+                time = makeXGC(it)
             }
             service.responsible?.let {
                 author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
@@ -759,7 +762,7 @@ class SoftwareMedicalFileExport(
             cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note"; dn = title?.stringValue })
             (service.modified ?: service.created)?.let {
                 date = makeXGC(it)
-                time = makeXGC(it, unsetMillis = true)
+                time = makeXGC(it)
             }
             service.responsible?.let {
                 author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
@@ -782,11 +785,11 @@ class SoftwareMedicalFileExport(
                 cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note" })
                 (service.modified ?: service.created)?.let {
                     date = makeXGC(it)
-                    time = makeXGC(it, unsetMillis = true)
+                    time = makeXGC(it)
                 }
                         ?: also {
                             date = config.date
-                            time = makeXGC(0L, unsetMillis = true)
+                            time = makeXGC(0L)
                         }
                 (service.responsible ?: healthcareParty.id)?.let {
                     author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
@@ -1087,7 +1090,7 @@ class SoftwareMedicalFileExport(
                     }
             )
 			val itemtype = eds.tags.find { it.type == "CD-ITEM" }?.let { it.code } ?: "healthcareelement"
-			createItemWithContent(eds, itemIndex, itemtype, content, "MF-ID")?.let {
+			createItemWithContent(eds, itemIndex, itemtype, content)?.let {
 				if(isHeANewVersionOf(eds) && config.format != Config.Format.PMF && eds.healthElementId != null) { // no versioning in PMF
 					it.lnks.add(
 							LnkType().apply {
@@ -1226,7 +1229,7 @@ class SoftwareMedicalFileExport(
 			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION_TYPE ; value = cdTransactionType })
 			contact.modified?.let {
 				date = makeXGC(it)
-				time = makeXGC(it, unsetMillis = true)
+				time = makeXGC(it)
 			}
 			contact.responsible?.let {
 				author = AuthorType().apply { hcparties.add(healthcarePartyLogic.getHealthcareParty(it)?.let { hcp -> createParty(hcp, emptyList()) }) }
