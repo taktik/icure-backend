@@ -208,7 +208,7 @@ object Utils {
         }
     }
 
-    fun makeFuzzyLongFromMomentType(moment: MomentType): Long? {
+    fun makeFuzzyLongFromMomentType(moment: org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType): Long? {
         if(moment.year != null) {
             return Utils.makeFuzzyLongFromDateAndTime(moment.year, moment.time)
         } else if(moment.yearmonth != null) {
