@@ -145,16 +145,13 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val kmehrIndex = kmehrMessage.performIndexation(idGenerator)
         val senderHcps: MutableList<HealthcareParty> = mutableListOf()
 
-        //TODO Might want to have several implementations based on standards
-        kmehrMessage.header.sender.hcparties?.forEach {
-            createOrProcessHcp(it, saveToDatabase)?.let {
-                senderHcps.add(it)
-            }
-        }
-
         kmehrMessage.folders.forEach { folder ->
             val res = ImportResult().apply { allRes.add(this) }
-            res.hcps.addAll(senderHcps)
+            kmehrMessage.header.sender.hcparties?.forEach {
+                createOrProcessHcp(it, saveToDatabase, res)?.let {
+                    senderHcps.add(it)
+                }
+            }
 
             //Do not inline... It makes kotlin 1.4 fail
             val insurabilities = folder.transactions?.flatMap { it.findItems { it.cds.find { it.s == CDITEMschemes.CD_ITEM }?.value == "insurancystatus" } }?.firstOrNull()?.let {
@@ -247,16 +244,14 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                                         saveToDatabase: Boolean,
                                                         kmehrIndex: KmehrMessageIndex): Contact {
         val transactionMfid = getTransactionMFID(trn)
-        val trnhcpid = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-            createOrProcessHcp(it, saveToDatabase, v)
-        }?.firstOrNull()?.id ?: author.healthcarePartyId ?: throw IllegalArgumentException("The author's healthcarePartyId must be set")
+        val trnauthorhcpid = extractTransactionAuthor(trn, saveToDatabase, author, v);
 
         val contactId = transactionMfid?.let { kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString()
         val formId = kmehrIndex.formIdMask.xor(UUID.fromString(contactId)).toString()
 
         val serviceAndSubContacts = trn.findItems { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "medication" } }.map { item ->
             val mfId = getItemMFID(item)
-            val service = parseGenericItem("treatment", "Prescription", item, author, trnhcpid, language, kmehrIndex)
+            val service = parseGenericItem("treatment", "Prescription", item, author, trnauthorhcpid, language, kmehrIndex)
             service to makeSubContact(contactId, formId, mfId, service, kmehrIndex)
         }
         val contactDate = extractTransactionDateTime(trn)
@@ -268,7 +263,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         parent = if (it == formId) kmehrIndex.transactionChildOf[transactionMfid]?.firstOrNull()?.let { kmehrIndex.transactionIds[it]?.first?.let { cid -> kmehrIndex.formIdMask.xor(cid).toString() } } else null,
                         contactId = contactId,
                         author = author.id,
-                        responsible = trnhcpid,
+                        responsible = trnauthorhcpid,
                         created = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
                         modified = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli())
             })
@@ -277,13 +272,18 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         return Contact(
                 id = contactId,
                 author = author.id,
-                responsible = trnhcpid,
+                responsible = trnauthorhcpid,
                 services = serviceAndSubContacts.map {it.first}.toSet() + (transactionMfid?.let { kmehrIndex.parentOf[it]?.flatMap { kmehrIndex.transactionIds[it]?.second?.let { parseTransaction(it, author, v, language, mappings, saveToDatabase, kmehrIndex).services } ?: setOf() }?.toSet() } ?: setOf()),
                 subContacts = simplifiedSubContacts,
                 openingDate = contactDate,
                 closingDate = trn.isIscomplete.let { if (it) contactDate else null }
         )
     }
+
+    private suspend fun extractTransactionAuthor(trn: TransactionType, saveToDatabase: Boolean, author: User, v: ImportResult) =
+            trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY } }?.mapNotNull {
+                createOrProcessHcp(it, saveToDatabase, v)
+            }?.firstOrNull()?.id ?: author.healthcarePartyId ?: throw IllegalArgumentException("The author's healthcarePartyId must be set")
 
     private fun extractTransactionDateTime(trn: TransactionType) =
             trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
@@ -322,12 +322,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                                    kmehrIndex: KmehrMessageIndex): Contact {
 
         val transactionMfid = getTransactionMFID(trn)
-        val trnauthorhcpid = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-            createOrProcessHcp(it, saveToDatabase)?.let {
-                v.hcps.add(it)
-                it
-            }
-        }?.firstOrNull()?.id ?: author.healthcarePartyId ?: throw IllegalArgumentException("The author's healthcarePartyId must be set")
+        val trnauthorhcpid = extractTransactionAuthor(trn, saveToDatabase, author, v);
 
         val services = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter { it.type == CDLNKvalues.MULTIMEDIA }?.map { lnk ->
             val docname = trn.cds.firstOrNull { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.dn ?: "unnamed_document"
@@ -410,12 +405,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                                 saveToDatabase: Boolean,
                                                 kmehrIndex: KmehrMessageIndex): Contact {
         val contactDate = extractTransactionDateTime(trn)
-        val trnauthorhcpid = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-            createOrProcessHcp(it, saveToDatabase)?.let {
-                v.hcps.add(it)
-                it
-            }
-        }?.firstOrNull()?.id ?: author.healthcarePartyId ?: throw IllegalArgumentException("The author's healthcarePartyId must be set")
+        val trnauthorhcpid = extractTransactionAuthor(trn, saveToDatabase, author, v);
 
         val transactionMfid = getTransactionMFID(trn)
 
@@ -929,7 +919,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 content == "s" && this.contents.any { it.texts?.size ?: 0 > 0 || it.cds?.size ?: 0 > 0 || it.hcparty != null }
     }
 
-    protected suspend fun createOrProcessHcp(p: HcpartyType, saveToDatabase: Boolean, v: ImportResult? = null): HealthcareParty? {
+    protected suspend fun createOrProcessHcp(p: HcpartyType, saveToDatabase: Boolean, v: ImportResult): HealthcareParty? {
         val nihii = validNihiiOrNull(p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value)
         val niss = validSsinOrNull(p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value)
         val specialty: String? = p.cds.find { it.s == CDHCPARTYschemes.CD_HCPARTY }?.value?.trim()
@@ -948,10 +938,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
 
         // test if already exist in db
-        existing = existing ?: (nihii?.let { healthcarePartyLogic.listHealthcarePartiesByNihii(it).firstOrNull() }?.also {
-            v?.hcps?.add(it) // do not create it, but should appear in patient external hcparties (duplicates are removed at the end)
-        } ?: niss?.let { healthcarePartyLogic.listHealthcarePartiesBySsin(niss).firstOrNull() })?.also {
-            v?.hcps?.add(it) // do not create it, but should appear in patient external hcparties
+        existing = existing ?: nihii?.let { healthcarePartyLogic.listHealthcarePartiesByNihii(it).firstOrNull() }?:run {
+            niss?.let { healthcarePartyLogic.listHealthcarePartiesBySsin(it).firstOrNull() }
+        }?.also{
+            v.hcps.add(it)
         }
 
         if (existing == null && ((nihii == null || nihii.trim() == "") && (niss == null || niss.trim() == ""))
