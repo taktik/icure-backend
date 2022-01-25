@@ -56,5 +56,7 @@ data class FlowItemDto(
         val phoneNumber: String? = null,
         val patientId: String? = null,
         val patientLastName: String? = null,
-        val patientFirstName: String? = null
+        val patientFirstName: String? = null,
+        val description: String? = null,
+        val interventionCode: String? = nul
 )

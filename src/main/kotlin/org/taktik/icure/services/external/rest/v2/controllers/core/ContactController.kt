@@ -400,6 +400,12 @@ class ContactController(
             @RequestParam associationId: String,
     ) = contactLogic.listServicesByAssociationId(associationId).map { svc -> serviceV2Mapper.map(svc) }.injectReactorContext()
 
+    @Operation(summary = "List services linked to a health element", description = "Returns the list of services linked to the provided health element id")
+    @GetMapping("/service/healthElementId/{healthElementId}")
+    fun listServicesByHealthElementId(
+            @PathVariable healthElementId: String,
+    ) = contactLogic.listServicesForHealthElementId(healthElementId).map { svc -> serviceV2Mapper.map(svc) }.injectReactorContext()
+
     @Operation(summary = "List contacts by opening date parties with(out) pagination", description = "Returns a list of contacts.")
     @GetMapping("/byOpeningDate")
     fun findContactsByOpeningDate(
