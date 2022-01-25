@@ -28,7 +28,7 @@ import org.taktik.icure.services.external.rest.v2.dto.embed.*
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
-@Schema(description = """This entity is a root level object. It represents a healthcare party. It is serialized in JSON and saved in the underlying icure-healthcareParty CouchDB database.""")
+@Schema(description = """This entity is a root level object. It represents a healthcare party. It is serialized in JSON and saved in the underlying icure-healthdata CouchDB database.""")
 data class HealthcarePartyDto(
         @Schema(description = "the Id of the healthcare party. We encourage using either a v4 UUID or a HL7 Id.") override val id: String,
         @Schema(description = "the revision of the healthcare party in the database, used for conflict management / optimistic locking.") override val rev: String? = null,
@@ -76,7 +76,9 @@ data class HealthcarePartyDto(
         val flatRateTarifications: List<FlatRateTarificationDto> = emptyList(),
         val importedData: Map<String, String> = emptyMap(),
 
+        @Deprecated("Use properties instead")
         val options: Map<String, String> = emptyMap(),
+        override val properties: Set<PropertyStubDto> = emptySet(),
 
         //One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
         //For a pair of HcParties, this key is called the AES exchange key
@@ -87,7 +89,7 @@ data class HealthcarePartyDto(
         override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
         override val privateKeyShamirPartitions: Map<String, String> = emptyMap(), //Format is hcpId of key that has been partitionned : "threshold⎮partition in hex"
         override val publicKey: String? = null
-) : StoredDocumentDto, NamedDto, PersonDto, CryptoActorDto {
+) : StoredDocumentDto, NamedDto, PersonDto, CryptoActorDto, DataOwnerDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

@@ -16,26 +16,24 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.services.external.rest.v1.mapper
+package org.taktik.icure.services.external.rest.v2.mapper
 
 import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
-import org.taktik.icure.entities.HealthcareParty
-import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
-import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
-import org.taktik.icure.services.external.rest.v1.mapper.base.PropertyStubMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.*
+import org.taktik.icure.entities.Device
+import org.taktik.icure.services.external.rest.v2.dto.DeviceDto
+import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [GenderMapper::class, FinancialInstitutionInformationMapper::class, AddressMapper::class, TelecomTypeMapper::class, CodeStubMapper::class, FlatRateTarificationMapper::class, HealthcarePartyStatusMapper::class, PersonNameMapper::class, PropertyStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface HealthcarePartyMapper {
+@Mapper(componentModel = "spring", uses = [ PropertyStubV2Mapper::class ], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface DeviceV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),
             Mapping(target = "conflicts", ignore = true),
             Mapping(target = "revisionsInfo", ignore = true)
             )
-	fun map(healthcarePartyDto: HealthcarePartyDto):HealthcareParty
-	fun map(healthcareParty: HealthcareParty):HealthcarePartyDto
+	fun map(deviceDto: DeviceDto):Device
+	fun map(device: Device):DeviceDto
 }

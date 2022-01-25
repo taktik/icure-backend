@@ -22,20 +22,18 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
-import org.taktik.icure.entities.HealthcareParty
-import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
-import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
+import org.taktik.icure.entities.Device
+import org.taktik.icure.services.external.rest.v1.dto.DeviceDto
 import org.taktik.icure.services.external.rest.v1.mapper.base.PropertyStubMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.*
 
-@Mapper(componentModel = "spring", uses = [GenderMapper::class, FinancialInstitutionInformationMapper::class, AddressMapper::class, TelecomTypeMapper::class, CodeStubMapper::class, FlatRateTarificationMapper::class, HealthcarePartyStatusMapper::class, PersonNameMapper::class, PropertyStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface HealthcarePartyMapper {
+@Mapper(componentModel = "spring", uses = [ PropertyStubMapper::class ], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+interface DeviceMapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),
             Mapping(target = "conflicts", ignore = true),
             Mapping(target = "revisionsInfo", ignore = true)
             )
-	fun map(healthcarePartyDto: HealthcarePartyDto):HealthcareParty
-	fun map(healthcareParty: HealthcareParty):HealthcarePartyDto
+	fun map(deviceDto: DeviceDto):Device
+	fun map(device: Device):DeviceDto
 }

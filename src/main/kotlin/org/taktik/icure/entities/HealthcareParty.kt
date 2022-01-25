@@ -37,7 +37,7 @@ import org.taktik.icure.validation.ValidCode
 /**
  * A healthcareParty
  *
- * This entity is a root level object. It represents a healthcare party. It is serialized in JSON and saved in the underlying icure-healthcareParty CouchDB database.
+ * This entity is a root level object. It represents a healthcare party. It is serialized in JSON and saved in the underlying icure-healthcare CouchDB database.
  * A Healthcare Party conforms to a series of interfaces:
  * - StoredICureDocument
  * - Person
