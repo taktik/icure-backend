@@ -79,59 +79,27 @@ import org.taktik.icure.validation.ValidCode
  *
  */
 
-data class HealthcareParty(
+data class Device(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
+        val externalId: String? = null,
+
         override val name: String? = null,
-        override val lastName: String? = null,
-        override val firstName: String? = null,
-        override val gender: Gender? = null,
-        override val civility: String? = null,
-        override val companyName: String? = null,
-        override val names: List<PersonName> = emptyList(),
-        val speciality: String? = null,
-        val bankAccount: String? = null,
-        val bic: String? = null,
-        val proxyBankAccount: String? = null,
-        val proxyBic: String? = null,
-        val invoiceHeader: String? = null,
-        val cbe: String? = null,
-        val ehp: String? = null,
-        val userId: String? = null,
+        val type: String? = null, // "persphysician" or "medicalHouse" or "perstechnician"
+        val brand: String? = null,
+        val model: String? = null,
+        val serialNumber: String? = null,
+
         val parentId: String? = null,
-        val convention: Int? = null, //0,1,2,9
-        val nihii: String? = null, //institution, person
-        val nihiiSpecCode: String? = null, //don't show field in the GUI
-        val ssin: String? = null,
-        override val addresses: List<Address> = emptyList(),
-        override val languages: List<String> = emptyList(),
         val picture: ByteArray? = null,
-        val statuses: Set<HealthcarePartyStatus> = emptySet(),
-        val statusHistory: List<HealthcarePartyHistoryStatus> = emptyList(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) val specialityCodes: Set<CodeStub> = emptySet(), //Speciality codes, default is first
 
-        val sendFormats: Map<TelecomType, String> = emptyMap(),
-        val notes: String? = null,
-        val financialInstitutionInformation: List<FinancialInstitutionInformation> = emptyList(),
-
-        // Medical houses
-        var billingType: String? = null, // "serviceFee" (à l'acte) or "flatRate" (forfait)
-        var type: String? = null, // "persphysician" or "medicalHouse" or "perstechnician"
-        var contactPerson: String? = null,
-        var contactPersonHcpId: String? = null,
-        var supervisorId: String? = null,
-        var flatRateTarifications: List<FlatRateTarification> = emptyList(),
-        var importedData: Map<String, String> = emptyMap(),
-
-        @Deprecated("Use properties instead")
-        val options: Map<String, String> = emptyMap(),
         override val properties: Set<PropertyStub> = emptySet(),
 
-        //One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
-        //For a pair of HcParties, this key is called the AES exchange key
-        //Each HcParty always has one AES exchange key for himself
+        // One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
+        // For a pair of HcParties, this key is called the AES exchange key
+        // Each HcParty always has one AES exchange key for himself
         // The map's keys are the delegate id.
         // In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
         // the key encrypted using delegate's public key.
@@ -144,42 +112,18 @@ data class HealthcareParty(
         @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
-) : StoredDocument, Named, Person, CryptoActor, DataOwner {
-    companion object : DynamicInitializer<HealthcareParty>
+) : StoredDocument, Named, CryptoActor, DataOwner {
+    companion object : DynamicInitializer<Device>
 
-    fun merge(other: HealthcareParty) = HealthcareParty(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: HealthcareParty) = super<StoredDocument>.solveConflictsWith(other) + super<Person>.solveConflictsWith(other) + super<CryptoActor>.solveConflictsWith(other) + mapOf(
-            "speciality" to (this.speciality ?: other.speciality),
-            "bankAccount" to (this.bankAccount ?: other.bankAccount),
-            "bic" to (this.bic ?: other.bic),
-            "proxyBankAccount" to (this.proxyBankAccount ?: other.proxyBankAccount),
-            "proxyBic" to (this.proxyBic ?: other.proxyBic),
-            "invoiceHeader" to (this.invoiceHeader ?: other.invoiceHeader),
-            "cbe" to (this.cbe ?: other.cbe),
-            "ehp" to (this.ehp ?: other.ehp),
-            "userId" to (this.userId ?: other.userId),
+    fun merge(other: Device) = HealthcareParty(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: Device) = super<StoredDocument>.solveConflictsWith(other) + super<CryptoActor>.solveConflictsWith(other) + super<DataOwner>.solveConflictsWith(other) + mapOf(
             "parentId" to (this.parentId ?: other.parentId),
-            "convention" to (this.convention ?: other.convention),
-            "nihii" to (this.nihii ?: other.nihii),
-            "nihiiSpecCode" to (this.nihiiSpecCode ?: other.nihiiSpecCode),
-            "ssin" to (this.ssin ?: other.ssin),
             "picture" to (this.picture ?: other.picture),
-            "statuses" to (other.statuses + this.statuses),
-            "specialityCodes" to (other.specialityCodes + this.specialityCodes),
-            "sendFormats" to (other.sendFormats + this.sendFormats),
-            "notes" to (this.notes ?: other.notes),
-            "financialInstitutionInformation" to mergeListsDistinct(this.financialInstitutionInformation, other.financialInstitutionInformation,
-                    { a, b -> a.key?.equals(b.key) ?: false }
-            ),
-            "billingType" to (this.billingType ?: other.billingType),
+            "externalId" to (this.type ?: other.externalId),
             "type" to (this.type ?: other.type),
-            "contactPerson" to (this.contactPerson ?: other.contactPerson),
-            "contactPersonHcpId" to (this.contactPersonHcpId ?: other.contactPersonHcpId),
-            "flatRateTarifications" to mergeListsDistinct(this.flatRateTarifications, other.flatRateTarifications,
-                    { a, b -> a.flatRateType?.equals(b.flatRateType) ?: false }
-            ),
-            "importedData" to (other.importedData + this.importedData),
-            "options" to (other.options + this.options)
+            "brand" to (this.type ?: other.brand),
+            "model" to (this.type ?: other.model),
+            "serialNumber" to (this.type ?: other.serialNumber),
     )
 
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)

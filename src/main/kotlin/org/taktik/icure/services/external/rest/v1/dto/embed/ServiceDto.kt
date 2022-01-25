@@ -38,7 +38,8 @@ import java.util.UUID
 Services include subjective information provided by the patient, such as complaints, reason for visit, feelings, etc. or objective information like bio-metric measures (blood pressure, temperature, heart beat, etc.), or physical exam description, diagnosis, prescription, integration of lab reports from another healthcare party, action plan, etc.
 Any action performed by the healthcare party which is relevant for the healthcare element of a patient is considered a service. The services can be linked to healthcare elements or other structuring elements of the medical record""")
 data class ServiceDto(
-        @Schema(description = "The Id of the Service. We encourage using either a v4 UUID or a HL7 Id.") override val id: String = UUID.randomUUID().toString(),//Only used when the ServiceDto is emitted outside of its contact
+        @Schema(description = "The Id of the Service. We encourage using either a v4 UUID or a HL7 Id.") override val id: String = UUID.randomUUID().toString(),
+        @Schema(description = "The transactionId is used when a single service had to be split into parts for technical reasons. Several services with the same non null transaction id form one single service") val transactionId: String? = null,
         val identifier: List<IdentifierDto> = listOf(),
         @Schema(description = "Id of the contact during which the service is provided") val contactId: String? = null,
         @Schema(description = "List of IDs of all sub-contacts that link the service to structural elements. Only used when the Service is emitted outside of its contact") val subContactIds: Set<String>? = null, //Only used when the ServiceDto is emitted outside of its contact

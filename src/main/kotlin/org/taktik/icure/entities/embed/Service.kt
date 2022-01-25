@@ -79,7 +79,8 @@ import java.util.UUID
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class Service(
-        @JsonProperty("_id") override val id: String = UUID.randomUUID().toString(),//Only used when the Service is emitted outside of its contact
+        @JsonProperty("_id") override val id: String = UUID.randomUUID().toString(),
+        val transactionId: String? = null, //Used when a single service had to be split into parts for technical reasons. Several services with the same non null transaction id form one single service
         val identifier: List<Identifier> = listOf(),
         @JsonIgnore val subContactIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
         @JsonIgnore val plansOfActionIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
@@ -89,7 +90,7 @@ data class Service(
         @JsonIgnore val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(), //Only used when the Service is emitted outside of its contact
         @JsonIgnore val delegations: Map<String, Set<Delegation>> = emptyMap(), //Only used when the Service is emitted outside of its contact
         @JsonIgnore val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(), //Only used when the Service is emitted outside of its contact
-        val contactId: String? = null,
+        @JsonIgnore val contactId: String? = null, //Only used when the Service is emitted outside of its contact
         val label: String? = null,
         @Deprecated("Deleted in V2") val dataClassName: String? = null,
         val index: Long? = null, //Used for sorting

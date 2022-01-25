@@ -20,10 +20,12 @@ package org.taktik.icure.services.external.rest.v1.dto.embed
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.github.pozo.KotlinBuilder
 import io.swagger.v3.oas.annotations.media.Schema
+import org.taktik.icure.entities.embed.TimeSeries
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
 import java.io.Serializable
@@ -47,6 +49,7 @@ data class ContentDto(
         @Schema(description = "Linked document.") val documentId: String? = null,
         @Schema(description = "Values of measurements recorded. Fields included would be the value, permissible range (min. and max.), severity, unit of measurement, etc ") val measureValue: MeasureDto? = null,
         @Schema(description = "The details of prescribed or suggested medication") val medicationValue: MedicationDto? = null,
+        @Schema(description = "A high frequency time-series containing the ts in ms from the start (double) and the values") val timeSeries: TimeSeries? = null,
         val compoundValue: List<ServiceDto>? = null,
         val ratio: List<MeasureDto>? = null,
         val range: List<MeasureDto>? = null
@@ -68,6 +71,10 @@ data class ContentDto(
         if (measureValue != other.measureValue) return false
         if (medicationValue != other.medicationValue) return false
         if (compoundValue != other.compoundValue) return false
+        if (timeSeries != other.timeSeries) return false
+
+        if (ratio != other.ratio) return false
+        if (range != other.range) return false
 
         return true
     }
