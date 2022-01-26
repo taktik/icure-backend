@@ -55,6 +55,9 @@ data class Reimbursement(
         if (this === other) return true
         if (other !is Reimbursement) return false
 
+        if (from != other.from) return false
+        if (to != other.to) return false
+
         if (deliveryEnvironment != other.deliveryEnvironment) return false
         if (code != other.code) return false
         if (codeType != other.codeType) return false
