@@ -66,7 +66,7 @@ class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogi
     }
 
     @Throws(Exception::class)
-    override suspend fun modifyEntities(roles: Collection<Role>) = flow {
+    override fun modifyEntities(roles: Collection<Role>) = flow {
         roles.map { role: Role -> saveRole(role) }
                 .filterNotNull()
                 .onEach { emit(it) }

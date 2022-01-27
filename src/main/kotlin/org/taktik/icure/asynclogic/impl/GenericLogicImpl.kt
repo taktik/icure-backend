@@ -39,7 +39,7 @@ abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(pri
         emitAll(getGenericDAO().create(entities))
     }
 
-    override suspend fun modifyEntities(entities: Collection<E>): Flow<E> = flow {
+    override fun modifyEntities(entities: Collection<E>): Flow<E> = flow {
         emitAll(getGenericDAO().save(entities))
     }
 
