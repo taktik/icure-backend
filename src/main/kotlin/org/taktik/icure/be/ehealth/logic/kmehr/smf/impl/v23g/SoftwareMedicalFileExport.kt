@@ -218,246 +218,183 @@ class SoftwareMedicalFileExport(
                 log.info("${encContact.id} decrypted")
             }
 
-            if(contact == null) return@contactsLoop
+                if(contact == null) return@contactsLoop
+                var subContacts: List<SubContact> = contact.subContacts.filter { subContact -> subContact.healthElementId == null && subContact.planOfActionId == null && subContact.formId != null}
+                subContacts.forEachIndexed {index, subContact ->
+                    folder.transactions.add(
+                            TransactionType().apply {
+                                val trn = this
 
-			folder.transactions.add(
-                    TransactionType().apply {
-                        var services: List<Service> = excludesServiceForPMF(contact.services.toList(), config)
-                        val trn = this
-
-                        val (cdTransactionRef, defaultCdItemRef, exportAsDocument) = when (contact.encounterType?.code) {
-                            "labresult" -> Triple("labresult", "lab", false)
-                            else -> {
-                                if (contact.tags?.any { it.type == "CD-TRANSACTION" && it.code == "labresult" } == true) {
-                                    Triple("labresult", "lab", true)
-                                } else {
-                                    Triple("contactreport", "parameter", false)
-                                }
-                            }
-                        }
-
-                        ids.add(idKmehr(startIndex))
-                        ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; value = contact.id })
-                        cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = cdTransactionRef })
-                        (contact.modified ?: contact.created)?.let {
-                            date = makeXGC(it)
-                            time = makeXGC(it)
-                        } ?: also {
-                            date = config.date
-                            time = makeXGC(0L)
-                        }
-                        (contact.responsible ?: healthcareParty.id)?.let {
-                            author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic.getHealthcareParty(it)!!, emptyList())) }
-                        }
-                        isIscomplete = true
-                        isIsvalidated = true
-                        contact.openingDate?.let { headingsAndItemsAndTexts.add(makeEncounterDateTime(headingsAndItemsAndTexts.size + 1, it)) }
-                        contact.location?.let { headingsAndItemsAndTexts.add(makeEncounterLocation(headingsAndItemsAndTexts.size + 1, it, language)) }
-                        contact.encounterType?.let { headingsAndItemsAndTexts.add(makeEncounterType(headingsAndItemsAndTexts.size + 1, it)) }
-
-                        hesByContactId[contact.id].orEmpty().map { he -> addHealthCareElement(trn, he, 0, config) }
-
-                        hesByContactId = hesByContactId.filterKeys { it != contact.id } // prevent re-using the same He for the next subcontact
-
-                        // Special code for specific forms
-                        contact.subContacts.forEach { subcon ->
-                            //TODO: Please explain
-                            if (subcon.healthElementId == null) { // discard form <-> he links
-                                subcon.formId?.let {
-                                    formLogic.getForm(it)?.let { form ->
-                                        form.formTemplateId?.let {
-                                            try {
-                                                formTemplateLogic.getFormTemplate(it)?.let {
-                                                    when (it.guid) {
-                                                        "FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00" -> { // ITT
-                                                            services = services.filterNot { subcon.services.map { it.serviceId }.contains(it.id) } // remove form services from main list
-                                                            trn.headingsAndItemsAndTexts.add(makeIncapacityItem(contact, subcon, form))
-                                                        }
-                                                        "AEFED10A-9A72-4B40-981B-1D79ADB05516" -> { // Prescription Kine
-                                                            services = services.filterNot { subcon.services.map { it.serviceId }.contains(it.id) }
-                                                            specialPrescriptions.add(makeKinePrescriptionTransaction(contact, subcon, form))
-                                                        }
-                                                        "64DAB551-B007-4B5C-BD64-F886301F5326" -> { // Prescription Nurse
-                                                            services = services.filterNot { subcon.services.map { it.serviceId }.contains(it.id) }
-                                                            // get subforms
-                                                            val subformsubcons = contact.subContacts.filter { subformsubcon ->
-                                                                subformsubcon.formId?.let {
-                                                                    formLogic.getForm(it)?.let { subform ->
-                                                                        subform.parent == form.id
-
-                                                                    }
-                                                                } == true
-                                                            }
-                                                            subformsubcons.forEach { subformsubcon ->
-                                                                services = services.filterNot { subformsubcon.services.map { it.serviceId }.contains(it.id) }
-                                                            }
-                                                            specialPrescriptions.add(makeNursePrescriptionTransaction(contact, subcon, subformsubcons, form))
-                                                        }
-                                                        else -> Unit
-                                                    }
-                                                }
-                                            } catch (e:Exception) {
-                                                log.error("Cannot load form template $it")
-                                            }
+                                val (cdTransactionRef, defaultCdItemRef, exportAsDocument) = when (contact.encounterType?.code) {
+                                    "labresult" -> Triple("labresult", "lab", false)
+                                    else -> {
+                                        if (contact.tags?.any { it.type == "CD-TRANSACTION" && it.code == "labresult" } == true) {
+                                            Triple("labresult", "lab", true)
+                                        } else {
+                                            Triple("contactreport", "parameter", false)
                                         }
                                     }
                                 }
+                            val transactionMFID: String = if(index > 0) UUIDGenerator().newGUID().toString() else contact.id
+                            val services: List<Service> = contact.services.filter { subContact.services.map{it.serviceId}.contains(it.id)}
+                            val parentContactId: String? = if(index > 0) contact.id else null
+                            ids.add(idKmehr(startIndex))
+                            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; value = transactionMFID })
+                            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = cdTransactionRef })
+                            (contact.modified ?: contact.created)?.let {
+                                date = makeXGC(it)
+                                time = makeXGC(it)
+                            } ?: also {
+                                date = config.date
+                                time = makeXGC(0L)
                             }
-                        }
+                            (contact.responsible ?: healthcareParty.id)?.let {
+                                author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic.getHealthcareParty(it)!!, emptyList())) }
+                            }
+                            isIscomplete = true
+                            isIsvalidated = true
+                            contact.openingDate?.let { headingsAndItemsAndTexts.add(makeEncounterDateTime(headingsAndItemsAndTexts.size + 1, it)) }
+                            contact.location?.let { headingsAndItemsAndTexts.add(makeEncounterLocation(headingsAndItemsAndTexts.size + 1, it, language)) }
+                            contact.encounterType?.let { headingsAndItemsAndTexts.add(makeEncounterType(headingsAndItemsAndTexts.size + 1, it)) }
 
-                        contact.services.filter { s -> s.tags.find { t -> t.code == "incapacity" } != null }.forEach { incapacityService ->
-                            headingsAndItemsAndTexts.add(makeIncapacityItem(healthcareParty, incapacityService))
-                            incapacityService.content[language]?.documentId?.let { docId ->
-                                createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config, decryptor)
-                            }
-                        }
-                        contact.services.filter { s -> s.tags.find { t -> t.code == "physiotherapy" } != null }.forEach { kineService ->
-                            specialPrescriptions.add(makeKinePrescriptionTransaction(kineService, decryptor))
-                        }
-                        contact.services.filter { s -> s.tags.find { t -> t.code == "medicalcares" } != null }.forEach { nurseService ->
-                            specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService, decryptor))
-                        }
-                        contact.services.filter { s -> isSummary(s) }.forEach { summaryService ->
-                            summaries.add(makeSummaryTransaction(contact, summaryService))
-                        }
+                            hesByContactId[contact.id].orEmpty().map { he -> addHealthCareElement(trn, he, 0, config) }
 
-                        // services
-                        if (exportAsDocument && services.size == 1) {
-                            services[0].content.values.forEach { doc ->
-                                doc.stringValue?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = CDMEDIATYPEvalues.TEXT_PLAIN; value = it.toByteArray(Charsets.UTF_8) }) }
-                            }
-                        } else {
-                            services.forEach servicesLoop@{ svc ->
-                                val incapacityTag = svc.tags.find { t -> t.code == "incapacity" }
-                                if (incapacityTag != null) return@servicesLoop
-                                var forSeparateTransaction = false // documents are in separate transaction in *MF
-                                svc.content.values.find { it.documentId != null }?.let {
-                                    documents = documents.plus(Triple(it.documentId!!, svc, contact))
-                                    forSeparateTransaction = true
+                            hesByContactId = hesByContactId.filterKeys { it != contact.id } // prevent re-using the same He for the next subcontact
+
+                            contact.services.filter { s -> s.tags.find { t -> t.code == "incapacity" } != null }.forEach { incapacityService ->
+                                headingsAndItemsAndTexts.add(makeIncapacityItem(healthcareParty, incapacityService))
+                                incapacityService.content[language]?.documentId?.let { docId ->
+                                    createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config, decryptor)
                                 }
+                            }
+                            contact.services.filter { s -> s.tags.find { t -> t.code == "physiotherapy" } != null }.forEach { kineService ->
+                                specialPrescriptions.add(makeKinePrescriptionTransaction(kineService, decryptor))
+                            }
+                            contact.services.filter { s -> s.tags.find { t -> t.code == "medicalcares" } != null }.forEach { nurseService ->
+                                specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService, decryptor))
+                            }
+                            contact.services.filter { s -> isSummary(s) }.forEach { summaryService ->
+                                summaries.add(makeSummaryTransaction(contact, summaryService))
+                            }
 
-                                // prescriptions are in separate transaction in *MF
-                                // icure prescriptions have another tag (and in separate transaction in *MF)
-                                svc.tags.find {
-                                    (it.type == "CD-ITEM" && it.code == "treatment")
-                                            || (it.type == "ICURE" && it.code == "PRESC")
-                                }?.let {
-                                    pharmaceuticalPrescriptions = pharmaceuticalPrescriptions.plus(Pair(svc, contact))
-                                    forSeparateTransaction = true
+                            // services
+                            if (exportAsDocument && services.size == 1) {
+                                services[0].content.values.forEach { doc ->
+                                    doc.stringValue?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = CDMEDIATYPEvalues.TEXT_PLAIN; value = it.toByteArray(Charsets.UTF_8) }) }
                                 }
-                                forSeparateTransaction = forSeparateTransaction || isSummary(svc)
-
-                                if (!forSeparateTransaction) {
-                                    val svcCdItem = svc.tags.filter { it.type == "CD-ITEM" }.firstOrNull()
-
-                                    val cdItem = (svcCdItem?.code ?: defaultCdItemRef).let {
-                                        if (it == "parameter") {
-                                            svc.content.let {
-                                                it.entries.firstOrNull()?.value?.measureValue?.let { "parameter" }
-                                                        ?: "clinical" // FIXME: change to clinical instead of technical because medinote doesnt support technical
-                                            } //Change parameters to technicals if not real parameters
-                                        } else it
+                            } else {
+                                services.forEach servicesLoop@{ svc ->
+                                    val incapacityTag = svc.tags.find { t -> t.code == "incapacity" }
+                                    if (incapacityTag != null) return@servicesLoop
+                                    var forSeparateTransaction = false // documents are in separate transaction in *MF
+                                    svc.content.values.find { it.documentId != null }?.let {
+                                        documents = documents.plus(Triple(it.documentId!!, svc, contact))
+                                        forSeparateTransaction = true
                                     }
 
+                                    // prescriptions are in separate transaction in *MF
+                                    // icure prescriptions have another tag (and in separate transaction in *MF)
+                                    svc.tags.find {
+                                        (it.type == "CD-ITEM" && it.code == "treatment")
+                                                || (it.type == "ICURE" && it.code == "PRESC")
+                                    }?.let {
+                                        pharmaceuticalPrescriptions = pharmaceuticalPrescriptions.plus(Pair(svc, contact))
+                                        forSeparateTransaction = true
+                                    }
+                                    forSeparateTransaction = forSeparateTransaction || isSummary(svc)
 
-                                    val contents: List<ContentType> = svc.content.entries.flatMap {
-                                        makeContent(it.key, it.value)?.let { c ->
-                                            listOf(c.apply {
-                                                if (svcCdItem == null && texts.size > 0) {
-                                                    if (svc.label != "<invalid>" && !texts.first().value.startsWith(svc.label)) {
-                                                        texts.first().value = "${svc.label}: ${texts.first().value}"
+                                    if (!forSeparateTransaction) {
+                                        val svcCdItem = svc.tags.filter { it.type == "CD-ITEM" }.firstOrNull()
+
+                                        val cdItem = (svcCdItem?.code ?: defaultCdItemRef).let {
+                                            if (it == "parameter") {
+                                                svc.content.let {
+                                                    it.entries.firstOrNull()?.value?.measureValue?.let { "parameter" }
+                                                            ?: "clinical" // FIXME: change to clinical instead of technical because medinote doesnt support technical
+                                                } //Change parameters to technicals if not real parameters
+                                            } else it
+                                        }
+
+
+                                        val contents: List<ContentType> = svc.content.entries.flatMap {
+                                            makeContent(it.key, it.value)?.let { c ->
+                                                listOf(c.apply {
+                                                    if (svcCdItem == null && texts.size > 0) {
+                                                        if (svc.label != "<invalid>" && !texts.first().value.startsWith(svc.label)) {
+                                                            texts.first().value = "${svc.label}: ${texts.first().value}"
+                                                        }
                                                     }
-                                                }
-                                            })
-                                        } ?: emptyList()
-                                    } + codesToKmehr(svc.codes)
-                                    if (contents.isNotEmpty()) {
-                                        createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID")?.apply {
-                                            this.ids.add(IDKMEHR().apply {
-                                                this.s = IDKMEHRschemes.LOCAL
-                                                this.sv = "1.0"
-                                                this.sl = "org.taktik.icure.label"
-                                                this.value = svc.label
-                                            })
-                                            if (cdItem == "parameter") {
-                                                svc.content.values.firstOrNull { it.measureValue != null }?.measureValue?.comment?.let { measureNote ->
-                                                    this.contents.add(ContentType().apply { texts.add(TextType().apply { l = language; value = measureNote }) })
-                                                }
+                                                })
+                                            } ?: emptyList()
+                                        } + codesToKmehr(svc.codes)
+                                        if (contents.isNotEmpty()) {
+                                            createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID")?.apply {
+                                                this.ids.add(IDKMEHR().apply {
+                                                    this.s = IDKMEHRschemes.LOCAL
+                                                    this.sv = "1.0"
+                                                    this.sl = "org.taktik.icure.label"
+                                                    this.value = svc.label
+                                                })
+                                                if (cdItem == "parameter") {
+                                                    svc.content.values.firstOrNull { it.measureValue != null }?.measureValue?.comment?.let { measureNote ->
+                                                        this.contents.add(ContentType().apply { texts.add(TextType().apply { l = language; value = measureNote }) })
+                                                    }
 
-                                                svc.tags.find { it.type == "CD-PARAMETER" }?.let {
-                                                    this.cds.add(
-                                                            CDITEM().apply {
-                                                                s = CDITEMschemes.CD_PARAMETER
-                                                                value = it.code
-                                                            }
-                                                    )
-                                                }
-                                                if(!svc.label.isNullOrEmpty()) {
-                                                    this.cds.add(
-                                                            CDITEM().apply {
-                                                                s = CDITEMschemes.LOCAL
-                                                                sl = "LOCAL-PARAMETER"
-                                                                sv = "1.0"
-                                                                dn = if (svc.comment == "" || svc.comment == null) {
-                                                                    svc.label
-                                                                } else {
-                                                                    svc.comment
+                                                    svc.tags.find { it.type == "CD-PARAMETER" }?.let {
+                                                        this.cds.add(
+                                                                CDITEM().apply {
+                                                                    s = CDITEMschemes.CD_PARAMETER
+                                                                    value = it.code
                                                                 }
-                                                                value = svc.label
-                                                            }
-                                                    )
-                                                }
-                                            }
-                                            if (cdItem == "medication") {
-                                                svc.content.values.find { it.medicationValue?.instructionForPatient != null }?.let {
-                                                    this.posology = ItemType.Posology().apply {
-                                                        text = TextType().apply { l = language; value = it.medicationValue!!.instructionForPatient }
+                                                        )
+                                                    }
+                                                    if(!svc.label.isNullOrEmpty()) {
+                                                        this.cds.add(
+                                                                CDITEM().apply {
+                                                                    s = CDITEMschemes.LOCAL
+                                                                    sl = "LOCAL-PARAMETER"
+                                                                    sv = "1.0"
+                                                                    dn = if (svc.comment == "" || svc.comment == null) {
+                                                                        svc.label
+                                                                    } else {
+                                                                        svc.comment
+                                                                    }
+                                                                    value = svc.label
+                                                                }
+                                                        )
                                                     }
                                                 }
-                                            }
-                                            if (cdItem == "vaccine") {
-                                                svc.content.values.firstOrNull { it.medicationValue != null }?.medicationValue?.batch?.let {
-                                                    this.batch = it
+                                                if (cdItem == "medication") {
+                                                    svc.content.values.find { it.medicationValue?.instructionForPatient != null }?.let {
+                                                        this.posology = ItemType.Posology().apply {
+                                                            text = TextType().apply { l = language; value = it.medicationValue!!.instructionForPatient }
+                                                        }
+                                                    }
                                                 }
-                                            }
+                                                if (cdItem == "vaccine") {
+                                                    svc.content.values.firstOrNull { it.medicationValue != null }?.medicationValue?.batch?.let {
+                                                        this.batch = it
+                                                    }
+                                                }
 
-                                            svc.comment?.let {
-                                                (it != "") && it.let {
-                                                    this.contents.add(ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
+                                                svc.comment?.let {
+                                                    (it != "") && it.let {
+                                                        this.contents.add(ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
+                                                    }
                                                 }
+                                            }?.let {
+                                                addHistoryLinkAndCacheService(it, svc, config)
+                                                headingsAndItemsAndTexts.add(it)
                                             }
-                                        }?.let {
-                                            addHistoryLinkAndCacheService(it, svc, config)
-                                            headingsAndItemsAndTexts.add(it)
                                         }
                                     }
                                 }
+                                parentContactId?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(it) })}
                             }
-                        }
-
-                        // add link from items to HEs
-                        contact.subContacts.forEach { subcon ->
-                            if (subcon.healthElementId != null) {
-                                subcon.services.forEach {
-                                    itemByServiceId[it.serviceId]?.lnks?.let {
-                                        val lnk = LnkType().apply {
-                                            type = CDLNKvalues.ISASERVICEFOR
-                                            // link should point to He.healthElementId and not He.id
-                                            subcon.healthElementId?.let {
-                                                heById[it]?.firstOrNull()?.healthElementId?.let {
-                                                    url = makeLnkUrl(it)
-                                                }
-                                            }
-                                        }
-                                        if (it.none { (it.type == lnk.type) && (it.url == lnk.url) }) {
-                                            it.add(lnk)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-            )
+                            val subContactsWithHealthElementId: List<SubContact> = contact.subContacts.filter { subContactWithHealthElementId -> subContactWithHealthElementId.healthElementId != null && subContactWithHealthElementId.formId == subContact.formId }
+                            addServiceLinkToHealthElement(subContactsWithHealthElementId)
+                        })
+                }
 			Unit
 		}
         log.info("Exporting pharmaceutical prescriptions")
@@ -579,6 +516,31 @@ class SoftwareMedicalFileExport(
 		renumberKmehrIds(folder)
 		return folder
 	}
+
+    private fun addServiceLinkToHealthElement(subContacts: List<SubContact>){
+        subContacts.forEach { subContact ->
+            if (subContact.healthElementId != null) {
+                subContact.services.forEach {
+                    itemByServiceId[it.serviceId]?.lnks?.let {
+                        val lnk = LnkType().apply {
+                            type = CDLNKvalues.ISASERVICEFOR
+                            // link should point to He.healthElementId and not He.id
+                            subContact.healthElementId?.let {
+                                heById[it]?.firstOrNull()?.let {
+                                    it.healthElementId?.let{
+                                        url = makeLnkUrl(it)
+                                    }
+                                }
+                            }
+                        }
+                        if (it.none { (it.type == lnk.type) && (it.url == lnk.url) }) {
+                            it.add(lnk)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     private fun addServiceLinkToHealthElement(contact: Contact){
         // add link from items to HEs
