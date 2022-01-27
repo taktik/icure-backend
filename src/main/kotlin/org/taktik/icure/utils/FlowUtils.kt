@@ -45,15 +45,18 @@ fun <T> Flow<T>.distinct(): Flow<T> = flow {
     }
 }
 
-fun <T : Identifiable<*>> Flow<T>.distinctById(): Flow<T> = flow {
+fun <T> Flow<T>.distinctBy(function: (T) -> Any?): Flow<T> = flow {
     val previous = HashSet<Any>()
     collect { value: T ->
-        if (!previous.contains(value.id)) {
-            value.id?.let { previous.add(it) }
+        val fnVal = function(value)
+        if (!previous.contains(fnVal)) {
+            fnVal?.let { previous.add(it) }
             emit(value)
         }
     }
 }
+
+fun <T : Identifiable<*>> Flow<T>.distinctById(): Flow<T> = distinctBy { it.id }
 
 fun <T : StoredDocument> Flow<T>.subsequentDistinctById(): Flow<T> = flow {
     val previousId = ""
