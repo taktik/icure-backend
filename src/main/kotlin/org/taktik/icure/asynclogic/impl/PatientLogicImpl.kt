@@ -342,9 +342,9 @@ class PatientLogicImpl(
         return super.createEntities(entities)
     }
 
-    override fun modifyEntities(entities: Collection<Patient>): Flow<Patient> {
+    override fun modifyEntities(entities: Collection<Patient>): Flow<Patient> = flow {
         entities.forEach { checkRequirements(it) }
-        return super.modifyEntities(entities)
+        emitAll(super.modifyEntities(entities.map { fix(it) }))
     }
 
     private fun checkRequirements(patient: Patient) {
