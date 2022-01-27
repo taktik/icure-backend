@@ -25,7 +25,7 @@ interface EntityPersister<E, I> {
 
     fun createEntities(entities: Collection<E>): Flow<E>
 
-    fun modifyEntities(entities: Collection<E>): Flow<E>
+    suspend fun modifyEntities(entities: Collection<E>): Flow<E>
 
     fun deleteEntities(identifiers: Collection<I>): Flow<DocIdentifier>
     fun undeleteByIds(identifiers: Collection<I>): Flow<DocIdentifier>

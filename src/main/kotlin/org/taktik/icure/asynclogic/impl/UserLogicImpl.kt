@@ -374,7 +374,7 @@ class UserLogicImpl(
         emitAll(getProperties(userId, true, true, true))
     }
 
-    override fun modifyEntities(users: Collection<User>): Flow<User> = flow {
+    override suspend fun modifyEntities(users: Collection<User>): Flow<User> = flow {
         emitAll(users.asFlow().mapNotNull { modifyUser(it) })
     }
 
