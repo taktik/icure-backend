@@ -342,7 +342,7 @@ class PatientLogicImpl(
         }
     }
 
-    override suspend fun modifyPatients(patients: List<Patient>): Flow<Patient> = flow {
+    override fun modifyPatients(patients: List<Patient>): Flow<Patient> = flow {
         val fixedPatients = patients.map { fix(it) }
         emitAll(modifyEntities(fixedPatients))
     }
