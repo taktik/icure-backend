@@ -325,6 +325,11 @@ class PatientLogicImpl(
         }
     }
 
+    override fun createPatients(patients: List<Patient>): Flow<Patient> = flow {
+        val fixedPatients = patients.map { fix(it) }
+        emitAll(modifyEntities(fixedPatients))
+    }
+
     @Throws(MissingRequirementsException::class)
     override suspend fun modifyPatient(patient: Patient): Patient? = fix(patient) { patient ->
         log.debug("Modifying patient with id:" + patient.id)
@@ -337,6 +342,11 @@ class PatientLogicImpl(
         }
     }
 
+    override suspend fun modifyPatients(patients: List<Patient>): Flow<Patient> = flow {
+        val fixedPatients = patients.map { fix(it) }
+        emitAll(modifyEntities(fixedPatients))
+    }
+
     override fun createEntities(entities: Collection<Patient>): Flow<Patient> {
         entities.forEach { checkRequirements(it) }
         return super.createEntities(entities)
@@ -344,7 +354,7 @@ class PatientLogicImpl(
 
     override fun modifyEntities(entities: Collection<Patient>): Flow<Patient> = flow {
         entities.forEach { checkRequirements(it) }
-        emitAll(super.modifyEntities(entities.map { fix(it) }))
+        emitAll(super.modifyEntities(entities))
     }
 
     private fun checkRequirements(patient: Patient) {

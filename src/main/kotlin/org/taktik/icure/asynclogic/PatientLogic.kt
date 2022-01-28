@@ -71,9 +71,11 @@ interface PatientLogic {
 
     @Throws(MissingRequirementsException::class)
     suspend fun createPatient(patient: Patient): Patient?
+    fun createPatients(patients: List<Patient>): Flow<Patient>
 
     @Throws(MissingRequirementsException::class)
     suspend fun modifyPatient(patient: Patient): Patient?
+    suspend fun modifyPatients(patients: List<Patient>): Flow<Patient>
 
     suspend fun modifyPatientReferral(patient: Patient, referralId: String?, start: Instant?, end: Instant?): Patient?
 
