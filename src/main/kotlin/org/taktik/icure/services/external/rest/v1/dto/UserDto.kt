@@ -70,7 +70,8 @@ data class UserDto(
         @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         @Schema(description = "the timestamp (unix epoch in ms) of the latest validation of the terms of use of the application") val termsOfUseDate: Instant? = null,
-        @Schema(description = "email address of the user.") val email: String? = null,
+        @Schema(description = "email address of the user (used for token exchange or password recovery).") val email: String? = null,
+        @Schema(description = "mobile phone of the user (used for token exchange or password recovery).") val mobilePhone: String? = null,
         @get:Deprecated("Do not use - Use authenticationTokens instead") val applicationTokens: Map<String, String> = mapOf(),
         @Schema(description = "Encrypted and time-limited Authentication tokens used for inter-applications authentication") val authenticationTokens: Map<String, AuthenticationTokenDto> = mapOf(),
 ) : StoredDocumentDto, PrincipalDto, Cloneable, Serializable {

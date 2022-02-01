@@ -121,6 +121,7 @@ data class User(
         val termsOfUseDate: Instant? = null,
 
         val email: String? = null,
+        val mobilePhone: String? = null,
 
         @Deprecated("Application tokens stocked in clear and eternal. Replaced by authenticationTokens")
         val applicationTokens: Map<String, String> = mapOf(),
