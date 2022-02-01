@@ -170,7 +170,7 @@ data class Patient(
         @Deprecated("Use properties instead") val mainSourceOfIncome: CodeStub? = null,
         @Deprecated("Use properties instead") val schoolingInfos: List<SchoolingInfo> = emptyList(),
         @Deprecated("Use properties instead") val employementInfos: List<EmploymentInfo> = emptyList(),
-        @Deprecated("Use properties instead") val properties: Set<PropertyStub> = emptySet(),
+        override val properties: Set<PropertyStub> = emptySet(),
 
         // One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
         // For a pair of HcParties, this key is called the AES exchange key
@@ -193,7 +193,7 @@ data class Patient(
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null
-) : StoredICureDocument, Person, Encryptable, CryptoActor {
+) : StoredICureDocument, Person, Encryptable, CryptoActor, DataOwner {
     companion object : DynamicInitializer<Patient>
 
     fun merge(other: Patient) = Patient(args = this.solveConflictsWith(other))
@@ -201,7 +201,8 @@ data class Patient(
             super<StoredICureDocument>.solveConflictsWith(other) +
                     super<Person>.solveConflictsWith(other) +
                     super<Encryptable>.solveConflictsWith(other) +
-                    super<CryptoActor>.solveConflictsWith(other) + mapOf(
+                    super<CryptoActor>.solveConflictsWith(other) +
+                    super<DataOwner>.solveConflictsWith(other) + mapOf(
                     "encryptionKeys" to this.encryptionKeys, // Only keep this ones
                     "identifier" to mergeListsDistinct(this.identifier, other.identifier,
                             { a, b -> a.system == b.system && a.value == b.value },
@@ -248,7 +249,6 @@ data class Patient(
                     "mainSourceOfIncome" to (this.mainSourceOfIncome ?: other.mainSourceOfIncome),
                     "schoolingInfos" to mergeListsDistinct(schoolingInfos, other.schoolingInfos),
                     "employementInfos" to mergeListsDistinct(employementInfos, other.employementInfos),
-                    "properties" to (other.properties + this.properties),
                     "insurabilities" to mergeListsDistinct(insurabilities, other.insurabilities,
                             { a, b -> a.insuranceId == b.insuranceId && a.startDate == b.startDate },
                             { a, b -> if (a.endDate != null) a else b }

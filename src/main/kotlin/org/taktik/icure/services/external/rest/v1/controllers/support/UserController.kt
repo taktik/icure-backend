@@ -189,7 +189,7 @@ class UserController(private val userLogic: UserLogic,
         userLogic.encodePassword(password)
     }
 
-    @Operation(summary = "Require a new temporary token for authentication")
+    @Operation(summary = "Request a new temporary token for authentication")
     @PostMapping("/token/{userId}/{key}")
     fun getToken(@PathVariable userId: String, @Parameter(description = "The token key. Only one instance of a token with a defined key can exist at the same time") @PathVariable key: String, @Parameter(description = "The token validity in seconds", required = false) @RequestParam(required = false) tokenValidity: Long?) = mono {
         userLogic.getUser(userId)?.let {

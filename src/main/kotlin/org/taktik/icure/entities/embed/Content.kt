@@ -46,6 +46,7 @@ data class Content(
         @JsonProperty("m") val measureValue: Measure? = null,
         @JsonProperty("p") val medicationValue: Medication? = null,
         @JsonProperty("c") val compoundValue: Set<Service>? = null,
+        @JsonProperty("ts") val timeSeries: TimeSeries? = null,
         val ratio: List<Measure>? = null,
         val range: List<Measure>? = null
 ) : Serializable {
@@ -66,6 +67,8 @@ data class Content(
         if (measureValue != other.measureValue) return false
         if (medicationValue != other.medicationValue) return false
         if (compoundValue != other.compoundValue) return false
+        if (timeSeries != other.timeSeries) return false
+
         if (ratio != other.ratio) return false
         if (range != other.range) return false
 
