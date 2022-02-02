@@ -131,7 +131,7 @@ class DeviceController(private val filters: Filters,
     }
 
           @Operation(summary = "Delete devices.", description = "Response is an array containing the id/rev of deleted devices.")
-    @DeleteMapping("/delete/batch")
+    @PostMapping("/delete/batch")
     fun deleteDevices(@RequestBody deviceIds: ListOfIdsDto): Flux<DocIdentifier> {
         return try{
             deviceLogic.deleteDevices(deviceIds.ids.toSet()).injectReactorContext()
