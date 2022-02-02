@@ -9,7 +9,14 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.DeviceLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
@@ -67,7 +74,7 @@ class DeviceController(private val filters: Filters,
 
     @Operation(summary = "Create devices in bulk", description = "Returns the id and _rev of created devices")
     @PostMapping("/bulk", "/batch")
-    fun bulkCreateDevices(@RequestBody deviceDtos: List<DeviceDto>) = mono {
+    fun createDevices(@RequestBody deviceDtos: List<DeviceDto>) = mono {
         try {
             val devices = deviceLogic.createDevices(deviceDtos.map { p -> deviceMapper.map(p) }.toList())
             devices.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
