@@ -39,8 +39,8 @@ class DeviceLogicImpl(
         try {
             emitAll(createEntities(devices.map { device -> fix(device) }))
         } catch (e: Exception) {
-            log.error("createDevice: " + e.message)
-            throw IllegalArgumentException("Invalid Device problem", e)
+            log.error("createDevices: " + e.message)
+            throw IllegalArgumentException("Invalid Devices problem", e)
         }
     }
 
