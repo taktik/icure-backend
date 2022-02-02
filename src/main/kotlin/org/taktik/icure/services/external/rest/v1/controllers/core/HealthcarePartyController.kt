@@ -51,7 +51,9 @@ import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.PublicKeyDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
+import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.HealthcarePartyMapper
+import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
 import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
@@ -65,8 +67,9 @@ class HealthcarePartyController(
     private val userLogic: UserLogic,
     private val healthcarePartyLogic: HealthcarePartyLogic,
     private val sessionLogic: AsyncSessionLogic,
-    private val healthcarePartyMapper: HealthcarePartyMapper
-) {
+    private val healthcarePartyMapper: HealthcarePartyMapper,
+                                private val filterChainMapper: FilterChainMapper,
+                                ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000
     private val healthcarePartyToHealthcarePartyDto = { it: HealthcareParty -> healthcarePartyMapper.map(it) }
@@ -90,8 +93,7 @@ class HealthcarePartyController(
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
 
-        healthcarePartyLogic.findHealthcarePartiesBy(paginationOffset, desc)
-                .paginatedList<HealthcareParty, HealthcarePartyDto>(healthcarePartyToHealthcarePartyDto, realLimit)
+        healthcarePartyLogic.findHealthcarePartiesBy(paginationOffset, desc).paginatedList<HealthcareParty, HealthcarePartyDto>(healthcarePartyToHealthcarePartyDto, realLimit)
     }
 
     @Operation(summary = "Find healthcare parties by name with(out) pagination", description = "Returns a list of healthcare parties.")
@@ -277,6 +279,19 @@ class HealthcarePartyController(
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Healthcare party creation failed.")
         }
+    }
+
+    @Operation(summary = "Filter healthcare parties for the current user (HcParty)", description = "Returns a list of healthcare party along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
+    @PostMapping("/filter")
+    fun filterHealthPartiesBy( @Parameter(description = "A HealthcareParty document ID") @RequestParam(required = false) startDocumentId: String?,
+                               @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+                               @RequestBody filterChain: FilterChain<HealthcareParty>
+    ) = mono {
+        val realLimit = limit ?: DEFAULT_LIMIT
+        val paginationOffset = PaginationOffset(null, startDocumentId, null, realLimit+1)
+        val healthcareParties = healthcarePartyLogic.filterHealthcareParties(paginationOffset, filterChainMapper.map(filterChain))
+
+        healthcareParties.paginatedList(healthcarePartyToHealthcarePartyDto, realLimit)
     }
 
     @Operation(summary = "Get ids of healthcare party matching the provided filter for the current user (HcParty) ")

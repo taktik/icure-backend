@@ -43,4 +43,6 @@ interface HealthcarePartyDAO: GenericDAO<HealthcareParty> {
     suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String>
 
     fun listHealthcarePartiesByParentId(parentId: String): Flow<HealthcareParty>
+
+    fun findHealthcarePartiesByIds(hcpIds: Flow<String>): Flow<ViewQueryResultEvent>
 }

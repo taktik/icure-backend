@@ -50,7 +50,9 @@ import org.taktik.icure.services.external.rest.v2.dto.HealthcarePartyDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.PublicKeyDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
+import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainV2Mapper
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
@@ -64,8 +66,9 @@ class HealthcarePartyController(
     private val userLogic: UserLogic,
     private val healthcarePartyLogic: HealthcarePartyLogic,
     private val sessionLogic: AsyncSessionLogic,
-    private val healthcarePartyV2Mapper: HealthcarePartyV2Mapper
-) {
+    private val healthcarePartyV2Mapper: HealthcarePartyV2Mapper,
+                                private val filterChainV2Mapper: FilterChainV2Mapper,
+                                ) {
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000
     private val healthcarePartyToHealthcarePartyDto = { it: HealthcareParty -> healthcarePartyV2Mapper.map(it) }
@@ -286,4 +289,17 @@ class HealthcarePartyController(
     @Operation(summary = "Get ids of healthcare party matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
     fun matchHealthcarePartiesBy(@RequestBody filter: AbstractFilterDto<HealthcareParty>) = filters.resolve(filter).injectReactorContext()
+
+    @Operation(summary = "Filter healthcare parties for the current user (HcParty)", description = "Returns a list of healthcare party along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
+    @PostMapping("/filter")
+    fun filterHealthPartiesBy( @Parameter(description = "A HealthcareParty document ID") @RequestParam(required = false) startDocumentId: String?,
+                               @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+                               @RequestBody filterChain: FilterChain<HealthcareParty>) = mono {
+        val realLimit = limit ?: DEFAULT_LIMIT
+        val paginationOffset = PaginationOffset(null, startDocumentId, null, realLimit+1)
+        val healthcareParties = healthcarePartyLogic.filterHealthcareParties(paginationOffset, filterChainV2Mapper.map(filterChain))
+
+        healthcareParties.paginatedList(healthcarePartyToHealthcarePartyDto, realLimit)
+    }
+
 }
