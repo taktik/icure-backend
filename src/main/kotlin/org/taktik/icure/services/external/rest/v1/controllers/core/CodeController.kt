@@ -266,7 +266,7 @@ class CodeController(
         } ?:throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing codes failed.")
     }
 
-    @Operation(summary = "Get ids of healthcare party matching the provided filter for the current user (HcParty) ")
+    @Operation(summary = "Get ids of code matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
     fun matchCodesBy(@RequestBody filter: AbstractFilterDto<Code>) = filters.resolve(filter).injectReactorContext()
 }
