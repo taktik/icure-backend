@@ -15,4 +15,5 @@ interface DeviceLogic {
     fun getDevices(deviceIds: List<String>): Flow<Device>
 
     fun deleteDevices(ids: Collection<String>): Flow<DocIdentifier>
+    suspend fun deleteDevice(id: String): DocIdentifier?
 }

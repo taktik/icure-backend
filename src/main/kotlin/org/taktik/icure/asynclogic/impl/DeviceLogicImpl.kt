@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.singleOrNull
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
@@ -62,6 +63,10 @@ class DeviceLogicImpl(
 
     override fun deleteDevices(ids: Collection<String>): Flow<DocIdentifier> = flow {
         emitAll(deleteEntities(ids))
+    }
+
+    override suspend fun deleteDevice(id: String): DocIdentifier? {
+        return deleteEntities(setOf(id)).singleOrNull()
     }
 
     companion object {
