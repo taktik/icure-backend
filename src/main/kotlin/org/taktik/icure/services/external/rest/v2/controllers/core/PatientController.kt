@@ -410,7 +410,7 @@ class PatientController(
     @PostMapping( "/batch")
     fun createPatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
-            val patients = patientLogic.modifyEntities(patientDtos.map { p -> patientV2Mapper.map(p) }.toList())
+            val patients = patientLogic.createPatients(patientDtos.map { p -> patientV2Mapper.map(p) }.toList())
             patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
         } catch (e: Exception) {
             log.warn(e.message, e)
@@ -422,7 +422,7 @@ class PatientController(
     @PutMapping( "/batch")
     fun modifyPatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
-            val patients = patientLogic.modifyEntities(patientDtos.map { p -> patientV2Mapper.map(p) }.toList())
+            val patients = patientLogic.modifyPatients(patientDtos.map { p -> patientV2Mapper.map(p) }.toList())
             patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
         } catch (e: Exception) {
             log.warn(e.message, e)

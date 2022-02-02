@@ -50,8 +50,8 @@ import org.taktik.icure.validation.ValidCode
  * @property id The Id of the patient. We encourage using either a v4 UUID or a HL7 Id.
  * @property rev The revision of the patient in the database, used for conflict management / optimistic locking.
  * @property identifier The patient's identifier.
- * @property created The timestamp (unix epoch in ms) of creation of the patient, will be filled automatically if missing. Not enforced by the application server.
- * @property modified the date (unix epoch in ms) of latest modification of the patient, will be filled automatically if missing. Not enforced by the application server.
+ * @property created The timestamp (unix epoch in ms) of creation of the patient. Enforced by the application server : will be filled automatically if missing.
+ * @property modified the date (unix epoch in ms) of latest modification of the patient. Enforced by the application server : will be filled automatically if missing.
  * @property author the id of the User that has created this patient, will be filled automatically if missing. Not enforced by the application server.
  * @property responsible the id of the HealthcareParty that is responsible for this patient, will be filled automatically if missing. Not enforced by the application server.
  * @property medicalLocationId the medical location where this patient has been created

@@ -40,12 +40,14 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.HealthElementLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
+import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.HealthElementMapper
 import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
@@ -59,11 +61,12 @@ import reactor.core.publisher.Flux
 @RequestMapping("/rest/v1/helement")
 @Tag(name = "helement")
 class HealthElementController(
-        private val healthElementLogic: HealthElementLogic,
-        private val healthElementMapper: HealthElementMapper,
-        private val delegationMapper: DelegationMapper,
-        private val filterChainMapper: FilterChainMapper,
-        private val stubMapper: StubMapper
+    private val filters: Filters,
+    private val healthElementLogic: HealthElementLogic,
+    private val healthElementMapper: HealthElementMapper,
+    private val delegationMapper: DelegationMapper,
+    private val filterChainMapper: FilterChainMapper,
+    private val stubMapper: StubMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -190,4 +193,8 @@ class HealthElementController(
             healthElementLogic.filter(filterChainMapper.map(filterChain))
                     .map { healthElementMapper.map(it) }
                     .injectReactorContext()
+
+    @Operation(summary = "Get ids of health element matching the provided filter for the current user (HcParty) ")
+    @PostMapping("/match")
+    fun matchHealthElementsBy(@RequestBody filter: AbstractFilterDto<HealthElement>) = filters.resolve(filter).injectReactorContext()
 }
