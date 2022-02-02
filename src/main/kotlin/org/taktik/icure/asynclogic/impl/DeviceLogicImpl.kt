@@ -45,8 +45,8 @@ class DeviceLogicImpl(
         }
     }
 
-    override suspend fun modifyDevice(device: Device): Device? {
-        TODO("Not yet implemented")
+    override suspend fun modifyDevice(device: Device): Device? = fix(device) {
+        modifyEntities(setOf(it)).singleOrNull()
     }
 
     override fun modifyDevices(devices: List<Device>): Flow<Device> {
