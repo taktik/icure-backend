@@ -32,7 +32,7 @@ data class DeviceDto(
         override val rev: String? = null,
         override val deletionDate: Long? = null,
 
-        val identifiers: List<IdentifierDto> = listOf(),
+        val identifiers: List<IdentifierDto> = emptyList(),
 
         override val created: Long? = null,
         override val modified: Long? = null,
