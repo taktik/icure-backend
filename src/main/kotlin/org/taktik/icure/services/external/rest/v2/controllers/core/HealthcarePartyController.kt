@@ -40,6 +40,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.exceptions.DeletionException
@@ -49,6 +50,7 @@ import org.taktik.icure.services.external.rest.v2.dto.HealthcarePartyDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.PublicKeyDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
+import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainV2Mapper
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
@@ -59,10 +61,12 @@ import reactor.core.publisher.Flux
 @RestController("healthcarePartyControllerV2")
 @RequestMapping("/rest/v2/hcparty")
 @Tag(name = "hcparty")
-class HealthcarePartyController(private val userLogic: UserLogic,
-                                private val healthcarePartyLogic: HealthcarePartyLogic,
-                                private val sessionLogic: AsyncSessionLogic,
-                                private val healthcarePartyV2Mapper: HealthcarePartyV2Mapper,
+class HealthcarePartyController(
+    private val filters: Filters,
+    private val userLogic: UserLogic,
+    private val healthcarePartyLogic: HealthcarePartyLogic,
+    private val sessionLogic: AsyncSessionLogic,
+    private val healthcarePartyV2Mapper: HealthcarePartyV2Mapper,
                                 private val filterChainV2Mapper: FilterChainV2Mapper,
                                 ) {
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
@@ -281,6 +285,10 @@ class HealthcarePartyController(private val userLogic: UserLogic,
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Healthcare party creation failed.")
         }
     }
+
+    @Operation(summary = "Get ids of healthcare party matching the provided filter for the current user (HcParty) ")
+    @PostMapping("/match")
+    fun matchHealthcarePartiesBy(@RequestBody filter: AbstractFilterDto<HealthcareParty>) = filters.resolve(filter).injectReactorContext()
 
     @Operation(summary = "Filter healthcare party for the current user (HcParty)", description = "Returns a list of healthcare party along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
