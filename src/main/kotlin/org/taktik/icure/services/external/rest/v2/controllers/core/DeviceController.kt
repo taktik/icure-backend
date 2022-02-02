@@ -117,6 +117,16 @@ class DeviceController(private val filters: Filters,
         filters.resolve(filter).toList()
     }
 
+    @Operation(summary = "Delete device.", description = "Response contains the id/rev of deleted device.")
+    @DeleteMapping("/{deviceId}")
+    fun deleteDevice(@PathVariable deviceId: String) = mono {
+        try {
+            deviceLogic.deleteDevice(deviceId) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Device deletion failed")
+        } catch (e: Exception) {
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { log.error(it.message)
+        }
+    }
+
     @Operation(summary = "Delete devices.", description = "Response is an array containing the id/rev of deleted devices.")
     @DeleteMapping("/delete/batch")
     fun deleteDevices(@RequestBody deviceIds: ListOfIdsDto): Flux<DocIdentifier> {
