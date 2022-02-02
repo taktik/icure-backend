@@ -21,7 +21,7 @@ interface DeviceLogic {
     suspend fun deleteDevice(id: String): DocIdentifier?
     fun deleteDevices(ids: Collection<String>): Flow<DocIdentifier>
 
-    fun listIdsByResponsible(hcpId: String): Flow<String>
+    fun listDeviceIdsByResponsible(hcpId: String): Flow<String>
 
     fun filterDevices(filter: FilterChain<Device>, limit: Int, startDocumentId: String?): Flow<ViewQueryResultEvent>
 }

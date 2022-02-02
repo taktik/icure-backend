@@ -74,7 +74,7 @@ class DeviceLogicImpl(
         return deleteEntities(setOf(id)).singleOrNull()
     }
 
-    override fun listIdsByResponsible(hcpId: String): Flow<String> = flow {
+    override fun listDeviceIdsByResponsible(hcpId: String): Flow<String> = flow {
         emitAll(deviceDAO.listDeviceIdsByResponsible(hcpId))
     }
 
