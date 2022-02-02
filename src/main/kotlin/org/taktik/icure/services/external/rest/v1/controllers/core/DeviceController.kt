@@ -88,7 +88,7 @@ class DeviceController(private val filters: Filters,
 
     @Operation(summary = "Modify devices in bulk", description = "Returns the id and _rev of modified devices")
     @PutMapping("/bulk", "/batch")
-    fun bulkUpdateDevices(@RequestBody deviceDtos: List<DeviceDto>) = mono {
+    fun updateDevices(@RequestBody deviceDtos: List<DeviceDto>) = mono {
         try {
             val devices = deviceLogic.modifyDevices(deviceDtos.map { p -> deviceMapper.map(p) }.toList())
             devices.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
