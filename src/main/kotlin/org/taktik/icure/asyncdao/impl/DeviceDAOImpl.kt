@@ -19,6 +19,9 @@ class DeviceDAOImpl(couchDbProperties: CouchDbProperties,
                     @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
                     idGenerator: IDGenerator
 ): GenericIcureDAOImpl<Device>(Device::class.java, couchDbProperties, couchDbDispatcher, idGenerator), DeviceDAO {
+    override suspend fun getDevice(deviceId: String): Device? {
+        return get(deviceId)
+    }
 
     override fun getDevices(deviceIds: Collection<String>): Flow<Device> {
         TODO("Not yet implemented")
