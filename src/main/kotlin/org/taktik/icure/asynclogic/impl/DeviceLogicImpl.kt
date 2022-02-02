@@ -5,6 +5,8 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.firstOrNull
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.DeviceDAO
@@ -20,10 +22,15 @@ import org.taktik.icure.entities.Device
 class DeviceLogicImpl(private val sessionLogic: AsyncSessionLogic,
                       private val deviceDAO: DeviceDAO,
                       private val userLogic: UserLogic,
-                      private val filters: Filters): DeviceLogic, GenericLogicImpl<Device, DeviceDAO>(sessionLogic) {
+                      private val filters: Filters): GenericLogicImpl<Device, DeviceDAO>(sessionLogic), DeviceLogic, GenericLogicImpl<Device, DeviceDAO>(sessionLogic) {
 
-    override suspend fun createDevice(device: Device): Device? {
-        TODO("Not yet implemented")
+    override suspend fun createDevice(device: Device): Device? = fix(device) { fixedDevice ->
+        try {
+            createEntities(setOf(fixedDevice)).firstOrNull()
+        } catch (e: Exception) {
+            log.error("createDevice: " + e.message)
+            throw IllegalArgumentException("Invalid Device problem", e)
+        }
     }
 
     override fun createDevices(devices: List<Device>): Flow<Device> = flow {
@@ -48,6 +55,10 @@ class DeviceLogicImpl(private val sessionLogic: AsyncSessionLogic,
 
     override fun deleteDevices(ids: Collection<String>): Flow<DocIdentifier> {
         TODO("Not yet implemented")
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(DeviceLogicImpl::class.java)
     }
 
     override fun getGenericDAO(): DeviceDAO {
