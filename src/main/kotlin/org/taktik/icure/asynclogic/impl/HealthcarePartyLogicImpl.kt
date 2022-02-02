@@ -215,13 +215,13 @@ class HealthcarePartyLogicImpl(
         }
     }
 
-    override fun filterHealthcareParty(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<HealthcareParty>) = flow {
+    override fun filterHealthcareParties(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<HealthcareParty>) = flow {
         val ids = filters.resolve(filter.filter)
         val sortedIds = paginationOffset.takeUnless { it.startDocumentId == null }?.let { paginationOffset -> // Sub-set starting from startDocId to the end (including last element)
             ids.dropWhile { id -> id != paginationOffset.startDocumentId }
         } ?: ids
 
-        val selectedIds = sortedIds.take(paginationOffset.limit+1) // Fetching one more contacts for the start key of the next page
+        val selectedIds = sortedIds.take(paginationOffset.limit+1) // Fetching one more healthcare parties for the start key of the next page
         emitAll(healthcarePartyDAO.findHealthcarePartiesByIds(selectedIds))
     }
 
