@@ -63,7 +63,6 @@ import reactor.core.publisher.Flux
 @Tag(name = "hcparty")
 class HealthcarePartyController(
     private val filters: Filters,
-    private val userLogic: UserLogic,
     private val healthcarePartyLogic: HealthcarePartyLogic,
     private val sessionLogic: AsyncSessionLogic,
     private val healthcarePartyV2Mapper: HealthcarePartyV2Mapper,
@@ -242,47 +241,6 @@ class HealthcarePartyController(
         } catch (e: MissingRequirementsException) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
-        }
-    }
-
-    @Operation(summary = "Delete a healthcare party", description = "Deleting a healthcareParty. Response is an array containing the id of deleted healthcare party.")
-    @PostMapping("/delete/batch/inGroup/{groupId}")
-    fun deleteHealthcarePartiesInGroup(@PathVariable groupId: String, @RequestBody healthcarePartyIds: ListOfIdsDto): Flux<DocIdentifier> {
-        return try {
-            healthcarePartyLogic.deleteHealthcareParties(groupId, healthcarePartyIds.ids).injectReactorContext()
-        } catch (e: DeletionException) {
-            logger.warn(e.message, e)
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
-        }
-    }
-
-    @Operation(summary = "Modify a Healthcare Party.", description = "No particular return value. It's just a message.")
-    @PutMapping("/inGroup/{groupId}")
-    fun modifyHealthcarePartyInGroup(@PathVariable groupId: String, @RequestBody healthcarePartyDto: HealthcarePartyDto) = mono {
-        try {
-            val modifiedHealthcareParty = healthcarePartyLogic.modifyHealthcareParty(groupId, healthcarePartyV2Mapper.map(healthcarePartyDto)) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the healthcare party failed. Read the server log.")
-            healthcarePartyV2Mapper.map(modifiedHealthcareParty)
-        } catch (e: MissingRequirementsException) {
-            logger.warn(e.message, e)
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
-        }
-    }
-
-    @Operation(summary = "Create a healthcare party", description = "One of Name or Last name+First name, Nihii, and Public key are required.")
-    @PostMapping("/inGroup/{groupId}")
-    fun createHealthcarePartyInGroup(@PathVariable groupId: String, @RequestBody h: HealthcarePartyDto) = mono {
-        val hcParty = try {
-            healthcarePartyLogic.createHealthcareParty(groupId, healthcarePartyV2Mapper.map(h))
-        } catch (e: MissingRequirementsException) {
-            logger.warn(e.message, e)
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
-        }
-
-        val succeed = hcParty != null
-        if (succeed) {
-            hcParty?.let { healthcarePartyV2Mapper.map(it) }
-        } else {
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Healthcare party creation failed.")
         }
     }
 
