@@ -69,7 +69,7 @@ class DeviceController(private val filters: Filters,
 
     @Operation(summary = "Modify a device", description = "Returns the updated device")
     @PutMapping
-    fun modifyDevice(@RequestBody deviceDto: DeviceDto) = mono {
+    fun updateDevice(@RequestBody deviceDto: DeviceDto) = mono {
         deviceLogic.modifyDevice(deviceV2Mapper.map(deviceDto))?.let { deviceV2Mapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting device failed. Possible reasons: no such device exists, or server error. Please try again or read the server log.").also { log.error(it.message) }
     }
