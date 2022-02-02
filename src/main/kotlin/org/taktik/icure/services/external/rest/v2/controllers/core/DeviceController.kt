@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.DeviceLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.entities.Device
@@ -113,6 +115,17 @@ class DeviceController(private val filters: Filters,
     @PostMapping("/match")
     fun matchDevicesBy(@RequestBody filter: AbstractFilterDto<Device>) = mono {
         filters.resolve(filter).toList()
+    }
+
+    @Operation(summary = "Delete devices.", description = "Response is an array containing the id/rev of deleted devices.")
+    @DeleteMapping("/delete/batch")
+    fun deleteDevices(@RequestBody deviceIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return try{
+            deviceLogic.deleteDevices(deviceIds.ids.toSet()).injectReactorContext()
+        }
+        catch (e: Exception){
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Devices deletion failed").also { log.error(it.message) }
+        }
     }
 }
 
