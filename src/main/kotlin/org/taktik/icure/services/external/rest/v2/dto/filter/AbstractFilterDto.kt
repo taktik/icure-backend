@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.domain.filter.Filter
-import org.taktik.icure.handlers.JacksonFilterDeserializer
+import org.taktik.icure.services.external.rest.v2.handlers.JacksonFilterDeserializer
 import java.io.Serializable
 
 @JsonDeserialize(using = JacksonFilterDeserializer::class)

@@ -5,10 +5,13 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.mapNotNull
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
+import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.id.IDGenerator
+import org.taktik.couchdb.queryView
 import org.taktik.icure.asyncdao.DeviceDAO
 import org.taktik.icure.entities.Device
 import org.taktik.icure.properties.CouchDbProperties
@@ -21,6 +24,21 @@ class DeviceDAOImpl(couchDbProperties: CouchDbProperties,
                     @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
                     idGenerator: IDGenerator
 ): GenericIcureDAOImpl<Device>(Device::class.java, couchDbProperties, couchDbDispatcher, idGenerator), DeviceDAO {
+
+    override fun findDevicesByIds(deviceIds: Flow<String>): Flow<ViewQueryResultEvent> = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        emitAll(client.getForPagination(deviceIds, Device::class.java))
+    }
+
+    @View(name = "by_responsible", map = "classpath:js/device/By_responsible.js")
+    override fun listDeviceIdsByResponsible(healthcarePartyId: String): Flow<String> = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        val viewQuery = createQuery(client, "by_responsible")
+                .key(healthcarePartyId)
+                .includeDocs(false)
+        emitAll(client.queryView<String, String>(viewQuery).mapNotNull { it.value })
+    }
+
     override suspend fun getDevice(deviceId: String): Device? {
         return get(deviceId)
     }

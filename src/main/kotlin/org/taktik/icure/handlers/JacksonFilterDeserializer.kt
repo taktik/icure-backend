@@ -52,8 +52,9 @@ class JacksonFilterDeserializer : JsonObjectDeserializer<AbstractFilterDto<*>>()
     }
 
     override fun deserializeObject(jsonParser: JsonParser?, context: DeserializationContext?, codec: ObjectCodec, tree: JsonNode): AbstractFilterDto<*> {
-        val discr = tree[discriminator].textValue() ?: throw IllegalArgumentException("Missing discriminator $discriminator in object")
+        val discr = tree[discriminator]?.textValue() ?: throw IllegalArgumentException("Missing discriminator $discriminator in object")
         val selectedSubClass = subclasses[discr] ?: throw IllegalArgumentException("Invalid subclass $discr in object")
-        return codec.treeToValue(tree, selectedSubClass)
+        val treeToValue = codec.treeToValue(tree, selectedSubClass)
+        return treeToValue
     }
 }

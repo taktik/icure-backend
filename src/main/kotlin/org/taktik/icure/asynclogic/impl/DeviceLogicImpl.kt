@@ -2,19 +2,16 @@ package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
+import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.DeviceDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DeviceLogic
-import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
+import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.Device
 
 @FlowPreview
@@ -23,7 +20,6 @@ import org.taktik.icure.entities.Device
 class DeviceLogicImpl(
     private val sessionLogic: AsyncSessionLogic,
     private val deviceDAO: DeviceDAO,
-    private val userLogic: UserLogic,
     private val filters: Filters
 ) : GenericLogicImpl<Device, DeviceDAO>(sessionLogic), DeviceLogic {
 
@@ -78,11 +74,27 @@ class DeviceLogicImpl(
         return deleteEntities(setOf(id)).singleOrNull()
     }
 
+    override fun listDeviceIdsByResponsible(hcpId: String): Flow<String> = flow {
+        emitAll(deviceDAO.listDeviceIdsByResponsible(hcpId))
+    }
+
     companion object {
         private val log = LoggerFactory.getLogger(DeviceLogicImpl::class.java)
     }
 
     override fun getGenericDAO(): DeviceDAO {
         return deviceDAO
+    }
+
+    override fun filterDevices(filter: FilterChain<Device>, limit: Int, startDocumentId: String?): Flow<ViewQueryResultEvent> = flow {
+        val ids = filters.resolve(filter.filter)
+
+        val sortedIds = if (startDocumentId != null) { // Sub-set starting from startDocId to the end (including last element)
+            ids.dropWhile { it != startDocumentId }
+        } else {
+            ids
+        }
+        val selectedIds = sortedIds.take(limit+1) // Fetching one more device for the start key of the next page
+        emitAll(getGenericDAO().findDevicesByIds(selectedIds))
     }
 }
