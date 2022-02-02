@@ -34,7 +34,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.*
 data class PatientDto(
         @Schema(description = "the Id of the patient. We encourage using either a v4 UUID or a HL7 Id.") override val id: String,
         @Schema(description = "the revision of the patient in the database, used for conflict management / optimistic locking.") override val rev: String? = null,
-        val identifier: List<IdentifierDto> = listOf(),
+        val identifier: List<IdentifierDto> = emptyList(),
         override val created: Long? = null,
         override val modified: Long? = null,
         override val author: String? = null,
