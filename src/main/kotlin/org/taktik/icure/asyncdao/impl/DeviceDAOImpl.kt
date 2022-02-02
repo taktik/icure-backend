@@ -3,6 +3,8 @@ package org.taktik.icure.asyncdao.impl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.annotation.View
@@ -20,7 +22,8 @@ class DeviceDAOImpl(couchDbProperties: CouchDbProperties,
                     idGenerator: IDGenerator
 ): GenericIcureDAOImpl<Device>(Device::class.java, couchDbProperties, couchDbDispatcher, idGenerator), DeviceDAO {
 
-    override fun getDevices(deviceIds: Collection<String>): Flow<Device> {
-        TODO("Not yet implemented")
+    override fun getDevices(deviceIds: Collection<String>): Flow<Device> = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        emitAll(client.get(deviceIds, Device::class.java))
     }
 }
