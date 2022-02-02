@@ -41,6 +41,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.exceptions.DeletionException
@@ -49,6 +50,7 @@ import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.PublicKeyDto
+import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v1.mapper.HealthcarePartyMapper
 import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
@@ -58,10 +60,12 @@ import reactor.core.publisher.Flux
 @RestController
 @RequestMapping("/rest/v1/hcparty")
 @Tag(name = "hcparty")
-class HealthcarePartyController(private val userLogic: UserLogic,
-                                private val healthcarePartyLogic: HealthcarePartyLogic,
-                                private val sessionLogic: AsyncSessionLogic,
-                                private val healthcarePartyMapper: HealthcarePartyMapper
+class HealthcarePartyController(
+    private val filters: Filters,
+    private val userLogic: UserLogic,
+    private val healthcarePartyLogic: HealthcarePartyLogic,
+    private val sessionLogic: AsyncSessionLogic,
+    private val healthcarePartyMapper: HealthcarePartyMapper
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000
@@ -275,4 +279,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
         }
     }
 
+    @Operation(summary = "Get ids of healthcare party matching the provided filter for the current user (HcParty) ")
+    @PostMapping("/match")
+    fun matchHealthcarePartiesBy(@RequestBody filter: AbstractFilterDto<HealthcareParty>) = filters.resolve(filter).injectReactorContext()
 }

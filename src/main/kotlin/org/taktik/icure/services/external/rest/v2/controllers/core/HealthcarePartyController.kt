@@ -27,7 +27,6 @@ import kotlinx.coroutines.reactor.mono
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -41,6 +40,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.exceptions.DeletionException
@@ -49,6 +49,7 @@ import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.services.external.rest.v2.dto.HealthcarePartyDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.PublicKeyDto
+import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyV2Mapper
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
@@ -58,10 +59,12 @@ import reactor.core.publisher.Flux
 @RestController("healthcarePartyControllerV2")
 @RequestMapping("/rest/v2/hcparty")
 @Tag(name = "hcparty")
-class HealthcarePartyController(private val userLogic: UserLogic,
-                                private val healthcarePartyLogic: HealthcarePartyLogic,
-                                private val sessionLogic: AsyncSessionLogic,
-                                private val healthcarePartyV2Mapper: HealthcarePartyV2Mapper
+class HealthcarePartyController(
+    private val filters: Filters,
+    private val userLogic: UserLogic,
+    private val healthcarePartyLogic: HealthcarePartyLogic,
+    private val sessionLogic: AsyncSessionLogic,
+    private val healthcarePartyV2Mapper: HealthcarePartyV2Mapper
 ) {
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000
@@ -280,4 +283,7 @@ class HealthcarePartyController(private val userLogic: UserLogic,
         }
     }
 
+    @Operation(summary = "Get ids of healthcare party matching the provided filter for the current user (HcParty) ")
+    @PostMapping("/match")
+    fun matchHealthcarePartiesBy(@RequestBody filter: AbstractFilterDto<HealthcareParty>) = filters.resolve(filter).injectReactorContext()
 }
