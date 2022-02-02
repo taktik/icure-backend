@@ -50,7 +50,12 @@ class DeviceLogicImpl(
     }
 
     override fun modifyDevices(devices: List<Device>): Flow<Device> = flow {
-        emitAll(modifyEntities(devices.map { device -> fix(device) }))
+        try {
+            emitAll(modifyEntities(devices.map { device -> fix(device) }))
+        } catch (e: Exception) {
+            log.error("modifyDevices: " + e.message)
+            throw IllegalArgumentException("Invalid Devices problem", e)
+        }
     }
 
     override suspend fun getDevice(deviceId: String): Device? {
