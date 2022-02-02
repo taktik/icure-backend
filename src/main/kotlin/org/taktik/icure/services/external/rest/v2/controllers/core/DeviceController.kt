@@ -123,7 +123,7 @@ class DeviceController(private val filters: Filters,
         try {
             deviceLogic.deleteDevice(deviceId) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Device deletion failed")
         } catch (e: Exception) {
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { log.error(it.message)
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { log.error(it.message) }
         }
     }
 

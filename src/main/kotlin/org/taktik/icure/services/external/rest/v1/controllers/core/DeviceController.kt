@@ -121,9 +121,12 @@ class DeviceController(private val filters: Filters,
     @DeleteMapping("/{deviceId}")
     fun deleteDevice(@PathVariable deviceId: String) = mono {
         try {
-            deviceLogic.deleteDevice(deviceId) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Device deletion failed")
+            deviceLogic.deleteDevice(deviceId) ?: throw ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Device deletion failed"
+            )
         } catch (e: Exception) {
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { log.error(it.message)
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { log.error(it.message) }
         }
     }
 
