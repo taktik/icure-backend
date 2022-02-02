@@ -4,8 +4,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
@@ -19,10 +19,12 @@ import org.taktik.icure.entities.Device
 @FlowPreview
 @ExperimentalCoroutinesApi
 @Service
-class DeviceLogicImpl(private val sessionLogic: AsyncSessionLogic,
-                      private val deviceDAO: DeviceDAO,
-                      private val userLogic: UserLogic,
-                      private val filters: Filters): GenericLogicImpl<Device, DeviceDAO>(sessionLogic), DeviceLogic, GenericLogicImpl<Device, DeviceDAO>(sessionLogic) {
+class DeviceLogicImpl(
+    private val sessionLogic: AsyncSessionLogic,
+    private val deviceDAO: DeviceDAO,
+    private val userLogic: UserLogic,
+    private val filters: Filters
+) : GenericLogicImpl<Device, DeviceDAO>(sessionLogic), DeviceLogic {
 
     override suspend fun createDevice(device: Device): Device? = fix(device) { fixedDevice ->
         try {
@@ -34,7 +36,12 @@ class DeviceLogicImpl(private val sessionLogic: AsyncSessionLogic,
     }
 
     override fun createDevices(devices: List<Device>): Flow<Device> = flow {
-        emitAll(createEntities(devices.map { fix(it) }))
+        try {
+            emitAll(createEntities(devices.map { device -> fix(device) }))
+        } catch (e: Exception) {
+            log.error("createDevice: " + e.message)
+            throw IllegalArgumentException("Invalid Device problem", e)
+        }
     }
 
     override suspend fun modifyDevice(device: Device): Device? {
