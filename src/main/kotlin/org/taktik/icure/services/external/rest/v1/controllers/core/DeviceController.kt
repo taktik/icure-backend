@@ -117,7 +117,7 @@ class DeviceController(private val filters: Filters,
         filters.resolve(filter).toList()
     }
 
-    @Operation(summary = "Delete contacts.", description = "Response is a set containing the ID's of deleted contacts.")
+    @Operation(summary = "Delete device.", description = "Response contains the id/rev of deleted device.")
     @DeleteMapping("/{deviceId}")
     fun deleteDevice(@PathVariable deviceId: String) = mono {
         try {

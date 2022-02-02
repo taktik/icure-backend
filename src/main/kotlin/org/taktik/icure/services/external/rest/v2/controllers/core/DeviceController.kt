@@ -5,10 +5,12 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -113,6 +115,16 @@ class DeviceController(private val filters: Filters,
     @PostMapping("/match")
     fun matchDevicesBy(@RequestBody filter: AbstractFilterDto<Device>) = mono {
         filters.resolve(filter).toList()
+    }
+
+    @Operation(summary = "Delete device.", description = "Response contains the id/rev of deleted device.")
+    @DeleteMapping("/{deviceId}")
+    fun deleteDevice(@PathVariable deviceId: String) = mono {
+        try {
+            deviceLogic.deleteDevices(setOf(deviceId)).singleOrNull() ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Device deletion failed")
+        } catch (e: java.lang.Exception) {
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { log.error(it.message) }
+        }
     }
 }
 
