@@ -60,8 +60,8 @@ class DeviceLogicImpl(
         TODO("Not yet implemented")
     }
 
-    override fun deleteDevices(ids: Collection<String>): Flow<DocIdentifier> {
-        TODO("Not yet implemented")
+    override fun deleteDevices(ids: Collection<String>): Flow<DocIdentifier> = flow {
+        emitAll(deleteEntities(ids))
     }
 
     companion object {
