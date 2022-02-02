@@ -53,7 +53,7 @@ class DeviceLogicImpl(
     }
 
     override suspend fun getDevice(deviceId: String): Device? {
-        TODO("Not yet implemented")
+        return deviceDAO.getDevice(deviceId)
     }
 
     override fun getDevices(deviceIds: List<String>): Flow<Device> {
