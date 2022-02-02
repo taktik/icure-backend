@@ -46,7 +46,11 @@ class DeviceLogicImpl(
     }
 
     override suspend fun modifyDevice(device: Device): Device? = fix(device) {
-        modifyEntities(setOf(it)).singleOrNull()
+        try {
+            modifyEntities(setOf(it)).singleOrNull()
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Invalid device problem", e)
+        }
     }
 
     override fun modifyDevices(devices: List<Device>): Flow<Device> {
