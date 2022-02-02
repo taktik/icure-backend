@@ -24,19 +24,32 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flattenMerge
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.asynclogic.CodeLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.predicate.Predicate
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
+import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
@@ -50,10 +63,11 @@ import reactor.core.publisher.Flux
 @RequestMapping("/rest/v1/code")
 @Tag(name = "code")
 class CodeController(
-        private val codeLogic: CodeLogic,
-        private val codeMapper: CodeMapper,
-        private val filterChainMapper: FilterChainMapper,
-        private val objectMapper: ObjectMapper
+    private val filters: Filters,
+    private val codeLogic: CodeLogic,
+    private val codeMapper: CodeMapper,
+    private val filterChainMapper: FilterChainMapper,
+    private val objectMapper: ObjectMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000
@@ -251,4 +265,8 @@ class CodeController(
             it.paginatedList<Code, CodeDto>(codeToCodeDto, realLimit)
         } ?:throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing codes failed.")
     }
+
+    @Operation(summary = "Get ids of healthcare party matching the provided filter for the current user (HcParty) ")
+    @PostMapping("/match")
+    fun matchCodesBy(@RequestBody filter: AbstractFilterDto<Code>) = filters.resolve(filter).injectReactorContext()
 }
