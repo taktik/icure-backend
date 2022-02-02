@@ -2,9 +2,6 @@ package org.taktik.icure.asynclogic
 
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.DocIdentifier
-import org.taktik.couchdb.ViewQueryResultEvent
-import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.Device
 
 interface DeviceLogic {
@@ -18,6 +15,4 @@ interface DeviceLogic {
     fun getDevices(deviceIds: List<String>): Flow<Device>
 
     fun deleteDevices(ids: Collection<String>): Flow<DocIdentifier>
-
-    fun listDevices(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Device>, sort: String?, desc: Boolean?): Flow<ViewQueryResultEvent>
 }

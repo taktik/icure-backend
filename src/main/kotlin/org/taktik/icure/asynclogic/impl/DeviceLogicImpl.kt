@@ -11,8 +11,6 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DeviceLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
-import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.Device
 
 @FlowPreview
@@ -48,10 +46,6 @@ class DeviceLogicImpl(private val sessionLogic: AsyncSessionLogic,
     }
 
     override fun deleteDevices(ids: Collection<String>): Flow<DocIdentifier> {
-        TODO("Not yet implemented")
-    }
-
-    override fun listDevices(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Device>, sort: String?, desc: Boolean?): Flow<ViewQueryResultEvent> {
         TODO("Not yet implemented")
     }
 }
