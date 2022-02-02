@@ -49,8 +49,8 @@ class DeviceLogicImpl(
         TODO("Not yet implemented")
     }
 
-    override fun modifyDevices(devices: List<Device>): Flow<Device> {
-        TODO("Not yet implemented")
+    override fun modifyDevices(devices: List<Device>): Flow<Device> = flow {
+        emitAll(modifyEntities(devices.map { device -> fix(device) }))
     }
 
     override suspend fun getDevice(deviceId: String): Device? {
