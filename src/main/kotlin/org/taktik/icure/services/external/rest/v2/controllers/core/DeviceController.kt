@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.DeviceLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.entities.Device
@@ -122,7 +123,18 @@ class DeviceController(private val filters: Filters,
         try {
             deviceLogic.deleteDevice(deviceId) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Device deletion failed")
         } catch (e: Exception) {
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { log.error(it.message) }
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { log.error(it.message)
+        }
+    }
+
+    @Operation(summary = "Delete devices.", description = "Response is an array containing the id/rev of deleted devices.")
+    @DeleteMapping("/delete/batch")
+    fun deleteDevices(@RequestBody deviceIds: ListOfIdsDto): Flux<DocIdentifier> {
+        return try{
+            deviceLogic.deleteDevices(deviceIds.ids.toSet()).injectReactorContext()
+        }
+        catch (e: Exception){
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Devices deletion failed").also { log.error(it.message) }
         }
     }
 }
