@@ -147,4 +147,9 @@ internal class HealthcarePartyDAOImpl(couchDbProperties: CouchDbProperties,
 
         emitAll(client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery(client, "by_parent").key(parentId).includeDocs(true)).map { it.doc })
     }
+
+    override fun findHealthcarePartiesByIds(hcpIds: Flow<String>): Flow<ViewQueryResultEvent> = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        emitAll(client.getForPagination(hcpIds, HealthcareParty::class.java))
+    }
 }

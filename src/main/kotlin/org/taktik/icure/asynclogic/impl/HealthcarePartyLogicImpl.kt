@@ -20,9 +20,11 @@ package org.taktik.icure.asynclogic.impl
 import com.google.common.base.Preconditions
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -33,7 +35,9 @@ import org.taktik.icure.asyncdao.HealthcarePartyDAO
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.exceptions.DocumentNotFoundException
@@ -44,11 +48,13 @@ import java.net.URI
 @ExperimentalCoroutinesApi
 @Service
 class HealthcarePartyLogicImpl(
-        couchDbProperties: CouchDbProperties,
-        private val healthcarePartyDAO: HealthcarePartyDAO,
-        private val uuidGenerator: UUIDGenerator,
-        private val userDAO: UserDAO,
-        private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<HealthcareParty, HealthcarePartyDAO>(sessionLogic), HealthcarePartyLogic {
+    private val filters: Filters,
+    couchDbProperties: CouchDbProperties,
+    private val healthcarePartyDAO: HealthcarePartyDAO,
+    private val uuidGenerator: UUIDGenerator,
+    private val userDAO: UserDAO,
+    private val sessionLogic: AsyncSessionLogic
+    ) : GenericLogicImpl<HealthcareParty, HealthcarePartyDAO>(sessionLogic), HealthcarePartyLogic {
 
     private val dbInstanceUri = URI(couchDbProperties.url)
 
@@ -207,6 +213,16 @@ class HealthcarePartyLogicImpl(
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid healthcare party", e)
         }
+    }
+
+    override fun filterHealthcareParty(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<HealthcareParty>) = flow {
+        val ids = filters.resolve(filter.filter)
+        val sortedIds = paginationOffset.takeUnless { it.startDocumentId == null }?.let { paginationOffset -> // Sub-set starting from startDocId to the end (including last element)
+            ids.dropWhile { id -> id != paginationOffset.startDocumentId }
+        } ?: ids
+
+        val selectedIds = sortedIds.take(paginationOffset.limit+1) // Fetching one more contacts for the start key of the next page
+        emitAll(healthcarePartyDAO.findHealthcarePartiesByIds(selectedIds))
     }
 
     companion object {
