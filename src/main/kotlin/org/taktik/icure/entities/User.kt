@@ -124,9 +124,9 @@ data class User(
         val mobilePhone: String? = null,
 
         @Deprecated("Application tokens stocked in clear and eternal. Replaced by authenticationTokens")
-        val applicationTokens: Map<String, String> = mapOf(),
+        val applicationTokens: Map<String, String>? = null,
 
-        val authenticationTokens: Map<String, AuthenticationToken> = mapOf(),
+        val authenticationTokens: Map<String, AuthenticationToken> = emptyMap(),
 
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
@@ -157,7 +157,7 @@ data class User(
             "expirationDate" to (this.expirationDate ?: other.expirationDate),
             "termsOfUseDate" to (this.termsOfUseDate ?: other.termsOfUseDate),
             "email" to (this.email ?: other.email),
-            "applicationTokens" to (other.applicationTokens + this.applicationTokens),
+            "applicationTokens" to (other.applicationTokens?.let { it + (this.applicationTokens ?: emptyMap()) } ?: this.applicationTokens),
             "authenticationTokens" to (other.authenticationTokens + this.authenticationTokens)
     )
 

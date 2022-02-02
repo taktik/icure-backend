@@ -229,7 +229,7 @@ class UserLogicImpl(
             application to authToken.copy(
                     token = (if (!authToken.token.matches(passwordRegex)) encodePassword(authToken.token) else authToken.token)
             )
-        } + user.applicationTokens.map { (application, rawToken) ->
+        } + (user.applicationTokens ?: emptyMap()).map { (application, rawToken) ->
             application to AuthenticationToken(token = encodePassword(rawToken), validity = AuthenticationToken.LONG_LIVING_TOKEN_VALIDITY)
         }).toMap()
     }

@@ -18,10 +18,10 @@ class DatabaseUserDetails(
         val use2fa: Boolean = false,
         val rev: String? = null,
         @Deprecated("Not secured enough - Use authenticationTokens instead")
-        val applicationTokens: Map<String, String> = mapOf(),
-        val authenticationTokens: Map<String, AuthenticationToken> = mapOf(),
+        val applicationTokens: Map<String, String> = emptyMap(),
+        val authenticationTokens: Map<String, AuthenticationToken> = emptyMap(),
         val application: String? = null,
-        val groupIdUserIdMatching: List<String> = listOf()
+        val groupIdUserIdMatching: List<String> = emptyList()
 ) : AbstractUserDetails(
     permissionSetIdentifier, authorities, principalPermissions
 ) {

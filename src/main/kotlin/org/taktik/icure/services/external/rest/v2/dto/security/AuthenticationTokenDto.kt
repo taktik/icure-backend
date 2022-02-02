@@ -14,7 +14,6 @@ import java.time.Instant
 @KotlinBuilder
 data class AuthenticationTokenDto(
         @Schema(description = "Encrypted token") val token: String,
-        @JsonDeserialize(using = InstantDeserializer::class)
-        @Schema(description = "Validity starting time of the token") val creationTime: Instant = Instant.now(),
+        @Schema(description = "Validity starting time of the token") val creationTime: Long = Instant.now().toEpochMilli(),
         @Schema(description = "Token validity in seconds") val validity: Long
 ) : Cloneable, Serializable
