@@ -68,7 +68,7 @@ class HealthcarePartyController(
     private val healthcarePartyLogic: HealthcarePartyLogic,
     private val sessionLogic: AsyncSessionLogic,
     private val healthcarePartyMapper: HealthcarePartyMapper,
-                                private val filterChainMapper: FilterChainMapper,
+    private val filterChainMapper: FilterChainMapper,
                                 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000

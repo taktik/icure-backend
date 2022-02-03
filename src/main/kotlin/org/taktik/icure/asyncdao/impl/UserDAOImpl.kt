@@ -30,6 +30,7 @@ import org.taktik.couchdb.update
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.User
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
@@ -162,5 +163,10 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
     override suspend fun saveOnFallback(user: User): User {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         return client.update(user)
+    }
+
+    override fun findUsersByIds(userIds: Flow<String>): Flow<ViewQueryResultEvent> = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        emitAll(client.getForPagination(userIds, User::class.java))
     }
 }
