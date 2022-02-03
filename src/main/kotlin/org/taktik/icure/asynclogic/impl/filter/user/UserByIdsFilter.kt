@@ -15,31 +15,20 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.domain.filter
+package org.taktik.icure.asynclogic.impl.filter.user
 
-import org.taktik.couchdb.id.Identifiable
-import java.io.Serializable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flowOf
+import org.springframework.stereotype.Service
+import org.taktik.icure.asynclogic.impl.filter.Filter
+import org.taktik.icure.asynclogic.impl.filter.Filters
+import org.taktik.icure.domain.filter.user.UserByIdsFilter
+import org.taktik.icure.entities.User
 
-interface Filters {
-
-    interface ConstantFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-        val constant: Set<T>
+@Service
+class UserByIdsFilter : Filter<String, User, UserByIdsFilter> {
+    override fun resolve(filter: UserByIdsFilter, context: Filters): Flow<String> {
+        return filter.ids?.asFlow() ?: flowOf()
     }
-
-    interface UnionFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-        val filters: List<Filter<T, O>>
-    }
-
-    interface IntersectionFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-        val filters: List<Filter<T, O>>
-    }
-
-    interface ComplementFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-        val superSet: Filter<T, O>
-        val subSet: Filter<T, O>
-    }
-
-    interface AllFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-    }
-
 }

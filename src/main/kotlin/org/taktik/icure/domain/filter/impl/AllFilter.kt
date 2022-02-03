@@ -15,31 +15,19 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.domain.filter
 
+package org.taktik.icure.domain.filter.impl
+
+import com.github.pozo.KotlinBuilder
+import org.taktik.icure.domain.filter.AbstractFilter
+import org.taktik.icure.domain.filter.Filters
 import org.taktik.couchdb.id.Identifiable
-import java.io.Serializable
 
-interface Filters {
-
-    interface ConstantFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-        val constant: Set<T>
+@KotlinBuilder
+data class AllFilter<O : Identifiable<String>>(
+        override val desc: String? = null
+) : AbstractFilter<O>, Filters.AllFilter<String, O> {
+    override fun matches(item: O): Boolean {
+        return true
     }
-
-    interface UnionFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-        val filters: List<Filter<T, O>>
-    }
-
-    interface IntersectionFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-        val filters: List<Filter<T, O>>
-    }
-
-    interface ComplementFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-        val superSet: Filter<T, O>
-        val subSet: Filter<T, O>
-    }
-
-    interface AllFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-    }
-
 }

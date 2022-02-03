@@ -15,31 +15,11 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.domain.filter
+package org.taktik.icure.domain.filter.user
 
-import org.taktik.couchdb.id.Identifiable
-import java.io.Serializable
+import org.taktik.icure.domain.filter.Filter
+import org.taktik.icure.entities.User
 
-interface Filters {
-
-    interface ConstantFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-        val constant: Set<T>
-    }
-
-    interface UnionFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-        val filters: List<Filter<T, O>>
-    }
-
-    interface IntersectionFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-        val filters: List<Filter<T, O>>
-    }
-
-    interface ComplementFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-        val superSet: Filter<T, O>
-        val subSet: Filter<T, O>
-    }
-
-    interface AllFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-    }
-
+interface UserByIdsFilter : Filter<String, User> {
+    val ids: List<String>?
 }
