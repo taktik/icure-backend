@@ -261,10 +261,10 @@ open class KmehrExport(
             it.unit != null || it.minref != null || it.maxref != null || it.refscopes?.size ?: 0 > 0
     }
 
-    open fun createItemWithContent(he : HealthElement, idx : Int, cdItem : String, contents : List<ContentType>) : ItemType? {
+    open fun createItemWithContent(he : HealthElement, idx : Int, cdItem : String, contents : List<ContentType>, localIdName: String = "iCure-Service") : ItemType? {
         return ItemType().apply {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
-            ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = "iCure-HealthElement"; sv = ICUREVERSION; value = he.id })
+            ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = he.healthElementId ?: he.id })
             cds.add(CDITEM().apply {s(CDITEMschemes.CD_ITEM); value = cdItem } )
 
             this.contents.addAll(filterEmptyContent(contents))

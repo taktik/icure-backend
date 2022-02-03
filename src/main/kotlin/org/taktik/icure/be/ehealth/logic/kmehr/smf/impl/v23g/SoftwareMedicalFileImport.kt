@@ -297,12 +297,12 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     val heId = kmehrIndex.approachFor[heOrHcaMfid]?.mapNotNull { kmehrIndex.itemIds[it] }?.firstOrNull()?.first
                     SubContact(
                             id = UUID.nameUUIDFromBytes(("$contactId|$heId|${heOrHcaPair.first}|null").toByteArray()).toString(),
-                            healthElementId = heId?.toString(), planOfActionId = heOrHcaPair.first.toString(), services = listOf(ServiceLink(serviceId = service.id))
+                            formId = formId, healthElementId = heId?.toString(), planOfActionId = heOrHcaPair.first.toString(), services = listOf(ServiceLink(serviceId = service.id))
                     )
                 } else {
                     SubContact(
                             id = UUID.nameUUIDFromBytes(("$contactId|null|${heOrHcaPair.first}|null").toByteArray()).toString(),
-                            healthElementId = heOrHcaPair.first.toString(), services = listOf(ServiceLink(serviceId = service.id))
+                            formId = formId, healthElementId = heOrHcaPair.first.toString(), services = listOf(ServiceLink(serviceId = service.id))
                     )
                 }
             } ?: formId?.let{
@@ -463,7 +463,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
         val simplifiedSubContacts = simplifySubContacts(subContacts).toSet()
         if (simplifiedSubContacts.isNotEmpty()) {
-            v.forms.addAll(simplifiedSubContacts.filter { sc -> !v.forms.any { it.id == sc.formId } && sc.services.isNotEmpty() }.mapNotNull { it.formId }.toSet().map {
+            v.forms.addAll(simplifiedSubContacts.filter { sc -> !v.forms.any { it.id == sc.formId } && sc.services.isNotEmpty() }.mapNotNull { it.formId ?: idGenerator.newGUID().toString() }.toSet().map {
                 Form(id = it,
                     parent = if (it == formId) kmehrIndex.transactionChildOf[transactionMfid]?.firstOrNull()?.let { kmehrIndex.transactionIds[it]?.first?.let { cid -> kmehrIndex.formIdMask.xor(cid).toString() } } else null,
                     contactId = contactId,
@@ -670,13 +670,13 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val mfId = getItemMFID(item)
 
         val tags: MutableSet<CodeStub> = mutableSetOf();
-        item.certainty?.let { tags.add(CodeStub("CD-CERTAINTY", it.cd.value.value(), "1")) }
-        item.severity?.let { tags.add(CodeStub("CD-SEVERITY", it.cd.value.value(), "1" )) }
+        item.certainty?.let { tags.add(CodeStub.from("CD-CERTAINTY", it.cd.value.value(), "1")) }
+        item.severity?.let { tags.add(CodeStub.from("CD-SEVERITY", it.cd.value.value(), "1" )) }
         item.lifecycle?.let { tags.add(CodeStub.from("CD-LIFECYCLE", it.cd.value.value(), "1")) }
 
         return HealthElement(
-                id = idGenerator.newGUID().toString(),
-                healthElementId = mfId?.let{ kmehrIndex.itemIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString(),
+                id = mfId?.let{ kmehrIndex.itemIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString(),
+                healthElementId = idGenerator.newGUID().toString(),
                 descr = getItemDescription(item, label),
                 idService = linkedService?.id,
                 tags = tags.toSet() + setOf(CodeStub.from("CD-ITEM", cdItem, "1")) + extractTags(item),

@@ -1052,7 +1052,7 @@ class SoftwareMedicalFileExport(
                     }
             )
 			val itemtype = eds.tags.find { it.type == "CD-ITEM" }?.let { it.code } ?: "healthcareelement"
-			createItemWithContent(eds, itemIndex, itemtype, content)?.let {
+			createItemWithContent(eds, itemIndex, itemtype, content, "MF-ID")?.let {
 				if(isHeANewVersionOf(eds) && config.format != Config.Format.PMF && eds.healthElementId != null) { // no versioning in PMF
 					it.lnks.add(
 							LnkType().apply {
