@@ -99,6 +99,7 @@ data class User(
         val groupId: String? = null,
         val healthcarePartyId: String? = null,
         val patientId: String? = null,
+        val deviceId: String? = null,
         val autoDelegations: Map<DelegationTag, Set<String>> = emptyMap(), //DelegationTag -> healthcarePartyIds
         @JsonSerialize(using = InstantSerializer::class)
         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -132,7 +133,6 @@ data class User(
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
         @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap(),
-        val deviceId: String? = null
 
 ) : StoredDocument, Principal, Cloneable, Serializable {
     companion object : DynamicInitializer<User>
