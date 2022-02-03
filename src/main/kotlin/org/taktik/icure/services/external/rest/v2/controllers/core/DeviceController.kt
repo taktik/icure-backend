@@ -22,13 +22,16 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.DeviceLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
+import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Device
+import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.services.external.rest.v2.dto.DeviceDto
 import org.taktik.icure.services.external.rest.v2.dto.IdWithRevDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v2.mapper.DeviceV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainV2Mapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
@@ -38,12 +41,15 @@ import reactor.core.publisher.Flux
 @Tag(name = "device")
 class DeviceController(private val filters: Filters,
                        private val deviceLogic: DeviceLogic,
-                       private val deviceV2Mapper: DeviceV2Mapper) {
+                       private val deviceV2Mapper: DeviceV2Mapper,
+                       private val filterChainV2Mapper: FilterChainV2Mapper) {
 
     companion object {
-        private val log = LoggerFactory.getLogger(javaClass)
         private const val DEFAULT_LIMIT = 1000
     }
+
+    private val log = LoggerFactory.getLogger(javaClass)
+    private val deviceToDeviceDto = { it: Device -> deviceV2Mapper.map(it) }
 
     @Operation(summary = "Get Device", description = "It gets device administrative data.")
     @GetMapping("/{deviceId}")
@@ -101,14 +107,14 @@ class DeviceController(private val filters: Filters,
     @Operation(summary = "Filter devices for the current user (HcParty) ", description = "Returns a list of devices along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
     fun filterDevicesBy(
-            @Parameter(description = "The start key for pagination, depends on the filters used") @RequestParam(required = false) startKey: String?,
             @Parameter(description = "A device document ID") @RequestParam(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
-            @Parameter(description = "Skip rows") @RequestParam(required = false) skip: Int?,
-            @Parameter(description = "Sort key") @RequestParam(required = false) sort: String?,
-            @Parameter(description = "Descending") @RequestParam(required = false) desc: Boolean?,
             @RequestBody filterChain: FilterChain<Device>) = mono {
-        TODO("Not Implemented yet")
+        val realLimit = limit ?: DEFAULT_LIMIT
+
+        deviceLogic
+                .filterDevices(filterChainV2Mapper.map(filterChain), realLimit+1, startDocumentId)
+                .paginatedList(deviceToDeviceDto, realLimit)
     }
 
     @Operation(summary = "Get ids of devices matching the provided filter for the current user (HcParty) ")
@@ -128,7 +134,7 @@ class DeviceController(private val filters: Filters,
     }
 
     @Operation(summary = "Delete devices.", description = "Response is an array containing the id/rev of deleted devices.")
-    @DeleteMapping("/delete/batch")
+    @PostMapping("/delete/batch")
     fun deleteDevices(@RequestBody deviceIds: ListOfIdsDto): Flux<DocIdentifier> {
         return try{
             deviceLogic.deleteDevices(deviceIds.ids.toSet()).injectReactorContext()
