@@ -59,6 +59,7 @@ data class UserDto(
         @Schema (description = "id of the group (practice/hospital) the user is member of") val groupId: String? = null,
         @Schema (description = "Id of the healthcare party if the user is a healthcare party.") val healthcarePartyId: String? = null,
         @Schema (description = "Id of the patient if the user is a patient") val patientId: String? = null,
+        @Schema (description = "Id of the device if the user is a device") val deviceId: String? = null,
         @Schema (description = "Delegations that are automatically generated client side when a new database object is created by this user") val autoDelegations: Map<DelegationTagDto, Set<String>> = emptyMap(), //DelegationTagDto -> healthcarePartyIds
 
         @JsonSerialize(using = InstantSerializer::class)
@@ -72,8 +73,8 @@ data class UserDto(
         @Schema(description = "the timestamp (unix epoch in ms) of the latest validation of the terms of use of the application") val termsOfUseDate: Instant? = null,
         @Schema(description = "email address of the user (used for token exchange or password recovery).") val email: String? = null,
         @Schema(description = "mobile phone of the user (used for token exchange or password recovery).") val mobilePhone: String? = null,
-        @get:Deprecated("Do not use - Use authenticationTokens instead") val applicationTokens: Map<String, String> = mapOf(),
-        @Schema(description = "Encrypted and time-limited Authentication tokens used for inter-applications authentication") val authenticationTokens: Map<String, AuthenticationTokenDto> = mapOf(),
+        @get:Deprecated("Do not use - Use authenticationTokens instead") val applicationTokens: Map<String, String> = emptyMap(),
+        @Schema(description = "Encrypted and time-limited Authentication tokens used for inter-applications authentication") val authenticationTokens: Map<String, AuthenticationTokenDto> = emptyMap(),
 ) : StoredDocumentDto, PrincipalDto, Cloneable, Serializable {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

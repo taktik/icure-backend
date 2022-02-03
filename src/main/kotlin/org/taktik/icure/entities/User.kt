@@ -26,13 +26,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.constants.Users
-import org.taktik.icure.entities.security.Principal
 import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.DelegationTag
-import org.taktik.icure.entities.security.Permission
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.security.AuthenticationToken
+import org.taktik.icure.entities.security.Permission
+import org.taktik.icure.entities.security.Principal
 import org.taktik.icure.entities.utils.MergeUtil.mergeMapsOfSetsDistinct
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.InstantDeserializer
@@ -99,6 +99,7 @@ data class User(
         val groupId: String? = null,
         val healthcarePartyId: String? = null,
         val patientId: String? = null,
+        val deviceId: String? = null,
         val autoDelegations: Map<DelegationTag, Set<String>> = emptyMap(), //DelegationTag -> healthcarePartyIds
         @JsonSerialize(using = InstantSerializer::class)
         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -131,7 +132,7 @@ data class User(
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
         @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap(),
 
 ) : StoredDocument, Principal, Cloneable, Serializable {
     companion object : DynamicInitializer<User>
