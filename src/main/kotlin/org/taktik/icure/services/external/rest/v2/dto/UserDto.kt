@@ -26,10 +26,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.github.pozo.KotlinBuilder
 import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.constants.Users
-import org.taktik.icure.services.external.rest.v2.dto.security.AuthenticationTokenDto
 import org.taktik.icure.services.external.rest.v2.dto.base.PrincipalDto
 import org.taktik.icure.services.external.rest.v2.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationTagDto
+import org.taktik.icure.services.external.rest.v2.dto.security.AuthenticationTokenDto
 import org.taktik.icure.services.external.rest.v2.dto.security.PermissionDto
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
@@ -73,8 +73,9 @@ data class UserDto(
         @Schema(description = "email address of the user (used for token exchange or password recovery).") val email: String? = null,
         @Schema(description = "mobile phone of the user (used for token exchange or password recovery).") val mobilePhone: String? = null,
 
-        @get:Deprecated("Do not use - Use authenticationTokens instead") val applicationTokens: Map<String, String> = mapOf(),
-        @Schema(description = "Encrypted and time-limited Authentication tokens used for inter-applications authentication") val authenticationTokens: Map<String, AuthenticationTokenDto> = mapOf(),
+        @get:Deprecated("Do not use - Use authenticationTokens instead") val applicationTokens: Map<String, String> = emptyMap(),
+        @Schema(description = "Encrypted and time-limited Authentication tokens used for inter-applications authentication") val authenticationTokens: Map<String, AuthenticationTokenDto> = emptyMap(),
+        val deviceId: String? = null
 ) : StoredDocumentDto, PrincipalDto, Cloneable, Serializable {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
