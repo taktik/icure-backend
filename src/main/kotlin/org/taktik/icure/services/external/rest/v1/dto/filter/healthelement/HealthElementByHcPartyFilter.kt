@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.Filters
-import org.taktik.icure.entities.embed.Service
+import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.handlers.JsonPolymorphismRoot
 import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 
@@ -35,4 +35,4 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 data class HealthElementByHcPartyFilter(
         override val hcpId: String,
         override val desc:String? = null
-) : AbstractFilterDto<Service>, Filters.ByHcpartyFilter<String, Service>
+) : AbstractFilterDto<HealthElement>, Filters.ByHcpartyFilter<String, HealthElement>
