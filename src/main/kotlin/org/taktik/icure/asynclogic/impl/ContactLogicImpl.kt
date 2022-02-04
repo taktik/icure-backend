@@ -186,6 +186,9 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
                 responsible = c.responsible
         )
     }
+    override fun listServiceIdsByHcParty(hcPartyId: String) = flow {
+        emitAll(contactDAO.listServiceIdsByHcParty(hcPartyId))
+    }
 
     override fun listServiceIdsByTag(hcPartyId: String, patientSecretForeignKeys: List<String>?, tagType: String, tagCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val toEmit = if (patientSecretForeignKeys == null) contactDAO.listServiceIdsByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate) else contactDAO.listServiceIdsByPatientAndTag(hcPartyId, patientSecretForeignKeys, tagType, tagCode, startValueDate, endValueDate)

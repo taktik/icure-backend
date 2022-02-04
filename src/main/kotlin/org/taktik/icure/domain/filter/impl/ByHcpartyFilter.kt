@@ -15,30 +15,20 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.domain.filter.impl.patient
+
+package org.taktik.icure.domain.filter.impl
 
 import com.github.pozo.KotlinBuilder
-import com.google.common.base.Objects
 import org.taktik.icure.domain.filter.AbstractFilter
-import org.taktik.icure.entities.Patient
+import org.taktik.icure.domain.filter.Filters
+import org.taktik.couchdb.id.Identifiable
 
 @KotlinBuilder
-data class PatientByIdsFilter(
-        override val desc: String? = null,
-        override val ids: List<String>? = null
-) : AbstractFilter<Patient>, org.taktik.icure.domain.filter.patient.PatientByIdsFilter {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val filter = other as PatientByIdsFilter
-        return Objects.equal(ids, filter.ids)
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hashCode(ids)
-    }
-
-    override fun matches(item: Patient): Boolean {
-        return ids!!.contains(item.id)
+data class ByHcpartyFilter<O : Identifiable<String>>(
+        override val hcpId: String,
+        override val desc: String? = null
+) : AbstractFilter<O>, Filters.ByHcpartyFilter<String, O> {
+    override fun matches(item: O): Boolean {
+        return true
     }
 }

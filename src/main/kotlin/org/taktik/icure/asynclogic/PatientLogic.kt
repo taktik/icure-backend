@@ -98,4 +98,5 @@ interface PatientLogic {
     suspend fun hasEntities(): Boolean
 
     fun listPatientIdsByHcpartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>) : Flow<String>
+    fun getEntityIds(): Flow<String>
 }

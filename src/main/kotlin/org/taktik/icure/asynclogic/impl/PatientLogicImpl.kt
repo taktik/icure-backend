@@ -404,6 +404,10 @@ class PatientLogicImpl(
         }
     }
 
+    override fun getEntityIds(): Flow<String> {
+        return patientDAO.getEntityIds()
+    }
+
     override suspend fun mergePatient(patient: Patient, fromPatients: List<Patient>): Patient? {
         val now = Instant.now().toEpochMilli()
         return fromPatients.fold(patient to listOf<Patient>() ) { (p, others), o -> p.merge(o) to others + (modifyPatient(p.copy(

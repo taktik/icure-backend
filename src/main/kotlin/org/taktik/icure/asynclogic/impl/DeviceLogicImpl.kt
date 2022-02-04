@@ -97,4 +97,6 @@ class DeviceLogicImpl(
         val selectedIds = sortedIds.take(limit+1) // Fetching one more device for the start key of the next page
         emitAll(getGenericDAO().findDevicesByIds(selectedIds))
     }
+
+    override fun getEntityIds() = deviceDAO.getEntityIds()
 }

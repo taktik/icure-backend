@@ -40,6 +40,7 @@ interface ContactDAO: GenericDAO<Contact> {
     fun listContactsByHcPartyAndFormId(hcPartyId: String, formId: String): Flow<Contact>
     fun listContactsByHcPartyAndFormIds(hcPartyId: String, ids: List<String>): Flow<Contact>
     fun findServiceIdsByIdQualifiedLink(ids: List<String>, linkType: String?): Flow<String>
+    fun listServiceIdsByHcParty(hcPartyId: String): Flow<String>
     fun listServiceIdsByTag(hcPartyId: String, tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listServiceIdsByPatientAndTag(hcPartyId: String, patientSecretForeignKeys: List<String>, tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listServiceIdsByCode(hcPartyId: String, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>

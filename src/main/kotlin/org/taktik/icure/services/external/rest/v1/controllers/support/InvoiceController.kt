@@ -278,7 +278,7 @@ class InvoiceController(
     @GetMapping("/toInsurances")
     fun listToInsurances(@RequestParam(required = false) userIds: String?): Flux<InvoiceDto> = flow<InvoiceDto>{
         val users = if (userIds == null) userLogic.getEntities() else userLogic.getUsers(userIds.split(','))
-        val insuranceIds = insuranceLogic.getEntitiesIds().toSet()
+        val insuranceIds = insuranceLogic.getEntityIds().toSet()
         users
                 .flatMapConcat { user -> invoiceLogic.listInvoicesByHcPartyAndRecipientIds(user.healthcarePartyId!!, insuranceIds).filter { iv -> user.id == iv.author } }
                 .map { invoiceMapper.map(it) }
@@ -291,7 +291,7 @@ class InvoiceController(
     @GetMapping("/toInsurances/unsent")
     fun listToInsurancesUnsent(@RequestParam(required = false) userIds: String?): Flux<InvoiceDto>  = flow{
         val users = if (userIds == null) userLogic.getEntities() else userLogic.getUsers(userIds.split(','))
-        val insuranceIds = insuranceLogic.getEntitiesIds().toSet()
+        val insuranceIds = insuranceLogic.getEntityIds().toSet()
         users
                 .flatMapConcat { u ->
                     invoiceLogic.listInvoicesByHcPartyAndRecipientIdsUnsent(u.healthcarePartyId!!, insuranceIds).filter { iv -> u.id == iv.author }

@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.github.pozo.KotlinBuilder
+import org.taktik.icure.domain.filter.Filters
 import org.taktik.icure.entities.User
 import org.taktik.icure.handlers.JsonPolymorphismRoot
 import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
@@ -33,6 +34,6 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class UserByIdsFilter(
-        override val desc: String? = null,
-        override val ids: List<String>? = null
-) : AbstractFilterDto<User>, org.taktik.icure.domain.filter.user.UserByIdsFilter
+        override val ids: Set<String>,
+        override val desc: String? = null
+) : AbstractFilterDto<User>, Filters.IdsFilter<String, User>

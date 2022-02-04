@@ -382,7 +382,7 @@ class UserLogicImpl(
         emitAll(userDAO.getEntities())
     }
 
-    override fun getEntitiesIds(): Flow<String> = flow {
+    override fun getEntityIds(): Flow<String> = flow {
         emitAll(userDAO.getEntityIds())
     }
 

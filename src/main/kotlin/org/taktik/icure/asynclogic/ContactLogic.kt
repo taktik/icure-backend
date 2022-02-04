@@ -46,6 +46,7 @@ interface ContactLogic : EntityPersister<Contact, String> {
     fun getServicesLinkedTo(ids: List<String>, linkType: String?): Flow<Service>
 
     fun pimpServiceWithContactInformation(s: Service, c: Contact): Service
+    fun listServiceIdsByHcParty(hcPartyId: String): Flow<String>
     fun listServiceIdsByTag(hcPartyId: String, patientSecretForeignKeys: List<String>?, tagType: String, tagCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listServiceIdsByCode(hcPartyId: String, patientSecretForeignKeys: List<String>?, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listContactIdsByTag(hcPartyId: String, tagType: String, tagCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>

@@ -23,8 +23,8 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.github.pozo.KotlinBuilder
-import org.taktik.icure.domain.filter.Filters
 import org.taktik.couchdb.id.Identifiable
+import org.taktik.icure.domain.filter.Filters
 import org.taktik.icure.handlers.JsonPolymorphismRoot
 
 @JsonPolymorphismRoot(AbstractFilterDto::class)
@@ -32,7 +32,7 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
-data class ConstantFilter<O : Identifiable<String>>(
+data class IdsFilter<O : Identifiable<String>>(
         override val desc: String? = null,
-        override val constant: Set<String>
-) : AbstractFilterDto<O>, Filters.ConstantFilter<String, O>
+        override val ids: Set<String>
+) : AbstractFilterDto<O>, Filters.IdsFilter<String, O>

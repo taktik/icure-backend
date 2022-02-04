@@ -75,6 +75,10 @@ class HealthElementLogicImpl(private val filters: Filters,
         emitAll(healthElementDAO.listHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys))
     }
 
+    override fun listHealthElementIdsByHcParty(hcpId: String) = flow {
+        emitAll(healthElementDAO.listHealthElementsByHcParty(hcpId))
+    }
+
     override suspend fun listLatestHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): List<HealthElement> {
         return healthElementDAO.listHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys).toList()
                 .groupBy { it.healthElementId }.values.mapNotNull { value -> value.maxByOrNull { it: HealthElement ->

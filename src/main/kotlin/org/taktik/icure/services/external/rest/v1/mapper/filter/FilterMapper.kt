@@ -29,7 +29,7 @@ import org.taktik.icure.domain.filter.impl.predicate.OrPredicate
 import org.taktik.icure.domain.filter.predicate.Predicate
 import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.ComplementFilter
-import org.taktik.icure.services.external.rest.v1.dto.filter.ConstantFilter
+import org.taktik.icure.services.external.rest.v1.dto.filter.IdsFilter
 import org.taktik.icure.services.external.rest.v1.dto.filter.IntersectionFilter
 import org.taktik.icure.services.external.rest.v1.dto.filter.UnionFilter
 import org.taktik.icure.services.external.rest.v1.dto.filter.code.CodeByRegionTypeLabelLanguageFilter
@@ -104,10 +104,10 @@ abstract class FilterMapper {
                 superSet = map(filterDto.superSet) as  AbstractFilter<O>
         )
     }
-    fun <O: Identifiable<String>>map(filterDto: ConstantFilter<O>): org.taktik.icure.domain.filter.impl.ConstantFilter<O> {
-        return org.taktik.icure.domain.filter.impl.ConstantFilter(
+    fun <O: Identifiable<String>>map(filterDto: IdsFilter<O>): org.taktik.icure.domain.filter.impl.IdsFilter<O> {
+        return org.taktik.icure.domain.filter.impl.IdsFilter(
                 desc = filterDto.desc,
-                constant = filterDto.constant
+                ids = filterDto.ids
         )
     }
 
@@ -140,7 +140,7 @@ abstract class FilterMapper {
             is UnionFilter -> map(filterDto)
             is IntersectionFilter -> map(filterDto)
             is ComplementFilter -> map(filterDto)
-            is ConstantFilter -> map(filterDto)
+            is IdsFilter -> map(filterDto)
             else -> throw IllegalArgumentException("Unsupported filter class")
         }
     }
@@ -190,10 +190,10 @@ abstract class FilterMapper {
                 superSet = map(filterDto.superSet) as  AbstractFilterDto<O>
         )
     }
-    fun <O: Identifiable<String>>map(filterDto: org.taktik.icure.domain.filter.impl.ConstantFilter<O>): ConstantFilter<O> {
-        return ConstantFilter(
+    fun <O: Identifiable<String>>map(filterDto: org.taktik.icure.domain.filter.impl.IdsFilter<O>): IdsFilter<O> {
+        return IdsFilter(
                 desc = filterDto.desc,
-                constant = filterDto.constant
+                ids = filterDto.ids
         )
     }
 
@@ -226,7 +226,7 @@ abstract class FilterMapper {
             is org.taktik.icure.domain.filter.impl.UnionFilter -> map(filter)
             is org.taktik.icure.domain.filter.impl.IntersectionFilter -> map(filter)
             is org.taktik.icure.domain.filter.impl.ComplementFilter -> map(filter)
-            is org.taktik.icure.domain.filter.impl.ConstantFilter -> map(filter)
+            is org.taktik.icure.domain.filter.impl.IdsFilter -> map(filter)
             else -> throw IllegalArgumentException("Unsupported filter class")
         }
     }

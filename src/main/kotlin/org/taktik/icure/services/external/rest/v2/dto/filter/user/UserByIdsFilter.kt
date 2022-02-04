@@ -15,31 +15,25 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.domain.filter.impl.user
+package org.taktik.icure.services.external.rest.v2.dto.filter.user
 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.JsonDeserializer
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.github.pozo.KotlinBuilder
-import com.google.common.base.Objects
-import org.taktik.icure.domain.filter.AbstractFilter
-import org.taktik.icure.entities.Patient
+import org.taktik.icure.domain.filter.Filters
 import org.taktik.icure.entities.User
+import org.taktik.icure.handlers.JsonPolymorphismRoot
+import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 
+@JsonPolymorphismRoot(AbstractFilterDto::class)
+@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class UserByIdsFilter(
-        override val desc: String? = null,
-        override val ids: List<String>? = null
-) : AbstractFilter<User>, org.taktik.icure.domain.filter.user.UserByIdsFilter {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val filter = other as UserByIdsFilter
-        return Objects.equal(ids, filter.ids)
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hashCode(ids)
-    }
-
-    override fun matches(item: User): Boolean {
-        return ids!!.contains(item.id)
-    }
-}
+        override val ids: Set<String>,
+        override val desc: String? = null
+) : AbstractFilterDto<User>, Filters.IdsFilter<String, User>

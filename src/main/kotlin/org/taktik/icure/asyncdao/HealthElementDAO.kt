@@ -24,9 +24,7 @@ import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.embed.Identifier
 
 interface HealthElementDAO: GenericDAO<HealthElement> {
-    fun listHealthElementsByPatient(patientId: String): Flow<HealthElement>
-
-    fun listHealthElementsByPatientAndCodes(patientId: String, codes: Set<Code>): Flow<HealthElement>
+    fun listHealthElementsByHcParty(hcPartyId: String): Flow<String>
 
     fun listHealthElementsByHcPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String): Flow<String>
 

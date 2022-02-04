@@ -24,4 +24,5 @@ interface DeviceLogic {
     fun listDeviceIdsByResponsible(hcpId: String): Flow<String>
 
     fun filterDevices(filter: FilterChain<Device>, limit: Int, startDocumentId: String?): Flow<ViewQueryResultEvent>
+    fun getEntityIds(): Flow<String>
 }

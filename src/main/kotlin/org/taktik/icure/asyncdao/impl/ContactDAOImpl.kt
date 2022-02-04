@@ -162,6 +162,15 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         )
     }
 
+    @View(name = "service_by_hcparty", map = "classpath:js/contact/Service_by_hcparty_map.js")
+    override fun listServiceIdsByHcParty(hcPartyId: String) = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        val viewQuery = createQuery(client, "service_by_hcparty")
+                .key(hcPartyId)
+                .includeDocs(false)
+        emitAll(client.queryView<String, String>(viewQuery).mapNotNull { it.value })
+    }
+
     @ExperimentalCoroutinesApi
     @FlowPreview
     @View(name = "service_by_association_id", map = "classpath:js/contact/Service_by_association_id.js")

@@ -22,8 +22,8 @@ import java.io.Serializable
 
 interface Filters {
 
-    interface ConstantFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-        val constant: Set<T>
+    interface IdsFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
+        val ids: Set<T>
     }
 
     interface UnionFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
@@ -40,6 +40,10 @@ interface Filters {
     }
 
     interface AllFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
+    }
+
+    interface ByHcpartyFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
+        val hcpId: String
     }
 
 }

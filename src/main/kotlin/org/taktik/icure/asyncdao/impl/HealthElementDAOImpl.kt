@@ -45,25 +45,15 @@ import org.taktik.icure.properties.CouchDbProperties
  */
 @ExperimentalCoroutinesApi
 @Repository("healthElementDAO")
-@View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted) emit( doc.patientId, doc._id )}")
+@View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted) emit( null, doc._id )}")
 internal class HealthElementDAOImpl(couchDbProperties: CouchDbProperties,
                                     @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<HealthElement>(couchDbProperties, HealthElement::class.java, couchDbDispatcher, idGenerator), HealthElementDAO {
 
-    override fun listHealthElementsByPatient(patientId: String): Flow<HealthElement> = flow {
+    @View(name = "by_hcparty", map = "classpath:js/healthelement/By_hcparty_map.js")
+    override fun listHealthElementsByHcParty(hcPartyId: String) = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        emitAll(client.queryViewIncludeDocs<String, String, HealthElement>(createQuery(client, "all").key(patientId).includeDocs(true)).map { it.doc })
-    }
-
-    @View(name = "by_patient_and_codes", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted) {\n" +
-            "  for (var i=0;i<doc.codes.length;i++) {\n" +
-            "  emit( [doc.patientId, doc.codes[i].type+':'+doc.codes[i].code], doc._id );\n" +
-            "  }}}")
-    override fun listHealthElementsByPatientAndCodes(patientId: String, codes: Set<Code>): Flow<HealthElement> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-
-        val keys = codes.map { c -> ComplexKey.of(patientId, c.toString()) }
-        emitAll(client.queryViewIncludeDocs<ComplexKey, String, HealthElement>(createQuery(client, "by_patient_and_codes").keys(keys).includeDocs(true)).map { it.doc })
+        emitAll(client.queryView<Array<String>, String>(createQuery(client, "by_hcparty").key(hcPartyId).includeDocs(false)).mapNotNull { it.value })
     }
 
     @View(name = "by_hcparty_and_codes", map = "classpath:js/healthelement/By_hcparty_code_map.js")
