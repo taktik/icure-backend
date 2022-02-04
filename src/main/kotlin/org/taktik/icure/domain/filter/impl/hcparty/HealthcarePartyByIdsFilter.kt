@@ -15,20 +15,18 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.domain.filter.impl.hcparty
 
-package org.taktik.icure.domain.filter.impl
 
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.AbstractFilter
 import org.taktik.icure.domain.filter.Filters
-import org.taktik.couchdb.id.Identifiable
+import org.taktik.icure.entities.HealthcareParty
 
 @KotlinBuilder
-data class IdsFilter<O : Identifiable<String>>(
-        override val desc: String? = null,
-        override val ids: Set<String>
-) : AbstractFilter<O>, Filters.IdsFilter<String, O> {
-    override fun matches(item: O): Boolean {
-        return ids.contains(item.id)
-    }
+data class HealthcarePartyByIdsFilter(
+        override val ids: Set<String>,
+        override val desc: String? = null
+) : AbstractFilter<HealthcareParty>, Filters.IdsFilter<String, HealthcareParty> {
+    override fun matches(item: HealthcareParty) = ids.contains(item.id)
 }

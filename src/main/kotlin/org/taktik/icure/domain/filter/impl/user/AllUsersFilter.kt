@@ -16,18 +16,16 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.domain.filter.impl
+package org.taktik.icure.domain.filter.impl.user
 
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.AbstractFilter
 import org.taktik.icure.domain.filter.Filters
-import org.taktik.couchdb.id.Identifiable
+import org.taktik.icure.entities.User
 
 @KotlinBuilder
-data class AllFilter<O : Identifiable<String>>(
-        override val desc: String? = null
-) : AbstractFilter<O>, Filters.AllFilter<String, O> {
-    override fun matches(item: O): Boolean {
-        return true
-    }
+data class AllUsersFilter(
+        override val desc:String? = null,
+) : AbstractFilter<User>, Filters.AllFilter<String, User> {
+    override fun matches(item: User) = true
 }

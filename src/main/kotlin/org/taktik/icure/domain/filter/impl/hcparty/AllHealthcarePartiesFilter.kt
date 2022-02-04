@@ -16,19 +16,16 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.domain.filter.impl
+package org.taktik.icure.domain.filter.impl.hcparty
 
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.AbstractFilter
 import org.taktik.icure.domain.filter.Filters
-import org.taktik.couchdb.id.Identifiable
+import org.taktik.icure.entities.HealthcareParty
 
 @KotlinBuilder
-data class ByHcpartyFilter<O : Identifiable<String>>(
-        override val hcpId: String,
-        override val desc: String? = null
-) : AbstractFilter<O>, Filters.ByHcpartyFilter<String, O> {
-    override fun matches(item: O): Boolean {
-        return true
-    }
+data class AllHealthcarePartiesFilter(
+        override val desc:String? = null,
+) : AbstractFilter<HealthcareParty>, Filters.AllFilter<String, HealthcareParty> {
+    override fun matches(item: HealthcareParty) = true
 }

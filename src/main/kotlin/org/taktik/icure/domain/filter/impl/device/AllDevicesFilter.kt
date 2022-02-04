@@ -15,23 +15,17 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.domain.filter.impl
 
+package org.taktik.icure.domain.filter.impl.device
+
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.AbstractFilter
-import org.taktik.icure.domain.filter.Filter
-import org.taktik.couchdb.id.Identifiable
+import org.taktik.icure.domain.filter.Filters
+import org.taktik.icure.entities.Device
 
-object Filters {
-    fun <O : Identifiable<String>> union(vararg filters: AbstractFilter<O>): UnionFilter<O> {
-        return UnionFilter(null, filters.toList())
-    }
-
-    fun <O : Identifiable<String>> intersection(vararg filters: AbstractFilter<O>): IntersectionFilter<O> {
-        return IntersectionFilter(null, filters.toList())
-    }
-
-    fun <O : Identifiable<String>> complement(superSet: AbstractFilter<O>, subset: AbstractFilter<O>): Filter<String, O> {
-        return ComplementFilter(null, superSet, subset)
-    }
-
+@KotlinBuilder
+data class AllDevicesFilter(
+        override val desc:String? = null,
+) : AbstractFilter<Device>, Filters.AllFilter<String, Device> {
+    override fun matches(item: Device) = true
 }

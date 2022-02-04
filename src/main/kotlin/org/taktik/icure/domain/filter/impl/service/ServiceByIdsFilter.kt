@@ -15,23 +15,18 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.domain.filter.impl
+package org.taktik.icure.domain.filter.impl.service
 
+
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.AbstractFilter
-import org.taktik.icure.domain.filter.Filter
-import org.taktik.couchdb.id.Identifiable
+import org.taktik.icure.domain.filter.Filters
+import org.taktik.icure.entities.embed.Service
 
-object Filters {
-    fun <O : Identifiable<String>> union(vararg filters: AbstractFilter<O>): UnionFilter<O> {
-        return UnionFilter(null, filters.toList())
-    }
-
-    fun <O : Identifiable<String>> intersection(vararg filters: AbstractFilter<O>): IntersectionFilter<O> {
-        return IntersectionFilter(null, filters.toList())
-    }
-
-    fun <O : Identifiable<String>> complement(superSet: AbstractFilter<O>, subset: AbstractFilter<O>): Filter<String, O> {
-        return ComplementFilter(null, superSet, subset)
-    }
-
+@KotlinBuilder
+data class ServiceByIdsFilter(
+        override val ids: Set<String>,
+        override val desc: String? = null
+) : AbstractFilter<Service>, Filters.IdsFilter<String, Service> {
+    override fun matches(item: Service) = ids.contains(item.id)
 }
