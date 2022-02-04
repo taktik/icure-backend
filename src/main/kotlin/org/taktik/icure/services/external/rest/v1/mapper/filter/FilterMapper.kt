@@ -111,14 +111,14 @@ abstract class FilterMapper {
                 filters = filters
         )
     }
-    fun <O: Identifiable<String>>map(filterDto: IntersectionFilter<O>): org.taktik.icure.domain.filter.impl.IntersectionFilter<O> {
+    fun <O: Identifiable<String>>mapToDto(filterDto: IntersectionFilter<O>): org.taktik.icure.domain.filter.impl.IntersectionFilter<O> {
         val filters: List<AbstractFilter<O>> = filterDto.filters.map { map(it) as AbstractFilter<O> }
         return org.taktik.icure.domain.filter.impl.IntersectionFilter(
                 desc = filterDto.desc,
                 filters = filters
         )
     }
-    fun <O: Identifiable<String>>map(filterDto: ComplementFilter<O>): org.taktik.icure.domain.filter.impl.ComplementFilter<O> {
+    fun <O: Identifiable<String>>mapToDto(filterDto: ComplementFilter<O>): org.taktik.icure.domain.filter.impl.ComplementFilter<O> {
         return org.taktik.icure.domain.filter.impl.ComplementFilter(
                 desc = filterDto.desc,
                 subSet = map(filterDto.subSet) as AbstractFilter<O>,
