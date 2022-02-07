@@ -19,13 +19,7 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.*
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.annotation.View
@@ -36,13 +30,9 @@ import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.HealthElementDAO
 import org.taktik.icure.entities.HealthElement
-import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.embed.Identifier
-import org.taktik.icure.utils.createQuery
 import org.taktik.icure.properties.CouchDbProperties
-import kotlinx.coroutines.flow.firstOrNull
 import org.taktik.icure.utils.distinctBy
-import java.net.URI
 
 /**
  * Created by aduchate on 18/07/13, 13:36
