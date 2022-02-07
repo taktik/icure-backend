@@ -41,8 +41,8 @@ class HealthElementByHcPartyTagCodeFilter(private val healthElementLogic: Health
             if (filter.tagType != null && filter.tagCode != null) {
                 ids = HashSet(healthElementLogic.listHealthElementIdsByHcPartyAndTags(hcPartyId, filter.tagType!!, filter.tagCode!!).toSet())
             }
-            if (filter.codeType != null && filter.codeNumber != null) {
-                val byCode = HashSet(healthElementLogic.listHealthElementIdsByHcPartyAndCodes(hcPartyId, filter.codeType!!, filter.codeNumber!!).toSet())
+            if (filter.codeType != null && filter.codeCode != null) {
+                val byCode = HashSet(healthElementLogic.listHealthElementIdsByHcPartyAndCodes(hcPartyId, filter.codeType!!, filter.codeCode!!).toSet())
                 if (ids == null) {
                     ids = byCode
                 } else {

@@ -24,7 +24,7 @@ import org.taktik.icure.entities.HealthElement
 interface HealthElementByHcPartyTagCodeFilter : Filter<String, HealthElement> {
     val healthCarePartyId: String?
     val codeType: String?
-    val codeNumber: String?
+    val codeCode: String?
     val tagType: String?
     val tagCode: String?
     val status: Int?
