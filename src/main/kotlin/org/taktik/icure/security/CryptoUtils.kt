@@ -231,4 +231,17 @@ object CryptoUtils {
             throw EncryptionException(e.message, e)
         }
     }
+
+    fun String.keyFromHexString(): ByteArray {
+        this.let {
+            check(it.length % 2 == 0) { "Must have an even length" }
+
+            return it.chunked(2)
+                    .map { it.toInt(16).toByte() }
+                    .toByteArray()
+
+        }
+    }
+
+    fun ByteArray.isValidAesKey() = this.size * 8 in setOf(128, 192, 256)
 }
