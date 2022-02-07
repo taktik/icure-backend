@@ -19,8 +19,8 @@
 package org.taktik.icure.asyncdao
 
 import kotlinx.coroutines.flow.Flow
+import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.entities.HealthElement
-import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.embed.Identifier
 
 interface HealthElementDAO: GenericDAO<HealthElement> {
@@ -38,7 +38,12 @@ interface HealthElementDAO: GenericDAO<HealthElement> {
 
     suspend fun getHealthElement(healthElementId: String): HealthElement?
 
-    fun listHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<HealthElement>
+    fun listHealthElementsByHCPartyAndSecretPatientKeys(
+        hcPartyId: String,
+        secretPatientKeys: List<String>
+    ): Flow<HealthElement>
 
     fun listConflicts(): Flow<HealthElement>
+
+    fun findHealthElementsByIds(healthElementIds: Flow<String>): Flow<ViewQueryResultEvent>
 }
