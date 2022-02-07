@@ -20,7 +20,9 @@ package org.taktik.icure.asynclogic
 
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.DocIdentifier
+import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.HealthElementDAO
+import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
@@ -53,5 +55,8 @@ interface HealthElementLogic : EntityPersister<HealthElement, String> {
 
     fun solveConflicts(): Flow<HealthElement>
 
-    fun filter(filter: FilterChain<HealthElement>): Flow<HealthElement>
+    fun filter(
+        paginationOffset: PaginationOffset<Nothing>,
+        filter: FilterChain<HealthElement>
+    ): Flow<ViewQueryResultEvent>
 }

@@ -19,22 +19,25 @@ package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
+import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.entity.Option
 import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asyncdao.HealthElementDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
+import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
@@ -143,19 +146,34 @@ class HealthElementLogicImpl(private val filters: Filters,
     }
 
     override fun solveConflicts(): Flow<HealthElement> =
-           healthElementDAO.listConflicts().mapNotNull {healthElementDAO.get(it.id, Option.CONFLICTS)?.let {healthElement ->
-               healthElement.conflicts?.mapNotNull { conflictingRevision ->healthElementDAO.get(healthElement.id, conflictingRevision) }
-                        ?.fold(healthElement) { kept, conflict -> kept.merge(conflict).also {healthElementDAO.purge(conflict) } }
-                        ?.let { mergedHealthElement ->healthElementDAO.save(mergedHealthElement) }
-            } }
+        healthElementDAO.listConflicts().mapNotNull {
+            healthElementDAO.get(it.id, Option.CONFLICTS)?.let { healthElement ->
+                healthElement.conflicts?.mapNotNull { conflictingRevision ->
+                    healthElementDAO.get(
+                        healthElement.id,
+                        conflictingRevision
+                    )
+                }
+                    ?.fold(healthElement) { kept, conflict ->
+                        kept.merge(conflict).also { healthElementDAO.purge(conflict) }
+                    }
+                    ?.let { mergedHealthElement -> healthElementDAO.save(mergedHealthElement) }
+            }
+        }
 
 
-    override fun filter(filter: FilterChain<HealthElement>) = flow<HealthElement> {
-        val ids = filters.resolve(filter.filter).toList()
-        val healthElements = getHealthElements(ids) //TODO MBB implement get elements flow
-        val predicate = filter.predicate
-        emitAll(if (predicate != null) healthElements.filter { predicate.apply(it) } else healthElements)
-    }
+    override fun filter(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<HealthElement>) =
+        flow<ViewQueryResultEvent> {
+            val ids = filters.resolve(filter.filter)
+            val sortedIds = paginationOffset.takeUnless { it.startDocumentId == null }
+                ?.let { paginationOffset -> // Sub-set starting from startDocId to the end (including last element)
+                    ids.dropWhile { id -> id != paginationOffset.startDocumentId }
+                } ?: ids
+
+            val selectedIds =
+                sortedIds.take(paginationOffset.limit + 1) // Fetching one more health element for the start key of the next page
+            emitAll(healthElementDAO.findHealthElementsByIds(selectedIds))
+        }
 
     companion object {
         private val log = LoggerFactory.getLogger(HealthElementLogicImpl::class.java)
