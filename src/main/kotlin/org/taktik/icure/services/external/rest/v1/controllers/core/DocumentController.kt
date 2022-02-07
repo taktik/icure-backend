@@ -135,7 +135,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
                 ?.takeIf { it.isNotEmpty() }
                 ?.split(',')
                 ?.filter { sfk -> sfk.keyFromHexString().isValidAesKey() }
-                ?.map { sfk ->
+                ?.mapNotNull { sfk ->
                     try {
                         CryptoUtils.encryptAES(payload, sfk.keyFromHexString())
                     } catch (exception: Exception) {
@@ -160,7 +160,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
                 ?.takeIf { it.isNotEmpty() }
                 ?.split(',')
                 ?.filter { sfk -> sfk.keyFromHexString().isValidAesKey() }
-                ?.map { sfk ->
+                ?.mapNotNull { sfk ->
                     try {
                         CryptoUtils.encryptAES(payload, sfk.keyFromHexString())
                     } catch (exception: Exception) {
