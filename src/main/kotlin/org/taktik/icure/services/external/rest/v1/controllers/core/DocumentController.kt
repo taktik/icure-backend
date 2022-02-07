@@ -131,20 +131,19 @@ class DocumentController(private val documentLogic: DocumentLogic,
     fun setDocumentAttachment(@PathVariable documentId: String,
                       @RequestParam(required = false) enckeys: String?,
                       @Schema(type = "string", format = "binary") @RequestBody payload: ByteArray) = mono {
-        var newPayload = payload
-        if (enckeys != null && enckeys.isNotEmpty()) {
-            for (sfk in enckeys.split(',')) {
-                if (!sfk.keyFromHexString().isValidAesKey()) {
-                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Provided enckey is not a valid AES key")
+        val newPayload: ByteArray = enckeys
+                ?.takeIf { it.isNotEmpty() }
+                ?.split(',')
+                ?.filter { sfk -> sfk.keyFromHexString().isValidAesKey() }
+                ?.map { sfk ->
+                    try {
+                        CryptoUtils.encryptAES(payload, sfk.keyFromHexString())
+                    } catch (exception: Exception) {
+                        null
+                    }
                 }
-
-                try {
-                    newPayload = CryptoUtils.encryptAES(newPayload, sfk.keyFromHexString())
-                    break //should always work (no real check on key validity for encryption)
-                } catch (ignored: Exception) {
-                }
-            }
-        }
+                ?.firstOrNull()
+                ?: payload
 
         val document = documentLogic.getDocument(documentId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
@@ -157,20 +156,19 @@ class DocumentController(private val documentLogic: DocumentLogic,
     fun setDocumentAttachmentBody(@RequestParam(required = true) documentId: String,
                               @RequestParam(required = false) enckeys: String?,
                               @Schema(type = "string", format = "binary") @RequestBody payload: ByteArray) = mono {
-        var newPayload = payload
-        if (enckeys != null && enckeys.isNotEmpty()) {
-            for (sfk in enckeys.split(',')) {
-                if (!sfk.keyFromHexString().isValidAesKey()) {
-                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Provided enckey is not a valid AES key")
+        val newPayload: ByteArray = enckeys
+                ?.takeIf { it.isNotEmpty() }
+                ?.split(',')
+                ?.filter { sfk -> sfk.keyFromHexString().isValidAesKey() }
+                ?.map { sfk ->
+                    try {
+                        CryptoUtils.encryptAES(payload, sfk.keyFromHexString())
+                    } catch (exception: Exception) {
+                        null
+                    }
                 }
-
-                try {
-                    newPayload = CryptoUtils.encryptAES(newPayload, sfk.keyFromHexString())
-                    break //should always work (no real check on key validity for encryption)
-                } catch (ignored: Exception) {
-                }
-            }
-        }
+                ?.firstOrNull()
+                ?: payload
 
         val document = documentLogic.getDocument(documentId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
