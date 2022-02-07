@@ -38,7 +38,11 @@ import org.taktik.icure.asyncdao.HealthElementDAO
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.embed.Identifier
+import org.taktik.icure.utils.createQuery
 import org.taktik.icure.properties.CouchDbProperties
+import kotlinx.coroutines.flow.firstOrNull
+import org.taktik.icure.utils.distinctBy
+import java.net.URI
 
 /**
  * Created by aduchate on 18/07/13, 13:36
@@ -54,6 +58,17 @@ internal class HealthElementDAOImpl(couchDbProperties: CouchDbProperties,
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         emitAll(client.queryView<Array<String>, String>(createQuery(client, "by_hcparty").key(hcPartyId).includeDocs(false)).mapNotNull { it.value })
+    }
+
+    override fun listHealthElementIdsByHcPartyAndSecretPatientKeys(
+            hcPartyId: String,
+            secretPatientKeys: List<String>
+    ) = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+        val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
+
+        emitAll(client.queryView<Array<String>, String>(createQuery(client, "by_hcparty_patient").keys(keys).includeDocs(false)).distinctBy { it.id }.map { it.id })
     }
 
     @View(name = "by_hcparty_and_codes", map = "classpath:js/healthelement/By_hcparty_code_map.js")

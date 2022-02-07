@@ -33,7 +33,9 @@ interface HealthElementLogic : EntityPersister<HealthElement, String> {
 
     suspend fun getHealthElement(healthElementId: String): HealthElement?
     fun getHealthElements(healthElementIds: List<String>): Flow<HealthElement>
+
     fun listHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<HealthElement>
+    fun listHealthElementIdsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatinetKeys: List<String>): Flow<String>
 
     fun listHealthElementIdsByHcParty(hcpId: String): Flow<String>
     suspend fun listLatestHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): List<HealthElement>

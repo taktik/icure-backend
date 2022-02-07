@@ -28,6 +28,8 @@ interface HealthElementDAO: GenericDAO<HealthElement> {
 
     fun listHealthElementsByHcPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String): Flow<String>
 
+    fun listHealthElementIdsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatinetKeys: List<String>): Flow<String>
+
     fun listHealthElementsByHcPartyAndTags(hcPartyId: String, tagType: String, tagCode: String): Flow<String>
 
     fun listHealthElementsByHcPartyAndStatus(hcPartyId: String, status: Int?): Flow<String>
@@ -42,3 +44,4 @@ interface HealthElementDAO: GenericDAO<HealthElement> {
 
     fun listConflicts(): Flow<HealthElement>
 }
+
