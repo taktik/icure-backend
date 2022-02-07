@@ -167,7 +167,7 @@ class HealthElementLogicImpl(private val filters: Filters,
                 } ?: ids
 
             val selectedIds =
-                sortedIds.take(paginationOffset.limit + 1) // Fetching one more healthcare parties for the start key of the next page
+                sortedIds.take(paginationOffset.limit + 1) // Fetching one more health element for the start key of the next page
             emitAll(healthElementDAO.findHealthElementsByIds(selectedIds))
         }
 
