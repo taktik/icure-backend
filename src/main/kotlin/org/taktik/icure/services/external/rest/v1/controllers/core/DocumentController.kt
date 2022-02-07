@@ -52,6 +52,8 @@ import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.DocumentType
 import org.taktik.icure.security.CryptoUtils
+import org.taktik.icure.security.CryptoUtils.isValidAesKey
+import org.taktik.icure.security.CryptoUtils.keyFromHexString
 import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
@@ -132,12 +134,12 @@ class DocumentController(private val documentLogic: DocumentLogic,
         var newPayload = payload
         if (enckeys != null && enckeys.isNotEmpty()) {
             for (sfk in enckeys.split(',')) {
-                val bb = ByteBuffer.wrap(ByteArray(16))
-                val uuid = UUID.fromString(sfk)
-                bb.putLong(uuid.mostSignificantBits)
-                bb.putLong(uuid.leastSignificantBits)
+                if (!sfk.keyFromHexString().isValidAesKey()) {
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Provided enckey is not a valid AES key")
+                }
+
                 try {
-                    newPayload = CryptoUtils.encryptAES(newPayload, bb.array())
+                    newPayload = CryptoUtils.encryptAES(newPayload, sfk.keyFromHexString())
                     break //should always work (no real check on key validity for encryption)
                 } catch (ignored: Exception) {
                 }
@@ -147,7 +149,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         val document = documentLogic.getDocument(documentId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         documentLogic.modifyDocument(document.copy(attachment = newPayload))
-        documentMapper.map(document)
+                ?.let { documentMapper.map(it) }
     }
 
     @Operation(summary = "Create a document's attachment", description = "Creates a document attachment and returns the modified document instance afterward")
@@ -158,12 +160,12 @@ class DocumentController(private val documentLogic: DocumentLogic,
         var newPayload = payload
         if (enckeys != null && enckeys.isNotEmpty()) {
             for (sfk in enckeys.split(',')) {
-                val bb = ByteBuffer.wrap(ByteArray(16))
-                val uuid = UUID.fromString(sfk)
-                bb.putLong(uuid.mostSignificantBits)
-                bb.putLong(uuid.leastSignificantBits)
+                if (!sfk.keyFromHexString().isValidAesKey()) {
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Provided enckey is not a valid AES key")
+                }
+
                 try {
-                    newPayload = CryptoUtils.encryptAES(newPayload, bb.array())
+                    newPayload = CryptoUtils.encryptAES(newPayload, sfk.keyFromHexString())
                     break //should always work (no real check on key validity for encryption)
                 } catch (ignored: Exception) {
                 }
@@ -173,7 +175,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         val document = documentLogic.getDocument(documentId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         documentLogic.modifyDocument(document.copy(attachment = newPayload))
-        documentMapper.map(document)
+                ?.let { documentMapper.map(it) }
     }
 
     @Operation(summary = "Creates a document's attachment")
