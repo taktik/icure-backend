@@ -37,7 +37,7 @@
     <VALUE>
         <CODE>careencounter</CODE>
         <DESCRIPTION L="en">Care encounter</DESCRIPTION>
-        <DESCRIPTION L="fr">rencontre m�dicale</DESCRIPTION>
+        <DESCRIPTION L="fr">rencontre médicale</DESCRIPTION>
     </VALUE>
     <VALUE>
         <CODE>pregnancy</CODE>
@@ -59,6 +59,6 @@
         <DESCRIPTION L="en">Accident during travel to or from work</DESCRIPTION>
         <DESCRIPTION L="fr">accident de trajet du et vers le lieu de travail</DESCRIPTION>
         <DESCRIPTION L="nl">ongeval op weg naar of van het werk</DESCRIPTION>
-        <DESCRIPTION L="de">Unfall von oder zu der Arbeitsst�tte</DESCRIPTION>
+        <DESCRIPTION L="de">Unfall von oder zu der Arbeitssttte</DESCRIPTION>
     </VALUE>
 </kmehr-cd>
