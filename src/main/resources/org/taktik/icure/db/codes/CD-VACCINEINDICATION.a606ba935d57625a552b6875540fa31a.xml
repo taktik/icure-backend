@@ -184,4 +184,10 @@
         <DESCRIPTION L='en'>vaccine against zona</DESCRIPTION>
         <DESCRIPTION L='nl'>vaccin tegen zona</DESCRIPTION>
     </VALUE>
+    <VALUE>
+        <CODE>herpeszoster</CODE>
+        <DESCRIPTION L="en">vaccine against herpes zoster (shingles)</DESCRIPTION>
+        <DESCRIPTION L="nl">vaccin tegen herpes zoster (zona)</DESCRIPTION>
+        <DESCRIPTION L="fr">vaccin contre l'herpès zoster (zona)</DESCRIPTION>
+    </VALUE>
 </kmehr-cd>

@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.3</VERSION>
+    <DATE>2016-12-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Patient's will</NAME>
+    <VALUE>
+        <CODE>ntbr (deprecated)</CODE>
+        <DESCRIPTION L="en">not to be resuscitated</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>bloodtransfusionrefusal</CODE>
+        <DESCRIPTION L="en">blood transfusion refusal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>intubationrefusal</CODE>
+        <DESCRIPTION L="en">intubation refusal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>euthanasiarequest</CODE>
+        <DESCRIPTION L="en">euthanasia request</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>vaccinationrefusal</CODE>
+        <DESCRIPTION L="en">vaccination refusal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>organdonationconsent</CODE>
+        <DESCRIPTION L="en">organ donation consent</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>datareuseforclinicalresearchconsent</CODE>
+        <DESCRIPTION L="en">data reuse for clinical research consent</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>datareuseforclinicaltrialsconsent</CODE>
+        <DESCRIPTION L="en">data reuse for clinical trials consent</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>clinicaltrialparticipationconsent</CODE>
+        <DESCRIPTION L="en">clinical trial participation consent</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>omissionofmedicaldata</CODE>
+        <DESCRIPTION L="en">At the request of the patient, certain medical data are not included in this transaction</DESCRIPTION>
+        <DESCRIPTION L="fr">Sur demande du patient, certaines données médicales n’ont pas été reprises dans cette transaction</DESCRIPTION>
+        <DESCRIPTION L="nl">Bepaalde medische gegevens zijnop vraag van de patiënt niet opgenomen in deze boodschap</DESCRIPTION>
+        <DESCRIPTION L="de">Auf Wunsch des Patienten sind bestimmte medizinische Daten nicht in dieser Transaction erhalten</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

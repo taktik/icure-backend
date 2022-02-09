@@ -1,0 +1,887 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1.16</VERSION>
+    <DATE>2020-06-01</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>Healthcare Party Type</NAME>
+    <VALUE>
+        <CODE>deptanatomopathology</CODE>
+        <DESCRIPTION L="en">anatomopathology</DESCRIPTION>
+        <DESCRIPTION L="fr">anatomopathologie</DESCRIPTION>
+        <DESCRIPTION L="nl">anatomo-pathologie</DESCRIPTION>
+        <DESCRIPTION L="de">pathologische Anatomie </DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptanesthesiology</CODE>
+        <DESCRIPTION L="en">anesthesiology</DESCRIPTION>
+        <DESCRIPTION L="fr">anesthésiologie</DESCRIPTION>
+        <DESCRIPTION L="nl">anesthesiologie</DESCRIPTION>
+        <DESCRIPTION L="de">Anästhesiologe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptbacteriology</CODE>
+        <DESCRIPTION L="en">bacteriology</DESCRIPTION>
+        <DESCRIPTION L="fr">bactériologie</DESCRIPTION>
+        <DESCRIPTION L="nl">bacteriologie</DESCRIPTION>
+        <DESCRIPTION L="de">Bakteriologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptcardiology</CODE>
+        <DESCRIPTION L="en">cardiology</DESCRIPTION>
+        <DESCRIPTION L="fr">cardiologie</DESCRIPTION>
+        <DESCRIPTION L="nl">cardiologie</DESCRIPTION>
+        <DESCRIPTION L="de">Kardiologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptdermatology</CODE>
+        <DESCRIPTION L="en">dermatology</DESCRIPTION>
+        <DESCRIPTION L="fr">dermatologie</DESCRIPTION>
+        <DESCRIPTION L="nl">dermatologie</DESCRIPTION>
+        <DESCRIPTION L="de">Dermatologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptdietetics</CODE>
+        <DESCRIPTION L="en">dietetics</DESCRIPTION>
+        <DESCRIPTION L="fr">diététique</DESCRIPTION>
+        <DESCRIPTION L="nl">diëtetiek</DESCRIPTION>
+        <DESCRIPTION L="de">Diätetik</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptemergency</CODE>
+        <DESCRIPTION L="en">emergency</DESCRIPTION>
+        <DESCRIPTION L="fr">services d'urgence</DESCRIPTION>
+        <DESCRIPTION L="nl">spoeddiensten</DESCRIPTION>
+        <DESCRIPTION L="de">Notfalldienst</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptgastroenterology</CODE>
+        <DESCRIPTION L="en">gastroenterology</DESCRIPTION>
+        <DESCRIPTION L="fr">gastroentérologie</DESCRIPTION>
+        <DESCRIPTION L="nl">gastro-enterologie</DESCRIPTION>
+        <DESCRIPTION L="de">Gastroenterologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptgeneralpractice</CODE>
+        <DESCRIPTION L="en">general practice</DESCRIPTION>
+        <DESCRIPTION L="fr">médecine générale</DESCRIPTION>
+        <DESCRIPTION L="nl">algemene geneeskunde</DESCRIPTION>
+        <DESCRIPTION L="de">Allgemeinmedizin</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptgenetics</CODE>
+        <DESCRIPTION L="en">genetics</DESCRIPTION>
+        <DESCRIPTION L="fr">génétique</DESCRIPTION>
+        <DESCRIPTION L="nl">genetica</DESCRIPTION>
+        <DESCRIPTION L="de">Genetik</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptgeriatry</CODE>
+        <DESCRIPTION L="en">geriatry</DESCRIPTION>
+        <DESCRIPTION L="fr">gériatrie</DESCRIPTION>
+        <DESCRIPTION L="nl">geriatrie</DESCRIPTION>
+        <DESCRIPTION L="de">Geriatrie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptgynecology</CODE>
+        <DESCRIPTION L="en">gynecology</DESCRIPTION>
+        <DESCRIPTION L="fr">gynécologie</DESCRIPTION>
+        <DESCRIPTION L="nl">gynaecologie</DESCRIPTION>
+        <DESCRIPTION L="de">Gynäkologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>depthematology</CODE>
+        <DESCRIPTION L="en">hematology</DESCRIPTION>
+        <DESCRIPTION L="fr">hématologie</DESCRIPTION>
+        <DESCRIPTION L="nl">hematologie</DESCRIPTION>
+        <DESCRIPTION L="de">Hämatologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptintensivecare</CODE>
+        <DESCRIPTION L="en">intensive care</DESCRIPTION>
+        <DESCRIPTION L="fr">soins intensifs</DESCRIPTION>
+        <DESCRIPTION L="nl">intensieve zorgen</DESCRIPTION>
+        <DESCRIPTION L="de">Intensivmedizin</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptkinesitherapy</CODE>
+        <DESCRIPTION L="en">kinesitherapy</DESCRIPTION>
+        <DESCRIPTION L="fr">kinésithérapie</DESCRIPTION>
+        <DESCRIPTION L="nl">kinesitherapie</DESCRIPTION>
+        <DESCRIPTION L="de">Bewegungstherapie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptlaboratory</CODE>
+        <DESCRIPTION L="en">Laboratory service or department within an organisation</DESCRIPTION>
+        <DESCRIPTION L="fr">Service / Département laboratoire au sein d'une organisation</DESCRIPTION>
+        <DESCRIPTION L="nl">Laboratoriumdienst of -afdeling binnen een organisatie</DESCRIPTION>
+        <DESCRIPTION L="de">Laboratorium Dienst/Abteilung in einer Organisation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptmedicine</CODE>
+        <DESCRIPTION L="en">internal medecine</DESCRIPTION>
+        <DESCRIPTION L="fr">médicine interne</DESCRIPTION>
+        <DESCRIPTION L="nl">interne geneeskunde</DESCRIPTION>
+        <DESCRIPTION L="de">Innere Medizin</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptmolecularbiology</CODE>
+        <DESCRIPTION L="en">molecular biology</DESCRIPTION>
+        <DESCRIPTION L="fr">biologie moléculaire</DESCRIPTION>
+        <DESCRIPTION L="nl">moleculaire biologie</DESCRIPTION>
+        <DESCRIPTION L="de">Molekularbiologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptneonatalogy</CODE>
+        <DESCRIPTION L="en">neonatalogy</DESCRIPTION>
+        <DESCRIPTION L="fr">néonatologie</DESCRIPTION>
+        <DESCRIPTION L="nl">neonatologie</DESCRIPTION>
+        <DESCRIPTION L="de">Neonatologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptnephrology</CODE>
+        <DESCRIPTION L="en">nephrology</DESCRIPTION>
+        <DESCRIPTION L="fr">néphrologie</DESCRIPTION>
+        <DESCRIPTION L="nl">nefrologie</DESCRIPTION>
+        <DESCRIPTION L="de">Nephrologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptneurology</CODE>
+        <DESCRIPTION L="en">neurology</DESCRIPTION>
+        <DESCRIPTION L="fr">neurologie</DESCRIPTION>
+        <DESCRIPTION L="nl">neurologie</DESCRIPTION>
+        <DESCRIPTION L="de">Neurologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptnte</CODE>
+        <DESCRIPTION L="en">nose-throat-ear</DESCRIPTION>
+        <DESCRIPTION L="fr">oto-rhino-laryngologie</DESCRIPTION>
+        <DESCRIPTION L="nl">oto-rhino-laryngologie</DESCRIPTION>
+        <DESCRIPTION L="de">Otorhinolaryngologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptnuclear</CODE>
+        <DESCRIPTION L="en">nuclear</DESCRIPTION>
+        <DESCRIPTION L="fr">médecine nucléaire</DESCRIPTION>
+        <DESCRIPTION L="nl">nucleaire geneeskunde</DESCRIPTION>
+        <DESCRIPTION L="de">Nuklearmedizin</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptoncology</CODE>
+        <DESCRIPTION L="en">oncology</DESCRIPTION>
+        <DESCRIPTION L="fr">oncologie</DESCRIPTION>
+        <DESCRIPTION L="nl">oncologie</DESCRIPTION>
+        <DESCRIPTION L="de">Onkologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptophtalmology</CODE>
+        <DESCRIPTION L="en">ophtalmology</DESCRIPTION>
+        <DESCRIPTION L="fr">ophtalmologie</DESCRIPTION>
+        <DESCRIPTION L="nl">oftalmologie</DESCRIPTION>
+        <DESCRIPTION L="de">Augenheilkunde</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptpediatry</CODE>
+        <DESCRIPTION L="en">pediatry</DESCRIPTION>
+        <DESCRIPTION L="fr">pédiatrie</DESCRIPTION>
+        <DESCRIPTION L="nl">pediatrie</DESCRIPTION>
+        <DESCRIPTION L="de">Pädiatrie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptpharmacy</CODE>
+        <DESCRIPTION L="en">Pharmacy service or department within an organisation</DESCRIPTION>
+        <DESCRIPTION L="fr">Service / Département pharmacie au sein d'une organisation</DESCRIPTION>
+        <DESCRIPTION L="nl">Apotheekdienst of -afdeling binnen een organisatie</DESCRIPTION>
+        <DESCRIPTION L="de">Pharmazie Dienst/Abteilung in einer Organisation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptphysiotherapy</CODE>
+        <DESCRIPTION L="en">physiotherapy</DESCRIPTION>
+        <DESCRIPTION L="fr">physiothérapie</DESCRIPTION>
+        <DESCRIPTION L="nl">fysiotherapie</DESCRIPTION>
+        <DESCRIPTION L="de">Physiotherapie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptpneumology</CODE>
+        <DESCRIPTION L="en">pneumology</DESCRIPTION>
+        <DESCRIPTION L="fr">pneumologie</DESCRIPTION>
+        <DESCRIPTION L="nl">pulmonologie</DESCRIPTION>
+        <DESCRIPTION L="de">Pulmonologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptpsychiatry</CODE>
+        <DESCRIPTION L="en">psychiatry</DESCRIPTION>
+        <DESCRIPTION L="fr">psychiatrie</DESCRIPTION>
+        <DESCRIPTION L="nl">psychiatrie</DESCRIPTION>
+        <DESCRIPTION L="de">Psychiatrie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptradiology</CODE>
+        <DESCRIPTION L="en">radiology</DESCRIPTION>
+        <DESCRIPTION L="fr">radiologie</DESCRIPTION>
+        <DESCRIPTION L="nl">radiologie</DESCRIPTION>
+        <DESCRIPTION L="de">Radiologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptradiotherapy</CODE>
+        <DESCRIPTION L="en">radiotherapy</DESCRIPTION>
+        <DESCRIPTION L="fr">radiothérapie</DESCRIPTION>
+        <DESCRIPTION L="nl">radiotherapie</DESCRIPTION>
+        <DESCRIPTION L="de">Strahlentherapie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptrhumatology (deprecated)</CODE>
+        <DESCRIPTION L="en">rhumatology</DESCRIPTION>
+        <DESCRIPTION L="fr">rhumatologie</DESCRIPTION>
+        <DESCRIPTION L="nl">reumatologie</DESCRIPTION>
+        <DESCRIPTION L="de">Rheumatologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptstomatology</CODE>
+        <DESCRIPTION L="en">stomatology</DESCRIPTION>
+        <DESCRIPTION L="fr">stomatologie</DESCRIPTION>
+        <DESCRIPTION L="nl">stomatologie</DESCRIPTION>
+        <DESCRIPTION L="de">Stomatologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptsurgery</CODE>
+        <DESCRIPTION L="en">surgery</DESCRIPTION>
+        <DESCRIPTION L="fr">chirurgie</DESCRIPTION>
+        <DESCRIPTION L="nl">chirurgie</DESCRIPTION>
+        <DESCRIPTION L="de">Chirurgie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>depttoxicology</CODE>
+        <DESCRIPTION L="en">toxicology</DESCRIPTION>
+        <DESCRIPTION L="fr">toxicologie</DESCRIPTION>
+        <DESCRIPTION L="nl">toxicologie</DESCRIPTION>
+        <DESCRIPTION L="de">Toxikologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>depturology</CODE>
+        <DESCRIPTION L="en">urology</DESCRIPTION>
+        <DESCRIPTION L="fr">urologie</DESCRIPTION>
+        <DESCRIPTION L="nl">urologie</DESCRIPTION>
+        <DESCRIPTION L="de">Urologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>orghospital</CODE>
+        <DESCRIPTION L="en">hospital</DESCRIPTION>
+        <DESCRIPTION L="fr">hôpital</DESCRIPTION>
+        <DESCRIPTION L="nl">ziekenhuis</DESCRIPTION>
+        <DESCRIPTION L="de">Krankenhaus</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>orginsurance</CODE>
+        <DESCRIPTION L="en">insurance</DESCRIPTION>
+        <DESCRIPTION L="fr">assurance</DESCRIPTION>
+        <DESCRIPTION L="nl">verzekering</DESCRIPTION>
+        <DESCRIPTION L="de">Versicherung</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>orglaboratory</CODE>
+        <DESCRIPTION L="en">Independent laboratory</DESCRIPTION>
+        <DESCRIPTION L="fr">laboratoire indépendant</DESCRIPTION>
+        <DESCRIPTION L="nl">Onafhankelijk laboratorium</DESCRIPTION>
+        <DESCRIPTION L="de">Unabhängiges Laboratorium</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>orgpublichealth</CODE>
+        <DESCRIPTION L="en">public health organisation</DESCRIPTION>
+        <DESCRIPTION L="fr">service public de santé</DESCRIPTION>
+        <DESCRIPTION L="nl">openbare gezondheidsdienst</DESCRIPTION>
+        <DESCRIPTION L="de">Gesundheitsbehörde</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persbiologist</CODE>
+        <DESCRIPTION L="en">medical laboratory technician</DESCRIPTION>
+        <DESCRIPTION L="fr">technicien de laboratoire médical</DESCRIPTION>
+        <DESCRIPTION L="nl">medisch laboratoriumtechnoloog</DESCRIPTION>
+        <DESCRIPTION L="de">medizinischer Labortechniker</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persdentist</CODE>
+        <DESCRIPTION L="en">dentist</DESCRIPTION>
+        <DESCRIPTION L="fr">dentiste</DESCRIPTION>
+        <DESCRIPTION L="nl">tandarts</DESCRIPTION>
+        <DESCRIPTION L="de">Zahnarzt</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persnurse</CODE>
+        <DESCRIPTION L="en">nurse</DESCRIPTION>
+        <DESCRIPTION L="fr">infirmier</DESCRIPTION>
+        <DESCRIPTION L="nl">verpleegkundige</DESCRIPTION>
+        <DESCRIPTION L="de">Krankenpfleger/in</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persparamedical</CODE>
+        <DESCRIPTION L="en">paramedical</DESCRIPTION>
+        <DESCRIPTION L="fr">personnel paramédical</DESCRIPTION>
+        <DESCRIPTION L="nl">paramedisch personeel</DESCRIPTION>
+        <DESCRIPTION L="de">medizinisches Hilfspersonal </DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>perspharmacist</CODE>
+        <DESCRIPTION L="en">pharmacist</DESCRIPTION>
+        <DESCRIPTION L="fr">pharmacien</DESCRIPTION>
+        <DESCRIPTION L="nl">apotheker</DESCRIPTION>
+        <DESCRIPTION L="de">Apotheker</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persphysician</CODE>
+        <DESCRIPTION L="en">physician</DESCRIPTION>
+        <DESCRIPTION L="fr">médecin</DESCRIPTION>
+        <DESCRIPTION L="nl">arts</DESCRIPTION>
+        <DESCRIPTION L="de">Arzt</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>perssocialworker</CODE>
+        <DESCRIPTION L="en">social worker</DESCRIPTION>
+        <DESCRIPTION L="fr">travailleur social</DESCRIPTION>
+        <DESCRIPTION L="nl">maatschappelijk werker</DESCRIPTION>
+        <DESCRIPTION L="de">Sozialarbeiter</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>perstechnician</CODE>
+        <DESCRIPTION L="en">Medical Imaging Technician</DESCRIPTION>
+        <DESCRIPTION L="fr">Technicien d'imagerie médicale</DESCRIPTION>
+        <DESCRIPTION L="nl">Technicus medische beeldvorming</DESCRIPTION>
+        <DESCRIPTION L="de">medizinische Bildgebung Techniker</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persadministrative</CODE>
+        <DESCRIPTION L="en">administrative</DESCRIPTION>
+        <DESCRIPTION L="fr">personnel admistratif</DESCRIPTION>
+        <DESCRIPTION L="nl">administratieve medewerker</DESCRIPTION>
+        <DESCRIPTION L="de">Büroangestellte(r) </DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persmidwife</CODE>
+        <DESCRIPTION L="en">midwife</DESCRIPTION>
+        <DESCRIPTION L="fr">sage-femme</DESCRIPTION>
+        <DESCRIPTION L="nl">vroedvrouw</DESCRIPTION>
+        <DESCRIPTION L="de">Hebamme</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>application</CODE>
+        <DESCRIPTION L="en">software application</DESCRIPTION>
+        <DESCRIPTION L="fr">application logicielle</DESCRIPTION>
+        <DESCRIPTION L="nl">softwaretoepassing</DESCRIPTION>
+        <DESCRIPTION L="de">Softwareapplikation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptorthopedy</CODE>
+        <DESCRIPTION L="en">orthopedy</DESCRIPTION>
+        <DESCRIPTION L="fr">orthopédie</DESCRIPTION>
+        <DESCRIPTION L="nl">orthopedie</DESCRIPTION>
+        <DESCRIPTION L="de">Orthopädie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>orgpractice</CODE>
+        <DESCRIPTION L="en">practice organisation</DESCRIPTION>
+        <DESCRIPTION L="fr">cabinet</DESCRIPTION>
+        <DESCRIPTION L="nl">praktijk</DESCRIPTION>
+        <DESCRIPTION L="de">Praxis</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>orgpharmacy</CODE>
+        <DESCRIPTION L="en">Independent pharmacy</DESCRIPTION>
+        <DESCRIPTION L="fr">Pharmacie indépendante</DESCRIPTION>
+        <DESCRIPTION L="nl">Onafhankelijke apotheek</DESCRIPTION>
+        <DESCRIPTION L="de">Unabhängige Apotheke</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptalgology</CODE>
+        <DESCRIPTION L="en">algology</DESCRIPTION>
+        <DESCRIPTION L="fr">algologie</DESCRIPTION>
+        <DESCRIPTION L="nl">algologie</DESCRIPTION>
+        <DESCRIPTION L="de">Algologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptcardiacsurgery</CODE>
+        <DESCRIPTION L="en">cardiac surgery</DESCRIPTION>
+        <DESCRIPTION L="fr">chirurgie cardiaque</DESCRIPTION>
+        <DESCRIPTION L="nl">hartchirurgie</DESCRIPTION>
+        <DESCRIPTION L="de">Herzchirurgie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>depthandsurgery</CODE>
+        <DESCRIPTION L="en">hand surgery</DESCRIPTION>
+        <DESCRIPTION L="fr">chirurgie de la main</DESCRIPTION>
+        <DESCRIPTION L="nl">handchirurgie</DESCRIPTION>
+        <DESCRIPTION L="de">Handchirurgie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptmaxillofacialsurgery</CODE>
+        <DESCRIPTION L="en">maxillofacial surgery</DESCRIPTION>
+        <DESCRIPTION L="fr">chirurgie maxillofaciale</DESCRIPTION>
+        <DESCRIPTION L="nl">mond-, kaak- en aangezichtschirurgie</DESCRIPTION>
+        <DESCRIPTION L="de">Mund-Kiefer-Gesichtschirurgie </DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptpediatricsurgery</CODE>
+        <DESCRIPTION L="en">pediatric surgery</DESCRIPTION>
+        <DESCRIPTION L="fr">chirurgie pédiatrique</DESCRIPTION>
+        <DESCRIPTION L="nl">kinderchirurgie</DESCRIPTION>
+        <DESCRIPTION L="de">Kinderchirurgie </DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptplasticandreparatorysurgery</CODE>
+        <DESCRIPTION L="en">plastic and reparatory surgery</DESCRIPTION>
+        <DESCRIPTION L="fr">chirurgie esthétique et réparatrice</DESCRIPTION>
+        <DESCRIPTION L="nl">plastische en reconstructieve chirurgie</DESCRIPTION>
+        <DESCRIPTION L="de">plastische Chirurgie und Reparaturchirurgie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptthoracicsurgery</CODE>
+        <DESCRIPTION L="en">thoracic surgery</DESCRIPTION>
+        <DESCRIPTION L="fr">chirurgie thoracique</DESCRIPTION>
+        <DESCRIPTION L="nl">thoraxchirurgie</DESCRIPTION>
+        <DESCRIPTION L="de">Thoraxchirurgie </DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptvascularsurgery</CODE>
+        <DESCRIPTION L="en">vascular surgery</DESCRIPTION>
+        <DESCRIPTION L="fr">chirurgie vasculaire</DESCRIPTION>
+        <DESCRIPTION L="nl">vasculaire chirurgie</DESCRIPTION>
+        <DESCRIPTION L="de">Vaskuläre Chirurgie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptvisceraldigestiveabdominalsurgery</CODE>
+        <DESCRIPTION L="en">visceral digestive abdominal surgery</DESCRIPTION>
+        <DESCRIPTION L="fr">chirurgie abdominale, digestive et viscérale</DESCRIPTION>
+        <DESCRIPTION L="nl">digestieve/viscerale chirurgie/buikchirurgie</DESCRIPTION>
+        <DESCRIPTION L="de">Viszeralchirurgie/Abdominalchirurgie/Bauchchirurgie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptdentistry</CODE>
+        <DESCRIPTION L="en">dentistry</DESCRIPTION>
+        <DESCRIPTION L="fr">dentisterie</DESCRIPTION>
+        <DESCRIPTION L="nl">tandheelkunde</DESCRIPTION>
+        <DESCRIPTION L="de">Zahnheilkunde</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptdiabetology</CODE>
+        <DESCRIPTION L="en">diabetology</DESCRIPTION>
+        <DESCRIPTION L="fr">diabétologie</DESCRIPTION>
+        <DESCRIPTION L="nl">diabetologie</DESCRIPTION>
+        <DESCRIPTION L="de">Diabetologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptendocrinology</CODE>
+        <DESCRIPTION L="en">endocrinology</DESCRIPTION>
+        <DESCRIPTION L="fr">endocrinologie</DESCRIPTION>
+        <DESCRIPTION L="nl">endocrinologie/hormonenleer</DESCRIPTION>
+        <DESCRIPTION L="de">Endokrinologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptoccupationaltherapy</CODE>
+        <DESCRIPTION L="en">occupational therapy</DESCRIPTION>
+        <DESCRIPTION L="fr">ergothérapie</DESCRIPTION>
+        <DESCRIPTION L="nl">ergotherapie</DESCRIPTION>
+        <DESCRIPTION L="de">Ergotherapie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptmajorburns</CODE>
+        <DESCRIPTION L="en">major burns</DESCRIPTION>
+        <DESCRIPTION L="fr">grands brûlés</DESCRIPTION>
+        <DESCRIPTION L="nl">brandwondencentrum</DESCRIPTION>
+        <DESCRIPTION L="de">Zentrum für Schwerbrandverletzte</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptinfectiousdisease</CODE>
+        <DESCRIPTION L="en">infectious disease</DESCRIPTION>
+        <DESCRIPTION L="fr">maladie infectieuse</DESCRIPTION>
+        <DESCRIPTION L="nl">infectieziekte</DESCRIPTION>
+        <DESCRIPTION L="de">Infektionskrankheit </DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptspeechtherapy</CODE>
+        <DESCRIPTION L="en">speech therapy</DESCRIPTION>
+        <DESCRIPTION L="fr">logopédie</DESCRIPTION>
+        <DESCRIPTION L="nl">logopedie</DESCRIPTION>
+        <DESCRIPTION L="de">Sprachtherapie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptsportsmedecine</CODE>
+        <DESCRIPTION L="en">sports medecine</DESCRIPTION>
+        <DESCRIPTION L="fr">médecine des sports</DESCRIPTION>
+        <DESCRIPTION L="nl">sportgeneeskunde</DESCRIPTION>
+        <DESCRIPTION L="de">Sportmedizin</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptphysicalmedecine</CODE>
+        <DESCRIPTION L="en">physical medecine</DESCRIPTION>
+        <DESCRIPTION L="fr">médecine physique</DESCRIPTION>
+        <DESCRIPTION L="nl">fysische geneeskunde</DESCRIPTION>
+        <DESCRIPTION L="de">physikalische Medizin</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>depttropicalmedecine</CODE>
+        <DESCRIPTION L="en">tropical medecine</DESCRIPTION>
+        <DESCRIPTION L="fr">médecine tropicale</DESCRIPTION>
+        <DESCRIPTION L="nl">tropische geneeskunde</DESCRIPTION>
+        <DESCRIPTION L="de">Tropenmedizin</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptneurosurgery</CODE>
+        <DESCRIPTION L="en">neuro surgery</DESCRIPTION>
+        <DESCRIPTION L="fr">neurologie</DESCRIPTION>
+        <DESCRIPTION L="nl">neurologie</DESCRIPTION>
+        <DESCRIPTION L="de">Neurologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptnutritiondietetics</CODE>
+        <DESCRIPTION L="en">nutrition dietetics</DESCRIPTION>
+        <DESCRIPTION L="fr">diététique nutritionnelle</DESCRIPTION>
+        <DESCRIPTION L="nl">diëtetiek </DESCRIPTION>
+        <DESCRIPTION L="de">Diätetik</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptobstetrics</CODE>
+        <DESCRIPTION L="en">obstetrics</DESCRIPTION>
+        <DESCRIPTION L="fr">obstétrique</DESCRIPTION>
+        <DESCRIPTION L="nl">verloskunde</DESCRIPTION>
+        <DESCRIPTION L="de">Geburtshilfe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptchildandadolescentpsychiatry</CODE>
+        <DESCRIPTION L="en">child and adolescent psychiatry</DESCRIPTION>
+        <DESCRIPTION L="fr">psychiatrie de l'enfant et de l'adolescent</DESCRIPTION>
+        <DESCRIPTION L="nl">kinder- en jeugdpsychiatrie</DESCRIPTION>
+        <DESCRIPTION L="de">Kinder-und Jugendpsychologie </DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptpodiatry</CODE>
+        <DESCRIPTION L="en">podiatry</DESCRIPTION>
+        <DESCRIPTION L="fr">podiatrie</DESCRIPTION>
+        <DESCRIPTION L="nl">podiatrie</DESCRIPTION>
+        <DESCRIPTION L="de">Podiatrie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptpsychology</CODE>
+        <DESCRIPTION L="en">psychology</DESCRIPTION>
+        <DESCRIPTION L="fr">psychologie</DESCRIPTION>
+        <DESCRIPTION L="nl">psychologie</DESCRIPTION>
+        <DESCRIPTION L="de">Psychologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptrevalidation</CODE>
+        <DESCRIPTION L="en">revalidation</DESCRIPTION>
+        <DESCRIPTION L="fr">rééducation</DESCRIPTION>
+        <DESCRIPTION L="nl">revalidatie</DESCRIPTION>
+        <DESCRIPTION L="de">Rehabilitation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptsenology</CODE>
+        <DESCRIPTION L="en">senology</DESCRIPTION>
+        <DESCRIPTION L="fr">sénologie</DESCRIPTION>
+        <DESCRIPTION L="nl">senologie</DESCRIPTION>
+        <DESCRIPTION L="de">Senologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptsocialservice</CODE>
+        <DESCRIPTION L="en">social service</DESCRIPTION>
+        <DESCRIPTION L="fr">service social</DESCRIPTION>
+        <DESCRIPTION L="nl">sociale dienst</DESCRIPTION>
+        <DESCRIPTION L="de">Sozialdienst</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptpediatricintensivecare</CODE>
+        <DESCRIPTION L="en">pediatric intensive care</DESCRIPTION>
+        <DESCRIPTION L="fr">soins intensifs pédiatriques</DESCRIPTION>
+        <DESCRIPTION L="nl">intensieve zorg voor kinderen</DESCRIPTION>
+        <DESCRIPTION L="de">Intensivpflege für Kinder</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptpalliativecare</CODE>
+        <DESCRIPTION L="en">palliative care</DESCRIPTION>
+        <DESCRIPTION L="fr">soins palliatifs</DESCRIPTION>
+        <DESCRIPTION L="nl">palliatieve zorg</DESCRIPTION>
+        <DESCRIPTION L="de">Palliativpflege</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptrheumatology</CODE>
+        <DESCRIPTION L="en">rheumatology</DESCRIPTION>
+        <DESCRIPTION L="fr">rhumatologie</DESCRIPTION>
+        <DESCRIPTION L="nl">reumatologie</DESCRIPTION>
+        <DESCRIPTION L="de">Rheumatologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persambulancefirstaid</CODE>
+        <DESCRIPTION L="en">ambulance first aid</DESCRIPTION>
+        <DESCRIPTION L="fr">ambulance premier secours</DESCRIPTION>
+        <DESCRIPTION L="nl">ambulance eerste hulp</DESCRIPTION>
+        <DESCRIPTION L="de">Krankenwagen erste Hilfe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persaudician</CODE>
+        <DESCRIPTION L="en">audician</DESCRIPTION>
+        <DESCRIPTION L="fr">audicien</DESCRIPTION>
+        <DESCRIPTION L="nl">audicien</DESCRIPTION>
+        <DESCRIPTION L="de">Hörgeräteakustiker</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persaudiologist</CODE>
+        <DESCRIPTION L="en">audiologist</DESCRIPTION>
+        <DESCRIPTION L="fr">audiologue</DESCRIPTION>
+        <DESCRIPTION L="nl">audioloog</DESCRIPTION>
+        <DESCRIPTION L="de">Audiologe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>perscaregiver (deprecated)</CODE>
+        <DESCRIPTION L="en">caregiver</DESCRIPTION>
+        <DESCRIPTION L="fr">soignant informel</DESCRIPTION>
+        <DESCRIPTION L="nl">mantelzorger</DESCRIPTION>
+        <DESCRIPTION L="de">Pflegeperson</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persdietician</CODE>
+        <DESCRIPTION L="en">dietician</DESCRIPTION>
+        <DESCRIPTION L="fr">diététicien</DESCRIPTION>
+        <DESCRIPTION L="nl">dietist</DESCRIPTION>
+        <DESCRIPTION L="de">Diätist</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>perseducator</CODE>
+        <DESCRIPTION L="en">educator</DESCRIPTION>
+        <DESCRIPTION L="fr">éducateur</DESCRIPTION>
+        <DESCRIPTION L="nl">opvoeder</DESCRIPTION>
+        <DESCRIPTION L="de">Erzieher</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>perslogopedist</CODE>
+        <DESCRIPTION L="en">logopedist</DESCRIPTION>
+        <DESCRIPTION L="fr">logopède</DESCRIPTION>
+        <DESCRIPTION L="nl">logopedist</DESCRIPTION>
+        <DESCRIPTION L="de">Logopäde</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persoccupationaltherapist</CODE>
+        <DESCRIPTION L="en">occupational therapist</DESCRIPTION>
+        <DESCRIPTION L="fr">ergothérapeute</DESCRIPTION>
+        <DESCRIPTION L="nl">ergotherapeut</DESCRIPTION>
+        <DESCRIPTION L="de">Ergotherapeut</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persorthopedist (deprecated)</CODE>
+        <DESCRIPTION L="en">orthopedist</DESCRIPTION>
+        <DESCRIPTION L="fr">orthopédiste</DESCRIPTION>
+        <DESCRIPTION L="nl">orthopedist</DESCRIPTION>
+        <DESCRIPTION L="de">Orthopädist</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persorthoptist</CODE>
+        <DESCRIPTION L="en">orthoptist</DESCRIPTION>
+        <DESCRIPTION L="fr">orthoptiste</DESCRIPTION>
+        <DESCRIPTION L="nl">orthoptist</DESCRIPTION>
+        <DESCRIPTION L="de">Orthoptist</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persoptician</CODE>
+        <DESCRIPTION L="en">optician</DESCRIPTION>
+        <DESCRIPTION L="fr">opticien</DESCRIPTION>
+        <DESCRIPTION L="nl">opticien</DESCRIPTION>
+        <DESCRIPTION L="de">Optiker</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>perspharmacyassistant</CODE>
+        <DESCRIPTION L="en">pharmacy assistant</DESCRIPTION>
+        <DESCRIPTION L="fr">assistant en pharmacie</DESCRIPTION>
+        <DESCRIPTION L="nl">apothekersassistent</DESCRIPTION>
+        <DESCRIPTION L="de">Apothekenhelfer</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persphysiotherapist</CODE>
+        <DESCRIPTION L="en">physiotherapist</DESCRIPTION>
+        <DESCRIPTION L="fr">kinésithérapeute</DESCRIPTION>
+        <DESCRIPTION L="nl">kinesitherapeut</DESCRIPTION>
+        <DESCRIPTION L="de">Krankengymnast</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>perspodologist</CODE>
+        <DESCRIPTION L="en">podologist</DESCRIPTION>
+        <DESCRIPTION L="fr">podologue</DESCRIPTION>
+        <DESCRIPTION L="nl">podologist</DESCRIPTION>
+        <DESCRIPTION L="de">Podologe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>perspracticalnurse</CODE>
+        <DESCRIPTION L="en">practical nurse</DESCRIPTION>
+        <DESCRIPTION L="fr">aide-soignante</DESCRIPTION>
+        <DESCRIPTION L="nl">verzorgende</DESCRIPTION>
+        <DESCRIPTION L="de">Pfleger</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>perspsychologist</CODE>
+        <DESCRIPTION L="en">psychologist</DESCRIPTION>
+        <DESCRIPTION L="fr">psychologue</DESCRIPTION>
+        <DESCRIPTION L="nl">psycholoog</DESCRIPTION>
+        <DESCRIPTION L="de">Psychologe </DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>orgprimaryhealthcarecenter</CODE>
+        <DESCRIPTION L="en">primary health care center</DESCRIPTION>
+        <DESCRIPTION L="fr">Maison médicale</DESCRIPTION>
+        <DESCRIPTION L="nl">medisch huis</DESCRIPTION>
+        <DESCRIPTION L="de">Gesundheitspflege der ersten Linie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>guardpost</CODE>
+        <DESCRIPTION L="en">Guard post</DESCRIPTION>
+        <DESCRIPTION L="fr">poste de garde</DESCRIPTION>
+        <DESCRIPTION L="nl">wachtpost</DESCRIPTION>
+        <DESCRIPTION L="de">Wachposten</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>groupofphysicianssameaddress</CODE>
+        <DESCRIPTION L="en">Group of physicians same address</DESCRIPTION>
+        <DESCRIPTION L="fr">regroupement de médecins même adresse</DESCRIPTION>
+        <DESCRIPTION L="nl">groepering van artsen zelfde adres</DESCRIPTION>
+        <DESCRIPTION L="de">Gruppierung von Ärzten gleiche Adresse</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>groupofphysiciansdifferentaddress</CODE>
+        <DESCRIPTION L="en">Group of physicians different address</DESCRIPTION>
+        <DESCRIPTION L="fr">Regroupement de médecins adresse différente</DESCRIPTION>
+        <DESCRIPTION L="nl">Groepering van artsen verschillend adres</DESCRIPTION>
+        <DESCRIPTION L="de">Gruppierung von Ärzten andere Adresse</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>groupofnurses</CODE>
+        <DESCRIPTION L="en">Group of nurses</DESCRIPTION>
+        <DESCRIPTION L="fr">Regroupement d'infirmiers</DESCRIPTION>
+        <DESCRIPTION L="nl">Groepering van verplegers</DESCRIPTION>
+        <DESCRIPTION L="de">Krankenpflegeverein</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>certificateholder</CODE>
+        <DESCRIPTION L="en">Certificate holder</DESCRIPTION>
+        <DESCRIPTION L="fr">Titulaire du certificat</DESCRIPTION>
+        <DESCRIPTION L="nl">Houder van certificaat</DESCRIPTION>
+        <DESCRIPTION L="de">Zertifikatsinhaber</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>perstrussmaker</CODE>
+        <DESCRIPTION L="en">Truss maker</DESCRIPTION>
+        <DESCRIPTION L="fr">Bandagiste</DESCRIPTION>
+        <DESCRIPTION L="nl">Bandagist</DESCRIPTION>
+        <DESCRIPTION L="de">Bandagist</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>patient</CODE>
+        <DESCRIPTION L="en">Patient</DESCRIPTION>
+        <DESCRIPTION L="fr">Patient</DESCRIPTION>
+        <DESCRIPTION L="nl">Patient</DESCRIPTION>
+        <DESCRIPTION L="de">Patient</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persorthotist</CODE>
+        <DESCRIPTION L="en">Orthotist</DESCRIPTION>
+        <DESCRIPTION L="fr">Orthésiste/Prothésiste</DESCRIPTION>
+        <DESCRIPTION L="nl">Orthopedische technieker</DESCRIPTION>
+        <DESCRIPTION L="de">Orthopädietechniker</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>perspatientdriver</CODE>
+        <DESCRIPTION L="en">Patient driver (not urgent)</DESCRIPTION>
+        <DESCRIPTION L="fr">Transporteur de patient (non urgent)</DESCRIPTION>
+        <DESCRIPTION L="nl">Ziekenvervoerder (niet urgent)</DESCRIPTION>
+        <DESCRIPTION L="de">Patientenfahrer (nicht dringend)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>orgprevention</CODE>
+        <DESCRIPTION L="en">Prevention organisation</DESCRIPTION>
+        <DESCRIPTION L="fr">Service de pévention</DESCRIPTION>
+        <DESCRIPTION L="nl">Preventiedienst</DESCRIPTION>
+        <DESCRIPTION L="de">Präventionsdienst</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>perspharmacistclinicalbiologist</CODE>
+        <DESCRIPTION L="en">pharmacist-clinical biologist</DESCRIPTION>
+        <DESCRIPTION L="fr">pharmacien-biologiste clinicien</DESCRIPTION>
+        <DESCRIPTION L="nl">apotheker-klinisch bioloog</DESCRIPTION>
+        <DESCRIPTION L="de">Apotheker-klinische Biologe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>hub</CODE>
+        <DESCRIPTION L="en">hub</DESCRIPTION>
+        <DESCRIPTION L="fr">hub</DESCRIPTION>
+        <DESCRIPTION L="nl">hub</DESCRIPTION>
+        <DESCRIPTION L="de">hub</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deptnursing</CODE>
+        <DESCRIPTION L="en">nursing</DESCRIPTION>
+        <DESCRIPTION L="fr">soins infirmiers</DESCRIPTION>
+        <DESCRIPTION L="nl">verpleegkunde</DESCRIPTION>
+        <DESCRIPTION L="de">Krankenpflege</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persoraldentalhygienist</CODE>
+        <DESCRIPTION L="en">Oral dental hygienist</DESCRIPTION>
+        <DESCRIPTION L="fr">Hygiéniste bucco-dentaire</DESCRIPTION>
+        <DESCRIPTION L="nl">Mondhygiënist</DESCRIPTION>
+        <DESCRIPTION L="de">Dentalhygieniker</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persclinicalpsychologist</CODE>
+        <DESCRIPTION L="en">Clinical psychologist</DESCRIPTION>
+        <DESCRIPTION L="fr">Psychologue clinicien</DESCRIPTION>
+        <DESCRIPTION L="nl">Klinisch psycholoog</DESCRIPTION>
+        <DESCRIPTION L="de">Klinischer Psychologe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persclinicalorthopedagogist</CODE>
+        <DESCRIPTION L="en">Clinical orthopedagogist</DESCRIPTION>
+        <DESCRIPTION L="fr">Orthopédagogue clinicien</DESCRIPTION>
+        <DESCRIPTION L="nl">Klinisch orthopedagoog</DESCRIPTION>
+        <DESCRIPTION L="de">Klinischer Orthopädagoge</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>orgretirementhome</CODE>
+        <DESCRIPTION L="en">retirementhome</DESCRIPTION>
+        <DESCRIPTION L="fr">maison de repos</DESCRIPTION>
+        <DESCRIPTION L="nl">woonzorgcentrum</DESCRIPTION>
+        <DESCRIPTION L="de">Altenheim</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>orgrevalidationcenter</CODE>
+        <DESCRIPTION L="en">revalidation center</DESCRIPTION>
+        <DESCRIPTION L="fr">centre de revalidation</DESCRIPTION>
+        <DESCRIPTION L="nl">revalidatiecentrum</DESCRIPTION>
+        <DESCRIPTION L="de">Unfallkrankenhaus</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>orgshelteredliving</CODE>
+        <DESCRIPTION L="en">sheltered living</DESCRIPTION>
+        <DESCRIPTION L="fr">initiative d’habitation protégée</DESCRIPTION>
+        <DESCRIPTION L="nl">initiatief voor beschut wonen</DESCRIPTION>
+        <DESCRIPTION L="de">geschütztes Leben</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>orgpsychiatriccarehome</CODE>
+        <DESCRIPTION L="en">psychiatric care home</DESCRIPTION>
+        <DESCRIPTION L="fr">maison de soins psychiatriques</DESCRIPTION>
+        <DESCRIPTION L="nl">psychiatrische verzorgingstehuis</DESCRIPTION>
+        <DESCRIPTION L="de">psychiatrisches Pflegeheim</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>orgpolyclinic</CODE>
+        <DESCRIPTION L="en">polyclinic</DESCRIPTION>
+        <DESCRIPTION L="fr">polyclinique</DESCRIPTION>
+        <DESCRIPTION L="nl">polikliniek</DESCRIPTION>
+        <DESCRIPTION L="de">Poliklinik</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persdermatologist</CODE>
+        <DESCRIPTION L='fr'>Dermatologue</DESCRIPTION>
+        <DESCRIPTION L='nl'>dermatologist</DESCRIPTION>
+        <DESCRIPTION L='en'>dermatologist</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>persdiabetologist</CODE>
+        <DESCRIPTION L='fr'>Diabétologue</DESCRIPTION>
+        <DESCRIPTION L='nl'>Diabetologist</DESCRIPTION>
+        <DESCRIPTION L='en'>Diabetologist</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

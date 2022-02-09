@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.2</VERSION>
+    <DATE>2016-06-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Proof Type</NAME>
+    <VALUE>
+        <CODE>sisreading</CODE>
+        <DESCRIPTION L="en">SIS card reading</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>isireading</CODE>
+        <DESCRIPTION L="en">ISI card reading</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>eidsigning</CODE>
+        <DESCRIPTION L="en">eID Card Signing</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>eidreading</CODE>
+        <DESCRIPTION L="en">eID Card Reading</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>eidencoding_housecall</CODE>
+        <DESCRIPTION L="en">eID Card Encoding house call</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>eidencoding_nocard</CODE>
+        <DESCRIPTION L="en">eID Card Encoding no card</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>eidencoding_techproblem</CODE>
+        <DESCRIPTION L="en">eID Card Encoding technical problem</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>propagation</CODE>
+        <DESCRIPTION L="en">Propagation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>authenticsource</CODE>
+        <DESCRIPTION L="en">Authentic Source(deprecated)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>patientmanagement</CODE>
+        <DESCRIPTION L="en">Patient Management(deprecated)</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

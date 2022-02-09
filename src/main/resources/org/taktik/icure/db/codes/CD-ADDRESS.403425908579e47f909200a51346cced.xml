@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.1</VERSION>
+    <DATE>2014-10-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Address type</NAME>
+    <VALUE>
+        <CODE>home</CODE>
+        <DESCRIPTION L="en">The primary home, to reach a person after business hours.</DESCRIPTION>
+        <HL7>10629</HL7>
+    </VALUE>
+    <VALUE>
+        <CODE>vacation</CODE>
+        <DESCRIPTION L="en">A vacation home, to reach a person while on vacation.</DESCRIPTION>
+        <HL7>10630</HL7>
+    </VALUE>
+    <VALUE>
+        <CODE>work</CODE>
+        <DESCRIPTION L="en">A business address where the person could be contacted during working hours.</DESCRIPTION>
+        <HL7>no equivalent</HL7>
+    </VALUE>
+    <VALUE>
+        <CODE>other</CODE>
+        <DESCRIPTION L="en">Other</DESCRIPTION>
+        <HL7>no equivalent</HL7>
+    </VALUE>
+    <VALUE>
+        <CODE>careaddress</CODE>
+        <DESCRIPTION L="en">Care address</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>
