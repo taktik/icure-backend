@@ -810,6 +810,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             this.created = item.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli()
             this.modified = this.created
             item.lifecycle?.let { this.tags.add(CodeStub("CD-LIFECYCLE", it.cd.value.value(), "1")) }
+            item.certainty?.let { this.tags.add(CodeStub("CD-CERTAINTY", it.cd.value.value(), "1")) }
+            item.severity?.let { this.tags.add(CodeStub("CD-SEVERITY", it.cd.value.value(), "1")) }
             this.status = extractStatus(item)
         }
     }

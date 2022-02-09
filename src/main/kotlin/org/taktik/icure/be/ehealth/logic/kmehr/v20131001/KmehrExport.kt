@@ -276,6 +276,18 @@ open class KmehrExport {
                     }
                 }
             }
+            certainty = he.tags.find { t -> t.type == "CD-CERTAINTY" && !t.code.isNullOrBlank()}?.let {
+                CertaintyType().apply {
+                    cd = CDCERTAINTY().apply { s = "CD-CERTAINTY"; value = CDCERTAINTYvalues.fromValue(it.code) }
+                }
+            }
+
+            severity = he.tags.find { t -> t.type == "CD-SEVERITY" && !t.code.isNullOrBlank()}?.let {
+                SeverityType().apply {
+                    cd = CDSEVERITY().apply { s = "CD-SEVERITY"; value = CDSEVERITYvalues.fromValue(it.code) }
+                }
+            }
+
             isIsrelevant = ServiceStatus.isRelevant(he.status) || he.isRelevant
             beginmoment = (he.valueDate ?: he.openingDate).let { Utils.makeMomentTypeFromFuzzyLong(it) }
             endmoment = he.closingDate?.let {

@@ -332,6 +332,11 @@ open class KmehrExport {
                     cd = CDCERTAINTY().apply { s = "CD-CERTAINTY"; value = CDCERTAINTYvalues.fromValue(it.code) }
                 }
             }
+            severity = he.tags.find { t -> t.type == "CD-SEVERITY" && !t.code.isNullOrBlank()}?.let {
+                SeverityType().apply {
+                    cd = CDSEVERITY().apply { s = "CD-SEVERITY"; value = CDSEVERITYvalues.fromValue(it.code) }
+                }
+            }
             isIsrelevant = ServiceStatus.isRelevant(he.status)
             beginmoment = (he.valueDate ?: he.openingDate).let { if(it != 0L) Utils.makeMomentTypeFromFuzzyLong(it) else null }
             endmoment = he.closingDate?.let { if(it != 0L) Utils.makeMomentTypeFromFuzzyLong(it) else null}
