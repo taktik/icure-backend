@@ -383,6 +383,21 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val contactDate = extractTransactionDateTime(trn)
         val trnCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value
         val trnTypeCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION_TYPE }?.value
+        val contactId = transactionMfid?.let{ kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString()
+        val formId = kmehrIndex.formIdMask.xor(UUID.fromString(contactId)).toString()
+        val subContacts = services.map{makeSubContact(contactId, formId, transactionMfid, it, kmehrIndex)}
+        val simplifiedSubContacts = simplifySubContacts(subContacts.filterNotNull()).toSet()
+        if (simplifiedSubContacts.isNotEmpty()) {
+            v.forms.addAll(simplifiedSubContacts.filter { sc -> !v.forms.any { it.id == sc.formId } && sc.services.isNotEmpty() }.mapNotNull { it.formId ?: idGenerator.newGUID().toString() }.toSet().map {
+                Form(id = it,
+                        parent = if (it == formId) kmehrIndex.transactionChildOf[transactionMfid]?.firstOrNull()?.let { kmehrIndex.transactionIds[it]?.first?.let { cid -> kmehrIndex.formIdMask.xor(cid).toString() } } else null,
+                        contactId = contactId,
+                        author = author.id,
+                        responsible = trnauthorhcpid,
+                        created = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
+                        modified = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli())
+            })
+        }
 
         return Contact(
                 id = transactionMfid?.let{ kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString(),
@@ -393,7 +408,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 }?.firstOrNull()?.id ?: author.healthcarePartyId,
                 services = services.toSet() + (transactionMfid?.let { kmehrIndex.parentOf[it]?.flatMap { kmehrIndex.transactionIds[it]?.second?.let { parseTransaction(it, author, v, language, mappings, saveToDatabase, kmehrIndex).services } ?: setOf() }?.toSet() } ?: setOf()),
                 openingDate = contactDate,
-                closingDate = trn.isIscomplete.let { if (it) contactDate else null }
+                closingDate = trn.isIscomplete.let { if (it) contactDate else null },
+                subContacts = simplifiedSubContacts
             )
     }
 
