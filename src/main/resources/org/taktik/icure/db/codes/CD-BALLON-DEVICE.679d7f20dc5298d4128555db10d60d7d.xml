@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.1</VERSION>
+    <DATE>2014-10-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Ballon device</NAME>
+    <VALUE>
+        <CODE>ballon</CODE>
+        <DESCRIPTION L="en">Ballon</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>deb</CODE>
+        <DESCRIPTION L="en">Deb</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.1</VERSION>
+    <DATE>2013-10-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Encounter type</NAME>
+    <VALUE>
+        <CODE>telephonicconsultation</CODE>
+        <DESCRIPTION L="en">Consultation by phone</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>hospital</CODE>
+        <DESCRIPTION L="en">Hospitalisation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>emergency</CODE>
+        <DESCRIPTION L="en">Emergency admission</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>consultation</CODE>
+        <DESCRIPTION L="en">Ambulatory consultation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>oneday</CODE>
+        <DESCRIPTION L="en">One day stay</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>technical</CODE>
+        <DESCRIPTION L="en">Technical investigation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>homevisit</CODE>
+        <DESCRIPTION L="en">Home visit</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>emergencyhomevisit</CODE>
+        <DESCRIPTION L="en">Home visit in a context of emergency</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>resthomevisit</CODE>
+        <DESCRIPTION L="en">Resthome visit</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>consult</CODE>
+        <DESCRIPTION L="en">Consult</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>multidisciplinaryconsult</CODE>
+        <DESCRIPTION L="en">Multidisciplinary consult</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

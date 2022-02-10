@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.3</VERSION>
+    <DATE>2016-03-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Transaction Type</NAME>
+    <VALUE>
+        <CODE>incapacity</CODE>
+        <DESCRIPTION L="en">Incapacity</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>incapacityextension</CODE>
+        <DESCRIPTION L="en">Incapacity extension</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>incapacityrelapse</CODE>
+        <DESCRIPTION L="en">Incapacity relapse</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>nursing</CODE>
+        <DESCRIPTION L="en">Nursing</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>physiotherapy</CODE>
+        <DESCRIPTION L="en">Physiotherapy</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>intermediarynursing</CODE>
+        <DESCRIPTION L="en">Intermediary nursing</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>intermediaryphysiotherapy</CODE>
+        <DESCRIPTION L="en">Intermediary physiotherapy</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>transferdocument</CODE>
+        <DESCRIPTION L="en">Transfer document</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>childrecord</CODE>
+        <DESCRIPTION L="en">Child record (Vitalink)</DESCRIPTION>
+        <DESCRIPTION L="nl">Kinddossier (Vitalink)</DESCRIPTION>
+        <DESCRIPTION L="fr">Dossier d'enfant (Vitalink)</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

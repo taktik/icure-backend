@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.2</VERSION>
+    <DATE>2017-06-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Incapacity reason</NAME>
+    <VALUE>
+        <CODE>sickness</CODE>
+        <DESCRIPTION L="en">Sickness</DESCRIPTION>
+        <DESCRIPTION L="fr">maladie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>accident</CODE>
+        <DESCRIPTION L="en">Accident</DESCRIPTION>
+        <DESCRIPTION L="fr">accident</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>family</CODE>
+        <DESCRIPTION L="en">Family</DESCRIPTION>
+        <DESCRIPTION L="fr">motif familial</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>other</CODE>
+        <DESCRIPTION L="en">Other</DESCRIPTION>
+        <DESCRIPTION L="fr">autre</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>illness</CODE>
+        <DESCRIPTION L="en">Illness</DESCRIPTION>
+        <DESCRIPTION L="fr">maladie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>hospitalisation</CODE>
+        <DESCRIPTION L="en">Hospitalisation</DESCRIPTION>
+        <DESCRIPTION L="fr">hospitalisation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>careencounter</CODE>
+        <DESCRIPTION L="en">Care encounter</DESCRIPTION>
+        <DESCRIPTION L="fr">rencontre médicale</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pregnancy</CODE>
+        <DESCRIPTION L="en">Pregnancy</DESCRIPTION>
+        <DESCRIPTION L="fr">grossesse</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>workaccident</CODE>
+        <DESCRIPTION L="en">Work accident</DESCRIPTION>
+        <DESCRIPTION L="fr">accident de travail</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>occupationaldisease</CODE>
+        <DESCRIPTION L="en">Occupational disease</DESCRIPTION>
+        <DESCRIPTION L="fr">maladie professionnelle</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>traveltofromworkaccident</CODE>
+        <DESCRIPTION L="en">Accident during travel to or from work</DESCRIPTION>
+        <DESCRIPTION L="fr">accident de trajet du et vers le lieu de travail</DESCRIPTION>
+        <DESCRIPTION L="nl">ongeval op weg naar of van het werk</DESCRIPTION>
+        <DESCRIPTION L="de">Unfall von oder zu der Arbeitssttte</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

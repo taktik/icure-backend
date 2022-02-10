@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.1</VERSION>
+    <DATE>2014-12-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Certainty</NAME>
+    <VALUE>
+        <CODE>probable</CODE>
+        <DESCRIPTION L="en">probable</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>proven</CODE>
+        <DESCRIPTION L="en">Clinically or biologically proven</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>excluded</CODE>
+        <DESCRIPTION L="en">Clinically or biologically excluded</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>unprobable</CODE>
+        <DESCRIPTION L="en">improbable</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>undefined</CODE>
+        <DESCRIPTION L="en">undefined</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>
