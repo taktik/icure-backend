@@ -183,7 +183,8 @@ class SoftwareMedicalFileExport(
 		}
 		val startIndex = folder.transactions.size
 
-		hesByContactId = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
+        val nonConfidentialHealthElements: List<HealthElement> = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config));
+		hesByContactId = nonConfidentialHealthElements.groupBy {
 			it.idOpeningContact
 		}
 
@@ -194,7 +195,7 @@ class SoftwareMedicalFileExport(
             }
         }.toMap()
 
-		val hesByHeIdSortedByDate = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
+		val hesByHeIdSortedByDate = nonConfidentialHealthElements.groupBy {
 			it.healthElementId
 		}.mapValues {
 			it.value.sortedWith(compareBy({ it.created },{ it.modified })) // created is the key, but use modified for backward compat
@@ -214,7 +215,7 @@ class SoftwareMedicalFileExport(
 		hesByContactId[null].orEmpty().map { he -> addHealthCareElement(folder.transactions.first(), he, 0, config) }
 		hesByContactId = hesByContactId.filterKeys { it != null }
 
-		heById = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
+		heById = nonConfidentialHealthElements.groupBy {
 			// retrive the healthElementId property of an HE by his couchdb id
 			it.id
 		}
