@@ -17,6 +17,7 @@ interface DeviceLogic {
 
     suspend fun getDevice(deviceId: String): Device?
     fun getDevices(deviceIds: List<String>): Flow<Device>
+    suspend fun getHcPartyKeysForDelegate(deviceId: String): Map<String, String>
 
     suspend fun deleteDevice(id: String): DocIdentifier?
     fun deleteDevices(ids: Collection<String>): Flow<DocIdentifier>

@@ -66,6 +66,10 @@ class DeviceLogicImpl(
         emitAll(deviceDAO.getDevices(deviceIds))
     }
 
+    override suspend fun getHcPartyKeysForDelegate(deviceId: String): Map<String, String> {
+        return deviceDAO.getHcPartyKeysForDelegate(deviceId)
+    }
+
     override fun deleteDevices(ids: Collection<String>): Flow<DocIdentifier> = flow {
         emitAll(deleteEntities(ids))
     }
