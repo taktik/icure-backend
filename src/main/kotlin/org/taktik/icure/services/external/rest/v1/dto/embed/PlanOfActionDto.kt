@@ -39,8 +39,8 @@ data class PlanOfActionDto(
         override val author: String? = null,
         override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        override val tags: Set<CodeStubDto> = setOf(),
-        override val codes: Set<CodeStubDto> = setOf(),
+        override val tags: Set<CodeStubDto> = emptySet(),
+        override val codes: Set<CodeStubDto> = emptySet(),
         override val endOfLife: Long? = null,
 
         //Usually one of the following is used (either valueDate or openingDate and closingDate)
@@ -56,9 +56,9 @@ data class PlanOfActionDto(
         @Schema(description = "Id of the closing contact for the healthcare approach.") val idClosingContact: String? = null,
         @Schema(description = "bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present", defaultValue = "0") val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
 
-        @get:Deprecated("Use services linked to this healthcare approach") val documentIds: Set<String> = setOf(),
+        @get:Deprecated("Use services linked to this healthcare approach") val documentIds: Set<String> = emptySet(),
         @get:Deprecated("Use services (one per care) linked to this healthcare approach") @Schema(description = "The number of individual cares already performed in the course of this healthcare approach") val numberOfCares: Int? = null,
-        @Schema(description = "Members of the careteam involved in this approach") val careTeamMemberships: List<CareTeamMembershipDto?> = listOf(),
+        @Schema(description = "Members of the careteam involved in this approach") val careTeamMemberships: List<CareTeamMembershipDto?> = emptyList(),
 
         @get:Deprecated("Use status") @Schema(defaultValue = "true")val relevant: Boolean = true,
         override val encryptedSelf: String? = null

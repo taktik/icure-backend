@@ -26,12 +26,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.constants.Users
-import org.taktik.icure.entities.security.Principal
 import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.DelegationTag
-import org.taktik.icure.entities.security.Permission
 import org.taktik.icure.entities.embed.RevisionInfo
+import org.taktik.icure.entities.security.AuthenticationToken
+import org.taktik.icure.entities.security.Permission
+import org.taktik.icure.entities.security.Principal
 import org.taktik.icure.entities.utils.MergeUtil.mergeMapsOfSetsDistinct
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.InstantDeserializer
@@ -75,7 +76,8 @@ import java.time.Instant
  * @property lastLoginDate the timestamp (unix epoch in ms) of last login of the user.
  * @property termsOfUseDate the timestamp (unix epoch in ms) of the latest validation of the terms of use of the application
  * @property email email address of the user.
- * @property applicationTokens Long lived authentication tokens used for inter-applications authentication.
+ * @property applicationTokens Deprecated : Use authenticationTokens instead - Long lived authentication tokens used for inter-applications authentication
+ * @property authenticationTokens Encrypted and time-limited Authentication tokens used for inter-applications authentication
  */
 
 data class User(
@@ -85,9 +87,9 @@ data class User(
         @field:NotNull(autoFix = AutoFix.NOW) val created: Long? = null,
 
         override val name: String? = null,
-        override val properties: Set<PropertyStub> = setOf(),
-        val roles: Set<String> = setOf(),
-        override val permissions: Set<Permission> = setOf(),
+        override val properties: Set<PropertyStub> = emptySet(),
+        val roles: Set<String> = emptySet(),
+        override val permissions: Set<Permission> = emptySet(),
         val type: Users.Type? = null,
         val status: Users.Status? = null,
         val login: String? = null,
@@ -97,7 +99,8 @@ data class User(
         val groupId: String? = null,
         val healthcarePartyId: String? = null,
         val patientId: String? = null,
-        val autoDelegations: Map<DelegationTag, Set<String>> = mapOf(), //DelegationTag -> healthcarePartyIds
+        val deviceId: String? = null,
+        val autoDelegations: Map<DelegationTag, Set<String>> = emptyMap(), //DelegationTag -> healthcarePartyIds
         @JsonSerialize(using = InstantSerializer::class)
         @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
@@ -112,18 +115,6 @@ data class User(
         @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         val expirationDate: Instant? = null,
-        val activationToken: String? = null,
-
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        val activationTokenExpirationDate: Instant? = null,
-        val passwordToken: String? = null,
-
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        val passwordTokenExpirationDate: Instant? = null,
 
         @JsonSerialize(using = InstantSerializer::class)
         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -131,12 +122,17 @@ data class User(
         val termsOfUseDate: Instant? = null,
 
         val email: String? = null,
-        val applicationTokens: Map<String, String> = mapOf(),
+        val mobilePhone: String? = null,
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
+        @Deprecated("Application tokens stocked in clear and eternal. Replaced by authenticationTokens")
+        val applicationTokens: Map<String, String>? = null,
+
+        val authenticationTokens: Map<String, AuthenticationToken> = emptyMap(),
+
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap(),
 
 ) : StoredDocument, Principal, Cloneable, Serializable {
     companion object : DynamicInitializer<User>
@@ -160,14 +156,10 @@ data class User(
             "createdDate" to (this.createdDate ?: other.createdDate),
             "lastLoginDate" to (this.lastLoginDate ?: other.lastLoginDate),
             "expirationDate" to (this.expirationDate ?: other.expirationDate),
-            "activationToken" to (this.activationToken ?: other.activationToken),
-            "activationTokenExpirationDate" to (this.activationTokenExpirationDate
-                    ?: other.activationTokenExpirationDate),
-            "passwordToken" to (this.passwordToken ?: other.passwordToken),
-            "passwordTokenExpirationDate" to (this.passwordTokenExpirationDate ?: other.passwordTokenExpirationDate),
             "termsOfUseDate" to (this.termsOfUseDate ?: other.termsOfUseDate),
             "email" to (this.email ?: other.email),
-            "applicationTokens" to (other.applicationTokens + this.applicationTokens)
+            "applicationTokens" to (other.applicationTokens?.let { it + (this.applicationTokens ?: emptyMap()) } ?: this.applicationTokens),
+            "authenticationTokens" to (other.authenticationTokens + this.authenticationTokens)
     )
 
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)

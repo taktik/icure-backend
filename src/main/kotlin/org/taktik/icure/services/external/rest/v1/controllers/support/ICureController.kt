@@ -65,14 +65,6 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
     @GetMapping("/ok", produces = [MediaType.TEXT_PLAIN_VALUE])
     fun isReady() = "true"
 
-    @Operation(summary = "Check if a patient exists")
-    @GetMapping("/pok", produces = [MediaType.TEXT_PLAIN_VALUE])
-    fun isPatientReady() = "true"
-
-    @Operation(summary = "Get users stubs")
-    @GetMapping("/u")
-    fun getUsers() = userLogic.getEntities().map { u -> userMapper.map(u) }.injectReactorContext()
-
     @Operation(summary = "Get process info")
     @GetMapping("/p", produces = [MediaType.TEXT_PLAIN_VALUE])
     fun getProcessInfo(): String = java.lang.management.ManagementFactory.getRuntimeMXBean().name
@@ -83,16 +75,10 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
         IndexingInfoDto(iCureLogic.getIndexingStatus())
     }
 
-    @Operation(summary = "Get index info")
+    @Operation(summary = "Get replication info")
     @GetMapping("/r")
     fun getReplicationInfo() = mono {
         iCureLogic.getReplicationInfo()
-    }
-
-    @Operation(summary = "Get property types")
-    @GetMapping("/propertytypes/{type}")
-    fun getPropertyTypes(@PathVariable type: String): List<String> {
-        return if (type == "system") PropertyTypes.System.identifiers() else PropertyTypes.User.identifiers()
     }
 
     @Operation(summary = "Force update design doc")
@@ -114,7 +100,7 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
     @PostMapping("/conflicts/form")
     fun resolveFormsConflicts(): Flux<FormDto> = formLogic.solveConflicts().map { formMapper.map(it) }.injectReactorContext()
 
-    @Operation(summary = "resolve health elements conflicts")
+    @Operation(summary = "resolve healthcare elements conflicts")
     @PostMapping("/conflicts/healthelement")
     fun resolveHealthElementsConflicts(): Flux<HealthElementDto> = healthElementLogic.solveConflicts().map { healthElementMapper.map(it) }.injectReactorContext()
 
@@ -129,4 +115,11 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
     @Operation(summary = "resolve documents conflicts")
     @PostMapping("/conflicts/document")
     fun resolveDocumentsConflicts(@RequestParam(required = false) ids: String?): Flux<DocumentDto> = documentLogic.solveConflicts(ids?.split(",")).map { documentMapper.map(it) }.injectReactorContext()
+
+    @PostMapping("/loglevel/{loglevel}", produces = [MediaType.TEXT_PLAIN_VALUE])
+    @Throws(Exception::class)
+    fun loglevel(@PathVariable("loglevel") logLevel: String, @RequestParam(value = "package") packageName: String) = mono {
+        iCureLogic.setLogLevel(logLevel, packageName)
+    }
+
 }

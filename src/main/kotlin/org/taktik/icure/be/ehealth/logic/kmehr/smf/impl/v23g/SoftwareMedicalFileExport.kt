@@ -21,11 +21,26 @@ package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 import com.github.mustachejava.DefaultMustacheFactory
 import com.github.mustachejava.Mustache
 import com.github.mustachejava.MustacheFactory
-import kotlinx.coroutines.flow.*
+import javax.xml.datatype.DatatypeConstants
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
 import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.couchdb.exception.DocumentNotFoundException
 import org.taktik.couchdb.id.UUIDGenerator
-import org.taktik.icure.asynclogic.*
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.CodeLogic
+import org.taktik.icure.asynclogic.ContactLogic
+import org.taktik.icure.asynclogic.DocumentLogic
+import org.taktik.icure.asynclogic.FormLogic
+import org.taktik.icure.asynclogic.FormTemplateLogic
+import org.taktik.icure.asynclogic.HealthElementLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.InsuranceLogic
+import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils.makeMomentType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils.makeXMLGregorianCalendarFromFuzzyLong
@@ -37,7 +52,12 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
 import org.taktik.icure.be.ehealth.logic.kmehr.v20170901.KmehrExport
-import org.taktik.icure.entities.*
+import org.taktik.icure.entities.Contact
+import org.taktik.icure.entities.Document
+import org.taktik.icure.entities.Form
+import org.taktik.icure.entities.HealthElement
+import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.embed.Insurability
@@ -55,7 +75,6 @@ import java.io.StringWriter
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import javax.xml.datatype.DatatypeConstants
 
 /**
  * @author Bernard Paulus on 29/05/17.
@@ -133,7 +152,6 @@ class SoftwareMedicalFileExport(
     suspend fun makePatientFolder(patientIndex: Int, patient: Patient, sfks: List<String>,
 								  healthcareParty: HealthcareParty, config: Config, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): FolderType {
         log.info("Make patient export for "+patient.id)
-        config.format = Config.Format.PMF
 		val folder = FolderType().apply {
 			ids.add(idKmehr(patientIndex))
 			this.patient = makePatient(patient, config)
@@ -320,7 +338,7 @@ class SoftwareMedicalFileExport(
                                             makeContent(it.key, it.value)?.let { c ->
                                                 listOf(c.apply {
                                                     if (svcCdItem == null && texts.size > 0) {
-                                                        if (svc.label != "<invalid>" && !texts.first().value.startsWith(svc.label)) {
+                                                        if (!svc.label.isNullOrBlank() && svc.label != "<invalid>" && !texts.first().value.startsWith(svc.label)) {
                                                             texts.first().value = "${svc.label}: ${texts.first().value}"
                                                         }
                                                     }
@@ -1076,9 +1094,9 @@ class SoftwareMedicalFileExport(
 	suspend fun getHealthElements(hcp: HealthcareParty, sfks: List<String>, config: Config): List<HealthElement> {
         var res : List<HealthElement> = emptyList()
         if(hcp.parentId != null) {
-            res = res + (healthElementLogic?.findHealthElementsByHCPartyAndSecretPatientKeys(hcp.parentId, sfks)?.toList() ?: emptyList())
+            res = res + (healthElementLogic?.listHealthElementsByHcPartyAndSecretPatientKeys(hcp.parentId, sfks)?.toList() ?: emptyList())
         }
-        res = res + (healthElementLogic?.findHealthElementsByHCPartyAndSecretPatientKeys(hcp.id, sfks)?.toList() ?: emptyList())
+        res = res + (healthElementLogic?.listHealthElementsByHcPartyAndSecretPatientKeys(hcp.id, sfks)?.toList() ?: emptyList())
         res = res.distinctBy { it.id }
         return excludeHealthElementsForPMF(
 				res?.filterNot {

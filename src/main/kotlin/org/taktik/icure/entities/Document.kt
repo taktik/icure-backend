@@ -32,6 +32,8 @@ import org.taktik.icure.entities.embed.DocumentStatus
 import org.taktik.icure.entities.embed.DocumentType
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.security.CryptoUtils
+import org.taktik.icure.security.CryptoUtils.isValidAesKey
+import org.taktik.icure.security.CryptoUtils.keyFromHexString
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
@@ -95,8 +97,8 @@ data class Document(
         @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
         override val endOfLife: Long? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
         val size: Long? = null,
@@ -113,21 +115,21 @@ data class Document(
         val mainUti: String? = null,
         val name: String? = null,
         val version: String? = null,
-        val otherUtis: Set<String> = setOf(),
+        val otherUtis: Set<String> = emptySet(),
         val storedICureDocumentId: String? = null, //The ICureDocument (Form, Contact, ...) that has been used to generate the document
         val externalUuid: String? = null,
         val attachmentId: String? = null,
 
-        override val secretForeignKeys: Set<String> = setOf(),
-        override val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(),
-        override val delegations: Map<String, Set<Delegation>> = mapOf(),
-        override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val secretForeignKeys: Set<String> = emptySet(),
+        override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
+        override val delegations: Map<String, Set<Delegation>> = emptyMap(),
+        override val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(),
         override val encryptedSelf: String? = null,
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<Document>
@@ -151,21 +153,22 @@ data class Document(
     )
 
     fun decryptAttachment(enckeys: List<String?>?): ByteArray? {
-        if (enckeys?.isNotEmpty() == true) {
-            for (sfk in enckeys) {
-                val bb = ByteBuffer.wrap(ByteArray(16))
-                val uuid = UUID.fromString(sfk)
-                bb.putLong(uuid.mostSignificantBits)
-                bb.putLong(uuid.leastSignificantBits)
-                try {
-                    return attachment?.let { CryptoUtils.decryptAES(it, bb.array()) }
-                } catch (ignored: GeneralSecurityException) {
-                } catch (ignored: KeyException) {
-                } catch (ignored: IllegalArgumentException) {
+        return enckeys
+                ?.filterNotNull()
+                ?.filter { sfk -> sfk.keyFromHexString().isValidAesKey() }
+                ?.mapNotNull { sfk ->
+                    try {
+                        attachment?.let { CryptoUtils.encryptAES(it, sfk.keyFromHexString()) }
+                    } catch (ignored: GeneralSecurityException) {
+                        null
+                    } catch (ignored: KeyException) {
+                        null
+                    } catch (ignored: IllegalArgumentException) {
+                        null
+                    }
                 }
-            }
-        }
-        return attachment
+                ?.firstOrNull()
+                ?: attachment
     }
 
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)

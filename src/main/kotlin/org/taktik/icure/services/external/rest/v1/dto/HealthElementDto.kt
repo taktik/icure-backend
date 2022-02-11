@@ -25,8 +25,13 @@ import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.EncryptableDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
+import org.taktik.icure.services.external.rest.v1.dto.base.IdentifierDto
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.*
+import org.taktik.icure.services.external.rest.v1.dto.embed.CareTeamMemberDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.EpisodeDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.LateralityDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.PlanOfActionDto
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -34,14 +39,15 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.*
 @Schema(description = """This entity is a root level object. It represents a healthcare element. It is serialized in JSON and saved in the underlying CouchDB database.""")
 data class HealthElementDto(
         @Schema(description = "The Id of the healthcare element. We encourage using either a v4 UUID or a HL7 Id.") override val id: String,
-        @Schema(description = "The revision of the patient in the database, used for conflict management / optimistic locking.") override val rev: String? = null,
+        val identifiers: List<IdentifierDto> = emptyList(),
+        @Schema(description = "The revision of the healthcare element in the database, used for conflict management / optimistic locking.") override val rev: String? = null,
         override val created: Long? = null,
         override val modified: Long? = null,
         override val author: String? = null,
         override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        override val tags: Set<CodeStubDto> = setOf(),
-        override val codes: Set<CodeStubDto> = setOf(),
+        override val tags: Set<CodeStubDto> = emptySet(),
+        override val codes: Set<CodeStubDto> = emptySet(),
         override val endOfLife: Long? = null,
         override val deletionDate: Long? = null,
 
@@ -58,14 +64,14 @@ data class HealthElementDto(
         @Schema(description = "Id of the service when a service is used to create a healthcare element.") val idService: String? = null, //When a service is used to create the healthElement
         @Schema(description = "bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present") val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
         @Schema(description = "Left or Right dominance/preference.") val laterality: LateralityDto? = null,
-        @Schema(description = "List of healthcare approaches.") val plansOfAction: List<PlanOfActionDto> = listOf(),
-        @Schema(description = "List of episodes of occurrences of the healthcare element.") val episodes: List<EpisodeDto> = listOf(),
-        @Schema(description = "List of care team members assigned for the healthcare element.") val careTeam: List<CareTeamMemberDto> = listOf(),
+        @Schema(description = "List of healthcare approaches.") val plansOfAction: List<PlanOfActionDto> = emptyList(),
+        @Schema(description = "List of episodes of occurrences of the healthcare element.") val episodes: List<EpisodeDto> = emptyList(),
+        @Schema(description = "List of care team members assigned for the healthcare element.") val careTeam: List<CareTeamMemberDto> = emptyList(),
 
-        override val secretForeignKeys: Set<String> = setOf(),
-        override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = mapOf(),
-        override val delegations: Map<String, Set<DelegationDto>> = mapOf(),
-        override val encryptionKeys: Map<String, Set<DelegationDto>> = mapOf(),
+        override val secretForeignKeys: Set<String> = emptySet(),
+        override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = emptyMap(),
+        override val delegations: Map<String, Set<DelegationDto>> = emptyMap(),
+        override val encryptionKeys: Map<String, Set<DelegationDto>> = emptyMap(),
         override val encryptedSelf: String? = null
 ) : StoredDocumentDto, ICureDocumentDto<String>, EncryptableDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)

@@ -22,27 +22,9 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.github.pozo.KotlinBuilder
-import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.couchdb.entity.Attachment
-import org.taktik.icure.entities.base.CodeStub
-import org.taktik.icure.entities.base.CryptoActor
-import org.taktik.icure.entities.base.Encryptable
-import org.taktik.icure.entities.base.Person
-import org.taktik.icure.entities.base.PropertyStub
-import org.taktik.icure.entities.base.StoredICureDocument
-import org.taktik.icure.entities.embed.Address
-import org.taktik.icure.entities.embed.DeactivationReason
-import org.taktik.icure.entities.embed.Delegation
-import org.taktik.icure.entities.embed.EmploymentInfo
-import org.taktik.icure.entities.embed.FinancialInstitutionInformation
-import org.taktik.icure.entities.embed.Gender
-import org.taktik.icure.entities.embed.Insurability
-import org.taktik.icure.entities.embed.MedicalHouseContract
-import org.taktik.icure.entities.embed.Partnership
-import org.taktik.icure.entities.embed.PatientHealthCareParty
-import org.taktik.icure.entities.embed.PersonalStatus
-import org.taktik.icure.entities.embed.RevisionInfo
-import org.taktik.icure.entities.embed.SchoolingInfo
+import org.taktik.icure.entities.base.*
+import org.taktik.icure.entities.embed.*
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.handlers.JacksonBase64LenientDeserializer
 import org.taktik.icure.utils.DynamicInitializer
@@ -50,7 +32,6 @@ import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
-import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -68,8 +49,9 @@ import java.util.*
  *
  * @property id The Id of the patient. We encourage using either a v4 UUID or a HL7 Id.
  * @property rev The revision of the patient in the database, used for conflict management / optimistic locking.
- * @property created The timestamp (unix epoch in ms) of creation of the patient, will be filled automatically if missing. Not enforced by the application server.
- * @property modified the date (unix epoch in ms) of latest modification of the patient, will be filled automatically if missing. Not enforced by the application server.
+ * @property identifier The patient's identifier.
+ * @property created The timestamp (unix epoch in ms) of creation of the patient. Enforced by the application server : will be filled automatically if missing.
+ * @property modified the date (unix epoch in ms) of latest modification of the patient. Enforced by the application server : will be filled automatically if missing.
  * @property author the id of the User that has created this patient, will be filled automatically if missing. Not enforced by the application server.
  * @property responsible the id of the HealthcareParty that is responsible for this patient, will be filled automatically if missing. Not enforced by the application server.
  * @property medicalLocationId the medical location where this patient has been created
@@ -79,6 +61,7 @@ import java.util.*
  * @property deletionDate Hard delete (unix epoch in ms) timestamp of the object. Filled automatically when deletePatient is called.
  * @property firstName the firstname (name) of the patient.
  * @property lastName the lastname (surname) of the patient. This is the official lastname that should be used for official administrative purposes.
+ * @property names The list of all names of the patient, also containing the official full name information. Ordered by preference of use. First element is therefore the official name used for the patient in the application.
  * @property companyName the name of the company this patient is member of.
  * @property languages the list of languages spoken by the patient ordered by fluency (alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html).
  * @property addresses the list of addresses (with address type).
@@ -125,24 +108,26 @@ import java.util.*
 data class Patient(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,
+        val identifier: List<Identifier> = listOf(),
         @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
         @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
         @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
         override val endOfLife: Long? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
         override val firstName: String? = null,
         override val lastName: String? = null, //Is usually either maidenName or spouseName,
         override val companyName: String? = null,
-        override val languages: List<String> = listOf(), //alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html,
-        override val addresses: List<Address> = listOf(),
+        override val languages: List<String> = emptyList(), //alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html,
+        override val addresses: List<Address> = emptyList(),
         override val civility: String? = null,
         override val gender: Gender? = Gender.unknown,
+        override val names: List<PersonName> = emptyList(),
         val birthSex: Gender? = Gender.unknown,
         val mergeToPatientId: String? = null,
-        val mergedIds: Set<String> = HashSet(),
+        val mergedIds: Set<String> = emptySet(),
         val alias: String? = null,
         val active: Boolean = true,
         val deactivationReason: DeactivationReason = DeactivationReason.none,
@@ -167,15 +152,15 @@ data class Patient(
         val preferredUserId: String? = null,
         @JsonDeserialize(using = JacksonBase64LenientDeserializer::class) val picture: ByteArray? = null,
         val externalId: String? = null, //No guarantee of unicity
-        val insurabilities: List<Insurability> = listOf(),
-        val partnerships: List<Partnership> = listOf(),
-        val patientHealthCareParties: List<PatientHealthCareParty> = listOf(),
-        val financialInstitutionInformation: List<FinancialInstitutionInformation> = listOf(),
-        val medicalHouseContracts: List<MedicalHouseContract> = listOf(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) val patientProfessions: List<CodeStub> = listOf(),
-        val parameters: Map<String, List<String>> = mapOf(),
-        @Deprecated("Do not use") val nonDuplicateIds: Set<String> = HashSet(),
-        @Deprecated("Do not use") val encryptedAdministrativesDocuments: Set<String> = HashSet(),
+        val insurabilities: List<Insurability> = emptyList(),
+        val partnerships: List<Partnership> = emptyList(),
+        val patientHealthCareParties: List<PatientHealthCareParty> = emptyList(),
+        val financialInstitutionInformation: List<FinancialInstitutionInformation> = emptyList(),
+        val medicalHouseContracts: List<MedicalHouseContract> = emptyList(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) val patientProfessions: List<CodeStub> = emptyList(),
+        val parameters: Map<String, List<String>> = emptyMap(),
+        @Deprecated("Do not use") val nonDuplicateIds: Set<String> = emptySet(),
+        @Deprecated("Do not use") val encryptedAdministrativesDocuments: Set<String> = emptySet(),
         @Deprecated("Use note or administrativeNote") val comment: String? = null,
         @Deprecated("Use note or administrativeNote") val warning: String? = null,
         @Deprecated("Use properties instead") val fatherBirthCountry: CodeStub? = null,
@@ -183,9 +168,9 @@ data class Patient(
         @Deprecated("Use properties instead") val nativeCountry: CodeStub? = null,
         @Deprecated("Use properties instead") val socialStatus: CodeStub? = null,
         @Deprecated("Use properties instead") val mainSourceOfIncome: CodeStub? = null,
-        @Deprecated("Use properties instead") val schoolingInfos: List<SchoolingInfo> = listOf(),
-        @Deprecated("Use properties instead") val employementInfos: List<EmploymentInfo> = listOf(),
-        @Deprecated("Use properties instead") val properties: Set<PropertyStub> = HashSet(),
+        @Deprecated("Use properties instead") val schoolingInfos: List<SchoolingInfo> = emptyList(),
+        @Deprecated("Use properties instead") val employementInfos: List<EmploymentInfo> = emptyList(),
+        override val properties: Set<PropertyStub> = emptySet(),
 
         // One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
         // For a pair of HcParties, this key is called the AES exchange key
@@ -193,14 +178,14 @@ data class Patient(
         // The map's keys are the delegate id.
         // In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
         // the key encrypted using delegate's public key.
-        override val hcPartyKeys: Map<String, Array<String>> = mapOf(),
-        override val privateKeyShamirPartitions: Map<String, String> = mapOf(),
+        override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
+        override val privateKeyShamirPartitions: Map<String, String> = emptyMap(),
         override val publicKey: String? = null,
 
-        override val secretForeignKeys: Set<String> = setOf(),
-        override val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(),
-        override val delegations: Map<String, Set<Delegation>> = mapOf(),
-        override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val secretForeignKeys: Set<String> = emptySet(),
+        override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
+        override val delegations: Map<String, Set<Delegation>> = emptyMap(),
+        override val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(),
         override val encryptedSelf: String? = null,
 
         override val medicalLocationId: String? = null,
@@ -208,7 +193,7 @@ data class Patient(
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null
-) : StoredICureDocument, Person, Encryptable, CryptoActor {
+) : StoredICureDocument, Person, Encryptable, CryptoActor, DataOwner {
     companion object : DynamicInitializer<Patient>
 
     fun merge(other: Patient) = Patient(args = this.solveConflictsWith(other))
@@ -216,7 +201,12 @@ data class Patient(
             super<StoredICureDocument>.solveConflictsWith(other) +
                     super<Person>.solveConflictsWith(other) +
                     super<Encryptable>.solveConflictsWith(other) +
-                    super<CryptoActor>.solveConflictsWith(other) + mapOf(
+                    super<CryptoActor>.solveConflictsWith(other) +
+                    super<DataOwner>.solveConflictsWith(other) + mapOf(
+                    "encryptionKeys" to this.encryptionKeys, // Only keep this ones
+                    "identifier" to mergeListsDistinct(this.identifier, other.identifier,
+                            { a, b -> a.system == b.system && a.value == b.value },
+                    ),
                     "birthSex" to (this.birthSex ?: other.birthSex),
                     "mergeToPatientId" to (this.mergeToPatientId ?: other.mergeToPatientId),
                     "mergedIds" to (other.mergedIds + this.mergedIds),
@@ -259,7 +249,6 @@ data class Patient(
                     "mainSourceOfIncome" to (this.mainSourceOfIncome ?: other.mainSourceOfIncome),
                     "schoolingInfos" to mergeListsDistinct(schoolingInfos, other.schoolingInfos),
                     "employementInfos" to mergeListsDistinct(employementInfos, other.employementInfos),
-                    "properties" to (other.properties + this.properties),
                     "insurabilities" to mergeListsDistinct(insurabilities, other.insurabilities,
                             { a, b -> a.insuranceId == b.insuranceId && a.startDate == b.startDate },
                             { a, b -> if (a.endDate != null) a else b }

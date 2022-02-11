@@ -20,7 +20,7 @@ package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.reactive.awaitSingleOrNull
 import org.slf4j.LoggerFactory
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.security.authentication.AuthenticationServiceException
@@ -29,30 +29,25 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.AuthenticationException
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import org.springframework.web.server.WebSession
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
-import org.taktik.icure.asynclogic.PropertyLogic
-import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.entities.User
 import org.taktik.icure.security.PermissionSetIdentifier
 import org.taktik.icure.security.UserDetails
 import org.taktik.icure.security.loadSecurityContext
 import java.io.Serializable
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpSession
 
 @ExperimentalCoroutinesApi
-@Transactional
 @Service
 class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthenticationManager,
-                            private val userDAO: UserDAO,
-                            private val propertyLogic: PropertyLogic) : AsyncSessionLogic {
+                            private val userDAO: UserDAO) : AsyncSessionLogic {
     /* Generic */
+
+    val log = LoggerFactory.getLogger(this::class.java)
 
     override fun getOrCreateSession(): HttpSession? {
         val requestAttributes = RequestContextHolder.getRequestAttributes()
@@ -84,19 +79,21 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
         return authentication?.let { SessionContextImpl(it) }
     }
 
-    override suspend fun getCurrentSessionContext(): AsyncSessionLogic.AsyncSessionContext {
-        return getCurrentAuthentication()?.let { SessionContextImpl(it) }
+    override suspend fun getCurrentSessionContext(): AsyncSessionLogic.AsyncSessionContext =
+        getCurrentAuthentication()?.let { SessionContextImpl(it) }
                 ?: throw AuthenticationServiceException("getCurrentAuthentication() returned null, no SecurityContext in the coroutine context?")
-    }
 
     override suspend fun getCurrentUserId(): String {
         return getCurrentSessionContext().getUser().id
-                ?: throw AuthenticationServiceException("Failed extracting currentUser id")
     }
 
     override suspend fun getCurrentHealthcarePartyId(): String {
         return getCurrentSessionContext().getUser().healthcarePartyId
-                ?: throw AuthenticationServiceException("Failed extracting current healthCareParty id")
+                ?: throw AuthenticationServiceException("Failed to extract current healthCareParty id")
+    }
+
+    override suspend fun getCurrentPatientId(): String? {
+        return getCurrentSessionContext().getUser().patientId
     }
 
     private inner class SessionContextImpl(private val authentication: Authentication) : AsyncSessionLogic.AsyncSessionContext, Serializable {
@@ -125,15 +122,13 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
     }
 
     companion object {
-        val SESSION_LOCALE_ATTRIBUTE = "locale";
-
-        private val log = LoggerFactory.getLogger(AsyncSessionLogicImpl::class.java)
+        const val SESSION_LOCALE_ATTRIBUTE = "locale";
 
         private suspend fun getCurrentAuthentication() =
-                loadSecurityContext()?.map { it.authentication }?.awaitSingle()
+                loadSecurityContext()?.map { it.authentication }?.awaitSingleOrNull()
 
         private suspend fun invalidateCurrentAuthentication() {
-                loadSecurityContext()?.map { it.authentication.isAuthenticated = false }?.awaitSingle()
+                loadSecurityContext()?.map { it.authentication.isAuthenticated = false }?.awaitSingleOrNull()
                         ?: throw AuthenticationServiceException("Could not find authentication object in ReactorContext")
         }
 

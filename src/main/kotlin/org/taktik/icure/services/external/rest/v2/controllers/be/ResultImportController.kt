@@ -22,7 +22,12 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.reactor.mono
 import org.apache.commons.lang3.StringUtils.isBlank
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.be.format.logic.MultiFormatLogic
 import org.taktik.icure.services.external.rest.v2.dto.ContactDto

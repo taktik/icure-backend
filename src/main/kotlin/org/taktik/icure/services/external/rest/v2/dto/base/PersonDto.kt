@@ -17,6 +17,7 @@
  */
 package org.taktik.icure.services.external.rest.v2.dto.base
 
+import org.taktik.icure.services.external.rest.v2.dto.embed.PersonNameDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.AddressDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.GenderDto
 import java.io.Serializable
@@ -27,6 +28,7 @@ interface PersonDto : Serializable, IdentifiableDto<String> {
     val firstName: String?
     val lastName: String?
     val companyName: String?
+    val names: List<PersonNameDto>
     val addresses: List<AddressDto>
     val languages: List<String>
 }

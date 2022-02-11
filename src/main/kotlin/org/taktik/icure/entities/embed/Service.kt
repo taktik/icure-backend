@@ -30,7 +30,7 @@ import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
-import java.util.*
+import java.util.UUID
 
 /**
  * This entity represents a Service.
@@ -42,6 +42,7 @@ import java.util.*
  * - Encryptable
  *
  * @property id The Id of the Service. We encourage using either a v4 UUID or a HL7 Id.
+ * @property identifier The identifier of the Service.
  * @property contactId Id of the contact during which the service is provided
  * @property subContactIds List of IDs of all sub-contacts that link the service to structural elements. Only used when the Service is emitted outside of its contact
  * @property plansOfActionIds List of IDs of all plans of actions (healthcare approaches) as a part of which the Service is provided. Only used when the Service is emitted outside of its contact
@@ -51,10 +52,10 @@ import java.util.*
  * @property cryptedForeignKeys The public patient key, encrypted here for separate Crypto Actors. Only used when the Service is emitted outside of its contact
  * @property delegations The delegations giving access to connected healthcare information. Only used when the Service is emitted outside of its contact
  * @property encryptionKeys The contact secret encryption key used to encrypt the secured properties (like services for example), encrypted for separate Crypto Actors. Only used when the Service is emitted outside of its contact
- * @property label
- * @property dataClassName
- * @property index Used for sorting
- * @property content
+ * @property label Description / Unambiguous qualification (LOINC code) of the type of information contained in the service. Could be a code to qualify temperature, complaint, diagnostic, ...
+ * @property dataClassName Deprecated : Do not use it anymore
+ * @property index Used for sorting services inside an upper object (A contact, a transaction, a FHIR bundle, ...)
+ * @property content Information contained in the service. Content is localized, using ISO language code as key.
  * @property textIndexes
  * @property valueDate The date (YYYYMMDDhhmmss) when the Service is noted to have started and also closes on the same date
  * @property openingDate The date (YYYYMMDDhhmmss) of the start of the Service.
@@ -68,6 +69,7 @@ import java.util.*
  * @property medicalLocationId The id of the medical location where the service was recorded.
  * @property comment Text, comments on the Service provided
  * @property invoicingCodes List of invoicing codes
+ * @property notes Comments - Notes recorded by a HCP about this service
  * @property qualifiedLinks Links towards related services (possibly in other contacts)
  * @property codes Codes that identify or qualify this particular service.
  * @property tags Tags that qualify the service as being member of a certain class.
@@ -77,22 +79,24 @@ import java.util.*
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class Service(
-        @JsonProperty("_id") override val id: String = UUID.randomUUID().toString(),//Only used when the Service is emitted outside of its contact
+        @JsonProperty("_id") override val id: String = UUID.randomUUID().toString(),
+        val transactionId: String? = null, //Used when a single service had to be split into parts for technical reasons. Several services with the same non null transaction id form one single service
+        val identifier: List<Identifier> = listOf(),
         @JsonIgnore val subContactIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
         @JsonIgnore val plansOfActionIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
         @JsonIgnore val healthElementsIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
         @JsonIgnore val formIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
-        @JsonIgnore val secretForeignKeys: Set<String>? = HashSet(), //Only used when the Service is emitted outside of its contact
-        @JsonIgnore val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(), //Only used when the Service is emitted outside of its contact
-        @JsonIgnore val delegations: Map<String, Set<Delegation>> = mapOf(), //Only used when the Service is emitted outside of its contact
-        @JsonIgnore val encryptionKeys: Map<String, Set<Delegation>> = mapOf(), //Only used when the Service is emitted outside of its contact
-        val contactId: String? = null,
-        val label: String = "<invalid>",
-        val dataClassName: String? = null,
+        @JsonIgnore val secretForeignKeys: Set<String>? = emptySet(), //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(), //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val delegations: Map<String, Set<Delegation>> = emptyMap(), //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(), //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val contactId: String? = null, //Only used when the Service is emitted outside of its contact
+        val label: String? = null,
+        @Deprecated("Deleted in V2") val dataClassName: String? = null,
         val index: Long? = null, //Used for sorting
-        val content: Map<String /* ISO language code */, Content> = mapOf(), //Localized, in the case when the service contains a document, the document id is the SerializableValue
+        val content: Map<String /* ISO language code */, Content> = emptyMap(), //Localized, in the case when the service contains a document, the document id is the SerializableValue
         @Deprecated("use encryptedSelf instead") val encryptedContent: String? = null, //Crypted (AES+base64) version of the above, deprecated, use encryptedSelf instead
-        val textIndexes: Map<String, String> = mapOf(), //Same structure as content but used for full text indexation
+        val textIndexes: Map<String, String> = emptyMap(), //Same structure as content but used for full text indexation
         @field:NotNull(autoFix = AutoFix.FUZZYNOW) val valueDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
         @field:NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
         val closingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
@@ -105,17 +109,18 @@ data class Service(
         override val medicalLocationId: String? = null,
         val comment: String? = null,
         val status: Int? = null, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit2 : present/absent, ex: 0 = active,relevant and present
-        val invoicingCodes: Set<String> = setOf(),
-        val qualifiedLinks: Map<LinkQualification, Map<String, String>> = mapOf(), //Links towards related services (possibly in other contacts)
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(), //stub object of the Code used to qualify the content of the Service
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(), //stub object of the tag used to qualify the type of the Service
+        val invoicingCodes: Set<String> = emptySet(),
+        val notes: List<Annotation> = emptyList(),
+        val qualifiedLinks: Map<LinkQualification, Map<String, String>> = emptyMap(), //Links towards related services (possibly in other contacts)
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(), //stub object of the Code used to qualify the content of the Service
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(), //stub object of the tag used to qualify the type of the Service
         override val encryptedSelf: String? = null
 ) : Encrypted, ICureDocument<String>, Comparable<Service> {
     companion object : DynamicInitializer<Service>
 
     fun merge(other: Service) = Service(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: Service) = super<Encrypted>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + mapOf(
-            "label" to if (this.label.isBlank()) other.label else this.label,
+            "label" to if (this.label.isNullOrBlank()) other.label else this.label,
             "dataClassName" to (this.dataClassName ?: other.dataClassName),
             "index" to (this.index ?: other.index),
             "contactId" to (this.contactId ?: other.contactId),
@@ -131,6 +136,7 @@ data class Service(
             "comment" to (this.comment ?: other.comment),
             "status" to (this.status ?: other.status),
             "invoicingCodes" to (other.invoicingCodes + this.invoicingCodes),
+            "notes" to (other.notes + this.notes),
             "qualifiedLinks" to (other.qualifiedLinks + this.qualifiedLinks)
     )
 

@@ -21,6 +21,8 @@ package org.taktik.icure.services.external.rest.v2.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import io.swagger.v3.oas.annotations.media.Schema
+import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentTypeDto
 import org.taktik.icure.services.external.rest.v2.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v2.dto.base.ICureDocumentDto
 import org.taktik.icure.services.external.rest.v2.dto.base.ReportVersionDto
@@ -39,15 +41,16 @@ data class DocumentTemplateDto(
         override val author: String? = null,
         override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        override val tags: Set<CodeStubDto> = setOf(),
-        override val codes: Set<CodeStubDto> = setOf(),
+        override val tags: Set<CodeStubDto> = emptySet(),
+        override val codes: Set<CodeStubDto> = emptySet(),
         override val endOfLife: Long? = null,
         override val deletionDate: Long? = null,
 
-        val attachment: ByteArray? = null,
+        @Schema(type = "string", format = "byte") val attachment: ByteArray? = null,
+        @Schema(description = "The type of document, ex: admission, clinical path, document report,invoice, etc.") val documentType: DocumentTypeDto? = null,
         val mainUti: String? = null,
         val name: String? = null,
-        val otherUtis: Set<String> = setOf(),
+        val otherUtis: Set<String> = emptySet(),
         val attachmentId: String? = null,
         val version: ReportVersionDto? = null,
         val owner: String? = null,

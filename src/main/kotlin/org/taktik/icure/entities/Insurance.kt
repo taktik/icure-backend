@@ -36,7 +36,7 @@ data class Insurance(
         @JsonProperty("_rev") override val rev: String? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        val name: Map<String, String> = mapOf(),
+        val name: Map<String, String> = emptyMap(),
         val privateInsurance: Boolean = false,
         val hospitalisationInsurance: Boolean = false,
         val ambulatoryInsurance: Boolean = false,
@@ -45,10 +45,10 @@ data class Insurance(
         val parent: String? = null, //ID of the parent
         val address: Address = Address(),
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredDocument {
     companion object : DynamicInitializer<Insurance>

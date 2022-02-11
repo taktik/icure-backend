@@ -17,7 +17,10 @@
  */
 package org.taktik.icure.asynclogic.impl
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.LoggerContext
 import kotlinx.coroutines.flow.toList
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.icure.applications.utils.JarUtils
 import org.taktik.icure.asyncdao.GenericDAO
@@ -75,6 +78,30 @@ class ICureLogicImpl(couchDbProperties: CouchDbProperties,
             } catch (ignored: Throwable) {
             }
         }
+    }
+
+    override suspend fun setLogLevel(logLevel: String, packageName: String): String {
+        val retVal: String
+        val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
+        if (logLevel.equals("TRACE", ignoreCase = true)) {
+            loggerContext.getLogger(packageName).level = Level.TRACE
+            retVal = "ok"
+        } else if (logLevel.equals("DEBUG", ignoreCase = true)) {
+            loggerContext.getLogger(packageName).level = Level.DEBUG
+            retVal = "ok"
+        } else if (logLevel.equals("INFO", ignoreCase = true)) {
+            loggerContext.getLogger(packageName).level = Level.INFO
+            retVal = "ok"
+        } else if (logLevel.equals("WARN", ignoreCase = true)) {
+            loggerContext.getLogger(packageName).level = Level.WARN
+            retVal = "ok"
+        } else if (logLevel.equals("ERROR", ignoreCase = true)) {
+            loggerContext.getLogger(packageName).level = Level.ERROR
+            retVal = "ok"
+        } else {
+            retVal = "Error, not a known loglevel: $logLevel"
+        }
+        return retVal
     }
 
     override fun getVersion(): String {

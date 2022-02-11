@@ -34,8 +34,4 @@ object Filters {
         return ComplementFilter(null, superSet, subset)
     }
 
-    fun <O : Identifiable<String>> constant(set: Set<String>): ConstantFilter<O> {
-        return ConstantFilter(null, set)
-    }
-
 }

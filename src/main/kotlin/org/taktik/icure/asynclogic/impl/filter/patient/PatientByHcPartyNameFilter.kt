@@ -20,6 +20,7 @@ package org.taktik.icure.asynclogic.impl.filter.patient
 
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
@@ -29,6 +30,7 @@ import org.taktik.icure.entities.Patient
 import org.taktik.icure.utils.getLoggedHealthCarePartyId
 import javax.security.auth.login.LoginException
 
+@Service
 class PatientByHcPartyNameFilter(private val patientLogic: PatientLogic,
                                  private val sessionLogic: AsyncSessionLogic) : Filter<String, Patient, PatientByHcPartyNameFilter> {
 

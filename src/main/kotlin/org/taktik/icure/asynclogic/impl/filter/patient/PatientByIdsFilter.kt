@@ -27,9 +27,8 @@ import org.taktik.icure.domain.filter.patient.PatientByIdsFilter
 import org.taktik.icure.entities.Patient
 
 @Service
-class PatientByIdsFilter : Filter<String, Patient, PatientByIdsFilter> {
-
-    override fun resolve(filter: PatientByIdsFilter, context: Filters): Flow<String> {
-        return filter.ids?.asFlow() ?: flowOf()
+class PatientByIdsFilter : Filter<String, Patient, org.taktik.icure.domain.filter.Filters.IdsFilter<String, Patient>> {
+    override fun resolve(filter: org.taktik.icure.domain.filter.Filters.IdsFilter<String, Patient>, context: Filters): Flow<String> {
+        return filter.ids.asFlow()
     }
 }

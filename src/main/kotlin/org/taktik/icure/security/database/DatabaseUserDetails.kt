@@ -4,6 +4,7 @@
 package org.taktik.icure.security.database
 
 import org.springframework.security.core.GrantedAuthority
+import org.taktik.icure.entities.security.AuthenticationToken
 import org.taktik.icure.entities.security.Permission
 import org.taktik.icure.security.PermissionSetIdentifier
 import org.taktik.icure.security.AbstractUserDetails
@@ -16,9 +17,11 @@ class DatabaseUserDetails(
         val secret: String?,
         val use2fa: Boolean = false,
         val rev: String? = null,
-        val applicationTokens: Map<String, String> = mapOf(),
+        @Deprecated("Not secured enough - Use authenticationTokens instead")
+        val applicationTokens: Map<String, String> = emptyMap(),
+        val authenticationTokens: Map<String, AuthenticationToken> = emptyMap(),
         val application: String? = null,
-        val groupIdUserIdMatching: List<String> = listOf()
+        val groupIdUserIdMatching: List<String> = emptyList()
 ) : AbstractUserDetails(
     permissionSetIdentifier, authorities, principalPermissions
 ) {
@@ -37,6 +40,7 @@ class DatabaseUserDetails(
         if (use2fa != o.use2fa) return false
         if (rev != o.rev) return false
         if (applicationTokens != o.applicationTokens) return false
+        if (authenticationTokens != o.authenticationTokens) return false
         if (application != o.application) return false
         if (groupIdUserIdMatching != o.groupIdUserIdMatching) return false
 
@@ -50,9 +54,10 @@ class DatabaseUserDetails(
         result = 31 * result + secret.hashCode()
         result = 31 * result + use2fa.hashCode()
         result = 31 * result + (rev?.hashCode() ?: 0)
-        result = 31 * result + (applicationTokens?.hashCode() ?: 0)
+        result = 31 * result + applicationTokens.hashCode()
+        result = 31 * result + authenticationTokens.hashCode()
         result = 31 * result + (application?.hashCode() ?: 0)
-        result = 31 * result + (groupIdUserIdMatching?.hashCode() ?: 0)
+        result = 31 * result + groupIdUserIdMatching.hashCode()
         return result
     }
 

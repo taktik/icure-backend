@@ -18,9 +18,13 @@
 
 package org.taktik.icure.utils
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.reactor.asCoroutineContext
 import kotlinx.coroutines.reactor.asFlux
 import org.taktik.couchdb.id.Identifiable
@@ -41,15 +45,18 @@ fun <T> Flow<T>.distinct(): Flow<T> = flow {
     }
 }
 
-fun <T : Identifiable<*>> Flow<T>.distinctById(): Flow<T> = flow {
+fun <T> Flow<T>.distinctBy(function: (T) -> Any?): Flow<T> = flow {
     val previous = HashSet<Any>()
     collect { value: T ->
-        if (!previous.contains(value.id)) {
-            value.id?.let { previous.add(it) }
+        val fnVal = function(value)
+        if (!previous.contains(fnVal)) {
+            fnVal?.let { previous.add(it) }
             emit(value)
         }
     }
 }
+
+fun <T : Identifiable<*>> Flow<T>.distinctById(): Flow<T> = distinctBy { it.id }
 
 fun <T : StoredDocument> Flow<T>.subsequentDistinctById(): Flow<T> = flow {
     val previousId = ""
@@ -59,30 +66,6 @@ fun <T : StoredDocument> Flow<T>.subsequentDistinctById(): Flow<T> = flow {
             emit(value)
         }
         first = false
-    }
-}
-
-/**
- * The terminal operator that returns the first element emitted by the flow and then cancels flow's collection.
- * Throws [NoSuchElementException] if the flow was empty.
- */
-suspend fun <T> Flow<T>.firstOrNull(): T? {
-    var result: T? = null
-    try {
-        collect { value ->
-            result = value
-            throw AbortFlowException()
-        }
-    } catch (e: AbortFlowException) {
-        // Do nothing
-    }
-
-    return result
-}
-
-private class AbortFlowException : CancellationException("Flow was aborted, no more elements needed") {
-    override fun fillInStackTrace(): Throwable {
-        return this
     }
 }
 

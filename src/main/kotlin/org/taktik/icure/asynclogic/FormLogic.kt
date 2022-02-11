@@ -40,5 +40,6 @@ interface FormLogic : EntityPersister<Form, String> {
     suspend fun addDelegations(formId: String, delegations: List<Delegation>): Form?
     fun getGenericDAO(): FormDAO
     fun solveConflicts(): Flow<Form>
-    suspend fun getFormsByExternalUuid(documentId: String): List<Form>
+    suspend fun getAllByLogicalUuid(formUuid: String): List<Form>
+    suspend fun getAllByUniqueId(lid: String): List<Form>
 }

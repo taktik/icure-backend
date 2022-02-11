@@ -19,9 +19,11 @@
 package org.taktik.icure.services.external.rest.v2.controllers.core
 
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -30,7 +32,16 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestPart
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
@@ -48,7 +59,6 @@ import org.taktik.icure.services.external.rest.v2.mapper.FormV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.StubV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterV2Mapper
-import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
@@ -82,11 +92,41 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
         return forms.map { formV2Mapper.map(it) }.injectReactorContext()
     }
 
-    @Operation(summary = "Gets a form")
-    @GetMapping("/externaluuid/{externalUuid}")
-    fun getFormByExternalUuid(@PathVariable externalUuid: String) = mono {
-        val form = formLogic.getFormsByExternalUuid(externalUuid).firstOrNull()
+    @Operation(summary = "Gets the most recent form with the given logicalUuid")
+    @GetMapping("/logicalUuid/{logicalUuid}")
+    fun getFormByLogicalUuid(@PathVariable logicalUuid: String) = mono {
+        val form = formLogic.getAllByLogicalUuid(logicalUuid)
+                    .sortedByDescending { it.created }
+                    .firstOrNull()
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Form not found")
+        formV2Mapper.map(form)
+    }
+
+    @Operation(summary = "Gets all forms with given logicalUuid")
+    @GetMapping("/all/logicalUuid/{logicalUuid}")
+    fun getFormsByLogicalUuid(@PathVariable logicalUuid: String) = flow {
+            formLogic.getAllByLogicalUuid(logicalUuid)
+                    .map { form -> formV2Mapper.map(form) }
+                    .forEach { emit(it) }
+
+    }.injectReactorContext()
+
+    @Operation(summary = "Gets all forms by uniqueId")
+    @GetMapping("/all/uniqueId/{uniqueId}")
+    fun getFormsByUniqueId(@PathVariable uniqueId: String) = flow {
+            formLogic.getAllByUniqueId(uniqueId)
+                    .map { form -> formV2Mapper.map(form) }
+                    .forEach { emit(it) }
+
+    }.injectReactorContext()
+
+    @Operation(summary = "Gets the most recent form with the given uniqueId")
+    @GetMapping("/uniqueId/{uniqueId}")
+    fun getFormByUniqueId(@PathVariable uniqueId: String) = mono {
+        val form = formLogic.getAllByUniqueId(uniqueId)
+                    .sortedByDescending { it.created }
+                    .firstOrNull()
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Form not found")
         formV2Mapper.map(form)
     }
 
@@ -275,7 +315,7 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
     @Operation(summary = "Update a form template's layout")
     @PutMapping("/template/{formTemplateId}/attachment/multipart", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun setTemplateAttachmentMulti(@PathVariable formTemplateId: String,
-                                   @RequestPart("attachment") payload: ByteArray) = mono {
+                                   @Schema(type = "string", format = "byte") @RequestPart("attachment") payload: ByteArray) = mono {
         val formTemplate = formTemplateLogic.getFormTemplate(formTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "FormTemplate with id $formTemplateId not found")
         formTemplateLogic.modifyFormTemplate(formTemplate.copy(layout = payload))?.rev ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form Template modification failed")

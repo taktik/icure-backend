@@ -22,21 +22,34 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.User
 import org.taktik.icure.services.external.rest.v2.dto.PropertyStubDto
 import org.taktik.icure.services.external.rest.v2.dto.UserDto
+import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
+import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v2.mapper.UserV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainV2Mapper
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
-import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 
 /* Useful notes:
@@ -48,10 +61,13 @@ import org.taktik.icure.utils.injectReactorContext
 @RestController("userControllerV2")
 @RequestMapping("/rest/v2/user")
 @Tag(name = "user") // otherwise would default to "user-controller"
-class UserController(private val userLogic: UserLogic,
-                     private val sessionLogic: AsyncSessionLogic,
-                     private val userV2Mapper: UserV2Mapper,
-                     private val propertyStubV2Mapper: PropertyStubV2Mapper
+class UserController(
+        private val filters: Filters,
+        private val userLogic: UserLogic,
+        private val sessionLogic: AsyncSessionLogic,
+        private val userV2Mapper: UserV2Mapper,
+        private val propertyStubV2Mapper: PropertyStubV2Mapper,
+        private val filterChainV2Mapper: FilterChainV2Mapper,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000
@@ -178,5 +194,36 @@ class UserController(private val userLogic: UserLogic,
     fun encodePassword(@RequestHeader("password") password: String)  = mono {
         userLogic.encodePassword(password)
     }
+
+    @Operation(summary = "Request a new temporary token for authentication")
+    @PostMapping("/token/{userId}/{key}")
+    fun getToken(@PathVariable userId: String, @Parameter(description = "The token key. Only one instance of a token with a defined key can exist at the same time") @PathVariable key: String, @Parameter(description = "The token validity in seconds", required = false) @RequestParam(required = false) tokenValidity: Long?) = mono {
+        userLogic.getUser(userId)?.let {
+            userLogic.getToken(it, key, tokenValidity ?: 3600)
+        } ?: throw IllegalStateException("Invalid User")
+    }
+
+    @Operation(summary = "Check token validity")
+    @GetMapping("/token/{userId}")
+    fun checkTokenValidity(@PathVariable userId: String, @RequestHeader token: String) = mono {
+        userLogic.verifyAuthenticationToken(userId, token)
+    }
+
+    @Operation(summary = "Filter users for the current user (HcParty)", description = "Returns a list of users along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
+    @PostMapping("/filter")
+    fun filterUsersBy( @Parameter(description = "A User document ID") @RequestParam(required = false) startDocumentId: String?,
+                               @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+                               @RequestBody filterChain: FilterChain<User>
+    ) = mono {
+        val realLimit = limit ?: DEFAULT_LIMIT
+        val paginationOffset = PaginationOffset(null, startDocumentId, null, realLimit+1)
+        val users = userLogic.filterUsers(paginationOffset, filterChainV2Mapper.map(filterChain))
+
+        users.paginatedList(userToUserDto, realLimit)
+    }
+
+    @Operation(summary = "Get ids of healthcare party matching the provided filter for the current user (HcParty) ")
+    @PostMapping("/match")
+    fun matchUsersBy(@RequestBody filter: AbstractFilterDto<User>) = filters.resolve(filter).injectReactorContext()
 
 }

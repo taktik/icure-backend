@@ -25,14 +25,18 @@ import org.taktik.icure.entities.embed.RevisionInfo
 interface StoredDocument : Versionable<String> {
     @Suppress("PropertyName")
     @JsonProperty("java_type")
-    fun get_type(): String {
+    fun getJavaType(): String {
         return this::class.qualifiedName!!
     }
+    @JsonProperty("java_type")
+    fun setJavaType(value: String) {
+        if (this::class.qualifiedName != value) throw IllegalArgumentException("Object with ID ${this.id} is not of expected type ${this::class.qualifiedName} but of type $value")
+    }
 
+    val deletionDate: Long?
     val revisionsInfo: List<RevisionInfo>?
     val conflicts: List<String>?
     val attachments: Map<String, Attachment>?
-    val deletionDate: Long?
 
     fun solveConflictsWith(other: StoredDocument): Map<String, Any?> {
         return mapOf(

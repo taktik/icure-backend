@@ -21,6 +21,7 @@ import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.Gender
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.couchdb.id.Identifiable
+import org.taktik.icure.entities.embed.PersonName
 import java.io.Serializable
 
 interface Person : Serializable, Identifiable<String> {
@@ -28,6 +29,7 @@ interface Person : Serializable, Identifiable<String> {
     val gender: Gender?
     val firstName: String?
     val lastName: String?
+    val names: List<PersonName>
     val companyName: String?
     val addresses: List<Address>
     val languages: List<String>
@@ -42,7 +44,11 @@ interface Person : Serializable, Identifiable<String> {
                 "addresses" to mergeListsDistinct(this.addresses, other.addresses,
                         { a, b -> a.addressType?.equals(b.addressType) ?: false },
                         { a, b -> a.merge(b) }),
-                "languages" to mergeListsDistinct(this.languages, other.languages, { a, b -> a.equals(b, true) }, { a, _ -> a })
+                "languages" to mergeListsDistinct(this.languages, other.languages, { a, b -> a.equals(b, true) }, { a, _ -> a }),
+                "names" to mergeListsDistinct(this.names, other.names,
+                        { a, b -> a.use == b.use && a.lastName == b.lastName},
+                        { a, _ -> a }
+                )
         )
     }
 }

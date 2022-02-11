@@ -20,6 +20,7 @@ package org.taktik.icure.asynclogic.impl.filter.invoice
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
+import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.InvoiceLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
@@ -27,12 +28,13 @@ import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.domain.filter.invoice.InvoiceByHcPartyCodeDateFilter
 import org.taktik.icure.entities.Invoice
 
+@Service
 class InvoiceByHcPartyCodeDateFilter(private val invoiceLogic: InvoiceLogic,
                                      private val healthcarePartyLogic: HealthcarePartyLogic) : Filter<String, Invoice, InvoiceByHcPartyCodeDateFilter> {
 
     @FlowPreview
     override fun resolve(filter: InvoiceByHcPartyCodeDateFilter, context: Filters): Flow<String> {
         return if (filter.healthcarePartyId != null) invoiceLogic.listInvoiceIdsByTarificationsByCode(filter.healthcarePartyId!!, filter.code, filter.startInvoiceDate, filter.endInvoiceDate)
-        else healthcarePartyLogic.getEntitiesIds().flatMapConcat { hcpId -> invoiceLogic.listInvoiceIdsByTarificationsByCode(hcpId, filter.code, filter.startInvoiceDate, filter.endInvoiceDate) }
+        else healthcarePartyLogic.getEntityIds().flatMapConcat { hcpId -> invoiceLogic.listInvoiceIdsByTarificationsByCode(hcpId, filter.code, filter.startInvoiceDate, filter.endInvoiceDate) }
     }
 }

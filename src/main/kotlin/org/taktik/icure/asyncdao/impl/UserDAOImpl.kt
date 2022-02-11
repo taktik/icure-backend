@@ -30,6 +30,7 @@ import org.taktik.couchdb.update
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.User
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
@@ -164,12 +165,8 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
         return client.update(user)
     }
 
-    override suspend fun save(newEntity: Boolean?, entity: User): User? {
-        return super.save(
-                newEntity,
-                if (entity.use2fa == true && !entity.applicationTokens.containsKey("ICC"))
-                    entity.copy(applicationTokens = entity.applicationTokens + ("ICC" to UUID.randomUUID().toString()))
-                else entity
-        )
+    override fun findUsersByIds(userIds: Flow<String>): Flow<ViewQueryResultEvent> = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        emitAll(client.getForPagination(userIds, User::class.java))
     }
 }

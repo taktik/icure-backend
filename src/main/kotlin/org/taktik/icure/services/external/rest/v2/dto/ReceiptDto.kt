@@ -39,23 +39,23 @@ data class ReceiptDto(
         override val author: String? = null,
         override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        override val tags: Set<CodeStubDto> = setOf(),
-        override val codes: Set<CodeStubDto> = setOf(),
+        override val tags: Set<CodeStubDto> = emptySet(),
+        override val codes: Set<CodeStubDto> = emptySet(),
         override val endOfLife: Long? = null,
         override val deletionDate: Long? = null,
 
-        val attachmentIds: Map<ReceiptBlobTypeDto, String> = mapOf(),
-        val references: List<String> = listOf(), //nipReference:027263GFF152, errorCode:186, errorPath:/request/transaction, org.taktik.icure.services.external.rest.v2.dto;tarification:id, org.taktik.entities.InvoiceDto:UUID
+        val attachmentIds: Map<ReceiptBlobTypeDto, String> = emptyMap(),
+        val references: List<String> = emptyList(), //nipReference:027263GFF152, errorCode:186, errorPath:/request/transaction, org.taktik.icure.services.external.rest.v2.dto;tarification:id, org.taktik.entities.InvoiceDto:UUID
 
         //The ICureDocumentDto (InvoiceDto, ContactDto, ...) this document is linked to
         val documentId: String? = null,
         val category: String? = null,
         val subCategory: String? = null,
 
-        override val secretForeignKeys: Set<String> = setOf(),
-        override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = mapOf(),
-        override val delegations: Map<String, Set<DelegationDto>> = mapOf(),
-        override val encryptionKeys: Map<String, Set<DelegationDto>> = mapOf(),
+        override val secretForeignKeys: Set<String> = emptySet(),
+        override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = emptyMap(),
+        override val delegations: Map<String, Set<DelegationDto>> = emptyMap(),
+        override val encryptionKeys: Map<String, Set<DelegationDto>> = emptyMap(),
         override val encryptedSelf: String? = null
 ) : StoredDocumentDto, ICureDocumentDto<String>, EncryptableDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)

@@ -27,4 +27,4 @@ import java.io.Serializable
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
-data class RouteOfAdministration(val name: SamText? = null, val standardRoutes: Set<CodeStub> = setOf()) : Serializable
+data class RouteOfAdministration(val name: SamText? = null, val standardRoutes: Set<CodeStub> = emptySet()) : Serializable

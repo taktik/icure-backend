@@ -22,6 +22,7 @@ import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asynclogic.listeners.UserLogicListener
 import org.taktik.icure.constants.Users
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.User
 import org.taktik.icure.entities.base.PropertyStub
@@ -70,7 +71,11 @@ interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
     suspend fun setProperties(user: User, properties: List<PropertyStub>): User?
     suspend fun undeleteUser(id: String)
     suspend fun undeleteUser(user: User)
-    suspend fun verifyActivationToken(userId: String, token: String): Boolean
-    suspend fun verifyPasswordToken(userId: String, token: String): Boolean
-    suspend fun getToken(user: User, key: String): String
+    suspend fun verifyAuthenticationToken(userId: String, token: String): Boolean
+
+    /**
+     * @param tokenValidity Token validity time in seconds. By default, token will be valid during one hour
+     */
+    suspend fun getToken(user: User, key: String, tokenValidity: Long = 3600): String
+    fun filterUsers(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<User>): Flow<ViewQueryResultEvent>
 }

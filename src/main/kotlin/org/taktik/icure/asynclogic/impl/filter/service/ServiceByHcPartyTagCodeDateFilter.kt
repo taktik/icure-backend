@@ -31,6 +31,7 @@ import org.taktik.icure.utils.getLoggedHealthCarePartyId
 import java.util.*
 import javax.security.auth.login.LoginException
 
+@org.springframework.stereotype.Service
 class ServiceByHcPartyTagCodeDateFilter(private val contactLogic: ContactLogic,
                                         private val sessionLogic: AsyncSessionLogic) : Filter<String, Service, ServiceByHcPartyTagCodeDateFilter> {
     override fun resolve(filter: ServiceByHcPartyTagCodeDateFilter, context: Filters) = flow {

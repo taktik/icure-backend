@@ -23,8 +23,8 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.github.pozo.KotlinBuilder
-import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.domain.filter.Filters
+import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.handlers.JsonPolymorphismRoot
 
 @JsonPolymorphismRoot(AbstractFilterDto::class)
@@ -34,5 +34,5 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @KotlinBuilder
 data class IntersectionFilter<O : Identifiable<String>>(
         override val desc: String? = null,
-        override val filters: List<AbstractFilterDto<O>> = listOf()
+        override val filters: List<AbstractFilterDto<O>> = emptyList()
 ) : AbstractFilterDto<O>, Filters.IntersectionFilter<String, O>

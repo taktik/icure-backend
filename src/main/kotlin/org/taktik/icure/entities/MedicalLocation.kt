@@ -52,12 +52,12 @@ data class MedicalLocation(
         val nihii: String? = null,
         val ssin: String? = null,
         val address: Address? = null,
-        val agendaIds: Set<String> = setOf(),
-        val options: Map<String,String> = mapOf(),
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
+        val agendaIds: Set<String> = emptySet(),
+        val options: Map<String,String> = emptyMap(),
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredDocument, Named {
     companion object : DynamicInitializer<MedicalLocation>

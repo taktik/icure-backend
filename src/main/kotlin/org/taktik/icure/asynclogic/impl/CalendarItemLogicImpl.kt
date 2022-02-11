@@ -33,7 +33,7 @@ import org.taktik.icure.exceptions.DeletionException
 @ExperimentalCoroutinesApi
 @Service
 class CalendarItemLogicImpl(private val calendarItemDAO: CalendarItemDAO,
-                            private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<CalendarItem, CalendarItemDAO>(sessionLogic), CalendarItemLogic {
+                            sessionLogic: AsyncSessionLogic) : GenericLogicImpl<CalendarItem, CalendarItemDAO>(sessionLogic), CalendarItemLogic {
 
     override suspend fun createCalendarItem(calendarItem: CalendarItem) = fix(calendarItem) { calendarItem ->
         calendarItemDAO.create(calendarItem)
@@ -57,6 +57,10 @@ class CalendarItemLogicImpl(private val calendarItemDAO: CalendarItemDAO,
 
     override fun getCalendarItemByPeriodAndAgendaId(startDate: Long, endDate: Long, agendaId: String): Flow<CalendarItem> = flow {
         emitAll(calendarItemDAO.listCalendarItemByPeriodAndAgendaId(startDate, endDate, agendaId))
+    }
+
+    override fun getCalendarItemsByRecurrenceId(recurrenceId: String): Flow<CalendarItem> = flow {
+        emitAll(calendarItemDAO.listCalendarItemsByRecurrenceId(recurrenceId))
     }
 
     override fun listCalendarItemsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>) = flow {

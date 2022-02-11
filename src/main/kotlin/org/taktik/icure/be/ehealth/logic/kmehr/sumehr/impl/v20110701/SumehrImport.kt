@@ -19,9 +19,12 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20110701
 
 
+import javax.xml.bind.JAXBContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.HealthElementLogic
@@ -31,7 +34,6 @@ import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils
 import org.taktik.icure.be.ehealth.logic.kmehr.toInputStream
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
-import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.domain.mapping.ImportMapping
 import org.taktik.icure.domain.result.ImportResult
@@ -77,11 +79,9 @@ import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
 import org.taktik.icure.utils.FuzzyValues
-import org.taktik.icure.utils.firstOrNull
 import java.io.Serializable
 import java.nio.ByteBuffer
-import java.util.*
-import javax.xml.bind.JAXBContext
+import java.util.LinkedList
 
 @org.springframework.stereotype.Service("sumehrImportV1")
 class SumehrImport(val patientLogic: PatientLogic,

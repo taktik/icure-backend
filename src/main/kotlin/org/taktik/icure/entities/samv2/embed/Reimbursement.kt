@@ -29,21 +29,21 @@ import java.math.BigDecimal
 data class Reimbursement(
         override val from: Long? = null,
         override val to: Long? = null,
-        var deliveryEnvironment: DeliveryEnvironment? = null,
-        var code: String? = null,
-        var codeType: DmppCodeType? = null,
-        var multiple: MultipleType? = null,
-        var temporary: Boolean? = null,
-        var reference: Boolean? = null,
-        var legalReferencePath: String? = null,
-        var flatRateSystem: Boolean? = null,
-        var reimbursementBasePrice: BigDecimal? = null,
-        var referenceBasePrice: BigDecimal? = null,
-        var copaymentSupplement: BigDecimal? = null,
-        var pricingUnit: Pricing? = null,
-        var pricingSlice: Pricing? = null,
-        var reimbursementCriterion: ReimbursementCriterion? = null,
-        var copayments: Set<Copayment>? = null
+        val deliveryEnvironment: DeliveryEnvironment? = null,
+        val code: String? = null,
+        val codeType: DmppCodeType? = null,
+        val multiple: MultipleType? = null,
+        val temporary: Boolean? = null,
+        val reference: Boolean? = null,
+        val legalReferencePath: String? = null,
+        val flatRateSystem: Boolean? = null,
+        val reimbursementBasePrice: BigDecimal? = null,
+        val referenceBasePrice: BigDecimal? = null,
+        val copaymentSupplement: BigDecimal? = null,
+        val pricingUnit: Pricing? = null,
+        val pricingSlice: Pricing? = null,
+        val reimbursementCriterion: ReimbursementCriterion? = null,
+        val copayments: Set<Copayment>? = null
 ) : DataPeriod, Comparable<Reimbursement> {
     override fun compareTo(other: Reimbursement): Int {
         return if (this == other) {
@@ -54,6 +54,9 @@ data class Reimbursement(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Reimbursement) return false
+
+        if (from != other.from) return false
+        if (to != other.to) return false
 
         if (deliveryEnvironment != other.deliveryEnvironment) return false
         if (code != other.code) return false

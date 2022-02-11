@@ -27,6 +27,7 @@ import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.ReportVersion
 import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.DocumentGroup
+import org.taktik.icure.entities.embed.DocumentType
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
@@ -45,8 +46,8 @@ data class DocumentTemplate(
         @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
         override val endOfLife: Long? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
@@ -54,7 +55,7 @@ data class DocumentTemplate(
         @JsonIgnore var isAttachmentDirty: Boolean = false,
         val mainUti: String? = null,
         val name: String? = null,
-        val otherUtis: Set<String> = setOf(),
+        val otherUtis: Set<String> = emptySet(),
         val attachmentId: String? = null,
         val version: ReportVersion? = null,
         val owner: String? = null,
@@ -63,11 +64,12 @@ data class DocumentTemplate(
         val descr: String? = null,
         val disabled: String? = null,
         val specialty: CodeStub? = null,
+        val documentType: DocumentType? = null,
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = mapOf(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = listOf(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = listOf(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = mapOf()
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredICureDocument {
     companion object : DynamicInitializer<DocumentTemplate>
@@ -86,7 +88,8 @@ data class DocumentTemplate(
             "disabled" to (this.disabled ?: other.disabled),
             "specialty" to (this.specialty ?: other.specialty),
             "attachment" to (this.attachment?.let { if (it.size >= other.attachment?.size ?: 0) it else other.attachment }
-                    ?: other.attachment)
+                    ?: other.attachment),
+            "documentType" to (this.documentType ?: other.documentType)
     )
 
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)

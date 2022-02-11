@@ -31,7 +31,7 @@ import java.io.Serializable
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class EmailOrSmsMessageDto(
-        val attachments: List<MimeAttachmentDto> = listOf(),
+        val attachments: List<MimeAttachmentDto> = emptyList(),
         val destination //email or phone number (international format)
         : String? = null,
         @Schema(defaultValue = "false") val destinationIsNotPatient: Boolean = false, //Messages is sent to other patient's doctor but should appear in patient emails list and be highlighted.

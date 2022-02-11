@@ -32,6 +32,6 @@ data class FinancialInstitutionInformationDto(
         val bic: String? = null,
         val proxyBankAccount: String? = null,
         val proxyBic: String? = null,
-        val preferredFiiForPartners: Set<String> = HashSet(), //InsuranceDto Id, Hcp Id
+        val preferredFiiForPartners: Set<String> = emptySet(), //InsuranceDto Id, Hcp Id
         override val encryptedSelf: String? = null
 ) : EncryptedDto, Serializable

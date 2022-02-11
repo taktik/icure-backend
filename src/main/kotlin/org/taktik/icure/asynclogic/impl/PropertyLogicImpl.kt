@@ -34,7 +34,7 @@ class PropertyLogicImpl(private val environment: ConfigurableEnvironment) : Prop
         PropertyStub(
             type = PropertyTypeStub(
                 identifier = e.key,
-                type = propertyTypedValue.type
+                type = propertyTypedValue?.type
             ),
             typedValue = propertyTypedValue
         )

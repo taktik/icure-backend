@@ -18,9 +18,22 @@
 package org.taktik.icure.asynclogic.impl
 
 
+import kotlin.math.min
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flattenConcat
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.toSet
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
@@ -40,15 +53,14 @@ import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Gender
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.entities.embed.ReferralPeriod
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto
 import org.taktik.icure.utils.FuzzyValues
-import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
 import java.time.Instant
-import kotlin.math.min
 
 
 @FlowPreview
@@ -265,6 +277,8 @@ class PatientLogicImpl(
         return patientDAO.get(patientId)
     }
 
+    override fun findByHealthcarepartyAndIdentifier(healthcarePartyId: String, system: String, id: String) = patientDAO.listPatientsByHcPartyAndIdentifier(healthcarePartyId, system, id)
+
     override fun getPatientSummary(patientDto: PatientDto?, propertyExpressions: List<String?>?): Map<String, Any>? { //		return patientDtoBeans.getAsMapOfValues(patientDto, propertyExpressions);
         return null
     }
@@ -311,6 +325,11 @@ class PatientLogicImpl(
         }
     }
 
+    override fun createPatients(patients: List<Patient>): Flow<Patient> = flow {
+        val fixedPatients = patients.map { fix(it) }
+        emitAll(modifyEntities(fixedPatients))
+    }
+
     @Throws(MissingRequirementsException::class)
     override suspend fun modifyPatient(patient: Patient): Patient? = fix(patient) { patient ->
         log.debug("Modifying patient with id:" + patient.id)
@@ -323,14 +342,19 @@ class PatientLogicImpl(
         }
     }
 
+    override fun modifyPatients(patients: List<Patient>): Flow<Patient> = flow {
+        val fixedPatients = patients.map { fix(it) }
+        emitAll(modifyEntities(fixedPatients))
+    }
+
     override fun createEntities(entities: Collection<Patient>): Flow<Patient> {
         entities.forEach { checkRequirements(it) }
         return super.createEntities(entities)
     }
 
-    override fun modifyEntities(entities: Collection<Patient>): Flow<Patient> {
+    override fun modifyEntities(entities: Collection<Patient>): Flow<Patient> = flow {
         entities.forEach { checkRequirements(it) }
-        return super.modifyEntities(entities)
+        emitAll(super.modifyEntities(entities))
     }
 
     private fun checkRequirements(patient: Patient) {
@@ -378,6 +402,10 @@ class PatientLogicImpl(
             } else
                 patient
         }
+    }
+
+    override fun getEntityIds(): Flow<String> {
+        return patientDAO.getEntityIds()
     }
 
     override suspend fun mergePatient(patient: Patient, fromPatients: List<Patient>): Patient? {
@@ -466,6 +494,10 @@ class PatientLogicImpl(
 
     override fun undeletePatients(ids: Set<String>) = flow<DocIdentifier> {
         emitAll(undeleteByIds(ids))
+    }
+
+    override fun listPatientIdsByHcpartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
+        emitAll(patientDAO.listPatientIdsByHcPartyAndIdentifiers(healthcarePartyId, identifiers))
     }
 
     companion object {

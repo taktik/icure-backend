@@ -51,8 +51,8 @@ data class AmpDto(
         val abbreviatedName: SamTextDto? = null,
         val proprietarySuffix: SamTextDto? = null,
         val prescriptionName: SamTextDto? = null,
-        val ampps: List<AmppDto> = listOf(),
-        val components: List<AmpComponentDto> = listOf()
+        val ampps: List<AmppDto> = emptyList(),
+        val components: List<AmpComponentDto> = emptyList()
 ) : StoredDocumentDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

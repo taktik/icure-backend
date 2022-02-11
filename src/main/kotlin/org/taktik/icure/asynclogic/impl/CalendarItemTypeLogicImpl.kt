@@ -21,6 +21,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.CalendarItemTypeDAO
@@ -28,6 +29,7 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.CalendarItemTypeLogic
 import org.taktik.icure.entities.CalendarItemType
 import org.taktik.icure.exceptions.DeletionException
+import java.net.URI
 
 @ExperimentalCoroutinesApi
 @Service
@@ -48,6 +50,10 @@ class CalendarItemTypeLogicImpl(private val calendarItemTypeDAO: CalendarItemTyp
 
     override suspend fun getCalendarItemType(calendarItemTypeId: String): CalendarItemType? {
         return calendarItemTypeDAO.get(calendarItemTypeId)
+    }
+
+    override fun getCalendarItemTypes(calendarItemTypeIds: Collection<String>) = flow {
+        emitAll(calendarItemTypeDAO.getEntities(calendarItemTypeIds))
     }
 
     override suspend fun modifyCalendarTypeItem(calendarItemType: CalendarItemType)= fix(calendarItemType) { calendarItemType ->

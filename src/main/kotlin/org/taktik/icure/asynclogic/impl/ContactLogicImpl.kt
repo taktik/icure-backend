@@ -18,7 +18,22 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.dropWhile
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
@@ -35,10 +50,10 @@ import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.dto.data.LabelledOccurence
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.ServiceLink
 import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.exceptions.BulkUpdateConflictException
-import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
 
 @ExperimentalCoroutinesApi
@@ -151,6 +166,10 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(getServices(contactDAO.findServiceIdsByIdQualifiedLink(ids, linkType).toList()))
     }
 
+    override fun listServicesByAssociationId(associationId: String): Flow<org.taktik.icure.entities.embed.Service> = flow {
+        emitAll(contactDAO.findServiceIdsByAssociationId(associationId))
+    }
+
     override fun pimpServiceWithContactInformation(s: org.taktik.icure.entities.embed.Service, c: Contact): org.taktik.icure.entities.embed.Service {
         val subContacts = c.subContacts.filter { sc: SubContact -> sc.services.filter { sc2: ServiceLink -> sc2.serviceId != null }.any { sl: ServiceLink -> sl.serviceId == s.id } }
         return s.copy(
@@ -167,6 +186,9 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
                 responsible = c.responsible
         )
     }
+    override fun listServiceIdsByHcParty(hcPartyId: String) = flow {
+        emitAll(contactDAO.listServiceIdsByHcParty(hcPartyId))
+    }
 
     override fun listServiceIdsByTag(hcPartyId: String, patientSecretForeignKeys: List<String>?, tagType: String, tagCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val toEmit = if (patientSecretForeignKeys == null) contactDAO.listServiceIdsByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate) else contactDAO.listServiceIdsByPatientAndTag(hcPartyId, patientSecretForeignKeys, tagType, tagCode, startValueDate, endValueDate)
@@ -180,6 +202,15 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
 
     override fun listContactIdsByTag(hcPartyId: String, tagType: String, tagCode: String, startValueDate: Long?, endValueDate: Long?) = flow {
         emitAll(contactDAO.listContactIdsByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate))
+    }
+
+    override fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
+        emitAll(contactDAO.listServiceIdsByHcPartyAndIdentifiers(hcPartyId, identifiers))
+    }
+
+    override fun listServicesForHealthElementId(healthElementId: String) = flow {
+        val serviceIds = contactDAO.listServiceIdsForHealthElementId(healthElementId)
+        emitAll(getServices(serviceIds.toList()))
     }
 
     override fun listContactIdsByCode(hcPartyId: String, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?) = flow {
@@ -200,6 +231,14 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
 
     override fun listContactsByHcPartyAndFormId(hcPartyId: String, formId: String): Flow<Contact> = flow {
         emitAll(contactDAO.listContactsByHcPartyAndFormId(hcPartyId, formId))
+    }
+
+    override fun listContactsByHcPartyServiceId(hcPartyId: String, formId: String): Flow<Contact> = flow {
+        emitAll(contactDAO.findContactsByHcPartyServiceId(hcPartyId, formId))
+    }
+
+    override fun listContactsByExternalId(externalId: String): Flow<Contact> {
+        TODO("Not yet implemented")
     }
 
     override suspend fun getServiceCodesOccurences(hcPartyId: String, codeType: String, minOccurences: Long): List<LabelledOccurence> {
