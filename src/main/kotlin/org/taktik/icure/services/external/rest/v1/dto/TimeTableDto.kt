@@ -46,7 +46,6 @@ data class TimeTableDto(
 
         val name: String? = null,
         val agendaId: String? = null,
-        val publicTimeTable: Boolean = false,
         val startTime: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
         val endTime: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
         val items: List<TimeTableItemDto> = emptyList(),
