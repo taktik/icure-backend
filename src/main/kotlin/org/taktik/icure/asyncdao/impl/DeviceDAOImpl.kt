@@ -2,10 +2,7 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.*
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
@@ -46,5 +43,22 @@ class DeviceDAOImpl(couchDbProperties: CouchDbProperties,
     override fun getDevices(deviceIds: Collection<String>): Flow<Device> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(client.get(deviceIds, Device::class.java))
+    }
+
+    @View(name = "by_hcparty_delegate_keys", map = "classpath:js/device/By_hcparty_delegate_keys_map.js")
+    override suspend fun getHcPartyKeysForDelegate(deviceId: String): Map<String, String> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+        //Not transactional aware
+        val result = client.queryView<String, List<String>>(createQuery(client, "by_hcparty_delegate_keys")
+                .key(deviceId)
+                .includeDocs(false)
+        ).mapNotNull { it.value }
+
+        val resultMap = HashMap<String, String>()
+        result.collect {
+            resultMap[it[0]] = it[1]
+        }
+        return resultMap
     }
 }

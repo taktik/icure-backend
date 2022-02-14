@@ -65,6 +65,12 @@ class DeviceController(private val filters: Filters,
                 .injectReactorContext()
     }
 
+    @Operation(summary = "Get the HcParty encrypted AES keys indexed by owner", description = "(key, value) of the map is as follows: (ID of the owner of the encrypted AES key, encrypted AES key)")
+    @GetMapping("/{deviceId}/keys")
+    fun getDeviceHcPartyKeysForDelegate(@Parameter(description = "The deviceId Id for which information is shared") @PathVariable deviceId: String) = mono {
+        deviceLogic.getHcPartyKeysForDelegate(deviceId)
+    }
+
     @Operation(summary = "Create a device", description = "Name, last name, date of birth, and gender are required. After creation of the device and obtaining the ID, you need to create an initial delegation.")
     @PostMapping
     fun createDevice(@RequestBody p: DeviceDto) = mono {

@@ -1,0 +1,179 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.6</VERSION>
+    <DATE>2018-12-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Item MyCarenet</NAME>
+    <VALUE>
+        <CODE>payment</CODE>
+        <DESCRIPTION L="en">Payment</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>fee</CODE>
+        <DESCRIPTION L="en">Fee</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>reimbursement</CODE>
+        <DESCRIPTION L="en">Reimbursement</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>patientfee</CODE>
+        <DESCRIPTION L="en">Patient fee</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>financialcontract</CODE>
+        <DESCRIPTION L="en">Financial contract</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>refusal</CODE>
+        <DESCRIPTION L="en">Refusal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>patientpaid</CODE>
+        <DESCRIPTION L="en">Amount paid by patient</DESCRIPTION>
+        <DESCRIPTION L="fr">Montant payé par patient</DESCRIPTION>
+        <DESCRIPTION L="nl">Bedrag betaald door patient</DESCRIPTION>
+        <DESCRIPTION L="de">Betrag von Patient bezahlt</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>supplement</CODE>
+        <DESCRIPTION L="en">Supplement paid</DESCRIPTION>
+        <DESCRIPTION L="fr">Supplément payé</DESCRIPTION>
+        <DESCRIPTION L="nl">Betaald supplement</DESCRIPTION>
+        <DESCRIPTION L="de">Zulage bezahlt</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>paymentreceivingparty</CODE>
+        <DESCRIPTION L="en">Party receiving the payment</DESCRIPTION>
+        <DESCRIPTION L="fr">Parti recevant le paiement</DESCRIPTION>
+        <DESCRIPTION L="nl">Partij die betaling ontvangt</DESCRIPTION>
+        <DESCRIPTION L="de">Partei die Bezahlung erhält</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>internship</CODE>
+        <DESCRIPTION L="en">GP doing internship</DESCRIPTION>
+        <DESCRIPTION L="fr">Medecin Généraliste stagiaire</DESCRIPTION>
+        <DESCRIPTION L="nl">Huisarts in opleiding</DESCRIPTION>
+        <DESCRIPTION L="de">Hausarzt im Praktikum</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>documentidentity</CODE>
+        <DESCRIPTION L="en">Identifiers of document</DESCRIPTION>
+        <DESCRIPTION L="fr">Identifiants du document</DESCRIPTION>
+        <DESCRIPTION L="nl">Identificatie aanduidingen van document</DESCRIPTION>
+        <DESCRIPTION L="de">Identifizierer des Dokuments</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>invoicingnumber</CODE>
+        <DESCRIPTION L="en">Identifier for patient to track eAttest</DESCRIPTION>
+        <DESCRIPTION L="fr">Identifiant pour le patient pour suivre un eAttest</DESCRIPTION>
+        <DESCRIPTION L="nl">Identificatie aanduiding voor de patient om eAttest te volgen</DESCRIPTION>
+        <DESCRIPTION L="de">Identifizierer vor Patient um eAttest zu folgen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>reimbursement-fpssi</CODE>
+        <DESCRIPTION L="en">Amount of reimbursement by FPS Social Integration</DESCRIPTION>
+        <DESCRIPTION L="fr">Montant de remboursement SPP intégration sociale</DESCRIPTION>
+        <DESCRIPTION L="nl">Bedrag van terugbetaling POD Maatschappelijke Integratie</DESCRIPTION>
+        <DESCRIPTION L="de">Betrag Vergueting FPD Sozialen Integration</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>reimbursement-pswc	</CODE>
+        <DESCRIPTION L="en">Amount of reimbursement by PSWC</DESCRIPTION>
+        <DESCRIPTION L="fr">Montant de remboursement CPAS</DESCRIPTION>
+        <DESCRIPTION L="nl">Bedrag van terugbetaling OCMW</DESCRIPTION>
+        <DESCRIPTION L="de">Betrag Vergueting ÖSHZ</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>umc</CODE>
+        <DESCRIPTION L="en">Attestation urgent medical care needed</DESCRIPTION>
+        <DESCRIPTION L="fr">Attestation aide medicale urgente demandé</DESCRIPTION>
+        <DESCRIPTION L="nl">Attest urgente medische zorgen nodig</DESCRIPTION>
+        <DESCRIPTION L="de">Braucht Attest für ärztliche Nothilfe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mediprimanumber</CODE>
+        <DESCRIPTION L="en">Mediprima number</DESCRIPTION>
+        <DESCRIPTION L="fr">numéro Mediprima</DESCRIPTION>
+        <DESCRIPTION L="nl">Mediprima nummer</DESCRIPTION>
+        <DESCRIPTION L="de">Mediprimakarten nummer</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pswc</CODE>
+        <DESCRIPTION L="en">PSWC</DESCRIPTION>
+        <DESCRIPTION L="fr">CPAS</DESCRIPTION>
+        <DESCRIPTION L="nl">OCMW</DESCRIPTION>
+        <DESCRIPTION L="de">ÖSHZ</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>treatmentreason</CODE>
+        <DESCRIPTION L="en">Reason of treatment</DESCRIPTION>
+        <DESCRIPTION L="fr">Causes du traitement</DESCRIPTION>
+        <DESCRIPTION L="nl">Reden behandeling</DESCRIPTION>
+        <DESCRIPTION L="de">Grund einer Behandlung</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>agreementenddate</CODE>
+        <DESCRIPTION L="en">Agreement end date</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>agreementstartdate</CODE>
+        <DESCRIPTION L="en">Agreement start date</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>agreementtype</CODE>
+        <DESCRIPTION L="en">Agreement type</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>consultationenddate</CODE>
+        <DESCRIPTION L="en">Consultation end date</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>consultationstartdate</CODE>
+        <DESCRIPTION L="en">Consultation start date</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>authorisationtype</CODE>
+        <DESCRIPTION L="en">Authorisation type</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>decisionreference</CODE>
+        <DESCRIPTION L="en">Decision reference</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>orphandrugdeliveryplace</CODE>
+        <DESCRIPTION L="en">Orphan drug delivery place</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>refusaljustification</CODE>
+        <DESCRIPTION L="en">Refusal justification</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>reststrength</CODE>
+        <DESCRIPTION L="en">Rest strength</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>restunitnumber</CODE>
+        <DESCRIPTION L="en">Rest unit number</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>legalbasis</CODE>
+        <DESCRIPTION L="en">Legal basis</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>legalunitnumber</CODE>
+        <DESCRIPTION L="en">Legal unit number</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>legalstrength</CODE>
+        <DESCRIPTION L="en">Legal strength</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>istrialperiod</CODE>
+        <DESCRIPTION L="en">Is trial period</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>closurejustification</CODE>
+        <DESCRIPTION L="en">Closure justification</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

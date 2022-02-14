@@ -19,6 +19,7 @@
 package org.taktik.icure.services.external.rest.v2.controllers.core
 
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emitAll
@@ -41,6 +42,7 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
+import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.services.external.rest.v2.dto.HealthElementDto
@@ -53,6 +55,7 @@ import org.taktik.icure.services.external.rest.v2.mapper.HealthElementV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.StubV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainV2Mapper
+import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
@@ -69,12 +72,17 @@ class HealthElementController(
     private val stubV2Mapper: StubV2Mapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
+    private val DEFAULT_LIMIT = 1000
+    private val healthElementToHealthElementDto = { it: HealthElement -> healthElementV2Mapper.map(it) }
 
-    @Operation(summary = "Create a health element with the current user", description = "Returns an instance of created health element.")
+    @Operation(
+        summary = "Create a health element with the current user",
+        description = "Returns an instance of created health element."
+    )
     @PostMapping
     fun createHealthElement(@RequestBody c: HealthElementDto) = mono {
         val element = healthElementLogic.createHealthElement(healthElementV2Mapper.map(c))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Health element creation failed.")
+            ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Health element creation failed.")
 
         healthElementV2Mapper.map(element)
     }
@@ -190,12 +198,23 @@ class HealthElementController(
         }
     }
 
-    @Operation(summary = "Filter health elements for the current user (HcParty)", description = "Returns a list of health elements along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
+    @Operation(
+        summary = "Filter health elements for the current user (HcParty)",
+        description = "Returns a list of health elements along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page."
+    )
     @PostMapping("/filter")
-    fun filterHealthElementsBy(@RequestBody filterChain: FilterChain<HealthElement>) =
-            healthElementLogic.filter(filterChainV2Mapper.map(filterChain))
-                    .map { healthElementV2Mapper.map(it) }
-                    .injectReactorContext()
+    fun filterHealthElementsBy(
+        @Parameter(description = "A HealthElement document ID") @RequestParam(required = false) startDocumentId: String?,
+        @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+        @RequestBody filterChain: FilterChain<HealthElement>
+    ) = mono {
+        val realLimit = limit ?: DEFAULT_LIMIT
+        val paginationOffset = PaginationOffset(null, startDocumentId, null, realLimit + 1)
+
+        val healthElements = healthElementLogic.filter(paginationOffset, filterChainV2Mapper.map(filterChain))
+
+        healthElements.paginatedList(healthElementToHealthElementDto, realLimit)
+    }
 
     @Operation(summary = "Get ids of health element matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")

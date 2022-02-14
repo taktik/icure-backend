@@ -22,6 +22,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
+import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.couchdb.id.IDGenerator
@@ -123,14 +124,33 @@ internal class HealthElementDAOImpl(couchDbProperties: CouchDbProperties,
 
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val result = client.queryViewIncludeDocs<Array<String>, String, HealthElement>(createQuery(client, "by_hcparty_patient").keys(keys).includeDocs(true)).map { it.doc }
+        val result = client.queryViewIncludeDocs<Array<String>, String, HealthElement>(
+            createQuery(
+                client,
+                "by_hcparty_patient"
+            ).keys(keys).includeDocs(true)
+        ).map { it.doc }
         emitAll(result.distinctUntilChangedBy { it.id })
     }
 
-    @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted && doc._conflicts) emit(doc._id )}")
+    @View(
+        name = "conflicts",
+        map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted && doc._conflicts) emit(doc._id )}"
+    )
     override fun listConflicts(): Flow<HealthElement> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        emitAll(client.queryViewIncludeDocsNoValue<ComplexKey, HealthElement>(createQuery(client, "conflicts").includeDocs(true)).map { it.doc })
+        emitAll(
+            client.queryViewIncludeDocsNoValue<ComplexKey, HealthElement>(
+                createQuery(
+                    client,
+                    "conflicts"
+                ).includeDocs(true)
+            ).map { it.doc })
+    }
+
+    override fun findHealthElementsByIds(healthElementIds: Flow<String>): Flow<ViewQueryResultEvent> = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        emitAll(client.getForPagination(healthElementIds, HealthElement::class.java))
     }
 }

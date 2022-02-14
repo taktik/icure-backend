@@ -32,6 +32,8 @@ import org.taktik.icure.entities.embed.DocumentStatus
 import org.taktik.icure.entities.embed.DocumentType
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.security.CryptoUtils
+import org.taktik.icure.security.CryptoUtils.isValidAesKey
+import org.taktik.icure.security.CryptoUtils.keyFromHexString
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
@@ -151,21 +153,22 @@ data class Document(
     )
 
     fun decryptAttachment(enckeys: List<String?>?): ByteArray? {
-        if (enckeys?.isNotEmpty() == true) {
-            for (sfk in enckeys) {
-                val bb = ByteBuffer.wrap(ByteArray(16))
-                val uuid = UUID.fromString(sfk)
-                bb.putLong(uuid.mostSignificantBits)
-                bb.putLong(uuid.leastSignificantBits)
-                try {
-                    return attachment?.let { CryptoUtils.decryptAES(it, bb.array()) }
-                } catch (ignored: GeneralSecurityException) {
-                } catch (ignored: KeyException) {
-                } catch (ignored: IllegalArgumentException) {
+        return enckeys
+                ?.filterNotNull()
+                ?.filter { sfk -> sfk.keyFromHexString().isValidAesKey() }
+                ?.mapNotNull { sfk ->
+                    try {
+                        attachment?.let { CryptoUtils.encryptAES(it, sfk.keyFromHexString()) }
+                    } catch (ignored: GeneralSecurityException) {
+                        null
+                    } catch (ignored: KeyException) {
+                        null
+                    } catch (ignored: IllegalArgumentException) {
+                        null
+                    }
                 }
-            }
-        }
-        return attachment
+                ?.firstOrNull()
+                ?: attachment
     }
 
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)

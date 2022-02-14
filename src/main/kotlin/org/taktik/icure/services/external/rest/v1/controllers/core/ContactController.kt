@@ -367,6 +367,12 @@ class ContactController(
         }
     }
 
+    @Operation(summary = "Get ids of services matching the provided filter for the current user")
+    @PostMapping("/service/match")
+    fun matchServicesBy(@RequestBody filter: AbstractFilterDto<Service>) = mono {
+        filters.resolve(filter).toList()
+    }
+
     @Operation(summary = "List services with provided ids ", description = "Returns a list of services")
     @PostMapping("/service/byIds")
     fun listServices(@RequestBody ids: ListOfIdsDto) = contactLogic.getServices(ids.ids).map { svc -> serviceMapper.map(svc) }.injectReactorContext()

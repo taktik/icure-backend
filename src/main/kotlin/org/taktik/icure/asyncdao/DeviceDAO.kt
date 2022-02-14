@@ -13,4 +13,6 @@ interface DeviceDAO: GenericDAO<Device> {
     suspend fun getDevice(deviceId: String): Device?
 
     fun getDevices(deviceIds: Collection<String>): Flow<Device>
+
+    suspend fun getHcPartyKeysForDelegate(deviceId: String): Map<String, String>
 }
