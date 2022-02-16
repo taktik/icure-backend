@@ -158,7 +158,7 @@ data class Document(
                 ?.filter { sfk -> sfk.keyFromHexString().isValidAesKey() }
                 ?.mapNotNull { sfk ->
                     try {
-                        attachment?.let { CryptoUtils.encryptAES(it, sfk.keyFromHexString()) }
+                        attachment?.let { CryptoUtils.decryptAES(it, sfk.keyFromHexString()) }
                     } catch (ignored: GeneralSecurityException) {
                         null
                     } catch (ignored: KeyException) {
