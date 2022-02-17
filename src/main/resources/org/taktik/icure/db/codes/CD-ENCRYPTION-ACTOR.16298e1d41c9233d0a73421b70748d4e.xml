@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.2</VERSION>
+    <DATE>2017-03-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Encryption Actor Type</NAME>
+    <VALUE>
+        <CODE>NIHII</CODE>
+        <DESCRIPTION L="en">NIHII</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>NIHII-HOSPITAL</CODE>
+        <DESCRIPTION L="en">NIHII Hospital</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>NIHII-PHARMACY</CODE>
+        <DESCRIPTION L="en">NIHII Pharmacy</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>CBE</CODE>
+        <DESCRIPTION L="en">Crossroad Bank of Enterprises</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>INSS</CODE>
+        <DESCRIPTION L="en">National Registration Number</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>EHP</CODE>
+        <DESCRIPTION L="en">eHealth Platform</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>SSIN</CODE>
+        <DESCRIPTION L="en">SSIN</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

@@ -1,0 +1,139 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.1</VERSION>
+    <DATE>2020-03-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Formulary</NAME>
+    <VALUE>
+        <CODE>BP4</CODE>
+        <DESCRIPTION L="nl">Belgische Pharmacopee 4 (BP4)</DESCRIPTION>
+        <DESCRIPTION L="fr">Pharmacopée Belge 4 (PB4)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>BP5</CODE>
+        <DESCRIPTION L="nl">Belgische Pharmacopee 5 (BP5)</DESCRIPTION>
+        <DESCRIPTION L="fr">Pharmacopée Belge 5 (PB5)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>BP6</CODE>
+        <DESCRIPTION L="nl">Belgische Pharmacopee 6 (BP6)</DESCRIPTION>
+        <DESCRIPTION L="fr">Pharmacopée Belge 6 (PB6)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>EP1</CODE>
+        <DESCRIPTION L="nl">Europese Pharmacopee 1 (EP1)</DESCRIPTION>
+        <DESCRIPTION L="fr">Pharmacopée Européenne 1 (PE1)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>EP2</CODE>
+        <DESCRIPTION L="nl">Europese Pharmacopee 2 (EP2)</DESCRIPTION>
+        <DESCRIPTION L="fr">Pharmacopée Européenne 2 (PE2)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>EP3</CODE>
+        <DESCRIPTION L="nl">Europese Pharmacopee 3 (EP3)</DESCRIPTION>
+        <DESCRIPTION L="fr">Pharmacopée Européenne 3 (PE3)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>EP4</CODE>
+        <DESCRIPTION L="nl">Europese Pharmacopee 4 (EP4)</DESCRIPTION>
+        <DESCRIPTION L="fr">Pharmacopée Européenne 4 (PE4)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>EP5</CODE>
+        <DESCRIPTION L="nl">Europese Pharmacopee 5 (EP5)</DESCRIPTION>
+        <DESCRIPTION L="fr">Pharmacopée Européenne 5 (PE5)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>EP6</CODE>
+        <DESCRIPTION L="nl">Europese Pharmacopee 6 (EP6)</DESCRIPTION>
+        <DESCRIPTION L="fr">Pharmacopée Européenne 6 (PE6)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>EP7</CODE>
+        <DESCRIPTION L="nl">Europese Pharmacopee 7 (EP7)</DESCRIPTION>
+        <DESCRIPTION L="fr">Pharmacopée Européenne 7 (PE7)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>EP8</CODE>
+        <DESCRIPTION L="nl">Europese Pharmacopee 8 (EP8)</DESCRIPTION>
+        <DESCRIPTION L="fr">Pharmacopée Européenne 8 (PE8)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>EP9</CODE>
+        <DESCRIPTION L="nl">Europese Pharmacopee 9 (EP9)</DESCRIPTION>
+        <DESCRIPTION L="fr">Pharmacopée Européenne 9 (PE9)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>EP10</CODE>
+        <DESCRIPTION L="nl">Europese Pharmacopee 10 (EP10)</DESCRIPTION>
+        <DESCRIPTION L="fr">Pharmacopée Européenne 10 (PE10)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>MFS</CODE>
+        <DESCRIPTION L="nl">Magistraal Formularium van het Syndicaat (MFS)</DESCRIPTION>
+        <DESCRIPTION L="fr">Formulaire Magistral du Syndicat (FMS)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>NF4</CODE>
+        <DESCRIPTION L="nl">Nationaal Formularium 4 (NF4)</DESCRIPTION>
+        <DESCRIPTION L="fr">Formulaire National 4 (FN4)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>NF5</CODE>
+        <DESCRIPTION L="nl">Nationaal Formularium 5 (NF5)</DESCRIPTION>
+        <DESCRIPTION L="fr">Formulaire National 5 (FN5)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>NF6</CODE>
+        <DESCRIPTION L="nl">Nationaal Formularium 6 (NF6)</DESCRIPTION>
+        <DESCRIPTION L="fr">Formulaire National 6 (FN6)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>PMF</CODE>
+        <DESCRIPTION L="nl">Praktisch Magistraal Formularium (PMF)</DESCRIPTION>
+        <DESCRIPTION L="fr">Formulaire Magistral Pratique (FMP)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>TMF1</CODE>
+        <DESCRIPTION L="nl">Therapeutisch Magistraal Formularium 1 (TMF1)</DESCRIPTION>
+        <DESCRIPTION L="fr">Formulaire Thérapeutique Magistral 1 (FTM1)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>TMF2</CODE>
+        <DESCRIPTION L="nl">Therapeutisch Magistraal Formularium 2 (TMF2)</DESCRIPTION>
+        <DESCRIPTION L="fr">Formulaire Thérapeutique Magistral 2 (FTM2)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>TMF3</CODE>
+        <DESCRIPTION L="nl">Therapeutisch Magistraal Formularium 3 (TMF3)</DESCRIPTION>
+        <DESCRIPTION L="fr">Formulaire Thérapeutique Magistral 3 (FTM3)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+    <VALUE>
+        <CODE>FNA</CODE>
+        <DESCRIPTION L="nl">Formularium der Nederlandse Apothekers (FNA)</DESCRIPTION>
+        <DESCRIPTION L="fr">Formularium der Nederlandse Apothekers (FNA)</DESCRIPTION>
+        <SNOMED/>
+    </VALUE>
+</kmehr-cd>

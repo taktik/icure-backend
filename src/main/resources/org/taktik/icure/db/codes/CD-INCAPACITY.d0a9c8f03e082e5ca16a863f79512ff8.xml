@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.2</VERSION>
+    <DATE>2017-06-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Incapacity type</NAME>
+    <VALUE>
+        <CODE>work</CODE>
+        <DESCRIPTION L="en">incapacity to work</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>school</CODE>
+        <DESCRIPTION L="en">incapacity to follow courses</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>swim</CODE>
+        <DESCRIPTION L="en">incapacity to swim</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>sport</CODE>
+        <DESCRIPTION L="en">incapacity to perform gymnastics</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>schoolsports</CODE>
+        <DESCRIPTION L="en">incapacity to perform school sports</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>travel</CODE>
+        <DESCRIPTION L="en">incapacity to travel</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>vote</CODE>
+        <DESCRIPTION L="en">incapacity to vote</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>heavyphysicalactivity</CODE>
+        <DESCRIPTION L="en">heavy physical activity</DESCRIPTION>
+        <DESCRIPTION L="fr">activité physique intense</DESCRIPTION>
+        <DESCRIPTION L="nl">zware fysieke inspanning</DESCRIPTION>
+        <DESCRIPTION L="de">schwerer physischer Aktivitit</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

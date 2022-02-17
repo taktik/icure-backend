@@ -1,0 +1,310 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.11</VERSION>
+    <DATE>2016-12-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Item Type</NAME>
+    <VALUE>
+        <CODE>encountertype</CODE>
+        <DESCRIPTION L="en">encounter type</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>encounterresponsible</CODE>
+        <DESCRIPTION L="en">responsible physician for the encounter</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>encounternumber</CODE>
+        <DESCRIPTION L="en">encounter number</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>healthcareelement</CODE>
+        <DESCRIPTION L="en">healthcare element</DESCRIPTION>
+        <DESCRIPTION L="fr">élément de soins</DESCRIPTION>
+        <DESCRIPTION L="en">zorg element</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>reimbursementcertificate</CODE>
+        <DESCRIPTION L="en">
+            certificate justifying the reimbursement of a treatment/procedure
+        </DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>admissiontype</CODE>
+        <DESCRIPTION L="en">admission type</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>referringtype</CODE>
+        <DESCRIPTION L="en">referring type</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>expirationdatetime</CODE>
+        <DESCRIPTION L="en">expiration date and time</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>risk</CODE>
+        <DESCRIPTION L="en">risk factor</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>encounterdatetime</CODE>
+        <DESCRIPTION L="en">encounter date and time</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>encounterlocation</CODE>
+        <DESCRIPTION L="en">encounter location</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>encounterlegalservice</CODE>
+        <DESCRIPTION L="en">encounter legal service</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>transferdatetime</CODE>
+        <DESCRIPTION L="en">transfer datetime</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>dischargetype</CODE>
+        <DESCRIPTION L="en">type of discharge</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>dischargedestination</CODE>
+        <DESCRIPTION L="en">discharge destination</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>requesteddischargedestination</CODE>
+        <DESCRIPTION L="en">discharge preferred destination</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>requestdatetime</CODE>
+        <DESCRIPTION L="en">request date and time</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>requestnumber</CODE>
+        <DESCRIPTION L="en">request number</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>requestor</CODE>
+        <DESCRIPTION L="en">requestor / referrer</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>lab</CODE>
+        <DESCRIPTION L="en">laboratory item</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>evolution</CODE>
+        <DESCRIPTION L="en">evolution</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>transcriptionist</CODE>
+        <DESCRIPTION L="en">transcriptionist</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>transactionreason</CODE>
+        <DESCRIPTION L="en">reason for transaction</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>requestedencountertype</CODE>
+        <DESCRIPTION L="en">requested encounter type</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>requesteddecisionsharing</CODE>
+        <DESCRIPTION L="en">requested decision sharing</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>conclusion</CODE>
+        <DESCRIPTION L="en">conclusion</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>healthissue</CODE>
+        <DESCRIPTION L="en">health issue</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>habit</CODE>
+        <DESCRIPTION L="en">habits</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>allergy</CODE>
+        <DESCRIPTION L="en">allergy</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>adr</CODE>
+        <DESCRIPTION L="en">adverse drug reaction</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>complaint</CODE>
+        <DESCRIPTION L="en">complaint</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>clinical</CODE>
+        <DESCRIPTION L="en">clinical examination</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>technical</CODE>
+        <DESCRIPTION L="en">technical examination</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>medication</CODE>
+        <DESCRIPTION L="en">medication</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>complementaryproduct</CODE>
+        <DESCRIPTION L="en">complementary product</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>vaccine</CODE>
+        <DESCRIPTION L="en">vaccine</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>treatment</CODE>
+        <DESCRIPTION L="en">treatment</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>contactperson</CODE>
+        <DESCRIPTION L="en">contact person</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>autonomy</CODE>
+        <DESCRIPTION L="en">autonomy level</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>specimendatetime</CODE>
+        <DESCRIPTION L="en">specimen date and time</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>hcpartyavailability</CODE>
+        <DESCRIPTION L="en">availability of an healthcare party</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>gmdmanager</CODE>
+        <DESCRIPTION L="en">global medical record manager</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ntbr</CODE>
+        <DESCRIPTION L="en">not to be resuscitated</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>bloodtransfusionrefusal</CODE>
+        <DESCRIPTION L="en">blood transfusion refusal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>socialrisk</CODE>
+        <DESCRIPTION L="en">social risk factor</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>encountersafetyissue</CODE>
+        <DESCRIPTION L="en">safety issues related to the encounter</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>emergencyevaluation</CODE>
+        <DESCRIPTION L="en">evaluation of emergency justification</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>incapacity</CODE>
+        <DESCRIPTION L="en">incapacity description</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>dischargedatetime</CODE>
+        <DESCRIPTION L="en">discharge date and time</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>insurancystatus</CODE>
+        <DESCRIPTION L="en">insurancy status</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>patientwill</CODE>
+        <DESCRIPTION L="en">patient's will</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>professionalrisk </CODE>
+        <DESCRIPTION L="en">professional risk</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>familyrisk</CODE>
+        <DESCRIPTION L="en">family risk</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>parameter</CODE>
+        <DESCRIPTION L="en">parameter</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>careplansubscription</CODE>
+        <DESCRIPTION L="en">Care Plan Subscription</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>diagnosis</CODE>
+        <DESCRIPTION L="en">Diagnosis</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>actionplan</CODE>
+        <DESCRIPTION L="en">Action Plan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>contacthcparty</CODE>
+        <DESCRIPTION L="en">Contact Healthcare Party</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>acts</CODE>
+        <DESCRIPTION L="en">Acts (curatif and prevention)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>healthcareapproach</CODE>
+        <DESCRIPTION L="en">Healthcare Approach</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>memberinsurancystatus</CODE>
+        <DESCRIPTION L="en">Member Insurancy Status</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>referrer</CODE>
+        <DESCRIPTION L="en">Referrer</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>requestedrecipient</CODE>
+        <DESCRIPTION L="en">Requested Recipient</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>claim</CODE>
+        <DESCRIPTION L="en">Claim</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>outcome</CODE>
+        <DESCRIPTION L="en">Outcome</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>agreementwithpatient</CODE>
+        <DESCRIPTION L="en">Agreement with Patient</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>patientcooperation</CODE>
+        <DESCRIPTION L="en">Patient Cooperation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>reimbursementclass</CODE>
+        <DESCRIPTION L="en">Reimbursement Class</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>financialcontract</CODE>
+        <DESCRIPTION L="en">Financial Contract</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>justification</CODE>
+        <DESCRIPTION L="en">Justification</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>result</CODE>
+        <DESCRIPTION L="en">Result</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>autonomy</CODE>
+        <DESCRIPTION L="en">Autonomy</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>membership</CODE>
+        <DESCRIPTION L="en">Membership</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>problem</CODE>
+        <DESCRIPTION L="en">Diagnosis, problem, complaint, symptom, etc</DESCRIPTION>
+        <DESCRIPTION L="fr">Diagnostic, problème, plainte, symptôme, etc</DESCRIPTION>
+        <DESCRIPTION L="nl">Diagnose , klacht, symptoom, probleem, enz</DESCRIPTION>
+        <DESCRIPTION L="de">Diagnose, Problem, Klage, Symptom, usw</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

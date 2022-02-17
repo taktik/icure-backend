@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.5</VERSION>
+    <DATE>2018-09-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Transaction MyCarenet</NAME>
+    <VALUE>
+        <CODE>gmd</CODE>
+        <DESCRIPTION L="en">Gmd</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>gmdclosure</CODE>
+        <DESCRIPTION L="en">Gmd closure</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>gmdextension</CODE>
+        <DESCRIPTION L="en">Gmd extension</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>tariff</CODE>
+        <DESCRIPTION L="en">Tariff</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>tariffmediprima</CODE>
+        <DESCRIPTION L="en">Tariffication service Mediprima</DESCRIPTION>
+        <DESCRIPTION L="fr">Service de tariffication Mediprima</DESCRIPTION>
+        <DESCRIPTION L="nl">Tarificatiedienst Mediprima</DESCRIPTION>
+        <DESCRIPTION L="de">Tarifikationdienst Mediprima</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>cga</CODE>
+        <DESCRIPTION L="en">Care given attest</DESCRIPTION>
+        <DESCRIPTION L="fr">Attestation de soins donnés</DESCRIPTION>
+        <DESCRIPTION L="nl">Getuigeschrift voor verstrekte hulp</DESCRIPTION>
+        <DESCRIPTION L="de">Zertifikat geleistete Hilfe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>cgd</CODE>
+        <DESCRIPTION L="en">Care given detail</DESCRIPTION>
+        <DESCRIPTION L="fr">Détail d’un soin donné</DESCRIPTION>
+        <DESCRIPTION L="nl">Detail verstrekte hulp</DESCRIPTION>
+        <DESCRIPTION L="de">Detail geleistete Hilfe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mea (deprecated)</CODE>
+        <DESCRIPTION L="en">Medical emergency attest</DESCRIPTION>
+        <DESCRIPTION L="fr">Attestation d'aide médicale urgente</DESCRIPTION>
+        <DESCRIPTION L="nl">Attest van dringende medische hulp</DESCRIPTION>
+        <DESCRIPTION L="de">Zertifikat Notfallmedizin</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>cgacancellation</CODE>
+        <DESCRIPTION L="en">Cancellation of a care given attest</DESCRIPTION>
+        <DESCRIPTION L="fr">Annuler cga</DESCRIPTION>
+        <DESCRIPTION L="nl">Annuleren cga</DESCRIPTION>
+        <DESCRIPTION L="de">Löschen cga</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>maa</CODE>
+        <DESCRIPTION L="en">maa</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>maaextension</CODE>
+        <DESCRIPTION L="en">maa extension</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>maaappendix</CODE>
+        <DESCRIPTION L="en">maa appendix</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>maacancellation</CODE>
+        <DESCRIPTION L="en">maa cancellation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>maaclosure</CODE>
+        <DESCRIPTION L="en">maa closure</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>maaagreement</CODE>
+        <DESCRIPTION L="en">maa agreement</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>maarefusal</CODE>
+        <DESCRIPTION L="en">maa refusal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>maaintreatment</CODE>
+        <DESCRIPTION L="en">maa intreatment</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>
