@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>2.1</VERSION>
+    <DATE>2012-10-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Time unit</NAME>
+    <VALUE>
+        <CODE>a</CODE>
+        <DESCRIPTION L="en">Year</DESCRIPTION>
+        <DESCRIPTION L="nl">jaar</DESCRIPTION>
+        <DESCRIPTION L="fr">année</DESCRIPTION>
+        <DESCRIPTION L="de">Jahre</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mo</CODE>
+        <DESCRIPTION L="en">Month</DESCRIPTION>
+        <DESCRIPTION L="nl">maand</DESCRIPTION>
+        <DESCRIPTION L="fr">mois</DESCRIPTION>
+        <DESCRIPTION L="de">monat</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>wk</CODE>
+        <DESCRIPTION L="en">Week</DESCRIPTION>
+        <DESCRIPTION L="nl">week</DESCRIPTION>
+        <DESCRIPTION L="fr">semaine</DESCRIPTION>
+        <DESCRIPTION L="de">woche</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>d</CODE>
+        <DESCRIPTION L="en">Day</DESCRIPTION>
+        <DESCRIPTION L="nl">dag</DESCRIPTION>
+        <DESCRIPTION L="fr">jour</DESCRIPTION>
+        <DESCRIPTION L="de">tag</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>hr</CODE>
+        <DESCRIPTION L="en">Hour</DESCRIPTION>
+        <DESCRIPTION L="nl">uur</DESCRIPTION>
+        <DESCRIPTION L="fr">heure</DESCRIPTION>
+        <DESCRIPTION L="de">uhr</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>min</CODE>
+        <DESCRIPTION L="en">Minute</DESCRIPTION>
+        <DESCRIPTION L="nl">minuut</DESCRIPTION>
+        <DESCRIPTION L="fr">minute</DESCRIPTION>
+        <DESCRIPTION L="de">minut</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>s</CODE>
+        <DESCRIPTION L="en">Second</DESCRIPTION>
+        <DESCRIPTION L="nl">seconde</DESCRIPTION>
+        <DESCRIPTION L="fr">seconde</DESCRIPTION>
+        <DESCRIPTION L="de">sekunde </DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ms</CODE>
+        <DESCRIPTION L="en">Millisecond</DESCRIPTION>
+        <DESCRIPTION L="nl">milliseconde</DESCRIPTION>
+        <DESCRIPTION L="fr">milliseconde</DESCRIPTION>
+        <DESCRIPTION L="de">millisekunde</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>us</CODE>
+        <DESCRIPTION L="en">Microsecond</DESCRIPTION>
+        <DESCRIPTION L="nl">microseconde</DESCRIPTION>
+        <DESCRIPTION L="fr">microseconde</DESCRIPTION>
+        <DESCRIPTION L="de">microsekunde</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ns</CODE>
+        <DESCRIPTION L="en">Nanosecond</DESCRIPTION>
+        <DESCRIPTION L="nl">nanoseconde</DESCRIPTION>
+        <DESCRIPTION L="fr">nanoseconde</DESCRIPTION>
+        <DESCRIPTION L="de">nanosekunde</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <DATE>2020-06-01</DATE>
+    <STATUS>Published</STATUS>
+    <NAME>Diary</NAME>
+    <VALUE>
+        <CODE>antibiotherapy</CODE>
+        <DESCRIPTION L='en'>Antibiotherapy</DESCRIPTION>
+        <DESCRIPTION L='fr'>Antibiothérapie</DESCRIPTION>
+        <DESCRIPTION L='nl'>Antibiotherapie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>dentalcare</CODE>
+        <DESCRIPTION L='en'>Dental care</DESCRIPTION>
+        <DESCRIPTION L='fr'>Soins dentaires</DESCRIPTION>
+        <DESCRIPTION L='nl'>Tandheelkundige zorgen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>diabetes</CODE>
+        <DESCRIPTION L='en'>Diabetes</DESCRIPTION>
+        <DESCRIPTION L='fr'>Diabète</DESCRIPTION>
+        <DESCRIPTION L='nl'>Diabetes</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>infectiology</CODE>
+        <DESCRIPTION L='en'>Infectiology</DESCRIPTION>
+        <DESCRIPTION L='fr'>Infectiologie</DESCRIPTION>
+        <DESCRIPTION L='nl'>Infectiologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>medication</CODE>
+        <DESCRIPTION L='en'>Medication</DESCRIPTION>
+        <DESCRIPTION L='fr'>Médication</DESCRIPTION>
+        <DESCRIPTION L='nl'>Medicatie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>movement</CODE>
+        <DESCRIPTION L='en'>Movement</DESCRIPTION>
+        <DESCRIPTION L='fr'>Mouvement</DESCRIPTION>
+        <DESCRIPTION L='nl'>Beweging</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>nutrition</CODE>
+        <DESCRIPTION L='en'>Nutrition</DESCRIPTION>
+        <DESCRIPTION L='fr'>Nutrition</DESCRIPTION>
+        <DESCRIPTION L='nl'>Voeding</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>oncology</CODE>
+        <DESCRIPTION L='en'>Oncology</DESCRIPTION>
+        <DESCRIPTION L='fr'>Oncologie</DESCRIPTION>
+        <DESCRIPTION L='nl'>Oncologie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pregnancy</CODE>
+        <DESCRIPTION L='en'>Pregnancy</DESCRIPTION>
+        <DESCRIPTION L='fr'>Grossesse</DESCRIPTION>
+        <DESCRIPTION L='nl'>Zwangerschap</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>renalinsufficiency</CODE>
+        <DESCRIPTION L='en'>Renal insufficiency</DESCRIPTION>
+        <DESCRIPTION L='fr'>Insuffisance rénale</DESCRIPTION>
+        <DESCRIPTION L='nl'>Nierinsufficiëntie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>woundcare</CODE>
+        <DESCRIPTION L='en'>Wound care</DESCRIPTION>
+        <DESCRIPTION L='fr'>Soins de plaie</DESCRIPTION>
+        <DESCRIPTION L='nl'>Wondzorg</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

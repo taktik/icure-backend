@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.1</VERSION>
+    <DATE>2014-10-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Sex</NAME>
+    <VALUE>
+        <CODE>male</CODE>
+        <DESCRIPTION L="en">Male</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>female</CODE>
+        <DESCRIPTION L="en">Female</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>unknown</CODE>
+        <DESCRIPTION L="en">Unknown</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>changed</CODE>
+        <DESCRIPTION L="en">Changed (according to MKG/RCM code)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>undefined</CODE>
+        <DESCRIPTION L="en">Undefined</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>
