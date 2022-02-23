@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <kmehr-cd>
-  <VERSION>1</VERSION>
-  <DATE>2009-08-04</DATE>
+  <VERSION>1.2</VERSION>
+  <DATE>2016-03-01</DATE>
   <STATUS>Published</STATUS>
   <NAME>FEDICT Country Codes</NAME>
   <VALUE>
@@ -180,9 +180,9 @@
   </VALUE>
   <VALUE>
       <CODE>bq</CODE>
-      <DESCRIPTION L='de'>Caribisch Nederland</DESCRIPTION>
-      <DESCRIPTION L='fr'>Pays-Bas caribéens</DESCRIPTION>
-      <DESCRIPTION L='nl'>Caribisch Nederland</DESCRIPTION>
+      <DESCRIPTION L='de'>Bonaire, Sint Eustatius und Saba</DESCRIPTION>
+      <DESCRIPTION L='fr'>Bonaire, Saint-Eustache et Saba</DESCRIPTION>
+      <DESCRIPTION L='nl'>Bonaire, Sint Eustatius en Saba</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>br</CODE>
@@ -450,9 +450,9 @@
   </VALUE>
   <VALUE>
       <CODE>fo</CODE>
-      <DESCRIPTION L='de'>Färöer</DESCRIPTION>
+      <DESCRIPTION L='de'>Färöer-Inseln</DESCRIPTION>
       <DESCRIPTION L='fr'>Îles Féroé</DESCRIPTION>
-      <DESCRIPTION L='nl'>Faeröer</DESCRIPTION>
+      <DESCRIPTION L='nl'>Faeröereilanden</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>fr</CODE>
