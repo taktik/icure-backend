@@ -105,7 +105,6 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
                 setOf(
                     if (contact.healthcarePartyId == null) contact.copy(
                         healthcarePartyId = dataOwnerId,
-                        responsible = dataOwnerId
                     ) else contact
                 )
             ).firstOrNull()
