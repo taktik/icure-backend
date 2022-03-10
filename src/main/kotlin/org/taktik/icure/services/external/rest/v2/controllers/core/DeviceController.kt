@@ -117,6 +117,12 @@ class DeviceController(private val filters: Filters,
                 .paginatedList(deviceToDeviceDto, realLimit)
     }
 
+    @Operation(summary = "Get the HcParty encrypted AES keys indexed by owner", description = "(key, value) of the map is as follows: (ID of the owner of the encrypted AES key, encrypted AES key)")
+    @GetMapping("/{deviceId}/keys")
+    fun getDeviceHcPartyKeysForDelegate(@Parameter(description = "The deviceId Id for which information is shared") @PathVariable deviceId: String) = mono {
+        deviceLogic.getHcPartyKeysForDelegate(deviceId)
+    }
+
     @Operation(summary = "Get ids of devices matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
     fun matchDevicesBy(@RequestBody filter: AbstractFilterDto<Device>) = mono {

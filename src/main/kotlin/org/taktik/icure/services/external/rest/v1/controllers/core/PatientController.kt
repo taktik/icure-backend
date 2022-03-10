@@ -173,7 +173,6 @@ class PatientController(
             ]
     )
     @GetMapping("/{patientId}/keys")
-    //@ApiResponse(content = { @Content(examples = { @ExampleObject(value="{ hcpartyId : aes key }") }) } )
     fun getPatientHcPartyKeysForDelegate(@Parameter(description = "The patient Id for which information is shared") @PathVariable patientId: String) = mono {
         patientLogic.getHcPartyKeysForDelegate(patientId)
     }

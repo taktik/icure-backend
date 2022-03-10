@@ -100,8 +100,14 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
 
     override suspend fun createContact(contact: Contact) = fix(contact) { contact ->
         try { // Fetching the hcParty
-            val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
-            createEntities(setOf(if (contact.healthcarePartyId == null) contact.copy(healthcarePartyId = healthcarePartyId) else contact)).firstOrNull()
+            val dataOwnerId = sessionLogic.getCurrentDataOwnerId()
+            createEntities(
+                setOf(
+                    if (contact.healthcarePartyId == null) contact.copy(
+                        healthcarePartyId = dataOwnerId,
+                    ) else contact
+                )
+            ).firstOrNull()
         } catch (e: BulkUpdateConflictException) {
             throw UpdateConflictException("Contact already exists")
         } catch (e: Exception) {
