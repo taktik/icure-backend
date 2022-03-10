@@ -212,7 +212,7 @@ class SoftwareMedicalFileExport(
         }
 
 		// add Hes without idOpeningContact to clinical summary
-		hesByContactId[null].orEmpty().map { he -> addHealthCareElement(folder.transactions.first(), he, 0, config) }
+		hesByContactId[null].orEmpty().map { he -> addHealthCareElement(folder.transactions.first(), he, 0, config, language) }
 		hesByContactId = hesByContactId.filterKeys { it != null }
 
 		heById = nonConfidentialHealthElements.groupBy {
@@ -245,7 +245,7 @@ class SoftwareMedicalFileExport(
                                 val trn = this
 
                                 val (cdTransactionRef, defaultCdItemRef, exportAsDocument) = when (contact.encounterType?.code) {
-                                    "labresult" -> Triple("labresult", "lab", false)
+                                    "labresult" -> Triple("labresult", "lab", true)
                                     else -> {
                                         if (contact.tags?.any { it.type == "CD-TRANSACTION" && it.code == "labresult" } == true) {
                                             Triple("labresult", "lab", true)
@@ -276,24 +276,24 @@ class SoftwareMedicalFileExport(
                             contact.location?.let { headingsAndItemsAndTexts.add(makeEncounterLocation(headingsAndItemsAndTexts.size + 1, it, language)) }
                             contact.encounterType?.let { headingsAndItemsAndTexts.add(makeEncounterType(headingsAndItemsAndTexts.size + 1, it)) }
 
-                            hesByContactId[contact.id].orEmpty().map { he -> addHealthCareElement(trn, he, 0, config) }
+                            hesByContactId[contact.id].orEmpty().map { he -> addHealthCareElement(trn, he, 0, config, language) }
 
                             hesByContactId = hesByContactId.filterKeys { it != contact.id } // prevent re-using the same He for the next subcontact
 
                             contact.services.filter { s -> s.tags.find { t -> t.code == "incapacity" } != null }.forEach { incapacityService ->
-                                headingsAndItemsAndTexts.add(makeIncapacityItem(healthcareParty, incapacityService))
+                                headingsAndItemsAndTexts.add(makeIncapacityItem(incapacityService, language))
                                 incapacityService.content[language]?.documentId?.let { docId ->
                                     createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config, decryptor)
                                 }
                             }
                             contact.services.filter { s -> s.tags.find { t -> t.code == "physiotherapy" } != null }.forEach { kineService ->
-                                specialPrescriptions.add(makeKinePrescriptionTransaction(kineService, decryptor))
+                                specialPrescriptions.add(makeKinePrescriptionTransaction(kineService, language, decryptor))
                             }
                             contact.services.filter { s -> s.tags.find { t -> t.code == "medicalcares" } != null }.forEach { nurseService ->
-                                specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService, decryptor))
+                                specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService, language, decryptor))
                             }
                             contact.services.filter { s -> isSummary(s) }.forEach { summaryService ->
-                                summaries.add(makeSummaryTransaction(contact, summaryService))
+                                summaries.add(makeSummaryTransaction(contact, summaryService, language))
                             }
 
                             // services
@@ -494,7 +494,7 @@ class SoftwareMedicalFileExport(
                 folder.transactions.add(TransactionType().apply {
                     ids.add(idKmehr(startIndex))
                     ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = "1.0"; value = svc.id })
-                    cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note"; dn = svc.content["fr"]?.stringValue })
+                    cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note"; dn = svc.content[language]?.stringValue })
                     (svc.modified ?: svc.created)?.let {
                         date = makeXGC(it)
                         time = makeXGC(it)
@@ -604,16 +604,15 @@ class SoftwareMedicalFileExport(
         }
     }
 
-    private suspend fun makeNursePrescriptionTransaction(contact: Service, decryptor: AsyncDecrypt?): TransactionType {
-        return makeSpecialPrescriptionTransaction(contact, "nursing", decryptor)
+    private suspend fun makeNursePrescriptionTransaction(contact: Service, language: String, decryptor: AsyncDecrypt?): TransactionType {
+        return makeSpecialPrescriptionTransaction(contact, "nursing", language, decryptor)
     }
 
-    private suspend fun makeKinePrescriptionTransaction(contact: Service, decryptor: AsyncDecrypt?): TransactionType {
-        return makeSpecialPrescriptionTransaction(contact, "physiotherapy", decryptor)
+    private suspend fun makeKinePrescriptionTransaction(contact: Service, language: String, decryptor: AsyncDecrypt?): TransactionType {
+        return makeSpecialPrescriptionTransaction(contact, "physiotherapy", language, decryptor)
     }
 
-    private suspend fun makeSpecialPrescriptionTransaction(service: Service, transactionType: String, decryptor: AsyncDecrypt?): TransactionType {
-        val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
+    private suspend fun makeSpecialPrescriptionTransaction(service: Service, transactionType: String, language: String, decryptor: AsyncDecrypt?): TransactionType {
 
         return TransactionType().apply {
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = "1" })
@@ -633,7 +632,7 @@ class SoftwareMedicalFileExport(
             isIscomplete = true
             isIsvalidated = true
 
-            service.content[lang]?.documentId?.let {
+            service.content[language]?.documentId?.let {
                 try{
                     documentLogic.getDocument(it)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(makeMultimediaLnkType(d, it, decryptor)) } }
                 } catch(e:Exception) {
@@ -643,17 +642,16 @@ class SoftwareMedicalFileExport(
         }
     }
 
-    private fun makeIncapacityItem(healthcareParty: HealthcareParty, service: Service, index: Number = 0): ItemType {
-        val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
+    private fun makeIncapacityItem(service: Service, language: String, index: Number = 0): ItemType {
 
-        fun getCompoundValueContent(label: String) = service.content?.get(lang)?.compoundValue?.firstOrNull { it.label == label }?.content?.values?.firstOrNull()
-        fun getCompoundValueTag(label: String, tagType: String) = service.content?.get(lang)?.compoundValue?.firstOrNull { it.label == label }?.tags?.find { it.type == tagType }
+        fun getCompoundValueContent(label: String) = service.content?.get(language)?.compoundValue?.firstOrNull { it.label == label }?.content?.values?.firstOrNull()
+        fun getCompoundValueTag(label: String, tagType: String) = service.content?.get(language)?.compoundValue?.firstOrNull { it.label == label }?.tags?.find { it.type == tagType }
         return ItemType().apply {
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = index.toString() })
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = ICUREVERSION; value = service.id })
             cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity" })
             service.tags?.firstOrNull { it.type == "MS-INCAPACITYTYPE" }?.code?.let { incapacityType ->
-                cds.add(CDITEM().apply { s = CDITEMschemes.LOCAL; value = incapacityType; sl = "PMF-PARAMETER"; l = lang; dn="incapacity type"  })
+                cds.add(CDITEM().apply { s = CDITEMschemes.LOCAL; value = incapacityType; sl = "PMF-PARAMETER"; l = language; dn="incapacity type"  })
             }
 
             contents.add(ContentType().apply {
@@ -695,7 +693,7 @@ class SoftwareMedicalFileExport(
 
                     getCompoundValueContent("Diagnosis")?.stringValue?.let { diagnosisText ->
                         texts.add(TextType().apply {
-                            l = lang
+                            l = language
                             value = diagnosisText
                         })
                     }
@@ -723,10 +721,9 @@ class SoftwareMedicalFileExport(
     }
 
     private fun isSummary(s: Service) = s.label == "Summary" && s.tags.find { t -> t.code == "summary" } != null
-    private suspend fun makeSummaryTransaction(contact: Contact, service: Service): TransactionType {
-        val defaultLanguage = "fr";
-        fun getCompoundValueContent(service: Service, label: String) = service.content?.get(defaultLanguage)?.compoundValue?.firstOrNull { it.label == label }?.content?.get(defaultLanguage);
-        fun getCompoundValueTag(service: Service, label: String, tagType: String) = service.content?.get(defaultLanguage)?.compoundValue?.firstOrNull { it.label == label }?.tags?.find { it.type == tagType };
+    private suspend fun makeSummaryTransaction(contact: Contact, service: Service, language: String): TransactionType {
+        fun getCompoundValueContent(service: Service, label: String) = service.content?.get(language)?.compoundValue?.firstOrNull { it.label == label }?.content?.get(language);
+        fun getCompoundValueTag(service: Service, label: String, tagType: String) = service.content?.get(language)?.compoundValue?.firstOrNull { it.label == label }?.tags?.find { it.type == tagType };
 
         return TransactionType().apply {
             val title = getCompoundValueContent(service, "SummaryTitle")
@@ -808,8 +805,7 @@ class SoftwareMedicalFileExport(
         return element
     }
 
-    private fun makeIncapacityItem(contact: Contact, subcon: SubContact, form: Form, index: Number = 0): ItemType {
-		val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
+    private fun makeIncapacityItem(contact: Contact, subcon: SubContact, form: Form, language: String, index: Number = 0): ItemType {
 		val servlist = listOf(
 				"incapacité de",
 				"du",
@@ -827,7 +823,7 @@ class SoftwareMedicalFileExport(
 		val servmap = contact.services.filter { serv -> subcon.services.map { it.serviceId }.contains(serv.id) }.associateBy({ it.label }, { it })
 
 		fun getServiceFor(label: String, default: String): String {
-			return servmap[label]?.content?.let { (it[lang] ?: it.values.firstOrNull())?.stringValue } ?: default
+			return servmap[label]?.content?.let { (it[language] ?: it.values.firstOrNull())?.stringValue } ?: default
 		}
 
 		val content = ContentType().apply {
@@ -867,10 +863,10 @@ class SoftwareMedicalFileExport(
 					}
 				}
 				isOutofhomeallowed = servmap["Sortie"]?.content?.let {
-					(it[lang] ?: it.values.firstOrNull())?.stringValue
+					(it[language] ?: it.values.firstOrNull())?.stringValue
 				} == "autorisée"
 				servmap["pourcentage"]?.content?.let {
-					(it[lang] ?: it.values.firstOrNull())?.measureValue?.value
+					(it[language] ?: it.values.firstOrNull())?.measureValue?.value
 				}?.let {
 					percentage = it.toBigDecimal()
 				}
@@ -891,10 +887,10 @@ class SoftwareMedicalFileExport(
 			}
 			isIsrelevant = true
 			beginmoment = Utils.makeMomentTypeFromFuzzyLong(servmap["du"]?.content?.let {
-				(it[lang] ?: it.values.firstOrNull())?.fuzzyDateValue
+				(it[language] ?: it.values.firstOrNull())?.fuzzyDateValue
 			} ?: 0)
 			endmoment = Utils.makeMomentTypeFromFuzzyLong(servmap["au"]?.content?.let {
-				(it[lang] ?: it.values.firstOrNull())?.fuzzyDateValue
+				(it[language] ?: it.values.firstOrNull())?.fuzzyDateValue
 			} ?: 0)
 			recorddatetime = Utils.makeXGC(form.modified, true)
 		}
@@ -1059,12 +1055,12 @@ class SoftwareMedicalFileExport(
         return false
     }
 
-    fun addHealthCareElement(trn: TransactionType, eds: HealthElement, itemIndex: Int, config: Config): Int {
+    fun addHealthCareElement(trn: TransactionType, eds: HealthElement, itemIndex: Int, config: Config, language: String): Int {
 		var mutItemIndex = itemIndex
 		try {
 			val content = listOf(
 					ContentType().apply {
-						texts.add(TextType().apply { l = "fr"; value = eds.descr })
+						texts.add(TextType().apply { l = language; value = eds.descr })
 					},
 					ContentType().apply {
                         cds.addAll(codesToKmehr(eds.codes).cds)
@@ -1228,24 +1224,23 @@ class SoftwareMedicalFileExport(
 		}
 	}
 
-	suspend fun makeKinePrescriptionTransaction(contact: Contact, subcon: SubContact, form: Form): TransactionType {
-		val data = renderKinePrescriptionTemplate(contact, subcon, form)
+	suspend fun makeKinePrescriptionTransaction(contact: Contact, subcon: SubContact, form: Form, language: String): TransactionType {
+		val data = renderKinePrescriptionTemplate(contact, subcon, form, language)
 		return makeSpecialPrescriptionTransaction(contact, subcon, form, "physiotherapy", data)
 	}
 
-	suspend fun makeNursePrescriptionTransaction(contact: Contact, subcon: SubContact, subformsubcons: List<SubContact>, form: Form): TransactionType {
-		val data = renderNursePrescriptionTemplate(contact, subcon, subformsubcons, form)
+	suspend fun makeNursePrescriptionTransaction(contact: Contact, subcon: SubContact, subformsubcons: List<SubContact>, form: Form, language: String): TransactionType {
+		val data = renderNursePrescriptionTemplate(contact, subcon, subformsubcons, form, language)
 		return makeSpecialPrescriptionTransaction(contact, subcon, form, "nursing", data)
 	}
 
-	fun renderNursePrescriptionTemplate(contact: Contact, subcon: SubContact, subformsubcons: List<SubContact>, form: Form): ByteArray {
+	fun renderNursePrescriptionTemplate(contact: Contact, subcon: SubContact, subformsubcons: List<SubContact>, form: Form, language: String): ByteArray {
         // TODO: not working yet, template and mapping need to be done
 
 		val mf : MustacheFactory = DefaultMustacheFactory()
 		val m : Mustache = mf.compile("NursePrescription.mustache")
 		val writer = StringWriter()
 
-		val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
 		val servkeys = mapOf(
 				"Communication par courrier"         to "contactMailPreference",
 				"Communication par téléphone"        to "contactPhonePreference",
@@ -1256,7 +1251,7 @@ class SoftwareMedicalFileExport(
 
 		fun getServiceValue(serv : Service?): String {
 			return serv?.content?.let {
-				it[lang] ?: it.values.firstOrNull()
+				it[language] ?: it.values.firstOrNull()
 			}?.let {
 				it.stringValue
 						?: it.booleanValue?.let { if(it) "X" else "" }
@@ -1282,14 +1277,13 @@ class SoftwareMedicalFileExport(
 		return html.toByteArray()
 	}
 
-	fun renderKinePrescriptionTemplate(contact: Contact, subcon: SubContact, form: Form): ByteArray {
+	fun renderKinePrescriptionTemplate(contact: Contact, subcon: SubContact, form: Form, language: String): ByteArray {
 		// TODO: not working yet, template and mapping need to be done
 
 		val mf : MustacheFactory = DefaultMustacheFactory()
 		val m : Mustache = mf.compile("KinePrescription.mustache")
 		val writer: StringWriter = StringWriter()
 
-		val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
 		val servkeys = mapOf(
 				"Prescription de kinésithérapie"     to "opinionRequest",
 				"Le patient ne peut se déplacer"    to "PatientCannotLeaveHome",
@@ -1320,7 +1314,7 @@ class SoftwareMedicalFileExport(
 
 		fun getServiceValue(serv : Service?): String {
 			return serv?.content?.let {
-				it[lang] ?: it.values.firstOrNull()
+				it[language] ?: it.values.firstOrNull()
 			}?.let {
 				it.stringValue
 					?: it.booleanValue?.let { if(it) "X" else "" }
