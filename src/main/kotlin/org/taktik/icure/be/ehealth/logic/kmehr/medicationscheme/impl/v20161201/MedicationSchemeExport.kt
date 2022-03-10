@@ -68,6 +68,7 @@ class MedicationSchemeExport(patientLogic: PatientLogic,
             recipientSafe: String?,
             version: Int?,
             services: List<Service>?,
+            serviceAuthors: List<HealthcareParty>?,
 			decryptor: AsyncDecrypt?,
 			progressor: AsyncProgress?,
 			config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
@@ -88,7 +89,7 @@ class MedicationSchemeExport(patientLogic: PatientLogic,
 			})
 		})
 
-        val folder = makePatientFolder(1, patient, version, sender, config, language, services ?: getActiveServices(sender.id, sfks, listOf("medication"), decryptor), null, decryptor, progressor, recipientSafe)
+        val folder = makePatientFolder(1, patient, version, sender, config, language, services ?: getActiveServices(sender.id, sfks, listOf("medication"), decryptor), serviceAuthors, decryptor, progressor, recipientSafe)
 		emitMessage(message.apply { folders.add(folder) }).collect { emit(it) }
 	}
 

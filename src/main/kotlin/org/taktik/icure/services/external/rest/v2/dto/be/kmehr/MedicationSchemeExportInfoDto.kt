@@ -24,6 +24,7 @@ import java.io.Serializable
 class MedicationSchemeExportInfoDto : Serializable {
     var secretForeignKeys: List<String> = emptyList()
     var services: List<ServiceDto> = emptyList()
+    var serviceAuthors: List<HealthcarePartyDto>? = null
     var recipient: HealthcarePartyDto? = null
     var comment: String? = null
 

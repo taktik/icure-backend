@@ -372,7 +372,7 @@ class KmehrController(
                 if (medicationSchemeExportParams.services.isEmpty())
                     emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language, recipientSafe, version, null, null))
                 else
-                    emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language, recipientSafe, version, medicationSchemeExportParams.services.map { s -> serviceV2Mapper.map(s) }, null))
+                    emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language, recipientSafe, version, medicationSchemeExportParams.services.map { s -> serviceV2Mapper.map(s) }, null, null, null))
             }
         } ?: throw IllegalArgumentException("Missing argument")
     }.injectReactorContext()
