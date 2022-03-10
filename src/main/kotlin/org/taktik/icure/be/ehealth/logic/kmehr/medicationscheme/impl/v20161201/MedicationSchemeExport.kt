@@ -79,7 +79,7 @@ class MedicationSchemeExport(patientLogic: PatientLogic,
                                         )) = flow {
 
         config.defaultLanguage = if(sender.languages.firstOrNull() == "nl") "nl-BE" else if(sender.languages.firstOrNull() == "de") "de-BE" else "fr-BE"
-        config.format = Config.Format.SUMEHR //sumehr and medicationscheme have same exception of patient/usuallanguage field (vitalink)
+        config.format = Config.Format.MEDICATIONSCHEME //sumehr and medicationscheme have same exception of patient/usuallanguage field (vitalink)
 		val message = initializeMessage(sender, config)
 		message.header.recipients.add(RecipientType().apply {
 			hcparties.add(HcpartyType().apply {
@@ -88,13 +88,13 @@ class MedicationSchemeExport(patientLogic: PatientLogic,
 			})
 		})
 
-        val folder = makePatientFolder(1, patient, version, sender, config, language, services ?: getActiveServices(sender.id, sfks, listOf("medication"), decryptor), decryptor, progressor, recipientSafe)
+        val folder = makePatientFolder(1, patient, version, sender, config, language, services ?: getActiveServices(sender.id, sfks, listOf("medication"), decryptor), null, decryptor, progressor, recipientSafe)
 		emitMessage(message.apply { folders.add(folder) }).collect { emit(it) }
 	}
 
 
     private suspend fun makePatientFolder(patientIndex: Int, patient: Patient, version: Int?, healthcareParty: HealthcareParty,
-                                  config: Config, language: String, medicationServices: List<Service>, decryptor: AsyncDecrypt?, progressor: AsyncProgress?, recipientSafe: String?): FolderType {
+                                  config: Config, language: String, medicationServices: List<Service>, serviceAuthors: List<HealthcareParty>?, decryptor: AsyncDecrypt?, progressor: AsyncProgress?, recipientSafe: String?): FolderType {
 
 		//creation of Patient
         val folder = FolderType().apply {
@@ -140,100 +140,164 @@ class MedicationSchemeExport(patientLogic: PatientLogic,
             this.version = (version ?: (_medicationSchemeSafeVersion ?: 0)+1).toString()
 		})
 
-        folder.transactions.addAll(medicationServices.map { svc ->
+        var currentMedicationIdx: Int
+        var trs = medicationServices.map { svc ->
             svc.content.values.find { c -> c.medicationValue != null }?.let { cnt -> cnt.medicationValue?.let { m ->
-            TransactionType().apply {
-                ids.add(idKmehr(idkmehrIdx))
-                idkmehrIdx++
-                m.idOnSafes?.let{idOnSafe ->
-                    ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = m.safeIdName; sv = "1.0"; value = m.idOnSafes})
-                }
-                cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.10"; value = "medicationschemeelement" })
-                date = config.date
-                time = config.time
-                author = AuthorType().apply {
-                    hcparties.add(healthcarePartyLogic.getHealthcareParty(svc.author?.let { userLogic.getUser(it)?.healthcarePartyId } ?: healthcareParty.id)?.let { createParty(it) })
-                }
-                isIscomplete = true
-                isIsvalidated = true
+                listOf(
+                        TransactionType().apply {
+                            ids.add(idKmehr(idkmehrIdx))
+                            currentMedicationIdx = idkmehrIdx
+//                            if(m.suspension.isNullOrEmpty()){
+//                                m.suspension = emptyList<Suspension>();
+//                            }
+                            idkmehrIdx++
+                            m.idOnSafes?.let{idOnSafe ->
+                                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = m.safeIdName; sv = "1.0"; value = m.idOnSafes})
+                            }
+                            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.10"; value = "medicationschemeelement" })
+                            date = config.date
+                            time = config.time
+                            var tmp = serviceAuthors?.find{aut -> aut.id == svc.author}
 
-                var itemsIdx = 1
+                            if(tmp != null){
+                                author = AuthorType().apply {
+                                    hcparties.add(createParty(tmp))
+                                }
+                            }else {
+                                author = AuthorType().apply {
+                                    hcparties.add(healthcarePartyLogic.getHealthcareParty(svc.author?.let { userLogic.getUser(it)?.healthcarePartyId } ?: healthcareParty.id)?.let { createParty(it) })
+                                }
+                            }
 
-                headingsAndItemsAndTexts.addAll(//This adds 1 adaptationflag ITEM and 1 medication ITEM
-                    listOf(
-                        ItemType().apply {
-                            ids.add(idKmehr(itemsIdx++))
-                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
-                            contents.add(ContentType().apply {
-                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "adaptationflag" })
-                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_MS_ADAPTATION); value = when {
-                                    m.timestampOnSafe == null -> "medication"
-                                    m.timestampOnSafe == svc.modified -> "nochange"
-                                    else -> "posology" //TODO: handle medication and/or posology changes ! allowed values: nochange, medication, posology, treatmentsuspension (medication cannot be changed in Topaz)
-                                }})
-                            })
+                            isIscomplete = true
+                            isIsvalidated = true
+
+                            var itemsIdx = 1
+
+                            headingsAndItemsAndTexts.addAll(//This adds 1 adaptationflag ITEM and 1 medication ITEM
+                                    listOf(
+                                            ItemType().apply {
+                                                ids.add(idKmehr(itemsIdx++))
+                                                cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
+                                                contents.add(ContentType().apply {
+                                                    cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "adaptationflag" })
+                                                    cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_MS_ADAPTATION); value = when {
+                                                        m.timestampOnSafe == null -> "medication"
+                                                        m.timestampOnSafe == svc.modified -> "nochange"
+                                                        else -> "posology" //TODO: handle medication and/or posology changes ! allowed values: nochange, medication, posology, treatmentsuspension (medication cannot be changed in Topaz)
+                                                    }})
+                                                })
+                                            },
+                                            createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!), language = language, texts = listOfNotNull(makeText(language, cnt)), config = config)))
+
+                            //handle treatmentsuspension
+                            //      ITEM: transactionreason: Text
+                            //      ITEM: medication contains Link to medication <lnk TYPE="isplannedfor" URL="//transaction[id[@S='ID-KMEHR']='18']"/>
+                            //            Lifecycle: suspended (begin and enddate) or stopped (only begindate)
+                            m.medicationUse?.let { usage ->
+                                headingsAndItemsAndTexts.add(
+                                        ItemType().apply {
+                                            ids.add(idKmehr(itemsIdx++))
+                                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
+                                            contents.add(ContentType().apply {
+                                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "medicationuse" })
+                                            })
+                                            contents.add(ContentType().apply {
+                                                texts.add(TextType().apply { l = language; value = m.medicationUse })
+                                            })
+                                        })
+                            }
+
+                            m.beginCondition?.let { cond ->
+                                headingsAndItemsAndTexts.add(
+                                        ItemType().apply {
+                                            ids.add(idKmehr(itemsIdx++))
+                                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
+                                            contents.add(ContentType().apply {
+                                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "begincondition" })
+                                            })
+                                            contents.add(ContentType().apply {
+                                                texts.add(TextType().apply { l = language; value = m.beginCondition })
+                                            })
+                                        })
+                            }
+
+                            //endcondition is now used as 'endreason', Medication will need extra field for endreason --> MS-6840
+//                            m.endCondition?.let { cond ->
+//                                headingsAndItemsAndTexts.add(
+//                                        ItemType().apply {
+//                                            ids.add(idKmehr(itemsIdx++))
+//                                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
+//                                            contents.add(ContentType().apply {
+//                                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "endcondition" })
+//                                            })
+//                                            contents.add(ContentType().apply {
+//                                                texts.add(TextType().apply { l = language; value = m.endCondition })
+//                                            })
+//                                        })
+//                            }
+
+                            m.origin?.let { cond ->
+                                headingsAndItemsAndTexts.add(
+                                        ItemType().apply {
+                                            ids.add(idKmehr(itemsIdx++))
+                                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
+                                            contents.add(ContentType().apply {
+                                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "origin" })
+                                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_MS_ADAPTATION); value = m.origin })
+                                            })
+                                        })
+                            }
+
                         },
-                        createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!), language = language, texts = listOf(makeText(language, cnt)!!))))
-                //TODO: handle treatmentsuspension
-                //      ITEM: transactionreason: Text
-                //      ITEM: medication contains Link to medication <lnk TYPE="isplannedfor" URL="//transaction[id[@S='ID-KMEHR']='18']"/>
-                //            Lifecycle: suspended (begin and enddate) or stopped (only begindate)
-                m.medicationUse?.let { usage ->
-                    headingsAndItemsAndTexts.add(
-                        ItemType().apply {
-                            ids.add(idKmehr(itemsIdx++))
-                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
-                            contents.add(ContentType().apply {
-                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "medicationuse" })
-                            })
-                            contents.add(ContentType().apply {
-                                texts.add(TextType().apply { l = language; value = m.medicationUse })
-                            })
-                        })
-                }
+                        *(m.suspension ?: listOf()).map{ suspension ->
+                            TransactionType().apply {
+                                ids.add(idKmehr(idkmehrIdx))
+                                idkmehrIdx++
+                                m.idOnSafes?.let{idOnSafe ->
+                                    ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = m.safeIdName; sv = "1.0"; value = m.idOnSafes})
+                                }
+                                cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.10"; value = "treatmentsuspension" })
+                                date = config.date
+                                time = config.time
+                                var tmp = serviceAuthors?.find{aut -> aut.id == svc.author}
+                                if(tmp != null){
+                                    author = AuthorType().apply {
+                                        hcparties.add(createParty(tmp))
+                                    }
+                                }else {
+                                    author = AuthorType().apply {
+                                        hcparties.add(healthcarePartyLogic.getHealthcareParty(svc.author?.let { userLogic.getUser(it)?.healthcarePartyId } ?: healthcareParty.id)?.let { createParty(it) })
+                                    }
+                                }
+                                isIscomplete = true
+                                isIsvalidated = true
+                                var itemsIdx = 1
+                                //The treatmentsuspension transaction contains a copy of the medication where only beginmoment and endmoment are changed and equal to the duration of the suspension
+                                headingsAndItemsAndTexts.addAll(
+                                        listOf(
+                                                createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!), language = language, texts = listOfNotNull(makeText(language, cnt)),
+                                                        link = LnkType().apply {
+                                                            type = CDLNKvalues.ISPLANNEDFOR
+                                                            url = "//transaction[id[@S='ID-KMEHR']='${currentMedicationIdx}']"
+                                                        }, config = config, altBeginMoment = suspension.beginMoment, altEndMoment = suspension.endMoment
+                                                ),
+                                                ItemType().apply {
+                                                    ids.add(idKmehr(itemsIdx++))
+                                                    cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "transactionreason" })
+                                                    contents.add(ContentType().apply { texts.add(TextType().apply { l=language; value=suspension.suspensionReason!! }) })
+                                                }
+                                        )
+                                )
+                            }
+                        }.toTypedArray()
+                )
+            }}
+        }
 
-                m.beginCondition?.let { cond ->
-                    headingsAndItemsAndTexts.add(
-                        ItemType().apply {
-                            ids.add(idKmehr(itemsIdx++))
-                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
-                            contents.add(ContentType().apply {
-                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "begincondition" })
-                            })
-                            contents.add(ContentType().apply {
-                                texts.add(TextType().apply { l = language; value = m.beginCondition })
-                            })
-                        })
-                }
+        var flatTrs = trs.filterNotNull().flatten()
 
-                m.endCondition?.let { cond ->
-                    headingsAndItemsAndTexts.add(
-                        ItemType().apply {
-                            ids.add(idKmehr(itemsIdx++))
-                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
-                            contents.add(ContentType().apply {
-                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "endcondition" })
-                            })
-                            contents.add(ContentType().apply {
-                                texts.add(TextType().apply { l = language; value = m.endCondition })
-                            })
-                        })
-                }
-
-                m.origin?.let { cond ->
-                    headingsAndItemsAndTexts.add(
-                            ItemType().apply {
-                                ids.add(idKmehr(itemsIdx++))
-                                cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
-                                contents.add(ContentType().apply {
-                                    cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "origin" })
-                                    cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_MS_ADAPTATION); value = m.origin })
-                                })
-                            })
-                }
-
-            }}}
-        })
+        folder.transactions.addAll(flatTrs)
         return folder
 	}
 

@@ -175,15 +175,16 @@ open class KmehrExport(
         }
     }
 
-    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service", language: String, texts: List<TextType>? = null) : ItemType? {
+    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service", language: String, texts: List<TextType>? = null, link: LnkType? = null, config: Config = Config(), altBeginMoment: Long? = null, altEndMoment: Long? = null) : ItemType? {
         return ItemType().apply {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = svc.id })
             cds.add(CDITEM().apply {s(CDITEMschemes.CD_ITEM); value = cdItem } )
 			svc.tags.find { t -> t.type == "CD-LAB" }?.let { cds.add(CDITEM().apply {s(CDITEMschemes.CD_LAB); value = it.code } ) }
-
+            val suspension = svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.suspension?.firstOrNull()
             this.contents.addAll(filterEmptyContent(contents))
             if (texts != null) this.texts.addAll(texts.filterNotNull())
+            if (link != null) this.lnks.add(link)
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
                 value = if (ServiceStatus.isIrrelevant(svc.status) || (svc.closingDate ?: 99999999 <= FuzzyValues.getCurrentFuzzyDate())) {
 					CDLIFECYCLEvalues.INACTIVE
@@ -196,7 +197,7 @@ open class KmehrExport(
                             CDLIFECYCLEvalues.CORRECTED
                         }
                     }
-                            ?: if(cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else CDLIFECYCLEvalues.ACTIVE
+                            ?: if(cdItem == "medication") (if (suspension != null) CDLIFECYCLEvalues.fromValue(suspension.lifecycle) else CDLIFECYCLEvalues.PRESCRIBED) else CDLIFECYCLEvalues.ACTIVE
                 }
 			} }
             if(cdItem == "medication") {
@@ -209,13 +210,13 @@ open class KmehrExport(
                     KmehrPrescriptionHelper.inferPeriodFromRegimen(med.regimen, med.frequency)?.let {
                         frequency = KmehrPrescriptionHelper.mapPeriodToFrequency(it)
                     }
-                    duration = KmehrPrescriptionHelper.toDurationType(med.duration)
+                    duration = KmehrPrescriptionHelper.toDurationType(if (config.format == Config.Format.MEDICATIONSCHEME) null else med.duration)
                     med.regimen?.let { intakes ->
                         if (intakes.isNotEmpty()) {
                             regimen = ItemType.Regimen().apply {
                                 for (intake in intakes) {
                                     // choice day specification
-                                    intake.dayNumber?.let { dayNumber -> daynumbersAndQuantitiesAndDates.add(BigInteger.valueOf(dayNumber.toLong())) }
+                                    intake.dayNumber?.let { dayNumber -> daynumbersAndQuantitiesAndDates.add(BigInteger.valueOf(dayNumber.toLong())) } ?: daynumbersAndQuantitiesAndDates.add(BigInteger.valueOf(1.toLong()))
                                     intake.date?.let { d -> daynumbersAndQuantitiesAndDates.add(Utils.makeXMLGregorianCalendarFromFuzzyLong(d)) }
                                     intake.weekday?.let { day ->
                                         daynumbersAndQuantitiesAndDates.add(ItemType.Regimen.Weekday().apply {
@@ -254,6 +255,9 @@ open class KmehrExport(
                             this.posology = ItemType.Posology().apply { text = TextType().apply { l = language; value = it } }
                         }
                     }
+                    (med.instructionForPatient)?.let {
+                        this.instructionforpatient = TextType().apply { l = language; value = it }
+                    }
                     med.renewal?.let {
                         renewal = RenewalType().apply {
                             it.decimal?.let { decimal = BigDecimal(it.toLong()) }
@@ -263,13 +267,19 @@ open class KmehrExport(
                     med.drugRoute?.let { c ->
                         route = RouteType().apply { cd = CDDRUGROUTE().apply { s = "CD-DRUG-ROUTE"; value = c } }
                     }
+                    med.temporality?.let{ c ->
+                        temporality = TemporalityType().apply { cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY";
+                            value = CDTEMPORALITYvalues.fromValue(c)
+                        } }
+                    }
                 }
             }
 
             isIsrelevant = ServiceStatus.isRelevant(svc.status)
-            beginmoment = (svc.valueDate ?: svc.openingDate ?: svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.beginMoment)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
-            endmoment = (svc.closingDate ?: svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.endMoment)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
-            recorddatetime = makeXGC(svc.modified ?: svc.created)
+            beginmoment = (altBeginMoment ?: svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.beginMoment ?: svc.valueDate ?: svc.openingDate)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
+            endmoment = (altEndMoment ?: svc.closingDate ?: svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.endMoment)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
+            recorddatetime = Utils.makeXGC(svc.modified
+                    ?: svc.created, false, config!!.format == Config.Format.MEDICATIONSCHEME)
         }
     }
 
