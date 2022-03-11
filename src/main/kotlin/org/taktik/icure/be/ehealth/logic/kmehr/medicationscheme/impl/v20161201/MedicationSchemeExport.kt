@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import org.taktik.icure.asynclogic.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
@@ -72,8 +73,8 @@ class MedicationSchemeExport(patientLogic: PatientLogic,
 			decryptor: AsyncDecrypt?,
 			progressor: AsyncProgress?,
 			config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
-                                         date = makeXGC(Instant.now().toEpochMilli())!!,
-                                         time = makeXGC(Instant.now().toEpochMilli(), true)!!,
+                                         date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
+                                         time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
                                          soft = Config.Software(name = "iCure", version = ICUREVERSION),
                                          clinicalSummaryType = "",
                                          defaultLanguage = "en"
@@ -308,6 +309,7 @@ class MedicationSchemeExport(patientLogic: PatientLogic,
         val f = UnionFilter(null, hcPartyIds.map { hcpId ->
             UnionFilter(null, sfks.map { k ->
                 UnionFilter(null, cdItems.map { cd ->
+
                     ServiceByHcPartyTagCodeDateFilter(hcpId, k, "CD-ITEM", cd, null, null, null, null)
                 })
             })

@@ -152,7 +152,7 @@ open class KmehrExport(
             p.placeOfBirth?.let { birthlocation = AddressTypeBase().apply { city= it }}
             p.placeOfDeath?.let { deathlocation = AddressTypeBase().apply { city= it }}
             p.profession?.let { profession = ProfessionType().apply { text = TextType().apply { l= "fr"; value = it } } }
-            usuallanguage= if (config.format == Config.Format.SUMEHR) config.defaultLanguage else p.languages.firstOrNull()
+            usuallanguage= if (config.format == Config.Format.SUMEHR || config.format == Config.Format.MEDICATIONSCHEME) config.defaultLanguage else p.languages.firstOrNull()
             addresses.addAll(makeAddresses(p.addresses))
             telecoms.addAll(makeTelecoms(p.addresses))
             if(!p.nationality.isNullOrBlank()) {
@@ -171,7 +171,7 @@ open class KmehrExport(
             familyname= p.lastName
             sex= SexType().apply {cd = CDSEX().apply { s= "CD-SEX"; sv= "1.0"; value = p.gender?.let { CDSEXvalues.fromValue(it.name) } ?: CDSEXvalues.UNKNOWN }}
             p.dateOfBirth?.let { birthdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
-            recorddatetime = makeXGC(p.modified)
+            recorddatetime = Utils.makeXGC(p.modified, false, config.format == Config.Format.MEDICATIONSCHEME);
         }
     }
 
@@ -292,7 +292,7 @@ open class KmehrExport(
             isIsrelevant = true
             beginmoment = Utils.makeMomentTypeDateFromFuzzyLong(FuzzyValues.getCurrentFuzzyDate())
             endmoment = Utils.makeMomentTypeDateFromFuzzyLong(FuzzyValues.getCurrentFuzzyDate())
-            recorddatetime = makeXGC(Instant.now().toEpochMilli())
+            recorddatetime = Utils.makeXGC(Instant.now().toEpochMilli())
         }
     }
 
@@ -328,7 +328,7 @@ open class KmehrExport(
             isIsrelevant = ServiceStatus.isRelevant(he.status)
             beginmoment = (he.valueDate ?: he.openingDate).let { if(it != 0L) Utils.makeMomentTypeFromFuzzyLong(it) else null }
             endmoment = he.closingDate?.let { if(it != 0L) Utils.makeMomentTypeFromFuzzyLong(it) else null}
-            recorddatetime = makeXGC(he.modified)
+            recorddatetime = Utils.makeXGC(he.modified)
         }
     }
 
@@ -381,23 +381,19 @@ open class KmehrExport(
         return lst
     }
 
-    fun  makeXGC(date: Long?, unsetMillis: Boolean = false): XMLGregorianCalendar? {
-        return date?.let {
-            DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar.getInstance().apply { time = Date(date) } as GregorianCalendar).apply {
-                timezone = DatatypeConstants.FIELD_UNDEFINED
-                if (unsetMillis) {
-                    millisecond = DatatypeConstants.FIELD_UNDEFINED
-                }
-            }
-        }
-    }
-
     fun makeText(language: String, content: Content): TextType?{
-        return (content.medicationValue?.compoundPrescription ?: content.medicationValue?.medicinalProduct?.intendedname)?.let {
+        return if (!content.medicationValue?.compoundPrescription.isNullOrEmpty()){
             TextType().apply {
                 l = language
-                value = it
+                value = content.medicationValue?.medicinalProduct?.intendedname
             }
+        } else if((content.medicationValue?.endMoment ?: -1) > 0 && !content.medicationValue?.endCondition.isNullOrEmpty()){
+            TextType().apply {
+                l = language
+                value = content.medicationValue?.endCondition //set endreason as text of the medication item, NOTE: endreason does not exist yet on the medication object, endcondition is used instead MS-6840
+            }
+        } else {
+            null
         }
     }
 
@@ -598,7 +594,7 @@ open class KmehrExport(
                 author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = "1" })
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "iCure-Item"; sv = config.soft?.version ?: "1.0"; value = ssc.id ?: dem.id ?: patient.id })
-                recorddatetime = makeXGC(ssc.created ?: ((dem.openingDate ?: dem.valueDate)?.let { FuzzyValues.getDateTime(it) } ?: LocalDateTime.now()).atZone(ZoneId.systemDefault()).toEpochSecond()*1000)
+                recorddatetime = Utils.makeXGC(ssc.created ?: ((dem.openingDate ?: dem.valueDate)?.let { FuzzyValues.getDateTime(it) } ?: LocalDateTime.now()).atZone(ZoneId.systemDefault()).toEpochSecond()*1000)
                 isIscomplete = true
                 isIsvalidated = true
 
@@ -629,7 +625,7 @@ open class KmehrExport(
                     }
                 }
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (sender.nihii ?: sender.id) + "." + (config._kmehrId ?: System.currentTimeMillis()) })
-                makeXGC(Instant.now().toEpochMilli()).let {
+                Utils.makeXGC(Instant.now().toEpochMilli()).let {
                     date = it
                     time = it
                 }
