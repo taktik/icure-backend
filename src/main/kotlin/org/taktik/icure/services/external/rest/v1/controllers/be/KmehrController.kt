@@ -354,10 +354,11 @@ class KmehrController(
     @Operation(summary = "Get Medicationscheme export", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
     @PostMapping("/medicationscheme/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun generateMedicationSchemeExport(@PathVariable patientId: String,
-                                               @RequestParam language: String,
-                                               @RequestParam recipientSafe: String,
-                                               @RequestParam version: Int,
-                                               @RequestBody medicationSchemeExportParams: MedicationSchemeExportInfoDto,
+                                       @RequestParam language: String,
+                                       @RequestParam recipientSafe: String,
+                                       @RequestParam(defaultValue = "0") version: Int,
+                                       @RequestHeader("X-Timezone-Offset") tz: String?,
+                                       @RequestBody medicationSchemeExportParams: MedicationSchemeExportInfoDto,
                                        response: ServerHttpResponse) = flow {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
@@ -367,7 +368,7 @@ class KmehrController(
                 if (medicationSchemeExportParams.services.isEmpty())
                     emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language, recipientSafe, version, null, null))
                 else
-                    emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language, recipientSafe, version, medicationSchemeExportParams.services.map { s -> serviceMapper.map(s) }, null))
+                    emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language, recipientSafe, version, medicationSchemeExportParams.services.map { s -> serviceMapper.map(s) }, medicationSchemeExportParams.serviceAuthors?.map{a -> healthcarePartyMapper.map(a)}, tz, null))
             }
         } ?: throw IllegalArgumentException("Missing argument")
     }.injectReactorContext()
