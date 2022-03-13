@@ -280,19 +280,19 @@ class SoftwareMedicalFileExport(
 
                             hesByContactId = hesByContactId.filterKeys { it != contact.id } // prevent re-using the same He for the next subcontact
 
-                            contact.services.filter { s -> s.tags.find { t -> t.code == "incapacity" } != null }.forEach { incapacityService ->
+                            services.filter { s -> s.tags.find { t -> t.code == "incapacity" } != null }.forEach { incapacityService ->
                                 headingsAndItemsAndTexts.add(makeIncapacityItem(incapacityService, language))
                                 incapacityService.content[language]?.documentId?.let { docId ->
                                     createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config, decryptor)
                                 }
                             }
-                            contact.services.filter { s -> s.tags.find { t -> t.code == "physiotherapy" } != null }.forEach { kineService ->
+                            services.filter { s -> s.tags.find { t -> t.code == "physiotherapy" } != null }.forEach { kineService ->
                                 specialPrescriptions.add(makeKinePrescriptionTransaction(kineService, language, decryptor))
                             }
-                            contact.services.filter { s -> s.tags.find { t -> t.code == "medicalcares" } != null }.forEach { nurseService ->
+                            services.filter { s -> s.tags.find { t -> t.code == "medicalcares" } != null }.forEach { nurseService ->
                                 specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService, language, decryptor))
                             }
-                            contact.services.filter { s -> isSummary(s) }.forEach { summaryService ->
+                            services.filter { s -> isSummary(s) }.forEach { summaryService ->
                                 summaries.add(makeSummaryTransaction(contact, summaryService, language))
                             }
 

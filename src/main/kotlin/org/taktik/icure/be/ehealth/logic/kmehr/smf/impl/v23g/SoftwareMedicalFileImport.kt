@@ -964,7 +964,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         if (existing == null && ((nihii == null || nihii.trim() == "") && (niss == null || niss.trim() == ""))
                 && p.firstname?.trim()?.let { it == "" } != false
                 && p.familyname?.trim()?.let { it == "" } != false) {
-            existing = healthcarePartyLogic.listHealthcarePartiesByName(p.name).firstOrNull()
+            existing = p.name?.let { healthcarePartyLogic.listHealthcarePartiesByName(p.name).firstOrNull() }
             existing?.let {
                 v?.hcps?.add(it) // do not create it, but should appear in patient external hcparties
             }
