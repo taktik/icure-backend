@@ -1,19 +1,5 @@
 /*
- *  iCure Data Stack. Copyright (c) 2020 Taktik SA
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as
- *     published by the Free Software Foundation, either version 3 of the
- *     License, or (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful, but
- *     WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Affero General Public License for more details.
- *
- *     You should have received a copy of the GNU Affero General Public
- *     License along with this program.  If not, see
- *     <https://www.gnu.org/licenses/>.
+ * Copyright (c) 2020. Taktik SA, All rights reserved.
  */
 
 //
@@ -68,23 +54,23 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class SetBcpiReferencesRequestType {
 
-    @XmlElement(name = "NoSwitchReason")
+    @XmlElement(name = "NoSwitchReason", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<NoSwitchReasonType> noSwitchReason;
-    @XmlElement(name = "VirtualForm")
+    @XmlElement(name = "VirtualForm", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<VirtualFormType> virtualForm;
-    @XmlElement(name = "Wada")
+    @XmlElement(name = "Wada", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<WadaType> wada;
-    @XmlElement(name = "NoGenericPrescriptionReason")
+    @XmlElement(name = "NoGenericPrescriptionReason", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<NoGenericPrescriptionReasonType> noGenericPrescriptionReason;
-    @XmlElement(name = "Indication")
+    @XmlElement(name = "Indication", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<IndicationType> indication;
-    @XmlElement(name = "DosageParameter")
+    @XmlElement(name = "DosageParameter", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<DosageParameterType> dosageParameter;
-    @XmlElement(name = "StandardForm")
+    @XmlElement(name = "StandardForm", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<StandardFormBcpiType> standardForm;
-    @XmlElement(name = "StandardRoute")
+    @XmlElement(name = "StandardRoute", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<StandardRouteBcpiType> standardRoute;
-    @XmlElement(name = "StandardSubstance")
+    @XmlElement(name = "StandardSubstance", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<StandardSubstanceBcpiType> standardSubstance;
 
     /**

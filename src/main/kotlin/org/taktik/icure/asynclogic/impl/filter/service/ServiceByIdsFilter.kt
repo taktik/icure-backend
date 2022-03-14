@@ -19,9 +19,8 @@ package org.taktik.icure.asynclogic.impl.filter.service
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flowOf
-import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.impl.filter.Filter
+import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.impl.filter.Filters
 
 @Service

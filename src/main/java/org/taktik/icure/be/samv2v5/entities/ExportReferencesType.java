@@ -1,19 +1,5 @@
 /*
- *  iCure Data Stack. Copyright (c) 2020 Taktik SA
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as
- *     published by the Free Software Foundation, either version 3 of the
- *     License, or (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful, but
- *     WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Affero General Public License for more details.
- *
- *     You should have received a copy of the GNU Affero General Public
- *     License along with this program.  If not, see
- *     <https://www.gnu.org/licenses/>.
+ * Copyright (c) 2020. Taktik SA, All rights reserved.
  */
 
 //
@@ -89,53 +75,53 @@ public class ExportReferencesType
     extends VersionedExportType
 {
 
-    @XmlElement(name = "AtcClassification", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "AtcClassification")
     protected List<AtcClassificationType> atcClassification;
-    @XmlElement(name = "DeliveryModus", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "DeliveryModus")
     protected List<DeliveryModusType> deliveryModus;
-    @XmlElement(name = "DeliveryModusSpecification", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "DeliveryModusSpecification")
     protected List<DeliveryModusSpecificationType> deliveryModusSpecification;
-    @XmlElement(name = "DeviceType", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "DeviceType")
     protected List<DeviceTypeType> deviceType;
-    @XmlElement(name = "PackagingClosure", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "PackagingClosure")
     protected List<PackagingClosureType> packagingClosure;
-    @XmlElement(name = "PackagingMaterial", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "PackagingMaterial")
     protected List<PackagingMaterialType> packagingMaterial;
-    @XmlElement(name = "PackagingType", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "PackagingType")
     protected List<PackagingTypeType> packagingType;
-    @XmlElement(name = "PharmaceuticalForm", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "PharmaceuticalForm")
     protected List<PharmaceuticalFormType> pharmaceuticalForm;
-    @XmlElement(name = "RouteOfAdministration", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "RouteOfAdministration")
     protected List<RouteOfAdministrationType> routeOfAdministration;
-    @XmlElement(name = "Substance", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "Substance")
     protected List<SubstanceType> substance;
-    @XmlElement(name = "NoSwitchReason", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "NoSwitchReason")
     protected List<NoSwitchReasonType> noSwitchReason;
-    @XmlElement(name = "VirtualForm", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "VirtualForm")
     protected List<VirtualFormType> virtualForm;
-    @XmlElement(name = "Wada", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "Wada")
     protected List<WadaType> wada;
-    @XmlElement(name = "NoGenericPrescriptionReason", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "NoGenericPrescriptionReason")
     protected List<NoGenericPrescriptionReasonType> noGenericPrescriptionReason;
-    @XmlElement(name = "Indication", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "Indication")
     protected List<IndicationType> indication;
-    @XmlElement(name = "DosageParameter", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "DosageParameter")
     protected List<DosageParameterType> dosageParameter;
-    @XmlElement(name = "StandardForm", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "StandardForm")
     protected List<StandardFormCommonType> standardForm;
-    @XmlElement(name = "StandardRoute", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "StandardRoute")
     protected List<StandardRouteCommonType> standardRoute;
-    @XmlElement(name = "StandardSubstance", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "StandardSubstance")
     protected List<StandardSubstanceCommonType> standardSubstance;
-    @XmlElement(name = "StandardUnit", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "StandardUnit")
     protected List<StandardUnitFamhpType> standardUnit;
-    @XmlElement(name = "Appendix", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "Appendix")
     protected List<AppendixType> appendix;
-    @XmlElement(name = "FormCategory", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "FormCategory")
     protected List<FormCategoryType> formCategory;
-    @XmlElement(name = "Parameter", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "Parameter")
     protected List<ParameterType> parameter;
-    @XmlElement(name = "ReimbursementCriterion", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
+    @XmlElement(name = "ReimbursementCriterion")
     protected List<ReimbursementCriterionType> reimbursementCriterion;
 
     /**
