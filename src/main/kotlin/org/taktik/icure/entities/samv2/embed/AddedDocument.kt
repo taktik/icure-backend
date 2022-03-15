@@ -9,8 +9,8 @@ import org.taktik.icure.entities.samv2.embed.DataPeriod
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class AddedDocument(
-        override val from: Long,
-        override val to: Long,
+        override val from: Long?,
+        override val to: Long?,
         val verseSeq: Long,
         val documentSeq: Long,
         val mimeType: String? = null,
