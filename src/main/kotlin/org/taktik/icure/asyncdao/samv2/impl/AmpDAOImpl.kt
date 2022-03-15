@@ -225,7 +225,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val viewQuery = pagedViewQuery<Amp, ComplexKey>(
                 client,
                 "by_chapter_paragraph",
-                paginationOffset.startKey?.let { ComplexKey.of(it[0], it[1])} ?: ComplexKey.of(chapter, paragraph),
+                ComplexKey.of(chapter, paragraph),
                 ComplexKey.of(chapter, paragraph),
                 paginationOffset.toPaginationOffset { sk -> ComplexKey.of(*sk.mapIndexed { i, s -> if (i==1) s.let { StringUtils.sanitizeString(it)} else s }.toTypedArray()) },
                 false
@@ -269,11 +269,11 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
-        val viewQuery = createQuery(client, "by_groupcode")
+        val viewQuery = createQuery(client, "by_dmppcode")
                 .keys(dmppCodes)
                 .reduce(false)
                 .includeDocs(true)
-        emitAll(client.queryViewIncludeDocs<String, Int,Amp>(viewQuery).map { it.doc })
+        emitAll(client.queryViewIncludeDocs<String, Int, Amp>(viewQuery).map { it.doc })
     }
 
     override fun listAmpsByVmpGroupIds(vmpGroupIds: List<String>): Flow<Amp> = flow {

@@ -34,6 +34,6 @@ class VerseDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("chapIVCouch
                 .endKey(ComplexKey.of(chapterName, paragraphName, ComplexKey.emptyObject(), ComplexKey.emptyObject()))
                 .includeDocs(true)
 
-        emitAll(client.queryViewIncludeDocs<String, Int, Verse>(viewQuery).map { it.doc }.filter { it.endDate == null })
+        emitAll(client.queryViewIncludeDocs<ComplexKey, Int, Verse>(viewQuery).map { it.doc }.filter { it.endDate == null })
     }
 }

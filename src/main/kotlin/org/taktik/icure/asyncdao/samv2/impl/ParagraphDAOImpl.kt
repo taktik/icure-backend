@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.couchdb.id.IDGenerator
@@ -32,13 +33,13 @@ import java.text.DecimalFormat
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.samv2.Paragraph') emit( null, doc._id )}")
 class ParagraphDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("chapIVCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, val ampDAO: AmpDAO) : InternalDAOImpl<Paragraph>(
         Paragraph::class.java, couchDbProperties, couchDbDispatcher, idGenerator), ParagraphDAO {
-    @View(name = "by_language_label", map = "classpath:js/amp/By_language_label.js")
+    @View(name = "by_language_label", map = "classpath:js/paragraph/By_language_label.js")
     override fun findParagraphs(searchString: String, language: String, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> = flow {
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
         val sanitizedLabel= searchString.let { StringUtils.sanitizeString(it) }
-        val viewQuery = pagedViewQuery<Amp, ComplexKey>(
+        val viewQuery = pagedViewQuery<Paragraph, ComplexKey>(
                 client,
                 "by_language_label",
                 ComplexKey.of(
@@ -47,12 +48,12 @@ class ParagraphDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("chapIVC
                 ),
                 ComplexKey.of(
                         language,
-                        sanitizedLabel
+                        sanitizedLabel+"\ufff0"
                 ),
                 paginationOffset.toPaginationOffset { sk -> ComplexKey.of(*sk.mapIndexed { i, s -> if (i == 1) s.let { StringUtils.sanitizeString(it)} else s }.toTypedArray()) },
                 false
         )
-        emitAll(client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Amp::class.java))
+        emitAll(client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Paragraph::class.java).filter { it !is ViewRowWithDoc<*,*,*> || (it.doc as Paragraph).endDate == null })
     }
 
     @View(name = "by_chapter_paragraph", map = "classpath:js/paragraph/By_chapter_paragraph.js")
@@ -60,12 +61,14 @@ class ParagraphDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("chapIVC
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
-        val legalReferences = ampDAO.listAmpsByDmppCodes(listOf(DecimalFormat("0000000").format(cnk))).flatMapConcat { it.ampps.flatMap { it.dmpps.flatMap { (it.reimbursements ?: emptySet()).mapNotNull { it.legalReferencePath } } }.asFlow() }.distinct().toList()
+        val legalReferences = ampDAO.listAmpsByDmppCodes(listOf(DecimalFormat("0000000").format(cnk))).flatMapConcat {
+            it.ampps.flatMap { it.dmpps.flatMap { (it.reimbursements ?: emptySet()).mapNotNull { it.legalReferencePath } } }.asFlow()
+        }.mapNotNull { it.split("-").takeIf { it.size == 3 && it[1] == "IV" }?.let { ComplexKey.of("IV", it[2]) } }.distinct().toList()
 
         val viewQuery = createQuery(client, "by_chapter_paragraph")
-                .keys(legalReferences.mapNotNull { it.split("-").takeIf { it.size == 3 && it[1] == "IV" }?.let { ComplexKey.of("IV", it[2]) } })
+                .keys(legalReferences)
                 .includeDocs(true)
-        emitAll(client.queryViewIncludeDocs<String, Int, Paragraph>(viewQuery).map { it.doc }.filter { it.endDate == null })
+        emitAll(client.queryViewIncludeDocs<ComplexKey, Int, Paragraph>(viewQuery).map { it.doc }.filter { it.endDate == null })
     }
 
     override suspend fun getParagraph(chapterName: String, paragraphName: String): Paragraph? {

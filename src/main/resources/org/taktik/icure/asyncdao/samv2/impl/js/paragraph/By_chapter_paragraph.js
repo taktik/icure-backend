@@ -1,3 +1,5 @@
 map = function(doc) {
-    emit([doc.chapterName, doc.paragraphName], 1)
+    if (doc.java_type === 'org.taktik.icure.entities.samv2.Paragraph' && !doc.deleted) {
+        emit([doc.chapterName, doc.paragraphName], 1)
+    }
 };

@@ -122,11 +122,6 @@ open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T
         return client.update(entity, entityClass)
     }
 
-    override fun getEntities(ids: List<String>): Flow<T> = flow {
-            emitAll(couchDbDispatcher.getClient(URI(couchDbProperties.url)).queryView(ViewQuery()
-                    .designDocId(designDocName(entityClass))
-                    .viewName("all").keys(ids).includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull())}
-
     override fun purge(entities: Flow<T>) = flow {
         val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
         if (log.isDebugEnabled) {
@@ -149,7 +144,7 @@ open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T
         val generated = StdDesignDocumentFactory().generateFrom(baseId, this)
         val fromDatabase = client.get(generated.id, DesignDocument::class.java)
                 ?: client.get(baseId, DesignDocument::class.java)
-        val (_, changed) = fromDatabase?.mergeWith(generated, true) ?: generated to true
+        val (_, changed) = fromDatabase?.mergeWith(generated, true) ?: (generated to true)
         if (changed && updateIfExists) {
             client.update(generated)
         }

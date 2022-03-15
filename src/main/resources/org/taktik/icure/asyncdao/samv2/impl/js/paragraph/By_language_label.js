@@ -5,7 +5,7 @@ map = function(doc) {
         });
     };
 
-    if (doc.java_type === 'org.taktik.icure.entities.samv2.Amp' && !doc.deleted) {
+    if (doc.java_type === 'org.taktik.icure.entities.samv2.Paragraph' && !doc.deleted) {
         // noinspection NonAsciiCharacters
         var latin_map={"á":"a","ă":"a","ắ":"a","ặ":"a","ằ":"a","ẳ":"a","ẵ":"a","ǎ":"a","â":"a","ấ":"a","ậ":"a","ầ":"a","ẩ":"a","ẫ":"a","ä":"a","ǟ":"a","ȧ":"a",
             "ǡ":"a","ạ":"a","ȁ":"a","à":"a","ả":"a","ȃ":"a","ā":"a","ą":"a","ᶏ":"a","ẚ":"a","å":"a","ǻ":"a","ḁ":"a","ⱥ":"a","ã":"a","ꜳ":"aa","æ":"ae",
@@ -39,8 +39,8 @@ map = function(doc) {
         emit(['fr', doc.paragraphName], 1)
         emit(['nl', doc.paragraphName], 1)
 
-        wordsPerLanguage['fr'] = (wordsPerLanguage[fr]||[]).concat(normalize_substrings(doc.keyStringFr, latin_map))
-        wordsPerLanguage['nl'] = (wordsPerLanguage[fr]||[]).concat(normalize_substrings(doc.keyStringFr, latin_map))
+        if (doc.keyStringFr) wordsPerLanguage['fr'] = (wordsPerLanguage['fr']||[]).concat(normalize_substrings(doc.keyStringFr, latin_map))
+        if (doc.keyStringNl) wordsPerLanguage['nl'] = (wordsPerLanguage['nl']||[]).concat(normalize_substrings(doc.keyStringNl, latin_map))
 
         Object.keys(wordsPerLanguage).forEach(function (l) {
             var terms = wordsPerLanguage[l]

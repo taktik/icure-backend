@@ -22,7 +22,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import org.springframework.stereotype.Service
-import org.taktik.couchdb.ClientImpl
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.entity.ComplexKey
@@ -233,16 +232,18 @@ class SamV2LogicImpl(
     @ExperimentalCoroutinesApi
     @FlowPreview
     override fun getVtmNamesForParagraph(chapterName: String, paragraphName: String, language: String): Flow<String> {
-        return getAmpsForParagraph(chapterName, paragraphName).bufferedChunks(100,200).flatMapConcat {
-            vmpDAO.getEntities(it.mapNotNull { it.vmp?.id }).mapNotNull { it.vtm?.name?.let { t ->
-                when(language) {
-                    "fr" -> t.fr
-                    "en" -> t.en
-                    "de" -> t.de
-                    "nl" -> t.nl
-                    else -> null
+        return getAmpsForParagraph(chapterName, paragraphName).bufferedChunks(100, 200).flatMapConcat {
+            vmpDAO.getEntities(it.mapNotNull { it.vmp?.id }).mapNotNull {
+                it.vtm?.name?.let { t ->
+                    when (language) {
+                        "fr" -> t.fr
+                        "en" -> t.en
+                        "de" -> t.de
+                        "nl" -> t.nl
+                        else -> null
+                    }
                 }
-            } }
+            }
         }.distinct()
     }
 
