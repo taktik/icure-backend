@@ -35,5 +35,6 @@ data class TimeTableItem(
         @JsonProperty("isHomeVisit") val homeVisit: Boolean = false,
         val placeId: String? = null,
         val publicTimeTableItem: Boolean = false,
+        val acceptsNewPatient: Boolean = true,
         @JsonProperty("isUnavailable") val unavailable: Boolean = false
 ) : Serializable
