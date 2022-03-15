@@ -372,7 +372,7 @@ class SamV2Controller(
             @PathVariable docSeq: Long,
             @PathVariable language: String,
             response : HttpServletResponse) = flow {
-        samV2Logic.getParagraphInfos(chapterName, paragraphName)?.addedDocuments?.find {d -> d.documentSeq == docSeq && d.verseSeq == verseSeq}?.addressUrl?.let {
+            samV2Logic.listVerses(chapterName, paragraphName).firstOrNull { it.verseSeq == verseSeq }?.addedDocuments?.find {d -> d.documentSeq == docSeq && d.verseSeq == verseSeq}?.addressUrl?.let {
             response.contentType = MediaType.APPLICATION_PDF_VALUE
             val uri = URI(it.replace("@lng@", language))
             emitAll(proxyWebClient.get().uri(uri).retrieve().bodyToFlux(ByteBuffer::class.java).asFlow())
@@ -410,7 +410,7 @@ class SamV2Controller(
     fun getVersesHierarchy(
             @PathVariable chapterName: String,
             @PathVariable paragraphName: String) : Mono<VerseDto?> = mono {
-        samV2Logic.getVersesHierarchy(chapterName, paragraphName)?.let { verseMapper.map(it) }
+        samV2Logic.getVersesHierarchy(chapterName, paragraphName).let { verseMapper.map(it) }
     }
 
     private suspend fun addProductIdsToVmpGroups(vmpGroups: Collection<VmpGroupDto>): List<VmpGroupDto> {

@@ -198,7 +198,9 @@ class SamV2LogicImpl(
     }
 
     override fun findParagraphs(searchString: String, language: String): Flow<Paragraph> {
-        return paragraphDAO.findParagraphs(searchString, language)
+        return paragraphDAO.findParagraphs(searchString, language, PaginationOffset(1000))
+                .filterIsInstance<ViewRowWithDoc<ComplexKey, Int, Paragraph>>()
+                .map { it.doc }
     }
 
     override fun findParagraphsWithCnk(cnk: Long, language: String): Flow<Paragraph> {
@@ -210,12 +212,17 @@ class SamV2LogicImpl(
     }
 
     override suspend fun getVersesHierarchy(chapterName: String, paragraphName: String): Verse {
-        val allVerses: List<Verse> = verseDAO.listVerses(chapterName, paragraphName).toList()
+        val allVerses: List<Verse> = listVerses(chapterName, paragraphName).toList()
 
         fun fillChildren(v: Verse): Verse = v.copy(children = allVerses.filter { it.verseSeqParent == v.verseSeq }.map { fillChildren(it) })
 
         return fillChildren(allVerses.first())
     }
+
+    override fun listVerses(
+            chapterName: String,
+            paragraphName: String
+    ) = verseDAO.listVerses(chapterName, paragraphName)
 
     override fun getAmpsForParagraph(chapterName: String, paragraphName: String): Flow<Amp> {
         return ampDAO.findAmpsByChapterParagraph(chapterName, paragraphName, PaginationOffset(1000))

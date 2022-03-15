@@ -70,6 +70,8 @@ interface SamV2Logic {
     fun findParagraphs(searchString: String, language: String): Flow<Paragraph>
     fun findParagraphsWithCnk(cnk: Long, language: String): Flow<Paragraph>
 
+    fun listVerses(chapterName: String, paragraphName: String): Flow<Verse>
+
     suspend fun getParagraphInfos(chapterName: String, paragraphName: String): Paragraph?
     suspend fun getVersesHierarchy(chapterName: String, paragraphName: String): Verse
 
