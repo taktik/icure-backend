@@ -56,24 +56,24 @@ class ParagraphDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("chapIVC
         emitAll(client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Amp::class.java))
     }
 
+    @View(name = "by_chapter_paragraph", map = "classpath:js/paragraph/By_chapter_paragraph.js")
     override fun findParagraphsWithCnk(cnk: Long, language: String): Flow<Paragraph> = flow {
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
         val legalReferences = ampDAO.listAmpsByDmppCodes(listOf(DecimalFormat("0000000").format(cnk))).flatMapConcat { it.ampps.flatMap { it.dmpps.flatMap { (it.reimbursements ?: emptySet()).mapNotNull { it.legalReferencePath } } }.asFlow() }.distinct().toList()
 
-        val viewQuery = createQuery(client, "by_user")
+        val viewQuery = createQuery(client, "by_chapter_paragraph")
                 .keys(legalReferences.mapNotNull { it.split("-").takeIf { it.size == 3 && it[1] == "IV" }?.let { ComplexKey.of("IV", it[2]) } })
                 .includeDocs(true)
         emitAll(client.queryViewIncludeDocs<String, Int, Paragraph>(viewQuery).map { it.doc }.filter { it.endDate == null })
     }
 
-    @View(name = "by_chapter_paragraph", map = "classpath:js/amp/By_chapter_paragraph.js")
     override suspend fun getParagraph(chapterName: String, paragraphName: String): Paragraph? {
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
-        val viewQuery = createQuery(client, "by_user")
+        val viewQuery = createQuery(client, "by_chapter_paragraph")
                 .startKey(ComplexKey.of(chapterName, paragraphName))
                 .endKey(ComplexKey.of(chapterName, paragraphName))
                 .includeDocs(true)

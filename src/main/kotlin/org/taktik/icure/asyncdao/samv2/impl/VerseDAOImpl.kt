@@ -25,11 +25,12 @@ import java.net.URI
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.samv2.Verse') emit( null, doc._id )}")
 class VerseDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("chapIVCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : InternalDAOImpl<Verse>(
         Verse::class.java, couchDbProperties, couchDbDispatcher, idGenerator), VerseDAO {
+    @View(name = "by_chapter_paragraph", map = "classpath:js/verse/By_chapter_paragraph.js")
     override fun listVerses(chapterName: String, paragraphName: String): Flow<Verse> = flow {
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
 
-        val viewQuery = createQuery(client, "by_user")
+        val viewQuery = createQuery(client, "by_chapter_paragraph")
                 .startKey(ComplexKey.of(chapterName, paragraphName, null, null))
                 .endKey(ComplexKey.of(chapterName, paragraphName, ComplexKey.emptyObject(), ComplexKey.emptyObject()))
                 .includeDocs(true)
