@@ -29,7 +29,6 @@ import java.text.DecimalFormat
 @FlowPreview
 @ExperimentalCoroutinesApi
 @Repository("paragraphDAO")
-@Profile("app")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.samv2.Paragraph') emit( null, doc._id )}")
 class ParagraphDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("chapIVCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, val ampDAO: AmpDAO) : InternalDAOImpl<Paragraph>(
         Paragraph::class.java, couchDbProperties, couchDbDispatcher, idGenerator), ParagraphDAO {

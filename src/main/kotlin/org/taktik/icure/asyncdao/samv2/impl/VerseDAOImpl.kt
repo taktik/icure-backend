@@ -21,7 +21,6 @@ import java.net.URI
 @FlowPreview
 @ExperimentalCoroutinesApi
 @Repository("verseDAO")
-@Profile("app")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.samv2.Verse') emit( null, doc._id )}")
 class VerseDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("chapIVCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : InternalDAOImpl<Verse>(
         Verse::class.java, couchDbProperties, couchDbDispatcher, idGenerator), VerseDAO {
