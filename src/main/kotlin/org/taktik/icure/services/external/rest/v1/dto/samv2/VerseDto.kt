@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
+import org.taktik.icure.services.external.rest.v1.dto.samv2.embed.AddedDocumentDto
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -54,6 +55,7 @@ data class VerseDto(
         val purchasingAdvisorQualList: String? = null,
         val legalReference: String? = null,
         val modificationDate: Long? = null,
+        val addedDocuments: List<AddedDocumentDto> = emptyList(),
         val agreementYearMax: Long? = null,
         val agreementRenewalMax: Long? = null,
         val sexRestricted: String? = null,

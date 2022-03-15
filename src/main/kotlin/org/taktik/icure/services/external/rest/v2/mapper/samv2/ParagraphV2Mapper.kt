@@ -26,7 +26,7 @@ import org.taktik.icure.entities.samv2.Paragraph
 import org.taktik.icure.services.external.rest.v1.dto.samv2.ParagraphDto
 import org.taktik.icure.services.external.rest.v1.mapper.samv2.embed.AddedDocumentMapper
 
-@Mapper(componentModel = "spring", uses = [AddedDocumentMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ParagraphV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),

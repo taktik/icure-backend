@@ -8,6 +8,7 @@ import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.RevisionInfo
+import org.taktik.icure.entities.samv2.embed.AddedDocument
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -36,6 +37,7 @@ data class Verse(
         val purchasingAdvisorQualList: String? = null,
         val legalReference: String? = null,
         val modificationDate: Long? = null,
+        val addedDocuments: List<AddedDocument> = emptyList(),
         val agreementYearMax: Long? = null,
         val agreementRenewalMax: Long? = null,
         val sexRestricted: String? = null,
