@@ -37,6 +37,7 @@ import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.samv2.Amp
+import org.taktik.icure.entities.samv2.Paragraph
 import org.taktik.icure.entities.samv2.SamVersion
 import org.taktik.icure.properties.CouchDbProperties
 
@@ -216,6 +217,22 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         emitAll(client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Amp::class.java))
     }
 
+    @View(name = "by_chapter_paragraph", map = "classpath:js/amp/By_chapter_paragraph.js")
+    override fun findAmpsByChapterParagraph(chapter: String, paragraph: String, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> = flow {
+        val dbInstanceUri = URI(couchDbProperties.url)
+        val client = couchDbDispatcher.getClient(dbInstanceUri)
+
+        val viewQuery = pagedViewQuery<Amp, ComplexKey>(
+                client,
+                "by_chapter_paragraph",
+                paginationOffset.startKey?.let { ComplexKey.of(it[0], it[1])} ?: ComplexKey.of(chapter, paragraph),
+                ComplexKey.of(chapter, paragraph),
+                paginationOffset.toPaginationOffset { sk -> ComplexKey.of(*sk.mapIndexed { i, s -> if (i==1) s.let { StringUtils.sanitizeString(it)} else s }.toTypedArray()) },
+                false
+        )
+        emitAll(client.queryView(viewQuery, ComplexKey::class.java, Int::class.java, Amp::class.java))
+    }
+
     override fun listAmpIdsByLabel(language: String?, label: String?): Flow<String> = flow {
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri)
@@ -291,4 +308,5 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
                 .includeDocs(true)
         emitAll(client.queryViewIncludeDocs<String, Int,Amp>(viewQuery).map { it.doc })
     }
+
 }

@@ -7,6 +7,7 @@ import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.RevisionInfo
+import org.taktik.icure.entities.samv2.embed.AddedDocument
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -29,6 +30,8 @@ data class Paragraph(
         val paragraphVersion: Long? = null,
         val agreementTypePro: String? = null,
         val modificationStatus: String? = null,
+        val addedDocuments: List<AddedDocument> = emptyList(),
+
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,

@@ -22,45 +22,29 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.mono
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.apache.commons.io.IOUtils
+import org.springframework.http.MediaType
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.bodyToFlux
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.icure.asynclogic.samv2.SamV2Logic
 import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.samv2.Amp
-import org.taktik.icure.entities.samv2.Nmp
-import org.taktik.icure.entities.samv2.Vmp
-import org.taktik.icure.entities.samv2.VmpGroup
+import org.taktik.icure.entities.samv2.*
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
-import org.taktik.icure.services.external.rest.v1.dto.samv2.AmpDto
-import org.taktik.icure.services.external.rest.v1.dto.samv2.NmpDto
-import org.taktik.icure.services.external.rest.v1.dto.samv2.VmpDto
-import org.taktik.icure.services.external.rest.v1.dto.samv2.VmpGroupDto
-import org.taktik.icure.services.external.rest.v1.dto.samv2.PharmaceuticalFormDto
-import org.taktik.icure.services.external.rest.v1.dto.samv2.SubstanceDto
-import org.taktik.icure.services.external.rest.v1.mapper.samv2.AmpMapper
-import org.taktik.icure.services.external.rest.v1.mapper.samv2.NmpMapper
-import org.taktik.icure.services.external.rest.v1.mapper.samv2.SamVersionMapper
-import org.taktik.icure.services.external.rest.v1.mapper.samv2.VmpGroupMapper
-import org.taktik.icure.services.external.rest.v1.mapper.samv2.VmpMapper
-import org.taktik.icure.services.external.rest.v1.mapper.samv2.PharmaceuticalFormMapper
-import org.taktik.icure.services.external.rest.v1.mapper.samv2.SubstanceMapper
+import org.taktik.icure.services.external.rest.v1.dto.samv2.*
+import org.taktik.icure.services.external.rest.v1.mapper.samv2.*
 import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
+import java.net.URI
+import java.nio.ByteBuffer
 import java.util.*
+import javax.servlet.http.HttpServletResponse
 
 @RestController
 @RequestMapping("/rest/v1/be_samv2")
@@ -74,6 +58,8 @@ class SamV2Controller(
         private val pharmaceuticalFormMapper: PharmaceuticalFormMapper,
         private val vmpGroupMapper: VmpGroupMapper,
         private val samVersionMapper: SamVersionMapper,
+        private val paragraphMapper: ParagraphMapper,
+        private val verseMapper: VerseMapper,
         private val objectMapper: ObjectMapper
 ) {
     private val DEFAULT_LIMIT = 1000
@@ -81,6 +67,7 @@ class SamV2Controller(
     private val vmpToVmpDto = { it: Vmp -> vmpMapper.map(it) }
     private val nmpToNmpDto = { it: Nmp -> nmpMapper.map(it) }
     private val vmpGroupToVmpGroupDto = { it: VmpGroup -> vmpGroupMapper.map(it) }
+    private val proxyWebClient = WebClient.builder().build()
 
     @Operation(summary = "Get Samv2 version.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/v")
@@ -374,6 +361,56 @@ class SamV2Controller(
     @GetMapping("/pharmaform")
     fun listPharmaceuticalForms(): Flux<PharmaceuticalFormDto> {
         return samV2Logic.listPharmaceuticalForms().map { pharmaceuticalFormMapper.map(it) }.injectReactorContext()
+    }
+
+    @GetMapping("/docpreview/{chapterName}/{paragraphName}/{verseSeq}/{docSeq}/{language}", produces = ["application/octet-stream"])
+    @ResponseBody
+    fun getAddedDocument(
+            @PathVariable chapterName: String,
+            @PathVariable paragraphName: String,
+            @PathVariable verseSeq: Long,
+            @PathVariable docSeq: Long,
+            @PathVariable language: String,
+            response : HttpServletResponse) = flow {
+        samV2Logic.getParagraphInfos(chapterName, paragraphName)?.addedDocuments?.find {d -> d.documentSeq == docSeq && d.verseSeq == verseSeq}?.addressUrl?.let {
+            response.contentType = MediaType.APPLICATION_PDF_VALUE
+            val uri = URI(it.replace("@lng@", language))
+            emitAll(proxyWebClient.get().uri(uri).retrieve().bodyToFlux(ByteBuffer::class.java).asFlow())
+        }
+    }
+
+    @GetMapping("/sam/search/{searchString}/{language}")
+    fun findParagraphs(
+            @PathVariable searchString: String,
+            @PathVariable language: String): Flux<ParagraphDto> =
+            samV2Logic.findParagraphs(searchString, language).map { paragraphMapper.map(it) }.injectReactorContext()
+
+    @GetMapping("/sam/bycnk/{cnk}/{language}")
+    fun findParagraphsWithCnk(
+            @PathVariable cnk: Long,
+            @PathVariable language: String): Flux<ParagraphDto> =
+            samV2Logic.findParagraphsWithCnk(cnk, language).map { paragraphMapper.map(it) }.injectReactorContext()
+
+    @GetMapping("/sam/mpps/{chapterName}/{paragraphName}")
+    fun getAmpsForParagraph(
+            @PathVariable chapterName: String,
+            @PathVariable paragraphName: String) : Flux<AmpDto> =
+            samV2Logic.getAmpsForParagraph(chapterName, paragraphName).map { ampMapper.map(it) }.injectReactorContext()
+
+
+    @GetMapping("/sam/vtms/{chapterName}/{paragraphName}/{language}")
+    fun getVtmNamesForParagraph(
+            @PathVariable chapterName: String,
+            @PathVariable paragraphName: String,
+            @PathVariable language: String) : Mono<List<String>> = mono {
+        samV2Logic.getVtmNamesForParagraph(chapterName, paragraphName, language).toList()
+    }
+
+    @GetMapping("/sam/verse/{chapterName}/{paragraphName}")
+    fun getVersesHierarchy(
+            @PathVariable chapterName: String,
+            @PathVariable paragraphName: String) : Mono<VerseDto?> = mono {
+        samV2Logic.getVersesHierarchy(chapterName, paragraphName)?.let { verseMapper.map(it) }
     }
 
     private suspend fun addProductIdsToVmpGroups(vmpGroups: Collection<VmpGroupDto>): List<VmpGroupDto> {
