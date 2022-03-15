@@ -34,5 +34,6 @@ data class TimeTableItemDto(
         val homeVisit: Boolean = false,
         val placeId: String? = null,
         val publicTimeTableItem: Boolean = false,
+        val acceptsNewPatient: Boolean = true,
         val unavailable: Boolean = false
 ) : Serializable
