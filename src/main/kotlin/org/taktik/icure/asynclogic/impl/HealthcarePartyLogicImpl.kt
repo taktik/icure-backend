@@ -94,37 +94,6 @@ class HealthcarePartyLogicImpl(
         }
     }
 
-    override fun deleteHealthcareParties(groupId: String, healthcarePartyIds: List<String>) = flow {
-        try {
-            emitAll(healthcarePartyDAO.remove(healthcarePartyDAO.getEntities(healthcarePartyIds).toList()))
-        } catch (e: Exception) {
-            log.error(e.message, e)
-            throw DeletionException("The healthcare party (" + healthcarePartyIds + ") not found or " + e.message, e)
-        }
-    }
-
-    override suspend fun createHealthcareParty(groupId: String, healthcareParty: HealthcareParty) = fix(healthcareParty) { healthcareParty ->
-        if (healthcareParty.nihii == null && healthcareParty.ssin == null && healthcareParty.name == null && healthcareParty.lastName == null) {
-            throw MissingRequirementsException("createHealthcareParty: one of Name or Last name, Nihii, and Public key are required.")
-        }
-        try {
-            getGenericDAO().create(listOf(healthcareParty)).firstOrNull()
-        } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid healthcare party", e)
-        }
-    }
-
-    override suspend fun modifyHealthcareParty(groupId: String, healthcareParty: HealthcareParty)= fix(healthcareParty) { healthcareParty ->
-        if (healthcareParty.nihii == null && healthcareParty.ssin == null && healthcareParty.name == null && healthcareParty.lastName == null) {
-            throw MissingRequirementsException("modifyHealthcareParty: one of Name or Last name, Nihii or  Ssin are required.")
-        }
-        try {
-            healthcarePartyDAO.save(listOf(healthcareParty)).firstOrNull()
-        } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid healthcare party", e)
-        }
-    }
-
     override suspend fun createHealthcareParty(healthcareParty: HealthcareParty)= fix(healthcareParty) { healthcareParty ->
         if (healthcareParty.nihii == null && healthcareParty.ssin == null && healthcareParty.name == null && healthcareParty.lastName == null) {
             throw MissingRequirementsException("createHealthcareParty: one of Name or Last name, Nihii, and Public key are required.")
@@ -177,10 +146,6 @@ class HealthcarePartyLogicImpl(
 
     override fun getHealthcareParties(ids: List<String>): Flow<HealthcareParty> = flow {
         emitAll(healthcarePartyDAO.getEntities(ids))
-    }
-
-    override fun getHealthcareParties(groupId: String, ids: List<String>?) = flow {
-        emitAll(ids?.let { healthcarePartyDAO.getEntities(it)} ?: healthcarePartyDAO.getEntities() )
     }
 
     override fun findHealthcarePartiesBySsinOrNihii(searchValue: String, paginationOffset: PaginationOffset<String>, desc: Boolean): Flow<ViewQueryResultEvent> = flow {

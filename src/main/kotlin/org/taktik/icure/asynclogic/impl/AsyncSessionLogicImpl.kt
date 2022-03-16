@@ -18,6 +18,7 @@
 
 package org.taktik.icure.asynclogic.impl
 
+import javax.servlet.http.HttpSession
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingleOrNull
@@ -39,7 +40,6 @@ import org.taktik.icure.security.PermissionSetIdentifier
 import org.taktik.icure.security.UserDetails
 import org.taktik.icure.security.loadSecurityContext
 import java.io.Serializable
-import javax.servlet.http.HttpSession
 
 @ExperimentalCoroutinesApi
 @Service
@@ -81,7 +81,7 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
 
     override suspend fun getCurrentSessionContext(): AsyncSessionLogic.AsyncSessionContext =
         getCurrentAuthentication()?.let { SessionContextImpl(it) }
-                ?: throw AuthenticationServiceException("getCurrentAuthentication() returned null, no SecurityContext in the coroutine context?")
+            ?: throw AuthenticationServiceException("getCurrentAuthentication() returned null, no SecurityContext in the coroutine context?")
 
     override suspend fun getCurrentUserId(): String {
         return getCurrentSessionContext().getUser().id
@@ -89,14 +89,21 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
 
     override suspend fun getCurrentHealthcarePartyId(): String {
         return getCurrentSessionContext().getUser().healthcarePartyId
-                ?: throw AuthenticationServiceException("Failed to extract current healthCareParty id")
+            ?: throw AuthenticationServiceException("Failed to extract current healthCareParty id")
+    }
+
+    override suspend fun getCurrentDataOwnerId(): String {
+        return getCurrentSessionContext().getUser().let {
+            it.healthcarePartyId ?: it.patientId ?: it.deviceId
+        } ?: throw AuthenticationServiceException("Failed to extract current data owner id")
     }
 
     override suspend fun getCurrentPatientId(): String? {
         return getCurrentSessionContext().getUser().patientId
     }
 
-    private inner class SessionContextImpl(private val authentication: Authentication) : AsyncSessionLogic.AsyncSessionContext, Serializable {
+    private inner class SessionContextImpl(private val authentication: Authentication) :
+        AsyncSessionLogic.AsyncSessionContext, Serializable {
         private var userDetails: UserDetails = extractUserDetails(authentication)
         private var permissionSetIdentifier: PermissionSetIdentifier
 
