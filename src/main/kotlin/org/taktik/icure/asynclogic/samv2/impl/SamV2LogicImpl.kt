@@ -18,16 +18,32 @@
 
 package org.taktik.icure.asynclogic.samv2.impl
 
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.ViewRowWithDoc
+import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.icure.asyncdao.samv2.*
 import org.taktik.icure.asynclogic.samv2.SamV2Logic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.*
+import org.taktik.icure.utils.bufferedChunks
+import org.taktik.icure.utils.distinct
 
 @Service
-class SamV2LogicImpl(val ampDAO: AmpDAO, val vmpDAO: VmpDAO, val vmpGroupDAO: VmpGroupDAO, val productIdDAO: ProductIdDAO, val nmpDAO: NmpDAO, val substanceDAO: SubstanceDAO, val pharmaceuticalFormDAO: PharmaceuticalFormDAO) : SamV2Logic {
+class SamV2LogicImpl(
+        val ampDAO: AmpDAO,
+        val vmpDAO: VmpDAO,
+        val vmpGroupDAO: VmpGroupDAO,
+        val productIdDAO: ProductIdDAO,
+        val nmpDAO: NmpDAO,
+        val substanceDAO: SubstanceDAO,
+        val pharmaceuticalFormDAO: PharmaceuticalFormDAO,
+        val paragraphDAO: ParagraphDAO,
+        val verseDAO: VerseDAO
+) : SamV2Logic {
     override fun findVmpsByGroupId(vmpgId: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
         return vmpDAO.findVmpsByGroupId(vmpgId, paginationOffset)
     }
@@ -178,6 +194,57 @@ class SamV2LogicImpl(val ampDAO: AmpDAO, val vmpDAO: VmpDAO, val vmpGroupDAO: Vm
 
     override fun listNmpsByCnks(cnks: List<String>): Flow<Nmp> {
         return nmpDAO.listNmpsByCnks(cnks)
+    }
+
+    override fun findParagraphs(searchString: String, language: String): Flow<Paragraph> {
+        return paragraphDAO.findParagraphs(searchString, language, PaginationOffset(1000))
+                .filterIsInstance<ViewRowWithDoc<ComplexKey, Int, Paragraph>>()
+                .map { it.doc }
+    }
+
+    override fun findParagraphsWithCnk(cnk: Long, language: String): Flow<Paragraph> {
+        return paragraphDAO.findParagraphsWithCnk(cnk, language)
+    }
+
+    override suspend fun getParagraphInfos(chapterName: String, paragraphName: String): Paragraph? {
+        return paragraphDAO.getParagraph(chapterName, paragraphName)
+    }
+
+    override suspend fun getVersesHierarchy(chapterName: String, paragraphName: String): Verse {
+        val allVerses: List<Verse> = listVerses(chapterName, paragraphName).toList()
+
+        fun fillChildren(v: Verse): Verse = v.copy(children = allVerses.filter { it.verseSeqParent == v.verseSeq }.map { fillChildren(it) })
+
+        return fillChildren(allVerses.first())
+    }
+
+    override fun listVerses(
+            chapterName: String,
+            paragraphName: String
+    ) = verseDAO.listVerses(chapterName, paragraphName)
+
+    override fun getAmpsForParagraph(chapterName: String, paragraphName: String): Flow<Amp> {
+        return ampDAO.findAmpsByChapterParagraph(chapterName, paragraphName, PaginationOffset(1000))
+                .filterIsInstance<ViewRowWithDoc<ComplexKey, Int, Amp>>()
+                .map { it.doc }
+    }
+
+    @ExperimentalCoroutinesApi
+    @FlowPreview
+    override fun getVtmNamesForParagraph(chapterName: String, paragraphName: String, language: String): Flow<String> {
+        return getAmpsForParagraph(chapterName, paragraphName).bufferedChunks(100, 200).flatMapConcat {
+            vmpDAO.getEntities(it.mapNotNull { it.vmp?.id }).mapNotNull {
+                it.vtm?.name?.let { t ->
+                    when (language) {
+                        "fr" -> t.fr
+                        "en" -> t.en
+                        "de" -> t.de
+                        "nl" -> t.nl
+                        else -> null
+                    }
+                }
+            }
+        }.distinct()
     }
 
 }

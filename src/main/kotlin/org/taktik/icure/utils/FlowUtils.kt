@@ -71,19 +71,22 @@ fun <T : StoredDocument> Flow<T>.subsequentDistinctById(): Flow<T> = flow {
 
 @ExperimentalCoroutinesApi
 fun <T : Any> Flow<T>.injectReactorContext(): Flux<T> {
+    /*return Mono.deferContextual { Mono.just(it) }.flatMapMany { reactorCtx ->
+        this.flowOn(reactor.util.context.Context.of(reactorCtx).asCoroutineContext()).asFlux()
+    }*/
     return Mono.subscriberContext().flatMapMany { reactorCtx ->
         this.flowOn(reactorCtx.asCoroutineContext()).asFlux()
     }
 }
 
 @ExperimentalCoroutinesApi
-fun <T> Flow<T>.bufferedChunks(min: Int, max: Int): Flow<List<T>> = channelFlow<List<T>> {
+fun <T> Flow<T>.bufferedChunks(min: Int, max: Int): Flow<List<T>> = channelFlow {
     require(min >= 1 && max >= 1 && max >= min) {
         "Min and max chunk sizes should be greater than 0, and max >= min"
     }
     val buffer = ArrayList<T>(max)
     collect {
-        buffer += it
+        buffer.add(it)
         if(buffer.size >= max) {
             send(buffer.toList())
             buffer.clear()
@@ -96,7 +99,6 @@ fun <T> Flow<T>.bufferedChunks(min: Int, max: Int): Flow<List<T>> = channelFlow<
     }
     if (buffer.size > 0) send(buffer.toList())
 }.buffer(1)
-
 
 suspend fun Flow<ByteBuffer>.writeTo(os: OutputStream) {
     this.collect { bb ->

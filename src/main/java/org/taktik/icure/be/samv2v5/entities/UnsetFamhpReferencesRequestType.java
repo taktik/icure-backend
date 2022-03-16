@@ -1,19 +1,5 @@
 /*
- *  iCure Data Stack. Copyright (c) 2020 Taktik SA
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as
- *     published by the Free Software Foundation, either version 3 of the
- *     License, or (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful, but
- *     WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Affero General Public License for more details.
- *
- *     You should have received a copy of the GNU Affero General Public
- *     License along with this program.  If not, see
- *     <https://www.gnu.org/licenses/>.
+ * Copyright (c) 2020. Taktik SA, All rights reserved.
  */
 
 //
@@ -73,33 +59,33 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class UnsetFamhpReferencesRequestType {
 
-    @XmlElement(name = "AtcClassification")
+    @XmlElement(name = "AtcClassification", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<AtcClassificationKeyType> atcClassification;
-    @XmlElement(name = "DeliveryModus")
+    @XmlElement(name = "DeliveryModus", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<DeliveryModusKeyType> deliveryModus;
-    @XmlElement(name = "DeliveryModusSpecification")
+    @XmlElement(name = "DeliveryModusSpecification", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<DeliveryModusSpecificationKeyType> deliveryModusSpecification;
-    @XmlElement(name = "DeviceType")
+    @XmlElement(name = "DeviceType", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<DeviceTypeKeyType> deviceType;
-    @XmlElement(name = "PackagingClosure")
+    @XmlElement(name = "PackagingClosure", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<PackagingClosureKeyType> packagingClosure;
-    @XmlElement(name = "PackagingMaterial")
+    @XmlElement(name = "PackagingMaterial", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<PackagingMaterialKeyType> packagingMaterial;
-    @XmlElement(name = "PackagingType")
+    @XmlElement(name = "PackagingType", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<PackagingTypeKeyType> packagingType;
-    @XmlElement(name = "PharmaceuticalForm")
+    @XmlElement(name = "PharmaceuticalForm", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<PharmaceuticalFormKeyType> pharmaceuticalForm;
-    @XmlElement(name = "RouteOfAdministration")
+    @XmlElement(name = "RouteOfAdministration", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<RouteOfAdministrationKeyType> routeOfAdministration;
-    @XmlElement(name = "Substance")
+    @XmlElement(name = "Substance", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<SubstanceKeyType> substance;
-    @XmlElement(name = "StandardForm")
+    @XmlElement(name = "StandardForm", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<StandardFormKeyFamhpType> standardForm;
-    @XmlElement(name = "StandardRoute")
+    @XmlElement(name = "StandardRoute", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<StandardRouteKeyFamhpType> standardRoute;
-    @XmlElement(name = "StandardSubstance")
+    @XmlElement(name = "StandardSubstance", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<StandardSubstanceKeyFamhpType> standardSubstance;
-    @XmlElement(name = "StandardUnit")
+    @XmlElement(name = "StandardUnit", namespace = "urn:be:fgov:ehealth:samws:v2:refdata")
     protected List<StandardUnitKeyFamhpType> standardUnit;
 
     /**
