@@ -363,7 +363,7 @@ class SamV2Controller(
         return samV2Logic.listPharmaceuticalForms().map { pharmaceuticalFormMapper.map(it) }.injectReactorContext()
     }
 
-    @GetMapping("/docpreview/{chapterName}/{paragraphName}/{verseSeq}/{docSeq}/{language}", produces = ["application/octet-stream"])
+    @GetMapping("/chap/{chapterName}/{paragraphName}/{verseSeq}/addeddoc/{docSeq}/{language}", produces = ["application/octet-stream"])
     @ResponseBody
     fun getAddedDocument(
             @PathVariable chapterName: String,
@@ -379,26 +379,26 @@ class SamV2Controller(
         }
     }
 
-    @GetMapping("/sam/search/{searchString}/{language}")
+    @GetMapping("/chap/search/{searchString}/{language}")
     fun findParagraphs(
             @PathVariable searchString: String,
             @PathVariable language: String): Flux<ParagraphDto> =
             samV2Logic.findParagraphs(searchString, language).map { paragraphMapper.map(it) }.injectReactorContext()
 
-    @GetMapping("/sam/bycnk/{cnk}/{language}")
+    @GetMapping("/chap/bycnk/{cnk}/{language}")
     fun findParagraphsWithCnk(
             @PathVariable cnk: Long,
             @PathVariable language: String): Flux<ParagraphDto> =
             samV2Logic.findParagraphsWithCnk(cnk, language).map { paragraphMapper.map(it) }.injectReactorContext()
 
-    @GetMapping("/sam/mpps/{chapterName}/{paragraphName}")
+    @GetMapping("/chap/amps/{chapterName}/{paragraphName}")
     fun getAmpsForParagraph(
             @PathVariable chapterName: String,
             @PathVariable paragraphName: String) : Flux<AmpDto> =
             samV2Logic.getAmpsForParagraph(chapterName, paragraphName).map { ampMapper.map(it) }.injectReactorContext()
 
 
-    @GetMapping("/sam/vtms/{chapterName}/{paragraphName}/{language}")
+    @GetMapping("/chap/vtms/{chapterName}/{paragraphName}/{language}")
     fun getVtmNamesForParagraph(
             @PathVariable chapterName: String,
             @PathVariable paragraphName: String,
@@ -406,7 +406,7 @@ class SamV2Controller(
         samV2Logic.getVtmNamesForParagraph(chapterName, paragraphName, language).toList()
     }
 
-    @GetMapping("/sam/verse/{chapterName}/{paragraphName}")
+    @GetMapping("/chap/verse/{chapterName}/{paragraphName}")
     fun getVersesHierarchy(
             @PathVariable chapterName: String,
             @PathVariable paragraphName: String) : Mono<VerseDto?> = mono {
