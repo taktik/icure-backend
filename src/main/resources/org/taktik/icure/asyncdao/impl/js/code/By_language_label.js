@@ -1,6 +1,6 @@
 map = function(doc) {
     var normalize_substrings = function(text,latin_map) {
-        return text.trim().split(/[ |/]+/).map(function(word) {
+        return text.trim().split(/[ |/'`]+/).filter(function(word) { return word.length > 2 }).map(function(word) {
             return word.toLowerCase().replace(/[^A-Za-z0-9]/g,function(a){return latin_map[a]||""});
         });
     };
