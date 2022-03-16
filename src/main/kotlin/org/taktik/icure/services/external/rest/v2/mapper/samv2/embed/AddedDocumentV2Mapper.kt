@@ -21,7 +21,7 @@ package org.taktik.icure.services.external.rest.v2.mapper.samv2.embed
 import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.AddedDocument
-import org.taktik.icure.services.external.rest.v1.dto.samv2.embed.AddedDocumentDto
+import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.AddedDocumentDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface AddedDocumentV2Mapper {

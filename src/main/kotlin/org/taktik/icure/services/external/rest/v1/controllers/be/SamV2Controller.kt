@@ -22,14 +22,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.mono
-import org.apache.commons.io.IOUtils
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.bodyToFlux
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.icure.asynclogic.samv2.SamV2Logic
 import org.taktik.icure.db.PaginationOffset
@@ -46,6 +45,7 @@ import java.nio.ByteBuffer
 import java.util.*
 import javax.servlet.http.HttpServletResponse
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/be_samv2")
 @Tag(name = "besamv2")
