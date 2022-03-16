@@ -55,14 +55,10 @@ data class DeviceDto(
         val picture: ByteArray? = null,
 
         override val properties: Set<PropertyStubDto> = emptySet(),
-
-        // One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
-        // For a pair of HcParties, this key is called the AES exchange key
-        // Each HcParty always has one AES exchange key for himself
-        // The map's keys are the delegate id.
-        // In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
-        // the key encrypted using delegate's public key.
         override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
+        override val aesExchangeKeys: Map<String, Map<String, Array<String>>> = emptyMap(),
+        override val transferKeys: Map<String, Map<String, String>> = emptyMap(),
+        override val lostHcPartyKeys: Set<String> = emptySet(),
         override val privateKeyShamirPartitions: Map<String, String> = emptyMap(), //Format is hcpId of key that has been partitioned : "threshold|partition in hex"
         override val publicKey: String? = null,
 ) : StoredDocumentDto, ICureDocumentDto<String>, NamedDto, CryptoActorDto, DataOwnerDto {

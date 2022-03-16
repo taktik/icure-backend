@@ -19,6 +19,7 @@
 package org.taktik.icure.asyncdao.samv2
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.InternalDAO
 import org.taktik.icure.db.PaginatedList
@@ -34,6 +35,7 @@ interface AmpDAO : InternalDAO<Amp> {
     fun findAmpsByVmpId(vmpId: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
     fun findAmpsByDmppCode(dmppCode: String): Flow<ViewQueryResultEvent>
     fun findAmpsByAtc(atc: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
+    fun findAmpsByChapterParagraph(chapter: String, paragraph: String, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
 
     fun listAmpIdsByLabel(language: String?, label: String?): Flow<String>
     fun listAmpIdsByVmpGroupCode(vmpgCode: String): Flow<String>

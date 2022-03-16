@@ -1,19 +1,5 @@
 /*
- *  iCure Data Stack. Copyright (c) 2020 Taktik SA
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as
- *     published by the Free Software Foundation, either version 3 of the
- *     License, or (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful, but
- *     WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Affero General Public License for more details.
- *
- *     You should have received a copy of the GNU Affero General Public
- *     License along with this program.  If not, see
- *     <https://www.gnu.org/licenses/>.
+ * Copyright (c) 2020. Taktik SA, All rights reserved.
  */
 
 //
@@ -108,35 +94,35 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class StandardDosageType {
 
-    @XmlElement(name = "IndicationCode", required = true)
+    @XmlElement(name = "IndicationCode", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common", required = true)
     protected List<String> indicationCode;
-    @XmlElement(name = "StandardDosageParamBounds", required = true)
+    @XmlElement(name = "StandardDosageParamBounds", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common", required = true)
     protected List<BoundedParameterType> standardDosageParamBounds;
-    @XmlElement(name = "TargetGroup", required = true)
+    @XmlElement(name = "TargetGroup", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common", required = true)
     protected String targetGroup;
-    @XmlElement(name = "KidneyFailureClass")
+    @XmlElement(name = "KidneyFailureClass", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common")
     protected Integer kidneyFailureClass;
-    @XmlElement(name = "LiverFailureClass")
+    @XmlElement(name = "LiverFailureClass", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common")
     protected Integer liverFailureClass;
-    @XmlElement(name = "RouteOfAdministrationCode", required = true)
+    @XmlElement(name = "RouteOfAdministrationCode", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common", required = true)
     protected List<String> routeOfAdministrationCode;
-    @XmlElement(name = "RouteSpecification")
+    @XmlElement(name = "RouteSpecification", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common")
     protected Text255Type routeSpecification;
-    @XmlElement(name = "TreatmentDurationType", required = true)
+    @XmlElement(name = "TreatmentDurationType", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common", required = true)
     protected String treatmentDurationType;
-    @XmlElement(name = "TemporaryDurationDetails")
+    @XmlElement(name = "TemporaryDurationDetails", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common")
     protected TemporaryDurationDetailsType temporaryDurationDetails;
-    @XmlElement(name = "DosageUnit")
+    @XmlElement(name = "DosageUnit", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common")
     protected ParameterizedQuantityType dosageUnit;
-    @XmlElement(name = "AdministrationFrequency")
+    @XmlElement(name = "AdministrationFrequency", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common")
     protected AdministrationFrequencyType administrationFrequency;
-    @XmlElement(name = "MaximumAdministrationFrequency")
+    @XmlElement(name = "MaximumAdministrationFrequency", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common")
     protected AdministrationFrequencyType maximumAdministrationFrequency;
-    @XmlElement(name = "MaximumDailyQuantity")
+    @XmlElement(name = "MaximumDailyQuantity", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common")
     protected ParameterizedQuantityType maximumDailyQuantity;
-    @XmlElement(name = "TextualDosage")
+    @XmlElement(name = "TextualDosage", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common")
     protected TextType textualDosage;
-    @XmlElement(name = "SupplementaryInfo")
+    @XmlElement(name = "SupplementaryInfo", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common")
     protected TextType supplementaryInfo;
     @XmlAttribute(name = "code", required = true)
     @XmlSchemaType(name = "anySimpleType")

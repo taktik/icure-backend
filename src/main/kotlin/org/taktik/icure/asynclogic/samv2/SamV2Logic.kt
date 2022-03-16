@@ -22,14 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.samv2.Amp
-import org.taktik.icure.entities.samv2.Nmp
-import org.taktik.icure.entities.samv2.ProductId
-import org.taktik.icure.entities.samv2.SamVersion
-import org.taktik.icure.entities.samv2.Vmp
-import org.taktik.icure.entities.samv2.VmpGroup
-import org.taktik.icure.entities.samv2.PharmaceuticalForm
-import org.taktik.icure.entities.samv2.Substance
+import org.taktik.icure.entities.samv2.*
 
 interface SamV2Logic {
     fun findAmpsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
@@ -74,4 +67,14 @@ interface SamV2Logic {
     fun listVmpGroupsByVmpGroupCodes(vmpgCodes: List<String>): Flow<VmpGroup>
     fun listNmpsByCnks(cnks: List<String>): Flow<Nmp>
 
+    fun findParagraphs(searchString: String, language: String): Flow<Paragraph>
+    fun findParagraphsWithCnk(cnk: Long, language: String): Flow<Paragraph>
+
+    fun listVerses(chapterName: String, paragraphName: String): Flow<Verse>
+
+    suspend fun getParagraphInfos(chapterName: String, paragraphName: String): Paragraph?
+    suspend fun getVersesHierarchy(chapterName: String, paragraphName: String): Verse
+
+    fun getAmpsForParagraph(chapterName: String, paragraphName: String): Flow<Amp>
+    fun getVtmNamesForParagraph(chapterName: String, paragraphName: String, language: String): Flow<String>
 }
