@@ -179,6 +179,15 @@ data class Patient(
         // In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
         // the key encrypted using delegate's public key.
         override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
+        // Extra AES exchange keys, usually the ones we lost access to at some point
+        // The structure is { publicKey: { delegateId: [aesExKey_for_this, aesExKey_for_delegate] } }
+        override val aesExchangeKeys: Map<String, Map<String, Array<String>>> = emptyMap(),
+        // Our private keys encrypted with our public keys
+        // The structure is { publicKey1: { publicKey2: privateKey2_encrypted_with_publicKey1, publicKey3: privateKey3_encrypted_with_publicKey1 } }
+        override val transferKeys: Map<String, Map<String, String>> = emptyMap(),
+        // The hcparty keys (first of the pair) for which we are asking a re-encryption by the delegate using our new publicKey
+        override val lostHcPartyKeys: Set<String> = emptySet(),
+
         override val privateKeyShamirPartitions: Map<String, String> = emptyMap(),
         override val publicKey: String? = null,
 

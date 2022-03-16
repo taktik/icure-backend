@@ -1,19 +1,5 @@
 /*
- *  iCure Data Stack. Copyright (c) 2020 Taktik SA
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as
- *     published by the Free Software Foundation, either version 3 of the
- *     License, or (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful, but
- *     WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Affero General Public License for more details.
- *
- *     You should have received a copy of the GNU Affero General Public
- *     License along with this program.  If not, see
- *     <https://www.gnu.org/licenses/>.
+ * Copyright (c) 2020. Taktik SA, All rights reserved.
  */
 
 //
@@ -53,40 +39,17 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "DataPeriodType")
+@XmlType(name = "DataPeriodType", namespace = "urn:be:fgov:ehealth:samws:v2:export")
 @XmlSeeAlso({
-    AmppComponentDataType.class,
-    DerogationImportDataType.class,
-    CopaymentDataType.class,
-    LegalTextDataType.class,
-    AmpDataType.class,
-    DmppDataType.class,
-    CompoundingFormulaDataType.class,
-    FormalInterpretationDataType.class,
-    VmpDataType.class,
-    RealActualIngredientEquivalentDataType.class,
-    CompanyDataType.class,
-    ReimbursementContextDataType.class,
-    VmpGroupDataType.class,
-    AmppComponentEquivalentDataType.class,
-    RealVirtualIngredientDataType.class,
-    LegalBasisDataType.class,
-    VirtualIngredientDataType.class,
-    NonMedicinalProductDataType.class,
-    RealActualIngredientDataType.class,
-    ReimbursementConditionDataType.class,
-    ReimbursementTermDataType.class,
-    AttachmentDataType.class,
-    VtmDataType.class,
-    AmpComponentDataType.class,
-    CommercializationDataType.class,
-    RootObjectDataType.class,
-    LegalReferenceDataType.class,
-    CompoundingIngredientDataType.class,
-    SupplyProblemDataType.class,
-    AmppDataType.class,
-    VmpComponentDataType.class,
-    CommentedClassificationDataType.class
+    ParagraphTraceDataType.class,
+    ProfessionalAuthorisationDataType.class,
+    AddedDocumentDataType.class,
+    ParagraphDataType.class,
+    VerseDataType.class,
+    NameTranslationDataType.class,
+    NameExplanationDataType.class,
+    QualificationListDataType.class,
+    ExclusionDataType.class
 })
 public class DataPeriodType {
 

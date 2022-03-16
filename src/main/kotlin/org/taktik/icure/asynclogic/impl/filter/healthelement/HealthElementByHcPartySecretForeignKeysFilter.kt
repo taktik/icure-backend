@@ -5,7 +5,7 @@ package org.taktik.icure.asynclogic.impl.filter.healthelement
 
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import org.springframework.context.annotation.Profile
+import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
@@ -15,8 +15,7 @@ import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.utils.getLoggedHealthCarePartyId
 import javax.security.auth.login.LoginException
 
-@org.springframework.stereotype.Service
-@Profile("app")
+@Service
 class HealthElementByHcPartySecretForeignKeysFilter(private val healthElementLogic: HealthElementLogic,
                                                     private val sessionLogic: AsyncSessionLogic) : Filter<String, HealthElement, HealthElementByHcPartySecretForeignKeysFilter> {
     override fun resolve(filter: HealthElementByHcPartySecretForeignKeysFilter, context: Filters) = flow {

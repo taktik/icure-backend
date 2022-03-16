@@ -22,14 +22,14 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.Splitter
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.ExampleObject
-import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import javax.security.auth.login.LoginException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -160,17 +160,21 @@ class PatientController(
             listPatients(hcPartyId, sortField, startKey, startDocumentId, limit, sortDirection)
 
     @Operation(
-            summary = "Get the patient (identified by patientId) hcparty keys. Those keys are AES keys (encrypted) used to share information between HCPs and a patient.",
-            description = "This endpoint is used to recover all keys that have already been created and that can be used to share information with this patient. It returns a map with the following structure: ID of the owner of the encrypted AES key -> encrypted AES key. The returned encrypted AES keys will have to be decrypted using the patient's private key.",
-            responses = [
-                ApiResponse(responseCode = "200", description = "Successful operation", content = [
-                    Content( schema = Schema(implementation = Map::class), examples = [ ExampleObject("""{
-    "hcparty 1 delegator ID": "AES hcparty key (encrypted using patient public RSA key)"
-    "hcparty 2 delegator ID": "other AES hcparty key (encrypted using patient public RSA key)"
-}""")])
-                ]),
-                ApiResponse(responseCode = "401", description = "Unauthorized operation: the provided credentials are invalid", content = [])
-            ]
+        summary = "Get the patient (identified by patientId) hcparty keys. Those keys are AES keys (encrypted) used to share information between HCPs and a patient.",
+        description = """This endpoint is used to recover all keys that have already been created and that can be used to share information with this patient. It returns a map with the following structure: ID of the owner of the encrypted AES key -> encrypted AES key. The returned encrypted AES keys will have to be decrypted using the patient's private key.
+                
+                {
+                    "hcparty 1 delegator ID": "AES hcparty key (encrypted using patient public RSA key)"
+                    "hcparty 2 delegator ID": "other AES hcparty key (encrypted using patient public RSA key)"
+                }
+                """, responses = [
+            ApiResponse(responseCode = "200", description = "Successful operation"),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized operation: the provided credentials are invalid",
+                content = []
+            )
+        ]
     )
     @GetMapping("/{patientId}/keys")
     fun getPatientHcPartyKeysForDelegate(@Parameter(description = "The patient Id for which information is shared") @PathVariable patientId: String) = mono {

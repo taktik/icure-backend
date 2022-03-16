@@ -1,19 +1,5 @@
 /*
- *  iCure Data Stack. Copyright (c) 2020 Taktik SA
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as
- *     published by the Free Software Foundation, either version 3 of the
- *     License, or (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful, but
- *     WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Affero General Public License for more details.
- *
- *     You should have received a copy of the GNU Affero General Public
- *     License along with this program.  If not, see
- *     <https://www.gnu.org/licenses/>.
+ * Copyright (c) 2020. Taktik SA, All rights reserved.
  */
 
 //
@@ -72,19 +58,19 @@ public class VmpType
     extends VmpKeyType
 {
 
-    @XmlElement(name = "Name", required = true)
+    @XmlElement(name = "Name", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common", required = true)
     protected Text255Type name;
-    @XmlElement(name = "Abbreviation", required = true)
+    @XmlElement(name = "Abbreviation", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common", required = true)
     protected Text255Type abbreviation;
-    @XmlElement(name = "SingleAdministrationDose")
+    @XmlElement(name = "SingleAdministrationDose", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common")
     protected QuantityType singleAdministrationDose;
-    @XmlElement(name = "CommentedClassificationCode")
+    @XmlElement(name = "CommentedClassificationCode", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common")
     protected List<String> commentedClassificationCode;
-    @XmlElement(name = "VmpGroupCode")
+    @XmlElement(name = "VmpGroupCode", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common")
     protected int vmpGroupCode;
-    @XmlElement(name = "VtmCode")
+    @XmlElement(name = "VtmCode", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common")
     protected Integer vtmCode;
-    @XmlElement(name = "WadaCode")
+    @XmlElement(name = "WadaCode", namespace = "urn:be:fgov:ehealth:samws:v2:virtual:common")
     protected List<String> wadaCode;
 
     /**
