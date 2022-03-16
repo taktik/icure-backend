@@ -90,13 +90,32 @@ class MedicationSchemeExport(patientLogic: PatientLogic,
 			})
 		})
 
-        val folder = makePatientFolder(1, patient, version, sender, config, language, services ?: getActiveServices(sender.id, sfks, listOf("medication"), decryptor), serviceAuthors, decryptor, progressor, recipientSafe)
+        val folder = makePatientFolder(
+                1,
+                patient,
+                version,
+                sender,
+                config,
+                language,
+                services ?: getActiveServices(sender.id, sfks, listOf("medication"), decryptor),
+                recipientSafe,
+                serviceAuthors
+        )
 		emitMessage(message.apply { folders.add(folder) }).collect { emit(it) }
 	}
 
 
-    private suspend fun makePatientFolder(patientIndex: Int, patient: Patient, version: Int?, healthcareParty: HealthcareParty,
-                                  config: Config, language: String, medicationServices: List<Service>, serviceAuthors: List<HealthcareParty>?, decryptor: AsyncDecrypt?, progressor: AsyncProgress?, recipientSafe: String?): FolderType {
+    private suspend fun makePatientFolder(
+            patientIndex: Int,
+            patient: Patient,
+            version: Int?,
+            healthcareParty: HealthcareParty,
+            config: Config,
+            language: String,
+            medicationServices: List<Service>,
+            recipientSafe: String?,
+            serviceAuthors: List<HealthcareParty>?
+    ): FolderType {
 
 		//creation of Patient
         val folder = FolderType().apply {
