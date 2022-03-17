@@ -227,10 +227,10 @@ publishing {
     repositories {
         maven {
             name = "Taktik"
-            url = uri("mavenReleasesRepository")
+            url = uri(mavenReleasesRepository)
             credentials {
-                username = "repoUsername"
-                password = "repoPassword"
+                username = repoUsername
+                password = repoPassword
             }
         }
     }
