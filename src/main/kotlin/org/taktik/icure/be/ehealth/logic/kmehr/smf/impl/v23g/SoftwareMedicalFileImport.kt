@@ -104,6 +104,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.xor
+import java.io.ByteArrayInputStream
 import java.io.Serializable
 import java.nio.ByteBuffer
 import java.util.LinkedList
@@ -129,14 +130,14 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
     }
     val heItemTypes: List<String> = listOf("healthcareelement", "adr", "allergy", "socialrisk", "risk", "professionalrisk", "familyrisk", "healthissue")
 
-    suspend fun importSMF(inputData: Flow<ByteBuffer>,
+    suspend fun importSMF(inputData: ByteArray,
                           author: User,
                           language: String,
                           saveToDatabase: Boolean,
                           mappings: Map<String, List<ImportMapping>>,
                           dest: Patient? = null): List<ImportResult> {
         val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
-        val inputStream = inputData.toInputStream()
+        val inputStream = ByteArrayInputStream(inputData)
         val unmarshaller = jc.createUnmarshaller()
         val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
 
