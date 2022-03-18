@@ -68,8 +68,10 @@ import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
 import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
+import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.mapper.ContactMapper
 import org.taktik.icure.services.external.rest.v1.mapper.DocumentMapper
+import org.taktik.icure.services.external.rest.v1.mapper.HealthElementMapper
 import org.taktik.icure.utils.FuzzyValues
 import java.io.StringWriter
 import java.time.Instant
@@ -95,6 +97,7 @@ class SoftwareMedicalFileExport(
         filters: org.taktik.icure.asynclogic.impl.filter.Filters,
         val contactMapper: ContactMapper,
         val documentMapper: DocumentMapper,
+        val healthElementMapper: HealthElementMapper,
 ) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 	private var hesByContactId: Map<String?, List<HealthElement>> = HashMap()
     private var servicesByContactId: Map<String?, List<Service>> = HashMap()
@@ -183,7 +186,12 @@ class SoftwareMedicalFileExport(
 		}
 		val startIndex = folder.transactions.size
 
-        val nonConfidentialHealthElements: List<HealthElement> = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config));
+        var nonConfidentialHealthElements: List<HealthElement> = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config));
+
+        if (decryptor != null && (nonConfidentialHealthElements.isNotEmpty())) {
+            nonConfidentialHealthElements = decryptor.decrypt(nonConfidentialHealthElements.map{ healthElementMapper.map(it)}, HealthElementDto::class.java).map{ healthElementMapper.map(it) }
+        }
+
 		hesByContactId = nonConfidentialHealthElements.groupBy {
 			it.idOpeningContact
 		}
