@@ -84,7 +84,6 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 	protected Long prescriptionDate; // yyyyMMdd
     protected Integer derogationMaxNumber;
 
-
 	protected String prescriberSsin;
 	protected String prescriberLastName;
 	protected String prescriberFirstName;
@@ -92,7 +91,8 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 
 	protected String locationNihii;
 	protected String locationCdHcParty;
-
+    protected Integer locationService;
+    protected Long admissionDate;
 
 	protected Boolean canceled;
 	protected Boolean accepted;
@@ -155,6 +155,8 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.prescriberCdHcParty = this.prescriberCdHcParty == null ? other.prescriberCdHcParty : this.prescriberCdHcParty;
 		this.locationNihii = this.locationNihii == null ? other.locationNihii : this.locationNihii;
 		this.locationCdHcParty = this.locationCdHcParty == null ? other.locationCdHcParty : this.locationCdHcParty;
+		this.admissionDate = this.admissionDate == null ? other.admissionDate : this.admissionDate;
+		this.locationService = this.locationService == null ? other.locationService : this.locationService;
 	}
 
 	public Long getDateCode() {
@@ -549,7 +551,15 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 
 	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
 
-	public InvoicingCode solveConflictWith(InvoicingCode other) {
+    public Long getAdmissionDate() { return admissionDate; }
+
+    public void setAdmissionDate(Long admissionDate) { this.admissionDate = admissionDate; }
+
+    public Integer getLocationService() { return locationService; }
+
+    public void setLocationService(Integer locationService) { this.locationService = locationService; }
+
+    public InvoicingCode solveConflictWith(InvoicingCode other) {
 		this.dateCode = this.dateCode == null ? other.dateCode : this.dateCode;
 		this.logicalId = this.logicalId == null ? other.logicalId : this.logicalId;
 		this.label = this.label == null ? other.label : this.label;
@@ -592,6 +602,8 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.prescriberCdHcParty = this.prescriberCdHcParty == null ? other.prescriberCdHcParty : this.prescriberCdHcParty;
 		this.locationNihii = this.locationNihii == null ? other.locationNihii : this.locationNihii;
 		this.locationCdHcParty = this.locationCdHcParty == null ? other.locationCdHcParty : this.locationCdHcParty;
+		this.admissionDate = this.admissionDate == null ? other.admissionDate : this.admissionDate;
+        this.locationService = this.locationService == null ? other.locationService : this.locationService;
 		return this;
 	}
 }
