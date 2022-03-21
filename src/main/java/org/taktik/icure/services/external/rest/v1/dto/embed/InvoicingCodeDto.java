@@ -83,7 +83,9 @@ public class InvoicingCodeDto implements Serializable {
 	protected String locationNihii;
 	protected String locationCdHcParty;
 	protected Integer locationService;
+    protected Long admissionDate;
 	protected Long prescriptionDate; // yyyyMMdd
+
 
 
 	protected Long status;
@@ -455,4 +457,8 @@ public class InvoicingCodeDto implements Serializable {
     public Integer getTransplantationCode() {	return transplantationCode;	}
 
     public void setTransplantationCode(Integer transplantationCode) {	this.transplantationCode = transplantationCode;	}
+
+    public Long getAdmissionDate() { return admissionDate; }
+
+    public void setAdmissionDate(Long admissionDate) { this.admissionDate = admissionDate; }
 }
