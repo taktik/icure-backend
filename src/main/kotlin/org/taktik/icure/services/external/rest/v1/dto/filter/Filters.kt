@@ -17,8 +17,8 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.filter
 
-import org.taktik.icure.domain.filter.Filter
 import org.taktik.couchdb.id.Identifiable
+import org.taktik.icure.domain.filter.Filter
 
 object Filters {
     fun <O : Identifiable<String>> union(vararg filters: AbstractFilterDto<O>): UnionFilter<O> {
@@ -33,8 +33,8 @@ object Filters {
         return ComplementFilter(null, superSet, subset)
     }
 
-    fun <O : Identifiable<String>> constant(set: Set<String>): ConstantFilter<O> {
-        return ConstantFilter(null, set)
+    fun <O : Identifiable<String>> ids(set: Set<String>): IdsFilter<O> {
+        return IdsFilter(null, set)
     }
 
 }

@@ -8,6 +8,7 @@
     <logger name="org.springframework" level="INFO" />
     <logger name="org.springframework.security" level="INFO" />
     <!-- logger name="org.springframework.web.reactive.handler" level="DEBUG" /-->
+    <!-- logger name="org.springframework.web.server.handler" level="DEBUG" /-->
 
     <!-- iCure -->
     <!--logger name="org.taktik.couchdb.ClientImpl" level="DEBUG" /-->

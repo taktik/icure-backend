@@ -325,6 +325,11 @@ class PatientLogicImpl(
         }
     }
 
+    override fun createPatients(patients: List<Patient>): Flow<Patient> = flow {
+        val fixedPatients = patients.map { fix(it) }
+        emitAll(modifyEntities(fixedPatients))
+    }
+
     @Throws(MissingRequirementsException::class)
     override suspend fun modifyPatient(patient: Patient): Patient? = fix(patient) { patient ->
         log.debug("Modifying patient with id:" + patient.id)
@@ -337,14 +342,19 @@ class PatientLogicImpl(
         }
     }
 
+    override fun modifyPatients(patients: List<Patient>): Flow<Patient> = flow {
+        val fixedPatients = patients.map { fix(it) }
+        emitAll(modifyEntities(fixedPatients))
+    }
+
     override fun createEntities(entities: Collection<Patient>): Flow<Patient> {
         entities.forEach { checkRequirements(it) }
         return super.createEntities(entities)
     }
 
-    override fun modifyEntities(entities: Collection<Patient>): Flow<Patient> {
+    override fun modifyEntities(entities: Collection<Patient>): Flow<Patient> = flow {
         entities.forEach { checkRequirements(it) }
-        return super.modifyEntities(entities)
+        emitAll(super.modifyEntities(entities))
     }
 
     private fun checkRequirements(patient: Patient) {
@@ -392,6 +402,10 @@ class PatientLogicImpl(
             } else
                 patient
         }
+    }
+
+    override fun getEntityIds(): Flow<String> {
+        return patientDAO.getEntityIds()
     }
 
     override suspend fun mergePatient(patient: Patient, fromPatients: List<Patient>): Patient? {
@@ -482,7 +496,7 @@ class PatientLogicImpl(
         emitAll(undeleteByIds(ids))
     }
 
-    override fun listPatientIdsByHcpartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>) = flow {
+    override fun listPatientIdsByHcpartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
         emitAll(patientDAO.listPatientIdsByHcPartyAndIdentifiers(healthcarePartyId, identifiers))
     }
 

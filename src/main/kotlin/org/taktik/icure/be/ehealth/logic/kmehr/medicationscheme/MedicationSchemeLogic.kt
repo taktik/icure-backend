@@ -50,6 +50,8 @@ interface MedicationSchemeLogic {
             recipientSafe: String,
             version: Int,
             services: List<Service>,
+            serviceAuthors: List<HealthcareParty>?,
+            timeZone: String?,
             progressor: AsyncProgress?
     ): Flow<DataBuffer>
 }

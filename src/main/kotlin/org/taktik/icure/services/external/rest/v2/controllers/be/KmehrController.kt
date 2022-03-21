@@ -372,7 +372,7 @@ class KmehrController(
                 if (medicationSchemeExportParams.services.isEmpty())
                     emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language, recipientSafe, version, null, null))
                 else
-                    emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language, recipientSafe, version, medicationSchemeExportParams.services.map { s -> serviceV2Mapper.map(s) }, null))
+                    emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language, recipientSafe, version, medicationSchemeExportParams.services.map { s -> serviceV2Mapper.map(s) }, null, null, null))
             }
         } ?: throw IllegalArgumentException("Missing argument")
     }.injectReactorContext()
@@ -530,11 +530,10 @@ class KmehrController(
                           @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val document = documentLogic.getDocument(documentId)
+        val attachment = document?.decryptAttachment(if (documentKey.isNullOrBlank()) null else documentKey.split(','))
 
-        val attachmentId = document?.attachmentId
-
-        attachmentId?.let {
-            softwareMedicalFileLogic.importSmfFile(documentLogic.getAttachment(documentId, attachmentId), sessionLogic.getCurrentSessionContext().getUser(), language
+        attachment?.let {
+            softwareMedicalFileLogic.importSmfFile(it, sessionLogic.getCurrentSessionContext().getUser(), language
                     ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
                     dryRun ?: false,
                     patientId?.let { patientLogic.getPatient(patientId) },

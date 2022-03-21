@@ -120,7 +120,7 @@ class CustomAuthenticationManager(
                 secret = user.secret,
                 use2fa = user.use2fa ?: false,
                 rev = user.rev,
-                applicationTokens = user.applicationTokens,
+                applicationTokens = user.applicationTokens ?: emptyMap(),
                 authenticationTokens = user.authenticationTokens,
                 application = applicationsContainingToken(user, authentication.credentials.toString()).firstOrNull(),
                 groupIdUserIdMatching = matchingUsers.map { it.id },
@@ -151,7 +151,7 @@ class CustomAuthenticationManager(
 
     private fun applicationsContainingToken(u: User, appToken: String) : List<String> {
         return (
-                u.applicationTokens
+                (u.applicationTokens ?: emptyMap())
                         .filterValues { it == appToken }
                         + u.authenticationTokens
                         .filter { (_, authToken) -> !authToken.isExpired() }
@@ -160,7 +160,7 @@ class CustomAuthenticationManager(
                 .map { (application, _) -> application }
     }
 
-    private fun doesUserContainsToken(u: User, appToken: String) = u.applicationTokens.containsValue(appToken)
+    private fun doesUserContainsToken(u: User, appToken: String) = u.applicationTokens?.containsValue(appToken) == true
             || u.authenticationTokens
             .filter { (_, authToken) -> !authToken.isExpired() }
             .map { (_, authToken) -> authToken.token }

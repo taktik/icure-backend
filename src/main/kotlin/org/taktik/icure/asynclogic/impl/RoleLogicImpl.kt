@@ -76,7 +76,7 @@ class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogi
         emitAll(roleDAO.getEntities())
     }
 
-    override fun getEntitiesIds() = flow<String> {
+    override fun getEntityIds() = flow<String> {
         emitAll(roleDAO.getEntities().mapNotNull { it.id })
     }
 

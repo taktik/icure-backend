@@ -19,6 +19,7 @@
 package org.taktik.icure.services.external.rest.v1.controllers.core
 
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emitAll
@@ -40,17 +41,21 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.HealthElementLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
+import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
+import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.HealthElementMapper
 import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
+import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
@@ -59,19 +64,25 @@ import reactor.core.publisher.Flux
 @RequestMapping("/rest/v1/helement")
 @Tag(name = "helement")
 class HealthElementController(
-        private val healthElementLogic: HealthElementLogic,
-        private val healthElementMapper: HealthElementMapper,
-        private val delegationMapper: DelegationMapper,
-        private val filterChainMapper: FilterChainMapper,
-        private val stubMapper: StubMapper
+    private val filters: Filters,
+    private val healthElementLogic: HealthElementLogic,
+    private val healthElementMapper: HealthElementMapper,
+    private val delegationMapper: DelegationMapper,
+    private val filterChainMapper: FilterChainMapper,
+    private val stubMapper: StubMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
+    private val DEFAULT_LIMIT = 1000
+    private val healthElementToHealthElementDto = { it: HealthElement -> healthElementMapper.map(it) }
 
-    @Operation(summary = "Create a healthcare element with the current user", description = "Returns an instance of created healthcare element.")
+    @Operation(
+        summary = "Create a healthcare element with the current user",
+        description = "Returns an instance of created healthcare element."
+    )
     @PostMapping
     fun createHealthElement(@RequestBody c: HealthElementDto) = mono {
         val element = healthElementLogic.createHealthElement(healthElementMapper.map(c))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Health element creation failed.")
+            ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Health element creation failed.")
 
         healthElementMapper.map(element)
     }
@@ -96,7 +107,7 @@ class HealthElementController(
     @GetMapping("/byHcPartySecretForeignKeys")
     fun findHealthElementsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<HealthElementDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        val elementList = healthElementLogic.findHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
+        val elementList = healthElementLogic.listHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
         return elementList
                 .map { element -> healthElementMapper.map(element) }
@@ -108,7 +119,7 @@ class HealthElementController(
     fun findHealthElementsDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        return healthElementLogic.findHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys)
+        return healthElementLogic.listHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys)
                 .map { healthElement -> stubMapper.mapToStub(healthElement) }
                 .injectReactorContext()
     }
@@ -184,10 +195,25 @@ class HealthElementController(
         }
     }
 
-    @Operation(summary = "Filter healthcare elements for the current user (HcParty)", description = "Returns a list of healthcare elements along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
+    @Operation(
+        summary = "Filter health elements for the current user (HcParty)",
+        description = "Returns a list of health elements along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page."
+    )
     @PostMapping("/filter")
-    fun filterHealthElementsBy(@RequestBody filterChain: FilterChain<HealthElement>) =
-            healthElementLogic.filter(filterChainMapper.map(filterChain))
-                    .map { healthElementMapper.map(it) }
-                    .injectReactorContext()
+    fun filterHealthElementsBy(
+        @Parameter(description = "A HealthElement document ID") @RequestParam(required = false) startDocumentId: String?,
+        @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+        @RequestBody filterChain: FilterChain<HealthElement>
+    ) = mono {
+        val realLimit = limit ?: DEFAULT_LIMIT
+        val paginationOffset = PaginationOffset(null, startDocumentId, null, realLimit + 1)
+
+        val healthElements = healthElementLogic.filter(paginationOffset, filterChainMapper.map(filterChain))
+
+        healthElements.paginatedList(healthElementToHealthElementDto, realLimit)
+    }
+
+    @Operation(summary = "Get ids of health element matching the provided filter for the current user (HcParty) ")
+    @PostMapping("/match")
+    fun matchHealthElementsBy(@RequestBody filter: AbstractFilterDto<HealthElement>) = filters.resolve(filter).injectReactorContext()
 }

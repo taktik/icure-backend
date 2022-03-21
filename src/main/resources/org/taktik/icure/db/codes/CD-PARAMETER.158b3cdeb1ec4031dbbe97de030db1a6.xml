@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.2</VERSION>
+    <DATE>2018-03-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Parameters</NAME>
+    <VALUE>
+        <CODE>weight</CODE>
+        <DESCRIPTION L="en">weight</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>height</CODE>
+        <DESCRIPTION L="en">height</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>bmi</CODE>
+        <DESCRIPTION L="en">BMI</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>sbp</CODE>
+        <DESCRIPTION L="en">systolic blood pressure</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>dbp</CODE>
+        <DESCRIPTION L="en">diastolic blood pressure</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pulsecharacter</CODE>
+        <DESCRIPTION L="en">character of pulse</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>heartrate</CODE>
+        <DESCRIPTION L="en">heart rate</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>peakflow</CODE>
+        <DESCRIPTION L="en">peak flow</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>gpa</CODE>
+        <DESCRIPTION L="en">GPA</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>headcircumference</CODE>
+        <DESCRIPTION L="en">head circumference</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>hipcircumference</CODE>
+        <DESCRIPTION L="en">hip circumference</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>apgar</CODE>
+        <DESCRIPTION L="en">APGAR</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>katz</CODE>
+        <DESCRIPTION L="en">katz</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>belrai</CODE>
+        <DESCRIPTION L="en">belrai</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>bloodsugar</CODE>
+        <DESCRIPTION L="en">blood sugar</DESCRIPTION>
+        <DESCRIPTION L="fr">glycémie</DESCRIPTION>
+        <DESCRIPTION L="nl">bloedsuiker</DESCRIPTION>
+        <DESCRIPTION L="de">Blutzucker</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

@@ -34,7 +34,6 @@ interface InternalDAO<T : Identifiable<String>> {
     suspend fun save(entity: T): T?
     fun save(entities: Flow<T>): Flow<DocIdentifier>
     suspend fun update(entity: T): T?
-    fun getEntities(ids: List<String>): Flow<T>
 
     fun save(entities: List<T>): Flow<DocIdentifier>
     fun purge(entities: Flow<T>): Flow<BulkUpdateResult>

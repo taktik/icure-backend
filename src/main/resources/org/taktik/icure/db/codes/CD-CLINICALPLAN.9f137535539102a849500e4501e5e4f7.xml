@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.1</VERSION>
+    <DATE>2012-07-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Clinical plan</NAME>
+    <VALUE>
+        <CODE>primaryprevention</CODE>
+        <DESCRIPTION L="fr">Prévention primaire</DESCRIPTION>
+        <DESCRIPTION L="nl">Primaire preventie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>breastcancerprevention</CODE>
+        <DESCRIPTION L="fr">Prévention cancer du sein</DESCRIPTION>
+        <DESCRIPTION L="nl">Preventie Borstkanker</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>prostatecancerprevention</CODE>
+        <DESCRIPTION L="fr">Prévention cancer de la prostate</DESCRIPTION>
+        <DESCRIPTION L="nl">Preventie Prostaatkanker</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>colrectalcancerprevention</CODE>
+        <DESCRIPTION L="fr">Prévention cancer colo-rectal</DESCRIPTION>
+        <DESCRIPTION L="nl">Preventie Colorectale kanker</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>cervixutericancer</CODE>
+        <DESCRIPTION L="fr">Prévention cancer du col de l'utérus</DESCRIPTION>
+        <DESCRIPTION L="nl">Preventie Baarmoederhalskanker</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>gmdplus</CODE>
+        <DESCRIPTION L="en">General Medical Record +</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

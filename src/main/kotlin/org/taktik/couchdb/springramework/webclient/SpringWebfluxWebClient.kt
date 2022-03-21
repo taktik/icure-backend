@@ -30,6 +30,7 @@ import reactor.core.publisher.Mono
 import java.net.URI
 import java.nio.ByteBuffer
 import java.time.Duration
+import java.util.AbstractMap
 import java.util.function.Consumer
 
 class SpringWebfluxWebClient(val reactorClientHttpConnector: ReactorClientHttpConnector? = null, val filters: Consumer<MutableList<ExchangeFilterFunction>>? = null) : WebClient {
@@ -71,23 +72,26 @@ class SpringWebfluxResponse(
     override fun toFlux(): Flux<ByteBuffer> = requestHeaderSpec.exchangeToFlux { cr ->
         val statusCode: Int = cr.statusCode().value()
 
+        val headers = cr.headers().asHttpHeaders()
+        val flatHeaders = headers.flatMap { (k,vals) -> vals.map { v -> AbstractMap.SimpleEntry(k, v) } }
+
         val headerHandlers = if (headerHandler.isNotEmpty()) {
-            cr.headers().asHttpHeaders().flatMap { (k, values) -> values.map { k to it} }.fold(Mono.empty()) { m: Mono<*>, (k, v) -> m.then(headerHandler[k]?.let { it(v) } ?: Mono.empty()) }
+            headers.flatMap { (k, values) -> values.map { k to it} }.fold(Mono.empty()) { m: Mono<*>, (k, v) -> m.then(headerHandler[k]?.let { it(v) } ?: Mono.empty()) }
         } else Mono.empty()
 
         headerHandlers.thenMany(statusHandlers[statusCode]?.let { handler ->
             cr.bodyToMono(ByteBuffer::class.java).flatMapMany { byteBuffer ->
                 val arr = ByteArray(byteBuffer.remaining())
                 byteBuffer.get(arr)
-                val res = handler(object : ResponseStatus(statusCode) {
+                val res = handler(object : ResponseStatus(statusCode, flatHeaders) {
                     override fun responseBodyAsString() = arr.toString(Charsets.UTF_8)
                 })
-                if (res == Mono.empty<Throwable>()) {
-                    Mono.just(ByteBuffer.wrap(arr))
-                } else {
-                    res.flatMap { Mono.error(it) }
+                if (res == Mono.empty<Throwable>()) { Mono.just(ByteBuffer.wrap(arr)) } else { res.flatMap { Mono.error(it) } }
+            }.switchIfEmpty(
+                handler(object : ResponseStatus(statusCode, flatHeaders) { override fun responseBodyAsString() = "" }).let { res ->
+                    if (res == Mono.empty<Throwable>()) { Mono.just(ByteBuffer.wrap(ByteArray(0))) } else { res.flatMap { Mono.error(it) } }
                 }
-            }
+            )
         } ?: cr.bodyToFlux(ByteBuffer::class.java))
     }
 }

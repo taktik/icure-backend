@@ -49,7 +49,6 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.dto.data.LabelledOccurence
 import org.taktik.icure.entities.Contact
-import org.taktik.icure.entities.IndexedIdentifier
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.ServiceLink
@@ -101,8 +100,14 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
 
     override suspend fun createContact(contact: Contact) = fix(contact) { contact ->
         try { // Fetching the hcParty
-            val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
-            createEntities(setOf(if (contact.healthcarePartyId == null) contact.copy(healthcarePartyId = healthcarePartyId) else contact)).firstOrNull()
+            val dataOwnerId = sessionLogic.getCurrentDataOwnerId()
+            createEntities(
+                setOf(
+                    if (contact.healthcarePartyId == null) contact.copy(
+                        healthcarePartyId = dataOwnerId,
+                    ) else contact
+                )
+            ).firstOrNull()
         } catch (e: BulkUpdateConflictException) {
             throw UpdateConflictException("Contact already exists")
         } catch (e: Exception) {
@@ -187,6 +192,9 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
                 responsible = c.responsible
         )
     }
+    override fun listServiceIdsByHcParty(hcPartyId: String) = flow {
+        emitAll(contactDAO.listServiceIdsByHcParty(hcPartyId))
+    }
 
     override fun listServiceIdsByTag(hcPartyId: String, patientSecretForeignKeys: List<String>?, tagType: String, tagCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val toEmit = if (patientSecretForeignKeys == null) contactDAO.listServiceIdsByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate) else contactDAO.listServiceIdsByPatientAndTag(hcPartyId, patientSecretForeignKeys, tagType, tagCode, startValueDate, endValueDate)
@@ -202,8 +210,13 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(contactDAO.listContactIdsByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate))
     }
 
-    override fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier> = flow {
+    override fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
         emitAll(contactDAO.listServiceIdsByHcPartyAndIdentifiers(hcPartyId, identifiers))
+    }
+
+    override fun listServicesForHealthElementId(healthElementId: String) = flow {
+        val serviceIds = contactDAO.listServiceIdsForHealthElementId(healthElementId)
+        emitAll(getServices(serviceIds.toList()))
     }
 
     override fun listContactIdsByCode(hcPartyId: String, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?) = flow {

@@ -32,7 +32,7 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
-data class ConstantFilter<O : Identifiable<String>>(
+data class IdsFilter<O : Identifiable<String>>(
         override val desc: String? = null,
-        override val constant: Set<String>
-) : AbstractFilterDto<O>, Filters.ConstantFilter<String, O>
+        override val ids: Set<String>
+) : AbstractFilterDto<O>, Filters.IdsFilter<String, O>

@@ -24,7 +24,6 @@ import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.ContactIdServiceId
 import org.taktik.icure.entities.Contact
-import org.taktik.icure.entities.IndexedIdentifier
 import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.Service
 
@@ -41,11 +40,13 @@ interface ContactDAO: GenericDAO<Contact> {
     fun listContactsByHcPartyAndFormId(hcPartyId: String, formId: String): Flow<Contact>
     fun listContactsByHcPartyAndFormIds(hcPartyId: String, ids: List<String>): Flow<Contact>
     fun findServiceIdsByIdQualifiedLink(ids: List<String>, linkType: String?): Flow<String>
+    fun listServiceIdsByHcParty(hcPartyId: String): Flow<String>
     fun listServiceIdsByTag(hcPartyId: String, tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listServiceIdsByPatientAndTag(hcPartyId: String, patientSecretForeignKeys: List<String>, tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listServiceIdsByCode(hcPartyId: String, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listContactIdsByTag(hcPartyId: String, tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
-    fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier>
+    fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String>
+    fun listServiceIdsForHealthElementId(healthElementId: String): Flow<String>
     fun listContactIdsByCode(hcPartyId: String, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listCodesFrequencies(hcPartyId: String, codeType: String): Flow<Pair<ComplexKey, Long?>>
     fun listServicesIdsByPatientForeignKeys(hcPartyId: String, patientSecretForeignKeys: List<String>, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>

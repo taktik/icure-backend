@@ -29,5 +29,6 @@ import java.io.Serializable
 data class SuspensionDto(
         val beginMoment: Long? = null,
         val endMoment: Long? = null,
-        val suspensionReason: String? = null
+        val suspensionReason: String? = null,
+        val lifecycle: String? = null
 ) : Serializable

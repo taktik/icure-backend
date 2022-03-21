@@ -39,12 +39,17 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.User
 import org.taktik.icure.services.external.rest.v1.dto.PropertyStubDto
 import org.taktik.icure.services.external.rest.v1.dto.UserDto
+import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
+import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.UserMapper
 import org.taktik.icure.services.external.rest.v1.mapper.base.PropertyStubMapper
+import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
 import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
 
@@ -57,10 +62,13 @@ import org.taktik.icure.utils.injectReactorContext
 @RestController
 @RequestMapping("/rest/v1/user")
 @Tag(name = "user") // otherwise would default to "user-controller"
-class UserController(private val userLogic: UserLogic,
-                     private val sessionLogic: AsyncSessionLogic,
-                     private val userMapper: UserMapper,
-                     private val propertyStubMapper: PropertyStubMapper
+class UserController(
+        private val filters: Filters,
+        private val userLogic: UserLogic,
+        private val sessionLogic: AsyncSessionLogic,
+        private val userMapper: UserMapper,
+        private val propertyStubMapper: PropertyStubMapper,
+        private val filterChainMapper: FilterChainMapper,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000
@@ -189,7 +197,7 @@ class UserController(private val userLogic: UserLogic,
         userLogic.encodePassword(password)
     }
 
-    @Operation(summary = "Require a new temporary token for authentication")
+    @Operation(summary = "Request a new temporary token for authentication")
     @PostMapping("/token/{userId}/{key}")
     fun getToken(@PathVariable userId: String, @Parameter(description = "The token key. Only one instance of a token with a defined key can exist at the same time") @PathVariable key: String, @Parameter(description = "The token validity in seconds", required = false) @RequestParam(required = false) tokenValidity: Long?) = mono {
         userLogic.getUser(userId)?.let {
@@ -202,4 +210,21 @@ class UserController(private val userLogic: UserLogic,
     fun checkTokenValidity(@PathVariable userId: String, @RequestHeader token: String) = mono {
         userLogic.verifyAuthenticationToken(userId, token)
     }
+
+    @Operation(summary = "Filter users for the current user (HcParty)", description = "Returns a list of users along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
+    @PostMapping("/filter")
+    fun filterUsersBy( @Parameter(description = "A User document ID") @RequestParam(required = false) startDocumentId: String?,
+                               @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+                               @RequestBody filterChain: FilterChain<User>
+    ) = mono {
+        val realLimit = limit ?: DEFAULT_LIMIT
+        val paginationOffset = PaginationOffset(null, startDocumentId, null, realLimit+1)
+        val users = userLogic.filterUsers(paginationOffset, filterChainMapper.map(filterChain))
+
+        users.paginatedList(userToUserDto, realLimit)
+    }
+
+    @Operation(summary = "Get ids of healthcare party matching the provided filter for the current user (HcParty) ")
+    @PostMapping("/match")
+    fun matchUsersBy(@RequestBody filter: AbstractFilterDto<User>) = filters.resolve(filter).injectReactorContext()
 }

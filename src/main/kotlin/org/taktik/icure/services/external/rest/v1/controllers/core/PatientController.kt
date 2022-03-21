@@ -22,16 +22,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.Splitter
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.ExampleObject
-import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import javax.security.auth.login.LoginException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
@@ -61,14 +57,11 @@ import org.taktik.icure.services.external.rest.v1.dto.IdWithRevDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto
-import org.taktik.icure.services.external.rest.v1.dto.base.IdentifierDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
-import org.taktik.icure.services.external.rest.v1.mapper.IndexedIdentifierMapper
 import org.taktik.icure.services.external.rest.v1.mapper.PatientMapper
-import org.taktik.icure.services.external.rest.v1.mapper.base.IdentifierMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.AddressMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.PatientHealthCarePartyMapper
@@ -85,19 +78,17 @@ import java.time.Instant
 @RequestMapping("/rest/v1/patient")
 @Tag(name = "patient")
 class PatientController(
-        private val sessionLogic: AsyncSessionLogic,
-        private val accessLogLogic: AccessLogLogic,
-        private val filters: Filters,
-        private val patientLogic: PatientLogic,
-        private val healthcarePartyLogic: HealthcarePartyLogic,
-        private val patientMapper: PatientMapper,
-        private val filterChainMapper: FilterChainMapper,
-        private val addressMapper: AddressMapper,
-        private val patientHealthCarePartyMapper: PatientHealthCarePartyMapper,
-        private val delegationMapper: DelegationMapper,
-        private val objectMapper: ObjectMapper,
-        private val identifierMapper: IdentifierMapper,
-        private val indexedIdentifierMapper: IndexedIdentifierMapper
+    private val sessionLogic: AsyncSessionLogic,
+    private val accessLogLogic: AccessLogLogic,
+    private val filters: Filters,
+    private val patientLogic: PatientLogic,
+    private val healthcarePartyLogic: HealthcarePartyLogic,
+    private val patientMapper: PatientMapper,
+    private val filterChainMapper: FilterChainMapper,
+    private val addressMapper: AddressMapper,
+    private val patientHealthCarePartyMapper: PatientHealthCarePartyMapper,
+    private val delegationMapper: DelegationMapper,
+    private val objectMapper: ObjectMapper
 ) {
     private val patientToPatientDto = { it: Patient -> patientMapper.map(it) }
 
@@ -169,20 +160,23 @@ class PatientController(
             listPatients(hcPartyId, sortField, startKey, startDocumentId, limit, sortDirection)
 
     @Operation(
-            summary = "Get the patient (identified by patientId) hcparty keys. Those keys are AES keys (encrypted) used to share information between HCPs and a patient.",
-            description = "This endpoint is used to recover all keys that have already been created and that can be used to share information with this patient. It returns a map with the following structure: ID of the owner of the encrypted AES key -> encrypted AES key. The returned encrypted AES keys will have to be decrypted using the patient's private key.",
-            responses = [
-                ApiResponse(responseCode = "200", description = "Successful operation", content = [
-                    Content( schema = Schema(implementation = Map::class), examples = [ ExampleObject("""{
-    "hcparty 1 delegator ID": "AES hcparty key (encrypted using patient public RSA key)"
-    "hcparty 2 delegator ID": "other AES hcparty key (encrypted using patient public RSA key)"
-}""")])
-                ]),
-                ApiResponse(responseCode = "401", description = "Unauthorized operation: the provided credentials are invalid", content = [])
-            ]
+        summary = "Get the patient (identified by patientId) hcparty keys. Those keys are AES keys (encrypted) used to share information between HCPs and a patient.",
+        description = """This endpoint is used to recover all keys that have already been created and that can be used to share information with this patient. It returns a map with the following structure: ID of the owner of the encrypted AES key -> encrypted AES key. The returned encrypted AES keys will have to be decrypted using the patient's private key.
+                
+                {
+                    "hcparty 1 delegator ID": "AES hcparty key (encrypted using patient public RSA key)"
+                    "hcparty 2 delegator ID": "other AES hcparty key (encrypted using patient public RSA key)"
+                }
+                """, responses = [
+            ApiResponse(responseCode = "200", description = "Successful operation"),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized operation: the provided credentials are invalid",
+                content = []
+            )
+        ]
     )
     @GetMapping("/{patientId}/keys")
-    //@ApiResponse(content = { @Content(examples = { @ExampleObject(value="{ hcpartyId : aes key }") }) } )
     fun getPatientHcPartyKeysForDelegate(@Parameter(description = "The patient Id for which information is shared") @PathVariable patientId: String) = mono {
         patientLogic.getHcPartyKeysForDelegate(patientId)
     }
@@ -244,7 +238,7 @@ class PatientController(
                                      @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                                      @Parameter(description = "Number of rows") @RequestParam(defaultValue = DEFAULT_LIMIT.toString()) limit: Int): Mono<PaginatedList<PatientDto>> = mono {
 
-        val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
+        val startKeyElements = startKey?.let { objectMapper.readValue<List<Any>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, Object::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
         accessLogLogic.findAccessLogsByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, true).paginatedList<AccessLog>(limit)
                 .let {
@@ -412,13 +406,9 @@ class PatientController(
     fun getPatientByHealthcarepartyAndIdentifier(@PathVariable hcPartyId: String, @PathVariable id: String, @RequestParam(required = false) system: String?) = mono {
         when {
             !system.isNullOrEmpty() -> {
-                val patient = patientLogic.findByHealthcarepartyAndIdentifier(hcPartyId, system, id)
+                patientLogic.findByHealthcarepartyAndIdentifier(hcPartyId, system, id)
                         .map { patientMapper.map(it) }
-
-                when(patient.count()){
-                    0 -> patientLogic.getPatient(id)?.let { patientMapper.map(it) }
-                    else -> patient.first()
-                }
+                        .firstOrNull() ?: patientLogic.getPatient(id)?.let { patientMapper.map(it) }
             }
             else -> patientLogic.getPatient(id)?.let { patientMapper.map(it) }
         }
@@ -428,7 +418,7 @@ class PatientController(
     @PostMapping("/bulk", "/batch")
     fun bulkCreatePatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
-            val patients = patientLogic.modifyEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
+            val patients = patientLogic.createPatients(patientDtos.map { p -> patientMapper.map(p) }.toList())
             patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
         } catch (e: Exception) {
             log.warn(e.message, e)
@@ -440,7 +430,7 @@ class PatientController(
     @PutMapping("/bulk", "/batch")
     fun bulkUpdatePatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
-            val patients = patientLogic.modifyEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
+            val patients = patientLogic.modifyPatients(patientDtos.map { p -> patientMapper.map(p) }.toList())
             patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
         } catch (e: Exception) {
             log.warn(e.message, e)
@@ -514,12 +504,6 @@ class PatientController(
 
         patientLogic.getDuplicatePatientsByName(hcPartyId, paginationOffset).paginatedList(patientToPatientDto, realLimit)
     }
-
-    @Operation(summary = "Get patient ids by identifiers", description = "It gets patient data based on the provided identifiers (root & extension)")
-    @PostMapping("/ids/{hcPartyId}/byIdentifiers")
-    fun getPatientIdsByHealthcarePartyAndIdentifiers(@PathVariable hcPartyId: String,
-                                                      @RequestBody identifiers: List<IdentifierDto>
-    ) = patientLogic.listPatientIdsByHcpartyAndIdentifiers(hcPartyId, identifiers.map { identifierMapper.map(it) }).map { indexedIdentifierMapper.map(it) }
 
     companion object {
         private val log = LoggerFactory.getLogger(javaClass)

@@ -26,7 +26,6 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.dto.data.LabelledOccurence
 import org.taktik.icure.entities.Contact
-import org.taktik.icure.entities.IndexedIdentifier
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.Service
@@ -47,10 +46,11 @@ interface ContactLogic : EntityPersister<Contact, String> {
     fun getServicesLinkedTo(ids: List<String>, linkType: String?): Flow<Service>
 
     fun pimpServiceWithContactInformation(s: Service, c: Contact): Service
+    fun listServiceIdsByHcParty(hcPartyId: String): Flow<String>
     fun listServiceIdsByTag(hcPartyId: String, patientSecretForeignKeys: List<String>?, tagType: String, tagCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listServiceIdsByCode(hcPartyId: String, patientSecretForeignKeys: List<String>?, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listContactIdsByTag(hcPartyId: String, tagType: String, tagCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
-    fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier>
+    fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String>
     fun listContactIdsByCode(hcPartyId: String, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listContactIds(hcPartyId: String): Flow<String>
     fun listIdsByServices(services: Collection<String>): Flow<String>
@@ -59,7 +59,7 @@ interface ContactLogic : EntityPersister<Contact, String> {
     fun listContactsByHcPartyServiceId(hcPartyId: String, formId: String): Flow<Contact>
     fun listContactsByExternalId(externalId: String): Flow<Contact>
     fun listServicesByAssociationId(associationId: String): Flow<Service>
-
+    fun listServicesForHealthElementId(healthElementId: String): Flow<Service>
 
     suspend fun getServiceCodesOccurences(hcPartyId: String, codeType: String, minOccurences: Long): List<LabelledOccurence>
     fun listContactsByHcPartyAndFormIds(hcPartyId: String, ids: List<String>): Flow<Contact>

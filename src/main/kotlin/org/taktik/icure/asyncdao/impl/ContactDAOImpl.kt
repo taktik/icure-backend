@@ -34,7 +34,6 @@ import org.taktik.icure.asyncdao.ContactDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.ContactIdServiceId
 import org.taktik.icure.entities.Contact
-import org.taktik.icure.entities.IndexedIdentifier
 import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.properties.CouchDbProperties
@@ -161,6 +160,15 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                     res.filter { it.value!![0] == lt }
                 } ?: res).map { it.value!![1] }
         )
+    }
+
+    @View(name = "service_by_hcparty", map = "classpath:js/contact/Service_by_hcparty_map.js")
+    override fun listServiceIdsByHcParty(hcPartyId: String) = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        val viewQuery = createQuery(client, "service_by_hcparty")
+                .key(hcPartyId)
+                .includeDocs(false)
+        emitAll(client.queryView<String, String>(viewQuery).mapNotNull { it.value })
     }
 
     @ExperimentalCoroutinesApi
@@ -317,8 +325,20 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
     }
 
+
+    @View(name = "service_id_by_health_element", map = "classpath:js/contact/Service_id_by_health_element_id.js")
+    override fun listServiceIdsForHealthElementId(healthElementId: String) = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+        val queryView = createQuery(client, "service_id_by_health_element")
+                .key(healthElementId)
+                .includeDocs(false)
+
+        emitAll(client.queryView<String, String>(queryView).mapNotNull { it.value })
+    }
+
     @View(name = "service_by_hcparty_identifier", map = "classpath:js/contact/Service_by_hcparty_identifier.js")
-    override fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<IndexedIdentifier> = flow {
+    override fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val queryView = createQuery(client, "service_by_hcparty_identifier")
@@ -329,17 +349,9 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView<ComplexKey, String>(queryView)
                 .mapNotNull {
                     if (it.key == null || it.key!!.components.size < 3) {
-                        null
+                        return@mapNotNull null
                     }
-                    else {
-                        IndexedIdentifier(
-                            it.id,
-                            Identifier(
-                                system = it.key!!.components[1] as String,
-                                value = it.key!!.components[2] as String
-                            )
-                        )
-                    }
+                    return@mapNotNull it.id
                 })
     }
 

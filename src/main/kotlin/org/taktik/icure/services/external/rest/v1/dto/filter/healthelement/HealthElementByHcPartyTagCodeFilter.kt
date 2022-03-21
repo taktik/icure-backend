@@ -36,7 +36,7 @@ data class HealthElementByHcPartyTagCodeFilter(
         override val desc:String? = null,
         override val healthCarePartyId: String? = null,
         override val codeType: String? = null,
-        override val codeNumber: String? = null,
+        override val codeCode: String? = null,
         override val tagType: String? = null,
         override val tagCode: String? = null,
         override val status: Int? = null

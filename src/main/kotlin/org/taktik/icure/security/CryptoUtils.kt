@@ -231,4 +231,24 @@ object CryptoUtils {
             throw EncryptionException(e.message, e)
         }
     }
+
+    fun String.keyFromHexString(): ByteArray {
+        return this.let {
+            if (it.matches(Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"))) {
+                val bb = ByteBuffer.wrap(ByteArray(16))
+                val uuid = UUID.fromString(it)
+                bb.putLong(uuid.mostSignificantBits)
+                bb.putLong(uuid.leastSignificantBits)
+                bb.array()
+            } else {
+                check(it.length % 2 == 0) { "Must have an even length" }
+
+                it.chunked(2)
+                        .map { it.toInt(16).toByte() }
+                        .toByteArray()
+            }
+        }
+    }
+
+    fun ByteArray.isValidAesKey() = this.size * 8 in setOf(128, 192, 256)
 }

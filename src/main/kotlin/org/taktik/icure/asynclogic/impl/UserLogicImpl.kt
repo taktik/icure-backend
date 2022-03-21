@@ -17,16 +17,7 @@
  */
 package org.taktik.icure.asynclogic.impl
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.singleOrNull
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.lang3.Validate
 import org.slf4j.LoggerFactory
@@ -41,10 +32,12 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PropertyLogic
 import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.asynclogic.listeners.UserLogicListener
 import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.constants.Users
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.User
 import org.taktik.icure.entities.base.PropertyStub
@@ -63,6 +56,7 @@ class UserLogicImpl(
         couchDbProperties: CouchDbProperties,
         roleDao: RoleDAO,
         sessionLogic: AsyncSessionLogic,
+        private val filters: Filters,
         private val userDAO: UserDAO,
         private val healthcarePartyLogic: HealthcarePartyLogic,
         private val propertyLogic: PropertyLogic,
@@ -229,7 +223,7 @@ class UserLogicImpl(
             application to authToken.copy(
                     token = (if (!authToken.token.matches(passwordRegex)) encodePassword(authToken.token) else authToken.token)
             )
-        } + user.applicationTokens.map { (application, rawToken) ->
+        } + (user.applicationTokens ?: emptyMap()).map { (application, rawToken) ->
             application to AuthenticationToken(token = encodePassword(rawToken), validity = AuthenticationToken.LONG_LIVING_TOKEN_VALIDITY)
         }).toMap()
     }
@@ -388,7 +382,7 @@ class UserLogicImpl(
         emitAll(userDAO.getEntities())
     }
 
-    override fun getEntitiesIds(): Flow<String> = flow {
+    override fun getEntityIds(): Flow<String> = flow {
         emitAll(userDAO.getEntityIds())
     }
 
@@ -423,6 +417,15 @@ class UserLogicImpl(
         emitAll(userDAO.findUsers(paginationOffset))
     }
 
+    override fun filterUsers(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<User>): Flow<ViewQueryResultEvent> = flow {
+        val ids = filters.resolve(filter.filter)
+        val sortedIds = paginationOffset.takeUnless { it.startDocumentId == null }?.let { paginationOffset -> // Sub-set starting from startDocId to the end (including last element)
+            ids.dropWhile { id -> id != paginationOffset.startDocumentId }
+        } ?: ids
+
+        val selectedIds = sortedIds.take(paginationOffset.limit+1) // Fetching one more healthcare parties for the start key of the next page
+        emitAll(userDAO.findUsersByIds(selectedIds))
+    }
     override suspend fun setProperties(user: User, properties: List<PropertyStub>): User? {
         val properties = properties.fold(user.properties) { props, p ->
             val prop = user.properties.find { pp -> pp.type?.identifier == p.type?.identifier }

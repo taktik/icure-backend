@@ -20,9 +20,11 @@ package org.taktik.icure.asynclogic.impl
 import com.google.common.base.Preconditions
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -33,7 +35,9 @@ import org.taktik.icure.asyncdao.HealthcarePartyDAO
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.exceptions.DocumentNotFoundException
@@ -44,11 +48,13 @@ import java.net.URI
 @ExperimentalCoroutinesApi
 @Service
 class HealthcarePartyLogicImpl(
-        couchDbProperties: CouchDbProperties,
-        private val healthcarePartyDAO: HealthcarePartyDAO,
-        private val uuidGenerator: UUIDGenerator,
-        private val userDAO: UserDAO,
-        private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<HealthcareParty, HealthcarePartyDAO>(sessionLogic), HealthcarePartyLogic {
+    private val filters: Filters,
+    couchDbProperties: CouchDbProperties,
+    private val healthcarePartyDAO: HealthcarePartyDAO,
+    private val uuidGenerator: UUIDGenerator,
+    private val userDAO: UserDAO,
+    private val sessionLogic: AsyncSessionLogic
+    ) : GenericLogicImpl<HealthcareParty, HealthcarePartyDAO>(sessionLogic), HealthcarePartyLogic {
 
     private val dbInstanceUri = URI(couchDbProperties.url)
 
@@ -85,37 +91,6 @@ class HealthcarePartyLogicImpl(
         } catch (e: Exception) {
             log.error(e.message, e)
             throw DeletionException("The healthcare party (" + healthcarePartyIds + ") not found or " + e.message, e)
-        }
-    }
-
-    override fun deleteHealthcareParties(groupId: String, healthcarePartyIds: List<String>) = flow {
-        try {
-            emitAll(healthcarePartyDAO.remove(healthcarePartyDAO.getEntities(healthcarePartyIds).toList()))
-        } catch (e: Exception) {
-            log.error(e.message, e)
-            throw DeletionException("The healthcare party (" + healthcarePartyIds + ") not found or " + e.message, e)
-        }
-    }
-
-    override suspend fun createHealthcareParty(groupId: String, healthcareParty: HealthcareParty) = fix(healthcareParty) { healthcareParty ->
-        if (healthcareParty.nihii == null && healthcareParty.ssin == null && healthcareParty.name == null && healthcareParty.lastName == null) {
-            throw MissingRequirementsException("createHealthcareParty: one of Name or Last name, Nihii, and Public key are required.")
-        }
-        try {
-            getGenericDAO().create(listOf(healthcareParty)).firstOrNull()
-        } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid healthcare party", e)
-        }
-    }
-
-    override suspend fun modifyHealthcareParty(groupId: String, healthcareParty: HealthcareParty)= fix(healthcareParty) { healthcareParty ->
-        if (healthcareParty.nihii == null && healthcareParty.ssin == null && healthcareParty.name == null && healthcareParty.lastName == null) {
-            throw MissingRequirementsException("modifyHealthcareParty: one of Name or Last name, Nihii or  Ssin are required.")
-        }
-        try {
-            healthcarePartyDAO.save(listOf(healthcareParty)).firstOrNull()
-        } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid healthcare party", e)
         }
     }
 
@@ -173,10 +148,6 @@ class HealthcarePartyLogicImpl(
         emitAll(healthcarePartyDAO.getEntities(ids))
     }
 
-    override fun getHealthcareParties(groupId: String, ids: List<String>?) = flow {
-        emitAll(ids?.let { healthcarePartyDAO.getEntities(it)} ?: healthcarePartyDAO.getEntities() )
-    }
-
     override fun findHealthcarePartiesBySsinOrNihii(searchValue: String, paginationOffset: PaginationOffset<String>, desc: Boolean): Flow<ViewQueryResultEvent> = flow {
         emitAll(healthcarePartyDAO.findHealthcarePartiesBySsinOrNihii(searchValue, paginationOffset, desc))
     }
@@ -207,6 +178,16 @@ class HealthcarePartyLogicImpl(
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid healthcare party", e)
         }
+    }
+
+    override fun filterHealthcareParties(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<HealthcareParty>) = flow {
+        val ids = filters.resolve(filter.filter)
+        val sortedIds = paginationOffset.takeUnless { it.startDocumentId == null }?.let { paginationOffset -> // Sub-set starting from startDocId to the end (including last element)
+            ids.dropWhile { id -> id != paginationOffset.startDocumentId }
+        } ?: ids
+
+        val selectedIds = sortedIds.take(paginationOffset.limit+1) // Fetching one more healthcare parties for the start key of the next page
+        emitAll(healthcarePartyDAO.findHealthcarePartiesByIds(selectedIds))
     }
 
     companion object {

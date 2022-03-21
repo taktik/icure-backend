@@ -22,8 +22,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import io.swagger.v3.oas.annotations.media.Schema
-import org.taktik.icure.services.external.rest.v2.dto.base.*
-import org.taktik.icure.services.external.rest.v2.dto.embed.*
+import org.taktik.icure.services.external.rest.v2.dto.base.CodeStubDto
+import org.taktik.icure.services.external.rest.v2.dto.base.EncryptableDto
+import org.taktik.icure.services.external.rest.v2.dto.base.ICureDocumentDto
+import org.taktik.icure.services.external.rest.v2.dto.base.IdentifierDto
+import org.taktik.icure.services.external.rest.v2.dto.base.StoredDocumentDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.CareTeamMemberDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.EpisodeDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.LateralityDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.PlanOfActionDto
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -31,7 +39,7 @@ import org.taktik.icure.services.external.rest.v2.dto.embed.*
 @Schema(description = """This entity is a root level object. It represents a healthcare element. It is serialized in JSON and saved in the underlying CouchDB database.""")
 data class HealthElementDto(
         @Schema(description = "The Id of the healthcare element. We encourage using either a v4 UUID or a HL7 Id.") override val id: String,
-        val identifier: List<IdentifierDto> = listOf(),
+        val identifiers: List<IdentifierDto> = emptyList(),
         @Schema(description = "The revision of the patient in the database, used for conflict management / optimistic locking.") override val rev: String? = null,
         override val created: Long? = null,
         override val modified: Long? = null,
