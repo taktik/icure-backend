@@ -42,7 +42,7 @@ import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.InsuranceLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils
 import org.taktik.icure.be.ehealth.logic.kmehr.toInputStream
 import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
@@ -80,30 +80,31 @@ import org.taktik.icure.entities.embed.Substanceproduct
 import org.taktik.icure.entities.embed.Telecom
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.exceptions.MissingRequirementsException
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDADDRESSschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITY
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDLNKvalues
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDSEXvalues
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTELECOMschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.LnkType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCEschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDADDRESSschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITY
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDLNKvalues
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDSEXvalues
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDTELECOMschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.LnkType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCEschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.xor
+import java.io.ByteArrayInputStream
 import java.io.Serializable
 import java.nio.ByteBuffer
 import java.util.LinkedList
@@ -129,14 +130,14 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
     }
     val heItemTypes: List<String> = listOf("healthcareelement", "adr", "allergy", "socialrisk", "risk", "professionalrisk", "familyrisk", "healthissue")
 
-    suspend fun importSMF(inputData: Flow<ByteBuffer>,
+    suspend fun importSMF(inputData: ByteArray,
                           author: User,
                           language: String,
                           saveToDatabase: Boolean,
                           mappings: Map<String, List<ImportMapping>>,
                           dest: Patient? = null): List<ImportResult> {
         val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
-        val inputStream = inputData.toInputStream()
+        val inputStream = ByteArrayInputStream(inputData)
         val unmarshaller = jc.createUnmarshaller()
         val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
 
@@ -146,16 +147,13 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val kmehrIndex = kmehrMessage.performIndexation(idGenerator)
         val senderHcps: MutableList<HealthcareParty> = mutableListOf()
 
-        //TODO Might want to have several implementations based on standards
-        kmehrMessage.header.sender.hcparties?.forEach {
-            createOrProcessHcp(it, saveToDatabase)?.let {
-                senderHcps.add(it)
-            }
-        }
-
         kmehrMessage.folders.forEach { folder ->
             val res = ImportResult().apply { allRes.add(this) }
-            res.hcps.addAll(senderHcps)
+            kmehrMessage.header.sender.hcparties?.forEach {
+                createOrProcessHcp(it, saveToDatabase, res)?.let {
+                    senderHcps.add(it)
+                }
+            }
 
             //Do not inline... It makes kotlin 1.4 fail
             val insurabilities = folder.transactions?.flatMap { it.findItems { it.cds.find { it.s == CDITEMschemes.CD_ITEM }?.value == "insurancystatus" } }?.firstOrNull()?.let {
@@ -248,16 +246,14 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                                         saveToDatabase: Boolean,
                                                         kmehrIndex: KmehrMessageIndex): Contact {
         val transactionMfid = getTransactionMFID(trn)
-        val trnhcpid = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-            createOrProcessHcp(it, saveToDatabase, v)
-        }?.firstOrNull()?.id ?: author.healthcarePartyId ?: throw IllegalArgumentException("The author's healthcarePartyId must be set")
+        val trnauthorhcpid = extractTransactionAuthor(trn, saveToDatabase, author, v);
 
         val contactId = transactionMfid?.let { kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString()
         val formId = kmehrIndex.formIdMask.xor(UUID.fromString(contactId)).toString()
 
         val serviceAndSubContacts = trn.findItems { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "medication" } }.map { item ->
             val mfId = getItemMFID(item)
-            val service = parseGenericItem("treatment", "Prescription", item, author, trnhcpid, language, kmehrIndex)
+            val service = parseGenericItem("treatment", "Prescription", item, author, trnauthorhcpid, language, kmehrIndex)
             service to makeSubContact(contactId, formId, mfId, service, kmehrIndex)
         }
         val contactDate = extractTransactionDateTime(trn)
@@ -269,7 +265,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         parent = if (it == formId) kmehrIndex.transactionChildOf[transactionMfid]?.firstOrNull()?.let { kmehrIndex.transactionIds[it]?.first?.let { cid -> kmehrIndex.formIdMask.xor(cid).toString() } } else null,
                         contactId = contactId,
                         author = author.id,
-                        responsible = trnhcpid,
+                        responsible = trnauthorhcpid,
                         created = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
                         modified = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli())
             })
@@ -278,13 +274,18 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         return Contact(
                 id = contactId,
                 author = author.id,
-                responsible = trnhcpid,
+                responsible = trnauthorhcpid,
                 services = serviceAndSubContacts.map {it.first}.toSet() + (transactionMfid?.let { kmehrIndex.parentOf[it]?.flatMap { kmehrIndex.transactionIds[it]?.second?.let { parseTransaction(it, author, v, language, mappings, saveToDatabase, kmehrIndex).services } ?: setOf() }?.toSet() } ?: setOf()),
                 subContacts = simplifiedSubContacts,
                 openingDate = contactDate,
                 closingDate = trn.isIscomplete.let { if (it) contactDate else null }
         )
     }
+
+    private suspend fun extractTransactionAuthor(trn: TransactionType, saveToDatabase: Boolean, author: User, v: ImportResult) =
+            trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY } }?.mapNotNull {
+                createOrProcessHcp(it, saveToDatabase, v)
+            }?.firstOrNull()?.id ?: author.healthcarePartyId ?: throw IllegalArgumentException("The author's healthcarePartyId must be set")
 
     private fun extractTransactionDateTime(trn: TransactionType) =
             trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
@@ -298,12 +299,12 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     val heId = kmehrIndex.approachFor[heOrHcaMfid]?.mapNotNull { kmehrIndex.itemIds[it] }?.firstOrNull()?.first
                     SubContact(
                             id = UUID.nameUUIDFromBytes(("$contactId|$heId|${heOrHcaPair.first}|null").toByteArray()).toString(),
-                            healthElementId = heId?.toString(), planOfActionId = heOrHcaPair.first.toString(), services = listOf(ServiceLink(serviceId = service.id))
+                            formId = formId, healthElementId = heId?.toString(), planOfActionId = heOrHcaPair.first.toString(), services = listOf(ServiceLink(serviceId = service.id))
                     )
                 } else {
                     SubContact(
                             id = UUID.nameUUIDFromBytes(("$contactId|null|${heOrHcaPair.first}|null").toByteArray()).toString(),
-                            healthElementId = heOrHcaPair.first.toString(), services = listOf(ServiceLink(serviceId = service.id))
+                            formId = formId, healthElementId = heOrHcaPair.first.toString(), services = listOf(ServiceLink(serviceId = service.id))
                     )
                 }
             } ?: formId?.let{
@@ -323,12 +324,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                                    kmehrIndex: KmehrMessageIndex): Contact {
 
         val transactionMfid = getTransactionMFID(trn)
-        val trnauthorhcpid = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-            createOrProcessHcp(it, saveToDatabase)?.let {
-                v.hcps.add(it)
-                it
-            }
-        }?.firstOrNull()?.id ?: author.healthcarePartyId ?: throw IllegalArgumentException("The author's healthcarePartyId must be set")
+        val trnauthorhcpid = extractTransactionAuthor(trn, saveToDatabase, author, v);
 
         val services = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter { it.type == CDLNKvalues.MULTIMEDIA }?.map { lnk ->
             val docname = trn.cds.firstOrNull { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.dn ?: "unnamed_document"
@@ -389,6 +385,21 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val contactDate = extractTransactionDateTime(trn)
         val trnCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value
         val trnTypeCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION_TYPE }?.value
+        val contactId = transactionMfid?.let{ kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString()
+        val formId = kmehrIndex.formIdMask.xor(UUID.fromString(contactId)).toString()
+        val subContacts = services.map{makeSubContact(contactId, formId, transactionMfid, it, kmehrIndex)}
+        val simplifiedSubContacts = simplifySubContacts(subContacts.filterNotNull()).toSet()
+        if (simplifiedSubContacts.isNotEmpty()) {
+            v.forms.addAll(simplifiedSubContacts.filter { sc -> !v.forms.any { it.id == sc.formId } && sc.services.isNotEmpty() }.mapNotNull { it.formId ?: idGenerator.newGUID().toString() }.toSet().map {
+                Form(id = it,
+                        parent = if (it == formId) kmehrIndex.transactionChildOf[transactionMfid]?.firstOrNull()?.let { kmehrIndex.transactionIds[it]?.first?.let { cid -> kmehrIndex.formIdMask.xor(cid).toString() } } else null,
+                        contactId = contactId,
+                        author = author.id,
+                        responsible = trnauthorhcpid,
+                        created = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
+                        modified = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli())
+            })
+        }
 
         return Contact(
                 id = transactionMfid?.let{ kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString(),
@@ -399,7 +410,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 }?.firstOrNull()?.id ?: author.healthcarePartyId,
                 services = services.toSet() + (transactionMfid?.let { kmehrIndex.parentOf[it]?.flatMap { kmehrIndex.transactionIds[it]?.second?.let { parseTransaction(it, author, v, language, mappings, saveToDatabase, kmehrIndex).services } ?: setOf() }?.toSet() } ?: setOf()),
                 openingDate = contactDate,
-                closingDate = trn.isIscomplete.let { if (it) contactDate else null }
+                closingDate = trn.isIscomplete.let { if (it) contactDate else null },
+                subContacts = simplifiedSubContacts
             )
     }
 
@@ -411,12 +423,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                                 saveToDatabase: Boolean,
                                                 kmehrIndex: KmehrMessageIndex): Contact {
         val contactDate = extractTransactionDateTime(trn)
-        val trnauthorhcpid = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-            createOrProcessHcp(it, saveToDatabase)?.let {
-                v.hcps.add(it)
-                it
-            }
-        }?.firstOrNull()?.id ?: author.healthcarePartyId ?: throw IllegalArgumentException("The author's healthcarePartyId must be set")
+        val trnauthorhcpid = extractTransactionAuthor(trn, saveToDatabase, author, v);
 
         val transactionMfid = getTransactionMFID(trn)
 
@@ -474,7 +481,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
         val simplifiedSubContacts = simplifySubContacts(subContacts).toSet()
         if (simplifiedSubContacts.isNotEmpty()) {
-            v.forms.addAll(simplifiedSubContacts.filter { sc -> !v.forms.any { it.id == sc.formId } && sc.services.isNotEmpty() }.mapNotNull { it.formId }.toSet().map {
+            v.forms.addAll(simplifiedSubContacts.filter { sc -> !v.forms.any { it.id == sc.formId } && sc.services.isNotEmpty() }.mapNotNull { it.formId ?: idGenerator.newGUID().toString() }.toSet().map {
                 Form(id = it,
                     parent = if (it == formId) kmehrIndex.transactionChildOf[transactionMfid]?.firstOrNull()?.let { kmehrIndex.transactionIds[it]?.first?.let { cid -> kmehrIndex.formIdMask.xor(cid).toString() } } else null,
                     contactId = contactId,
@@ -679,13 +686,18 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         // this method is used for comparison so should not have side effects
         val heDate = extractValueDate(item)
         val mfId = getItemMFID(item)
+
+        val tags: MutableSet<CodeStub> = mutableSetOf();
+        item.certainty?.let { tags.add(CodeStub.from("CD-CERTAINTY", it.cd.value.value(), "1")) }
+        item.severity?.let { tags.add(CodeStub.from("CD-SEVERITY", it.cd.value.value(), "1" )) }
+        item.lifecycle?.let { tags.add(CodeStub.from("CD-LIFECYCLE", it.cd.value.value(), "1")) }
+
         return HealthElement(
-                id = idGenerator.newGUID().toString(),
-                healthElementId = mfId?.let{ kmehrIndex.itemIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString(),
+                id = mfId?.let{ kmehrIndex.itemIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString(),
+                healthElementId = idGenerator.newGUID().toString(),
                 descr = getItemDescription(item, label),
                 idService = linkedService?.id,
-                tags = setOf(CodeStub.from("CD-ITEM", cdItem, "1")) + extractTags(item) + (item.lifecycle?.let { listOf(CodeStub.from("CD-LIFECYCLE", it.cd.value.value(), "1")) }
-                        ?: listOf()),
+                tags = tags.toSet() + setOf(CodeStub.from("CD-ITEM", cdItem, "1")) + extractTags(item),
                 author = author.id,
                 responsible = trnAuthorHcpId,
                 codes = extractCodes(item),
@@ -755,6 +767,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
     private fun extractTags(item: ItemType): Collection<CodeStub> {
         return (item.cds.filter { it.s == CDITEMschemes.CD_PARAMETER || it.s == CDITEMschemes.CD_LAB || it.s == CDITEMschemes.CD_TECHNICAL }.map { CodeStub.from(it.s.value(), it.value, it.sv) } +
+                item.cds.filter { (it.s == CDITEMschemes.LOCAL && it.sl.equals("LOCAL-PARAMETER")) }.map { CodeStub.from(it.sl, it.value, it.sv) } +
                 item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
                     it.cds.filter {
                         listOf(CDCONTENTschemes.CD_LAB).contains(it.s)
@@ -800,7 +813,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 substanceProduct = item.contents.filter { it.substanceproduct != null }.firstOrNull()?.let {
                                     it.substanceproduct?.let {
                                         Substanceproduct(
-                                                intendedcds = it.intendedcd?.let { listOf(CodeStub.from(it.s, it.value, it.sv)) }
+                                                intendedcds = it.intendedcd?.let { listOf(CodeStub.from(it.s.value(), it.value, it.sv)) }
                                                         ?: listOf(),
                                                 intendedname = it.intendedname.toString()
                                         )
@@ -847,13 +860,6 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                         item.lnks.mapNotNull { it.value?.toString(Charsets.UTF_8) }
                                         ).filterNotNull().joinToString(", ").let { if (it.isNotBlank()) it else null },
                                 posology = item.posology?.text?.value, // posology can be complex but SMF spec recommends text type
-                                regimen = item.regimen?.let {
-                                    it.daynumbersAndQuantitiesAndDaytimes.map {
-                                        RegimenItem().apply {
-                                            //TODO finish this optional parsing
-                                        }
-                                    }
-                                },
                                 duration = item.duration?.let { dt ->
                                     Duration(
                                             value = dt.decimal.toDouble(),
@@ -867,9 +873,15 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         ))
                     }
                     (item.contents.any { it.decimal != null }) -> item.contents.firstOrNull { it.decimal != null }?.let {
+                        val comment = getItemDescription(item, "")
                         if (it.unit != null) {
                             Content(measureValue = Measure(value = it.decimal.toDouble(), unit = it.unit?.cd?.value))
-                        } else {
+                        }
+                        else if (comment != null) {
+                            Content(measureValue = Measure(value = it.decimal.toDouble(), comment = comment))
+                        }
+                        else
+                        {
                             Content(numberValue = it.decimal.toDouble())
                         }
                     }
@@ -925,7 +937,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 content == "s" && this.contents.any { it.texts?.size ?: 0 > 0 || it.cds?.size ?: 0 > 0 || it.hcparty != null }
     }
 
-    protected suspend fun createOrProcessHcp(p: HcpartyType, saveToDatabase: Boolean, v: ImportResult? = null): HealthcareParty? {
+    protected suspend fun createOrProcessHcp(p: HcpartyType, saveToDatabase: Boolean, v: ImportResult): HealthcareParty? {
         val nihii = validNihiiOrNull(p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value)
         val niss = validSsinOrNull(p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value)
         val specialty: String? = p.cds.find { it.s == CDHCPARTYschemes.CD_HCPARTY }?.value?.trim()
@@ -944,16 +956,16 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
 
         // test if already exist in db
-        existing = existing ?: (nihii?.let { healthcarePartyLogic.listHealthcarePartiesByNihii(it).firstOrNull() }?.also {
-            v?.hcps?.add(it) // do not create it, but should appear in patient external hcparties (duplicates are removed at the end)
-        } ?: niss?.let { healthcarePartyLogic.listHealthcarePartiesBySsin(niss).firstOrNull() })?.also {
-            v?.hcps?.add(it) // do not create it, but should appear in patient external hcparties
+        existing = existing ?: nihii?.let { healthcarePartyLogic.listHealthcarePartiesByNihii(it).firstOrNull() }?:run {
+            niss?.let { healthcarePartyLogic.listHealthcarePartiesBySsin(it).firstOrNull() }
+        }?.also{
+            v.hcps.add(it)
         }
 
         if (existing == null && ((nihii == null || nihii.trim() == "") && (niss == null || niss.trim() == ""))
                 && p.firstname?.trim()?.let { it == "" } != false
                 && p.familyname?.trim()?.let { it == "" } != false) {
-            existing = healthcarePartyLogic.listHealthcarePartiesByName(p.name).firstOrNull()
+            existing = p.name?.let { healthcarePartyLogic.listHealthcarePartiesByName(p.name).firstOrNull() }
             existing?.let {
                 v?.hcps?.add(it) // do not create it, but should appear in patient external hcparties
             }

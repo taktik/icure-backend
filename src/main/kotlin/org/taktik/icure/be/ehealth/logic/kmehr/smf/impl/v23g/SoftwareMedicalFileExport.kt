@@ -41,47 +41,17 @@ import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.InsuranceLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeMomentType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXMLGregorianCalendarFromFuzzyLong
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXmlGregorianCalendar
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENT
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTY
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITY
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITYREASON
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITYREASONvalues
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITYvalues
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEM
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDLIFECYCLE
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDLIFECYCLEvalues
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDLNKvalues
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDMEDIATYPEvalues
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTION
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.LnkType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCE
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCEschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AuthorType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ContentType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.FolderType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.IncapacityType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.IncapacityreasonType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.InsuranceType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.LifecycleType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.RecipientType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils.makeMomentType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils.makeXMLGregorianCalendarFromFuzzyLong
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils.makeXmlGregorianCalendar
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.id.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
-import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
+import org.taktik.icure.be.ehealth.logic.kmehr.v20170901.KmehrExport
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.Form
@@ -98,8 +68,10 @@ import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
 import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
+import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.mapper.ContactMapper
 import org.taktik.icure.services.external.rest.v1.mapper.DocumentMapper
+import org.taktik.icure.services.external.rest.v1.mapper.HealthElementMapper
 import org.taktik.icure.utils.FuzzyValues
 import java.io.StringWriter
 import java.time.Instant
@@ -125,6 +97,7 @@ class SoftwareMedicalFileExport(
         filters: org.taktik.icure.asynclogic.impl.filter.Filters,
         val contactMapper: ContactMapper,
         val documentMapper: DocumentMapper,
+        val healthElementMapper: HealthElementMapper,
 ) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 	private var hesByContactId: Map<String?, List<HealthElement>> = HashMap()
     private var servicesByContactId: Map<String?, List<Service>> = HashMap()
@@ -143,7 +116,7 @@ class SoftwareMedicalFileExport(
 			config: Config = Config(
                     _kmehrId = System.currentTimeMillis().toString(),
 					date = makeXGC(Instant.now().toEpochMilli())!!,
-					time = makeXGC(Instant.now().toEpochMilli(), true)!!,
+					time = makeXGC(Instant.now().toEpochMilli())!!,
 					soft = Config.Software(name = "iCure", version = ICUREVERSION),
 					clinicalSummaryType = "TODO", // not used
 					defaultLanguage = "en",
@@ -154,7 +127,7 @@ class SoftwareMedicalFileExport(
         // fill missing config with default values
         config._kmehrId = config._kmehrId ?: System.currentTimeMillis().toString()
         config.date = config.date ?: makeXGC(Instant.now().toEpochMilli())!!
-        config.time = config.time ?: makeXGC(Instant.now().toEpochMilli(), true)!!
+        config.time = config.time ?: makeXGC(Instant.now().toEpochMilli())!!
         config.soft = config.soft ?: Config.Software(name = "iCure", version = ICUREVERSION)
         config.defaultLanguage = config.defaultLanguage ?: "en"
         config.format = config.format ?: Config.Format.SMF
@@ -213,7 +186,13 @@ class SoftwareMedicalFileExport(
 		}
 		val startIndex = folder.transactions.size
 
-		hesByContactId = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
+        var nonConfidentialHealthElements: List<HealthElement> = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config));
+
+        if (decryptor != null && (nonConfidentialHealthElements.isNotEmpty())) {
+            nonConfidentialHealthElements = decryptor.decrypt(nonConfidentialHealthElements.map{ healthElementMapper.map(it)}, HealthElementDto::class.java).map{ healthElementMapper.map(it) }
+        }
+
+		hesByContactId = nonConfidentialHealthElements.groupBy {
 			it.idOpeningContact
 		}
 
@@ -224,7 +203,7 @@ class SoftwareMedicalFileExport(
             }
         }.toMap()
 
-		val hesByHeIdSortedByDate = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
+		val hesByHeIdSortedByDate = nonConfidentialHealthElements.groupBy {
 			it.healthElementId
 		}.mapValues {
 			it.value.sortedWith(compareBy({ it.created },{ it.modified })) // created is the key, but use modified for backward compat
@@ -241,10 +220,10 @@ class SoftwareMedicalFileExport(
         }
 
 		// add Hes without idOpeningContact to clinical summary
-		hesByContactId[null].orEmpty().map { he -> addHealthCareElement(folder.transactions.first(), he, 0, config) }
+		hesByContactId[null].orEmpty().map { he -> addHealthCareElement(folder.transactions.first(), he, 0, config, language) }
 		hesByContactId = hesByContactId.filterKeys { it != null }
 
-		heById = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
+		heById = nonConfidentialHealthElements.groupBy {
 			// retrive the healthElementId property of an HE by his couchdb id
 			it.id
 		}
@@ -254,256 +233,195 @@ class SoftwareMedicalFileExport(
 		val specialPrescriptions = mutableListOf<TransactionType>()
         val summaries = mutableListOf<TransactionType>()
 
-		contacts.forEachIndexed { index, encContact ->
+		contacts.forEachIndexed contactsLoop@ { index, encContact ->
 			progressor?.progress((1.0 * index) / (contacts.size + documents.size))
             log.info("Treating contact ${index}/${contacts.size}")
 
-            val contact = if (decryptor != null && (encContact.services.isNotEmpty())) {
+            var contact: Contact? = null;
+            if (decryptor != null && (encContact.services.isNotEmpty())) {
                 log.info("Decrypt ${encContact.id}")
                 val ctcDto = contactMapper.map(encContact)
-                val decryptedContact = decryptor.decrypt(listOf(ctcDto), ContactDto::class.java).firstOrNull()?.let { contactMapper.map(it) }
-                        ?: encContact
+                contact = decryptor.decrypt(listOf(ctcDto), ContactDto::class.java).firstOrNull()?.let { contactMapper.map(it) }
                 log.info("${encContact.id} decrypted")
-                decryptedContact
-            } else {
-				encContact
-			}
+            }
 
-			folder.transactions.add(
-                    TransactionType().apply {
-                        var services: List<Service> = excludesServiceForPMF(contact.services.toList(), config)
-                        val trn = this
+                if(contact == null) return@contactsLoop
+                var subContacts: List<SubContact> = contact.subContacts.filter { subContact -> subContact.healthElementId == null && subContact.planOfActionId == null && subContact.formId != null}
+                subContacts.forEachIndexed {index, subContact ->
+                    folder.transactions.add(
+                            TransactionType().apply {
+                                val trn = this
 
-                        val (cdTransactionRef, defaultCdItemRef, exportAsDocument) = when (contact.encounterType?.code) {
-                            "labresult" -> Triple("labresult", "lab", false)
-                            else -> {
-                                if (contact.tags?.any { it.type == "CD-TRANSACTION" && it.code == "labresult" } == true) {
-                                    Triple("labresult", "lab", true)
-                                } else {
-                                    Triple("contactreport", "parameter", false)
-                                }
-                            }
-                        }
-
-                        ids.add(idKmehr(startIndex))
-                        ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; value = contact.id })
-                        cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = cdTransactionRef })
-                        (contact.modified ?: contact.created)?.let {
-                            date = makeXGC(it)
-                            time = makeXGC(it, unsetMillis = true)
-                        } ?: also {
-                            date = config.date
-                            time = makeXGC(0L, unsetMillis = true)
-                        }
-                        (contact.responsible ?: healthcareParty.id)?.let {
-                            author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic.getHealthcareParty(it)!!, emptyList())) }
-                        }
-                        isIscomplete = true
-                        isIsvalidated = true
-                        contact.openingDate?.let { headingsAndItemsAndTexts.add(makeEncounterDateTime(headingsAndItemsAndTexts.size + 1, it)) }
-                        contact.location?.let { headingsAndItemsAndTexts.add(makeEncounterLocation(headingsAndItemsAndTexts.size + 1, it, language)) }
-                        contact.encounterType?.let { headingsAndItemsAndTexts.add(makeEncounterType(headingsAndItemsAndTexts.size + 1, it)) }
-
-                        hesByContactId[contact.id].orEmpty().map { he -> addHealthCareElement(trn, he, 0, config) }
-
-                        hesByContactId = hesByContactId.filterKeys { it != contact.id } // prevent re-using the same He for the next subcontact
-
-                        // Special code for specific forms
-                        contact.subContacts.forEach { subcon ->
-                            //TODO: Please explain
-                            if (subcon.healthElementId == null) { // discard form <-> he links
-                                subcon.formId?.let {
-                                    formLogic.getForm(it)?.let { form ->
-                                        form.formTemplateId?.let {
-                                            try {
-                                                formTemplateLogic.getFormTemplate(it)?.let {
-                                                    when (it.guid) {
-                                                        "FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00" -> { // ITT
-                                                            services = services.filterNot { subcon.services.map { it.serviceId }.contains(it.id) } // remove form services from main list
-                                                            trn.headingsAndItemsAndTexts.add(makeIncapacityItem(contact, subcon, form))
-                                                        }
-                                                        "AEFED10A-9A72-4B40-981B-1D79ADB05516" -> { // Prescription Kine
-                                                            services = services.filterNot { subcon.services.map { it.serviceId }.contains(it.id) }
-                                                            specialPrescriptions.add(makeKinePrescriptionTransaction(contact, subcon, form))
-                                                        }
-                                                        "64DAB551-B007-4B5C-BD64-F886301F5326" -> { // Prescription Nurse
-                                                            services = services.filterNot { subcon.services.map { it.serviceId }.contains(it.id) }
-                                                            // get subforms
-                                                            val subformsubcons = contact.subContacts.filter { subformsubcon ->
-                                                                subformsubcon.formId?.let {
-                                                                    formLogic.getForm(it)?.let { subform ->
-                                                                        subform.parent == form.id
-
-                                                                    }
-                                                                } == true
-                                                            }
-                                                            subformsubcons.forEach { subformsubcon ->
-                                                                services = services.filterNot { subformsubcon.services.map { it.serviceId }.contains(it.id) }
-                                                            }
-                                                            specialPrescriptions.add(makeNursePrescriptionTransaction(contact, subcon, subformsubcons, form))
-                                                        }
-                                                        else -> Unit
-                                                    }
-                                                }
-                                            } catch (e:Exception) {
-                                                log.error("Cannot load form template $it")
-                                            }
+                                val (cdTransactionRef, defaultCdItemRef, exportAsDocument) = when (contact.encounterType?.code) {
+                                    "labresult" -> Triple("labresult", "lab", true)
+                                    else -> {
+                                        if (contact.tags?.any { it.type == "CD-TRANSACTION" && it.code == "labresult" } == true) {
+                                            Triple("labresult", "lab", true)
+                                        } else {
+                                            Triple("contactreport", "parameter", false)
                                         }
                                     }
                                 }
+                            val transactionMFID: String = if(index > 0) UUIDGenerator().newGUID().toString() else contact.id
+                            val services: List<Service> = contact.services.filter { subContact.services.map{it.serviceId}.contains(it.id)}
+                            val parentContactId: String? = if(index > 0) contact.id else null
+                            ids.add(idKmehr(startIndex))
+                            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; value = transactionMFID })
+                            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = cdTransactionRef })
+                            (contact.modified ?: contact.created)?.let {
+                                date = makeXGC(it)
+                                time = makeXGC(it)
+                            } ?: also {
+                                date = config.date
+                                time = makeXGC(0L)
                             }
-                        }
+                            (contact.responsible ?: healthcareParty.id)?.let {
+                                author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic.getHealthcareParty(it)!!, emptyList())) }
+                            }
+                            isIscomplete = true
+                            isIsvalidated = true
+                            contact.openingDate?.let { headingsAndItemsAndTexts.add(makeEncounterDateTime(headingsAndItemsAndTexts.size + 1, it)) }
+                            contact.location?.let { headingsAndItemsAndTexts.add(makeEncounterLocation(headingsAndItemsAndTexts.size + 1, it, language)) }
+                            contact.encounterType?.let { headingsAndItemsAndTexts.add(makeEncounterType(headingsAndItemsAndTexts.size + 1, it)) }
 
-                        contact.services.filter { s -> s.tags.find { t -> t.code == "incapacity" } != null }.forEach { incapacityService ->
-                            headingsAndItemsAndTexts.add(makeIncapacityItem(healthcareParty, incapacityService))
-                            incapacityService.content[language]?.documentId?.let { docId ->
-                                createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config, decryptor)
-                            }
-                        }
-                        contact.services.filter { s -> s.tags.find { t -> t.code == "physiotherapy" } != null }.forEach { kineService ->
-                            specialPrescriptions.add(makeKinePrescriptionTransaction(kineService, decryptor))
-                        }
-                        contact.services.filter { s -> s.tags.find { t -> t.code == "medicalcares" } != null }.forEach { nurseService ->
-                            specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService, decryptor))
-                        }
-                        contact.services.filter { s -> isSummary(s) }.forEach { summaryService ->
-                            summaries.add(makeSummaryTransaction(contact, summaryService))
-                        }
+                            hesByContactId[contact.id].orEmpty().map { he -> addHealthCareElement(trn, he, 0, config, language) }
 
-                        // services
-                        if (exportAsDocument && services.size == 1) {
-                            services[0].content.values.forEach { doc ->
-                                doc.stringValue?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = CDMEDIATYPEvalues.TEXT_PLAIN; value = it.toByteArray(Charsets.UTF_8) }) }
-                            }
-                        } else {
-                            services.forEach servicesLoop@{ svc ->
-                                val incapacityTag = svc.tags.find { t -> t.code == "incapacity" }
-                                if (incapacityTag != null) return@servicesLoop
-                                var forSeparateTransaction = false // documents are in separate transaction in *MF
-                                svc.content.values.find { it.documentId != null }?.let {
-                                    documents = documents.plus(Triple(it.documentId!!, svc, contact))
-                                    forSeparateTransaction = true
+                            hesByContactId = hesByContactId.filterKeys { it != contact.id } // prevent re-using the same He for the next subcontact
+
+                            services.filter { s -> s.tags.find { t -> t.code == "incapacity" } != null }.forEach { incapacityService ->
+                                headingsAndItemsAndTexts.add(makeIncapacityItem(incapacityService, language))
+                                incapacityService.content[language]?.documentId?.let { docId ->
+                                    createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config, decryptor)
                                 }
+                            }
+                            services.filter { s -> s.tags.find { t -> t.code == "physiotherapy" } != null }.forEach { kineService ->
+                                specialPrescriptions.add(makeKinePrescriptionTransaction(kineService, language, decryptor))
+                            }
+                            services.filter { s -> s.tags.find { t -> t.code == "medicalcares" } != null }.forEach { nurseService ->
+                                specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService, language, decryptor))
+                            }
+                            services.filter { s -> isSummary(s) }.forEach { summaryService ->
+                                summaries.add(makeSummaryTransaction(contact, summaryService, language))
+                            }
 
-                                // prescriptions are in separate transaction in *MF
-                                // icure prescriptions have another tag (and in separate transaction in *MF)
-                                svc.tags.find {
-                                    (it.type == "CD-ITEM" && it.code == "treatment")
-                                            || (it.type == "ICURE" && it.code == "PRESC")
-                                }?.let {
-                                    pharmaceuticalPrescriptions = pharmaceuticalPrescriptions.plus(Pair(svc, contact))
-                                    forSeparateTransaction = true
+                            // services
+                            if (exportAsDocument && services.size == 1) {
+                                services[0].content.values.forEach { doc ->
+                                    doc.stringValue?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = CDMEDIATYPEvalues.TEXT_PLAIN; value = it.toByteArray(Charsets.UTF_8) }) }
                                 }
-                                forSeparateTransaction = forSeparateTransaction || isSummary(svc)
-
-                                if (!forSeparateTransaction) {
-                                    val svcCdItem = svc.tags.filter { it.type == "CD-ITEM" }.firstOrNull()
-
-                                    val cdItem = (svcCdItem?.code ?: defaultCdItemRef).let {
-                                        if (it == "parameter") {
-                                            svc.content.let {
-                                                it.entries.firstOrNull()?.value?.measureValue?.let { "parameter" }
-                                                        ?: "clinical" // FIXME: change to clinical instead of technical because medinote doesnt support technical
-                                            } //Change parameters to technicals if not real parameters
-                                        } else it
+                            } else {
+                                services.forEach servicesLoop@{ svc ->
+                                    val incapacityTag = svc.tags.find { t -> t.code == "incapacity" }
+                                    if (incapacityTag != null) return@servicesLoop
+                                    var forSeparateTransaction = false // documents are in separate transaction in *MF
+                                    svc.content.values.find { it.documentId != null }?.let {
+                                        documents = documents.plus(Triple(it.documentId!!, svc, contact))
+                                        forSeparateTransaction = true
                                     }
 
+                                    // prescriptions are in separate transaction in *MF
+                                    // icure prescriptions have another tag (and in separate transaction in *MF)
+                                    svc.tags.find {
+                                        (it.type == "CD-ITEM" && it.code == "treatment")
+                                                || (it.type == "ICURE" && it.code == "PRESC")
+                                    }?.let {
+                                        pharmaceuticalPrescriptions = pharmaceuticalPrescriptions.plus(Pair(svc, contact))
+                                        forSeparateTransaction = true
+                                    }
+                                    forSeparateTransaction = forSeparateTransaction || isSummary(svc)
 
-                                    val contents: List<ContentType> = svc.content.entries.flatMap {
-                                        makeContent(it.key, it.value)?.let { c ->
-                                            listOf(c.apply {
-                                                if (svcCdItem == null && texts.size > 0) {
-                                                    if (!svc.label.isNullOrBlank() && svc.label != "<invalid>" && !texts.first().value.startsWith(svc.label)) {
-                                                        texts.first().value = "${svc.label}: ${texts.first().value}"
+                                    if (!forSeparateTransaction) {
+                                        val svcCdItem = svc.tags.filter { it.type == "CD-ITEM" }.firstOrNull()
+
+                                        val cdItem = (svcCdItem?.code ?: defaultCdItemRef).let {
+                                            if (it == "parameter") {
+                                                svc.content.let {
+                                                    it.entries.firstOrNull()?.value?.measureValue?.let { "parameter" }
+                                                            ?: "clinical" // FIXME: change to clinical instead of technical because medinote doesnt support technical
+                                                } //Change parameters to technicals if not real parameters
+                                            } else it
+                                        }
+
+
+                                        val contents: List<ContentType> = svc.content.entries.flatMap {
+                                            makeContent(it.key, it.value)?.let { c ->
+                                                listOf(c.apply {
+                                                    if (svcCdItem == null && texts.size > 0) {
+                                                        if (!svc.label.isNullOrBlank() && svc.label != "<invalid>" && !texts.first().value.startsWith(svc.label)) {
+                                                            texts.first().value = "${svc.label}: ${texts.first().value}"
+                                                        }
                                                     }
-                                                }
-                                            })
-                                        } ?: emptyList()
-                                    } + codesToKmehr(svc.codes)
-                                    if (contents.isNotEmpty()) {
-                                        createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID")?.apply {
-                                            this.ids.add(IDKMEHR().apply {
-                                                this.s = IDKMEHRschemes.LOCAL
-                                                this.sv = "1.0"
-                                                this.sl = "org.taktik.icure.label"
-                                                this.value = svc.label
-                                            })
-                                            if (cdItem == "parameter") {
-                                                svc.tags.find { it.type == "CD-PARAMETER" }?.let {
-                                                    this.cds.add(
-                                                            CDITEM().apply {
-                                                                s = CDITEMschemes.CD_PARAMETER
+                                                })
+                                            } ?: emptyList()
+                                        } + codesToKmehr(svc.codes)
+                                        if (contents.isNotEmpty()) {
+                                            createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID")?.apply {
+                                                this.ids.add(IDKMEHR().apply {
+                                                    this.s = IDKMEHRschemes.LOCAL
+                                                    this.sv = "1.0"
+                                                    this.sl = "org.taktik.icure.label"
+                                                    this.value = svc.label
+                                                })
+                                                if (cdItem == "parameter") {
+                                                    svc.content.values.firstOrNull { it.measureValue != null }?.measureValue?.comment?.let { measureNote ->
+                                                        this.contents.add(ContentType().apply { texts.add(TextType().apply { l = language; value = measureNote }) })
+                                                    }
 
-                                                                value = it.code
-                                                            }
-                                                    )
-                                                }
-                                                if(!svc.label.isNullOrEmpty()) {
-                                                    this.cds.add(
-                                                            CDITEM().apply {
-                                                                s = CDITEMschemes.LOCAL
-                                                                sl = "LOCAL-PARAMETER"
-                                                                sv = "1.0"
-                                                                dn = if (svc.comment == "" || svc.comment == null) {
-                                                                    svc.label
-                                                                } else {
-                                                                    svc.comment
+                                                    svc.tags.find { it.type == "CD-PARAMETER" }?.let {
+                                                        this.cds.add(
+                                                                CDITEM().apply {
+                                                                    s = CDITEMschemes.CD_PARAMETER
+                                                                    value = it.code
                                                                 }
-                                                                value = svc.label
-                                                            }
-                                                    )
-                                                }
-                                            }
-                                            if (cdItem == "medication") {
-                                                svc.content.values.find { it.medicationValue?.instructionForPatient != null }?.let {
-                                                    this.posology = ItemType.Posology().apply {
-                                                        text = TextType().apply { l = language; value = it.medicationValue!!.instructionForPatient }
+                                                        )
+                                                    }
+                                                    if(!svc.label.isNullOrEmpty()) {
+                                                        this.cds.add(
+                                                                CDITEM().apply {
+                                                                    s = CDITEMschemes.LOCAL
+                                                                    sl = "LOCAL-PARAMETER"
+                                                                    sv = "1.0"
+                                                                    dn = if (svc.comment == "" || svc.comment == null) {
+                                                                        svc.label
+                                                                    } else {
+                                                                        svc.comment
+                                                                    }
+                                                                    value = svc.label
+                                                                }
+                                                        )
                                                     }
                                                 }
-                                            }
-                                            if (cdItem == "vaccine") {
-                                                svc.content.values.firstOrNull { it.medicationValue != null }?.medicationValue?.batch?.let {
-                                                    this.batch = it
+                                                if (cdItem == "medication") {
+                                                    svc.content.values.find { it.medicationValue?.instructionForPatient != null }?.let {
+                                                        this.posology = ItemType.Posology().apply {
+                                                            text = TextType().apply { l = language; value = it.medicationValue!!.instructionForPatient }
+                                                        }
+                                                    }
                                                 }
-                                            }
+                                                if (cdItem == "vaccine") {
+                                                    svc.content.values.firstOrNull { it.medicationValue != null }?.medicationValue?.batch?.let {
+                                                        this.batch = it
+                                                    }
+                                                }
 
-                                            svc.comment?.let {
-                                                (it != "") && it.let {
-                                                    this.contents.add(ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
+                                                svc.comment?.let {
+                                                    (it != "") && it.let {
+                                                        this.contents.add(ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
+                                                    }
                                                 }
+                                            }?.let {
+                                                addHistoryLinkAndCacheService(it, svc, config)
+                                                headingsAndItemsAndTexts.add(it)
                                             }
-                                        }?.let {
-                                            addHistoryLinkAndCacheService(it, svc, config)
-                                            headingsAndItemsAndTexts.add(it)
                                         }
                                     }
                                 }
+                                parentContactId?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(it) })}
                             }
-                        }
-
-                        // add link from items to HEs
-                        contact.subContacts.forEach { subcon ->
-                            if (subcon.healthElementId != null) {
-                                subcon.services.forEach {
-                                    itemByServiceId[it.serviceId]?.lnks?.let {
-                                        val lnk = LnkType().apply {
-                                            type = CDLNKvalues.ISASERVICEFOR
-                                            // link should point to He.healthElementId and not He.id
-                                            subcon.healthElementId?.let {
-                                                heById[it]?.firstOrNull()?.healthElementId?.let {
-                                                    url = makeLnkUrl(it)
-                                                }
-                                            }
-                                        }
-                                        if (it.none { (it.type == lnk.type) && (it.url == lnk.url) }) {
-                                            it.add(lnk)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-            )
+                            val subContactsWithHealthElementId: List<SubContact> = contact.subContacts.filter { subContactWithHealthElementId -> subContactWithHealthElementId.healthElementId != null && subContactWithHealthElementId.formId == subContact.formId }
+                            addServiceLinkToHealthElement(subContactsWithHealthElementId)
+                        })
+                }
 			Unit
 		}
         log.info("Exporting pharmaceutical prescriptions")
@@ -516,10 +434,10 @@ class SoftwareMedicalFileExport(
                 cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "pharmaceuticalprescription" })
                 (svc.modified ?: svc.created) ?.let {
                     date = makeXGC(it)
-                    time = makeXGC(it, unsetMillis = true)
+                    time = makeXGC(it)
                 } ?: also {
                     date = config.date
-                    time = makeXGC(0L, unsetMillis = true)
+                    time = makeXGC(0L)
                 }
                 (svc.responsible ?: healthcareParty.id) ?.let {
                     author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
@@ -584,13 +502,13 @@ class SoftwareMedicalFileExport(
                 folder.transactions.add(TransactionType().apply {
                     ids.add(idKmehr(startIndex))
                     ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = "1.0"; value = svc.id })
-                    cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note"; dn = svc.content["fr"]?.stringValue })
+                    cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note"; dn = svc.content[language]?.stringValue })
                     (svc.modified ?: svc.created)?.let {
                         date = makeXGC(it)
-                        time = makeXGC(it, unsetMillis = true)
+                        time = makeXGC(it)
                     } ?: also {
                         date = config.date
-                        time = makeXGC(0L, unsetMillis = true)
+                        time = makeXGC(0L)
                     }
                     (svc.responsible ?: healthcareParty.id)?.let {
                         author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
@@ -625,6 +543,31 @@ class SoftwareMedicalFileExport(
 		renumberKmehrIds(folder)
 		return folder
 	}
+
+    private fun addServiceLinkToHealthElement(subContacts: List<SubContact>){
+        subContacts.forEach { subContact ->
+            if (subContact.healthElementId != null) {
+                subContact.services.forEach {
+                    itemByServiceId[it.serviceId]?.lnks?.let {
+                        val lnk = LnkType().apply {
+                            type = CDLNKvalues.ISASERVICEFOR
+                            // link should point to He.healthElementId and not He.id
+                            subContact.healthElementId?.let {
+                                heById[it]?.firstOrNull()?.let {
+                                    it.healthElementId?.let{
+                                        url = makeLnkUrl(it)
+                                    }
+                                }
+                            }
+                        }
+                        if (it.none { (it.type == lnk.type) && (it.url == lnk.url) }) {
+                            it.add(lnk)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     private fun addServiceLinkToHealthElement(contact: Contact){
         // add link from items to HEs
@@ -669,16 +612,15 @@ class SoftwareMedicalFileExport(
         }
     }
 
-    private suspend fun makeNursePrescriptionTransaction(contact: Service, decryptor: AsyncDecrypt?): TransactionType {
-        return makeSpecialPrescriptionTransaction(contact, "nursing", decryptor)
+    private suspend fun makeNursePrescriptionTransaction(contact: Service, language: String, decryptor: AsyncDecrypt?): TransactionType {
+        return makeSpecialPrescriptionTransaction(contact, "nursing", language, decryptor)
     }
 
-    private suspend fun makeKinePrescriptionTransaction(contact: Service, decryptor: AsyncDecrypt?): TransactionType {
-        return makeSpecialPrescriptionTransaction(contact, "physiotherapy", decryptor)
+    private suspend fun makeKinePrescriptionTransaction(contact: Service, language: String, decryptor: AsyncDecrypt?): TransactionType {
+        return makeSpecialPrescriptionTransaction(contact, "physiotherapy", language, decryptor)
     }
 
-    private suspend fun makeSpecialPrescriptionTransaction(service: Service, transactionType: String, decryptor: AsyncDecrypt?): TransactionType {
-        val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
+    private suspend fun makeSpecialPrescriptionTransaction(service: Service, transactionType: String, language: String, decryptor: AsyncDecrypt?): TransactionType {
 
         return TransactionType().apply {
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = "1" })
@@ -687,7 +629,7 @@ class SoftwareMedicalFileExport(
             cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION_TYPE; value = transactionType })
             (service.modified ?: service.created)?.let {
                 date = makeXGC(it)
-                time = makeXGC(it, unsetMillis = true)
+                time = makeXGC(it)
             }
             service.responsible?.let {
                 author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
@@ -698,7 +640,7 @@ class SoftwareMedicalFileExport(
             isIscomplete = true
             isIsvalidated = true
 
-            service.content[lang]?.documentId?.let {
+            service.content[language]?.documentId?.let {
                 try{
                     documentLogic.getDocument(it)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(makeMultimediaLnkType(d, it, decryptor)) } }
                 } catch(e:Exception) {
@@ -708,17 +650,16 @@ class SoftwareMedicalFileExport(
         }
     }
 
-    private fun makeIncapacityItem(healthcareParty: HealthcareParty, service: Service, index: Number = 0): ItemType {
-        val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
+    private fun makeIncapacityItem(service: Service, language: String, index: Number = 0): ItemType {
 
-        fun getCompoundValueContent(label: String) = service.content?.get(lang)?.compoundValue?.firstOrNull { it.label == label }?.content?.values?.firstOrNull()
-        fun getCompoundValueTag(label: String, tagType: String) = service.content?.get(lang)?.compoundValue?.firstOrNull { it.label == label }?.tags?.find { it.type == tagType }
+        fun getCompoundValueContent(label: String) = service.content?.get(language)?.compoundValue?.firstOrNull { it.label == label }?.content?.values?.firstOrNull()
+        fun getCompoundValueTag(label: String, tagType: String) = service.content?.get(language)?.compoundValue?.firstOrNull { it.label == label }?.tags?.find { it.type == tagType }
         return ItemType().apply {
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = index.toString() })
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = ICUREVERSION; value = service.id })
             cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity" })
             service.tags?.firstOrNull { it.type == "MS-INCAPACITYTYPE" }?.code?.let { incapacityType ->
-                cds.add(CDITEM().apply { s = CDITEMschemes.LOCAL; value = incapacityType; sl = "PMF-PARAMETER"; l = lang; dn="incapacity type"  })
+                cds.add(CDITEM().apply { s = CDITEMschemes.LOCAL; value = incapacityType; sl = "PMF-PARAMETER"; l = language; dn="incapacity type"  })
             }
 
             contents.add(ContentType().apply {
@@ -760,7 +701,7 @@ class SoftwareMedicalFileExport(
 
                     getCompoundValueContent("Diagnosis")?.stringValue?.let { diagnosisText ->
                         texts.add(TextType().apply {
-                            l = lang
+                            l = language
                             value = diagnosisText
                         })
                     }
@@ -788,10 +729,9 @@ class SoftwareMedicalFileExport(
     }
 
     private fun isSummary(s: Service) = s.label == "Summary" && s.tags.find { t -> t.code == "summary" } != null
-    private suspend fun makeSummaryTransaction(contact: Contact, service: Service): TransactionType {
-        val defaultLanguage = "fr";
-        fun getCompoundValueContent(service: Service, label: String) = service.content?.get(defaultLanguage)?.compoundValue?.firstOrNull { it.label == label }?.content?.get(defaultLanguage);
-        fun getCompoundValueTag(service: Service, label: String, tagType: String) = service.content?.get(defaultLanguage)?.compoundValue?.firstOrNull { it.label == label }?.tags?.find { it.type == tagType };
+    private suspend fun makeSummaryTransaction(contact: Contact, service: Service, language: String): TransactionType {
+        fun getCompoundValueContent(service: Service, label: String) = service.content?.get(language)?.compoundValue?.firstOrNull { it.label == label }?.content?.get(language);
+        fun getCompoundValueTag(service: Service, label: String, tagType: String) = service.content?.get(language)?.compoundValue?.firstOrNull { it.label == label }?.tags?.find { it.type == tagType };
 
         return TransactionType().apply {
             val title = getCompoundValueContent(service, "SummaryTitle")
@@ -808,7 +748,7 @@ class SoftwareMedicalFileExport(
             cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note"; dn = title?.stringValue })
             (service.modified ?: service.created)?.let {
                 date = makeXGC(it)
-                time = makeXGC(it, unsetMillis = true)
+                time = makeXGC(it)
             }
             service.responsible?.let {
                 author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
@@ -831,11 +771,11 @@ class SoftwareMedicalFileExport(
                 cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note" })
                 (service.modified ?: service.created)?.let {
                     date = makeXGC(it)
-                    time = makeXGC(it, unsetMillis = true)
+                    time = makeXGC(it)
                 }
                         ?: also {
                             date = config.date
-                            time = makeXGC(0L, unsetMillis = true)
+                            time = makeXGC(0L)
                         }
                 (service.responsible ?: healthcareParty.id)?.let {
                     author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
@@ -873,8 +813,7 @@ class SoftwareMedicalFileExport(
         return element
     }
 
-    private fun makeIncapacityItem(contact: Contact, subcon: SubContact, form: Form, index: Number = 0): ItemType {
-		val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
+    private fun makeIncapacityItem(contact: Contact, subcon: SubContact, form: Form, language: String, index: Number = 0): ItemType {
 		val servlist = listOf(
 				"incapacité de",
 				"du",
@@ -892,7 +831,7 @@ class SoftwareMedicalFileExport(
 		val servmap = contact.services.filter { serv -> subcon.services.map { it.serviceId }.contains(serv.id) }.associateBy({ it.label }, { it })
 
 		fun getServiceFor(label: String, default: String): String {
-			return servmap[label]?.content?.let { (it[lang] ?: it.values.firstOrNull())?.stringValue } ?: default
+			return servmap[label]?.content?.let { (it[language] ?: it.values.firstOrNull())?.stringValue } ?: default
 		}
 
 		val content = ContentType().apply {
@@ -932,10 +871,10 @@ class SoftwareMedicalFileExport(
 					}
 				}
 				isOutofhomeallowed = servmap["Sortie"]?.content?.let {
-					(it[lang] ?: it.values.firstOrNull())?.stringValue
+					(it[language] ?: it.values.firstOrNull())?.stringValue
 				} == "autorisée"
 				servmap["pourcentage"]?.content?.let {
-					(it[lang] ?: it.values.firstOrNull())?.measureValue?.value
+					(it[language] ?: it.values.firstOrNull())?.measureValue?.value
 				}?.let {
 					percentage = it.toBigDecimal()
 				}
@@ -956,10 +895,10 @@ class SoftwareMedicalFileExport(
 			}
 			isIsrelevant = true
 			beginmoment = Utils.makeMomentTypeFromFuzzyLong(servmap["du"]?.content?.let {
-				(it[lang] ?: it.values.firstOrNull())?.fuzzyDateValue
+				(it[language] ?: it.values.firstOrNull())?.fuzzyDateValue
 			} ?: 0)
 			endmoment = Utils.makeMomentTypeFromFuzzyLong(servmap["au"]?.content?.let {
-				(it[lang] ?: it.values.firstOrNull())?.fuzzyDateValue
+				(it[language] ?: it.values.firstOrNull())?.fuzzyDateValue
 			} ?: 0)
 			recorddatetime = Utils.makeXGC(form.modified, true)
 		}
@@ -1124,12 +1063,12 @@ class SoftwareMedicalFileExport(
         return false
     }
 
-    fun addHealthCareElement(trn: TransactionType, eds: HealthElement, itemIndex: Int, config: Config): Int {
+    fun addHealthCareElement(trn: TransactionType, eds: HealthElement, itemIndex: Int, config: Config, language: String): Int {
 		var mutItemIndex = itemIndex
 		try {
 			val content = listOf(
 					ContentType().apply {
-						texts.add(TextType().apply { l = "fr"; value = eds.descr })
+						texts.add(TextType().apply { l = language; value = eds.descr })
 					},
 					ContentType().apply {
                         cds.addAll(codesToKmehr(eds.codes).cds)
@@ -1275,7 +1214,7 @@ class SoftwareMedicalFileExport(
 			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION_TYPE ; value = cdTransactionType })
 			contact.modified?.let {
 				date = makeXGC(it)
-				time = makeXGC(it, unsetMillis = true)
+				time = makeXGC(it)
 			}
 			contact.responsible?.let {
 				author = AuthorType().apply { hcparties.add(healthcarePartyLogic.getHealthcareParty(it)?.let { hcp -> createParty(hcp, emptyList()) }) }
@@ -1293,24 +1232,23 @@ class SoftwareMedicalFileExport(
 		}
 	}
 
-	suspend fun makeKinePrescriptionTransaction(contact: Contact, subcon: SubContact, form: Form): TransactionType {
-		val data = renderKinePrescriptionTemplate(contact, subcon, form)
+	suspend fun makeKinePrescriptionTransaction(contact: Contact, subcon: SubContact, form: Form, language: String): TransactionType {
+		val data = renderKinePrescriptionTemplate(contact, subcon, form, language)
 		return makeSpecialPrescriptionTransaction(contact, subcon, form, "physiotherapy", data)
 	}
 
-	suspend fun makeNursePrescriptionTransaction(contact: Contact, subcon: SubContact, subformsubcons: List<SubContact>, form: Form): TransactionType {
-		val data = renderNursePrescriptionTemplate(contact, subcon, subformsubcons, form)
+	suspend fun makeNursePrescriptionTransaction(contact: Contact, subcon: SubContact, subformsubcons: List<SubContact>, form: Form, language: String): TransactionType {
+		val data = renderNursePrescriptionTemplate(contact, subcon, subformsubcons, form, language)
 		return makeSpecialPrescriptionTransaction(contact, subcon, form, "nursing", data)
 	}
 
-	fun renderNursePrescriptionTemplate(contact: Contact, subcon: SubContact, subformsubcons: List<SubContact>, form: Form): ByteArray {
+	fun renderNursePrescriptionTemplate(contact: Contact, subcon: SubContact, subformsubcons: List<SubContact>, form: Form, language: String): ByteArray {
         // TODO: not working yet, template and mapping need to be done
 
 		val mf : MustacheFactory = DefaultMustacheFactory()
 		val m : Mustache = mf.compile("NursePrescription.mustache")
 		val writer = StringWriter()
 
-		val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
 		val servkeys = mapOf(
 				"Communication par courrier"         to "contactMailPreference",
 				"Communication par téléphone"        to "contactPhonePreference",
@@ -1321,7 +1259,7 @@ class SoftwareMedicalFileExport(
 
 		fun getServiceValue(serv : Service?): String {
 			return serv?.content?.let {
-				it[lang] ?: it.values.firstOrNull()
+				it[language] ?: it.values.firstOrNull()
 			}?.let {
 				it.stringValue
 						?: it.booleanValue?.let { if(it) "X" else "" }
@@ -1347,14 +1285,13 @@ class SoftwareMedicalFileExport(
 		return html.toByteArray()
 	}
 
-	fun renderKinePrescriptionTemplate(contact: Contact, subcon: SubContact, form: Form): ByteArray {
+	fun renderKinePrescriptionTemplate(contact: Contact, subcon: SubContact, form: Form, language: String): ByteArray {
 		// TODO: not working yet, template and mapping need to be done
 
 		val mf : MustacheFactory = DefaultMustacheFactory()
 		val m : Mustache = mf.compile("KinePrescription.mustache")
 		val writer: StringWriter = StringWriter()
 
-		val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
 		val servkeys = mapOf(
 				"Prescription de kinésithérapie"     to "opinionRequest",
 				"Le patient ne peut se déplacer"    to "PatientCannotLeaveHome",
@@ -1385,7 +1322,7 @@ class SoftwareMedicalFileExport(
 
 		fun getServiceValue(serv : Service?): String {
 			return serv?.content?.let {
-				it[lang] ?: it.values.firstOrNull()
+				it[language] ?: it.values.firstOrNull()
 			}?.let {
 				it.stringValue
 					?: it.booleanValue?.let { if(it) "X" else "" }
