@@ -82,7 +82,7 @@ class KmehrNoteLogicImpl(patientLogic: PatientLogic,
     override val log = LogFactory.getLog(KmehrNoteLogicImpl::class.java)
 
     internal val config = Config(_kmehrId = System.currentTimeMillis().toString(),
-            date = makeXGC(Instant.now().toEpochMilli())!!,
+            date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
             time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
             soft = Config.Software(name = "iCure", version = ICUREVERSION),
             clinicalSummaryType = "",
@@ -111,8 +111,8 @@ class KmehrNoteLogicImpl(patientLogic: PatientLogic,
                         ?: System.currentTimeMillis())
                 })
                 ids.add(localIdKmehr(transactionType, id, config))
-                this.date = makeXGC(Instant.now().toEpochMilli())
-                this.time = makeXGC(Instant.now().toEpochMilli())
+                this.date = Utils.makeXGC(Instant.now().toEpochMilli())
+                this.time = Utils.makeXGC(Instant.now().toEpochMilli())
                 this.sender = SenderType().apply {
                     hcparties.add(createParty(author, emptyList<CDHCPARTY>()))
                     hcparties.add(createSpecialistParty(author, emptyList<CDHCPARTY>()))
@@ -138,8 +138,8 @@ class KmehrNoteLogicImpl(patientLogic: PatientLogic,
                         this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
                         this.ids.add(localIdKmehr(transactionType, id, config))
                         this.cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = transactionType})
-                        this.date = makeXGC(date)
-                        this.time = makeXGC(date)
+                        this.date = Utils.makeXGC(date)
+                        this.time = Utils.makeXGC(date)
                         this.author = AuthorType().apply {
                             hcparties.add(createParty(author, emptyList<CDHCPARTY>()))
                         }

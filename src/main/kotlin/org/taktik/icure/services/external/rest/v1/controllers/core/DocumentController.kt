@@ -34,7 +34,16 @@ import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpResponse
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestPart
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.commons.uti.UTI
 import org.taktik.couchdb.DocIdentifier
@@ -43,6 +52,8 @@ import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.DocumentType
 import org.taktik.icure.security.CryptoUtils
+import org.taktik.icure.security.CryptoUtils.isValidAesKey
+import org.taktik.icure.security.CryptoUtils.keyFromHexString
 import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
@@ -66,7 +77,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Operation(summary = "Creates a document")
+    @Operation(summary = "Create a document", description = "Creates a document and returns an instance of created document afterward")
     @PostMapping
     fun createDocument(@RequestBody documentDto: DocumentDto) = mono {
         val document = documentMapper.map(documentDto)
@@ -75,16 +86,16 @@ class DocumentController(private val documentLogic: DocumentLogic,
         documentMapper.map(createdDocument)
     }
 
-    @Operation(summary = "Deletes a document")
+    @Operation(summary = "Delete a document", description = "Deletes a batch of documents and returns the list of deleted document ids")
     @DeleteMapping("/{documentIds}")
-    fun deleteDocument(@PathVariable documentIds: String): Flux<DocIdentifier> {
+    fun deleteDocument(@PathVariable documentIds: String) = flow {
         val documentIdsList = documentIds.split(',')
-        return try {
-            documentLogic.deleteEntities(documentIdsList).injectReactorContext()
+        try {
+            emitAll(documentLogic.deleteEntities(documentIdsList))
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document deletion failed")
         }
-    }
+    }.injectReactorContext()
 
     @Operation(summary = "Load document's attachment", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
     @GetMapping("/{documentId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
@@ -105,67 +116,64 @@ class DocumentController(private val documentLogic: DocumentLogic,
         emit(DefaultDataBufferFactory().wrap(attachment))
     }.injectReactorContext())
 
-    @Operation(summary = "Deletes a document's attachment")
+    @Operation(summary = "Delete a document's attachment", description = "Deletes a document's attachment and returns the modified document instance afterward")
     @DeleteMapping("/{documentId}/attachment")
     fun deleteAttachment(@PathVariable documentId: String) = mono {
 
         val document = documentLogic.getDocument(documentId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
 
-        documentLogic.modifyDocument(document.copy(attachment = null))
-        documentMapper.map(document)
+        documentMapper.map(documentLogic.modifyDocument(document.copy(attachment = null)) ?: document)
     }
 
-    @Operation(summary = "Creates a document's attachment")
+    @Operation(summary = "Create a document's attachment", description = "Creates a document's attachment and returns the modified document instance afterward")
     @PutMapping("/{documentId}/attachment", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun setDocumentAttachment(@PathVariable documentId: String,
                       @RequestParam(required = false) enckeys: String?,
-                      @RequestBody payload: ByteArray) = mono {
-        var newPayload = payload
-        if (enckeys != null && enckeys.isNotEmpty()) {
-            for (sfk in enckeys.split(',')) {
-                val bb = ByteBuffer.wrap(ByteArray(16))
-                val uuid = UUID.fromString(sfk)
-                bb.putLong(uuid.mostSignificantBits)
-                bb.putLong(uuid.leastSignificantBits)
-                try {
-                    newPayload = CryptoUtils.encryptAES(newPayload, bb.array())
-                    break //should always work (no real check on key validity for encryption)
-                } catch (ignored: Exception) {
+                      @Schema(type = "string", format = "binary") @RequestBody payload: ByteArray) = mono {
+        val newPayload: ByteArray = enckeys
+                ?.takeIf { it.isNotEmpty() }
+                ?.split(',')
+                ?.filter { sfk -> sfk.keyFromHexString().isValidAesKey() }
+                ?.mapNotNull { sfk ->
+                    try {
+                        CryptoUtils.encryptAES(payload, sfk.keyFromHexString())
+                    } catch (exception: Exception) {
+                        null
+                    }
                 }
-            }
-        }
+                ?.firstOrNull()
+                ?: payload
 
         val document = documentLogic.getDocument(documentId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         documentLogic.modifyDocument(document.copy(attachment = newPayload))
-        documentMapper.map(document)
+                ?.let { documentMapper.map(it) }
     }
 
-    @Operation(summary = "Creates a document's attachment")
+    @Operation(summary = "Create a document's attachment", description = "Creates a document attachment and returns the modified document instance afterward")
     @PutMapping("/attachment", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun setSafeDocumentAttachment(@RequestParam(required = true) documentId: String,
+    fun setDocumentAttachmentBody(@RequestParam(required = true) documentId: String,
                               @RequestParam(required = false) enckeys: String?,
-                              @RequestBody payload: ByteArray) = mono {
-        var newPayload = payload
-        if (enckeys != null && enckeys.isNotEmpty()) {
-            for (sfk in enckeys.split(',')) {
-                val bb = ByteBuffer.wrap(ByteArray(16))
-                val uuid = UUID.fromString(sfk)
-                bb.putLong(uuid.mostSignificantBits)
-                bb.putLong(uuid.leastSignificantBits)
-                try {
-                    newPayload = CryptoUtils.encryptAES(newPayload, bb.array())
-                    break //should always work (no real check on key validity for encryption)
-                } catch (ignored: Exception) {
+                              @Schema(type = "string", format = "binary") @RequestBody payload: ByteArray) = mono {
+        val newPayload: ByteArray = enckeys
+                ?.takeIf { it.isNotEmpty() }
+                ?.split(',')
+                ?.filter { sfk -> sfk.keyFromHexString().isValidAesKey() }
+                ?.mapNotNull { sfk ->
+                    try {
+                        CryptoUtils.encryptAES(payload, sfk.keyFromHexString())
+                    } catch (exception: Exception) {
+                        null
+                    }
                 }
-            }
-        }
+                ?.firstOrNull()
+                ?: payload
 
         val document = documentLogic.getDocument(documentId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         documentLogic.modifyDocument(document.copy(attachment = newPayload))
-        documentMapper.map(document)
+                ?.let { documentMapper.map(it) }
     }
 
     @Operation(summary = "Creates a document's attachment")
@@ -175,7 +183,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
                            @RequestPart("attachment") payload: ByteArray) = setDocumentAttachment(documentId, enckeys, payload)
 
 
-    @Operation(summary = "Gets a document")
+    @Operation(summary = "Get a document", description = "Returns the document corresponding to the identifier passed in the request")
     @GetMapping("/{documentId}")
     fun getDocument(@PathVariable documentId: String) = mono {
         val document = documentLogic.getDocument(documentId)
@@ -183,28 +191,28 @@ class DocumentController(private val documentLogic: DocumentLogic,
         documentMapper.map(document)
     }
 
-    @Operation(summary = "Gets a document")
+    @Operation(summary = "Get a document", description = "Returns the first document corresponding to the externalUuid passed in the request")
     @GetMapping("/externaluuid/{externalUuid}")
     fun getDocumentByExternalUuid(@PathVariable externalUuid: String) = mono {
-        val document = documentLogic.getDocumentsByExternalUuid(externalUuid).firstOrNull()
+        val document = documentLogic.getDocumentsByExternalUuid(externalUuid).sortedByDescending { it.version }.firstOrNull()
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
         documentMapper.map(document)
     }
 
-    @Operation(summary = "Get all documents with externalUuid")
+    @Operation(summary = "Get all documents with externalUuid", description = "Returns a list of document corresponding to the externalUuid passed in the request")
     @GetMapping("/externaluuid/{externalUuid}/all")
     fun getDocumentsByExternalUuid(@PathVariable externalUuid: String) = mono {
         documentLogic.getDocumentsByExternalUuid(externalUuid).map { documentMapper.map(it) }
     }
 
-    @Operation(summary = "Gets a document")
+    @Operation(summary = "Get a batch of document", description = "Returns a list of document corresponding to the identifiers passed in the body")
     @PostMapping("/batch")
     fun getDocuments(@RequestBody documentIds: ListOfIdsDto): Flux<DocumentDto> {
         val documents = documentLogic.getDocuments(documentIds.ids)
         return documents.map { doc -> documentMapper.map(doc) }.injectReactorContext()
     }
 
-    @Operation(summary = "Updates a document")
+    @Operation(summary = "Update a document", description = "Updates the document and returns an instance of the modified document afterward")
     @PutMapping
     fun modifyDocument(@RequestBody documentDto: DocumentDto) = mono {
         if (documentDto.id == null) {
@@ -225,7 +233,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     }
 
-    @Operation(summary = "Updates a batch of documents", description = "Returns the modified documents.")
+    @Operation(summary = "Update a batch of documents", description = "Returns the modified documents.")
     @PutMapping("/batch")
     fun modifyDocuments(@RequestBody documentDtos: List<DocumentDto>): Flux<DocumentDto> = flow{
         try {
@@ -254,7 +262,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @Operation(summary = "List documents found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun listDocumentsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
+    fun findDocumentsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                         @RequestParam secretFKeys: String): Flux<DocumentDto> {
 
         val secretMessageKeys = secretFKeys.split(',').map { it.trim() }
@@ -264,7 +272,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @Operation(summary = "List documents found By type, By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byTypeHcPartySecretForeignKeys")
-    fun listDocumentsByTypeHCPartyMessageSecretFKeys(@RequestParam documentTypeCode: String,
+    fun findByTypeHCPartyMessageSecretFKeys(@RequestParam documentTypeCode: String,
                                             @RequestParam hcPartyId: String,
                                             @RequestParam secretFKeys: String): Flux<DocumentDto> {
         if (DocumentType.fromName(documentTypeCode) == null) {
@@ -280,7 +288,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @Operation(summary = "List documents with no delegation", description = "Keys must be delimited by coma")
     @GetMapping("/woDelegation")
-    fun listWithoutDelegation(@RequestParam(required = false) limit: Int?): Flux<DocumentDto> {
+    fun findWithoutDelegation(@RequestParam(required = false) limit: Int?): Flux<DocumentDto> {
         val documentList = documentLogic.listDocumentsWithoutDelegation(limit ?: 100)
         return documentList.map { document -> documentMapper.map(document) }.injectReactorContext()
     }

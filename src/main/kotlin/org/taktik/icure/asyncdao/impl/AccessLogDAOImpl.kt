@@ -65,7 +65,7 @@ class AccessLogDAOImpl(couchDbProperties: CouchDbProperties,
             val endKey = ComplexKey.of(userId, accessType ?: ComplexKey.emptyObject(), java.lang.Long.MAX_VALUE)
             pagedViewQuery<AccessLog, ComplexKey>(client, "all_by_user_date", if (descending) endKey else startKey, if (descending) startKey else endKey, pagination, descending)
         }
-        emitAll(client.queryView(viewQuery, Array<String>::class.java, String::class.java, AccessLog::class.java))
+        emitAll(client.queryView(viewQuery, Array<Any>::class.java, String::class.java, AccessLog::class.java))
     }
 
     @View(name = "by_hcparty_patient", map = "classpath:js/accesslog/By_hcparty_patient_map.js")

@@ -19,7 +19,10 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201
 
 import kotlinx.coroutines.flow.Flow
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationSchemeLogic
 import org.taktik.icure.domain.mapping.ImportMapping
 import org.taktik.icure.domain.result.ImportResult
@@ -29,6 +32,7 @@ import org.taktik.icure.entities.User
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import java.nio.ByteBuffer
+import java.time.Instant
 
 /**
  * @author Bernard Paulus on 24/05/17.
@@ -36,6 +40,9 @@ import java.nio.ByteBuffer
 @Service
 class MedicationSchemeLogicImpl(val medicationSchemeExport: MedicationSchemeExport,
                                    val medicationSchemeImport: MedicationSchemeImport) : MedicationSchemeLogic {
+
+    @Value("\${icure.version}")
+    internal val ICUREVERSION: String = "4.0.0"
 
     override suspend fun importMedicationSchemeFile(inputData : Flow<ByteBuffer>,
                                                     author: User,
@@ -57,7 +64,7 @@ class MedicationSchemeLogicImpl(val medicationSchemeExport: MedicationSchemeExpo
             decryptor: AsyncDecrypt?,
             progressor: AsyncProgress?
     ) =
-        medicationSchemeExport.exportMedicationScheme(patient, sfks, sender, language, recipientSafe, version, null, decryptor, progressor)
+        medicationSchemeExport.exportMedicationScheme(patient, sfks, sender, language, recipientSafe, version, null, null, decryptor, progressor)
 
 
     override fun createMedicationSchemeExport(
@@ -67,8 +74,16 @@ class MedicationSchemeLogicImpl(val medicationSchemeExport: MedicationSchemeExpo
             recipientSafe: String,
             version: Int,
             services: List<org.taktik.icure.entities.embed.Service>,
+            serviceAuthors: List<HealthcareParty>?,
+            timeZone: String?,
             progressor: AsyncProgress?
     ) =
-        medicationSchemeExport.exportMedicationScheme(patient, listOf(), sender, language, recipientSafe, version, services, null, progressor)
+        medicationSchemeExport.exportMedicationScheme(patient, listOf(), sender, language, recipientSafe, version, services, null, null, progressor, Config(_kmehrId = System.currentTimeMillis().toString(),
+                date = Utils.makeXGC(Instant.now().toEpochMilli(), unsetMillis = false, setTimeZone = false, timeZone = timeZone ?: "Europe/Brussels")!!,
+                time = Utils.makeXGC(Instant.now().toEpochMilli(), unsetMillis = true, setTimeZone = false, timeZone = timeZone ?: "Europe/Brussels")!!,
+                soft = Config.Software(name = "iCure", version = ICUREVERSION),
+                clinicalSummaryType = "",
+                defaultLanguage = "en"
+        ) )
 
 }

@@ -25,5 +25,5 @@ import java.io.Serializable
  */
 @EnumVersion(1L)
 enum class TelecomType : Serializable {
-    mobile, phone, email, fax, skype, im, medibridge, ehealthbox, apicrypt, web, print, disk, other
+    mobile, phone, email, fax, skype, im, medibridge, ehealthbox, apicrypt, web, print, disk, other, pager
 }

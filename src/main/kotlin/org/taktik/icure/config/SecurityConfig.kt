@@ -38,7 +38,7 @@ import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.PermissionLogic
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.security.CustomAuthenticationProvider
+import org.taktik.icure.security.CustomAuthenticationManager
 import org.taktik.icure.security.Http401UnauthorizedEntryPoint
 import org.taktik.icure.security.TokenWebExchangeMatcher
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
@@ -64,7 +64,7 @@ class SecurityConfig {
             permissionLogic: PermissionLogic,
             passwordEncoder: PasswordEncoder
     ) =
-            CustomAuthenticationProvider(couchDbProperties, userDAO, permissionLogic, passwordEncoder)
+            CustomAuthenticationManager(couchDbProperties, userDAO, permissionLogic, passwordEncoder)
 }
 
 @ExperimentalCoroutinesApi
@@ -73,7 +73,7 @@ class SecurityConfig {
 @EnableReactiveMethodSecurity
 class SecurityConfigAdapter(private val httpFirewall: StrictHttpFirewall,
                             private val sessionLogic: AsyncSessionLogic,
-                            private val authenticationManager: CustomAuthenticationProvider) {
+                            private val authenticationManager: CustomAuthenticationManager) {
 
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -87,7 +87,7 @@ class SecurityConfigAdapter(private val httpFirewall: StrictHttpFirewall,
                 .and()
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .pathMatchers("/v3/api-docs").permitAll()
+                .pathMatchers("/v3/api-docs/v*").permitAll()
                 .pathMatchers("/api/**").permitAll()
                 .pathMatchers("/rest/*/replication/group/**").hasAnyRole("USER", "BOOTSTRAP")
                 .pathMatchers("/rest/*/auth/login").permitAll()

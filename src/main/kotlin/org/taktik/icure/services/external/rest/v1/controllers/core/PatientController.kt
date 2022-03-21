@@ -22,19 +22,26 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.Splitter
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.ExampleObject
-import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+import javax.security.auth.login.LoginException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AccessLogLogic
@@ -65,32 +72,30 @@ import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.Instant
-import javax.security.auth.login.LoginException
 
 @ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/patient")
 @Tag(name = "patient")
 class PatientController(
-        private val sessionLogic: AsyncSessionLogic,
-        private val accessLogLogic: AccessLogLogic,
-        private val filters: Filters,
-        private val patientLogic: PatientLogic,
-        private val healthcarePartyLogic: HealthcarePartyLogic,
-        private val patientMapper: PatientMapper,
-        private val filterChainMapper: FilterChainMapper,
-        private val addressMapper: AddressMapper,
-        private val patientHealthCarePartyMapper: PatientHealthCarePartyMapper,
-        private val delegationMapper: DelegationMapper,
-        private val objectMapper: ObjectMapper
+    private val sessionLogic: AsyncSessionLogic,
+    private val accessLogLogic: AccessLogLogic,
+    private val filters: Filters,
+    private val patientLogic: PatientLogic,
+    private val healthcarePartyLogic: HealthcarePartyLogic,
+    private val patientMapper: PatientMapper,
+    private val filterChainMapper: FilterChainMapper,
+    private val addressMapper: AddressMapper,
+    private val patientHealthCarePartyMapper: PatientHealthCarePartyMapper,
+    private val delegationMapper: DelegationMapper,
+    private val objectMapper: ObjectMapper
 ) {
-
     private val patientToPatientDto = { it: Patient -> patientMapper.map(it) }
 
     @Operation(summary = "Find patients for the current user (HcParty) ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/byNameBirthSsinAuto")
     fun findByNameBirthSsinAuto(
-            @Parameter(description = "HealthcareParty Id, if unset will user user's hcpId") @RequestParam(required = false) healthcarePartyId: String?,
+            @Parameter(description = "HealthcareParty Id. If not set, will use user's hcpId") @RequestParam(required = false) healthcarePartyId: String?,
             @Parameter(description = "Optional value for filtering results") @RequestParam(required = false) filterValue: String?,
             @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
             @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
@@ -107,12 +112,12 @@ class PatientController(
             val hcp = healthcarePartyLogic.getHealthcareParty(currentHcpId)
             (hcp?.parentId?.let { if (it.isNotEmpty()) it else null } ?: hcp?.id)?.let { hcpId ->
                 patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(
-                    hcpId,
-                    paginationOffset,
-                    filterValue,
-                    Sorting(null, sortDirection))
-                    .let { it.paginatedList(patientToPatientDto, realLimit) }
-        } ?: PaginatedList() }
+                        hcpId,
+                        paginationOffset,
+                        filterValue,
+                        Sorting(null, sortDirection))
+                        .let { it.paginatedList(patientToPatientDto, realLimit) }
+            } ?: PaginatedList() }
     }
 
     @Operation(summary = "List patients of a specific HcParty or of the current HcParty ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
@@ -147,28 +152,31 @@ class PatientController(
     @Operation(summary = "List patients for a specific HcParty or for the current HcParty ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/hcParty/{hcPartyId}")
     fun listPatientsByHcParty(@PathVariable hcPartyId: String,
-                              @Parameter(description = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String,
-                              @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String,
-                              @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String,
+                              @Parameter(description = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String?,
+                              @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
+                              @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                               @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
-                              @Parameter(description = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false) sortDirection: String) =
-            listPatients(hcPartyId, sortField, startKey, startDocumentId, limit, sortDirection)
+                              @Parameter(description = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false) sortDirection: String?) =
+            listPatients(hcPartyId, sortField, startKey, startDocumentId, limit, sortDirection ?: "asc")
 
     @Operation(
-            summary = "Get the patient (identified by patientId) hcparty keys. Those keys are AES keys (encrypted) used to share information between HCPs and a patient.",
-            description = "This endpoint is used to recover all keys that have already been created and that can be used to share information with this patient. It returns a map with the following structure: ID of the owner of the encrypted AES key -> encrypted AES key. The returned encrypted AES keys will have to be decrypted using the patient's private key.",
-            responses = [
-                ApiResponse(responseCode = "200", description = "Successful operation", content = [
-                    Content( schema = Schema(implementation = Map::class), examples = [ ExampleObject("""{
-    "hcparty 1 delegator ID": "AES hcparty key (encrypted using patient public RSA key)"
-    "hcparty 2 delegator ID": "other AES hcparty key (encrypted using patient public RSA key)"
-}""")])
-                ]),
-                ApiResponse(responseCode = "401", description = "Unauthorized operation: the provided credentials are invalid", content = [])
-            ]
+        summary = "Get the patient (identified by patientId) hcparty keys. Those keys are AES keys (encrypted) used to share information between HCPs and a patient.",
+        description = """This endpoint is used to recover all keys that have already been created and that can be used to share information with this patient. It returns a map with the following structure: ID of the owner of the encrypted AES key -> encrypted AES key. The returned encrypted AES keys will have to be decrypted using the patient's private key.
+
+                {
+                    "hcparty 1 delegator ID": "AES hcparty key (encrypted using patient public RSA key)"
+                    "hcparty 2 delegator ID": "other AES hcparty key (encrypted using patient public RSA key)"
+                }
+                """, responses = [
+            ApiResponse(responseCode = "200", description = "Successful operation"),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized operation: the provided credentials are invalid",
+                content = []
+            )
+        ]
     )
     @GetMapping("/{patientId}/keys")
-    //@ApiResponse(content = { @Content(examples = { @ExampleObject(value="{ hcpartyId : aes key }") }) } )
     fun getPatientHcPartyKeysForDelegate(@Parameter(description = "The patient Id for which information is shared") @PathVariable patientId: String) = mono {
         patientLogic.getHcPartyKeysForDelegate(patientId)
     }
@@ -194,17 +202,17 @@ class PatientController(
             val hcp = healthcarePartyLogic.getHealthcareParty(currentHcpId)
             (hcp?.parentId ?: hcp?.id)?.let { hcpId ->
                 patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(
-                hcpId,
-                paginationOffset,
-                null,
-                Sorting(sortField, sortDirection)).paginatedList<Patient, PatientDto>(patientToPatientDto, realLimit)
+                        hcpId,
+                        paginationOffset,
+                        null,
+                        Sorting(sortField, sortDirection)).paginatedList<Patient, PatientDto>(patientToPatientDto, realLimit)
             } ?: PaginatedList()
         }
     }
 
     @Operation(summary = "List patients by pages for a specific HcParty", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/idsPages")
-    fun listPatientsIds(@Parameter(description = "Healthcare party id")@RequestParam hcPartyId: String,
+    fun listPatientsIds(@Parameter(description = "Healthcare party id") @RequestParam hcPartyId: String,
                         @Parameter(description = "The page first id") @RequestParam(required = false) startKey: String?,
                         @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                         @Parameter(description = "Page size") @RequestParam(required = false) limit: Int?) = mono {
@@ -230,7 +238,7 @@ class PatientController(
                                      @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                                      @Parameter(description = "Number of rows") @RequestParam(defaultValue = DEFAULT_LIMIT.toString()) limit: Int): Mono<PaginatedList<PatientDto>> = mono {
 
-        val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
+        val startKeyElements = startKey?.let { objectMapper.readValue<List<Any>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, Object::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
         accessLogLogic.findAccessLogsByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, true).paginatedList<AccessLog>(limit)
                 .let {
@@ -285,7 +293,9 @@ class PatientController(
 
     @Operation(summary = "Get ids of patients matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    fun matchPatientsBy(@RequestBody filter: AbstractFilterDto<Patient>): Flux<String> = filters.resolve(filter).injectReactorContext()
+    fun matchPatientsBy(@RequestBody filter: AbstractFilterDto<Patient>) = mono {
+        filters.resolve(filter).toList()
+    }
 
     @Operation(summary = "Filter patients for the current user (HcParty) ", description = "Returns a list of patients")
     @GetMapping("/fuzzy")
@@ -363,7 +373,7 @@ class PatientController(
     @Operation(summary = "Delegates a patients to a healthcare party", description = "It delegates a patient to a healthcare party (By current healthcare party). A modified patient with new delegation gets returned.")
     @PostMapping("/{patientId}/delegate")
     fun newPatientDelegations(@PathVariable patientId: String,
-                       @RequestBody ds: List<DelegationDto>) = mono {
+                              @RequestBody ds: List<DelegationDto>) = mono {
         try {
             patientLogic.addDelegations(patientId, ds.map { d -> delegationMapper.map(d) })
             val patientWithDelegations = patientLogic.getPatient(patientId)
@@ -391,11 +401,24 @@ class PatientController(
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting patient failed. Possible reasons: no such patient exists, or server error. Please try again or read the server log.")
     }
 
+    @Operation(summary = "Get patient by identifier", description = "It gets patient administrative data based on the identifier (root & extension) parameters.")
+    @GetMapping("/{hcPartyId}/{id}")
+    fun getPatientByHealthcarepartyAndIdentifier(@PathVariable hcPartyId: String, @PathVariable id: String, @RequestParam(required = false) system: String?) = mono {
+        when {
+            !system.isNullOrEmpty() -> {
+                patientLogic.findByHealthcarepartyAndIdentifier(hcPartyId, system, id)
+                        .map { patientMapper.map(it) }
+                        .firstOrNull() ?: patientLogic.getPatient(id)?.let { patientMapper.map(it) }
+            }
+            else -> patientLogic.getPatient(id)?.let { patientMapper.map(it) }
+        }
+    }
+
     @Operation(summary = "Create patients in bulk", description = "Returns the id and _rev of created patients")
     @PostMapping("/bulk", "/batch")
     fun bulkCreatePatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
-            val patients = patientLogic.modifyEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
+            val patients = patientLogic.createPatients(patientDtos.map { p -> patientMapper.map(p) }.toList())
             patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
         } catch (e: Exception) {
             log.warn(e.message, e)
@@ -407,7 +430,7 @@ class PatientController(
     @PutMapping("/bulk", "/batch")
     fun bulkUpdatePatients(@RequestBody patientDtos: List<PatientDto>) = mono {
         try {
-            val patients = patientLogic.modifyEntities(patientDtos.map { p -> patientMapper.map(p) }.toList())
+            val patients = patientLogic.modifyPatients(patientDtos.map { p -> patientMapper.map(p) }.toList())
             patients.map { p -> IdWithRevDto(id = p.id, rev = p.rev) }.toList()
         } catch (e: Exception) {
             log.warn(e.message, e)
@@ -450,6 +473,37 @@ class PatientController(
     }
 
     // TODO MB add missing methods like findDuplicatesBySsin or findDuplicatesByName  (compare this controller with the master branch)
+
+
+    @Operation(summary = "Provides a paginated list of patients with duplicate ssin for an hecparty")
+    @PostMapping("/duplicates/ssin")
+    fun findDuplicatesBySsin(
+            @Parameter(description = "Healthcare party id") @RequestParam hcPartyId: String,
+            @Parameter(description = "The start key for pagination, depends on the filters used") @RequestParam(required = false) startKey: String?,
+            @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?
+    ) = mono {
+        val realLimit = limit ?: DEFAULT_LIMIT
+        val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
+
+        patientLogic.getDuplicatePatientsBySsin(hcPartyId, paginationOffset).paginatedList(patientToPatientDto, realLimit)
+    }
+
+    @Operation(summary = "Provides a paginated list of patients with duplicate name for an hecparty")
+    @PostMapping("/duplicates/name")
+    fun findDuplicatesByName(
+            @Parameter(description = "Healthcare party id") @RequestParam hcPartyId: String,
+            @Parameter(description = "The start key for pagination, depends on the filters used") @RequestParam(required = false) startKey: String?,
+            @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?
+    ) = mono {
+        val realLimit = limit ?: DEFAULT_LIMIT
+        val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
+
+        patientLogic.getDuplicatePatientsByName(hcPartyId, paginationOffset).paginatedList(patientToPatientDto, realLimit)
+    }
 
     companion object {
         private val log = LoggerFactory.getLogger(javaClass)

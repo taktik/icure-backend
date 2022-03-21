@@ -23,7 +23,6 @@ import org.apache.commons.lang3.Validate
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asyncdao.GenericDAO
@@ -33,29 +32,31 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PropertyLogic
 import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.asynclogic.listeners.UserLogicListener
 import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.constants.Users
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.User
 import org.taktik.icure.entities.base.PropertyStub
-import org.taktik.icure.exceptions.CreationException
+import org.taktik.icure.entities.security.AuthenticationToken
+import org.taktik.icure.exceptions.DuplicateDocumentException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.exceptions.UserRegistrationException
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.firstOrNull
 import java.net.URI
 import java.time.Duration
 import java.time.Instant
 import java.util.regex.Pattern
 
-@Transactional
 @Service
 class UserLogicImpl(
         couchDbProperties: CouchDbProperties,
         roleDao: RoleDAO,
         sessionLogic: AsyncSessionLogic,
+        private val filters: Filters,
         private val userDAO: UserDAO,
         private val healthcarePartyLogic: HealthcarePartyLogic,
         private val propertyLogic: PropertyLogic,
@@ -151,7 +152,7 @@ class UserLogicImpl(
         type.takeIf { it == Users.Type.database }
                 .let { Validate.isTrue(isPasswordValid(password!!), "Password is invalid") }
 
-        getUserByLogin(email)?.let { throw CreationException("User already exists") }
+        getUserByLogin(email)?.let { throw DuplicateDocumentException("User already exists") }
         val user =  setHealthcarePartyIdIfExists(healthcarePartyId, newUser(type, Users.Status.ACTIVE, email, Instant.now()))
 
         return fix(password?.let { user.copy(passwordHash = encodePassword(password)) } ?: user) { userDAO.create(it) }
@@ -200,28 +201,72 @@ class UserLogicImpl(
     }
 
     override suspend fun createUser(user: User): User? { // checking requirements
-        if (user.login != null || user.email == null) {
-            throw MissingRequirementsException("createUser: Requirements are not met. Email has to be set and the Login has to be null.")
-        }
-        return try { // check whether user exists
-            val userByEmail = getUserByEmail(user.email)
-            userByEmail?.let { throw CreationException("User already exists (" + user.email + ")") }
+        return try {
+            val login = user.login ?: user.email ?: throw MissingRequirementsException("createUser: Requirements are not met. One of Email or Login has to be not null.")
+            (user.email?.let { getUserByEmail(it) } ?: getUserByLogin(login))?.let { throw DuplicateDocumentException("User already exists ($login)") }
             fix(user.copy(
                     createdDate = Instant.now(),
-                    login = user.email
+                    status = user.status ?: Users.Status.ACTIVE,
+                    passwordHash = if (user.passwordHash != null && !user.passwordHash.matches(passwordRegex))
+                        encodePassword(user.passwordHash) else user.passwordHash,
+                    login = user.login ?: user.email,
+                    applicationTokens = emptyMap(),
+                    authenticationTokens = encryptedAuthTokensFor(user)
             )) { createEntities(setOf(it)).firstOrNull() }
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid User", e)
         }
     }
 
+    private fun encryptedAuthTokensFor(user: User) : Map<String, AuthenticationToken> {
+        return (user.authenticationTokens.map { (application, authToken) ->
+            application to authToken.copy(
+                    token = (if (!authToken.token.matches(passwordRegex)) encodePassword(authToken.token) else authToken.token)
+            )
+        } + (user.applicationTokens ?: emptyMap()).map { (application, rawToken) ->
+            application to AuthenticationToken(token = encodePassword(rawToken), validity = AuthenticationToken.LONG_LIVING_TOKEN_VALIDITY)
+        }).toMap()
+    }
+
     override fun createEntities(users: Collection<User>): Flow<User> = flow {
         for (user in users) {
-            fix(
-                    if (user.passwordHash != null && !user.passwordHash.matches(passwordRegex)) {
-                        user.copy(passwordHash = encodePassword(user.passwordHash))
-                    } else user
-            ) { userDAO.create(user) }?.let { emit(it) }
+            fix(hashPasswordAndTokens(user)) { userDAO.create(user) }?.let { emit(it) }
+        }
+    }
+
+    private suspend fun hashPasswordAndTokens(user: User) : User {
+        return user.let { u ->
+            if (u.passwordHash != null && u.passwordHash != "*" && !u.passwordHash.matches(passwordRegex)) {
+                u.copy(passwordHash = encodePassword(u.passwordHash))
+            } else u
+        }.let { u ->
+            if (!u.authenticationTokens.isNullOrEmpty()
+                    && u.authenticationTokens.any { (_, authToken) -> !authToken.token.matches(passwordRegex)}) {
+                u.copy(authenticationTokens = u.authenticationTokens.map { (application, authToken) ->
+                    application to authToken.copy(
+                            token = (if (!authToken.token.matches(passwordRegex)) encodePassword(authToken.token) else authToken.token)
+                    )
+                }.toMap())
+            } else u
+        }.let { u ->
+            if (!u.applicationTokens.isNullOrEmpty()) {
+                u.copy(applicationTokens = emptyMap(),
+                        authenticationTokens = (u.authenticationTokens + u.applicationTokens.mapValues { (_, rawToken) ->
+                            AuthenticationToken(token = encodePassword(rawToken), validity = AuthenticationToken.LONG_LIVING_TOKEN_VALIDITY)
+                        })
+                )
+            } else u
+        }.let { u ->
+            if (u.rev != null) {
+                val prev = getUser(user.id)
+                u.copy(
+                        applicationTokens = mapOf(),
+                        authenticationTokens = (prev?.authenticationTokens ?: mapOf()) + u.authenticationTokens + (prev?.applicationTokens?.mapValues { (_, rawToken) ->
+                            AuthenticationToken(token = encodePassword(rawToken), validity = AuthenticationToken.LONG_LIVING_TOKEN_VALIDITY)
+                        } ?: mapOf()),
+                        passwordHash = if (u.passwordHash == "*") prev?.passwordHash else u.passwordHash
+                )
+            } else u
         }
     }
 
@@ -241,30 +286,16 @@ class UserLogicImpl(
     override suspend fun isUserActive(userId: String) = getUser(userId)?.let {
         if (it.status == null || it.status != Users.Status.ACTIVE) {
             false
-        } else it.expirationDate == null || !it.expirationDate!!.isBefore(Instant.now())
+        } else it.expirationDate == null || !it.expirationDate.isBefore(Instant.now())
     } ?: false
 
     override suspend fun checkPassword(password: String) =
             sessionLogic.getCurrentSessionContext().getUser().let { passwordEncoder.matches(password, it?.passwordHash) }
 
-    override suspend fun verifyPasswordToken(userId: String, token: String): Boolean {
-        getUser(userId)?.takeIf { it.passwordToken?.isNotEmpty() ?: false }
-                ?.let {
-                    if (it.passwordToken == token) {
-                        return it.passwordTokenExpirationDate == null || it.passwordTokenExpirationDate!!.isAfter(Instant.now())
-                    }
-                }
-        return false
-    }
-
-    override suspend fun verifyActivationToken(userId: String, token: String): Boolean {
-        getUser(userId)?.let {
-            if (it.activationToken != null && it.activationToken == token) {
-                return it.activationTokenExpirationDate == null || it.activationTokenExpirationDate!!.isAfter(Instant.now())
-            }
-        }
-        return false
-    }
+    override suspend fun verifyAuthenticationToken(userId: String, token: String): Boolean =
+        getUser(userId)?.takeIf { it.authenticationTokens.isNotEmpty() }?.authenticationTokens?.any { (_, tok) ->
+            !tok.isExpired() && passwordEncoder.matches(token, tok.token)
+        } ?: false
 
     override fun getExpiredUsers(fromExpirationDate: Instant, toExpirationDate: Instant): Flow<User> = flow {
         emitAll(userDAO.getExpiredUsers(fromExpirationDate, toExpirationDate))
@@ -289,16 +320,19 @@ class UserLogicImpl(
 
     override suspend fun modifyUser(modifiedUser: User) = fix(modifiedUser) { modifiedUser ->
         // Save user
-        userDAO.save(if (modifiedUser.passwordHash != null && !modifiedUser.passwordHash.matches(passwordRegex)) {
-                    modifiedUser.copy(passwordHash = encodePassword(modifiedUser.passwordHash))
-                } else modifiedUser)
+        userDAO.save(hashPasswordAndTokens(modifiedUser))
     }
 
-    override suspend fun getToken(user: User, key: String): String {
-        return user.applicationTokens[key]
-                ?: (userDAO.getUserOnUserDb(user.id, false).let {
-                    userDAO.save(it.copy(applicationTokens = it.applicationTokens + (key to uuidGenerator.newGUID().toString()))) ?: throw IllegalStateException("Cannot create token for user")
-                }.applicationTokens[key] ?: error("Cannot create token for user"))
+    override suspend fun getToken(user: User, key: String, tokenValidity: Long): String {
+        val authenticationToken = uuidGenerator.newGUID().toString()
+
+        userDAO.getUserOnUserDb(user.id, false).let {
+            userDAO.save(
+                    it.copy(authenticationTokens = it.authenticationTokens + (key to AuthenticationToken(encodePassword(authenticationToken), validity = tokenValidity)))
+            ) ?: throw IllegalStateException("Cannot create token for user")
+        }
+
+        return authenticationToken
     }
 
 
@@ -338,12 +372,6 @@ class UserLogicImpl(
         emitAll(users.asFlow().mapNotNull { modifyUser(it) })
     }
 
-    /* override fun deleteEntities(userIds: Collection<String>) { //TODO MB was override here
-        for (userId in userIds) {
-            deleteUser(userId)
-        }
-    }*/
-
     suspend fun undeleteEntities(userIds: Collection<String>) { //TODO MB was override here
         for (userId in userIds) {
             undeleteUser(userId)
@@ -354,7 +382,7 @@ class UserLogicImpl(
         emitAll(userDAO.getEntities())
     }
 
-    override fun getEntitiesIds(): Flow<String> = flow {
+    override fun getEntityIds(): Flow<String> = flow {
         emitAll(userDAO.getEntityIds())
     }
 
@@ -382,13 +410,22 @@ class UserLogicImpl(
     }
 
     override suspend fun save(user: User): User? {
-        return userDAO.save(user)
+        return userDAO.save(hashPasswordAndTokens(user))
     }
 
     override fun listUsers(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
         emitAll(userDAO.findUsers(paginationOffset))
     }
 
+    override fun filterUsers(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<User>): Flow<ViewQueryResultEvent> = flow {
+        val ids = filters.resolve(filter.filter)
+        val sortedIds = paginationOffset.takeUnless { it.startDocumentId == null }?.let { paginationOffset -> // Sub-set starting from startDocId to the end (including last element)
+            ids.dropWhile { id -> id != paginationOffset.startDocumentId }
+        } ?: ids
+
+        val selectedIds = sortedIds.take(paginationOffset.limit+1) // Fetching one more healthcare parties for the start key of the next page
+        emitAll(userDAO.findUsersByIds(selectedIds))
+    }
     override suspend fun setProperties(user: User, properties: List<PropertyStub>): User? {
         val properties = properties.fold(user.properties) { props, p ->
             val prop = user.properties.find { pp -> pp.type?.identifier == p.type?.identifier }
@@ -409,17 +446,17 @@ class UserLogicImpl(
     }
 
     override suspend fun createUserOnUserDb(user: User): User? {
-        if (user.login != null || user.email == null) {
-            throw MissingRequirementsException("createUser: Requirements are not met. Email has to be set and the Login has to be null.")
-        }
-        try { // check whether user exists
-            getUserByEmailOnUserDb(user.email)?.let { throw CreationException("User already exists (" + user.email + ")") }
-
-            return fix(user.copy(createdDate = Instant.now(),
-                    login = user.email)) { getGenericDAO().create(it) }
-        } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid User", e)
-        }
+        val login = user.login ?: user.email ?: throw MissingRequirementsException("createUser: Requirements are not met. One of Email or Login has to be not null.")
+        (user.email?.let { getUserByEmailOnUserDb(it) } ?: getUserByLogin(login))?.let { throw DuplicateDocumentException("User already exists ($login)") }
+        return fix(user.copy(
+                createdDate = Instant.now(),
+                status = user.status ?: Users.Status.ACTIVE,
+                passwordHash = if (user.passwordHash != null && !user.passwordHash.matches(passwordRegex))
+                    encodePassword(user.passwordHash) else user.passwordHash,
+                login = user.login ?: user.email,
+                applicationTokens = emptyMap(),
+                authenticationTokens = encryptedAuthTokensFor(user))
+        ) { userDAO.create(it) }
     }
 
     override suspend fun getUserByEmailOnUserDb(email: String): User? {

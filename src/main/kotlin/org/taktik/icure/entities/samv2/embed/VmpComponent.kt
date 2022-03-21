@@ -28,7 +28,7 @@ import java.io.Serializable
 @KotlinBuilder
 data class VmpComponent(val code: String? = null,
                         val virtualForm: VirtualForm? = null,
-                        val routeOfAdministrations: List<RouteOfAdministration>? = null,
+                        val routeOfAdministrations: Set<RouteOfAdministration>? = null,
                         val name: SamText? = null,
                         val phaseNumber: Short? = null,
-                        val virtualIngredients: List<VirtualIngredient>? = null) : Serializable
+                        val virtualIngredients: Set<VirtualIngredient>? = null) : Serializable

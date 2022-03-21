@@ -17,10 +17,10 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.taktik.couchdb.entity.ViewQuery
 import org.taktik.couchdb.exception.CouchDbConflictException
-import org.taktik.couchdb.parser.*
+import io.icure.asyncjacksonhttpclient.parser.*
 import org.taktik.couchdb.springramework.webclient.SpringWebfluxWebClient
 import org.taktik.icure.entities.base.Code
-import org.taktik.net.web.WebClient
+import io.icure.asyncjacksonhttpclient.net.web.WebClient
 import java.net.URI
 import java.net.URL
 import java.nio.ByteBuffer
@@ -82,7 +82,7 @@ class CouchDbClientTests {
 
     @org.junit.jupiter.api.Test
     fun testRequestGetResponseBytesFlow() = runBlocking {
-        val bytesFlow = httpClient.uri("https://jsonplaceholder.typicode.com/posts").method(org.taktik.net.web.HttpMethod.GET).retrieve().toBytesFlow()
+        val bytesFlow = httpClient.uri("https://jsonplaceholder.typicode.com/posts").method(io.icure.asyncjacksonhttpclient.net.web.HttpMethod.GET).retrieve().toBytesFlow()
 
         val bytes = bytesFlow.fold(ByteBuffer.allocate(1000000), { acc, buffer -> acc.put(buffer) })
         bytes.flip()
@@ -92,7 +92,7 @@ class CouchDbClientTests {
 
     @org.junit.jupiter.api.Test
     fun testRequestGetText() = runBlocking {
-        val charBuffers = httpClient.uri("https://jsonplaceholder.typicode.com/posts").method(org.taktik.net.web.HttpMethod.GET).retrieve().toTextFlow()
+        val charBuffers = httpClient.uri("https://jsonplaceholder.typicode.com/posts").method(io.icure.asyncjacksonhttpclient.net.web.HttpMethod.GET).retrieve().toTextFlow()
         val chars = charBuffers.toList().fold(CharBuffer.allocate(1000000), { acc, buffer -> acc.put(buffer) })
         chars.flip()
         Assertions.assertEquals(testResponseAsString, chars.toString())
@@ -100,7 +100,7 @@ class CouchDbClientTests {
 
     @org.junit.jupiter.api.Test
     fun testRequestGetTextAndSplit() = runBlocking {
-        val charBuffers = httpClient.uri("https://jsonplaceholder.typicode.com/posts").method(org.taktik.net.web.HttpMethod.GET).retrieve().toTextFlow()
+        val charBuffers = httpClient.uri("https://jsonplaceholder.typicode.com/posts").method(io.icure.asyncjacksonhttpclient.net.web.HttpMethod.GET).retrieve().toTextFlow()
         val split = charBuffers.split('\n')
         val lines = split.map { it.fold(CharBuffer.allocate(100000), { acc, buffer -> acc.put(buffer) }).flip().toString() }.toList()
         Assertions.assertEquals(testResponseAsString.split("\n"), lines)
@@ -110,7 +110,7 @@ class CouchDbClientTests {
     fun testRequestGetJsonEvent() = runBlocking {
         val asyncParser = ObjectMapper().also { it.registerModule(KotlinModule()) }.createNonBlockingByteArrayParser()
 
-        val bytes = httpClient.uri("https://jsonplaceholder.typicode.com/posts").method(org.taktik.net.web.HttpMethod.GET).retrieve().toBytesFlow()
+        val bytes = httpClient.uri("https://jsonplaceholder.typicode.com/posts").method(io.icure.asyncjacksonhttpclient.net.web.HttpMethod.GET).retrieve().toBytesFlow()
         val jsonEvents = bytes.toJsonEvents(asyncParser).toList()
         Assertions.assertEquals(StartArray, jsonEvents.first(), "Should start with StartArray")
         Assertions.assertEquals(StartObject, jsonEvents[1], "jsonEvents[1] == StartObject")

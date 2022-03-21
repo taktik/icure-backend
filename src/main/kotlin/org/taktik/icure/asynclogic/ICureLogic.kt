@@ -26,4 +26,5 @@ interface ICureLogic {
     fun getVersion(): String
     suspend fun getReplicationInfo(): ReplicationInfoDto
     suspend fun modifyDesignDocs()
+    suspend fun setLogLevel(logLevel: String, packageName: String): String
 }

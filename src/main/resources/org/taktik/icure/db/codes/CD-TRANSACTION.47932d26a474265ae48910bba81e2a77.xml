@@ -1,0 +1,231 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.14</VERSION>
+    <DATE>2020-06-01</DATE>
+    <STATUS>Published</STATUS>
+    <NAME>Transaction</NAME>
+    <VALUE>
+        <CODE>admission</CODE>
+        <DESCRIPTION L='en'>Admission notification</DESCRIPTION>
+        <DESCRIPTION L='fr'>Notification d'admission</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>alert</CODE>
+        <DESCRIPTION L='en'>Alert</DESCRIPTION>
+        <DESCRIPTION L='fr'>Alerte</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>bvt-sample</CODE>
+        <DESCRIPTION L='en'>BVT Sample (part of BCR Biobank project)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>clinicalpath</CODE>
+        <DESCRIPTION L='en'>Clinical path (Hub-Metahub)</DESCRIPTION>
+        <DESCRIPTION L='fr'>Chemin clinique (Hub-Metahub)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>clinicalsummary</CODE>
+        <DESCRIPTION L='en'>Clinical summary (part of GP software migration file)</DESCRIPTION>
+        <DESCRIPTION L='fr'>Sumehr</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>contactreport</CODE>
+        <DESCRIPTION L='en'>Contact report</DESCRIPTION>
+        <DESCRIPTION L='fr'>Rapport de contact</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>death</CODE>
+        <DESCRIPTION L='en'>Death notification</DESCRIPTION>
+        <DESCRIPTION L='fr'>Notification de décès</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>discharge</CODE>
+        <DESCRIPTION L='en'>Discharge notification</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>dischargereport</CODE>
+        <DESCRIPTION L='en'>Discharge letter</DESCRIPTION>
+        <DESCRIPTION L='en'>Lettre de décharge</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ebirth-baby-medicalform</CODE>
+        <DESCRIPTION L='en'>eBirth medical form - baby part</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ebirth-baby-notification</CODE>
+        <DESCRIPTION L='en'>eBirth notification- baby part</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ebirth-mother-medicalform</CODE>
+        <DESCRIPTION L='en'>eBirth medical form - mother part</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ebirth-mother-notification</CODE>
+        <DESCRIPTION L='en'>eBirth notification- mother part</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ecare-safe-consultation</CODE>
+        <DESCRIPTION L='en'>eCare-SAFE consultation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>epidemiology</CODE>
+        <DESCRIPTION L='en'>Epidemiological survey</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>intervention</CODE>
+        <DESCRIPTION L='en'>Intervention (TucoDeclaration)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>labrequest</CODE>
+        <DESCRIPTION L='en'>Laboratory test request</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>labresult</CODE>
+        <DESCRIPTION L='en'>Laboratory result</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>medicaladvisoragreement</CODE>
+        <DESCRIPTION L='en'>Medical Advisor Agreement (eg. Chapter IV)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>medicationschemeelement</CODE>
+        <DESCRIPTION L='en'>Medication scheme element (Vitalink)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>note</CODE>
+        <DESCRIPTION L='en'>Note</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>notification</CODE>
+        <DESCRIPTION L='en'>Notification</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pharmaceuticalprescription</CODE>
+        <DESCRIPTION L='en'>Pharmaceutical prescription</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>prescription</CODE>
+        <DESCRIPTION L='en'>Prescription</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>productdelivery</CODE>
+        <DESCRIPTION L='en'>Pharmaceutical product delivery</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>quickdischargereport</CODE>
+        <DESCRIPTION L='en'>Provisional discharge letter</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>radiationexposuremonitoring</CODE>
+        <DESCRIPTION L='en'>Radiation exposure monitoring (Hub-Metahub)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>referral</CODE>
+        <DESCRIPTION L='en'>Referral letter</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>report</CODE>
+        <DESCRIPTION L='en'>Report</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>request</CODE>
+        <DESCRIPTION L='en'>Procedure request</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>result</CODE>
+        <DESCRIPTION L='en'>Procedure result</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>sumehr</CODE>
+        <DESCRIPTION L='en'>Summerised Electronic Healthcare Record</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>telemonitoring</CODE>
+        <DESCRIPTION L='en'>Tele monitoring (Hub-Metahub)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>treatmentsuspension</CODE>
+        <DESCRIPTION L='en'>Treatment suspension (Vitalink)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>vaccination</CODE>
+        <DESCRIPTION L='en'>Vaccination report</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>vaccinationscheme</CODE>
+        <DESCRIPTION L='en'>Vaccination scheme</DESCRIPTION>
+        <DESCRIPTION L='fr'>Schéma de vaccination</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>vaccinationschemeelement</CODE>
+        <DESCRIPTION L='en'>Vaccination scheme element</DESCRIPTION>
+        <DESCRIPTION L='en'>Elément du schéma de vaccination</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>genericregistryentry</CODE>
+        <DESCRIPTION L="en">Generic registry entry</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>population-based-screening</CODE>
+        <DESCRIPTION L="en">Population based screening (Vitalink)</DESCRIPTION>
+        <DESCRIPTION L="nl">Screening bij bevolking (Vitalink)</DESCRIPTION>
+        <DESCRIPTION L="fr">Recherche sur la population (Vitalink)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>child-prevention</CODE>
+        <DESCRIPTION L="en">Child prevention (Vitalink)</DESCRIPTION>
+        <DESCRIPTION L="nl">Kinder preventie (Vitalink)</DESCRIPTION>
+        <DESCRIPTION L="fr">Prévention enfants (Vitalink)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>applicationlink</CODE>
+        <DESCRIPTION L="en">Link to invoke an external application</DESCRIPTION>
+        <DESCRIPTION L="nl">Link om externe toepassing aan te roepen</DESCRIPTION>
+        <DESCRIPTION L="fr">Lien pour démarrer une application externe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>careplan</CODE>
+        <DESCRIPTION L="en">Careplan</DESCRIPTION>
+        <DESCRIPTION L="nl">Zorgplan</DESCRIPTION>
+        <DESCRIPTION L="fr">Plan de soins</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>diarynote</CODE>
+        <DESCRIPTION L="en">diarynote</DESCRIPTION>
+        <DESCRIPTION L="nl">dagboeknota</DESCRIPTION>
+        <DESCRIPTION L="fr">note dans le journal</DESCRIPTION>
+        <DESCRIPTION L="de">Journalnotiz</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mea</CODE>
+        <DESCRIPTION L="en">Medical emergency attestation (PPS-SI)</DESCRIPTION>
+        <DESCRIPTION L="nl">Attest van dringende medische hulp (POD-MI)</DESCRIPTION>
+        <DESCRIPTION L="fr">Attestation d'aide médicale urgente (SPP-IS)</DESCRIPTION>
+        <DESCRIPTION L="de">Zertifikat Notfallmedizin (OPD-S)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>perinatal</CODE>
+        <DESCRIPTION L="en">perinatal dataset</DESCRIPTION>
+        <DESCRIPTION L="nl">perinatale dataset</DESCRIPTION>
+        <DESCRIPTION L="fr">dataset périnatal</DESCRIPTION>
+        <DESCRIPTION L="de">Perinatales Datensatz</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>belrai-report</CODE>
+        <DESCRIPTION L="en">belrai report</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pharmaceuticalmedicationscheme</CODE>
+        <DESCRIPTION L="en">Pharmaceutical medication scheme</DESCRIPTION>
+        <DESCRIPTION L="nl">Pharmaceutisch medicatieschema</DESCRIPTION>
+        <DESCRIPTION L="fr">Schéma de médication pharmaceutique</DESCRIPTION>
+        <DESCRIPTION L="de">Pharmazeutisches Medikationsschema</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>nursingsummaryreport</CODE>
+        <DESCRIPTION L="en">Nursing summary report</DESCRIPTION>
+        <DESCRIPTION L="nl">Rapport verpleegkundige samenvatting</DESCRIPTION>
+        <DESCRIPTION L="fr">Rapport de résumé infirmier</DESCRIPTION>
+        <DESCRIPTION L="de">Zusammenfassung Pflegebericht</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

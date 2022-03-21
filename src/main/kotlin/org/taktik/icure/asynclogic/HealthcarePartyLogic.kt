@@ -23,6 +23,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.HealthcarePartyDAO
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.HealthcareParty
 import java.net.URI
 
@@ -54,8 +55,6 @@ interface HealthcarePartyLogic : EntityPersister<HealthcareParty, String> {
     suspend fun getHcpHierarchyIds(sender: HealthcareParty): HashSet<String>
 
     suspend fun createHealthcarePartyOnUserDb(healthcareParty: HealthcareParty, HealthcareParty: URI): HealthcareParty?
-    fun getHealthcareParties(groupId: String, ids: List<String>?): Flow<HealthcareParty>
-    fun deleteHealthcareParties(groupId: String, healthcarePartyIds: List<String>): Flow<DocIdentifier>
-    suspend fun createHealthcareParty(groupId: String, healthcareParty: HealthcareParty): HealthcareParty?
-    suspend fun modifyHealthcareParty(groupId: String, healthcareParty: HealthcareParty): HealthcareParty?
+
+    fun filterHealthcareParties(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<HealthcareParty>) : Flow<ViewQueryResultEvent>
 }

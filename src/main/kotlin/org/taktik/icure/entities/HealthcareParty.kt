@@ -24,14 +24,25 @@ import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.CryptoActor
+import org.taktik.icure.entities.base.DataOwner
 import org.taktik.icure.entities.base.Named
 import org.taktik.icure.entities.base.Person
+import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.base.StoredDocument
-import org.taktik.icure.entities.embed.*
+import org.taktik.icure.entities.embed.Address
+import org.taktik.icure.entities.embed.FinancialInstitutionInformation
+import org.taktik.icure.entities.embed.FlatRateTarification
+import org.taktik.icure.entities.embed.Gender
+import org.taktik.icure.entities.embed.HealthcarePartyHistoryStatus
+import org.taktik.icure.entities.embed.HealthcarePartyStatus
+import org.taktik.icure.entities.embed.PersonName
+import org.taktik.icure.entities.embed.RevisionInfo
+import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
+import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -41,7 +52,7 @@ import org.taktik.icure.validation.ValidCode
 /**
  * A healthcareParty
  *
- * This entity is a root level object. It represents a healthcare party. It is serialized in JSON and saved in the underlying icure-healthcareParty CouchDB database.
+ * This entity is a root level object. It represents a healthcare party. It is serialized in JSON and saved in the underlying icure-healthcare CouchDB database.
  * A Healthcare Party conforms to a series of interfaces:
  * - StoredICureDocument
  * - Person
@@ -54,7 +65,7 @@ import org.taktik.icure.validation.ValidCode
  * @property name The full name of the healthcare party, used mainly when the healthcare party is an organization
  * @property firstName the firstname (name) of the healthcare party.
  * @property lastName the lastname (surname) of the healthcare party. This is the official lastname that should be used for official administrative purposes.
- * @property denominations The list of all denominations of the healthcare party, also containing the official full name information. Ordered by preference of use. First element is therefore the official name used for the healthcare party in the application.
+ * @property names The list of all names of the healthcare party, also containing the official full name information. Ordered by preference of use. First element is therefore the official name used for the healthcare party in the application.
  * @property gender the gender of the healthcare party: male, female, indeterminate, changed, changedToMale, changedToFemale, unknown
  * @property civility Mr., Ms., Pr., Dr. ...
  * @property companyName The name of the company this healthcare party is member of
@@ -87,6 +98,8 @@ data class HealthcareParty(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
+        @field:NotNull(autoFix = AutoFix.NOW) val created: Long? = null,
+        @field:NotNull(autoFix = AutoFix.NOW) val modified: Long? = null,
 
         override val name: String? = null,
         override val lastName: String? = null,
@@ -94,7 +107,7 @@ data class HealthcareParty(
         override val gender: Gender? = null,
         override val civility: String? = null,
         override val companyName: String? = null,
-        override val denominations: List<PersonName> = emptyList(),
+        override val names: List<PersonName> = emptyList(),
         val speciality: String? = null,
         val bankAccount: String? = null,
         val bic: String? = null,
@@ -125,18 +138,29 @@ data class HealthcareParty(
         var type: String? = null, // "persphysician" or "medicalHouse" or "perstechnician"
         var contactPerson: String? = null,
         var contactPersonHcpId: String? = null,
+        var supervisorId: String? = null,
         var flatRateTarifications: List<FlatRateTarification> = emptyList(),
         var importedData: Map<String, String> = emptyMap(),
 
+        @Deprecated("Use properties instead")
         val options: Map<String, String> = emptyMap(),
+        override val properties: Set<PropertyStub> = emptySet(),
 
-        //One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
-        //For a pair of HcParties, this key is called the AES exchange key
-        //Each HcParty always has one AES exchange key for himself
+        // One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
+        // For a pair of HcParties, this key is called the AES exchange key
+        // Each HcParty always has one AES exchange key for himself
         // The map's keys are the delegate id.
         // In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
         // the key encrypted using delegate's public key.
         override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
+        // Extra AES exchange keys, usually the ones we lost access to at some point
+        // The structure is { publicKey: { delegateId: [aesExKey_for_this, aesExKey_for_delegate] } }
+        override val aesExchangeKeys: Map<String, Map<String, Array<String>>> = emptyMap(),
+        // Our private keys encrypted with our public keys
+        // The structure is { publicKey1: { publicKey2: privateKey2_encrypted_with_publicKey1, publicKey3: privateKey3_encrypted_with_publicKey1 } }
+        override val transferKeys: Map<String, Map<String, String>> = emptyMap(),
+        // The hcparty keys (first of the pair) for which we are asking a re-encryption by the delegate using our new publicKey
+        override val lostHcPartyKeys: Set<String> = emptySet(),
         override val privateKeyShamirPartitions: Map<String, String> = emptyMap(), //Format is hcpId of key that has been partitioned : "threshold|partition in hex"
         override val publicKey: String? = null,
 
@@ -145,7 +169,7 @@ data class HealthcareParty(
         @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
-) : StoredDocument, Named, Person, CryptoActor {
+) : StoredDocument, Named, Person, CryptoActor, DataOwner {
     companion object : DynamicInitializer<HealthcareParty>
 
     fun merge(other: HealthcareParty) = HealthcareParty(args = this.solveConflictsWith(other))

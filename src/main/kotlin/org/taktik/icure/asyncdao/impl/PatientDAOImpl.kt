@@ -18,6 +18,7 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import kotlin.collections.set
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -35,10 +36,10 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Gender
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.distinct
 import java.util.*
-import kotlin.collections.set
 
 @ExperimentalCoroutinesApi
 @FlowPreview
@@ -457,6 +458,12 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
         return resultMap
     }
 
+    override fun listPatientsByHcPartyAndIdentifier(healthcarePartyId: String, system: String, id: String) = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        val queryView = createQuery(client, "by_hcparty_identifier").includeDocs(true).key(ComplexKey.of(healthcarePartyId, system, id))
+        emitAll(client.queryViewIncludeDocs<ComplexKey, String, Patient>(queryView).map { it.doc })
+    }
+
     override fun getDuplicatePatientsBySsin(healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {
         return this.getDuplicatesFromView("by_hcparty_ssin", healthcarePartyId, paginationOffset)
     }
@@ -473,6 +480,24 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     override fun findPatients(ids: Flow<String>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(client.getForPagination(ids, Patient::class.java))
+    }
+
+    @View(name = "by_hcparty_identifier", map = "classpath:js/patient/By_hcparty_identifier_map.js")
+    override fun listPatientIdsByHcPartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+        val queryView = createQuery(client, "by_hcparty_identifier")
+                .keys(identifiers.map {
+                    ComplexKey.of(healthcarePartyId, it.system, it.value)
+                })
+
+        emitAll(client.queryView<ComplexKey, String>(queryView)
+            .mapNotNull {
+                if (it.key == null || it.key!!.components.size < 3) {
+                    return@mapNotNull null
+                }
+                return@mapNotNull it.id
+            })
     }
 
     private fun getDuplicatesFromView(viewName: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {

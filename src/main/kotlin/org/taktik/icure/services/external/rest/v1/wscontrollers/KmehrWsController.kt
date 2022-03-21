@@ -261,7 +261,7 @@ class KmehrWsController(private val sessionLogic: AsyncSessionLogic,
                                                     ?: ICUREVERSION),
                                             "",
                                             "en",
-                                            Config.Format.SUMEHR
+                                            if(info.exportAsPMF) Config.Format.PMF else Config.Format.SMF
                                     )
                             )
                             operation.binaryResponse(smfExport)

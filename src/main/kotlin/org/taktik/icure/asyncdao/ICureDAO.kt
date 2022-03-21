@@ -18,10 +18,16 @@
 
 package org.taktik.icure.asyncdao
 
+import org.taktik.couchdb.ReplicatorResponse
+import org.taktik.couchdb.entity.ReplicateCommand
+import org.taktik.couchdb.entity.Scheduler
 import org.taktik.icure.entities.embed.DatabaseSynchronization
 import java.net.URI
 
 interface ICureDAO {
     suspend fun getIndexingStatus(dbInstanceUri: URI): Map<String, Int>
     suspend fun getPendingChanges(dbInstanceUri: URI): Map<DatabaseSynchronization, Long>
+    suspend fun replicate(command: ReplicateCommand): ReplicatorResponse
+    suspend fun deleteReplicatorDoc(docId: String): ReplicatorResponse
+    suspend fun getSchedulerDocs(): Scheduler.Docs
 }

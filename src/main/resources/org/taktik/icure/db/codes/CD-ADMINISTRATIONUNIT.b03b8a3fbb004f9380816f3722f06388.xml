@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Property : Belgian Ministry of Health
+  Author   :  I. Pollet
+  Date      : 04/08/2009
+ -->
+<kmehr-cd>
+    <VERSION>1.4</VERSION>
+    <DATE>2020-09-01</DATE>
+  <STATUS>published</STATUS>
+  <NAME>Drug administration unit</NAME>
+    <VALUE>
+        <CODE>00001</CODE>
+        <DESCRIPTION L="en">5 ml</DESCRIPTION>
+        <DESCRIPTION L="fr">5 ml</DESCRIPTION>
+        <DESCRIPTION L="nl">Koffielepel (5 ml)</DESCRIPTION>
+        <DESCRIPTION L="de">5 ml</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00002</CODE>
+        <DESCRIPTION L="en">amp.</DESCRIPTION>
+        <DESCRIPTION L="fr">amp.</DESCRIPTION>
+        <DESCRIPTION L="nl">ampule</DESCRIPTION>
+        <DESCRIPTION L="de">Ampulle</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00003</CODE>
+        <DESCRIPTION L="en">applic.</DESCRIPTION>
+        <DESCRIPTION L="fr">applic.</DESCRIPTION>
+        <DESCRIPTION L="nl">aanbrengen</DESCRIPTION>
+        <DESCRIPTION L="de">anwenden</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00004</CODE>
+        <DESCRIPTION L="en">caps.</DESCRIPTION>
+        <DESCRIPTION L="fr">caps.</DESCRIPTION>
+        <DESCRIPTION L="nl">capsule</DESCRIPTION>
+        <DESCRIPTION L="de">Kapsel</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00005</CODE>
+        <DESCRIPTION L="en">compr.</DESCRIPTION>
+        <DESCRIPTION L="fr">compr.</DESCRIPTION>
+        <DESCRIPTION L="nl">tablet</DESCRIPTION>
+        <DESCRIPTION L="de">Tablette</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00006</CODE>
+        <DESCRIPTION L="en">dosis</DESCRIPTION>
+        <DESCRIPTION L="nl">dose</DESCRIPTION>
+        <DESCRIPTION L="fr">dose</DESCRIPTION>
+        <DESCRIPTION L="de">Dosis</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00007</CODE>
+        <DESCRIPTION L="en">drops</DESCRIPTION>
+        <DESCRIPTION L="nl">druppels</DESCRIPTION>
+        <DESCRIPTION L="fr">gouttes</DESCRIPTION>
+        <DESCRIPTION L="de">Tropfen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00008</CODE>
+        <DESCRIPTION L="en">flac.</DESCRIPTION>
+        <DESCRIPTION L="fr">flac.</DESCRIPTION>
+        <DESCRIPTION L="nl">flesje</DESCRIPTION>
+        <DESCRIPTION L="de">Fläschchen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00009</CODE>
+        <DESCRIPTION L="en">implant</DESCRIPTION>
+        <DESCRIPTION L="fr">implant</DESCRIPTION>
+        <DESCRIPTION L="nl">implantaat</DESCRIPTION>
+        <DESCRIPTION L="de">Implantat</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00010</CODE>
+        <DESCRIPTION L="en">perfusion</DESCRIPTION>
+        <DESCRIPTION L="nl">infuus</DESCRIPTION>
+        <DESCRIPTION L="fr">perfusion</DESCRIPTION>
+        <DESCRIPTION L="de">Infusion</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00011</CODE>
+        <DESCRIPTION L="en">inhal.</DESCRIPTION>
+        <DESCRIPTION L="fr">inhalation</DESCRIPTION>
+        <DESCRIPTION L="nl">inhalatie</DESCRIPTION>
+        <DESCRIPTION L="de">Inhalation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00012</CODE>
+        <DESCRIPTION L="en">insert</DESCRIPTION>
+        <DESCRIPTION L="fr">insert</DESCRIPTION>
+        <DESCRIPTION L="nl">inbrengen</DESCRIPTION>
+        <DESCRIPTION L="de">Einstechen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00013</CODE>
+        <DESCRIPTION L="en">chewing gum</DESCRIPTION>
+        <DESCRIPTION L="nl">kauwgom</DESCRIPTION>
+        <DESCRIPTION L="fr">gommes à mâcher</DESCRIPTION>
+        <DESCRIPTION L="de">Kaugummi</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00014</CODE>
+        <DESCRIPTION L="en">compress(es)</DESCRIPTION>
+        <DESCRIPTION L="nl">kompres(sen)</DESCRIPTION>
+        <DESCRIPTION L="fr">compres(ses)</DESCRIPTION>
+        <DESCRIPTION L="de">Kompresse(n)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00015</CODE>
+        <DESCRIPTION L="en">lav.</DESCRIPTION>
+        <DESCRIPTION L="fr">lavement</DESCRIPTION>
+        <DESCRIPTION L="nl">lavement</DESCRIPTION>
+        <DESCRIPTION L="de">Einlauf</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00016</CODE>
+        <DESCRIPTION L="en">ml</DESCRIPTION>
+        <DESCRIPTION L="fr">ml</DESCRIPTION>
+        <DESCRIPTION L="nl">ml</DESCRIPTION>
+        <DESCRIPTION L="de">ml</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00017</CODE>
+        <DESCRIPTION L="en">ov.</DESCRIPTION>
+        <DESCRIPTION L="fr">ov.</DESCRIPTION>
+        <DESCRIPTION L="nl">ovule</DESCRIPTION>
+        <DESCRIPTION L="de">Ov.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00018</CODE>
+        <DESCRIPTION L="en">pearl(s)</DESCRIPTION>
+        <DESCRIPTION L="nl">parel(s)</DESCRIPTION>
+        <DESCRIPTION L="fr">perle(s)</DESCRIPTION>
+        <DESCRIPTION L="de">Perle(n)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00019</CODE>
+        <DESCRIPTION L="en">pastille</DESCRIPTION>
+        <DESCRIPTION L="fr">pastille</DESCRIPTION>
+        <DESCRIPTION L="nl">pastille</DESCRIPTION>
+        <DESCRIPTION L="de">Pastille</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00020</CODE>
+        <DESCRIPTION L="en">patch</DESCRIPTION>
+        <DESCRIPTION L="fr">patch</DESCRIPTION>
+        <DESCRIPTION L="nl">pleister</DESCRIPTION>
+        <DESCRIPTION L="de">Pflaster</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00021</CODE>
+        <DESCRIPTION L="en">cart.</DESCRIPTION>
+        <DESCRIPTION L="fr">patr.</DESCRIPTION>
+        <DESCRIPTION L="nl">patroon</DESCRIPTION>
+        <DESCRIPTION L="de">cart</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00022</CODE>
+        <DESCRIPTION L="en">pen</DESCRIPTION>
+        <DESCRIPTION L="nl">pen</DESCRIPTION>
+        <DESCRIPTION L="fr">stylo</DESCRIPTION>
+        <DESCRIPTION L="de">Pen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00023</CODE>
+        <DESCRIPTION L="en">puff(s)</DESCRIPTION>
+        <DESCRIPTION L="fr">puff(s)</DESCRIPTION>
+        <DESCRIPTION L="nl">puff(s)</DESCRIPTION>
+        <DESCRIPTION L="de">Puff(s)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00024</CODE>
+        <DESCRIPTION L="en">sponge</DESCRIPTION>
+        <DESCRIPTION L="nl">spons</DESCRIPTION>
+        <DESCRIPTION L="fr">éponge</DESCRIPTION>
+        <DESCRIPTION L="de">Schwamm</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00025 (deprecated)</CODE>
+        <DESCRIPTION L="en">stylo</DESCRIPTION>
+        <DESCRIPTION L="fr">stylo</DESCRIPTION>
+        <DESCRIPTION L="nl">stylo</DESCRIPTION>
+        <DESCRIPTION L="de">Stylo</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00026</CODE>
+        <DESCRIPTION L="en">suppo</DESCRIPTION>
+        <DESCRIPTION L="fr">suppo</DESCRIPTION>
+        <DESCRIPTION L="nl">zetpil</DESCRIPTION>
+        <DESCRIPTION L="de">Suppo</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00027</CODE>
+        <DESCRIPTION L="en">tube</DESCRIPTION>
+        <DESCRIPTION L="fr">tube</DESCRIPTION>
+        <DESCRIPTION L="nl">tube</DESCRIPTION>
+        <DESCRIPTION L="de">Tube</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00028</CODE>
+        <DESCRIPTION L="en">wick</DESCRIPTION>
+        <DESCRIPTION L="nl">wiek</DESCRIPTION>
+        <DESCRIPTION L="fr">mèche</DESCRIPTION>
+        <DESCRIPTION L="de">Docht</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00029</CODE>
+        <DESCRIPTION L="en">bag</DESCRIPTION>
+        <DESCRIPTION L="nl">zak</DESCRIPTION>
+        <DESCRIPTION L="fr">sac</DESCRIPTION>
+        <DESCRIPTION L="de">Beutel</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00030</CODE>
+        <DESCRIPTION L="en">bag(s)</DESCRIPTION>
+        <DESCRIPTION L="nl">zakje(s)</DESCRIPTION>
+        <DESCRIPTION L="fr">sachet(s)</DESCRIPTION>
+        <DESCRIPTION L="de">Beutel</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>cm</CODE>
+        <DESCRIPTION L="en">centimeter</DESCRIPTION>
+        <DESCRIPTION L="fr">centimètre</DESCRIPTION>
+        <DESCRIPTION L="nl">centimeter</DESCRIPTION>
+        <DESCRIPTION L="de">Zentimeter</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>dropsperminute (deprecated)</CODE>
+        <DESCRIPTION L="en">drops per minute</DESCRIPTION>
+        <DESCRIPTION L="fr">goutes par minute</DESCRIPTION>
+        <DESCRIPTION L="nl">druppels per minuut</DESCRIPTION>
+        <DESCRIPTION L="de">Tropfen pro Minute</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>gm</CODE>
+        <DESCRIPTION L="en">gram</DESCRIPTION>
+        <DESCRIPTION L="fr">gramme</DESCRIPTION>
+        <DESCRIPTION L="nl">gram</DESCRIPTION>
+        <DESCRIPTION L="de">Gramm</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>internationalunits</CODE>
+        <DESCRIPTION L="en">international units</DESCRIPTION>
+        <DESCRIPTION L="fr">unités internationales</DESCRIPTION>
+        <DESCRIPTION L="nl">internationale eenheden</DESCRIPTION>
+        <DESCRIPTION L="de">Internationale Einheiten</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mck/h (deprecated)</CODE>
+        <DESCRIPTION L="en">microgram per hour</DESCRIPTION>
+        <DESCRIPTION L="fr">microgramme par heure</DESCRIPTION>
+        <DESCRIPTION L="nl">microgram per uur</DESCRIPTION>
+        <DESCRIPTION L="de">Mikrogramm pro Stunde</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mck/kg/minute (deprecated)</CODE>
+        <DESCRIPTION L="en">microgram per kilogram per minute</DESCRIPTION>
+        <DESCRIPTION L="fr">microgramme par kilogramme par minute</DESCRIPTION>
+        <DESCRIPTION L="nl">microgram per kilogram per minuut</DESCRIPTION>
+        <DESCRIPTION L="de">Mikrogramm pro Kilogramm pro Minute</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>measure (deprecated)</CODE>
+        <DESCRIPTION L="en">measure</DESCRIPTION>
+        <DESCRIPTION L="fr">mesure</DESCRIPTION>
+        <DESCRIPTION L="nl">maat</DESCRIPTION>
+        <DESCRIPTION L="de">Maß</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mg/h (deprecated)</CODE>
+        <DESCRIPTION L="en">milligram per hour</DESCRIPTION>
+        <DESCRIPTION L="fr">milligramme par heure</DESCRIPTION>
+        <DESCRIPTION L="nl">milligram per uur</DESCRIPTION>
+        <DESCRIPTION L="de">Miligramm pro Stunde</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ml/h (deprecated)</CODE>
+        <DESCRIPTION L="en">milliliter per hour</DESCRIPTION>
+        <DESCRIPTION L="fr">millilitre par heure</DESCRIPTION>
+        <DESCRIPTION L="nl">milliliter per uur</DESCRIPTION>
+        <DESCRIPTION L="de">Milliliter pro Stunde</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>tbl</CODE>
+        <DESCRIPTION L="en">tablespoon</DESCRIPTION>
+        <DESCRIPTION L="fr">cuillère à soupe</DESCRIPTION>
+        <DESCRIPTION L="nl">eetlepel</DESCRIPTION>
+        <DESCRIPTION L="de">Esslöffel</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>tsp</CODE>
+        <DESCRIPTION L="en">teaspoon</DESCRIPTION>
+        <DESCRIPTION L="fr">cuillère à café</DESCRIPTION>
+        <DESCRIPTION L="nl">koffielepel</DESCRIPTION>
+        <DESCRIPTION L="de">Kaffeelöffel</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>unt/h (deprecated)</CODE>
+        <DESCRIPTION L="en">units per hour</DESCRIPTION>
+        <DESCRIPTION L="fr">unités par heure</DESCRIPTION>
+        <DESCRIPTION L="nl">eenheden per uur</DESCRIPTION>
+        <DESCRIPTION L="de">Einheiten pro Stunde</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mg</CODE>
+        <DESCRIPTION L="en">milligram</DESCRIPTION>
+        <DESCRIPTION L="fr">miligramme</DESCRIPTION>
+        <DESCRIPTION L="nl">miligram</DESCRIPTION>
+        <DESCRIPTION L="de">Milligramm</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mg/ml (deprecated)</CODE>
+        <DESCRIPTION L="en">milligram per milliliter</DESCRIPTION>
+        <DESCRIPTION L="fr">milligramme par millimètre</DESCRIPTION>
+        <DESCRIPTION L="nl">miligram per milimeter</DESCRIPTION>
+        <DESCRIPTION L="de">Milligramm pro Millimeter</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>meq</CODE>
+        <DESCRIPTION L="en">milli-equivalent</DESCRIPTION>
+        <DESCRIPTION L="fr">milli-equivalent</DESCRIPTION>
+        <DESCRIPTION L="nl">milli-equivalent</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>miu</CODE>
+        <DESCRIPTION L="en">miu</DESCRIPTION>
+        <DESCRIPTION L="fr">miu</DESCRIPTION>
+        <DESCRIPTION L="nl">miu</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>iu</CODE>
+        <DESCRIPTION L="en">iu</DESCRIPTION>
+        <DESCRIPTION L="fr">unités internationales</DESCRIPTION>
+        <DESCRIPTION L="nl">internationale eenheden</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mmol</CODE>
+        <DESCRIPTION L="en">millimol</DESCRIPTION>
+        <DESCRIPTION L="fr">millimol</DESCRIPTION>
+        <DESCRIPTION L="nl">millimol</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>effervescent-tablet</CODE>
+        <DESCRIPTION L="en">effervescent tablet</DESCRIPTION>
+        <DESCRIPTION L="fr">comprimé effervescent</DESCRIPTION>
+        <DESCRIPTION L="nl">bruistablet</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>micrograms</CODE>
+        <DESCRIPTION L="en">micrograms</DESCRIPTION>
+        <DESCRIPTION L="fr">microgrammes</DESCRIPTION>
+        <DESCRIPTION L="nl">microgram</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>bandage</CODE>
+        <DESCRIPTION L="en">bandage</DESCRIPTION>
+        <DESCRIPTION L="fr">bandage</DESCRIPTION>
+        <DESCRIPTION L="nl">verband</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>piece</CODE>
+        <DESCRIPTION L="en">piece</DESCRIPTION>
+        <DESCRIPTION L="fr">pièce</DESCRIPTION>
+        <DESCRIPTION L="nl">stuk</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>box</CODE>
+        <DESCRIPTION L="en">box</DESCRIPTION>
+        <DESCRIPTION L="fr">vaporisateur</DESCRIPTION>
+        <DESCRIPTION L="nl">verstuiving</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>liter</CODE>
+        <DESCRIPTION L="en">liter</DESCRIPTION>
+        <DESCRIPTION L="fr">litre</DESCRIPTION>
+        <DESCRIPTION L="nl">liter</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>syringe</CODE>
+        <DESCRIPTION L="en">syringe</DESCRIPTION>
+        <DESCRIPTION L="fr">seringue</DESCRIPTION>
+        <DESCRIPTION L="nl">spuit</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ampoule</CODE>
+        <DESCRIPTION L="en">ampoule</DESCRIPTION>
+        <DESCRIPTION L="fr">ampoule</DESCRIPTION>
+        <DESCRIPTION L="nl">ampul</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>bottle</CODE>
+        <DESCRIPTION L="en">bottle</DESCRIPTION>
+        <DESCRIPTION L="fr">fiole</DESCRIPTION>
+        <DESCRIPTION L="nl">fles</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>syringe-ampoule</CODE>
+        <DESCRIPTION L="en">syringe ampoule</DESCRIPTION>
+        <DESCRIPTION L="fr">ampoule de seringue</DESCRIPTION>
+        <DESCRIPTION L="nl">spuitampul</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

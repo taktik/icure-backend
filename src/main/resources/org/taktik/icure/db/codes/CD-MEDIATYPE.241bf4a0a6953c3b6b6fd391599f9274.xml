@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.2</VERSION>
+    <DATE>2017-12-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Media type</NAME>
+    <VALUE>
+        <CODE>application/msword</CODE>
+        <DESCRIPTION L="en">MSWORD - This format is very prone to compatibility problems. If sharing of edit-able text is required, text/plain, text/html or text/rtf should be used instead.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>application/pdf</CODE>
+        <DESCRIPTION L="en">PDF - The Portable Document Format is recommended for written text that is completely laid out and read-only. PDF is a platform independent, widely deployed, and open specification with freely available creation and rendering tools.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>audio/basic</CODE>
+        <DESCRIPTION L="en">Basic Audio - This is a format for single channel audio, encoded using 8bit ISDN mu-law [PCM] at a sample rate of 8000 Hz. This format is standardized by: CCITT, Fascicle III.4 oRecommendation G.711. Pulse Code Modulation (PCM) of Voice Frequencies. Geneva, 1972.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>audio/k32adpcm</CODE>
+        <DESCRIPTION L="en">K32ADPCM Audio - ADPCM allows compressing audio data. It is defined in the Internet specification RFC 2421 [ftp://ftp.isi.edu/in-notes/rfc2421.txt]. Its implementation base is unclear.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>audio/mp3</CODE>
+        <DESCRIPTION L="en">MP3 Audio - MPEG-1 Audio layer-3 is an audio compression algorithm and file format defined in ISO 11172-3 and ISO 13818-3. MP3 has an adjustable sampling frequency for highly compressed telephone to CD quality audio.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>image/g3fax</CODE>
+        <DESCRIPTION L="en">G3Fax Image - This is recommended only for fax applications.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>image/gif</CODE>
+        <DESCRIPTION L="en">GIF Image - GIF is a popular format that is universally well supported. However GIF is patent encumbered and should therefore be used with caution.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>image/jpeg</CODE>
+        <DESCRIPTION L="en">JPEG Image - This format is required for high compression of high color photographs. It is a "lossy" compression, but the difference to lossless compression is almost unnoticeable to the human vision.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>image/png</CODE>
+        <DESCRIPTION L="en">PNG Image - Portable Network Graphics (PNG) [http://www.cdrom.com/pub/png] is a widely supported lossless image compression standard with open source code available.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>image/tiff</CODE>
+        <DESCRIPTION L="en">TIFF Image - Although TIFF (Tag Image File Format) is an international standard it has many interoperability problems in practice. Too many different versions that are not handled by all software alike.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>model/vrml</CODE>
+        <DESCRIPTION L="en">VRML Model - This is an openly standardized format for 3D models that can be useful for virtual reality applications such as anatomy or biochemical research (visualization of the steric structure of macromolecules)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>multipart/x-hl7-cda-level1</CODE>
+        <DESCRIPTION L="en">CDA Level 1 Multipart - The HL7 clinical document Architecture, Level 1 MIME package.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>text/html</CODE>
+        <DESCRIPTION L="en">HTML Text - For marked-up text according to the Hypertext Mark-up Language. HTML markup is sufficient for typographically marking-up most written-text documents. HTML is platform independent and widely deployed.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>text/plain</CODE>
+        <DESCRIPTION L="en">Plain Text - For any plain text. This is the default and is equivalent to a character string (ST) data type.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>text/rtf</CODE>
+        <DESCRIPTION L="en">RTF Text - The Rich Text Format is widely used to share word-processor documents. However, RTF does have compatibility problems, as it is quite dependent on the word processor. May be useful if word processor edit-able text should be shared.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>text/sgml</CODE>
+        <DESCRIPTION L="en">SGML Text - For structured character based data. There is a risk that general SGML/XML is too powerful to allow a sharing of general SGML/XML documents between different applications.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>text/x-hl7-ft</CODE>
+        <DESCRIPTION L="en">HL7 Text - For compatibility, this represents the HL7 v2.x FT data type. Its use is recommended only for backward compatibility with HL7 v2.x systems.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>text/xml</CODE>
+        <DESCRIPTION L="en">XML Text - For structured character based data. There is a risk that general SGML/XML is too powerful to allow a sharing of general SGML/XML documents between different applications.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>video/mpeg</CODE>
+        <DESCRIPTION L="en">MPEG Video - MPEG is an international standard, widely deployed, highly efficient for high color video; open source code exists; highly interoperable.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>video/x-avi</CODE>
+        <DESCRIPTION L="en">X-AVI Video - The AVI file format is just a wrapper for many different codecs; it is a source of many interoperability problems.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>kmehr/transaction</CODE>
+        <DESCRIPTION L="en">Kmehr-Bis transaction</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>image/dicom</CODE>
+        <DESCRIPTION L="en">Digital imaging and communications in medicine</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>application/hl7-sda+xml</CODE>
+        <DESCRIPTION L="en">To be used as a mime type for SDA/SPL/CDA with the characteristic that they are human renderable.</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

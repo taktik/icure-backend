@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.2</VERSION>
+    <DATE>2015-12-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Therapeutic Link Type</NAME>
+    <VALUE>
+        <CODE>hospitalstay</CODE>
+        <DESCRIPTION L="en">Relation between care givers and inpatients.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>hospitalambulatory</CODE>
+        <DESCRIPTION L="en">Relation between care givers and outpatients.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>hospitalurgency</CODE>
+        <DESCRIPTION L="en">Relation between care givers and patients  in a hospital for urgent situations.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>gmd</CODE>
+        <DESCRIPTION L="en">Relation between family doctor and patients when the family doctor handles all patients medical data across time.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>carepath</CODE>
+        <DESCRIPTION L="en">Relation between care givers and patients for a sequence of care processes.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>medicalhouse</CODE>
+        <DESCRIPTION L="en">Relation between care givers and patients in a medical house.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>patientmanagement</CODE>
+        <DESCRIPTION L="en">Relation managed by patients themselves with their care givers.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>gpconsultation</CODE>
+        <DESCRIPTION L="en">Relation between general practitioners and patients for general consultation.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>specialistconsultation</CODE>
+        <DESCRIPTION L="en">Relation between specialists and patients for specialist consultation.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>nurseconsultation</CODE>
+        <DESCRIPTION L="en">Relation between nurses and patients for nurse consultation.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pharmacydelivery</CODE>
+        <DESCRIPTION L="en">Relation between pharmacists  and patients for a prescription delivery.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>gpreferral</CODE>
+        <DESCRIPTION L="en">Relation between general practitioners and patients created by other general practitioners.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>specialistreferral</CODE>
+        <DESCRIPTION L="en">Relation between specialists and patients created by other specialists.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pharmacistreferral</CODE>
+        <DESCRIPTION L="en">Relation between pharmacists and patients created by other pharmacists .</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>nursereferral</CODE>
+        <DESCRIPTION L="en">Relation between nurses and patients created by other nurses.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>consultation</CODE>
+        <DESCRIPTION L="en">Relation between some healthcare providers and patients for general consultation.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>delivery</CODE>
+        <DESCRIPTION L="en">Relation between some healthcare providers and patients for a delivery, e.g. medication, glasses…</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>referral</CODE>
+        <DESCRIPTION L="en">Relation between some healthcare providers and patients created by other healthcare providers.</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

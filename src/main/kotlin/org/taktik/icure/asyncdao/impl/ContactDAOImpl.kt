@@ -34,6 +34,7 @@ import org.taktik.icure.asyncdao.ContactDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.ContactIdServiceId
 import org.taktik.icure.entities.Contact
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.distinct
@@ -132,6 +133,18 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(relink(getContacts(result)))
     }
 
+    @View(name = "by_hcparty_serviceid", map = "classpath:js/contact/By_hcparty_serviceid_map.js")
+    override fun findContactsByHcPartyServiceId(hcPartyId: String, serviceId: String) = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+        val viewQuery = createQuery(client, "by_hcparty_serviceid")
+                .key(ComplexKey.of(hcPartyId, serviceId))
+                .includeDocs(true)
+
+        val result = client.queryViewIncludeDocs<Array<String>, String, Contact>(viewQuery).map { it.doc }
+        emitAll(relink(result))
+    }
+
 
     @ExperimentalCoroutinesApi
     @FlowPreview
@@ -147,6 +160,29 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                     res.filter { it.value!![0] == lt }
                 } ?: res).map { it.value!![1] }
         )
+    }
+
+    @View(name = "service_by_hcparty", map = "classpath:js/contact/Service_by_hcparty_map.js")
+    override fun listServiceIdsByHcParty(hcPartyId: String) = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        val viewQuery = createQuery(client, "service_by_hcparty")
+                .key(hcPartyId)
+                .includeDocs(false)
+        emitAll(client.queryView<String, String>(viewQuery).mapNotNull { it.value })
+    }
+
+    @ExperimentalCoroutinesApi
+    @FlowPreview
+    @View(name = "service_by_association_id", map = "classpath:js/contact/Service_by_association_id.js")
+    override fun findServiceIdsByAssociationId(associationId: String) = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        val viewQuery = createQuery(client, "service_by_association_id")
+                .key(associationId)
+                .includeDocs(true)
+
+        val res = client.queryViewIncludeDocs<String, String, Contact>(viewQuery)
+        emitAll(res.mapNotNull { it.doc }
+                .flatMapConcat { it.services.filter { it.qualifiedLinks.values.flatMap { it.keys }.contains(associationId) }.asFlow() })
     }
 
     @View(name = "service_by_hcparty_tag", map = "classpath:js/contact/Service_by_hcparty_tag.js")
@@ -289,6 +325,36 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
     }
 
+
+    @View(name = "service_id_by_health_element", map = "classpath:js/contact/Service_id_by_health_element_id.js")
+    override fun listServiceIdsForHealthElementId(healthElementId: String) = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+        val queryView = createQuery(client, "service_id_by_health_element")
+                .key(healthElementId)
+                .includeDocs(false)
+
+        emitAll(client.queryView<String, String>(queryView).mapNotNull { it.value })
+    }
+
+    @View(name = "service_by_hcparty_identifier", map = "classpath:js/contact/Service_by_hcparty_identifier.js")
+    override fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+        val queryView = createQuery(client, "service_by_hcparty_identifier")
+            .keys(identifiers.map {
+                ComplexKey.of(hcPartyId, it.system, it.value)
+            })
+
+        emitAll(client.queryView<ComplexKey, String>(queryView)
+                .mapNotNull {
+                    if (it.key == null || it.key!!.components.size < 3) {
+                        return@mapNotNull null
+                    }
+                    return@mapNotNull it.id
+                })
+    }
+
     @View(name = "by_hcparty_code", map = "classpath:js/contact/By_hcparty_code.js", reduce = "_count")
     override fun listContactIdsByCode(hcPartyId: String, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
@@ -414,6 +480,17 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
             }
             c
         }
+    }
+
+    @View(name = "by_externalid", map = "classpath:js/contact/By_externalid.js")
+    override fun findContactsByExternalId(externalId: String) = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+        val viewQuery = createQuery(client,"by_externalid")
+                .key(externalId)
+                .includeDocs(true)
+
+        emitAll(client.queryViewIncludeDocs<String, String, Contact>(viewQuery).mapNotNull { it.doc })
     }
 
     @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Contact' && !doc.deleted && doc._conflicts) emit(doc._id )}")

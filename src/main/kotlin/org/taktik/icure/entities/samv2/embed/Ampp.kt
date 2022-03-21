@@ -45,6 +45,7 @@ data class Ampp(
         val crmLink: SamText? = null,
         val deliveryModusCode: String? = null,
         val deliveryModus: SamText? = null,
+        val deliveryModusSpecificationCode: String? = null,
         val deliveryModusSpecification: SamText? = null,
         var dhpcLink: SamText? = null,
         val distributorCompany: Company? = null,

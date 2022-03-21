@@ -35,6 +35,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.core.task.TaskExecutor
 import org.springframework.scheduling.TaskScheduler
 import org.taktik.icure.asyncdao.GenericDAO
+import org.taktik.icure.asyncdao.InternalDAO
 import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.asynclogic.ICureLogic
 import org.taktik.icure.asynclogic.PropertyLogic
@@ -73,7 +74,7 @@ class ICureBackendApplication {
 
 
     @Bean
-    fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, iCureLogic: ICureLogic, codeLogic: CodeLogic, propertyLogic: PropertyLogic, allDaos: List<GenericDAO<*>>, couchDbProperties: CouchDbProperties) = ApplicationRunner {
+    fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, iCureLogic: ICureLogic, codeLogic: CodeLogic, propertyLogic: PropertyLogic, allDaos: List<GenericDAO<*>>, internalDaos: List<InternalDAO<*>>, couchDbProperties: CouchDbProperties) = ApplicationRunner {
         //Check that core types have corresponding codes
         log.info("icure (" + iCureLogic.getVersion() + ") is initialised")
 
@@ -93,6 +94,9 @@ class ICureBackendApplication {
 
         runBlocking {
             allDaos.forEach {
+                it.forceInitStandardDesignDocument(true)
+            }
+            internalDaos.forEach {
                 it.forceInitStandardDesignDocument(true)
             }
         }

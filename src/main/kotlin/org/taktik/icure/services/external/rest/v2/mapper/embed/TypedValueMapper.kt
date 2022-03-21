@@ -22,11 +22,11 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.constants.TypedValuesType
 import org.taktik.icure.entities.embed.TypedValue
+import org.taktik.icure.services.external.rest.v1.mapper.utils.InstantMapper
 import org.taktik.icure.services.external.rest.v2.dto.embed.TypedValueDto
-import org.taktik.icure.services.external.rest.v2.mapper.utils.InstantV2Mapper
 import java.util.*
 
-@Mapper(componentModel = "spring", uses = [InstantV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [InstantMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 abstract class TypedValueV2Mapper {
     fun map(typedValueDto: TypedValueDto<*>?): TypedValue<*>? {
         return if (typedValueDto == null) null else when(typedValueDto.type) {
@@ -44,7 +44,12 @@ abstract class TypedValueV2Mapper {
                     stringValue = typedValueDto.stringValue,
                     dateValue = typedValueDto.dateValue
             )
-        }
+        } ?: TypedValue<String>(
+                booleanValue = typedValueDto.booleanValue,
+                integerValue = typedValueDto.integerValue,
+                doubleValue = typedValueDto.doubleValue,
+                stringValue = typedValueDto.stringValue,
+                dateValue = typedValueDto.dateValue)
     }
     fun map(typedValue: TypedValue<*>?): TypedValueDto<*>? {
         return if (typedValue == null) null else when(typedValue.type) {

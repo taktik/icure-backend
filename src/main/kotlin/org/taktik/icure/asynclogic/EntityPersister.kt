@@ -31,7 +31,7 @@ interface EntityPersister<E, I> {
     fun undeleteByIds(identifiers: Collection<I>): Flow<DocIdentifier>
 
     fun getEntities(): Flow<E>
-    fun getEntitiesIds(): Flow<I>
+    fun getEntityIds(): Flow<I>
 
     suspend fun hasEntities(): Boolean
 

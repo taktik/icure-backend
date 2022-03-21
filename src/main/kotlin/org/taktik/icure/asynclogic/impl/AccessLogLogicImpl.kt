@@ -68,7 +68,7 @@ class AccessLogLogicImpl(private val accessLogDAO: AccessLogDAO, private val ses
         emitAll(accessLogDAO.listAccessLogsByDate(fromEpoch, toEpoch, paginationOffset, descending))
     }
 
-    override fun findAccessLogsByUserAfterDate(userId: String, accessType: String?, startDate: Instant?, pagination: PaginationOffset<List<String>>, descending: Boolean): Flow<ViewQueryResultEvent> = flow {
+    override fun findAccessLogsByUserAfterDate(userId: String, accessType: String?, startDate: Instant?, pagination: PaginationOffset<List<Any>>, descending: Boolean): Flow<ViewQueryResultEvent> = flow {
         emitAll(accessLogDAO.findAccessLogsByUserAfterDate(userId, accessType, startDate, pagination.toComplexKeyPaginationOffset(), descending))
     }
 

@@ -29,6 +29,6 @@ data class ServiceBySecretForeignKeys(
 ) : AbstractFilter<Service>, org.taktik.icure.domain.filter.service.ServiceBySecretForeignKeys {
     override fun matches(item: Service): Boolean {
         return (!patientSecretForeignKeys.isEmpty() && (healthcarePartyId == null || item.delegations.keys.contains(healthcarePartyId))
-                && item.secretForeignKeys != null && item.secretForeignKeys.stream().anyMatch { sfk: String? -> patientSecretForeignKeys.contains(sfk) })
+                && (item.secretForeignKeys?.any { sfk: String? -> patientSecretForeignKeys.contains(sfk) }) == true)
     }
 }

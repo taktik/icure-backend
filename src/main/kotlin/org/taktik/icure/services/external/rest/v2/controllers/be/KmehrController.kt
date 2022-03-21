@@ -32,7 +32,12 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpResponse
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
@@ -367,7 +372,7 @@ class KmehrController(
                 if (medicationSchemeExportParams.services.isEmpty())
                     emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language, recipientSafe, version, null, null))
                 else
-                    emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language, recipientSafe, version, medicationSchemeExportParams.services.map { s -> serviceV2Mapper.map(s) }, null))
+                    emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language, recipientSafe, version, medicationSchemeExportParams.services.map { s -> serviceV2Mapper.map(s) }, null, null, null))
             }
         } ?: throw IllegalArgumentException("Missing argument")
     }.injectReactorContext()
@@ -384,7 +389,7 @@ class KmehrController(
                                     @RequestParam recipientFirstName: String,
                                     @RequestParam recipientLastName: String,
                                     @RequestParam mimeType: String,
-                                    @RequestBody document: ByteArray,
+                                    @Schema(type = "string", format = "binary") @RequestBody document: ByteArray,
                                     response: ServerHttpResponse) = flow {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
@@ -405,7 +410,7 @@ class KmehrController(
                                 @RequestParam recipientFirstName: String,
                                 @RequestParam recipientLastName: String,
                                 @RequestParam mimeType: String,
-                                @RequestBody document: ByteArray,
+                                @Schema(type = "string", format = "binary") @RequestBody document: ByteArray,
                                 response: ServerHttpResponse) = flow {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
@@ -426,7 +431,7 @@ class KmehrController(
                            @RequestParam recipientFirstName: String,
                            @RequestParam recipientLastName: String,
                            @RequestParam mimeType: String,
-                           @RequestBody document: ByteArray,
+                           @Schema(type = "string", format = "binary") @RequestBody document: ByteArray,
                            response: ServerHttpResponse) = flow {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
@@ -446,7 +451,7 @@ class KmehrController(
                                    @RequestParam recipientFirstName: String,
                                    @RequestParam recipientLastName: String,
                                    @RequestParam mimeType: String,
-                                   @RequestBody document: ByteArray,
+                                   @Schema(type = "string", format = "binary") @RequestBody document: ByteArray,
                                    response: ServerHttpResponse) = flow {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
@@ -466,7 +471,7 @@ class KmehrController(
                              @RequestParam recipientFirstName: String,
                              @RequestParam recipientLastName: String,
                              @RequestParam mimeType: String,
-                             @RequestBody document: ByteArray,
+                             @Schema(type = "string", format = "binary") @RequestBody document: ByteArray,
                              response: ServerHttpResponse) = flow {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
@@ -486,7 +491,7 @@ class KmehrController(
                               @RequestParam recipientFirstName: String,
                               @RequestParam recipientLastName: String,
                               @RequestParam mimeType: String,
-                              @RequestBody document: ByteArray,
+                              @Schema(type = "string", format = "binary") @RequestBody document: ByteArray,
                               response: ServerHttpResponse) = flow {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
@@ -506,7 +511,7 @@ class KmehrController(
                              @RequestParam recipientFirstName: String,
                              @RequestParam recipientLastName: String,
                              @RequestParam mimeType: String,
-                             @RequestBody document: ByteArray,
+                             @Schema(type = "string", format = "binary") @RequestBody document: ByteArray,
                              response: ServerHttpResponse) = flow {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
@@ -525,11 +530,10 @@ class KmehrController(
                           @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val document = documentLogic.getDocument(documentId)
+        val attachment = document?.decryptAttachment(if (documentKey.isNullOrBlank()) null else documentKey.split(','))
 
-        val attachmentId = document?.attachmentId
-
-        attachmentId?.let {
-            softwareMedicalFileLogic.importSmfFile(documentLogic.readAttachment(documentId, attachmentId), sessionLogic.getCurrentSessionContext().getUser(), language
+        attachment?.let {
+            softwareMedicalFileLogic.importSmfFile(it, sessionLogic.getCurrentSessionContext().getUser(), language
                     ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
                     dryRun ?: false,
                     patientId?.let { patientLogic.getPatient(patientId) },
@@ -551,7 +555,7 @@ class KmehrController(
 
         attachmentId?.let {
             softwareMedicalFileLogic.checkIfSMFPatientsExists(
-                    documentLogic.readAttachment(documentId, attachmentId),
+                    documentLogic.getAttachment(documentId, attachmentId),
                     sessionLogic.getCurrentSessionContext().getUser(),
                     language ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
                     patientId?.let { patientLogic.getPatient(patientId) },
@@ -576,7 +580,7 @@ class KmehrController(
 
         attachmentId?.let {
             sumehrLogicV1.importSumehr(
-                    documentLogic.readAttachment(documentId, attachmentId),
+                    documentLogic.getAttachment(documentId, attachmentId),
                     sessionLogic.getCurrentSessionContext().getUser(),
                     language ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
                     patientId?.let { patientLogic.getPatient(patientId) },
@@ -602,7 +606,7 @@ class KmehrController(
         val attachmentId = document?.attachmentId
         attachmentId?.let {
             sumehrLogicV2.importSumehrByItemId(
-                    documentLogic.readAttachment(documentId, attachmentId),
+                    documentLogic.getAttachment(documentId, attachmentId),
                     itemId,
                     sessionLogic.getCurrentSessionContext().getUser(),
                     language ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
@@ -628,7 +632,7 @@ class KmehrController(
         val attachmentId = document?.attachmentId
         attachmentId?.let {
             medicationSchemeLogic.importMedicationSchemeFile(
-                    documentLogic.readAttachment(documentId, attachmentId),
+                    documentLogic.getAttachment(documentId, attachmentId),
                     sessionLogic.getCurrentSessionContext().getUser(),
                     language
                             ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",

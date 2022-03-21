@@ -1,0 +1,477 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.6</VERSION>
+    <DATE>2014-12-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Unit</NAME>
+    <VALUE>
+        <CODE>%</CODE>
+        <DESCRIPTION L="en">PERCENT</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>%vv</CODE>
+        <DESCRIPTION L="en">PERCENT VOL./VOL.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>%wv</CODE>
+        <DESCRIPTION L="en">PERCENT WT./VOL.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>%ww</CODE>
+        <DESCRIPTION L="en">PERCENT WT./WT.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>1000/mm3</CODE>
+        <DESCRIPTION L="en">milles/mm3</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mg/dl</CODE>
+        <DESCRIPTION L="en">MILLIGRAMS PER DECILITER</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>amp</CODE>
+        <DESCRIPTION L="en">AMPULE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>bag</CODE>
+        <DESCRIPTION L="en">BAG</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>bitperminute</CODE>
+        <DESCRIPTION L="en">bit per minute</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>bol</CODE>
+        <DESCRIPTION L="en">BOLUS</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>bot</CODE>
+        <DESCRIPTION L="en">BOTTLE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>box</CODE>
+        <DESCRIPTION L="en">BOX</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>c</CODE>
+        <DESCRIPTION L="en">HOMEOPATHIC DILUTION (CENTESIMAL 1/100)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>can</CODE>
+        <DESCRIPTION L="en">CAN</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>cap</CODE>
+        <DESCRIPTION L="en">CAPSULE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>cc</CODE>
+        <DESCRIPTION L="en">CUBIC CENTIMETER</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>cm</CODE>
+        <DESCRIPTION L="en">cm</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>cmm</CODE>
+        <DESCRIPTION L="en">CUBIC MILLIMETER</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>cnt</CODE>
+        <DESCRIPTION L="en">COUNT</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ctr</CODE>
+        <DESCRIPTION L="en">CONTAINER</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>daily</CODE>
+        <DESCRIPTION L="en">daily</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>day</CODE>
+        <DESCRIPTION L="en">day(s)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>spoon</CODE>
+        <DESCRIPTION L="en">Spoon</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>week</CODE>
+        <DESCRIPTION L="en">Week</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>month</CODE>
+        <DESCRIPTION L="en">Month</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>degree</CODE>
+        <DESCRIPTION L="en">degree</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>dis</CODE>
+        <DESCRIPTION L="en">DISK</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>drm</CODE>
+        <DESCRIPTION L="en">DRUM</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>fl</CODE>
+        <DESCRIPTION L="en">fl</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>fld</CODE>
+        <DESCRIPTION L="en">FLUID DRAM</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>flo</CODE>
+        <DESCRIPTION L="en">FLUID OUNCE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ftc</CODE>
+        <DESCRIPTION L="en">FEET, CUBIC</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>fts</CODE>
+        <DESCRIPTION L="en">FEET, SQUARE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>g/dl</CODE>
+        <DESCRIPTION L="en">g/dl</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mg</CODE>
+        <DESCRIPTION L="en">MILLIGRAM</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mg/ml</CODE>
+        <DESCRIPTION L="en">MILLIGRAMS PER MILLILITER</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mg/l</CODE>
+        <DESCRIPTION L="en">MILLIGRAMS PER LITER</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mg/m2</CODE>
+        <DESCRIPTION L="en">MILLIGRAMS PER M2</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>kg/m2</CODE>
+        <DESCRIPTION L="en">KILOGRAMS PER M2</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>minute</CODE>
+        <DESCRIPTION L="en">minute</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mm</CODE>
+        <DESCRIPTION L="en">MILLIMETER</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mm/h</CODE>
+        <DESCRIPTION L="en">MILLIMETER PER HOUR</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>second</CODE>
+        <DESCRIPTION L="en">second</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>millisecond</CODE>
+        <DESCRIPTION L="en">milli second</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>hour</CODE>
+        <DESCRIPTION L="en">Hour</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>goutte</CODE>
+        <DESCRIPTION L="en">Drop</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ml</CODE>
+        <DESCRIPTION L="en">MILLILITER</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ctg</CODE>
+        <DESCRIPTION L="en">CARTRIDGE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>gal</CODE>
+        <DESCRIPTION L="en">GALLON</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>gm</CODE>
+        <DESCRIPTION L="en">GRAM</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>gr</CODE>
+        <DESCRIPTION L="en">GRAIN</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>in</CODE>
+        <DESCRIPTION L="en">INCH</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>inc</CODE>
+        <DESCRIPTION L="en">INCH, CUBIC</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>jar</CODE>
+        <DESCRIPTION L="en">JAR</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>kg</CODE>
+        <DESCRIPTION L="en">KILOGRAM</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>kit</CODE>
+        <DESCRIPTION L="en">KIT</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>l</CODE>
+        <DESCRIPTION L="en">LITER</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>lb</CODE>
+        <DESCRIPTION L="en">POUND</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>lm</CODE>
+        <DESCRIPTION L="en">HOMEOPATHIC DILUTION (FIFTY MILLESIMAL 1/50,000)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>loz</CODE>
+        <DESCRIPTION L="en">LOZENGE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mcg</CODE>
+        <DESCRIPTION L="en">MICROGRAM</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mcl</CODE>
+        <DESCRIPTION L="en">MICROLITER</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mcm</CODE>
+        <DESCRIPTION L="en">MILLIMOLE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mcn</CODE>
+        <DESCRIPTION L="en">MICRON</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>meq</CODE>
+        <DESCRIPTION L="en">MILLIEQUIVALENT</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mic</CODE>
+        <DESCRIPTION L="en">MICROCURIE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mil</CODE>
+        <DESCRIPTION L="en">MILLICURIE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>min</CODE>
+        <DESCRIPTION L="en">MINIM</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mis</CODE>
+        <DESCRIPTION L="en">MISCELLANEOUS</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mm</CODE>
+        <DESCRIPTION L="en">MILLIMETER</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mmo</CODE>
+        <DESCRIPTION L="en">MICROMOLE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mol</CODE>
+        <DESCRIPTION L="en">MOLAR</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>nl</CODE>
+        <DESCRIPTION L="en">NORMAL</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>nmg</CODE>
+        <DESCRIPTION L="en">NANOGRAM, MILLIMICROGRAM</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>nmo</CODE>
+        <DESCRIPTION L="en">NANOMOLE, MILLIMICROMOLE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ns</CODE>
+        <DESCRIPTION L="en">NOT STATED</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>oz</CODE>
+        <DESCRIPTION L="en">OUNCE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pel</CODE>
+        <DESCRIPTION L="en">PELLET</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pg</CODE>
+        <DESCRIPTION L="en">pg</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pkg</CODE>
+        <DESCRIPTION L="en">PACKAGE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pnu</CODE>
+        <DESCRIPTION L="en">PROTEIN UNIT</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ppm</CODE>
+        <DESCRIPTION L="en">PART PER MILLION</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pt</CODE>
+        <DESCRIPTION L="en">PINT</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>qs</CODE>
+        <DESCRIPTION L="en">QUANTITY SUFFICIENT</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>qt</CODE>
+        <DESCRIPTION L="en">QUART</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>sat</CODE>
+        <DESCRIPTION L="en">SATURATED</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>spr</CODE>
+        <DESCRIPTION L="en">SPRAY</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>sqc</CODE>
+        <DESCRIPTION L="en">SQUARE CENTIMETER</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>stp</CODE>
+        <DESCRIPTION L="en">STRIP</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>sup</CODE>
+        <DESCRIPTION L="en">SUPPOSITORY</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>syr</CODE>
+        <DESCRIPTION L="en">SYRINGE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>tab</CODE>
+        <DESCRIPTION L="en">TABLET</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>tbl</CODE>
+        <DESCRIPTION L="en">TABLESPOON</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>tes</CODE>
+        <DESCRIPTION L="en">TEST</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ton</CODE>
+        <DESCRIPTION L="en">TON</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>tpn</CODE>
+        <DESCRIPTION L="en">TAMPON</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>trc</CODE>
+        <DESCRIPTION L="en">TRACE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>tro</CODE>
+        <DESCRIPTION L="en">TROCHE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>tsp</CODE>
+        <DESCRIPTION L="en">TEASPOON</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>tub</CODE>
+        <DESCRIPTION L="en">TUBE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>umg</CODE>
+        <DESCRIPTION L="en">UNITS PER MILLIGRAM</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>unt</CODE>
+        <DESCRIPTION L="en">UNITS</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>vil</CODE>
+        <DESCRIPTION L="en">VIAL</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>vpr</CODE>
+        <DESCRIPTION L="en">VARIES PER REGIMEN</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>waf</CODE>
+        <DESCRIPTION L="en">WAFER</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>x</CODE>
+        <DESCRIPTION L="en">HOMEOPATHIC DILUTION (DECIMAL 1/10)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ydl</CODE>
+        <DESCRIPTION L="en">YARD, LINEAR</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>yds</CODE>
+        <DESCRIPTION L="en">YARD, SQUARE</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ondemand</CODE>
+        <DESCRIPTION L="en">On Demand</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mmhg</CODE>
+        <DESCRIPTION L="en">mmHg</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mgper100ml</CODE>
+        <DESCRIPTION L="en">mg per 100ml</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ml/min</CODE>
+        <DESCRIPTION L="en">Milliliter per minute</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>shock</CODE>
+        <DESCRIPTION L="en">Shock</DESCRIPTION>
+        <DESCRIPTION L="nl">Schok</DESCRIPTION>
+        <DESCRIPTION L="fr">Choc</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>atptreatment</CODE>
+        <DESCRIPTION L="en">Number of treatments by anti-tachycardia pacing</DESCRIPTION>
+        <DESCRIPTION L="nl">Aantal behandelingen door antitachycardie pacing</DESCRIPTION>
+        <DESCRIPTION L="fr">Nombre de traitements par anti-tachycardie pacing</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>sap</CODE>
+        <DESCRIPTION L="en">Cumulative sap value</DESCRIPTION>
+        <DESCRIPTION L="nl">Cumulatieve sap waarde</DESCRIPTION>
+        <DESCRIPTION L="fr">Valeur sap cumulative</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ml/min/1.73m2</CODE>
+        <DESCRIPTION L="en">Glomerular filtration rate</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

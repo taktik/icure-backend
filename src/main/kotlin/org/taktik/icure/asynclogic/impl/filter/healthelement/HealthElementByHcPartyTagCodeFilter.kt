@@ -18,8 +18,10 @@
 
 package org.taktik.icure.asynclogic.impl.filter.healthelement
 
+import javax.security.auth.login.LoginException
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toSet
+import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
@@ -27,8 +29,8 @@ import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.domain.filter.healthelement.HealthElementByHcPartyTagCodeFilter
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.utils.getLoggedHealthCarePartyId
-import javax.security.auth.login.LoginException
 
+@Service
 class HealthElementByHcPartyTagCodeFilter(private val healthElementLogic: HealthElementLogic,
                                           private val sessionLogic: AsyncSessionLogic) : Filter<String, HealthElement, HealthElementByHcPartyTagCodeFilter> {
 
@@ -37,10 +39,10 @@ class HealthElementByHcPartyTagCodeFilter(private val healthElementLogic: Health
             val hcPartyId: String = filter.healthCarePartyId ?: getLoggedHealthCarePartyId(sessionLogic)
             var ids: HashSet<String>? = null
             if (filter.tagType != null && filter.tagCode != null) {
-                ids = HashSet(healthElementLogic.findHealthElementsByHCPartyAndTags(hcPartyId, filter.tagType!!, filter.tagCode!!).toSet())
+                ids = HashSet(healthElementLogic.listHealthElementIdsByHcPartyAndTags(hcPartyId, filter.tagType!!, filter.tagCode!!).toSet())
             }
-            if (filter.codeType != null && filter.codeNumber != null) {
-                val byCode = HashSet(healthElementLogic.findHealthElementsByHCPartyAndCodes(hcPartyId, filter.codeType!!, filter.codeNumber!!).toSet())
+            if (filter.codeType != null && filter.codeCode != null) {
+                val byCode = HashSet(healthElementLogic.listHealthElementIdsByHcPartyAndCodes(hcPartyId, filter.codeType!!, filter.codeCode!!).toSet())
                 if (ids == null) {
                     ids = byCode
                 } else {
@@ -48,7 +50,7 @@ class HealthElementByHcPartyTagCodeFilter(private val healthElementLogic: Health
                 }
             }
             if (filter.status != null) {
-                val byStatus = HashSet(healthElementLogic.findHealthElementsByHCPartyAndStatus(hcPartyId, filter.status!!).toSet())
+                val byStatus = HashSet(healthElementLogic.listHealthElementIdsByHcPartyAndStatus(hcPartyId, filter.status!!).toSet())
                 if (ids == null) {
                     ids = byStatus
                 } else {

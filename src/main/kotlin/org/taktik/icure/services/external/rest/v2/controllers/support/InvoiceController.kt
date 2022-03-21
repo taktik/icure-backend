@@ -28,7 +28,15 @@ import kotlinx.coroutines.reactor.mono
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asynclogic.AsyncSessionLogic
@@ -278,7 +286,7 @@ class InvoiceController(
     @GetMapping("/toInsurances")
     fun listToInsurances(@RequestParam(required = false) userIds: String?): Flux<InvoiceDto> = flow<InvoiceDto>{
         val users = if (userIds == null) userLogic.getEntities() else userLogic.getUsers(userIds.split(','))
-        val insuranceIds = insuranceLogic.getEntitiesIds().toSet()
+        val insuranceIds = insuranceLogic.getEntityIds().toSet()
         users
                 .flatMapConcat { user -> invoiceLogic.listInvoicesByHcPartyAndRecipientIds(user.healthcarePartyId!!, insuranceIds).filter { iv -> user.id == iv.author } }
                 .map { invoiceV2Mapper.map(it) }
@@ -291,7 +299,7 @@ class InvoiceController(
     @GetMapping("/toInsurances/unsent")
     fun listToInsurancesUnsent(@RequestParam(required = false) userIds: String?): Flux<InvoiceDto>  = flow{
         val users = if (userIds == null) userLogic.getEntities() else userLogic.getUsers(userIds.split(','))
-        val insuranceIds = insuranceLogic.getEntitiesIds().toSet()
+        val insuranceIds = insuranceLogic.getEntityIds().toSet()
         users
                 .flatMapConcat { u ->
                     invoiceLogic.listInvoicesByHcPartyAndRecipientIdsUnsent(u.healthcarePartyId!!, insuranceIds).filter { iv -> u.id == iv.author }

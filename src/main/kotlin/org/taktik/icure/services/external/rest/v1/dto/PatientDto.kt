@@ -34,6 +34,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.*
 data class PatientDto(
         @Schema(description = "the Id of the patient. We encourage using either a v4 UUID or a HL7 Id.") override val id: String,
         @Schema(description = "the revision of the patient in the database, used for conflict management / optimistic locking.") override val rev: String? = null,
+        val identifier: List<IdentifierDto> = emptyList(),
         override val created: Long? = null,
         override val modified: Long? = null,
         override val author: String? = null,
@@ -44,7 +45,7 @@ data class PatientDto(
         override val deletionDate: Long? = null,
         @Schema(description = "the firstname (name) of the patient.") override val firstName: String? = null,
         @Schema(description = "the lastname (surname) of the patient. This is the official lastname that should be used for official administrative purposes.") override val lastName: String? = null, //Is usually either maidenName or spouseName,
-        @Schema(description = "the list of all denominations of the patient, also containing the official full name information. Ordered by preference of use. First element is therefore the official name used for the patient in the application") override val denominations: List<PersonNameDto> = emptyList(),
+        @Schema(description = "the list of all names of the patient, also containing the official full name information. Ordered by preference of use. First element is therefore the official name used for the patient in the application") override val names: List<PersonNameDto> = emptyList(),
         @Schema(description = "the name of the company this patient is member of.") override val companyName: String? = null,
         @Schema(description = "the list of languages spoken by the patient ordered by fluency (alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html).") override val languages: List<String> = emptyList(), //alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html,
         @Schema(description = "the list of addresses (with address type).") override val addresses: List<AddressDto> = emptyList(),
@@ -75,7 +76,7 @@ data class PatientDto(
         @Schema(description = "The race of the patient.") val race: String? = null,
         @Schema(description = "The ethnicity of the patient.") val ethnicity: String? = null,
         @Schema(description = "The id of the user that usually handles this patient.") val preferredUserId: String? = null,
-        @Schema(description = "A picture usually saved in JPEG format.") val picture: ByteArray? = null,
+        @Schema(description = "A picture usually saved in JPEG format.", type = "string", format = "byte") val picture: ByteArray? = null,
         @Schema(description = "An external (from another source) id with no guarantee or requirement for unicity .") val externalId: String? = null, //No guarantee of unicity
         @Schema(description = "List of insurance coverages (of class Insurability, see below).") val insurabilities: List<InsurabilityDto> = emptyList(),
         @Schema(description = "List of partners, or persons of contact (of class Partnership, see below).") val partnerships: List<PartnershipDto> = emptyList(),
@@ -87,6 +88,9 @@ data class PatientDto(
         @Schema(description = "Extra properties") val properties: Set<PropertyStubDto> = emptySet(),
 
         override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
+        override val aesExchangeKeys: Map<String, Map<String, Array<String>>> = emptyMap(),
+        override val transferKeys: Map<String, Map<String, String>> = emptyMap(),
+        override val lostHcPartyKeys: Set<String> = emptySet(),
         override val privateKeyShamirPartitions: Map<String, String> = emptyMap(),
         override val publicKey: String? = null,
 

@@ -1,0 +1,152 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.2</VERSION>
+    <DATE>2018-09-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>Dayperiod</NAME>
+    <VALUE>
+        <CODE>morning</CODE>
+        <DESCRIPTION L="en">morning</DESCRIPTION>
+        <DESCRIPTION L="fr">matin</DESCRIPTION>
+        <DESCRIPTION L="nl">smorgens</DESCRIPTION>
+        <DESCRIPTION L="de">Vormittag</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>afternoon</CODE>
+        <DESCRIPTION L="en">afternoon</DESCRIPTION>
+        <DESCRIPTION L="fr">après-midi</DESCRIPTION>
+        <DESCRIPTION L="nl">namiddag</DESCRIPTION>
+        <DESCRIPTION L="de">Nachmittag</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>evening</CODE>
+        <DESCRIPTION L="en">evening</DESCRIPTION>
+        <DESCRIPTION L="fr">soir</DESCRIPTION>
+        <DESCRIPTION L="nl">avond</DESCRIPTION>
+        <DESCRIPTION L="de">Abend</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>night</CODE>
+        <DESCRIPTION L="en">night</DESCRIPTION>
+        <DESCRIPTION L="fr">nuit</DESCRIPTION>
+        <DESCRIPTION L="nl">nacht</DESCRIPTION>
+        <DESCRIPTION L="de">Nacht</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>beforelunch</CODE>
+        <DESCRIPTION L="en">before lunch (from lat. ante cibus diurnus)</DESCRIPTION>
+        <DESCRIPTION L="fr">avant le repas du midi</DESCRIPTION>
+        <DESCRIPTION L="nl">voor het middagmaal</DESCRIPTION>
+        <DESCRIPTION L="de">vor dem Mittagessen </DESCRIPTION>
+        <HL7>10712</HL7>
+    </VALUE>
+    <VALUE>
+        <CODE>beforebreakfast</CODE>
+        <DESCRIPTION L="en">before breakfast (from lat. ante cibus matutinus)</DESCRIPTION>
+        <DESCRIPTION L="fr">avant le petit-déjeuner</DESCRIPTION>
+        <DESCRIPTION L="nl">voor het ontbijt</DESCRIPTION>
+        <DESCRIPTION L="de">vor dem Frühstück </DESCRIPTION>
+        <HL7>10711</HL7>
+    </VALUE>
+    <VALUE>
+        <CODE>beforedinner</CODE>
+        <DESCRIPTION L="en">before dinner (from lat. ante cibus vespertinus)</DESCRIPTION>
+        <DESCRIPTION L="fr">avant le repas du soir</DESCRIPTION>
+        <DESCRIPTION L="nl">voor het avondmaal</DESCRIPTION>
+        <DESCRIPTION L="de">vor dem Abendessen</DESCRIPTION>
+        <HL7>10713</HL7>
+    </VALUE>
+    <VALUE>
+        <CODE>thehourofsleep</CODE>
+        <DESCRIPTION L="en">the hour of sleep (e.g., H18-22)</DESCRIPTION>
+        <DESCRIPTION L="fr">heure du coucher</DESCRIPTION>
+        <DESCRIPTION L="nl">voor het slapen</DESCRIPTION>
+        <DESCRIPTION L="de">Schlafengehen</DESCRIPTION>
+        <HL7>10707</HL7>
+    </VALUE>
+    <VALUE>
+        <CODE>betweenmeals</CODE>
+        <DESCRIPTION L="en">between meals (from lat. inter cibus)</DESCRIPTION>
+        <DESCRIPTION L="fr">entre les repas</DESCRIPTION>
+        <DESCRIPTION L="nl">tussen de maaltijden</DESCRIPTION>
+        <DESCRIPTION L="de">zwischen den Mahlzeiten </DESCRIPTION>
+        <HL7>10710</HL7>
+    </VALUE>
+    <VALUE>
+        <CODE>betweenlunchanddinner</CODE>
+        <DESCRIPTION L="en">between lunch and dinner</DESCRIPTION>
+        <DESCRIPTION L="fr">entre le repas du midi et le repas du soir</DESCRIPTION>
+        <DESCRIPTION L="nl">tussen het middageten en het avondeten</DESCRIPTION>
+        <DESCRIPTION L="de">zwischen dem Mittagessen und dem Abendessen</DESCRIPTION>
+        <HL7>10718</HL7>
+    </VALUE>
+    <VALUE>
+        <CODE>betweenbreakfastandlunch</CODE>
+        <DESCRIPTION L="en">between breakfast and lunch</DESCRIPTION>
+        <DESCRIPTION L="fr">entre le petit-déjeuner et le repas du midi</DESCRIPTION>
+        <DESCRIPTION L="nl">tussen het ontbijt en het middageten</DESCRIPTION>
+        <DESCRIPTION L="de">zwischen dem Frühstück und dem Mittagessen</DESCRIPTION>
+        <HL7>10717</HL7>
+    </VALUE>
+    <VALUE>
+        <CODE>betweendinnerandsleep (deprecated)</CODE>
+        <DESCRIPTION L="en">between dinner and the hour of sleep</DESCRIPTION>
+        <DESCRIPTION L="fr">entre le repas du soir et l'heure du coucher</DESCRIPTION>
+        <DESCRIPTION L="nl">tussen het avondeten en het slapen gaan</DESCRIPTION>
+        <DESCRIPTION L="de">zwischen dem Abendessen und dem Schlafengehen</DESCRIPTION>
+        <HL7>10719</HL7>
+    </VALUE>
+    <VALUE>
+        <CODE>aftermeal</CODE>
+        <DESCRIPTION L="en">after meal (from lat. post cibus)</DESCRIPTION>
+        <DESCRIPTION L="fr">après le repas</DESCRIPTION>
+        <DESCRIPTION L="nl">na de maaltijd</DESCRIPTION>
+        <DESCRIPTION L="de">nach dem Essen</DESCRIPTION>
+        <HL7>10709</HL7>
+    </VALUE>
+    <VALUE>
+        <CODE>afterlunch</CODE>
+        <DESCRIPTION L="en">after lunch (from lat. post cibus diurnus)</DESCRIPTION>
+        <DESCRIPTION L="fr">après le repas du midi</DESCRIPTION>
+        <DESCRIPTION L="nl">na het middageten</DESCRIPTION>
+        <DESCRIPTION L="de">nach dem Mittagessen</DESCRIPTION>
+        <HL7>10715</HL7>
+    </VALUE>
+    <VALUE>
+        <CODE>afterbreakfast</CODE>
+        <DESCRIPTION L="en">after breakfast (from lat. post cibus matutinus)</DESCRIPTION>
+        <DESCRIPTION L="fr">après le petit-déjeuner</DESCRIPTION>
+        <DESCRIPTION L="nl">na het ontbijt</DESCRIPTION>
+        <DESCRIPTION L="de">nach dem Frühstück</DESCRIPTION>
+        <HL7>10714</HL7>
+    </VALUE>
+    <VALUE>
+        <CODE>afterdinner</CODE>
+        <DESCRIPTION L="en">after dinner (from lat. post cibus vespertinus)</DESCRIPTION>
+        <DESCRIPTION L="fr">après le repas du soir</DESCRIPTION>
+        <DESCRIPTION L="nl">na het avondeten</DESCRIPTION>
+        <DESCRIPTION L="de">nach dem Abendessen</DESCRIPTION>
+        <HL7>10716</HL7>
+    </VALUE>
+    <VALUE>
+        <CODE>duringbreakfast</CODE>
+        <DESCRIPTION L="en">during breakfast</DESCRIPTION>
+        <DESCRIPTION L="fr">pendant le petit-déjeuner</DESCRIPTION>
+        <DESCRIPTION L="nl">tijdens het ontbijt</DESCRIPTION>
+        <DESCRIPTION L="de">während dem Frühstück</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>duringlunch</CODE>
+        <DESCRIPTION L="en">during lunch</DESCRIPTION>
+        <DESCRIPTION L="fr">pendant le repas du midi</DESCRIPTION>
+        <DESCRIPTION L="nl">tijdens het middageten</DESCRIPTION>
+        <DESCRIPTION L="de">während dem Mittagessen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>duringdinner</CODE>
+        <DESCRIPTION L="en">during dinner</DESCRIPTION>
+        <DESCRIPTION L="fr">pendant le repas du soir</DESCRIPTION>
+        <DESCRIPTION L="nl">tijdens het avondeten</DESCRIPTION>
+        <DESCRIPTION L="de">während dem Abendessen</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>
