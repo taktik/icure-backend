@@ -148,6 +148,17 @@ fun emitMessage(message: org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov
     return DataBufferUtils.read(ByteArrayResource(os.toByteArray()), DefaultDataBufferFactory(), 10000).asFlow()
 }
 
+fun emitMessage(message: org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage): Flow<DataBuffer> {
+    val os = ByteArrayOutputStream(10000)
+
+    val jaxbMarshaller = JAXBContext.newInstance(org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage::class.java).createMarshaller()
+    // output pretty printed
+    jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
+    jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8")
+    jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
+    return DataBufferUtils.read(ByteArrayResource(os.toByteArray()), DefaultDataBufferFactory(), 10000).asFlow()
+}
+
 fun Patient.getSignature() = DigestUtils.md5Hex(
         "${this.firstName}:${this.lastName}:${this.patientHealthCareParties.find(PatientHealthCareParty::referral)?.let { "" + it.healthcarePartyId + it.referralPeriods.last().startDate + it.referralPeriods.last().endDate } ?: ""}:${this.dateOfBirth}:${this.dateOfDeath}:${this.ssin}"
 )

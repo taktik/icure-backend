@@ -40,6 +40,7 @@ import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.diarynote.DiaryNoteLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.incapacity.IncapacityLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medex.KmehrNoteLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationSchemeLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.patientinfo.PatientInfoFileLogic
@@ -70,6 +71,7 @@ class KmehrController(
         @Qualifier("sumehrLogicV2") val sumehrLogicV2: SumehrLogic,
         val softwareMedicalFileLogic: SoftwareMedicalFileLogic,
         val medicationSchemeLogic: MedicationSchemeLogic,
+        val incapacityLogic: IncapacityLogic,
         val diaryNoteLogic: DiaryNoteLogic,
         val kmehrNoteLogic: KmehrNoteLogic,
         val healthcarePartyLogic: HealthcarePartyLogic,
@@ -369,6 +371,26 @@ class KmehrController(
                     emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language, recipientSafe, version, null, null))
                 else
                     emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language, recipientSafe, version, medicationSchemeExportParams.services.map { s -> serviceMapper.map(s) }, medicationSchemeExportParams.serviceAuthors?.map{a -> healthcarePartyMapper.map(a)}, tz, null))
+            }
+        } ?: throw IllegalArgumentException("Missing argument")
+    }.injectReactorContext()
+
+    @Operation(summary = "Get Incapacity export", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+    @PostMapping("/incapacity/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+    fun generateIncapacityExport(@PathVariable patientId: String,
+                                       @RequestParam language: String,
+                                       @RequestHeader("X-Timezone-Offset") tz: String?,
+                                       @RequestBody incapacityExportParams: IncapacityExportInfoDto,
+                                       response: ServerHttpResponse) = flow {
+        val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
+        val patient = patientLogic.getPatient(patientId)
+
+        patient?.let {
+            userHealthCareParty?.let {
+                if (incapacityExportParams.services.isEmpty())
+                    emitAll(incapacityLogic.createIncapacityExport(patient, incapacityExportParams.secretForeignKeys, userHealthCareParty, language,  incapacityExportParams.incapacityId, null, null))
+                else
+                    emitAll(incapacityLogic.createIncapacityExport(patient, userHealthCareParty, language, incapacityExportParams.incapacityId, incapacityExportParams.services.map { s -> serviceMapper.map(s) }, incapacityExportParams.serviceAuthors?.map{a -> healthcarePartyMapper.map(a)}, tz, null))
             }
         } ?: throw IllegalArgumentException("Missing argument")
     }.injectReactorContext()
