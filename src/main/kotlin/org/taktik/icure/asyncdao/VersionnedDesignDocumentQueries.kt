@@ -33,7 +33,7 @@ open class VersionnedDesignDocumentQueries<T : StoredDocument>(protected open va
                     return GlobalScope.async {
                         val client = key.first
                         val baseId = designDocName(key.second)
-                        val relatedDesignDocs = client.designDocumentsIds().filter { it.startsWith(baseId) }
+                        val relatedDesignDocs = client.designDocumentsIds().filter { if (it.length == baseId.length) it.startsWith(baseId) else it.startsWith("${baseId}_") }
                         val generatedDesignDocument = StdDesignDocumentFactory().generateFrom(baseId, this@VersionnedDesignDocumentQueries)
                         return@async if (relatedDesignDocs.size == 1) {
                             relatedDesignDocs.first()
