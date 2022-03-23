@@ -19,6 +19,7 @@ import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
 import org.taktik.icure.be.ehealth.logic.kmehr.v20170601.KmehrExport
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
+import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
@@ -92,7 +93,7 @@ class IncapacityExport(patientLogic: PatientLogic,
             this.patient = makePatient(patient, config)
         }
 
-        var itemIdx = 1;
+        var itemsIdx = 1;
 
         folder.transactions.add(TransactionType().apply {
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
@@ -109,9 +110,32 @@ class IncapacityExport(patientLogic: PatientLogic,
             //   ID-KMEHR = 1
             //   CD-INCAPACITY = work
             //   incapacityreason = MS-MULTEMEDIATTINCAPACITY|multemediattincapacity -> content.descr
-            //   outofhimeallowed = MS-INCAPACITYOUTING|* -> content.descr
+            //   outofhomeallowed = MS-INCAPACITYOUTING|* -> content.descr
             //   beginmoment = MS-INCAPACITYFIELD|datebegin -> content.instant
             //   endmoment = MS-INCAPACITYFIELD|dateend -> content.instant
+            val incapacityreason = incapacityServices?.find { it -> it.tags.contains(CodeStub(id="MS-MULTEMEDIATTINCAPACITY|multemediattincapacity|1", context=null, type="MS-MULTEMEDIATTINCAPACITY", code="multemediattincapacity", version="1", label=null)) }?.content?.get("descr")?.stringValue;
+            val beginmoment = incapacityServices?.find { it -> it.tags.contains(CodeStub(id="MS-INCAPACITYFIELD|datebegin|1", context=null, type="MS-INCAPACITYFIELD", code="datebegin", version="1", label=null)) }?.content?.get("instant")?.fuzzyDateValue;
+            val endmoment = incapacityServices?.find { it -> it.tags.contains(CodeStub(id="MS-INCAPACITYFIELD|dateend|1", context=null, type="MS-INCAPACITYFIELD", code="dateend", version="1", label=null)) }?.content?.get("instant")?.fuzzyDateValue;
+            val outofhomeallowed = false //TODO get from services
+            headingsAndItemsAndTexts.add(ItemType().apply {
+                ids.add(idKmehr(itemsIdx++))
+                cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value="incapacity" })
+                contents.add(ContentType().apply {
+                    incapacity = IncapacityType().apply {
+                        cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("work") })
+                        this.incapacityreason = IncapacityreasonType().apply {
+                            this.cd = CDINCAPACITYREASON().apply { value = CDINCAPACITYREASONvalues.fromValue(incapacityreason) }
+                        }
+                        this.isOutofhomeallowed = outofhomeallowed
+                    }
+                })
+                contents.add(ContentType().apply {
+                    this.date = null //TODO this is creationdate.
+                })
+                this.beginmoment = Utils.makeDateTypeFromFuzzyLong(beginmoment);
+                this.endmoment = Utils.makeDateTypeFromFuzzyLong(endmoment);
+            })
+            //TODO:
             //  CD-ITEM diagnosis
             //   ID-KMEHR = idx
             //   content
@@ -119,12 +143,21 @@ class IncapacityExport(patientLogic: PatientLogic,
             //     ICPC = MS-INCAPACITYFIELD|diagnosis, ICPC|*|2
             //     ...
             //     text = griep ...
+            //  CD-ITEM diagnosis
             //   ID-KMEHR = idx
             //   content
             //     ICD = MS-INCAPACITYFIELD|diagnosis, ICD|*|10
             //     ICPC = MS-INCAPACITYFIELD|diagnosis, ICPC|*|2
             //     ...
             //     text = griep ...
+            val diagnosisServices = incapacityServices.filter { it -> true }
+            headingsAndItemsAndTexts.addAll(diagnosisServices.map{ svc ->
+                ItemType().apply {
+                    ids.add(idKmehr(itemsIdx++))
+                    cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value="diagnosis" })
+                }
+            })
+            //TODO:
             //  CD-ITEM contactperson
             //    ID-KMEHR = idx
             //    CD-CONTACT-PERSON => mother, ...
