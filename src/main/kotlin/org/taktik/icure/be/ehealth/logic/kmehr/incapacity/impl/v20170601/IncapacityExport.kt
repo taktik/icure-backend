@@ -53,8 +53,8 @@ class IncapacityExport(patientLogic: PatientLogic,
                                  defaultLanguage = "en"
                          )) = flow {
         config.defaultLanguage = if(sender.languages.firstOrNull() == "nl") "nl-BE" else if(sender.languages.firstOrNull() == "de") "de-BE" else "fr-BE"
-        config.format = Config.Format.KMEHR
-        val message = initializeMessage(sender, config)
+        config.format = Config.Format.MULTEMEDIATT
+        val message = initializeMessage(sender, config, incapacityId)
 
 
         val folder = makePatientFolder(

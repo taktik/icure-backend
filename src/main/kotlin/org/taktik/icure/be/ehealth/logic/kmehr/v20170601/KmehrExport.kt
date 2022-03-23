@@ -550,7 +550,7 @@ open class KmehrExport(
         }
     }
 
-    suspend fun initializeMessage(sender : HealthcareParty, config: Config) : Kmehrmessage {
+    suspend fun initializeMessage(sender : HealthcareParty, config: Config, kmehrId: String? = null) : Kmehrmessage {
         return Kmehrmessage().apply {
             header = HeaderType().apply {
                 standard = StandardType().apply {
@@ -566,7 +566,7 @@ open class KmehrExport(
                         specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; value = filetype }; version = SMF_VERSION }
                     }
                 }
-                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (sender.nihii ?: sender.id) + "." + (config._kmehrId ?: System.currentTimeMillis()) })
+                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value =  kmehrId ?: ((sender.nihii ?: sender.id) + "." + (config._kmehrId ?: System.currentTimeMillis())) })
                 makeXGC(Instant.now().toEpochMilli()).let {
                     date = it
                     time = it
