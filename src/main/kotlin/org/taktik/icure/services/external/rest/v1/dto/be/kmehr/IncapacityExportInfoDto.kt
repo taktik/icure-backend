@@ -11,5 +11,7 @@ class IncapacityExportInfoDto : Serializable {
     var recipient: HealthcarePartyDto? = null
     var comment: String? = null
     var incapacityId: String = ""
+    var retraction: Boolean = false
+    var dataset: String = ""
 
 }

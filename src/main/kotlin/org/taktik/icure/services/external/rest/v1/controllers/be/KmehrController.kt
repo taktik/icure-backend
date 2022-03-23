@@ -388,9 +388,9 @@ class KmehrController(
         patient?.let {
             userHealthCareParty?.let {
                 if (incapacityExportParams.services.isEmpty())
-                    emitAll(incapacityLogic.createIncapacityExport(patient, incapacityExportParams.secretForeignKeys, userHealthCareParty, language,  incapacityExportParams.incapacityId, null, null))
+                    emitAll(incapacityLogic.createIncapacityExport(patient, incapacityExportParams.secretForeignKeys, userHealthCareParty, language,  incapacityExportParams.incapacityId, incapacityExportParams.retraction, incapacityExportParams.dataset, null, null))
                 else
-                    emitAll(incapacityLogic.createIncapacityExport(patient, userHealthCareParty, language, incapacityExportParams.incapacityId, incapacityExportParams.services.map { s -> serviceMapper.map(s) }, incapacityExportParams.serviceAuthors?.map{a -> healthcarePartyMapper.map(a)}, tz, null))
+                    emitAll(incapacityLogic.createIncapacityExport(patient, userHealthCareParty, language, incapacityExportParams.incapacityId, incapacityExportParams.retraction, incapacityExportParams.dataset, incapacityExportParams.services.map { s -> serviceMapper.map(s) }, incapacityExportParams.serviceAuthors?.map{a -> healthcarePartyMapper.map(a)}, tz, null))
             }
         } ?: throw IllegalArgumentException("Missing argument")
     }.injectReactorContext()

@@ -5,6 +5,9 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import org.taktik.icure.asynclogic.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.AuthorType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTION
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
@@ -41,6 +44,8 @@ class IncapacityExport(patientLogic: PatientLogic,
                          sender: HealthcareParty,
                          language: String,
                          incapacityId: String,
+                         retraction: Boolean,
+                         dataset: String,
                          services: List<Service>?,
                          serviceAuthors: List<HealthcareParty>?,
                          decryptor: AsyncDecrypt?,
@@ -64,7 +69,8 @@ class IncapacityExport(patientLogic: PatientLogic,
                 config,
                 language,
                 services!!,
-                serviceAuthors
+                serviceAuthors,
+                dataset
         )
         emitMessage(message.apply { folders.add(folder) }).collect { emit(it) }
     }
@@ -76,13 +82,67 @@ class IncapacityExport(patientLogic: PatientLogic,
             config: Config,
             language: String,
             incapacityServices: List<Service>,
-            serviceAuthors: List<HealthcareParty>?
+            serviceAuthors: List<HealthcareParty>?,
+            dataset: String
     ): FolderType {
         //creation of Patient
         val folder = FolderType().apply {
             ids.add(idKmehr(patientIndex))
+            //TODO add CD-EMPLOYMENTSITUATION (not for iter 1)
             this.patient = makePatient(patient, config)
         }
+
+        var itemIdx = 1;
+
+        folder.transactions.add(TransactionType().apply {
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
+            cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = "notification"})
+            //TODO add CD-TRANSACTION-TYPE --> incapacityextension (fA, fB, rC), incapacityrelapse
+            cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION_TYPE); value = "incapacity"})
+            date = config.date
+            time = config.time
+            author = AuthorType().apply { hcparties.add(createParty(healthcareParty, emptyList())) }
+            //TODO Start adding ITEMs here
+            // IF NO RETRACTION
+            // TODO: add filtering per dataset
+            //  CD-ITEM incapacity
+            //   ID-KMEHR = 1
+            //   CD-INCAPACITY = work
+            //   incapacityreason = MS-MULTEMEDIATTINCAPACITY|multemediattincapacity -> content.descr
+            //   outofhimeallowed = MS-INCAPACITYOUTING|* -> content.descr
+            //   beginmoment = MS-INCAPACITYFIELD|datebegin -> content.instant
+            //   endmoment = MS-INCAPACITYFIELD|dateend -> content.instant
+            //  CD-ITEM diagnosis
+            //   ID-KMEHR = idx
+            //   content
+            //     ICD = MS-INCAPACITYFIELD|diagnosis, ICD|*|10
+            //     ICPC = MS-INCAPACITYFIELD|diagnosis, ICPC|*|2
+            //     ...
+            //     text = griep ...
+            //   ID-KMEHR = idx
+            //   content
+            //     ICD = MS-INCAPACITYFIELD|diagnosis, ICD|*|10
+            //     ICPC = MS-INCAPACITYFIELD|diagnosis, ICPC|*|2
+            //     ...
+            //     text = griep ...
+            //  CD-ITEM contactperson
+            //    ID-KMEHR = idx
+            //    CD-CONTACT-PERSON => mother, ...
+            //    person (firstame, id, address, telecom, ...)
+            //  CD-ITEM encountertype (has linked CD-ITEM: encounterdatetime, dischargedatetime
+            //   ID-KMEHR = idx
+            //   content CD-ENCOUNTER = hospital
+            //  CD-ITEM encounterdatetime
+            //   ID-KMEHR = idx
+            //  CD-ITEM dischargedatetime
+            //   ID-KMEHR = idx
+            //  IF RETRACTION
+            //  CD-ITEM incapacity
+            //  ID-KMEHR = 1
+            //  content
+            //    ID-KMEHR = incapacityId of related notification
+            //    CD-LIFECYCLE = retracted
+        })
 
         return folder
     }

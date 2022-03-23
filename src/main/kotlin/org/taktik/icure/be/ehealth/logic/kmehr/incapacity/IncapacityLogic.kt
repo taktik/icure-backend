@@ -38,6 +38,8 @@ interface IncapacityLogic {
             sender: HealthcareParty,
             language: String,
             incapacityId: String,
+            retraction: Boolean,
+            dataset: String,
             decryptor: AsyncDecrypt?,
             progressor: AsyncProgress?
     ): Flow<DataBuffer>
@@ -46,6 +48,8 @@ interface IncapacityLogic {
             sender: HealthcareParty,
             language: String,
             incapacityId: String,
+            retraction: Boolean,
+            dataset: String,
             services: List<Service>,
             serviceAuthors: List<HealthcareParty>?,
             timeZone: String?,
