@@ -33,12 +33,10 @@ import java.nio.ByteBuffer
 class ReceiptLogicImpl(private val receiptDAO: ReceiptDAO,
                        private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Receipt, ReceiptDAO>(sessionLogic), ReceiptLogic {
 
-    @ExperimentalCoroutinesApi
     override fun listReceiptsByReference(ref: String): Flow<Receipt> = flow {
         emitAll(receiptDAO.listByReference(ref))
     }
 
-    @ExperimentalCoroutinesApi
     override fun getAttachment(receiptId: String, attachmentId: String): Flow<ByteBuffer> = flow {
         emitAll(receiptDAO.getAttachment(receiptId, attachmentId))
     }

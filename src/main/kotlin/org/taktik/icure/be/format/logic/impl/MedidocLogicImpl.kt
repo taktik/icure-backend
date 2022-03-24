@@ -115,7 +115,7 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
             val line = lines[i]
             if (p1.matcher(line).matches() && !p3.matcher(line).matches() && i + 9 < lines.size) {
                 val ri = ResultInfo()
-                ri.codes.add(CodeStub.from("CD-TRANSACTION", "report", "1"))
+                ri.codes += CodeStub.from("CD-TRANSACTION", "report", "1")
                 ri.labo = labo
                 ri.documentId = doc.id
                 ri.lastName = lines[i + 1].substring(0, 24).trim { it <= ' ' }

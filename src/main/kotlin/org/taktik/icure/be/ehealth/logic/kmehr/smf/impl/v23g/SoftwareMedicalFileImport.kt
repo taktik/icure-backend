@@ -50,7 +50,7 @@ import org.taktik.icure.db.StringUtils
 import org.taktik.icure.domain.mapping.ImportMapping
 import org.taktik.icure.domain.result.CheckSMFPatientResult
 import org.taktik.icure.domain.result.ImportResult
-import org.taktik.icure.dto.common.MimeAttachment
+import org.taktik.icure.dto.result.MimeAttachment
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.Form
@@ -72,7 +72,6 @@ import org.taktik.icure.entities.embed.Medication
 import org.taktik.icure.entities.embed.Medicinalproduct
 import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.entities.embed.PlanOfAction
-import org.taktik.icure.entities.embed.RegimenItem
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.entities.embed.ServiceLink
 import org.taktik.icure.entities.embed.SubContact
@@ -334,9 +333,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             val documentId = idGenerator.newGUID().toString()
 
             lnk.mediatype?.value()?.let {
-                v.attachments.put(documentId, MimeAttachment().apply {
-                    data = lnk.value
-                })
+                v.attachments.put(documentId, MimeAttachment().copy(data = lnk.value))
             }
 
             val utis: List<UTI> = lnk.mediatype?.value()?.let {

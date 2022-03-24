@@ -21,16 +21,12 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.entity.Attachment
-import org.taktik.icure.dto.gui.Editor
 import org.taktik.icure.entities.base.Named
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.RevisionInfo
-import org.taktik.icure.handlers.JsonPolymorphismRoot
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 

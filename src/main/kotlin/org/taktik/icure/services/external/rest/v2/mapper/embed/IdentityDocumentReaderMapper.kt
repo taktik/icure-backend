@@ -21,7 +21,8 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.IdentityDocumentReader
 import org.taktik.icure.services.external.rest.v2.dto.embed.IdentityDocumentReaderDto
-@Mapper(componentModel = "spring")
+import org.mapstruct.InjectionStrategy
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface IdentityDocumentReaderV2Mapper {
 	fun map(identityDocumentReaderDto: IdentityDocumentReaderDto):IdentityDocumentReader
 	fun map(identityDocumentReader: IdentityDocumentReader):IdentityDocumentReaderDto

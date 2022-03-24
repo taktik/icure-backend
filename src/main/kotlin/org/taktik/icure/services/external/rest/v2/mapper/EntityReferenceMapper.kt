@@ -24,8 +24,10 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.EntityReference
 import org.taktik.icure.services.external.rest.v2.dto.EntityReferenceDto
+import org.taktik.icure.services.external.rest.v2.mapper.base.IdentifierV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyTypeStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [IdentifierV2Mapper::class, PropertyTypeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface EntityReferenceV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),

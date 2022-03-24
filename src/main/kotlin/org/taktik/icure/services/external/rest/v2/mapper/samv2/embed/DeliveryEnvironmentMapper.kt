@@ -21,7 +21,8 @@ package org.taktik.icure.services.external.rest.v2.mapper.samv2.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.DeliveryEnvironment
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.DeliveryEnvironmentDto
-@Mapper(componentModel = "spring")
+import org.mapstruct.InjectionStrategy
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DeliveryEnvironmentV2Mapper {
 	fun map(deliveryEnvironmentDto: DeliveryEnvironmentDto):DeliveryEnvironment
 	fun map(deliveryEnvironment: DeliveryEnvironment):DeliveryEnvironmentDto

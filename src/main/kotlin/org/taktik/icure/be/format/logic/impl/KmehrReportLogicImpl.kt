@@ -87,7 +87,8 @@ class KmehrReportLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic
     override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: List<String>): List<ResultInfo> {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
-		return msg?.folders?.flatMap { f -> f.transactions.filter { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && (it.value == "contactreport" || it.value == "note" || it.value == "report" || it.value == "prescription" || it.value == "request") } }.map { t -> ResultInfo().apply {
+		return msg?.folders?.flatMap { f -> f.transactions.filter { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && (it.value == "contactreport" || it.value == "note" || it.value == "report" || it.value == "prescription" || it.value == "request") } }.map { t -> ResultInfo()
+            .apply {
 			ssin = f.patient.ids.find { it.s == IDPATIENTschemes.INSS }?.value
 			lastName = f.patient.familyname
 			firstName = f.patient.firstnames.firstOrNull()

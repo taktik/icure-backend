@@ -21,7 +21,8 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.PartnershipType
 import org.taktik.icure.services.external.rest.v2.dto.embed.PartnershipTypeDto
-@Mapper(componentModel = "spring")
+import org.mapstruct.InjectionStrategy
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface PartnershipTypeV2Mapper {
 	fun map(partnershipTypeDto: PartnershipTypeDto):PartnershipType
 	fun map(partnershipType: PartnershipType):PartnershipTypeDto

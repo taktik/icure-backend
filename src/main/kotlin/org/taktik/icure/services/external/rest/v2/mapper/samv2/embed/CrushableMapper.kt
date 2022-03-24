@@ -21,7 +21,8 @@ package org.taktik.icure.services.external.rest.v2.mapper.samv2.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.Crushable
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.CrushableDto
-@Mapper(componentModel = "spring")
+import org.mapstruct.InjectionStrategy
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface CrushableV2Mapper {
 	fun map(crushableDto: CrushableDto):Crushable
 	fun map(crushable: Crushable):CrushableDto

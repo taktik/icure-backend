@@ -21,7 +21,8 @@ package org.taktik.icure.services.external.rest.v2.mapper.samv2.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.MultipleType
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.MultipleTypeDto
-@Mapper(componentModel = "spring")
+import org.mapstruct.InjectionStrategy
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface MultipleTypeV2Mapper {
 	fun map(multipleTypeDto: MultipleTypeDto):MultipleType
 	fun map(multipleType: MultipleType):MultipleTypeDto

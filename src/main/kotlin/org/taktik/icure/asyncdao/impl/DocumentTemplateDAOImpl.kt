@@ -152,7 +152,6 @@ class DocumentTemplateDAOImpl(couchDbProperties: CouchDbProperties,
             }
 
 
-    @FlowPreview
     override suspend fun postLoad(entity: DocumentTemplate) =
             super.postLoad(entity).let { documentTemplate ->
                 if (documentTemplate.attachmentId != null) {

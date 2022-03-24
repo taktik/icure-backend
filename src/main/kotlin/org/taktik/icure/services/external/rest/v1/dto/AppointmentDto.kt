@@ -17,13 +17,7 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto
 
-import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentDto
-import org.taktik.icure.utils.FuzzyValues
 import java.io.Serializable
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.temporal.ChronoUnit
 
 class AppointmentDto(
         val zoneId: String? = null,
@@ -39,22 +33,4 @@ class AppointmentDto(
         val amount: Double? = null,
         val startTime: Long? = null,
         val endTime: Long? = null
-) : Serializable {
-
-    constructor(a: MikronoAppointmentDto) : this(
-        patientId = a.customerRef,
-        userId = a.ownerRef,
-        prescriptorComment = a.prescriptorComments,
-        patientComment = a.customerComments,
-        comment = a.comments,
-        type = a.type,
-        location = a.locationText,
-        status = a.status,
-        paid = a.paid,
-        amount = a.price,
-        startTime = FuzzyValues.getFuzzyDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(a.startTime), a.timezoneId?.let { ZoneId.of(a.timezoneId) } ?: ZoneId.systemDefault()), ChronoUnit.SECONDS),
-        endTime = FuzzyValues.getFuzzyDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(a.endTime), a.timezoneId?.let { ZoneId.of(a.timezoneId) } ?: ZoneId.systemDefault()), ChronoUnit.SECONDS),
-        zoneId = a.timezoneId
-    )
-
-}
+) : Serializable

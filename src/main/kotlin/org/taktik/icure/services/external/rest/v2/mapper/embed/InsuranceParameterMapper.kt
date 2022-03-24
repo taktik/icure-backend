@@ -21,7 +21,8 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.InsuranceParameter
 import org.taktik.icure.services.external.rest.v2.dto.embed.InsuranceParameterDto
-@Mapper(componentModel = "spring")
+import org.mapstruct.InjectionStrategy
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface InsuranceParameterV2Mapper {
 	fun map(insuranceParameterDto: InsuranceParameterDto):InsuranceParameter
 	fun map(insuranceParameter: InsuranceParameter):InsuranceParameterDto

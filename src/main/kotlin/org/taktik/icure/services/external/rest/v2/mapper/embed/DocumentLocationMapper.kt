@@ -21,7 +21,8 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.DocumentLocation
 import org.taktik.icure.services.external.rest.v2.dto.embed.DocumentLocationDto
-@Mapper(componentModel = "spring")
+import org.mapstruct.InjectionStrategy
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DocumentLocationV2Mapper {
 	fun map(documentLocationDto: DocumentLocationDto):DocumentLocation
 	fun map(documentLocation: DocumentLocation):DocumentLocationDto

@@ -25,8 +25,9 @@ import org.mapstruct.Mappings
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v1.mapper.embed.PeriodicityMapper
 
-@Mapper(componentModel = "spring", uses = [DelegationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [DelegationMapper::class, PeriodicityMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface CodeMapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),

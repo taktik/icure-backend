@@ -42,10 +42,10 @@ interface UserV2Mapper {
 	fun map(userDto: UserDto):User
 
     @Mappings(
-            Mapping(target = "passwordHash", expression = "java(user.getPasswordHash() != null ? \"*\" : null)"),
+            Mapping(target = "passwordHash", expression = "kotlin(user.passwordHash?.let { \"*\" })"),
             Mapping(target = "secret", ignore = true),
-            Mapping(target = "applicationTokens", expression = "java(new java.util.HashMap<>())"),
-            Mapping(target = "authenticationTokens", expression = "java(new java.util.HashMap<>())")
+            Mapping(target = "applicationTokens", expression = "kotlin(emptyMap())"),
+            Mapping(target = "authenticationTokens", expression = "kotlin(emptyMap())")
     )
 	fun map(user: User):UserDto
 }

@@ -20,18 +20,18 @@ package org.taktik.icure.services.external.rest.v2.dto
 import org.taktik.icure.services.external.rest.v2.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.ServiceDto
 
-class ResultInfoDto {
-    var ssin: String? = null
-    var lastName: String? = null
-    var firstName: String? = null
-    var dateOfBirth: Long? = null
-    var sex: String? = null
-    var documentId: String? = null
-    var protocol: String? = null
-    var complete: Boolean? = null
-    var demandDate: Long? = null
-    var labo: String? = null
-    var engine: String? = null
-    var codes: Set<CodeStubDto> = emptySet()
-    var services: List<ServiceDto> = emptyList()
-}
+class ResultInfoDto(
+        val ssin: String? = null,
+        val lastName: String? = null,
+        val firstName: String? = null,
+        val dateOfBirth: Long? = null,
+        val sex: String? = null,
+        val documentId: String? = null,
+        val protocol: String? = null,
+        val complete: Boolean? = null,
+        val demandDate: Long? = null,
+        val labo: String? = null,
+        val engine: String? = null,
+        val codes: Set<CodeStubDto> = emptySet(),
+        val services: List<ServiceDto> = emptyList(),
+)

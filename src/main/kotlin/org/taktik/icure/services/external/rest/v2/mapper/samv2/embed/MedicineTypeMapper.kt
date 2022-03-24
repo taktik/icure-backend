@@ -21,7 +21,8 @@ package org.taktik.icure.services.external.rest.v2.mapper.samv2.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.MedicineType
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.MedicineTypeDto
-@Mapper(componentModel = "spring")
+import org.mapstruct.InjectionStrategy
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface MedicineTypeV2Mapper {
 	fun map(medicineTypeDto: MedicineTypeDto):MedicineType
 	fun map(medicineType: MedicineType):MedicineTypeDto

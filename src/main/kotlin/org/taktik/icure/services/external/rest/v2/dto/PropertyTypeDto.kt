@@ -33,7 +33,7 @@ data class PropertyTypeDto(
         override val rev: String? = null,
         override val deletionDate: Long? = null,
 
-        val identifier: String? = null,
+        val identifier: String,
         val type: TypedValuesType? = null,
         val scope: PropertyTypeScope? = null,
         val unique: Boolean = false,

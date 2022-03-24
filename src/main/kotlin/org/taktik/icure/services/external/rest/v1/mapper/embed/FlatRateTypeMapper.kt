@@ -21,7 +21,8 @@ package org.taktik.icure.services.external.rest.v1.mapper.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.FlatRateType
 import org.taktik.icure.services.external.rest.v1.dto.embed.FlatRateTypeDto
-@Mapper(componentModel = "spring")
+import org.mapstruct.InjectionStrategy
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface FlatRateTypeMapper {
 	fun map(flatRateTypeDto: FlatRateTypeDto):FlatRateType
 	fun map(flatRateType: FlatRateType):FlatRateTypeDto

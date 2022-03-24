@@ -18,14 +18,13 @@
 
 package org.taktik.icure.domain.result
 
-import org.taktik.icure.dto.common.MimeAttachment
+import org.taktik.icure.dto.result.MimeAttachment
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
-import java.util.*
 
 class ImportResult(
         var patient: Patient? = null,

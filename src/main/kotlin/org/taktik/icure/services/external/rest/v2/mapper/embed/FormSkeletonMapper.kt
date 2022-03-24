@@ -21,7 +21,8 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.FormSkeleton
 import org.taktik.icure.services.external.rest.v2.dto.embed.FormSkeletonDto
-@Mapper(componentModel = "spring")
+import org.mapstruct.InjectionStrategy
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface FormSkeletonV2Mapper {
 	fun map(formSkeletonDto: FormSkeletonDto):FormSkeleton
 	fun map(formSkeleton: FormSkeleton):FormSkeletonDto

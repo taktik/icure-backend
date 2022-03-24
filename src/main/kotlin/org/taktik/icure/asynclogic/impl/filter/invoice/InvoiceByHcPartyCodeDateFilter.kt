@@ -32,7 +32,6 @@ import org.taktik.icure.entities.Invoice
 class InvoiceByHcPartyCodeDateFilter(private val invoiceLogic: InvoiceLogic,
                                      private val healthcarePartyLogic: HealthcarePartyLogic) : Filter<String, Invoice, InvoiceByHcPartyCodeDateFilter> {
 
-    @FlowPreview
     override fun resolve(filter: InvoiceByHcPartyCodeDateFilter, context: Filters): Flow<String> {
         return if (filter.healthcarePartyId != null) invoiceLogic.listInvoiceIdsByTarificationsByCode(filter.healthcarePartyId!!, filter.code, filter.startInvoiceDate, filter.endInvoiceDate)
         else healthcarePartyLogic.getEntityIds().flatMapConcat { hcpId -> invoiceLogic.listInvoiceIdsByTarificationsByCode(hcpId, filter.code, filter.startInvoiceDate, filter.endInvoiceDate) }

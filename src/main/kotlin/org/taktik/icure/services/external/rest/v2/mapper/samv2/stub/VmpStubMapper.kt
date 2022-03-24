@@ -16,14 +16,16 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.services.external.rest.v2.mapper.samv2
+package org.taktik.icure.services.external.rest.v2.mapper.samv2.stub
 
 import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.stub.VmpStub
 import org.taktik.icure.services.external.rest.v2.dto.samv2.stub.VmpStubDto
+import org.taktik.icure.services.external.rest.v2.mapper.samv2.VmpGroupStubV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.SamTextV2Mapper
 
-@Mapper(componentModel = "spring", uses = [VmpGroupStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [VmpGroupStubV2Mapper::class, SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface VmpStubV2Mapper {
 	fun map(vmpStubDto: VmpStubDto): VmpStub
 	fun map(vmpStub: VmpStub):VmpStubDto

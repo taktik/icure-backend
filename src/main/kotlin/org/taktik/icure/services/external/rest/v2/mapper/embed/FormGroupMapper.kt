@@ -21,7 +21,8 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.FormGroup
 import org.taktik.icure.services.external.rest.v2.dto.embed.FormGroupDto
-@Mapper(componentModel = "spring")
+import org.mapstruct.InjectionStrategy
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface FormGroupV2Mapper {
 	fun map(formGroupDto: FormGroupDto):FormGroup
 	fun map(formGroup: FormGroup):FormGroupDto

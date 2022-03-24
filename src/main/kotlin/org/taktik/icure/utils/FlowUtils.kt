@@ -19,6 +19,8 @@
 package org.taktik.icure.utils
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.ClosedSendChannelException
+import kotlinx.coroutines.channels.onClosed
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
@@ -91,7 +93,9 @@ fun <T> Flow<T>.bufferedChunks(min: Int, max: Int): Flow<List<T>> = channelFlow 
             send(buffer.toList())
             buffer.clear()
         } else if (min <= buffer.size) {
-            val offered = offer(buffer.toList())
+            val offered = trySend(buffer.toList())
+                    .onClosed { throw it ?: ClosedSendChannelException("Channel was closed normally") }
+                    .isSuccess
             if (offered) {
                 buffer.clear()
             }

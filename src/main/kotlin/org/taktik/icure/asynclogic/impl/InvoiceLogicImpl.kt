@@ -297,7 +297,12 @@ class InvoiceLogicImpl(private val filters: Filters,
     override suspend fun getTarificationsCodesOccurences(hcPartyId: String, minOccurences: Long): List<LabelledOccurence> {
         return invoiceDAO.listTarificationsFrequencies(hcPartyId)
                 .filter { v -> v.value != null && v.value!! >= minOccurences }
-                .map { v -> LabelledOccurence(v.key!!.components[1] as String, v.value) }
+                .map { v ->
+                    LabelledOccurence(
+                        v.key!!.components[1] as String,
+                        v.value ?: 0
+                    )
+                }
                 .toList().sortedByDescending { it.occurence }
     }
 

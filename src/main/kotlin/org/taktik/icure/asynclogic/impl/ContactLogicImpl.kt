@@ -18,11 +18,12 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.ClosedSendChannelException
+import kotlinx.coroutines.channels.onClosed
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
@@ -250,7 +251,12 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     override suspend fun getServiceCodesOccurences(hcPartyId: String, codeType: String, minOccurences: Long): List<LabelledOccurence> {
         val mapped = contactDAO.listCodesFrequencies(hcPartyId, codeType)
                 .filter { v -> v.second?.let { it >= minOccurences } == true }
-                .map { v -> LabelledOccurence(v.first.components[2] as String, v.second) }.toList()
+                .map { v ->
+                    LabelledOccurence(
+                        v.first.components[2] as String,
+                        v.second ?: 0L
+                    )
+                }.toList()
           return mapped.sortedByDescending { obj: LabelledOccurence -> obj.occurence }
     }
 
@@ -334,7 +340,9 @@ private fun <T> Flow<T>.bufferedChunksAtTransition(min: Int, max: Int, transitio
                 buffer.clear()
             }
         } else if (min <= buffer.size && transition(buffer[buffer.size-2], buffer[buffer.size-1])) {
-            val offered = offer(buffer.subList(0, buffer.size-1).toList())
+            val offered = trySend(buffer.subList(0, buffer.size-1).toList())
+                    .onClosed { throw it ?: ClosedSendChannelException("Channel was closed normally") }
+                    .isSuccess
             if (offered) {
                 val kept = buffer[buffer.size-1]
                 buffer.clear()

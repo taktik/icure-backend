@@ -34,7 +34,7 @@ import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 data class InvoiceByHcPartyCodeDateFilter(
         override val desc: String? = null,
         override val healthcarePartyId: String? = null,
-        override val code: String? = null,
+        override val code: String,
         override val startInvoiceDate: Long? = null,
         override val endInvoiceDate: Long? = null
 ) : AbstractFilterDto<Invoice>, org.taktik.icure.domain.filter.invoice.InvoiceByHcPartyCodeDateFilter

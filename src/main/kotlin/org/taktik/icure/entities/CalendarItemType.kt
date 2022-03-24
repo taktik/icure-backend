@@ -37,8 +37,8 @@ data class CalendarItemType(
         @JsonProperty("deleted") override val deletionDate: Long? = null,
         val name: String? = null,
         val color: String? = null, //"#123456"
-        val duration: Int = 0, // mikrono: int durationInMinutes; = 0
-        val externalRef: String? = null, // same as topaz Id, to be used by mikrono
+        val duration: Int = 0,
+        val externalRef: String? = null,
         val mikronoId: String? = null,
         val docIds: Set<String> = emptySet(),
         val otherInfos: Map<String, String> = emptyMap(),

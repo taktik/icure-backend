@@ -40,13 +40,11 @@ class CouchDbDispatcher(
         private val password: String,
         private val createdReplicasIfNotExists: Int? = null
 ) {
-    @ExperimentalCoroutinesApi
     private val connectors = AsyncSafeCache<CouchDbConnectorReference, Client>(CaffeineCache("Connectors", Caffeine.newBuilder()
             .maximumSize(10000)
             .expireAfterAccess(240, TimeUnit.MINUTES)
             .build()))
 
-    @ExperimentalCoroutinesApi
     private suspend fun attemptConnection(dbInstanceUrl: URI, trials: Int): Client = try {
         connectors.get(CouchDbConnectorReference(dbInstanceUrl.toString()), object : AsyncSafeCache.AsyncValueProvider<CouchDbConnectorReference, Client> {
             override suspend fun getValue(key: CouchDbConnectorReference): Client {
@@ -63,7 +61,6 @@ class CouchDbDispatcher(
         if (trials > 1) attemptConnection(dbInstanceUrl, trials - 1) else throw e
     }
 
-    @ExperimentalCoroutinesApi
     suspend fun getClient(dbInstanceUrl: URI, retry: Int = 5) = attemptConnection(dbInstanceUrl, retry)
 
     private data class CouchDbConnectorReference(val dbInstanceUrl: String)

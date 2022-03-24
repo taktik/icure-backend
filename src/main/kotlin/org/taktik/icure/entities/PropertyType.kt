@@ -37,7 +37,7 @@ data class PropertyType(
         @JsonProperty("_rev") override val rev: String? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        val identifier: String? = null,
+        val identifier: String,
         val type: TypedValuesType? = null,
         val scope: PropertyTypeScope? = null,
         val unique: Boolean = false,

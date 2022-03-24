@@ -29,12 +29,12 @@ import java.util.*
 @KotlinBuilder
 data class ImportResultDto(
         val patient: PatientDto? = null,
-        val hes: List<HealthElementDto>? = null,
-        val ctcs: List<ContactDto>? = null,
-        val warnings: List<String>? = null,
-        val errors: List<String>? = null,
-        val forms: List<FormDto>? = null,
-        val hcps: List<HealthcarePartyDto>? = null,
-        val documents: List<DocumentDto>? = null,
-        val attachments: HashMap<String, MimeAttachmentDto>? = null
+        val hes: List<HealthElementDto> = listOf(),
+        val ctcs: List<ContactDto> = listOf(),
+        val warnings: List<String> = listOf(),
+        val errors: List<String> = listOf(),
+        val forms: List<FormDto> = listOf(),
+        val hcps: List<HealthcarePartyDto> = listOf(),
+        val documents: List<DocumentDto> = listOf(),
+        val attachments: Map<String, MimeAttachmentDto> = mapOf()
 )

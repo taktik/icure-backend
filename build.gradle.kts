@@ -11,25 +11,34 @@ import java.util.*
 val repoUsername: String by project
 val repoPassword: String by project
 val mavenReleasesRepository: String by project
+val kmapVersion = "0.1.18-5c8a7088d1"
 
 plugins {
-    kotlin("jvm") version "1.4.32"
-    kotlin("kapt") version "1.4.32"
+    kotlin("jvm") version "1.6.10"
+    id("org.sonarqube") version "3.3"
+    id("com.google.devtools.ksp") version "1.6.10-1.0.4"
     `maven-publish`
+}
+
+sonarqube {
+    properties {
+        property("sonar.projectKey", "icure-io_icure-kotlin-sdk")
+        property("sonar.organization", "icure-io")
+        property("sonar.host.url", "https://sonarcloud.io")
+    }
 }
 
 buildscript {
     repositories {
       mavenCentral()
       gradlePluginPortal()
-      jcenter()
       maven { url = uri("https://maven.taktik.be/content/groups/public") }
       maven { url = uri("https://repo.spring.io/plugins-release") }
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:2.5.5")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.32")
-        classpath("org.jetbrains.kotlin:kotlin-allopen:1.4.32")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:1.6.10")
         classpath("com.taktik.gradle:gradle-plugin-docker-java:2.1.0")
         classpath("com.taktik.gradle:gradle-plugin-git-version:2.0.1")
     }
@@ -117,20 +126,28 @@ configurations {
     }
 }
 
+kotlin {
+    sourceSets {
+        main {
+            kotlin.srcDir("build/generated/ksp/main/kotlin")
+        }
+    }
+}
+
 dependencies {
-    api("com.github.pozo:mapstruct-kotlin:1.3.1.2")
-    kapt("com.github.pozo:mapstruct-kotlin-processor:1.3.1.2")
+    implementation(group = "io.icure", name = "kmap", version = kmapVersion)
+    ksp(group = "io.icure", name = "kmap", version = kmapVersion)
 
     implementation(group = "io.projectreactor", name = "reactor-core", version = "3.4.10")
     implementation(group = "io.projectreactor", name = "reactor-tools", version = "3.4.10")
     implementation(group = "io.projectreactor.netty", name = "reactor-netty", version = "1.0.1")
 
-    implementation(group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version = "1.4.32")
-    implementation(group = "org.jetbrains.kotlin", name = "kotlin-reflect", version = "1.4.32")
-    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.4.3")
-    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core-jvm", version = "1.4.3")
-    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactive", version = "1.4.3")
-    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactor", version = "1.4.3")
+    implementation(group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version = "1.6.10")
+    implementation(group = "org.jetbrains.kotlin", name = "kotlin-reflect", version = "1.6.10")
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.6.0")
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core-jvm", version = "1.6.0")
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactive", version = "1.6.0")
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactor", version = "1.6.0")
     implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable-jvm", version = "0.3")
 
     //Jackson
@@ -142,6 +159,8 @@ dependencies {
     //Krouch
     implementation(group = "org.taktik.couchdb", name = "krouch", version = "jack211-1.0.2-96-g9eff2f70a0")
     implementation(group = "io.icure", name = "async-jackson-http-client", version = "0.1.12-dd2039b194")
+    implementation(group = "io.icure", name = "mapper-processor", version = "0.1.1-32d45af2a6")
+
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-mail", version = "2.5.5")
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-webflux", version = "2.5.5")
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-security", version = "2.5.5")

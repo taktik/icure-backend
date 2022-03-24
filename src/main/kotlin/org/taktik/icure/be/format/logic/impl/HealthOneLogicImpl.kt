@@ -352,7 +352,7 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
                         }
                     } else if (isProtocolLine(line)) {
                         if (ri.codes.size == 0) {
-                            ri.codes.add(CodeStub.from("CD-TRANSACTION", "report", "1"))
+                            ri.codes += CodeStub.from("CD-TRANSACTION", "report", "1")
                         }
                         if (full) {
                             val lrl = getProtocolLine(line)
@@ -365,7 +365,7 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
                         }
                     } else if (isLaboResultLine(line)) {
                         if (ri.codes.size == 0) {
-                            ri.codes.add(CodeStub.from("CD-TRANSACTION", "labresult", "1"))
+                            ri.codes += CodeStub.from("CD-TRANSACTION", "labresult", "1")
                         }
                         if (full) {
                             val lrl = getLaboResultLine(line, ll)
@@ -385,7 +385,7 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
                     createServices(ll, language, position)
                     ri.services = ll.services
                 }
-                if (ri.protocol == null || ri.protocol.length == 0) {
+                if (ri.protocol?.isEmpty() != false) {
                     ri.protocol = "***" + ri.demandDate
                 }
                 l.add(ri)

@@ -38,6 +38,9 @@ import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
 
 
+private const val s1 = "\u0000"
+
+@ExperimentalCoroutinesApi
 @Repository("codeDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.base.Code' && !doc.deleted) emit( null, doc._id )}")
 class CodeDAOImpl(couchDbProperties: CouchDbProperties,
@@ -114,8 +117,6 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
         ).mapNotNull { it.key?.get(1) })
     }
 
-    @ExperimentalCoroutinesApi
-    @FlowPreview
     override fun findCodesBy(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
@@ -138,8 +139,6 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java))
     }
 
-    @ExperimentalCoroutinesApi
-    @FlowPreview
     @View(name = "by_language_label", map = "classpath:js/code/By_language_label.js")
     override fun findCodesByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
@@ -169,8 +168,6 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java))
     }
 
-    @ExperimentalCoroutinesApi
-    @FlowPreview
     @View(name = "by_language_type_label", map = "classpath:js/code/By_language_type_label.js")
     override fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
@@ -200,8 +197,6 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java))
     }
 
-    @ExperimentalCoroutinesApi
-    @FlowPreview
     @View(name = "by_qualifiedlink_id", map = "classpath:js/code/By_qualifiedlink_id.js")
     override fun findCodesByQualifiedLinkId(region: String?, linkType: String, linkedId: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
@@ -302,7 +297,6 @@ class CodeDAOImpl(couchDbProperties: CouchDbProperties,
 
 	override suspend fun isValid(codeType: String, codeCode: String, codeVersion: String?) = listCodesBy(codeType, codeCode, codeVersion).firstOrNull() != null
 
-	@InternalCoroutinesApi
     override suspend fun getCodeByLabel(region: String, label: String, ofType: String, labelLang : List<String>) : Code? {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val sanitizedLabel= label.let { StringUtils.sanitizeString(it) }
