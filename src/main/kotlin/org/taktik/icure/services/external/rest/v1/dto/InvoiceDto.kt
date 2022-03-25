@@ -96,6 +96,11 @@ data class InvoiceDto(
         val creditNoteRelatedInvoiceId: String? = null,
         val idDocument: IdentityDocumentReaderDto? = null,
 
+        //efact hospitalization
+        val admissionDate: Long? = null,
+        val locationNihii: String? = null,
+        val locationService: Int? = null,
+
         //eattest cancel
         val cancelReason: String? = null,
         val cancelDate: Long? = null,
