@@ -118,7 +118,7 @@ class InvoiceLogicImpl(private val filters: Filters,
         }
     }
 
-    override fun findInvoicesByAuthor(hcPartyId: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> = flow {
+    override fun findInvoicesByAuthor(hcPartyId: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent> = flow {
         emitAll(invoiceDAO.findInvoicesByHcParty(hcPartyId, fromDate, toDate, paginationOffset.toComplexKeyPaginationOffset()))
     }
 

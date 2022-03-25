@@ -150,7 +150,7 @@ class InvoiceController(
         invoiceLogic.validateInvoice(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, invoiceLogic.getInvoice(invoiceId), scheme, forcedValue)?.let { invoiceMapper.map(it) }
     }
 
-    @Operation(summary = "Gets all invoices for author at date")
+    @Operation(summary = "Append codes to new or existing invoice")
     @PostMapping("/byauthor/{userId}/append/{type}/{sentMediumType}")
     fun appendCodes(@PathVariable userId: String,
                             @PathVariable type: String,
@@ -166,7 +166,7 @@ class InvoiceController(
         emitAll( invoices.map { invoiceMapper.map(it) })
     }.injectReactorContext()
 
-    @Operation(summary = "Gets all invoices for author at date")
+    @Operation(summary = "removeCodes for linked serviceId")
     @PostMapping("/byauthor/{userId}/service/{serviceId}")
     fun removeCodes(@PathVariable userId: String,
                     @PathVariable serviceId: String,
@@ -192,15 +192,7 @@ class InvoiceController(
                      @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                      @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val sk: Array<String>
-        var startKey1 = ""
-        var startKey2 = ""
-        if (startKey != null) {
-            sk = startKey.split(',').toTypedArray()
-            startKey1 = sk[0]
-            startKey2 = sk[1]
-        }
-        val paginationOffset = PaginationOffset<List<String>>(listOf<String>(startKey1, startKey2), startDocumentId, 0, realLimit + 1) // fetch one more for nextKeyPair
+        val paginationOffset = PaginationOffset<List<*>>( startKey?.split(',')?.let { keys -> listOf(keys[0], keys[1].toLong())}, startDocumentId, 0, realLimit + 1) // fetch one more for nextKeyPair
         val findByAuthor = invoiceLogic.findInvoicesByAuthor(hcPartyId, fromDate, toDate, paginationOffset)
         findByAuthor.paginatedList<Invoice, InvoiceDto>(invoiceToInvoiceDto, realLimit)
     }
