@@ -19,13 +19,16 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.v20161201
 
+import com.sun.org.apache.xpath.internal.operations.Bool
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.logging.LogFactory
+import org.joda.time.DateTimeZone
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.be.drugs.logic.DrugsLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.*
@@ -159,7 +162,7 @@ open class KmehrExport {
             p.placeOfBirth?.let { birthlocation = AddressTypeBase().apply { city= it }}
             p.placeOfDeath?.let { deathlocation = AddressTypeBase().apply { city= it }}
             p.profession?.let { profession = ProfessionType().apply { text = TextType().apply { l= "fr"; value = it } } }
-            usuallanguage= if (config.format == Config.Format.SUMEHR) config.defaultLanguage else p.languages.firstOrNull()
+            usuallanguage= if (config.format == Config.Format.SUMEHR || config.format == Config.Format.MEDICATIONSCHEME) config.defaultLanguage else p.languages.firstOrNull()
             addresses.addAll(makeAddresses(p.addresses))
             telecoms.addAll(makeTelecoms(p.addresses))
             if(!p.nationality.isNullOrBlank()) {
@@ -178,19 +181,20 @@ open class KmehrExport {
             familyname= p.lastName
             sex= SexType().apply {cd = CDSEX().apply { s= "CD-SEX"; sv= "1.0"; value = p.gender?.let { CDSEXvalues.fromValue(it.name) } ?: CDSEXvalues.UNKNOWN }}
             p.dateOfBirth?.let { birthdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
-            recorddatetime = makeXGC(p.modified)
+            recorddatetime = makeXGC(p.modified, false,config.format == Config.Format.MEDICATIONSCHEME);
         }
     }
 
-    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service", language: String, texts: List<TextType>? = null) : ItemType? {
+    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service", language: String, texts: List<TextType>? = null, link: LnkType? = null, config: Config = Config()) : ItemType? {
         return ItemType().apply {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = svc.id })
             cds.add(CDITEM().apply {s(CDITEMschemes.CD_ITEM); value = cdItem } )
 			svc.tags.find { t -> t.type == "CD-LAB" }?.let { cds.add(CDITEM().apply {s(CDITEMschemes.CD_LAB); value = it.code } ) }
-
+            val suspension = svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.suspension?.firstOrNull()
             this.contents.addAll(filterEmptyContent(contents))
             if (texts != null) this.texts.addAll(texts.filterNotNull())
+            if (link != null) this.lnks.add(link)
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
                 value = if (ServiceStatus.isIrrelevant(svc.status) || (svc.closingDate ?: 99999999 <= FuzzyValues.getCurrentFuzzyDate())) {
 					CDLIFECYCLEvalues.INACTIVE
@@ -203,7 +207,7 @@ open class KmehrExport {
                             CDLIFECYCLEvalues.CORRECTED
                         }
                     }
-                            ?: if(cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else CDLIFECYCLEvalues.ACTIVE
+                            ?: if(cdItem == "medication") (if (suspension != null) CDLIFECYCLEvalues.fromValue(suspension.lifecycle) else CDLIFECYCLEvalues.PRESCRIBED) else CDLIFECYCLEvalues.ACTIVE
                 }
 			} }
             if(cdItem == "medication") {
@@ -216,7 +220,7 @@ open class KmehrExport {
                     KmehrPrescriptionHelper.inferPeriodFromRegimen(med.regimen, med.frequency)?.let {
                         frequency = KmehrPrescriptionHelper.mapPeriodToFrequency(it)
                     }
-                    duration = KmehrPrescriptionHelper.toDurationType(med.duration)
+                    duration = KmehrPrescriptionHelper.toDurationType(if (config.format == Config.Format.MEDICATIONSCHEME) null else med.duration)
                     med.regimen?.let { intakes ->
                         if (intakes.isNotEmpty()) {
                             regimen = ItemType.Regimen().apply {
@@ -282,7 +286,7 @@ open class KmehrExport {
             isIsrelevant = ServiceStatus.isRelevant(svc.status)
             beginmoment = (svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.beginMoment ?: svc.valueDate ?: svc.openingDate)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
             endmoment = (svc.closingDate ?: svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.endMoment)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
-            recorddatetime = makeXGC(svc.modified ?: svc.created)
+            recorddatetime = makeXGC(svc.modified ?: svc.created, false, config!!.format == Config.Format.MEDICATIONSCHEME)
         }
     }
 
@@ -326,6 +330,11 @@ open class KmehrExport {
             certainty = he.tags.find { t -> t.type == "CD-CERTAINTY" && !t.code.isNullOrBlank()}?.let {
                 CertaintyType().apply {
                     cd = CDCERTAINTY().apply { s = "CD-CERTAINTY"; value = CDCERTAINTYvalues.fromValue(it.code) }
+                }
+            }
+            severity = he.tags.find { t -> t.type == "CD-SEVERITY" && !t.code.isNullOrBlank()}?.let {
+                SeverityType().apply {
+                    cd = CDSEVERITY().apply { s = "CD-SEVERITY"; value = CDSEVERITYvalues.fromValue(it.code) }
                 }
             }
             isIsrelevant = ServiceStatus.isRelevant(he.status)
@@ -384,23 +393,19 @@ open class KmehrExport {
         return lst
     }
 
-    fun  makeXGC(date: Long?, unsetMillis: Boolean = false): XMLGregorianCalendar? {
-        return date?.let {
-            DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar.getInstance().apply { time = Date(date) } as GregorianCalendar).apply {
-                timezone = DatatypeConstants.FIELD_UNDEFINED
-                if (unsetMillis) {
-                    millisecond = DatatypeConstants.FIELD_UNDEFINED
-                }
-            }
-        }
-    }
-
-    fun makeText(language: String, content: Content): TextType?{
-        return (content.medicationValue?.compoundPrescription ?: content.medicationValue?.medicinalProduct?.intendedname)?.let {
+    fun makeText(language: String, content: Content): TextType? {
+        return if (!content.medicationValue?.compoundPrescription.isNullOrEmpty()){
             TextType().apply {
                 l = language
-                value = it
+                value = content.medicationValue?.medicinalProduct?.intendedname
             }
+        } else if((content.medicationValue?.endMoment ?: -1) > 0 && !content.medicationValue?.endCondition.isNullOrEmpty()){
+            TextType().apply {
+                l = language
+                value = content.medicationValue?.endCondition //set endreason as text of the medication item, NOTE: endreason does not exist yet on the medication object, endcondition is used instead MS-6840
+            }
+        } else {
+            null
         }
     }
 
@@ -415,7 +420,7 @@ open class KmehrExport {
                         texts.add(TextType().apply { l = language; value = content.stringValue })
                     }
                 }
-                Utils.makeXGC(content.instantValue?.toEpochMilli(), true)?.let { date = it; time = it; }
+                makeXGC(content.instantValue?.toEpochMilli(), true)?.let { date = it; time = it; }
                 content.measureValue?.let { mv ->
                     mv.unitCodes?.find { it.type == "CD-UNIT" }?.code?.let { unitCode ->
                         if (unitCode.isNotEmpty()) {

@@ -30,7 +30,6 @@ import java.util.List;
 
 @Service
 public class CalendarItemLogicImpl extends GenericLogicImpl<CalendarItem, CalendarItemDAO> implements CalendarItemLogic {
-
 	private CalendarItemDAO calendarItemDAO;
 	private ICureSessionLogic sessionLogic;
 
@@ -77,6 +76,11 @@ public class CalendarItemLogicImpl extends GenericLogicImpl<CalendarItem, Calend
     @Override
     public List<CalendarItem> getCalendarItemByIds(List<String> ids) {
         return calendarItemDAO.getList(ids);
+    }
+
+    @Override
+    public List<CalendarItem> getCalendarItemsByRecurrenceId (String recurrenceId) {
+        return calendarItemDAO.findByRecurrenceId (recurrenceId);
     }
 
     @Autowired

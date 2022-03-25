@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1.0</VERSION>
+    <DATE>2019-03-01</DATE>
+    <STATUS>published</STATUS>
+    <NAME>External source</NAME>
+    <VALUE>
+        <CODE>samv2</CODE>
+        <DESCRIPTION L="en">SAM v2 database</DESCRIPTION>
+        <DESCRIPTION L="fr">Base de données SAM v2</DESCRIPTION>
+        <DESCRIPTION L="nl">SAM v2 databank</DESCRIPTION>
+        <DESCRIPTION L="de">SAM v2 Datenbank</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

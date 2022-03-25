@@ -95,6 +95,10 @@ public class InvoiceDto extends IcureDto {
     protected String cancelReason;
     protected Long cancelDate;
 
+    protected String locationNihii;
+    protected Integer locationService;
+    protected Long admissionDate;
+
     protected Map<String,String> receipts = new HashMap<>();
 
 	protected IdentityDocumentReader idDocument;
@@ -416,4 +420,27 @@ public class InvoiceDto extends IcureDto {
 
     public void setOptions(Map<String, String> options) { this.options = options; }
 
+    public String getLocationNihii() {
+        return locationNihii;
+    }
+
+    public void setLocationNihii(String locationNihii) {
+        this.locationNihii = locationNihii;
+    }
+
+    public Integer getLocationService() {
+        return locationService;
+    }
+
+    public void setLocationService(Integer locationService) {
+        this.locationService = locationService;
+    }
+
+    public Long getAdmissionDate() {
+        return admissionDate;
+    }
+
+    public void setAdmissionDate(Long admissionDate) {
+        this.admissionDate = admissionDate;
+    }
 }

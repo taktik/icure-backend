@@ -34,6 +34,7 @@ interface MedicationSchemeLogic {
             version: Int,
             services: List<Service>,
             serviceAuthors: List<HealthcareParty>,
+            timeZone: String?,
             progressor: AsyncProgress?
     )
 }

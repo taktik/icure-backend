@@ -1,0 +1,589 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>2.1</VERSION>
+    <DATE>2020-09-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>Drug administration route</NAME>
+    <VALUE>
+        <CODE>00001</CODE>
+        <DESCRIPTION L="en">auric.</DESCRIPTION>
+        <DESCRIPTION L="de">ins Ohr</DESCRIPTION>
+        <DESCRIPTION L="fr">dans l'oreille</DESCRIPTION>
+        <DESCRIPTION L="nl">in het oor</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00002</CODE>
+        <DESCRIPTION L="en">derm.</DESCRIPTION>
+        <DESCRIPTION L="de">auf die Haut</DESCRIPTION>
+        <DESCRIPTION L="fr">sur la peau</DESCRIPTION>
+        <DESCRIPTION L="nl">op de huid</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00003</CODE>
+        <DESCRIPTION L="en">derm./rect</DESCRIPTION>
+        <DESCRIPTION L="fr">derm./rect.</DESCRIPTION>
+        <DESCRIPTION L="nl">derm./rect.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00004</CODE>
+        <DESCRIPTION L="en">derm./vag.</DESCRIPTION>
+        <DESCRIPTION L="fr">derm./vag.</DESCRIPTION>
+        <DESCRIPTION L="nl">derm./vag.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00005</CODE>
+        <DESCRIPTION L="en">e.dur.</DESCRIPTION>
+        <DESCRIPTION L="de">Injektion außerhalb der Hirnhaut</DESCRIPTION>
+        <DESCRIPTION L="fr">injection en dehors de la méninge</DESCRIPTION>
+        <DESCRIPTION L="nl">Inspuiting buiten het hersenvlies</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00006</CODE>
+        <DESCRIPTION L="en">e.dur./i.thec./local</DESCRIPTION>
+        <DESCRIPTION L="fr">e.dur./i.théc./local</DESCRIPTION>
+        <DESCRIPTION L="nl">e.dur./i.thec./lokaal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00007</CODE>
+        <DESCRIPTION L="en">e.dur./local</DESCRIPTION>
+        <DESCRIPTION L="fr">e.dur./local</DESCRIPTION>
+        <DESCRIPTION L="nl">p.dur./lokaal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00008</CODE>
+        <DESCRIPTION L="en">e.trach.</DESCRIPTION>
+        <DESCRIPTION L="de">in die Luftröhre</DESCRIPTION>
+        <DESCRIPTION L="fr">dans la trachée</DESCRIPTION>
+        <DESCRIPTION L="nl">In de luchtpijp</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00009</CODE>
+        <DESCRIPTION L="en">endocerv.</DESCRIPTION>
+        <DESCRIPTION L="de">einführen in den Gebärmutterhals</DESCRIPTION>
+        <DESCRIPTION L="fr">introduire dans le col de l'utérus</DESCRIPTION>
+        <DESCRIPTION L="nl">Inbrengen in de baarmoederhals</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00010</CODE>
+        <DESCRIPTION L="en">i.arter.</DESCRIPTION>
+        <DESCRIPTION L="de">Injektion in eine Arterie</DESCRIPTION>
+        <DESCRIPTION L="fr">injection dans l'artère</DESCRIPTION>
+        <DESCRIPTION L="nl">Inspuiting in een slagader</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00011</CODE>
+        <DESCRIPTION L="en">i.cavern.</DESCRIPTION>
+        <DESCRIPTION L="de">Injektion in den Penis</DESCRIPTION>
+        <DESCRIPTION L="fr">injection dans le pénis</DESCRIPTION>
+        <DESCRIPTION L="nl">Inspuiting in de penis</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00012</CODE>
+        <DESCRIPTION L="en">i.derm.</DESCRIPTION>
+        <DESCRIPTION L="de">Injektion in die Haut</DESCRIPTION>
+        <DESCRIPTION L="fr">injection dans la peau</DESCRIPTION>
+        <DESCRIPTION L="nl">Inspuiting in de huid</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00013</CODE>
+        <DESCRIPTION L="en">i.m.</DESCRIPTION>
+        <DESCRIPTION L="de">Injektion in einen Muskel</DESCRIPTION>
+        <DESCRIPTION L="fr">injection dans un muscle</DESCRIPTION>
+        <DESCRIPTION L="nl">inspuiting in een spier</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00014</CODE>
+        <DESCRIPTION L="en">i.m./i.thec./e.dur./s.c.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./i.théc./e.dur./s.c.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./i.thec./p.dur./s.c.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00015</CODE>
+        <DESCRIPTION L="en">i.m./i.v.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./i.v.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./i.v.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00016</CODE>
+        <DESCRIPTION L="en">i.m./i.v./inf.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./i.v./inf.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./i.v./perf.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00017</CODE>
+        <DESCRIPTION L="en">i.m./i.v./inf./e.dur./s.c.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./i.v./inf./e.dur./s.c.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./i.v./perf./p.dur./s.c.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00018</CODE>
+        <DESCRIPTION L="en">i.m./i.v./inf./i.arter./i.thec.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./i.v./inf./i.arter./i.thec.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./i.v./inf./i.arter./i.thec.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00019</CODE>
+        <DESCRIPTION L="en">i.m./i.v./perf./i.artér./local/s.c.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./i.v./perf./i.arter./lokaal/s.c.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./i.v./perf./i.artér./local/s.c.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00020</CODE>
+        <DESCRIPTION L="en">i.m./i.v./inf./i.thec.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./i.v./inf./i.thec.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./i.v./inf./i.thec.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00021</CODE>
+        <DESCRIPTION L="en">i.m./i.v./inf./rect.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./i.v./inf./rect.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./i.v./perf./rect.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00022</CODE>
+        <DESCRIPTION L="en">i.m./i.v./inf./s.c.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./i.v./inf./s.c.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./i.v./perf./s.c.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00023</CODE>
+        <DESCRIPTION L="en">i.m./i.v./inhal.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./i.v./inhal.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./i.v./inhal.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00024</CODE>
+        <DESCRIPTION L="en">i.m./i.v./local</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./i.v./lokaal</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./i.v./local</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00025</CODE>
+        <DESCRIPTION L="en">i.m./i.v./or.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./i.v./or.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./i.v./or.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00026</CODE>
+        <DESCRIPTION L="en">i.m./i.v./rect</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./i.v./rect.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./i.v./rect.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00027</CODE>
+        <DESCRIPTION L="en">i.m./i.v./s.c.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./i.v./s.c.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./i.v./s.c.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00028</CODE>
+        <DESCRIPTION L="en">i.m./inf.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./inf.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./perf.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00029</CODE>
+        <DESCRIPTION L="en">i.m./perf./local</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./perf./lokaal</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./perf./local</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00030</CODE>
+        <DESCRIPTION L="en">i.m./local</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./local</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./lokaal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00031</CODE>
+        <DESCRIPTION L="en">i.m./local/rect.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./lokaal/rect.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./rect./local</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00032</CODE>
+        <DESCRIPTION L="en">i.m./s.c.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.m./s.c.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.m./s.c.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00033</CODE>
+        <DESCRIPTION L="en">i.thec.</DESCRIPTION>
+        <DESCRIPTION L="de">Injektion ins Rückenmark</DESCRIPTION>
+        <DESCRIPTION L="fr">injection dans la moelle épinière</DESCRIPTION>
+        <DESCRIPTION L="nl">Inspuiting in het ruggenmerg</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00034</CODE>
+        <DESCRIPTION L="en">i.ut.</DESCRIPTION>
+        <DESCRIPTION L="de">einführen in die Gebärmutter</DESCRIPTION>
+        <DESCRIPTION L="fr">introduire dans l'utérus</DESCRIPTION>
+        <DESCRIPTION L="nl">Inbrengen in de baarmoeder</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00035</CODE>
+        <DESCRIPTION L="en">i.v.</DESCRIPTION>
+        <DESCRIPTION L="de">Injektion in eine Vene</DESCRIPTION>
+        <DESCRIPTION L="fr">injection dans une veine</DESCRIPTION>
+        <DESCRIPTION L="nl">Inspuiting in een ader</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00036</CODE>
+        <DESCRIPTION L="en">i.v./p.dur./local</DESCRIPTION>
+        <DESCRIPTION L="nl">i.v./e.dur./lokaal</DESCRIPTION>
+        <DESCRIPTION L="fr">i.v./p.dur./local</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00037</CODE>
+        <DESCRIPTION L="en">i.v./i.arter./i.ves.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.v./i.arter./i.ves.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.v./i.artér./i.vés.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00038</CODE>
+        <DESCRIPTION L="en">i.v./inf.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.v./perf.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.v./inf.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00039</CODE>
+        <DESCRIPTION L="en">i.v./perf./p.dur.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.v./perf./p.dur.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.v./perf./p.dur.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00040</CODE>
+        <DESCRIPTION L="en">i.v./perf./i.artér.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.v./perf./i.artér.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.v./inf./i.arter.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00041</CODE>
+        <DESCRIPTION L="en">i.v./perf./i.théc./s.c.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.v./perf./i.théc./s.c.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.v./inf./i.thec./s.c.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00042</CODE>
+        <DESCRIPTION L="en">i.v./perf./inhal.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.v./perf./inhal.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.v./inf./inhal.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00043</CODE>
+        <DESCRIPTION L="en">i.v./perf./s.c.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.v./perf./s.c.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.v./inf./s.c.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00044</CODE>
+        <DESCRIPTION L="en">i.v./s.c.</DESCRIPTION>
+        <DESCRIPTION L="fr">i.v./s.c.</DESCRIPTION>
+        <DESCRIPTION L="nl">i.v./s.c.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00045</CODE>
+        <DESCRIPTION L="en">i.ves.</DESCRIPTION>
+        <DESCRIPTION L="de">in die Harnblase</DESCRIPTION>
+        <DESCRIPTION L="fr">dans la vessie</DESCRIPTION>
+        <DESCRIPTION L="nl">In de urineblaas</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00046</CODE>
+        <DESCRIPTION L="en">perf.</DESCRIPTION>
+        <DESCRIPTION L="de">Infusion</DESCRIPTION>
+        <DESCRIPTION L="fr">perfusion</DESCRIPTION>
+        <DESCRIPTION L="nl">infuus</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00047</CODE>
+        <DESCRIPTION L="en">perf./i.ves.</DESCRIPTION>
+        <DESCRIPTION L="fr">perf./i.vés.</DESCRIPTION>
+        <DESCRIPTION L="nl">inf./i.ves.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00048</CODE>
+        <DESCRIPTION L="en">perf./s.c.</DESCRIPTION>
+        <DESCRIPTION L="fr">perf./s.c.</DESCRIPTION>
+        <DESCRIPTION L="nl">inf./s.c.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00049</CODE>
+        <DESCRIPTION L="en">inhal.</DESCRIPTION>
+        <DESCRIPTION L="de">Inhalation</DESCRIPTION>
+        <DESCRIPTION L="fr">inhalation</DESCRIPTION>
+        <DESCRIPTION L="nl">Inhalatie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00050</CODE>
+        <DESCRIPTION L="en">inhal./nas./local</DESCRIPTION>
+        <DESCRIPTION L="fr">inhal./nas./local</DESCRIPTION>
+        <DESCRIPTION L="nl">inhal./nas./lokaal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00051</CODE>
+        <DESCRIPTION L="en">inj.</DESCRIPTION>
+        <DESCRIPTION L="de">Injektion</DESCRIPTION>
+        <DESCRIPTION L="fr">injection</DESCRIPTION>
+        <DESCRIPTION L="nl">Inspuiting</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00052</CODE>
+        <DESCRIPTION L="en">lip</DESCRIPTION>
+        <DESCRIPTION L="de">auf die Lippen</DESCRIPTION>
+        <DESCRIPTION L="fr">lèvre</DESCRIPTION>
+        <DESCRIPTION L="nl">Op de lippen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00053</CODE>
+        <DESCRIPTION L="en">local</DESCRIPTION>
+        <DESCRIPTION L="de">lokal</DESCRIPTION>
+        <DESCRIPTION L="fr">local</DESCRIPTION>
+        <DESCRIPTION L="nl">lokaal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00054</CODE>
+        <DESCRIPTION L="en">muc.</DESCRIPTION>
+        <DESCRIPTION L="de">auf die Schleimhaut</DESCRIPTION>
+        <DESCRIPTION L="fr">sur la muqueuse</DESCRIPTION>
+        <DESCRIPTION L="nl">Op het slijmvlies</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00055</CODE>
+        <DESCRIPTION L="en">nas.</DESCRIPTION>
+        <DESCRIPTION L="de">in die Nase</DESCRIPTION>
+        <DESCRIPTION L="fr">dans le nez</DESCRIPTION>
+        <DESCRIPTION L="nl">in de neus</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00056</CODE>
+        <DESCRIPTION L="en">opht.</DESCRIPTION>
+        <DESCRIPTION L="de">in die Augen</DESCRIPTION>
+        <DESCRIPTION L="fr">dans les yeux</DESCRIPTION>
+        <DESCRIPTION L="nl">in de ogen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00057</CODE>
+        <DESCRIPTION L="en">opht./auric.</DESCRIPTION>
+        <DESCRIPTION L="fr">opht./auric.</DESCRIPTION>
+        <DESCRIPTION L="nl">oft./auric.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00058</CODE>
+        <DESCRIPTION L="en">opht./auric./nas.</DESCRIPTION>
+        <DESCRIPTION L="fr">opht./auric./nas.</DESCRIPTION>
+        <DESCRIPTION L="nl">oft./auric./nas.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00059</CODE>
+        <DESCRIPTION L="en">opht./auric./nas./local</DESCRIPTION>
+        <DESCRIPTION L="fr">opht./auric./nas./local</DESCRIPTION>
+        <DESCRIPTION L="nl">oft./auric./nas./lokaal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00060</CODE>
+        <DESCRIPTION L="en">or.</DESCRIPTION>
+        <DESCRIPTION L="de">einnehmen</DESCRIPTION>
+        <DESCRIPTION L="fr">prendre/avaler</DESCRIPTION>
+        <DESCRIPTION L="nl">innemen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00061</CODE>
+        <DESCRIPTION L="en">or./bucco-phar./derm.</DESCRIPTION>
+        <DESCRIPTION L="fr">or./bucco-phar./derm.</DESCRIPTION>
+        <DESCRIPTION L="nl">or./orofar./derm.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00062</CODE>
+        <DESCRIPTION L="en">or./rect.</DESCRIPTION>
+        <DESCRIPTION L="fr">or./rect.</DESCRIPTION>
+        <DESCRIPTION L="nl">or./rect.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00063</CODE>
+        <DESCRIPTION L="en">or./s.l.</DESCRIPTION>
+        <DESCRIPTION L="fr">or./s.l.</DESCRIPTION>
+        <DESCRIPTION L="nl">or./s.l.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00064</CODE>
+        <DESCRIPTION L="en">bucco-phar.</DESCRIPTION>
+        <DESCRIPTION L="de">durch den Mund</DESCRIPTION>
+        <DESCRIPTION L="fr">par la bouche</DESCRIPTION>
+        <DESCRIPTION L="nl">in de mond</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00065</CODE>
+        <DESCRIPTION L="en">bucco-phar./derm.</DESCRIPTION>
+        <DESCRIPTION L="fr">bucco-phar./derm.</DESCRIPTION>
+        <DESCRIPTION L="nl">orofar./derm.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00066</CODE>
+        <DESCRIPTION L="en">bucco-phar./nas.</DESCRIPTION>
+        <DESCRIPTION L="de">durch den Mund und in die Nase</DESCRIPTION>
+        <DESCRIPTION L="fr">par la bouche et dans le nez</DESCRIPTION>
+        <DESCRIPTION L="nl">in de mond en in de neus</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00067</CODE>
+        <DESCRIPTION L="en">rect.</DESCRIPTION>
+        <DESCRIPTION L="de">rektal</DESCRIPTION>
+        <DESCRIPTION L="fr">par voie rectale</DESCRIPTION>
+        <DESCRIPTION L="nl">anaal opsteken</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00068</CODE>
+        <DESCRIPTION L="en">s.c.</DESCRIPTION>
+        <DESCRIPTION L="de">Spritze unter die Haut</DESCRIPTION>
+        <DESCRIPTION L="fr">injection sous-cutanée</DESCRIPTION>
+        <DESCRIPTION L="nl">onderhuidse inspuiting</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00069</CODE>
+        <DESCRIPTION L="en">s.c./i.derm.</DESCRIPTION>
+        <DESCRIPTION L="fr">s.c./i.derm.</DESCRIPTION>
+        <DESCRIPTION L="nl">s.c./i.derm.</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00070</CODE>
+        <DESCRIPTION L="en">s.l.</DESCRIPTION>
+        <DESCRIPTION L="de">unter die Zunge</DESCRIPTION>
+        <DESCRIPTION L="fr">sous la langue</DESCRIPTION>
+        <DESCRIPTION L="nl">onder de tong</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00071</CODE>
+        <DESCRIPTION L="en">teeth</DESCRIPTION>
+        <DESCRIPTION L="de">auf die Zähne</DESCRIPTION>
+        <DESCRIPTION L="fr">sur les dents</DESCRIPTION>
+        <DESCRIPTION L="nl">op de tanden</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00072</CODE>
+        <DESCRIPTION L="en">urethr.</DESCRIPTION>
+        <DESCRIPTION L="de">in den Harnleiter</DESCRIPTION>
+        <DESCRIPTION L="fr">dans l'uretère</DESCRIPTION>
+        <DESCRIPTION L="nl">in de urineleider</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>00073</CODE>
+        <DESCRIPTION L="en">vag.</DESCRIPTION>
+        <DESCRIPTION L="de">vaginal</DESCRIPTION>
+        <DESCRIPTION L="fr">par voie vaginale</DESCRIPTION>
+        <DESCRIPTION L="nl">vaginaal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>derm</CODE>
+        <DESCRIPTION L="en">dermatologically</DESCRIPTION>
+        <DESCRIPTION L="fr">dermatologique</DESCRIPTION>
+        <DESCRIPTION L="nl">dermatologisch</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>larter</CODE>
+        <DESCRIPTION L="en">intra-arterial</DESCRIPTION>
+        <DESCRIPTION L="fr">intra-artérielle</DESCRIPTION>
+        <DESCRIPTION L="nl">intra-arterieel</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>icut</CODE>
+        <DESCRIPTION L="en">intracutaneous</DESCRIPTION>
+        <DESCRIPTION L="fr">intracutané</DESCRIPTION>
+        <DESCRIPTION L="nl">intracutaan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ider</CODE>
+        <DESCRIPTION L="en">intradermally</DESCRIPTION>
+        <DESCRIPTION L="fr">intradermique</DESCRIPTION>
+        <DESCRIPTION L="nl">intradermaal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>oft</CODE>
+        <DESCRIPTION L="en">ophtalmological</DESCRIPTION>
+        <DESCRIPTION L="fr">ophtalmologique</DESCRIPTION>
+        <DESCRIPTION L="nl">oftalmologisch</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>cutaneous-injection</CODE>
+        <DESCRIPTION L="en">cutaneous injection</DESCRIPTION>
+        <DESCRIPTION L="fr">injection cutanée</DESCRIPTION>
+        <DESCRIPTION L="nl">cutane injectie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>dermal-injection</CODE>
+        <DESCRIPTION L="en">dermal injection</DESCRIPTION>
+        <DESCRIPTION L="fr">injection dermique</DESCRIPTION>
+        <DESCRIPTION L="nl">dermale injectie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>nose-left</CODE>
+        <DESCRIPTION L="en">nose left</DESCRIPTION>
+        <DESCRIPTION L="fr">nez gauche</DESCRIPTION>
+        <DESCRIPTION L="nl">neus links</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>nose-right</CODE>
+        <DESCRIPTION L="en">nose right</DESCRIPTION>
+        <DESCRIPTION L="fr">nez droite</DESCRIPTION>
+        <DESCRIPTION L="nl">neus rechts</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>both-nostrils</CODE>
+        <DESCRIPTION L="en">both nostrils</DESCRIPTION>
+        <DESCRIPTION L="fr">les deux narines</DESCRIPTION>
+        <DESCRIPTION L="nl">beide neusgaten</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>eye-left</CODE>
+        <DESCRIPTION L="en">eye left</DESCRIPTION>
+        <DESCRIPTION L="fr">oeil gauche</DESCRIPTION>
+        <DESCRIPTION L="nl">oog links</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>eye-right</CODE>
+        <DESCRIPTION L="en">eye right</DESCRIPTION>
+        <DESCRIPTION L="fr">oeil droite</DESCRIPTION>
+        <DESCRIPTION L="nl">oog rechts</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>both-eyes</CODE>
+        <DESCRIPTION L="en">both eyes</DESCRIPTION>
+        <DESCRIPTION L="fr">les deux yeux</DESCRIPTION>
+        <DESCRIPTION L="nl">beide ogen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ear-left</CODE>
+        <DESCRIPTION L="en">ear left</DESCRIPTION>
+        <DESCRIPTION L="fr">oreille gauche</DESCRIPTION>
+        <DESCRIPTION L="nl">oor links</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ear-right</CODE>
+        <DESCRIPTION L="en">ear right</DESCRIPTION>
+        <DESCRIPTION L="fr">oreille droite</DESCRIPTION>
+        <DESCRIPTION L="nl">oor rechts</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>both-ears</CODE>
+        <DESCRIPTION L="en">both ears</DESCRIPTION>
+        <DESCRIPTION L="fr">les deux oreilles</DESCRIPTION>
+        <DESCRIPTION L="nl">beide oren</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>vitreal-injection</CODE>
+        <DESCRIPTION L="en">vitreal injection</DESCRIPTION>
+        <DESCRIPTION L="fr">injection vitrale</DESCRIPTION>
+        <DESCRIPTION L="nl">vitreale injectie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>transdermal</CODE>
+        <DESCRIPTION L="en">transdermal</DESCRIPTION>
+        <DESCRIPTION L="fr">transdermique</DESCRIPTION>
+        <DESCRIPTION L="nl">transdermaal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>hyperdermoclyse</CODE>
+        <DESCRIPTION L="en">hyperdermoclyse</DESCRIPTION>
+        <DESCRIPTION L="fr">hyperdermoclyse</DESCRIPTION>
+        <DESCRIPTION L="nl">hyperdermoclyse</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

@@ -59,6 +59,7 @@ import org.taktik.icure.utils.ResponseUtils
 import java.time.Instant
 import java.util.stream.Collectors
 import javax.ws.rs.Consumes
+import javax.ws.rs.HeaderParam
 import javax.ws.rs.POST
 import javax.ws.rs.Path
 import javax.ws.rs.PathParam
@@ -251,7 +252,7 @@ class KmehrFacade(
 	@POST
 	@Path("/medicationscheme/{patientId}/export")
 	@Produces("application/octet-stream")
-	fun generateMedicationSchemeExport(@PathParam("patientId") patientId: String, @QueryParam("language") language: String?, @QueryParam("recipientSafe") recipientSafe: String, @QueryParam("version") version: Int, medicationSchemeExportParams: MedicationSchemeExportInfoDto) : Response {
+	fun generateMedicationSchemeExport(@PathParam("patientId") patientId: String, @QueryParam("language") language: String?, @QueryParam("recipientSafe") recipientSafe: String, @QueryParam("version") version: Int, @HeaderParam("X-Timezone-Offset") tz: String?, medicationSchemeExportParams: MedicationSchemeExportInfoDto) : Response {
 		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
 
 		return if (medicationSchemeExportParams.services?.isNotEmpty() == true)
@@ -259,7 +260,7 @@ class KmehrFacade(
                 s -> mapper.map(s, Service::class.java) as Service
             }, medicationSchemeExportParams.serviceAuthors!!.map {
                 s -> mapper.map(s, HealthcareParty::class.java) as HealthcareParty
-            }, null) })
+            }, tz, null) })
         else
             ResponseUtils.ok(StreamingOutput { output -> medicationSchemeLogic.createMedicationSchemeExport(output!!, patientLogic.getPatient(patientId), medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language ?: "fr", recipientSafe, version, null, null) })
 	}

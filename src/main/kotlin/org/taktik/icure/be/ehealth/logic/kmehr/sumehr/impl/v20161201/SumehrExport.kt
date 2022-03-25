@@ -21,6 +21,7 @@ package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
@@ -475,10 +476,10 @@ class SumehrExport : KmehrExport() {
 		return item
 	}
 
-	override fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String, language: String, texts: List<TextType>?): ItemType? {
+	override fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String, language: String, texts: List<TextType>?, link: LnkType?, config: Config): ItemType? {
 		if (ServiceStatus.isAbsent(svc.status) || svc.tags.any { t -> t.type == "CD-LIFECYCLE" && t.code == "notpresent" }) {
 			return null; }
-		return super.createItemWithContent(svc, idx, cdItem, contents, localIdName, language, texts)
+		return super.createItemWithContent(svc, idx, cdItem, contents, localIdName, language, texts, link, config)
 	}
 
 	override fun createItemWithContent(he: HealthElement, idx: Int, cdItem: String, contents: List<ContentType>): ItemType? {

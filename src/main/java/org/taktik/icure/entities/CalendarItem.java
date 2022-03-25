@@ -59,6 +59,8 @@ public class CalendarItem extends StoredICureDocument {
 
     protected Long confirmationTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
 
+    protected String recurrenceId;
+
     protected String confirmationId;
 
     protected Long duration;
@@ -138,6 +140,14 @@ public class CalendarItem extends StoredICureDocument {
 
     public void setHomeVisit(Boolean homeVisit) {
         this.homeVisit = homeVisit;
+    }
+
+    public String getRecurrenceId() {
+        return recurrenceId;
+    }
+
+    public void setRecurrenceId(String recurrenceId) {
+        this.recurrenceId = recurrenceId;
     }
 
     public String getPhoneNumber() {

@@ -21,11 +21,13 @@ package org.taktik.icure.services.external.rest.v1.facade;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import kotlin.Deprecated;
 import ma.glasnost.orika.MapperFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.taktik.icure.entities.CalendarItem;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.exceptions.DeletionException;
@@ -86,6 +88,8 @@ public class CalendarItemFacade implements OpenApiFacade {
         return response;
     }
 
+
+    @Deprecated(message = "Use deleteCalendarItems instead")
     @ApiOperation(value = "Deletes an calendarItem")
     @DELETE
     @Path("/{calendarItemIds}")
@@ -103,7 +107,26 @@ public class CalendarItemFacade implements OpenApiFacade {
                 return Response.status(500).type("text/plain").entity("CalendarItem deletion failed.").build();
             }
         }
+        return response;
+    }
 
+    @ApiOperation(value = "Deletes calendarItems")
+    @POST
+    @Path("/delete")
+    public Response deleteCalendarItems(@RequestBody List<String> calendarItemIds) throws DeletionException {
+        Response response;
+
+        if (calendarItemIds == null) {
+            response = ResponseUtils.badRequest("Cannot delete access log: supplied calendarItemIds is null");
+
+        } else {
+            List<String> deletedCalendarItemIds = calendarItemLogic.deleteCalendarItems(calendarItemIds);
+            if (deletedCalendarItemIds != null) {
+                response = Response.ok().entity(deletedCalendarItemIds).build();
+            } else {
+                return Response.status(500).type("text/plain").entity("CalendarItem deletion failed.").build();
+            }
+        }
         return response;
     }
 
@@ -276,6 +299,27 @@ public class CalendarItemFacade implements OpenApiFacade {
 
         } else {
             response = ResponseUtils.internalServerError("CalendarItemTypes fetching failed");
+        }
+        return response;
+    }
+
+    @ApiOperation(
+            value = "Gets calendarItems by recurrenceId",
+            response = CalendarItemDto.class,
+            responseContainer = "Array",
+            httpMethod = "GET",
+            notes = ""
+    )
+    @GET
+    @Path("/byRecurrenceId")
+    public Response getCalendarItemsByRecurrenceId(@QueryParam("recurrenceId") String recurrenceId) {
+        Response response;
+        List<CalendarItem> calendarItems = calendarItemLogic.getCalendarItemsByRecurrenceId(recurrenceId);
+        if (calendarItems != null) {
+            response = Response.ok().entity(calendarItems.stream().map(c -> mapper.map(c, CalendarItemDto.class)).collect(Collectors.toList())).build();
+
+        } else {
+            response = ResponseUtils.internalServerError("CalendarItems by recurrenceId fetching failed");
         }
         return response;
     }
