@@ -22,7 +22,7 @@ import org.taktik.icure.properties.CouchDbProperties
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
-open class VersionnedDesignDocumentQueries<T : StoredDocument>(protected open val entityClass: Class<T>, private val couchdDbProperties: CouchDbProperties) {
+open class VersionedDesignDocumentQueries<T : StoredDocument>(protected open val entityClass: Class<T>, private val couchdDbProperties: CouchDbProperties) {
 
     private val designDocIdProvider = CacheBuilder.newBuilder()
             .maximumSize(100)
@@ -33,8 +33,8 @@ open class VersionnedDesignDocumentQueries<T : StoredDocument>(protected open va
                     return GlobalScope.async {
                         val client = key.first
                         val baseId = designDocName(key.second)
-                        val relatedDesignDocs = client.designDocumentsIds().filter { it.startsWith(baseId) }
-                        val generatedDesignDocument = StdDesignDocumentFactory().generateFrom(baseId, this@VersionnedDesignDocumentQueries)
+                        val relatedDesignDocs = client.designDocumentsIds().filter { if (it.length == baseId.length) it.startsWith(baseId) else it.startsWith("${baseId}_") }
+                        val generatedDesignDocument = StdDesignDocumentFactory().generateFrom(baseId, this@VersionedDesignDocumentQueries)
                         return@async if (relatedDesignDocs.size == 1) {
                             relatedDesignDocs.first()
                         } else if (relatedDesignDocs.contains(generatedDesignDocument.id) && isReadyDesignDoc(client, generatedDesignDocument.id)) {
