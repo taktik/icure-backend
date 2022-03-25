@@ -88,6 +88,10 @@ public class Invoice extends StoredICureDocument {
 	private String supervisorCdHcParty;
 	private String supervisorCbe;
 
+    protected String locationNihii;
+    protected Integer locationService;
+    protected Long admissionDate;
+
 	private String error;
 
 	private String encounterLocationName;
@@ -154,6 +158,10 @@ public class Invoice extends StoredICureDocument {
 		this.supervisorFirstName = this.supervisorFirstName == null ? other.supervisorFirstName : this.supervisorFirstName;
 		this.supervisorCdHcParty = this.supervisorCdHcParty == null ? other.supervisorCdHcParty : this.supervisorCdHcParty;
 		this.supervisorCbe = this.supervisorCbe == null ? other.supervisorCbe : this.supervisorCbe;
+
+		this.locationNihii = this.locationNihii == null ? other.locationNihii : this.locationNihii;
+		this.locationService = this.locationService == null ? other.locationService : this.locationService;
+		this.admissionDate = this.admissionDate == null ? other.admissionDate : this.admissionDate;
 
 		this.invoicingCodes = this.invoicingCodes == null ? other.invoicingCodes
 				: MergeUtil.mergeListsDistinct(this.invoicingCodes, other.invoicingCodes,
@@ -636,5 +644,29 @@ public class Invoice extends StoredICureDocument {
 
     public void setCancelDate(Long cancelDate) {
         this.cancelDate = cancelDate;
+    }
+
+    public String getLocationNihii() {
+        return locationNihii;
+    }
+
+    public void setLocationNihii(String locationNihii) {
+        this.locationNihii = locationNihii;
+    }
+
+    public Integer getLocationService() {
+        return locationService;
+    }
+
+    public void setLocationService(Integer locationService) {
+        this.locationService = locationService;
+    }
+
+    public Long getAdmissionDate() {
+        return admissionDate;
+    }
+
+    public void setAdmissionDate(Long admissionDate) {
+        this.admissionDate = admissionDate;
     }
 }
