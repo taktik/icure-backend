@@ -110,7 +110,7 @@ class PatientController(
 
         currentHealthcarePartyId.let { currentHcpId ->
             val hcp = healthcarePartyLogic.getHealthcareParty(currentHcpId)
-            (hcp?.parentId?.let { if (it.isNotEmpty()) it else null } ?: hcp?.id)?.let { hcpId ->
+            (hcp?.parentId?.takeIf { it.isNotEmpty() } ?: hcp?.id)?.let { hcpId ->
                 patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(
                         hcpId,
                         paginationOffset,
@@ -200,7 +200,7 @@ class PatientController(
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
         sessionLogic.getCurrentHealthcarePartyId().let { currentHcpId ->
             val hcp = healthcarePartyLogic.getHealthcareParty(currentHcpId)
-            (hcp?.parentId ?: hcp?.id)?.let { hcpId ->
+            (hcp?.parentId?.takeIf { it.isNotEmpty() } ?: hcp?.id)?.let { hcpId ->
                 patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(
                         hcpId,
                         paginationOffset,
