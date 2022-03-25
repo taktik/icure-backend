@@ -693,8 +693,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         item.lifecycle?.let { tags.add(CodeStub.from("CD-LIFECYCLE", it.cd.value.value(), "1")) }
 
         return HealthElement(
-                id = mfId?.let{ kmehrIndex.itemIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString(),
-                healthElementId = idGenerator.newGUID().toString(),
+                id = idGenerator.newGUID().toString(),
+                healthElementId = mfId?.let{ kmehrIndex.itemIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString(),
                 descr = getItemDescription(item, label),
                 idService = linkedService?.id,
                 tags = tags.toSet() + setOf(CodeStub.from("CD-ITEM", cdItem, "1")) + extractTags(item),
@@ -766,7 +766,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
     }
 
     private fun extractTags(item: ItemType): Collection<CodeStub> {
-        return (item.cds.filter { it.s == CDITEMschemes.CD_PARAMETER || it.s == CDITEMschemes.CD_LAB || it.s == CDITEMschemes.CD_TECHNICAL }.map { CodeStub.from(it.s.value(), it.value, it.sv) } +
+        return (item.cds.filter { it.s == CDITEMschemes.CD_PARAMETER || it.s == CDITEMschemes.CD_LAB || it.s == CDITEMschemes.CD_TECHNICAL || it.s == CDITEMschemes.CD_CONTACT_PERSON }.map { CodeStub.from(it.s.value(), it.value, it.sv) } +
                 item.cds.filter { (it.s == CDITEMschemes.LOCAL && it.sl.equals("LOCAL-PARAMETER")) }.map { CodeStub.from(it.sl, it.value, it.sv) } +
                 item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
                     it.cds.filter {
