@@ -355,7 +355,11 @@ class SoftwareMedicalFileExport(
                                             } ?: emptyList()
                                         } + codesToKmehr(svc.codes)
                                         if (contents.isNotEmpty()) {
-                                            createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID")?.apply {
+                                            var mfId = svc.id
+                                            if(isServiceANewVersionOf(mfId)){
+                                                mfId = UUIDGenerator().newGUID().toString();
+                                            }
+                                            createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID", mfId)?.apply {
                                                 this.ids.add(IDKMEHR().apply {
                                                     this.s = IDKMEHRschemes.LOCAL
                                                     this.sv = "1.0"
@@ -410,7 +414,7 @@ class SoftwareMedicalFileExport(
                                                     }
                                                 }
                                             }?.let {
-                                                addHistoryLinkAndCacheService(it, svc, config)
+                                                addHistoryLinkAndCacheService(it, svc.id, config)
                                                 headingsAndItemsAndTexts.add(it)
                                             }
                                         }
@@ -479,7 +483,7 @@ class SoftwareMedicalFileExport(
                                 this.contents.add( ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
                             }
                         }
-                        addHistoryLinkAndCacheService(this, svc, config)
+                        addHistoryLinkAndCacheService(this, svc.id, config)
                         headingsAndItemsAndTexts.add(this)
                         svc.formId?.let{
                             (it != "") && it.let{
@@ -597,19 +601,26 @@ class SoftwareMedicalFileExport(
         }
     }
 
-    private fun addHistoryLinkAndCacheService(item: ItemType, svc: Service, config: Config) {
-        svc.id.let { svcId ->
-            if (itemByServiceId[svcId] != null && config.format != Config.Format.PMF) {
+    private fun addHistoryLinkAndCacheService(item: ItemType, mfId: String, config: Config) {
+        mfId?.let {
+            if (itemByServiceId[it] != null && config.format != Config.Format.PMF) {
                 // this is a new version of and older service, add a link
                 // no history in PMF
                 item.lnks.add(
                         LnkType().apply {
-                            type = CDLNKvalues.ISANEWVERSIONOF; url = makeLnkUrl(svcId)
+                            type = CDLNKvalues.ISANEWVERSIONOF; url = makeLnkUrl(mfId)
                         }
                 )
             }
-            itemByServiceId[svcId] = item
+            itemByServiceId[mfId] = item
         }
+    }
+
+    private fun isServiceANewVersionOf(mfId: String): Boolean {
+        itemByServiceId[mfId]?.let {
+            return true
+        }
+        return false
     }
 
     private suspend fun makeNursePrescriptionTransaction(contact: Service, language: String, decryptor: AsyncDecrypt?): TransactionType {
