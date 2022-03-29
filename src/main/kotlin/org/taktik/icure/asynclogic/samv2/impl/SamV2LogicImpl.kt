@@ -109,30 +109,30 @@ class SamV2LogicImpl(
         mutex.withLock {
             if (this.ampProductIds == null) {
                 this.ampProductIds = ampDAO.getProductIdsFromSignature("amp")
-                return ids.map { id -> this.ampProductIds?.get(id)?.let { ProductId(id, it) } }
+                return ids.map { id -> this.ampProductIds?.get(id)?.let { ProductId(id = id, productId = it) } }
             }
         }
-        return ids.map { id -> this.ampProductIds?.get(id)?.let { ProductId(id, it) } }
+        return ids.map { id -> this.ampProductIds?.get(id)?.let { ProductId(id = id, productId = it) } }
     }
 
     override suspend fun listVmpgProductIds(ids: Collection<String>): List<ProductId?> {
         mutex.withLock {
             if (this.vmpProductIds == null) {
                 this.vmpProductIds = ampDAO.getProductIdsFromSignature("vmp")
-                return ids.map { id -> this.vmpProductIds?.get(id)?.let { ProductId(id, it)} }
+                return ids.map { id -> this.vmpProductIds?.get(id)?.let { ProductId(id = id, productId = it)} }
             }
         }
-        return ids.map { id -> this.vmpProductIds?.get(id)?.let { ProductId(id, it)} }
+        return ids.map { id -> this.vmpProductIds?.get(id)?.let { ProductId(id = id, productId = it)} }
     }
 
     override suspend fun listNmpProductIds(ids: Collection<String>): List<ProductId?> {
         mutex.withLock {
             if (this.nmpProductIds == null) {
                 this.nmpProductIds = ampDAO.getProductIdsFromSignature("nmp")
-                return ids.map { id -> this.nmpProductIds?.get(id)?.let { ProductId(id, it)} }
+                return ids.map { id -> this.nmpProductIds?.get(id)?.let { ProductId(id = id, productId = it)} }
             }
         }
-        return ids.map { id -> this.nmpProductIds?.get(id)?.let { ProductId(id, it)} }
+        return ids.map { id -> this.nmpProductIds?.get(id)?.let { ProductId(id = id, productId = it)} }
     }
 
     override fun findVmpsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> {

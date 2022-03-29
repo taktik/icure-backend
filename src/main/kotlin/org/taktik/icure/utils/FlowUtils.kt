@@ -18,7 +18,6 @@
 
 package org.taktik.icure.utils
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -33,7 +32,6 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.ByteBuffer
-import kotlin.experimental.and
 
 fun <T> Flow<T>.distinct(): Flow<T> = flow {
     val previous = HashSet<T>()
@@ -121,7 +119,7 @@ suspend fun Flow<ByteBuffer>.toInputStream(): InputStream {
             override fun available(): Int = buffers.subList(idx, buffers.size).fold(0) { sum, bb -> sum + bb.remaining() }
 
             @Throws(IOException::class)
-            override fun read(): Int = if (buffers[idx].hasRemaining()) (buffers[idx].get() and ff).toInt() else {
+            override fun read(): Int = if (buffers[idx].hasRemaining()) (buffers[idx].get().toUInt() and 0xffu).toInt() else {
                 if (idx < buffers.size - 1) {
                     idx++
                     read()
