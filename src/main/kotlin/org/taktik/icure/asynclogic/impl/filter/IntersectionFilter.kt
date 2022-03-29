@@ -34,7 +34,7 @@ class IntersectionFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, o
 			} else {
 				result.retainAll(context.resolve(filters[i]).toList())
 			}
-			result.forEach { emit(it) } // TODO SH MB: not reactive... can be optimized?
 		}
+        result.forEach { emit(it) } // TODO SH MB: not reactive... can be optimized?
 	}
 }
