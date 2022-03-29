@@ -43,7 +43,6 @@ import org.taktik.icure.asynclogic.InsuranceLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils
-import org.taktik.icure.be.ehealth.logic.kmehr.toInputStream
 import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
 import org.taktik.icure.db.StringUtils
@@ -103,6 +102,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
 import org.taktik.icure.utils.FuzzyValues
+import org.taktik.icure.utils.toInputStream
 import org.taktik.icure.utils.xor
 import java.io.ByteArrayInputStream
 import java.io.Serializable

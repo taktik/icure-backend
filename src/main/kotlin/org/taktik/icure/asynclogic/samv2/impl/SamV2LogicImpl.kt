@@ -21,6 +21,8 @@ package org.taktik.icure.asynclogic.samv2.impl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.ViewRowWithDoc
@@ -44,6 +46,13 @@ class SamV2LogicImpl(
         val paragraphDAO: ParagraphDAO,
         val verseDAO: VerseDAO
 ) : SamV2Logic {
+    private val mutex = Mutex()
+
+    private var ampProductIds: Map<String, String>? = null
+    private var nmpProductIds: Map<String, String>? = null
+    private var vmpProductIds: Map<String, String>? = null
+
+
     override fun findVmpsByGroupId(vmpgId: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
         return vmpDAO.findVmpsByGroupId(vmpgId, paginationOffset)
     }
@@ -96,8 +105,34 @@ class SamV2LogicImpl(
         return ampDAO.getVersion()
     }
 
-    override fun listProductIds(productIds: List<String>): Flow<ProductId> {
-        return productIdDAO.getEntities(productIds)
+    override suspend fun listAmpProductIds(ids: Collection<String>): List<ProductId?> {
+        mutex.withLock {
+            if (this.ampProductIds == null) {
+                this.ampProductIds = ampDAO.getProductIdsFromSignature("amp")
+                return ids.map { id -> this.ampProductIds?.get(id)?.let { ProductId(id, it) } }
+            }
+        }
+        return ids.map { id -> this.ampProductIds?.get(id)?.let { ProductId(id, it) } }
+    }
+
+    override suspend fun listVmpgProductIds(ids: Collection<String>): List<ProductId?> {
+        mutex.withLock {
+            if (this.vmpProductIds == null) {
+                this.vmpProductIds = ampDAO.getProductIdsFromSignature("vmp")
+                return ids.map { id -> this.vmpProductIds?.get(id)?.let { ProductId(id, it)} }
+            }
+        }
+        return ids.map { id -> this.vmpProductIds?.get(id)?.let { ProductId(id, it)} }
+    }
+
+    override suspend fun listNmpProductIds(ids: Collection<String>): List<ProductId?> {
+        mutex.withLock {
+            if (this.nmpProductIds == null) {
+                this.nmpProductIds = ampDAO.getProductIdsFromSignature("nmp")
+                return ids.map { id -> this.nmpProductIds?.get(id)?.let { ProductId(id, it)} }
+            }
+        }
+        return ids.map { id -> this.nmpProductIds?.get(id)?.let { ProductId(id, it)} }
     }
 
     override fun findVmpsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
