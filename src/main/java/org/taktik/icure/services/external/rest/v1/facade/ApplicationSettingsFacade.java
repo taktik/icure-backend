@@ -47,6 +47,27 @@ public class ApplicationSettingsFacade implements OpenApiFacade {
         return response;
     }
 
+    @POST
+    public Response createApplicationSettings(ApplicationSettingsDto applicationSettingsDto){
+
+        Response response;
+
+        if (applicationSettingsDto == null) {
+            response = ResponseUtils.badRequest("Cannot create access log: supplied accessLogDto is null");
+
+        } else {
+            ApplicationSettings applicationSettings = applicationSettingsLogic.createApplicationSettings(mapper.map(applicationSettingsDto, ApplicationSettings.class));
+            if (applicationSettings != null) {
+                response = ResponseUtils.ok(mapper.map(applicationSettings, ApplicationSettings.class));
+
+            } else {
+                response = ResponseUtils.internalServerError("AccessLog creation failed");
+            }
+        }
+
+        return response;
+    }
+
     @Context
     public void setApplicationSettingsLogic(ApplicationSettingsLogic applicationSettingsLogic) {
         this.applicationSettingsLogic = applicationSettingsLogic;
