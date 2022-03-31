@@ -22,9 +22,15 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.Splitter
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import kotlin.streams.toList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flattenConcat
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -53,7 +59,6 @@ import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mappe
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
-import kotlin.streams.toList
 
 
 @FlowPreview
@@ -170,11 +175,21 @@ class MessageController(
             @RequestParam(required = false) limit: Int?,
             @RequestParam(required = false) hcpId: String?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it) }
-        val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, realLimit + 1)
+        val startKeyElements = startKey?.let { startKeyString ->
+            startKeyString.takeIf { it.startsWith("[") }?.let { startKeyArray ->
+                objectMapper.readValue(
+                    startKeyArray,
+                    objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)
+                )
+            } ?: Splitter.on(",").omitEmptyStrings().trimResults().splitToList(startKeyString)
+                .map { it.takeUnless { it == "null" } }
+        }
+
+        val paginationOffset = PaginationOffset<List<*>>(startKeyElements, startDocumentId, null, realLimit + 1)
         val hcpId = hcpId ?: sessionLogic.getCurrentHealthcarePartyId()
-        val messages = received?.takeIf { it }?.let { messageLogic.findMessagesByTransportGuidReceived(hcpId, transportGuid, paginationOffset) }
-                ?: messageLogic.findMessagesByTransportGuid(hcpId, transportGuid, paginationOffset)
+        val messages = received?.takeIf { it }
+            ?.let { messageLogic.findMessagesByTransportGuidReceived(hcpId, transportGuid, paginationOffset) }
+            ?: messageLogic.findMessagesByTransportGuid(hcpId, transportGuid, paginationOffset)
         messages.paginatedList(messageToMessageDto, realLimit)
     }
 

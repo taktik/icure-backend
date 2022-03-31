@@ -94,7 +94,11 @@ class MessageDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_transport_guid", map = "classpath:js/message/By_hcparty_transport_guid_map.js")
-    override fun findMessagesByTransportGuid(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> = flow {
+    override fun findMessagesByTransportGuid(
+        partyId: String,
+        transportGuid: String?,
+        paginationOffset: PaginationOffset<List<*>>
+    ): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val startKey = transportGuid?.takeIf { it.endsWith(":*") }?.let {
@@ -110,8 +114,15 @@ class MessageDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView(viewQuery, Array<String>::class.java, String::class.java, Message::class.java))
     }
 
-    @View(name = "by_hcparty_transport_guid_received", map = "classpath:js/message/By_hcparty_transport_guid_received_map.js")
-    override fun findMessagesByTransportGuidReceived(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> = flow {
+    @View(
+        name = "by_hcparty_transport_guid_received",
+        map = "classpath:js/message/By_hcparty_transport_guid_received_map.js"
+    )
+    override fun findMessagesByTransportGuidReceived(
+        partyId: String,
+        transportGuid: String?,
+        paginationOffset: PaginationOffset<List<*>>
+    ): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
         val startKey = transportGuid?.takeIf { it.endsWith(":*") }?.let {

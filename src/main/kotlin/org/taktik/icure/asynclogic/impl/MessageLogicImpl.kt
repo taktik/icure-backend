@@ -84,11 +84,19 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
         emitAll(messageDAO.findMessagesByToAddress(partyId, toAddress, paginationOffset, reverse))
     }
 
-    override fun findMessagesByTransportGuidReceived(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>) = flow<ViewQueryResultEvent> {
+    override fun findMessagesByTransportGuidReceived(
+        partyId: String,
+        transportGuid: String?,
+        paginationOffset: PaginationOffset<List<*>>
+    ) = flow<ViewQueryResultEvent> {
         emitAll(messageDAO.findMessagesByTransportGuidReceived(partyId, transportGuid, paginationOffset))
     }
 
-    override fun findMessagesByTransportGuid(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>) = flow<ViewQueryResultEvent> {
+    override fun findMessagesByTransportGuid(
+        partyId: String,
+        transportGuid: String?,
+        paginationOffset: PaginationOffset<List<*>>
+    ) = flow<ViewQueryResultEvent> {
         emitAll(messageDAO.findMessagesByTransportGuid(partyId, transportGuid, paginationOffset))
     }
 
