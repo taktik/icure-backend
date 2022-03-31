@@ -76,7 +76,11 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
         emitAll(messageDAO.findMessagesByHcParty(currentHealthCarPartyId(), paginationOffset))
     }
 
-    override fun findMessagesByFromAddress(partyId: String, fromAddress: String, paginationOffset: PaginationOffset<List<Any>>) = flow<ViewQueryResultEvent> {
+    override fun findMessagesByFromAddress(
+        partyId: String,
+        fromAddress: String,
+        paginationOffset: PaginationOffset<List<*>>
+    ) = flow<ViewQueryResultEvent> {
         emitAll(messageDAO.listMessagesByFromAddress(partyId, fromAddress, paginationOffset))
     }
 

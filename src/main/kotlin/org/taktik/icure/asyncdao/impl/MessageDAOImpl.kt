@@ -74,12 +74,23 @@ class MessageDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "by_hcparty_from_address", map = "classpath:js/message/By_hcparty_from_address_map.js")
-    override fun listMessagesByFromAddress(partyId: String, fromAddress: String, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> = flow {
+    override fun listMessagesByFromAddress(
+        partyId: String,
+        fromAddress: String,
+        paginationOffset: PaginationOffset<List<*>>
+    ): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val startKey = ComplexKey.of(partyId, fromAddress, null)
         val endKey: ComplexKey = ComplexKey.of(startKey.components[0], startKey.components[1], ComplexKey.emptyObject())
 
-        val viewQuery = pagedViewQuery<Message, ComplexKey>(client, "by_hcparty_from_address", startKey, endKey, paginationOffset.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
+        val viewQuery = pagedViewQuery<Message, ComplexKey>(
+            client,
+            "by_hcparty_from_address",
+            startKey,
+            endKey,
+            paginationOffset.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) },
+            false
+        )
         emitAll(client.queryView(viewQuery, Array<String>::class.java, String::class.java, Message::class.java))
     }
 

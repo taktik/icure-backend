@@ -30,7 +30,7 @@ interface MessageLogic : EntityPersister<Message, String> {
     fun findMessagesByFromAddress(
         partyId: String,
         fromAddress: String,
-        paginationOffset: PaginationOffset<List<Any>>
+        paginationOffset: PaginationOffset<List<*>>
     ): Flow<ViewQueryResultEvent>
 
     fun findMessagesByToAddress(

@@ -35,7 +35,7 @@ interface MessageDAO: GenericDAO<Message> {
     fun listMessagesByFromAddress(
         partyId: String,
         fromAddress: String,
-        paginationOffset: PaginationOffset<List<Any>>
+        paginationOffset: PaginationOffset<List<*>>
     ): Flow<ViewQueryResultEvent>
 
     fun findMessagesByToAddress(
