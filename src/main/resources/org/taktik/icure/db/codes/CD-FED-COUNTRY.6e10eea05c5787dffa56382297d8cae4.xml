@@ -1,0 +1,1543 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1.2</VERSION>
+  <DATE>2016-03-01</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>FEDICT Country Codes</NAME>
+  <VALUE>
+    <CODE>ad</CODE>
+    <DESCRIPTION L='de'>Andorra</DESCRIPTION>
+    <DESCRIPTION L='fr'>Andorre</DESCRIPTION>
+    <DESCRIPTION L='nl'>Andorra</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ae</CODE>
+    <DESCRIPTION L='de'>Vereinigte Arabische Emirate</DESCRIPTION>
+    <DESCRIPTION L='fr'>Émirats Arabes Unis</DESCRIPTION>
+    <DESCRIPTION L='nl'>Verenigde Arabische Emiraten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>af</CODE>
+    <DESCRIPTION L='de'>Afghanistan</DESCRIPTION>
+    <DESCRIPTION L='fr'>Afghanistan</DESCRIPTION>
+    <DESCRIPTION L='nl'>Afghanistan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ag</CODE>
+    <DESCRIPTION L='de'>Antigua</DESCRIPTION>
+    <DESCRIPTION L='fr'>Antigua-et-Barbuda</DESCRIPTION>
+    <DESCRIPTION L='nl'>Antigua en Barbuda</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ai</CODE>
+    <DESCRIPTION L='de'>Vereinigtes Königreich - Anguilla</DESCRIPTION>
+    <DESCRIPTION L='fr'>Royaume-Uni - Anguilla (Britanniques d'Outre-Mer)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Verenigd Koninkrijk - Anguilla (Britse overzeese staatsburgers)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>al</CODE>
+    <DESCRIPTION L='de'>Albanien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Albanie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Albanië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>am</CODE>
+    <DESCRIPTION L='de'>Armenien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Arménie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Armenië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>an</CODE>
+    <DESCRIPTION L='de'>Niederlande - Niederländische Antillen (Aruba und Curaçao)</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pays-Bas - Antilles néerlandaises (dont Aruba et Curaçao)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Nederland - Nederlandse Antillen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ao</CODE>
+    <DESCRIPTION L='de'>Angola</DESCRIPTION>
+    <DESCRIPTION L='fr'>Angola</DESCRIPTION>
+    <DESCRIPTION L='nl'>Angola</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>aq</CODE>
+      <DESCRIPTION L='de'>Antarktis</DESCRIPTION>
+      <DESCRIPTION L='fr'>Antarctique</DESCRIPTION>
+      <DESCRIPTION L='nl'>Antarctica</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ar</CODE>
+    <DESCRIPTION L='de'>Argentinien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Argentine</DESCRIPTION>
+    <DESCRIPTION L='nl'>Argentinië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>as</CODE>
+    <DESCRIPTION L='de'>Vereinigte Staaten - Amerikanische Samoa</DESCRIPTION>
+    <DESCRIPTION L='fr'>États-Unis - Samoa américaines</DESCRIPTION>
+    <DESCRIPTION L='nl'>Verenigde Staten - Amerikaans-Samoa</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>at</CODE>
+    <DESCRIPTION L='de'>Österreich</DESCRIPTION>
+    <DESCRIPTION L='fr'>Autriche</DESCRIPTION>
+    <DESCRIPTION L='nl'>Oostenrijk</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>au</CODE>
+    <DESCRIPTION L='de'>Australien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Australie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Australië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>aw</CODE>
+      <DESCRIPTION L='de'>Aruba</DESCRIPTION>
+      <DESCRIPTION L='fr'>Aruba</DESCRIPTION>
+      <DESCRIPTION L='nl'>Aruba</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>ax</CODE>
+      <DESCRIPTION L='de'>Åland</DESCRIPTION>
+      <DESCRIPTION L='fr'>Îles Åland</DESCRIPTION>
+      <DESCRIPTION L='nl'>Åland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>az</CODE>
+    <DESCRIPTION L='de'>Aserbaidschan</DESCRIPTION>
+    <DESCRIPTION L='fr'>Azerbaïdjan</DESCRIPTION>
+    <DESCRIPTION L='nl'>Azerbeidzjan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ba</CODE>
+    <DESCRIPTION L='de'>Bosnien-Herzegowina</DESCRIPTION>
+    <DESCRIPTION L='fr'>Bosnie-Herzégovine</DESCRIPTION>
+    <DESCRIPTION L='nl'>Bosnië en Herzegovina</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bb</CODE>
+    <DESCRIPTION L='de'>Barbados</DESCRIPTION>
+    <DESCRIPTION L='fr'>Barbade</DESCRIPTION>
+    <DESCRIPTION L='nl'>Barbados</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bd</CODE>
+    <DESCRIPTION L='de'>Bangladesh</DESCRIPTION>
+    <DESCRIPTION L='fr'>Bangladesh</DESCRIPTION>
+    <DESCRIPTION L='nl'>Bangladesh</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>be</CODE>
+    <DESCRIPTION L='de'>Belgien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Belgique</DESCRIPTION>
+    <DESCRIPTION L='nl'>België</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bf</CODE>
+    <DESCRIPTION L='de'>Burkina Faso</DESCRIPTION>
+    <DESCRIPTION L='fr'>Burkina Faso</DESCRIPTION>
+    <DESCRIPTION L='nl'>Burkina Faso</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bg</CODE>
+    <DESCRIPTION L='de'>Bulgarien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Bulgarie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Bulgarije</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bh</CODE>
+    <DESCRIPTION L='de'>Bahrein</DESCRIPTION>
+    <DESCRIPTION L='fr'>Bahreïn</DESCRIPTION>
+    <DESCRIPTION L='nl'>Bahrein</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bi</CODE>
+    <DESCRIPTION L='de'>Burundi</DESCRIPTION>
+    <DESCRIPTION L='fr'>Burundi</DESCRIPTION>
+    <DESCRIPTION L='nl'>Burundi</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bj</CODE>
+    <DESCRIPTION L='de'>Benin</DESCRIPTION>
+    <DESCRIPTION L='fr'>Bénin</DESCRIPTION>
+    <DESCRIPTION L='nl'>Benin</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bm</CODE>
+    <DESCRIPTION L='de'>Vereinigtes Königreich - Bermuda</DESCRIPTION>
+    <DESCRIPTION L='fr'>Royaume-Uni - Bermudes (Britanniques d'Outre-Mer)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Verenigd Koninkrijk - Bermuda (Britse overzeese staatsburgers)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bn</CODE>
+    <DESCRIPTION L='de'>Brunei</DESCRIPTION>
+    <DESCRIPTION L='fr'>Brunéi Darussalam</DESCRIPTION>
+    <DESCRIPTION L='nl'>Brunei</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bo</CODE>
+    <DESCRIPTION L='de'>Bolivien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Bolivie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Bolivïe</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>bq</CODE>
+      <DESCRIPTION L='de'>Bonaire, Sint Eustatius und Saba</DESCRIPTION>
+      <DESCRIPTION L='fr'>Bonaire, Saint-Eustache et Saba</DESCRIPTION>
+      <DESCRIPTION L='nl'>Bonaire, Sint Eustatius en Saba</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>br</CODE>
+    <DESCRIPTION L='de'>Brasilien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Brésil</DESCRIPTION>
+    <DESCRIPTION L='nl'>Brazilië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bs</CODE>
+    <DESCRIPTION L='de'>Bahamas</DESCRIPTION>
+    <DESCRIPTION L='fr'>Bahamas</DESCRIPTION>
+    <DESCRIPTION L='nl'>Bahama's</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bt</CODE>
+    <DESCRIPTION L='de'>Bhutan</DESCRIPTION>
+    <DESCRIPTION L='fr'>Bhoutan</DESCRIPTION>
+    <DESCRIPTION L='nl'>Bhutan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>bv</CODE>
+      <DESCRIPTION L='de'>Bouvetinsel</DESCRIPTION>
+      <DESCRIPTION L='fr'>Île Bouvet</DESCRIPTION>
+      <DESCRIPTION L='nl'>Bouvet</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bw</CODE>
+    <DESCRIPTION L='de'>Botswana</DESCRIPTION>
+    <DESCRIPTION L='fr'>Botswana</DESCRIPTION>
+    <DESCRIPTION L='nl'>Botswana</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>by</CODE>
+    <DESCRIPTION L='de'>Belarus</DESCRIPTION>
+    <DESCRIPTION L='fr'>Bélarus</DESCRIPTION>
+    <DESCRIPTION L='nl'>Wit-Rusland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bz</CODE>
+    <DESCRIPTION L='de'>Belize</DESCRIPTION>
+    <DESCRIPTION L='fr'>Belize</DESCRIPTION>
+    <DESCRIPTION L='nl'>Belize</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ca</CODE>
+    <DESCRIPTION L='de'>Kanada</DESCRIPTION>
+    <DESCRIPTION L='fr'>Canada</DESCRIPTION>
+    <DESCRIPTION L='nl'>Canada</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>cc</CODE>
+      <DESCRIPTION L='de'>Kokosinseln</DESCRIPTION>
+      <DESCRIPTION L='fr'>Îles Cocos</DESCRIPTION>
+      <DESCRIPTION L='nl'>Cocoseilanden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cd</CODE>
+    <DESCRIPTION L='de'>Kongo-Kinshasa</DESCRIPTION>
+    <DESCRIPTION L='fr'>Congo, République Démocratique du</DESCRIPTION>
+    <DESCRIPTION L='nl'>Congo, Demo. Republiek</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cf</CODE>
+    <DESCRIPTION L='de'>Zentrafrika</DESCRIPTION>
+    <DESCRIPTION L='fr'>Centrafricaine, République</DESCRIPTION>
+    <DESCRIPTION L='nl'>Centraal-Afrikaanse Republiek</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cg</CODE>
+    <DESCRIPTION L='de'>Kongo-Brazza</DESCRIPTION>
+    <DESCRIPTION L='fr'>Congo, République du</DESCRIPTION>
+    <DESCRIPTION L='nl'>Congo-Brazzaville</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ch</CODE>
+    <DESCRIPTION L='de'>Schweiz</DESCRIPTION>
+    <DESCRIPTION L='fr'>Suisse</DESCRIPTION>
+    <DESCRIPTION L='nl'>Zwitserland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ci</CODE>
+    <DESCRIPTION L='de'>Côte d'Ivoire</DESCRIPTION>
+    <DESCRIPTION L='fr'>Côte d'Ivoire</DESCRIPTION>
+    <DESCRIPTION L='nl'>Ivoorkust</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ck</CODE>
+    <DESCRIPTION L='de'>Australien - Cook (NZ)</DESCRIPTION>
+    <DESCRIPTION L='fr'>Australie - Cook, Iles (NZ)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Australië - Cook, Eilanden (NZ)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cl</CODE>
+    <DESCRIPTION L='de'>Chile</DESCRIPTION>
+    <DESCRIPTION L='fr'>Chili</DESCRIPTION>
+    <DESCRIPTION L='nl'>Chili</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cm</CODE>
+    <DESCRIPTION L='de'>Kamerun</DESCRIPTION>
+    <DESCRIPTION L='fr'>Cameroun</DESCRIPTION>
+    <DESCRIPTION L='nl'>Kameroen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cn</CODE>
+    <DESCRIPTION L='de'>China</DESCRIPTION>
+    <DESCRIPTION L='fr'>Chine</DESCRIPTION>
+    <DESCRIPTION L='nl'>China</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>co</CODE>
+    <DESCRIPTION L='de'>Kolumbien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Colombie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Colombia</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cr</CODE>
+    <DESCRIPTION L='de'>Costa Rica</DESCRIPTION>
+    <DESCRIPTION L='fr'>Costa Rica</DESCRIPTION>
+    <DESCRIPTION L='nl'>Costa Rica</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cs</CODE>
+    <DESCRIPTION L='de'>Serbien und Montenegro</DESCRIPTION>
+    <DESCRIPTION L='fr'>Serbie-Monténégro ( et ex-Yougoslavie)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Servië en Montenegro (ex-Joegoslavië)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cu</CODE>
+    <DESCRIPTION L='de'>Kuba</DESCRIPTION>
+    <DESCRIPTION L='fr'>Cuba</DESCRIPTION>
+    <DESCRIPTION L='nl'>Cuba</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cv</CODE>
+    <DESCRIPTION L='de'>Kap Verde</DESCRIPTION>
+    <DESCRIPTION L='fr'>Cap-Vert, République du</DESCRIPTION>
+    <DESCRIPTION L='nl'>Kaapverdië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>cw</CODE>
+      <DESCRIPTION L='de'>Curaçao</DESCRIPTION>
+      <DESCRIPTION L='fr'>Curaçao</DESCRIPTION>
+      <DESCRIPTION L='nl'>Curaçao</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>cx</CODE>
+      <DESCRIPTION L='de'>Weihnachtsinsel</DESCRIPTION>
+      <DESCRIPTION L='fr'>Île Christmas</DESCRIPTION>
+      <DESCRIPTION L='nl'>Christmaseiland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cy</CODE>
+    <DESCRIPTION L='de'>Zypern</DESCRIPTION>
+    <DESCRIPTION L='fr'>Chypre</DESCRIPTION>
+    <DESCRIPTION L='nl'>Cyprus</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>cz</CODE>
+    <DESCRIPTION L='de'>Tschechien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Tchèque, République</DESCRIPTION>
+    <DESCRIPTION L='nl'>Tsjechië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>de</CODE>
+    <DESCRIPTION L='de'>Deutschland</DESCRIPTION>
+    <DESCRIPTION L='fr'>Allemagne</DESCRIPTION>
+    <DESCRIPTION L='nl'>Duitsland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>dj</CODE>
+    <DESCRIPTION L='de'>Dchibuti</DESCRIPTION>
+    <DESCRIPTION L='fr'>Djibouti</DESCRIPTION>
+    <DESCRIPTION L='nl'>Djibouti</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>dk</CODE>
+    <DESCRIPTION L='de'>Dänemark</DESCRIPTION>
+    <DESCRIPTION L='fr'>Danemark</DESCRIPTION>
+    <DESCRIPTION L='nl'>Denemarken</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>dm</CODE>
+    <DESCRIPTION L='de'>Dominica</DESCRIPTION>
+    <DESCRIPTION L='fr'>Dominique, République</DESCRIPTION>
+    <DESCRIPTION L='nl'>Dominica</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>do</CODE>
+    <DESCRIPTION L='de'>Dominikanische Rep.</DESCRIPTION>
+    <DESCRIPTION L='fr'>Dominicaine, République</DESCRIPTION>
+    <DESCRIPTION L='nl'>Dominicaanse Republiek</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>dz</CODE>
+    <DESCRIPTION L='de'>Algerien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Algérie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Algerije</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ec</CODE>
+    <DESCRIPTION L='de'>Ecuador</DESCRIPTION>
+    <DESCRIPTION L='fr'>Équateur</DESCRIPTION>
+    <DESCRIPTION L='nl'>Ecuador</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ee</CODE>
+    <DESCRIPTION L='de'>Estland</DESCRIPTION>
+    <DESCRIPTION L='fr'>Estonie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Estland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>eg</CODE>
+    <DESCRIPTION L='de'>Ägypten</DESCRIPTION>
+    <DESCRIPTION L='fr'>Égypte</DESCRIPTION>
+    <DESCRIPTION L='nl'>Egypte</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>eh</CODE>
+    <DESCRIPTION L='de'>Sahara</DESCRIPTION>
+    <DESCRIPTION L='fr'>Sahara Occidental</DESCRIPTION>
+    <DESCRIPTION L='nl'>Westelijke Sahara</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>er</CODE>
+    <DESCRIPTION L='de'>Eritrea</DESCRIPTION>
+    <DESCRIPTION L='fr'>Érythrée</DESCRIPTION>
+    <DESCRIPTION L='nl'>Eritrea</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>es</CODE>
+    <DESCRIPTION L='de'>Spanien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Espagne</DESCRIPTION>
+    <DESCRIPTION L='nl'>Spanje</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>et</CODE>
+    <DESCRIPTION L='de'>Äthiopien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Éthiopie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Ethiopië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>fi</CODE>
+    <DESCRIPTION L='de'>Finnland</DESCRIPTION>
+    <DESCRIPTION L='fr'>Finlande</DESCRIPTION>
+    <DESCRIPTION L='nl'>Finland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>fj</CODE>
+    <DESCRIPTION L='de'>Fidschi</DESCRIPTION>
+    <DESCRIPTION L='fr'>Fidji</DESCRIPTION>
+    <DESCRIPTION L='nl'>Fiji</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>fk</CODE>
+    <DESCRIPTION L='de'>Vereinigtes Königreich - Falkland</DESCRIPTION>
+    <DESCRIPTION L='fr'>Royaume-Uni - Falkland (Britanniques d'Outre-Mer)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Verenigd Koninkrijk - Britse overzeese staatsburgers</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>fm</CODE>
+    <DESCRIPTION L='de'>Mikronesien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Micronésie, États Fédérés de</DESCRIPTION>
+    <DESCRIPTION L='nl'>Micronesia</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>fo</CODE>
+      <DESCRIPTION L='de'>Färöer-Inseln</DESCRIPTION>
+      <DESCRIPTION L='fr'>Îles Féroé</DESCRIPTION>
+      <DESCRIPTION L='nl'>Faeröereilanden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>fr</CODE>
+    <DESCRIPTION L='de'>Frankreich</DESCRIPTION>
+    <DESCRIPTION L='fr'>France</DESCRIPTION>
+    <DESCRIPTION L='nl'>Frankrijk</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ga</CODE>
+    <DESCRIPTION L='de'>Gabun</DESCRIPTION>
+    <DESCRIPTION L='fr'>Gabon</DESCRIPTION>
+    <DESCRIPTION L='nl'>Gabon</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gb</CODE>
+    <DESCRIPTION L='de'>Vereinigtes Königreich</DESCRIPTION>
+    <DESCRIPTION L='fr'>Royaume-Uni</DESCRIPTION>
+    <DESCRIPTION L='nl'>Verenigd Koninkrijk</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gd</CODE>
+    <DESCRIPTION L='de'>Grenada</DESCRIPTION>
+    <DESCRIPTION L='fr'>Grenade</DESCRIPTION>
+    <DESCRIPTION L='nl'>Grenada</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ge</CODE>
+    <DESCRIPTION L='de'>Georgien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Géorgie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Georgië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gf</CODE>
+    <DESCRIPTION L='de'>Frankreich - Französiche-Guayana</DESCRIPTION>
+    <DESCRIPTION L='fr'>France - Guyane française</DESCRIPTION>
+    <DESCRIPTION L='nl'>Frankrijk - Frans-Guyana</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>gg</CODE>
+      <DESCRIPTION L='de'>Guernsey (Kanalinsel)</DESCRIPTION>
+      <DESCRIPTION L='fr'>Guernesey</DESCRIPTION>
+      <DESCRIPTION L='nl'>Guernsey</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gh</CODE>
+    <DESCRIPTION L='de'>Ghana</DESCRIPTION>
+    <DESCRIPTION L='fr'>Ghana</DESCRIPTION>
+    <DESCRIPTION L='nl'>Ghana</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>gi</CODE>
+      <DESCRIPTION L='de'>Gibraltar</DESCRIPTION>
+      <DESCRIPTION L='fr'>Gibraltar</DESCRIPTION>
+      <DESCRIPTION L='nl'>Gibraltar</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>gl</CODE>
+      <DESCRIPTION L='de'>Grönland</DESCRIPTION>
+      <DESCRIPTION L='fr'>Groenland</DESCRIPTION>
+      <DESCRIPTION L='nl'>Groenland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gm</CODE>
+    <DESCRIPTION L='de'>Gambia</DESCRIPTION>
+    <DESCRIPTION L='fr'>Gambie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Gambia</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gn</CODE>
+    <DESCRIPTION L='de'>Guinea</DESCRIPTION>
+    <DESCRIPTION L='fr'>Guinée</DESCRIPTION>
+    <DESCRIPTION L='nl'>Guinee</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gp</CODE>
+    <DESCRIPTION L='de'>Frankreich - Guadeloupe</DESCRIPTION>
+    <DESCRIPTION L='fr'>France - Guadeloupe (et Antilles françaises)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Frankrijk - Guadeloupe</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gq</CODE>
+    <DESCRIPTION L='de'>Äquatorialguinea</DESCRIPTION>
+    <DESCRIPTION L='fr'>Guinée équatoriale</DESCRIPTION>
+    <DESCRIPTION L='nl'>Equatoriaal-Guinea</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gr</CODE>
+    <DESCRIPTION L='de'>Griechenland</DESCRIPTION>
+    <DESCRIPTION L='fr'>Grèce</DESCRIPTION>
+    <DESCRIPTION L='nl'>Griekenland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>gs</CODE>
+      <DESCRIPTION L='de'>Südgeorgien und die Südlichen Sandwichinseln</DESCRIPTION>
+      <DESCRIPTION L='fr'>Géorgie du Sud-et-les îles Sandwich du Sud</DESCRIPTION>
+      <DESCRIPTION L='nl'>Zuid-Georgia en de Zuidelijke Sandwicheilanden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gt</CODE>
+    <DESCRIPTION L='de'>Guatemala</DESCRIPTION>
+    <DESCRIPTION L='fr'>Guatemala</DESCRIPTION>
+    <DESCRIPTION L='nl'>Guatemala</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gu</CODE>
+    <DESCRIPTION L='de'>Vereinigte Staaten - Guam</DESCRIPTION>
+    <DESCRIPTION L='fr'>États-Unis - Guam</DESCRIPTION>
+    <DESCRIPTION L='nl'>Verenigde Staten - Guam</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gw</CODE>
+    <DESCRIPTION L='de'>Guinea-Bissau</DESCRIPTION>
+    <DESCRIPTION L='fr'>Guinée-Bissau</DESCRIPTION>
+    <DESCRIPTION L='nl'>Guinee-Bissau</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>gy</CODE>
+    <DESCRIPTION L='de'>Guyana</DESCRIPTION>
+    <DESCRIPTION L='fr'>Guyana</DESCRIPTION>
+    <DESCRIPTION L='nl'>Guyana</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>hk</CODE>
+      <DESCRIPTION L='de'>Hong Kong</DESCRIPTION>
+      <DESCRIPTION L='fr'>Hong Kong</DESCRIPTION>
+      <DESCRIPTION L='nl'>Hong Kong</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>hm</CODE>
+    <DESCRIPTION L='de'>Australien - Heard- und McDonald-Inseln, Norfolk, Christmas, Coco</DESCRIPTION>
+    <DESCRIPTION L='fr'>Australie - Heard et McDonald, Norfolk, Christmas, Cocos</DESCRIPTION>
+    <DESCRIPTION L='nl'>Australië - Heard en McDonald, Norfolk, Christmas, Cocos</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>hn</CODE>
+    <DESCRIPTION L='de'>Honduras</DESCRIPTION>
+    <DESCRIPTION L='fr'>Honduras</DESCRIPTION>
+    <DESCRIPTION L='nl'>Honduras</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>hr</CODE>
+    <DESCRIPTION L='de'>Kroatien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Croatie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Kroatië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ht</CODE>
+    <DESCRIPTION L='de'>Haiti</DESCRIPTION>
+    <DESCRIPTION L='fr'>Haïti</DESCRIPTION>
+    <DESCRIPTION L='nl'>Haïti</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>hu</CODE>
+    <DESCRIPTION L='de'>Ungarn</DESCRIPTION>
+    <DESCRIPTION L='fr'>Hongrie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Hongarije</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>id</CODE>
+    <DESCRIPTION L='de'>Indonesien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Indonésie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Indonesië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ie</CODE>
+    <DESCRIPTION L='de'>Irland</DESCRIPTION>
+    <DESCRIPTION L='fr'>Irlande</DESCRIPTION>
+    <DESCRIPTION L='nl'>Ierland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>il</CODE>
+    <DESCRIPTION L='de'>Israel</DESCRIPTION>
+    <DESCRIPTION L='fr'>Israël</DESCRIPTION>
+    <DESCRIPTION L='nl'>Israël</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>im</CODE>
+      <DESCRIPTION L='de'>Isle of Man</DESCRIPTION>
+      <DESCRIPTION L='fr'>Île de Man</DESCRIPTION>
+      <DESCRIPTION L='nl'>Man</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>in</CODE>
+    <DESCRIPTION L='de'>Indien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Inde</DESCRIPTION>
+    <DESCRIPTION L='nl'>India</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>io</CODE>
+      <DESCRIPTION L='de'>Britisches Territorium im Indischen Ozean</DESCRIPTION>
+      <DESCRIPTION L='fr'>Territoire britannique de l'océan Indien</DESCRIPTION>
+      <DESCRIPTION L='nl'>Brits Indische Oceaanterritorium</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>iq</CODE>
+    <DESCRIPTION L='de'>Irak</DESCRIPTION>
+    <DESCRIPTION L='fr'>Iraq</DESCRIPTION>
+    <DESCRIPTION L='nl'>Irak</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ir</CODE>
+    <DESCRIPTION L='de'>Iran</DESCRIPTION>
+    <DESCRIPTION L='fr'>Iran, République Islamique d'</DESCRIPTION>
+    <DESCRIPTION L='nl'>Iran</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>is</CODE>
+    <DESCRIPTION L='de'>Island</DESCRIPTION>
+    <DESCRIPTION L='fr'>Islande</DESCRIPTION>
+    <DESCRIPTION L='nl'>IJsland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>it</CODE>
+    <DESCRIPTION L='de'>Italien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Italie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Italië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>je</CODE>
+      <DESCRIPTION L='de'>Jersey</DESCRIPTION>
+      <DESCRIPTION L='fr'>Jersey</DESCRIPTION>
+      <DESCRIPTION L='nl'>Jersey</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>jm</CODE>
+    <DESCRIPTION L='de'>Jamaika</DESCRIPTION>
+    <DESCRIPTION L='fr'>Jamaïque</DESCRIPTION>
+    <DESCRIPTION L='nl'>Jamaica</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>jo</CODE>
+    <DESCRIPTION L='de'>Jordanien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Jordanie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Jordanië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>jp</CODE>
+    <DESCRIPTION L='de'>Japan</DESCRIPTION>
+    <DESCRIPTION L='fr'>Japon</DESCRIPTION>
+    <DESCRIPTION L='nl'>Japan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ke</CODE>
+    <DESCRIPTION L='de'>Kenia</DESCRIPTION>
+    <DESCRIPTION L='fr'>Kenya</DESCRIPTION>
+    <DESCRIPTION L='nl'>Kenia</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>kg</CODE>
+    <DESCRIPTION L='de'>Kyrgyzstan</DESCRIPTION>
+    <DESCRIPTION L='fr'>Kirghizistan</DESCRIPTION>
+    <DESCRIPTION L='nl'>Kirgizië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>kh</CODE>
+    <DESCRIPTION L='de'>Kambodscha</DESCRIPTION>
+    <DESCRIPTION L='fr'>Cambodge</DESCRIPTION>
+    <DESCRIPTION L='nl'>Cambodja</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ki</CODE>
+    <DESCRIPTION L='de'>Kiribati</DESCRIPTION>
+    <DESCRIPTION L='fr'>Kiribati</DESCRIPTION>
+    <DESCRIPTION L='nl'>Kiribati</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>km</CODE>
+    <DESCRIPTION L='de'>Komoren</DESCRIPTION>
+    <DESCRIPTION L='fr'>Comores</DESCRIPTION>
+    <DESCRIPTION L='nl'>Comoren</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>kn</CODE>
+    <DESCRIPTION L='de'>Sankt Kitts</DESCRIPTION>
+    <DESCRIPTION L='fr'>Saint-Kitts-Et-Nevis</DESCRIPTION>
+    <DESCRIPTION L='nl'>Saint Kitts en Nevis</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>kp</CODE>
+    <DESCRIPTION L='de'>Nordkorea</DESCRIPTION>
+    <DESCRIPTION L='fr'>Corée, République Populaire Démocratique de</DESCRIPTION>
+    <DESCRIPTION L='nl'>Noord-Korea</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>kr</CODE>
+    <DESCRIPTION L='de'>Südkorea</DESCRIPTION>
+    <DESCRIPTION L='fr'>Corée, République de</DESCRIPTION>
+    <DESCRIPTION L='nl'>Zuid-Korea</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>kw</CODE>
+    <DESCRIPTION L='de'>Kuwait</DESCRIPTION>
+    <DESCRIPTION L='fr'>Koweït</DESCRIPTION>
+    <DESCRIPTION L='nl'>Koeweit</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ky</CODE>
+    <DESCRIPTION L='de'>Vereinigtes Königreich - Kaiman</DESCRIPTION>
+    <DESCRIPTION L='fr'>Royaume-Uni - Iles Caïmans (Britanniques d'Outre-Mer)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Verenigd Koninkrijk - Caymaneilanden (Britse overzeese staatsburgers)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>kz</CODE>
+    <DESCRIPTION L='de'>Kasachstan</DESCRIPTION>
+    <DESCRIPTION L='fr'>Kazakhstan</DESCRIPTION>
+    <DESCRIPTION L='nl'>Kazachstan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>la</CODE>
+    <DESCRIPTION L='de'>Laos</DESCRIPTION>
+    <DESCRIPTION L='fr'>Lao, République Démocratique Populaire</DESCRIPTION>
+    <DESCRIPTION L='nl'>Laos</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lb</CODE>
+    <DESCRIPTION L='de'>Libanon</DESCRIPTION>
+    <DESCRIPTION L='fr'>Liban</DESCRIPTION>
+    <DESCRIPTION L='nl'>Libanon</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lc</CODE>
+    <DESCRIPTION L='de'>Sankt Lucia</DESCRIPTION>
+    <DESCRIPTION L='fr'>Sainte-Lucie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Saint Lucia</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>li</CODE>
+    <DESCRIPTION L='de'>Liechtenstein</DESCRIPTION>
+    <DESCRIPTION L='fr'>Liechtenstein</DESCRIPTION>
+    <DESCRIPTION L='nl'>Liechtenstein</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lk</CODE>
+    <DESCRIPTION L='de'>Sri Lanka</DESCRIPTION>
+    <DESCRIPTION L='fr'>Sri Lanka</DESCRIPTION>
+    <DESCRIPTION L='nl'>Sri Lanka</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lr</CODE>
+    <DESCRIPTION L='de'>Liberia</DESCRIPTION>
+    <DESCRIPTION L='fr'>Libéria</DESCRIPTION>
+    <DESCRIPTION L='nl'>Liberia</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ls</CODE>
+    <DESCRIPTION L='de'>Lesotho</DESCRIPTION>
+    <DESCRIPTION L='fr'>Lesotho</DESCRIPTION>
+    <DESCRIPTION L='nl'>Lesotho</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lt</CODE>
+    <DESCRIPTION L='de'>Litauen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Lituanie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Litouwen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lu</CODE>
+    <DESCRIPTION L='de'>Luxemburg</DESCRIPTION>
+    <DESCRIPTION L='fr'>Luxembourg</DESCRIPTION>
+    <DESCRIPTION L='nl'>Luxemburg</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lv</CODE>
+    <DESCRIPTION L='de'>Lettland</DESCRIPTION>
+    <DESCRIPTION L='fr'>Lettonie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Letland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ly</CODE>
+    <DESCRIPTION L='de'>Libyen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Libyenne, Jamahiriya Arabe</DESCRIPTION>
+    <DESCRIPTION L='nl'>Libië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ma</CODE>
+    <DESCRIPTION L='de'>Marokko</DESCRIPTION>
+    <DESCRIPTION L='fr'>Maroc</DESCRIPTION>
+    <DESCRIPTION L='nl'>Marokko</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mc</CODE>
+    <DESCRIPTION L='de'>Monaco</DESCRIPTION>
+    <DESCRIPTION L='fr'>Monaco, Principauté de</DESCRIPTION>
+    <DESCRIPTION L='nl'>Monaco</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>md</CODE>
+    <DESCRIPTION L='de'>Moldawien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Moldova, République de</DESCRIPTION>
+    <DESCRIPTION L='nl'>Moldavië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>me</CODE>
+    <DESCRIPTION L='de'>Montenegro</DESCRIPTION>
+    <DESCRIPTION L='fr'>Monténégro</DESCRIPTION>
+    <DESCRIPTION L='nl'>Montenegro</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>mf</CODE>
+      <DESCRIPTION L='de'>Saint-Martin (france)</DESCRIPTION>
+      <DESCRIPTION L='fr'>Saint-Martin (france)</DESCRIPTION>
+      <DESCRIPTION L='nl'>Saint-Martin (france)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mg</CODE>
+    <DESCRIPTION L='de'>Madagaskar</DESCRIPTION>
+    <DESCRIPTION L='fr'>Madagascar</DESCRIPTION>
+    <DESCRIPTION L='nl'>Madagaskar</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mh</CODE>
+    <DESCRIPTION L='de'>Marshall</DESCRIPTION>
+    <DESCRIPTION L='fr'>Marshall, République des</DESCRIPTION>
+    <DESCRIPTION L='nl'>Marshalleilanden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mk</CODE>
+    <DESCRIPTION L='de'>Mazedonien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Macédoine, L'ex-République Yougoslave de</DESCRIPTION>
+    <DESCRIPTION L='nl'>Macedonië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ml</CODE>
+    <DESCRIPTION L='de'>Mali</DESCRIPTION>
+    <DESCRIPTION L='fr'>Mali</DESCRIPTION>
+    <DESCRIPTION L='nl'>Mali</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mm</CODE>
+    <DESCRIPTION L='de'>Myanmar</DESCRIPTION>
+    <DESCRIPTION L='fr'>Myanmar</DESCRIPTION>
+    <DESCRIPTION L='nl'>Myanmar</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mn</CODE>
+    <DESCRIPTION L='de'>Mongolei</DESCRIPTION>
+    <DESCRIPTION L='fr'>Mongolie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Mongolië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>mo</CODE>
+      <DESCRIPTION L='de'>Macau</DESCRIPTION>
+      <DESCRIPTION L='fr'>Macao</DESCRIPTION>
+      <DESCRIPTION L='nl'>Macau</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mp</CODE>
+    <DESCRIPTION L='de'>Nördlichen Marianen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Mariannes Du Nord, Îles</DESCRIPTION>
+    <DESCRIPTION L='nl'>Noordelijke Marianen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mq</CODE>
+    <DESCRIPTION L='de'>Frankreich - Martinique</DESCRIPTION>
+    <DESCRIPTION L='fr'>France - Martinique</DESCRIPTION>
+    <DESCRIPTION L='nl'>Frankrijk - Martinique</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mr</CODE>
+    <DESCRIPTION L='de'>Mauretanien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Mauritanie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Mauritanië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ms</CODE>
+    <DESCRIPTION L='de'>Vereinigtes Königreich - Montserrat</DESCRIPTION>
+    <DESCRIPTION L='fr'>Royaume-Uni - Montserrat (Britanniques d'Outre-Mer)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Verenigd Koninkrijk - Montserrat (Britse overzeese staatsburgers)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mt</CODE>
+    <DESCRIPTION L='de'>Malta</DESCRIPTION>
+    <DESCRIPTION L='fr'>Malte</DESCRIPTION>
+    <DESCRIPTION L='nl'>Malta</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mu</CODE>
+    <DESCRIPTION L='de'>Mauritius</DESCRIPTION>
+    <DESCRIPTION L='fr'>Maurice</DESCRIPTION>
+    <DESCRIPTION L='nl'>Mauritius</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mv</CODE>
+    <DESCRIPTION L='de'>Malediven</DESCRIPTION>
+    <DESCRIPTION L='fr'>Maldives</DESCRIPTION>
+    <DESCRIPTION L='nl'>Maldiven</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mw</CODE>
+    <DESCRIPTION L='de'>Malawi</DESCRIPTION>
+    <DESCRIPTION L='fr'>Malawi</DESCRIPTION>
+    <DESCRIPTION L='nl'>Malawi</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mx</CODE>
+    <DESCRIPTION L='de'>Mexiko</DESCRIPTION>
+    <DESCRIPTION L='fr'>Mexique</DESCRIPTION>
+    <DESCRIPTION L='nl'>Mexico</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>my</CODE>
+    <DESCRIPTION L='de'>Malaysia</DESCRIPTION>
+    <DESCRIPTION L='fr'>Malaisie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Maleisië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mz</CODE>
+    <DESCRIPTION L='de'>Mosambik</DESCRIPTION>
+    <DESCRIPTION L='fr'>Mozambique</DESCRIPTION>
+    <DESCRIPTION L='nl'>Mozambique</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>na</CODE>
+    <DESCRIPTION L='de'>Namibia</DESCRIPTION>
+    <DESCRIPTION L='fr'>Namibie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Namibië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>nc</CODE>
+    <DESCRIPTION L='de'>Frankreich - Neukaledonien</DESCRIPTION>
+    <DESCRIPTION L='fr'>France - Nouvelle Calédonie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Frankrijk - Nieuw-Caledonië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ne</CODE>
+    <DESCRIPTION L='de'>Niger</DESCRIPTION>
+    <DESCRIPTION L='fr'>Niger</DESCRIPTION>
+    <DESCRIPTION L='nl'>Niger</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>nf</CODE>
+      <DESCRIPTION L='de'>Norfolkinsel</DESCRIPTION>
+      <DESCRIPTION L='fr'>Île Norfolk</DESCRIPTION>
+      <DESCRIPTION L='nl'>Norfolk</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ng</CODE>
+    <DESCRIPTION L='de'>Nigeria</DESCRIPTION>
+    <DESCRIPTION L='fr'>Nigéria</DESCRIPTION>
+    <DESCRIPTION L='nl'>Nigeria</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ni</CODE>
+    <DESCRIPTION L='de'>Nicaragua</DESCRIPTION>
+    <DESCRIPTION L='fr'>Nicaragua</DESCRIPTION>
+    <DESCRIPTION L='nl'>Nicaragua</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>nl</CODE>
+    <DESCRIPTION L='de'>Niederlande</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pays-Bas</DESCRIPTION>
+    <DESCRIPTION L='nl'>Nederland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>no</CODE>
+    <DESCRIPTION L='de'>Norwegen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Norvège</DESCRIPTION>
+    <DESCRIPTION L='nl'>Noorwegen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>np</CODE>
+    <DESCRIPTION L='de'>Nepal</DESCRIPTION>
+    <DESCRIPTION L='fr'>Népal</DESCRIPTION>
+    <DESCRIPTION L='nl'>Nepal</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>nr</CODE>
+    <DESCRIPTION L='de'>Nauru</DESCRIPTION>
+    <DESCRIPTION L='fr'>Nauru</DESCRIPTION>
+    <DESCRIPTION L='nl'>Nauru</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>nu</CODE>
+    <DESCRIPTION L='de'>Australien - Niue</DESCRIPTION>
+    <DESCRIPTION L='fr'>Australie - Niue</DESCRIPTION>
+    <DESCRIPTION L='nl'>Australië - Niue</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>nz</CODE>
+    <DESCRIPTION L='de'>Australien - Neuseeland</DESCRIPTION>
+    <DESCRIPTION L='fr'>Australie - Nouvelle-Zélande</DESCRIPTION>
+    <DESCRIPTION L='nl'>Australië - Nieuw-Zeeland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>om</CODE>
+    <DESCRIPTION L='de'>Oman</DESCRIPTION>
+    <DESCRIPTION L='fr'>Oman</DESCRIPTION>
+    <DESCRIPTION L='nl'>Oman</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pa</CODE>
+    <DESCRIPTION L='de'>Panama</DESCRIPTION>
+    <DESCRIPTION L='fr'>Panama</DESCRIPTION>
+    <DESCRIPTION L='nl'>Panama</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pe</CODE>
+    <DESCRIPTION L='de'>Peru</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pérou</DESCRIPTION>
+    <DESCRIPTION L='nl'>Peru</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pf</CODE>
+    <DESCRIPTION L='de'>Frankreich - Tahiti</DESCRIPTION>
+    <DESCRIPTION L='fr'>France - Tahiti (et Polynésie française)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Frankrijk - Tahiti (Frans-Polynesië)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pg</CODE>
+    <DESCRIPTION L='de'>Papua-Neuguinea</DESCRIPTION>
+    <DESCRIPTION L='fr'>Papouasie-Nouvelle-Guinée</DESCRIPTION>
+    <DESCRIPTION L='nl'>Papoea-Nieuw-Guinea</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ph</CODE>
+    <DESCRIPTION L='de'>Philippinen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Philippines</DESCRIPTION>
+    <DESCRIPTION L='nl'>Filipijnen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pk</CODE>
+    <DESCRIPTION L='de'>Pakistan</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pakistan</DESCRIPTION>
+    <DESCRIPTION L='nl'>Pakistan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pl</CODE>
+    <DESCRIPTION L='de'>Polen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pologne</DESCRIPTION>
+    <DESCRIPTION L='nl'>Polen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pm</CODE>
+    <DESCRIPTION L='de'>Frankreich - Saint Pierre und Miquelon</DESCRIPTION>
+    <DESCRIPTION L='fr'>France - Saint-Pierre et Miquelon</DESCRIPTION>
+    <DESCRIPTION L='nl'>Frankrijk - Saint-Pierre en Miquelon</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pn</CODE>
+    <DESCRIPTION L='de'>Vereinigtes Königreich - Pitcairn</DESCRIPTION>
+    <DESCRIPTION L='fr'>Royaume-Uni - Pitcairn (Britanniques d'Outre-Mer)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Verenigd Koninkrijk - Pitcairn (Britse overzeese staatsburgers)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pr</CODE>
+    <DESCRIPTION L='de'>Vereinigte Staaten - Puerto Rico</DESCRIPTION>
+    <DESCRIPTION L='fr'>États-Unis - Porto Rico</DESCRIPTION>
+    <DESCRIPTION L='nl'>Verenigde Staten - Puerto Rico</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ps</CODE>
+    <DESCRIPTION L='de'>Palästina</DESCRIPTION>
+    <DESCRIPTION L='fr'>Autorité palestinienne (Cisjordanie et Gaza)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Palestijnse Autoriteit</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pt</CODE>
+    <DESCRIPTION L='de'>Portugal</DESCRIPTION>
+    <DESCRIPTION L='fr'>Portugal</DESCRIPTION>
+    <DESCRIPTION L='nl'>Portugal</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pw</CODE>
+    <DESCRIPTION L='de'>Palau</DESCRIPTION>
+    <DESCRIPTION L='fr'>Palaos</DESCRIPTION>
+    <DESCRIPTION L='nl'>Palau</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>py</CODE>
+    <DESCRIPTION L='de'>Paraguay</DESCRIPTION>
+    <DESCRIPTION L='fr'>Paraguay</DESCRIPTION>
+    <DESCRIPTION L='nl'>Paraguay</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>qa</CODE>
+    <DESCRIPTION L='de'>Katar</DESCRIPTION>
+    <DESCRIPTION L='fr'>Qatar</DESCRIPTION>
+    <DESCRIPTION L='nl'>Qatar</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>re</CODE>
+    <DESCRIPTION L='de'>Frankreich - Réunion</DESCRIPTION>
+    <DESCRIPTION L='fr'>France - Réunion</DESCRIPTION>
+    <DESCRIPTION L='nl'>Frankrijk - Réunion</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ro</CODE>
+    <DESCRIPTION L='de'>Rumänien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Roumanie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Roemenië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>rs</CODE>
+    <DESCRIPTION L='de'>Serbien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Serbie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Servië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ru</CODE>
+    <DESCRIPTION L='de'>Russland</DESCRIPTION>
+    <DESCRIPTION L='fr'>Russie, Fédération de</DESCRIPTION>
+    <DESCRIPTION L='nl'>Rusland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>rw</CODE>
+    <DESCRIPTION L='de'>Ruanda</DESCRIPTION>
+    <DESCRIPTION L='fr'>Rwanda</DESCRIPTION>
+    <DESCRIPTION L='nl'>Rwanda</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sa</CODE>
+    <DESCRIPTION L='de'>Saudi-Arabien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Arabie Saoudite</DESCRIPTION>
+    <DESCRIPTION L='nl'>Saoedi-Arabië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sb</CODE>
+    <DESCRIPTION L='de'>Salomon</DESCRIPTION>
+    <DESCRIPTION L='fr'>Salomon</DESCRIPTION>
+    <DESCRIPTION L='nl'>Salomonseilanden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sc</CODE>
+    <DESCRIPTION L='de'>Seychellen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Seychelles</DESCRIPTION>
+    <DESCRIPTION L='nl'>Seychellen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sd</CODE>
+    <DESCRIPTION L='de'>Sudan</DESCRIPTION>
+    <DESCRIPTION L='fr'>Soudan</DESCRIPTION>
+    <DESCRIPTION L='nl'>Soedan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>se</CODE>
+    <DESCRIPTION L='de'>Schweden</DESCRIPTION>
+    <DESCRIPTION L='fr'>Suède</DESCRIPTION>
+    <DESCRIPTION L='nl'>Zweden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sg</CODE>
+    <DESCRIPTION L='de'>Singapur</DESCRIPTION>
+    <DESCRIPTION L='fr'>Singapour</DESCRIPTION>
+    <DESCRIPTION L='nl'>Singapore</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sh</CODE>
+    <DESCRIPTION L='de'>Sankt Helena</DESCRIPTION>
+    <DESCRIPTION L='fr'>Sainte Hélène (Britanniques d'Outre-Mer)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Sainte Helena (Britse overzeese staatsburgers)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>si</CODE>
+    <DESCRIPTION L='de'>Slowenien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Slovénie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Slovenië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>sj</CODE>
+      <DESCRIPTION L='de'>Spitzbergen und Jan Mayen</DESCRIPTION>
+      <DESCRIPTION L='fr'>Svalbard et ile Jan Mayen</DESCRIPTION>
+      <DESCRIPTION L='nl'>Spitsbergen en Jan Mayen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sk</CODE>
+    <DESCRIPTION L='de'>Slowakei</DESCRIPTION>
+    <DESCRIPTION L='fr'>Slovaquie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Slowakije</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sl</CODE>
+    <DESCRIPTION L='de'>Sierra Leone</DESCRIPTION>
+    <DESCRIPTION L='fr'>Sierra Leone</DESCRIPTION>
+    <DESCRIPTION L='nl'>Sierra Leone</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sm</CODE>
+    <DESCRIPTION L='de'>San Marino</DESCRIPTION>
+    <DESCRIPTION L='fr'>Saint-Marin</DESCRIPTION>
+    <DESCRIPTION L='nl'>San Marino</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sn</CODE>
+    <DESCRIPTION L='de'>Senegal</DESCRIPTION>
+    <DESCRIPTION L='fr'>Sénégal</DESCRIPTION>
+    <DESCRIPTION L='nl'>Senegal</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>so</CODE>
+    <DESCRIPTION L='de'>Somalia</DESCRIPTION>
+    <DESCRIPTION L='fr'>Somalie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Somalië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sr</CODE>
+    <DESCRIPTION L='de'>Suriname</DESCRIPTION>
+    <DESCRIPTION L='fr'>Suriname</DESCRIPTION>
+    <DESCRIPTION L='nl'>Suriname</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>ss</CODE>
+      <DESCRIPTION L='de'>Südsudan</DESCRIPTION>
+      <DESCRIPTION L='fr'>Soudan du Sud</DESCRIPTION>
+      <DESCRIPTION L='nl'>Zuid-Soedan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>st</CODE>
+    <DESCRIPTION L='de'>São Tomé</DESCRIPTION>
+    <DESCRIPTION L='fr'>Sao Tomé-et-Principe</DESCRIPTION>
+    <DESCRIPTION L='nl'>Sao Tomé en Principe</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sv</CODE>
+    <DESCRIPTION L='de'>El Salvador</DESCRIPTION>
+    <DESCRIPTION L='fr'>El Salvador</DESCRIPTION>
+    <DESCRIPTION L='nl'>El Salvador</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>sx</CODE>
+      <DESCRIPTION L='de'>Sint Maarten</DESCRIPTION>
+      <DESCRIPTION L='fr'>Saint-Martin</DESCRIPTION>
+      <DESCRIPTION L='nl'>Sint Maarten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sy</CODE>
+    <DESCRIPTION L='de'>Syrien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Syrienne, République Arabe</DESCRIPTION>
+    <DESCRIPTION L='nl'>Syrië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sz</CODE>
+    <DESCRIPTION L='de'>Ngwane</DESCRIPTION>
+    <DESCRIPTION L='fr'>Swaziland</DESCRIPTION>
+    <DESCRIPTION L='nl'>Swaziland</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tc</CODE>
+    <DESCRIPTION L='de'>Vereinigtes Königreich - Turks</DESCRIPTION>
+    <DESCRIPTION L='fr'>Royaume-Uni - Turks et Caicos (Britanniques d'Outre-Mer)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Verenigd Koninkrijk - Turks- en Caicoseilanden (Britse overzeese staatsburgers)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>td</CODE>
+    <DESCRIPTION L='de'>Tschad</DESCRIPTION>
+    <DESCRIPTION L='fr'>Tchad</DESCRIPTION>
+    <DESCRIPTION L='nl'>Tsjaad</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>tf</CODE>
+      <DESCRIPTION L='de'>Französische Süd- und Antarktisgebiete</DESCRIPTION>
+      <DESCRIPTION L='fr'>Terres australes et antarctiques françaises</DESCRIPTION>
+      <DESCRIPTION L='nl'>Franse Zuidelijke Gebieden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tg</CODE>
+    <DESCRIPTION L='de'>Togo</DESCRIPTION>
+    <DESCRIPTION L='fr'>Togo</DESCRIPTION>
+    <DESCRIPTION L='nl'>Togo</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>th</CODE>
+    <DESCRIPTION L='de'>Thailand</DESCRIPTION>
+    <DESCRIPTION L='fr'>Thaïlande</DESCRIPTION>
+    <DESCRIPTION L='nl'>Thailand</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tj</CODE>
+    <DESCRIPTION L='de'>Tadschikistan</DESCRIPTION>
+    <DESCRIPTION L='fr'>Tadjikistan</DESCRIPTION>
+    <DESCRIPTION L='nl'>Tadzjikistan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tk</CODE>
+    <DESCRIPTION L='de'>Australien - Tokelau</DESCRIPTION>
+    <DESCRIPTION L='fr'>Australie - Tokelau</DESCRIPTION>
+    <DESCRIPTION L='nl'>Australië - Tokelau</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tl</CODE>
+    <DESCRIPTION L='de'>Timor-Leste</DESCRIPTION>
+    <DESCRIPTION L='fr'>Timor-Leste</DESCRIPTION>
+    <DESCRIPTION L='nl'>Timor Leste</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tm</CODE>
+    <DESCRIPTION L='de'>Turkmenistan</DESCRIPTION>
+    <DESCRIPTION L='fr'>Turkménistan</DESCRIPTION>
+    <DESCRIPTION L='nl'>Turkmenistan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tn</CODE>
+    <DESCRIPTION L='de'>Tunesien</DESCRIPTION>
+    <DESCRIPTION L='fr'>Tunisie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Tunesië</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>to</CODE>
+    <DESCRIPTION L='de'>Tonga</DESCRIPTION>
+    <DESCRIPTION L='fr'>Tonga</DESCRIPTION>
+    <DESCRIPTION L='nl'>Tonga</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tr</CODE>
+    <DESCRIPTION L='de'>Türkei</DESCRIPTION>
+    <DESCRIPTION L='fr'>Turquie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Turkije</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tt</CODE>
+    <DESCRIPTION L='de'>Trinidad</DESCRIPTION>
+    <DESCRIPTION L='fr'>Trinité-Et-Tobago</DESCRIPTION>
+    <DESCRIPTION L='nl'>Trinidad en Tobago</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tv</CODE>
+    <DESCRIPTION L='de'>Tuvalu</DESCRIPTION>
+    <DESCRIPTION L='fr'>Tuvalu</DESCRIPTION>
+    <DESCRIPTION L='nl'>Tuvalu</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tw</CODE>
+    <DESCRIPTION L='de'>Taiwan</DESCRIPTION>
+    <DESCRIPTION L='fr'>Taïwan</DESCRIPTION>
+    <DESCRIPTION L='nl'>Taiwan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tz</CODE>
+    <DESCRIPTION L='de'>Tansania</DESCRIPTION>
+    <DESCRIPTION L='fr'>Tanzanie, République-Unie de</DESCRIPTION>
+    <DESCRIPTION L='nl'>Tanzania</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ua</CODE>
+    <DESCRIPTION L='de'>Ukraine</DESCRIPTION>
+    <DESCRIPTION L='fr'>Ukraine</DESCRIPTION>
+    <DESCRIPTION L='nl'>Oekraïne</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ug</CODE>
+    <DESCRIPTION L='de'>Uganda</DESCRIPTION>
+    <DESCRIPTION L='fr'>Ouganda</DESCRIPTION>
+    <DESCRIPTION L='nl'>Oeganda</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+      <CODE>um</CODE>
+      <DESCRIPTION L='de'>United States Minor Outlying Islands</DESCRIPTION>
+      <DESCRIPTION L='fr'>Îles mineures éloignées des États-Unis</DESCRIPTION>
+      <DESCRIPTION L='nl'>Kleine afgelegen eilanden van de Verenigde Staten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>us</CODE>
+    <DESCRIPTION L='de'>Vereinigte Staaten</DESCRIPTION>
+    <DESCRIPTION L='fr'>États-Unis</DESCRIPTION>
+    <DESCRIPTION L='nl'>Verenigde Staten</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>uy</CODE>
+    <DESCRIPTION L='de'>Uruguay</DESCRIPTION>
+    <DESCRIPTION L='fr'>Uruguay</DESCRIPTION>
+    <DESCRIPTION L='nl'>Uruguay</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>uz</CODE>
+    <DESCRIPTION L='de'>Usbekistan</DESCRIPTION>
+    <DESCRIPTION L='fr'>Ouzbékistan</DESCRIPTION>
+    <DESCRIPTION L='nl'>Oezbekistan</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>va</CODE>
+    <DESCRIPTION L='de'>Heiliger Stuhl</DESCRIPTION>
+    <DESCRIPTION L='fr'>Saint-Siège (État de la Cité du Vatican)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Vaticaanstad</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>vc</CODE>
+    <DESCRIPTION L='de'>Sankt Vincent</DESCRIPTION>
+    <DESCRIPTION L='fr'>Saint-Vincent-et-les Grenadines</DESCRIPTION>
+    <DESCRIPTION L='nl'>Saint Vincent en de Grenadines</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ve</CODE>
+    <DESCRIPTION L='de'>Venezuela</DESCRIPTION>
+    <DESCRIPTION L='fr'>Venezuela</DESCRIPTION>
+    <DESCRIPTION L='nl'>Venezuela</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>vg</CODE>
+    <DESCRIPTION L='de'>Vereinigtes Königreich - Britische Jungferninseln</DESCRIPTION>
+    <DESCRIPTION L='fr'>Royaume-Uni - Iles Vierges (Britanniques d'Outre-Mer)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Verenigd Koninkrijk - Britse Maagdeneilanden (Britse overzeese staatsburgers)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>vi</CODE>
+    <DESCRIPTION L='de'>Vereinigte Staaten - Amerikanische Jungferninseln</DESCRIPTION>
+    <DESCRIPTION L='fr'>États-Unis - Iles Vierges (US) (et Antilles américaines)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Verenigde Staten - Maagdeneilanden, Amerikaanse</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>vn</CODE>
+    <DESCRIPTION L='de'>Vietnam</DESCRIPTION>
+    <DESCRIPTION L='fr'>Viet Nam</DESCRIPTION>
+    <DESCRIPTION L='nl'>Vietnam</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>vu</CODE>
+    <DESCRIPTION L='de'>Vanuatu</DESCRIPTION>
+    <DESCRIPTION L='fr'>Vanuatu</DESCRIPTION>
+    <DESCRIPTION L='nl'>Vanuatu</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>wf</CODE>
+    <DESCRIPTION L='de'>Frankreich - Wallis-und-Futuna</DESCRIPTION>
+    <DESCRIPTION L='fr'>France - Wallis-et-Futuna</DESCRIPTION>
+    <DESCRIPTION L='nl'>Frankrijk - Wallis-en-Futuna</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ws</CODE>
+    <DESCRIPTION L='de'>Samoa</DESCRIPTION>
+    <DESCRIPTION L='fr'>Samoa</DESCRIPTION>
+    <DESCRIPTION L='nl'>Samoa</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>xa</CODE>
+    <DESCRIPTION L='de'>Staatenlos</DESCRIPTION>
+    <DESCRIPTION L='fr'>Apatride</DESCRIPTION>
+    <DESCRIPTION L='nl'>Staatlozen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>xe</CODE>
+    <DESCRIPTION L='de'>Unbestimmt</DESCRIPTION>
+    <DESCRIPTION L='fr'>Indéterminé</DESCRIPTION>
+    <DESCRIPTION L='nl'>Onbepaald</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>xi</CODE>
+    <DESCRIPTION L='de'>Tschechoslowakei</DESCRIPTION>
+    <DESCRIPTION L='fr'>Tchécoslovaquie (Ex)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Tsjecho-Slovakije (ex)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>xk</CODE>
+    <DESCRIPTION L='de'>Kosovo</DESCRIPTION>
+    <DESCRIPTION L='fr'>Kosovo</DESCRIPTION>
+    <DESCRIPTION L='nl'>Kosovo</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>xr</CODE>
+    <DESCRIPTION L='de'>Flüchtling</DESCRIPTION>
+    <DESCRIPTION L='fr'>Réfugié</DESCRIPTION>
+    <DESCRIPTION L='nl'>Vluchteling</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>xs</CODE>
+    <DESCRIPTION L='de'>Sowjetunion</DESCRIPTION>
+    <DESCRIPTION L='fr'>Union Soviétique (Ex)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Unie d. Socialist. Sovjetrep. (ex)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>ye</CODE>
+    <DESCRIPTION L='de'>Jemen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Yémen</DESCRIPTION>
+    <DESCRIPTION L='nl'>Jemen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>yt</CODE>
+    <DESCRIPTION L='de'>Frankreich - Mayotte</DESCRIPTION>
+    <DESCRIPTION L='fr'>France - Mayotte</DESCRIPTION>
+    <DESCRIPTION L='nl'>Frankrijk - Mayotte</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>za</CODE>
+    <DESCRIPTION L='de'>Südafrika</DESCRIPTION>
+    <DESCRIPTION L='fr'>Afrique Du Sud</DESCRIPTION>
+    <DESCRIPTION L='nl'>Zuid-Afrika</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>zm</CODE>
+    <DESCRIPTION L='de'>Sambia</DESCRIPTION>
+    <DESCRIPTION L='fr'>Zambie</DESCRIPTION>
+    <DESCRIPTION L='nl'>Zambia</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>zw</CODE>
+    <DESCRIPTION L='de'>Simbabwe</DESCRIPTION>
+    <DESCRIPTION L='fr'>Zimbabwe</DESCRIPTION>
+    <DESCRIPTION L='nl'>Zimbabwe</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

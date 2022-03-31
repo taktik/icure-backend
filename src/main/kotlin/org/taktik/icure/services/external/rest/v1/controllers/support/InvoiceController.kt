@@ -166,7 +166,7 @@ class InvoiceController(
         invoiceLogic.validateInvoice(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, invoiceLogic.getInvoice(invoiceId), scheme, forcedValue)?.let { invoiceMapper.map(it) }
     }
 
-    @Operation(summary = "Gets all invoices for author at date")
+    @Operation(summary = "Append codes to new or existing invoice")
     @PostMapping("/byauthor/{userId}/append/{type}/{sentMediumType}")
     fun appendCodes(@PathVariable userId: String,
                             @PathVariable type: String,
@@ -182,7 +182,7 @@ class InvoiceController(
         emitAll( invoices.map { invoiceMapper.map(it) })
     }.injectReactorContext()
 
-    @Operation(summary = "Gets all invoices for author at date")
+    @Operation(summary = "removeCodes for linked serviceId")
     @PostMapping("/byauthor/{userId}/service/{serviceId}")
     fun removeCodes(@PathVariable userId: String,
                     @PathVariable serviceId: String,

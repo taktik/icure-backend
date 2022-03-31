@@ -48,7 +48,6 @@ interface InvoiceLogic : EntityPersister<Invoice, String> {
         toDate: Long?,
         paginationOffset: PaginationOffset<List<*>>
     ): Flow<ViewQueryResultEvent>
-
     fun listInvoicesByHcPartyContacts(hcParty: String, contactIds: Set<String>): Flow<Invoice>
     fun listInvoicesByHcPartyAndRecipientIds(hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
     fun listInvoicesByHcPartyAndPatientSks(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice>

@@ -232,9 +232,9 @@ open class KmehrExport(
             }
 
             isIsrelevant = ServiceStatus.isRelevant(svc.status)
-            beginmoment = (svc.valueDate ?: svc.openingDate).let { Utils.makeMomentTypeDateFromFuzzyLong(it) }
-            endmoment = svc.closingDate?.let { Utils.makeMomentTypeDateFromFuzzyLong(it)}
-            recorddatetime = makeXGC(svc.modified)
+            beginmoment = (svc.valueDate ?: svc.openingDate ?: svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.beginMoment)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
+            endmoment = (svc.closingDate ?: svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.endMoment)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
+            recorddatetime = makeXGC(svc.modified ?: svc.created ?: svc.valueDate)
         }
     }
 
@@ -261,10 +261,10 @@ open class KmehrExport(
             it.unit != null || it.minref != null || it.maxref != null || it.refscopes?.size ?: 0 > 0
     }
 
-    open fun createItemWithContent(he : HealthElement, idx : Int, cdItem : String, contents : List<ContentType>) : ItemType? {
+    open fun createItemWithContent(he : HealthElement, idx : Int, cdItem : String, contents : List<ContentType>, localIdName: String = "iCure-Service") : ItemType? {
         return ItemType().apply {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
-            ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = "iCure-HealthElement"; sv = ICUREVERSION; value = he.id })
+            ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = he.healthElementId ?: he.id })
             cds.add(CDITEM().apply {s(CDITEMschemes.CD_ITEM); value = cdItem } )
 
             this.contents.addAll(filterEmptyContent(contents))
@@ -278,6 +278,11 @@ open class KmehrExport(
             certainty = he.tags.find { t -> t.type == "CD-CERTAINTY" }?.let {
                 CertaintyType().apply {
                     cd = CDCERTAINTY().apply { s = "CD-CERTAINTY"; value = CDCERTAINTYvalues.fromValue(it.code) }
+                }
+            }
+            severity = he.tags.find { t -> t.type == "CD-SEVERITY" }?.let {
+                SeverityType().apply {
+                    cd = CDSEVERITY().apply { s = "CD-SEVERITY"; value = CDSEVERITYvalues.fromValue(it.code) }
                 }
             }
             isIsrelevant = ServiceStatus.isRelevant(he.status)

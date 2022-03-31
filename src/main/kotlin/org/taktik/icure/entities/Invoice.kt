@@ -109,6 +109,11 @@ data class Invoice(
         val creditNoteRelatedInvoiceId: String? = null,
         val idDocument: IdentityDocumentReader? = null,
 
+        //efact hospitalization
+        val admissionDate: Long? = null,
+        val locationNihii: String? = null,
+        val locationService: Int? = null,
+
         //eattest cancel
         val cancelReason: String? = null,
         val cancelDate: Long? = null,
@@ -181,7 +186,10 @@ data class Invoice(
             "idDocument" to (this.idDocument ?: other.idDocument),
             "cancelReason" to (this.cancelReason ?: other.cancelReason),
             "cancelDate" to (this.cancelDate ?: other.cancelDate),
-            "options" to (other.options + this.options)
+            "options" to (other.options + this.options),
+            "locationNihii" to (this.locationNihii ?: other.locationNihii),
+            "locationService" to (this.locationService ?: other.locationService),
+            "admissionDate" to(this.admissionDate ?: other.admissionDate)
     )
 
     fun reassign(invoicingCodes: List<InvoicingCode>, uuidGenerator: UUIDGenerator) = this.copy(

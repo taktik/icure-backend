@@ -33,7 +33,7 @@ import org.taktik.couchdb.exception.UpdateConflictException
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.support.StdDesignDocumentFactory
 import org.taktik.icure.asyncdao.GenericDAO
-import org.taktik.icure.asyncdao.VersionnedDesignDocumentQueries
+import org.taktik.icure.asyncdao.VersionedDesignDocumentQueries
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.exceptions.PersistenceException
@@ -45,7 +45,7 @@ import java.nio.ByteBuffer
 @ExperimentalCoroutinesApi
 abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProperties,
                                                   protected override val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator
-) : GenericDAO<T>, VersionnedDesignDocumentQueries<T>(entityClass, couchDbProperties) {
+) : GenericDAO<T>, VersionedDesignDocumentQueries<T>(entityClass, couchDbProperties) {
     private val log = LoggerFactory.getLogger(this.javaClass)
     protected val dbInstanceUrl = URI(couchDbProperties.url)
 

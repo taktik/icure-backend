@@ -110,7 +110,7 @@ class PatientController(
 
         currentHealthcarePartyId.let { currentHcpId ->
             val hcp = healthcarePartyLogic.getHealthcareParty(currentHcpId)
-            (hcp?.parentId?.let { if (it.isNotEmpty()) it else null } ?: hcp?.id)?.let { hcpId ->
+            (hcp?.parentId?.takeIf { it.isNotEmpty() } ?: hcp?.id)?.let { hcpId ->
                 patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(
                         hcpId,
                         paginationOffset,
@@ -152,17 +152,17 @@ class PatientController(
     @Operation(summary = "List patients for a specific HcParty or for the current HcParty ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/hcParty/{hcPartyId}")
     fun listPatientsByHcParty(@PathVariable hcPartyId: String,
-                              @Parameter(description = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String,
-                              @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String,
-                              @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String,
+                              @Parameter(description = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String?,
+                              @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
+                              @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                               @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
-                              @Parameter(description = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false) sortDirection: String) =
-            listPatients(hcPartyId, sortField, startKey, startDocumentId, limit, sortDirection)
+                              @Parameter(description = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false) sortDirection: String?) =
+            listPatients(hcPartyId, sortField, startKey, startDocumentId, limit, sortDirection ?: "asc")
 
     @Operation(
         summary = "Get the patient (identified by patientId) hcparty keys. Those keys are AES keys (encrypted) used to share information between HCPs and a patient.",
         description = """This endpoint is used to recover all keys that have already been created and that can be used to share information with this patient. It returns a map with the following structure: ID of the owner of the encrypted AES key -> encrypted AES key. The returned encrypted AES keys will have to be decrypted using the patient's private key.
-                
+
                 {
                     "hcparty 1 delegator ID": "AES hcparty key (encrypted using patient public RSA key)"
                     "hcparty 2 delegator ID": "other AES hcparty key (encrypted using patient public RSA key)"
@@ -200,7 +200,7 @@ class PatientController(
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
         sessionLogic.getCurrentHealthcarePartyId().let { currentHcpId ->
             val hcp = healthcarePartyLogic.getHealthcareParty(currentHcpId)
-            (hcp?.parentId ?: hcp?.id)?.let { hcpId ->
+            (hcp?.parentId?.takeIf { it.isNotEmpty() } ?: hcp?.id)?.let { hcpId ->
                 patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(
                         hcpId,
                         paginationOffset,

@@ -42,10 +42,11 @@ import java.nio.ByteBuffer
 class SoftwareMedicalFileLogicImpl(val softwareMedicalFileExport: SoftwareMedicalFileExport,
                                    val softwareMedicalFileImport: SoftwareMedicalFileImport) : SoftwareMedicalFileLogic {
 
-    override suspend fun importSmfFile(inputData : Flow<ByteBuffer>,
+    override suspend fun importSmfFile(inputData: ByteArray,
                                        author: User,
                                        language: String,
-                                       dryRun: Boolean,dest: Patient?,
+                                       dryRun: Boolean,
+                                       dest: Patient?,
                                        mappings: Map<String, List<ImportMapping>>
                               ) : List<ImportResult> =
             softwareMedicalFileImport.importSMF(inputData, author, language, !dryRun, mappings, dest)
