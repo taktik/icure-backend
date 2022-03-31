@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import org.taktik.icure.asynclogic.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDLIFECYCLE
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.LifecycleType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.AuthorType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTION
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
@@ -71,7 +73,9 @@ class IncapacityExport(patientLogic: PatientLogic,
                 language,
                 services!!,
                 serviceAuthors,
-                dataset
+                dataset,
+                retraction,
+                incapacityId
         )
         emitMessage(message.apply { folders.add(folder) }).collect { emit(it) }
     }
@@ -84,7 +88,9 @@ class IncapacityExport(patientLogic: PatientLogic,
             language: String,
             incapacityServices: List<Service>,
             serviceAuthors: List<HealthcareParty>?,
-            dataset: String
+            dataset: String,
+            retraction: Boolean,
+            incapacityId: String
     ): FolderType {
         //creation of Patient
         val folder = FolderType().apply {
@@ -95,87 +101,125 @@ class IncapacityExport(patientLogic: PatientLogic,
 
         var itemsIdx = 1;
 
-        folder.transactions.add(TransactionType().apply {
-            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
-            cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = "notification"})
-            //TODO add CD-TRANSACTION-TYPE --> incapacityextension (fA, fB, rC), incapacityrelapse
-            cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION_TYPE); value = "incapacity"})
-            date = config.date
-            time = config.time
-            author = AuthorType().apply { hcparties.add(createParty(healthcareParty, emptyList())) }
-            //TODO Start adding ITEMs here
-            // IF NO RETRACTION
-            // TODO: add filtering per dataset
-            //  CD-ITEM incapacity
-            //   ID-KMEHR = 1
-            //   CD-INCAPACITY = work
-            //   incapacityreason = MS-MULTEMEDIATTINCAPACITY|multemediattincapacity -> content.descr
-            //   outofhomeallowed = MS-INCAPACITYOUTING|* -> content.descr
-            //   beginmoment = MS-INCAPACITYFIELD|datebegin -> content.instant
-            //   endmoment = MS-INCAPACITYFIELD|dateend -> content.instant
-            val incapacityreason = incapacityServices?.find { it -> it.tags.contains(CodeStub(id="MS-MULTEMEDIATTINCAPACITY|multemediattincapacity|1", context=null, type="MS-MULTEMEDIATTINCAPACITY", code="multemediattincapacity", version="1", label=null)) }?.content?.get("descr")?.stringValue;
-            val beginmoment = incapacityServices?.find { it -> it.tags.contains(CodeStub(id="MS-INCAPACITYFIELD|datebegin|1", context=null, type="MS-INCAPACITYFIELD", code="datebegin", version="1", label=null)) }?.content?.get("instant")?.fuzzyDateValue;
-            val endmoment = incapacityServices?.find { it -> it.tags.contains(CodeStub(id="MS-INCAPACITYFIELD|dateend|1", context=null, type="MS-INCAPACITYFIELD", code="dateend", version="1", label=null)) }?.content?.get("instant")?.fuzzyDateValue;
-            val outofhomeallowed = false //TODO get from services
-            headingsAndItemsAndTexts.add(ItemType().apply {
-                ids.add(idKmehr(itemsIdx++))
-                cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value="incapacity" })
-                contents.add(ContentType().apply {
-                    incapacity = IncapacityType().apply {
-                        cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("work") })
-                        this.incapacityreason = IncapacityreasonType().apply {
-                            this.cd = CDINCAPACITYREASON().apply { value = CDINCAPACITYREASONvalues.fromValue(incapacityreason) }
+        if(retraction){
+            folder.transactions.add(TransactionType().apply {
+                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
+                cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = "notification" })
+                cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION_TYPE); value = "incapacity" })
+                date = config.date
+                time = config.time
+                author = AuthorType().apply { hcparties.add(createParty(healthcareParty, emptyList())) }
+                isIscomplete = true
+                isIsvalidated = true
+                headingsAndItemsAndTexts.add(ItemType().apply {
+                    ids.add(idKmehr(1))
+                    cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity" })
+                    contents.add(ContentType().apply {
+                        ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = incapacityId })
+                    })
+                    lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"; value = CDLIFECYCLEvalues.RETRACTED}}
+                })
+            })
+        } else {
+            folder.transactions.add(TransactionType().apply {
+                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
+                cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = "notification" })
+                //TODO add CD-TRANSACTION-TYPE --> incapacityextension (fA, fB, rC), incapacityrelapse
+                cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION_TYPE); value = "incapacity" })
+                date = config.date
+                time = config.time
+                author = AuthorType().apply { hcparties.add(createParty(healthcareParty, emptyList())) }
+                isIscomplete = true
+                isIsvalidated = true
+                //TODO Start adding ITEMs here
+                // IF NO RETRACTION
+                // TODO: add filtering per dataset
+                //  CD-ITEM incapacity
+                //   ID-KMEHR = 1
+                //   CD-INCAPACITY = work
+                //   incapacityreason = MS-MULTEMEDIATTINCAPACITY|multemediattincapacity -> content.descr
+                //   outofhomeallowed = MS-INCAPACITYOUTING|* -> content.descr
+                //   beginmoment = MS-INCAPACITYFIELD|datebegin -> content.instant
+                //   endmoment = MS-INCAPACITYFIELD|dateend -> content.instant
+                val incapacityreason = incapacityServices?.find { it -> it.tags.contains(CodeStub(id = "MS-MULTEMEDIATTINCAPACITY|multemediattincapacity|1", context = null, type = "MS-MULTEMEDIATTINCAPACITY", code = "multemediattincapacity", version = "1", label = null)) }?.content?.get("descr")?.stringValue;
+                val beginmoment = incapacityServices?.find { it -> it.tags.contains(CodeStub(id = "MS-INCAPACITYFIELD|datebegin|1", context = null, type = "MS-INCAPACITYFIELD", code = "datebegin", version = "1", label = null)) }?.content?.get("instant")?.fuzzyDateValue;
+                val endmoment = incapacityServices?.find { it -> it.tags.contains(CodeStub(id = "MS-INCAPACITYFIELD|dateend|1", context = null, type = "MS-INCAPACITYFIELD", code = "dateend", version = "1", label = null)) }?.content?.get("instant")?.fuzzyDateValue;
+                val outofhomeallowed = false //TODO get from services
+                headingsAndItemsAndTexts.add(ItemType().apply {
+                    ids.add(idKmehr(itemsIdx++))
+                    cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity" })
+                    contents.add(ContentType().apply {
+                        incapacity = IncapacityType().apply {
+                            //TODO: make type variable: work, school, swim, schoolsports or heavyphysicalactivity
+                            cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("work") })
+                            this.incapacityreason = IncapacityreasonType().apply {
+                                this.cd = CDINCAPACITYREASON().apply { value = CDINCAPACITYREASONvalues.fromValue(incapacityreason) }
+                            }
+                            this.isOutofhomeallowed = outofhomeallowed
                         }
-                        this.isOutofhomeallowed = outofhomeallowed
+                    })
+                    contents.add(ContentType().apply {
+                        this.date = null //TODO this is creationdate.
+                    })
+                    this.beginmoment = Utils.makeDateTypeFromFuzzyLong(beginmoment);
+                    this.endmoment = Utils.makeDateTypeFromFuzzyLong(endmoment);
+                })
+                //TODO:
+                //  CD-ITEM diagnosis
+                //   ID-KMEHR = idx
+                //   content
+                //     ICD = MS-INCAPACITYFIELD|diagnosis, ICD|*|10
+                //     ICPC = MS-INCAPACITYFIELD|diagnosis, ICPC|*|2
+                //     ...
+                //     text = griep ...
+                //  CD-ITEM diagnosis
+                //   ID-KMEHR = idx
+                //   content
+                //     ICD = MS-INCAPACITYFIELD|diagnosis, ICD|*|10
+                //     ICPC = MS-INCAPACITYFIELD|diagnosis, ICPC|*|2
+                //     ...
+                //     text = griep ...
+                val diagnosisServices = incapacityServices.filter { it.tags.any { tag -> tag.id == "MS-INCAPACITYFIELD|diagnosis|1" } }
+                headingsAndItemsAndTexts.addAll(diagnosisServices.map { svc ->
+                    ItemType().apply {
+                        ids.add(idKmehr(itemsIdx++))
+                        cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "diagnosis" })
+                        //TODO: first diagnosis if multiple <cd S="LOCAL" SV="1.0" SL="MMEDIATT-ITEM">principal</cd>
+                        //svc.codes has all the content
+                        contents.add(ContentType().apply {
+                            cds.addAll(svc.codes.map { cd ->
+                                CDCONTENT().apply { s(if (cd.type == "ICD") CDCONTENTschemes.ICD else (if (cd.type == "ICPC") CDCONTENTschemes.ICPC else CDCONTENTschemes.CD_CLINICAL)); value = cd.code }
+                            })
+                            val descr_fr = svc.content?.get("descr_fr")?.stringValue;
+                            val descr_nl = svc.content?.get("descr_nl")?.stringValue;
+                            val descr = svc.content?.get("descr")?.stringValue;
+                            texts.add(TextType().apply {
+                                this.l = "nl"
+                                this.value = descr_fr ?: descr_nl ?: descr
+                            })
+                        })
                     }
                 })
-                contents.add(ContentType().apply {
-                    this.date = null //TODO this is creationdate.
-                })
-                this.beginmoment = Utils.makeDateTypeFromFuzzyLong(beginmoment);
-                this.endmoment = Utils.makeDateTypeFromFuzzyLong(endmoment);
+                //TODO:
+                //  CD-ITEM contactperson
+                //    ID-KMEHR = idx
+                //    CD-CONTACT-PERSON => mother, ...
+                //    person (firstame, id, address, telecom, ...)
+                //  CD-ITEM encountertype (has linked CD-ITEM: encounterdatetime, dischargedatetime
+                //   ID-KMEHR = idx
+                //   content CD-ENCOUNTER = hospital
+                //  CD-ITEM encounterdatetime
+                //   ID-KMEHR = idx
+                //  CD-ITEM dischargedatetime
+                //   ID-KMEHR = idx
+                //  IF RETRACTION
+                //  CD-ITEM incapacity
+                //  ID-KMEHR = 1
+                //  content
+                //    ID-KMEHR = incapacityId of related notification
+                //    CD-LIFECYCLE = retracted
             })
-            //TODO:
-            //  CD-ITEM diagnosis
-            //   ID-KMEHR = idx
-            //   content
-            //     ICD = MS-INCAPACITYFIELD|diagnosis, ICD|*|10
-            //     ICPC = MS-INCAPACITYFIELD|diagnosis, ICPC|*|2
-            //     ...
-            //     text = griep ...
-            //  CD-ITEM diagnosis
-            //   ID-KMEHR = idx
-            //   content
-            //     ICD = MS-INCAPACITYFIELD|diagnosis, ICD|*|10
-            //     ICPC = MS-INCAPACITYFIELD|diagnosis, ICPC|*|2
-            //     ...
-            //     text = griep ...
-            val diagnosisServices = incapacityServices.filter { it -> true }
-            headingsAndItemsAndTexts.addAll(diagnosisServices.map{ svc ->
-                ItemType().apply {
-                    ids.add(idKmehr(itemsIdx++))
-                    cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value="diagnosis" })
-                }
-            })
-            //TODO:
-            //  CD-ITEM contactperson
-            //    ID-KMEHR = idx
-            //    CD-CONTACT-PERSON => mother, ...
-            //    person (firstame, id, address, telecom, ...)
-            //  CD-ITEM encountertype (has linked CD-ITEM: encounterdatetime, dischargedatetime
-            //   ID-KMEHR = idx
-            //   content CD-ENCOUNTER = hospital
-            //  CD-ITEM encounterdatetime
-            //   ID-KMEHR = idx
-            //  CD-ITEM dischargedatetime
-            //   ID-KMEHR = idx
-            //  IF RETRACTION
-            //  CD-ITEM incapacity
-            //  ID-KMEHR = 1
-            //  content
-            //    ID-KMEHR = incapacityId of related notification
-            //    CD-LIFECYCLE = retracted
-        })
+        }
 
         return folder
     }
