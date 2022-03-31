@@ -88,7 +88,7 @@ open class VersionnedDesignDocumentQueries<T : StoredDocument>(protected open va
                 .reduce(false)
                 .startDocId(pagination.startDocumentId)
                 .limit(pagination.limit)
-                .descending(descending)
+            .descending(descending)
 
         if (endKey != null) {
             viewQuery = viewQuery.endKey(endKey)
@@ -98,12 +98,19 @@ open class VersionnedDesignDocumentQueries<T : StoredDocument>(protected open va
     }
 
 
-    protected suspend inline fun <reified T, P> pagedViewQueryOfIds(client: Client, viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>): ViewQuery {
+    protected suspend inline fun <reified T, P> pagedViewQueryOfIds(
+        client: Client,
+        viewName: String,
+        startKey: P?,
+        endKey: P?,
+        pagination: PaginationOffset<P>
+    ): ViewQuery {
         var viewQuery = createQuery(client, viewName)
-                .startKey(startKey)
-                .includeDocs(false)
-                .reduce(false)
-                .limit(pagination.limit)
+            .startKey(startKey)
+            .includeDocs(false)
+            .startDocId(pagination.startDocumentId)
+            .reduce(false)
+            .limit(pagination.limit)
 
         if (endKey != null) {
             viewQuery = viewQuery.endKey(endKey)
