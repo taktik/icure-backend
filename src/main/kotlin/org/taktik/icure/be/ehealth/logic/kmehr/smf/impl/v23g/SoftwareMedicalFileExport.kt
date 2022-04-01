@@ -263,8 +263,8 @@ class SoftwareMedicalFileExport(
                                     }
                                 }
                             val transactionMFID: String = if(index > 0) UUIDGenerator().newGUID().toString() else contact.id
-                            val services: List<Service> = contact.services.filter { subContact.services.map{it.serviceId}.contains(it.id)}
                             val parentContactId: String? = if(index > 0) contact.id else null
+                            val services: List<Service> = contact.services.filter { subContact.services.map{it.serviceId}.contains(it.id)}
                             ids.add(idKmehr(startIndex))
                             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; value = transactionMFID })
                             cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = cdTransactionRef })
@@ -291,14 +291,14 @@ class SoftwareMedicalFileExport(
                             services.filter { s -> s.tags.find { t -> t.code == "incapacity" } != null }.forEach { incapacityService ->
                                 headingsAndItemsAndTexts.add(makeIncapacityItem(incapacityService, language))
                                 incapacityService.content[language]?.documentId?.let { docId ->
-                                    createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config, decryptor)
+                                    createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config, parentContactId ?: transactionMFID, decryptor)
                                 }
                             }
                             services.filter { s -> s.tags.find { t -> t.code == "physiotherapy" } != null }.forEach { kineService ->
-                                specialPrescriptions.add(makeKinePrescriptionTransaction(kineService, language, decryptor))
+                                specialPrescriptions.add(makeKinePrescriptionTransaction(kineService, language, decryptor, parentContactId ?: transactionMFID))
                             }
                             services.filter { s -> s.tags.find { t -> t.code == "medicalcares" } != null }.forEach { nurseService ->
-                                specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService, language, decryptor))
+                                specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService, language, decryptor, parentContactId ?: transactionMFID))
                             }
                             services.filter { s -> isSummary(s) }.forEach { summaryService ->
                                 summaries.add(makeSummaryTransaction(contact, summaryService, language))
@@ -311,8 +311,8 @@ class SoftwareMedicalFileExport(
                                 }
                             } else {
                                 services.forEach servicesLoop@{ svc ->
-                                    val incapacityTag = svc.tags.find { t -> t.code == "incapacity" }
-                                    if (incapacityTag != null) return@servicesLoop
+                                    val specialTag = svc.tags.find { t -> listOf("incapacity", "physiotherapy","medicalcares").contains(t.code) }
+                                    if (specialTag != null) return@servicesLoop
                                     var forSeparateTransaction = false // documents are in separate transaction in *MF
                                     svc.content.values.find { it.documentId != null }?.let {
                                         documents = documents.plus(Triple(it.documentId!!, svc, contact))
@@ -623,15 +623,15 @@ class SoftwareMedicalFileExport(
         return false
     }
 
-    private suspend fun makeNursePrescriptionTransaction(contact: Service, language: String, decryptor: AsyncDecrypt?): TransactionType {
-        return makeSpecialPrescriptionTransaction(contact, "nursing", language, decryptor)
+    private suspend fun makeNursePrescriptionTransaction(contact: Service, language: String, decryptor: AsyncDecrypt?, transactionMfId: String): TransactionType {
+        return makeSpecialPrescriptionTransaction(contact, "nursing", language, decryptor, transactionMfId)
     }
 
-    private suspend fun makeKinePrescriptionTransaction(contact: Service, language: String, decryptor: AsyncDecrypt?): TransactionType {
-        return makeSpecialPrescriptionTransaction(contact, "physiotherapy", language, decryptor)
+    private suspend fun makeKinePrescriptionTransaction(contact: Service, language: String, decryptor: AsyncDecrypt?, transactionMfId: String): TransactionType {
+        return makeSpecialPrescriptionTransaction(contact, "physiotherapy", language, decryptor, transactionMfId)
     }
 
-    private suspend fun makeSpecialPrescriptionTransaction(service: Service, transactionType: String, language: String, decryptor: AsyncDecrypt?): TransactionType {
+    private suspend fun makeSpecialPrescriptionTransaction(service: Service, transactionType: String, language: String, decryptor: AsyncDecrypt?, transactionMfId: String): TransactionType {
 
         return TransactionType().apply {
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = "1" })
@@ -650,6 +650,7 @@ class SoftwareMedicalFileExport(
             }
             isIscomplete = true
             isIsvalidated = true
+            LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(transactionMfId) }.also { headingsAndItemsAndTexts.add(it) }
 
             service.content[language]?.documentId?.let {
                 try{
@@ -775,7 +776,7 @@ class SoftwareMedicalFileExport(
         }
     }
 
-    private suspend fun createLinkToDocument(documentId: String, healthcareParty: HealthcareParty, service: Service, folder: FolderType, language: String, config: Config, decryptor: AsyncDecrypt?){
+    private suspend fun createLinkToDocument(documentId: String, healthcareParty: HealthcareParty, service: Service, folder: FolderType, language: String, config: Config, transactionMfId: String, decryptor: AsyncDecrypt?){
         try {
             folder.transactions.add(TransactionType().apply {
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = "1.0"; value = service.id })
@@ -804,7 +805,7 @@ class SoftwareMedicalFileExport(
                     val element = makeMultimediaLnkType(d, it, decryptor)
                     headingsAndItemsAndTexts.add(element)
                 } }
-                LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(service.id!!) }.also { headingsAndItemsAndTexts.add(it) }
+                LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(transactionMfId) }.also { headingsAndItemsAndTexts.add(it) }
             })
         } catch(e:Exception) {
           log.error("Cannot export document ${documentId}")
