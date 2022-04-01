@@ -23,6 +23,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.AccessLogDAO
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.domain.result.AggregatedAccessLogs
 import org.taktik.icure.entities.AccessLog
 import java.time.Instant
 
@@ -36,8 +37,9 @@ interface AccessLogLogic : EntityPersister<AccessLog, String> {
 
     fun listAccessLogsBy(fromEpoch: Long, toEpoch: Long, paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent>
 
-    fun findAccessLogsByUserAfterDate(userId: String, accessType: String?, startDate: Instant?, pagination: PaginationOffset<List<Any>>, descending: Boolean): Flow<ViewQueryResultEvent>
+    fun findAccessLogsByUserAfterDate(userId: String, accessType: String?, startDate: Instant?, pagination: PaginationOffset<List<*>>, descending: Boolean): Flow<ViewQueryResultEvent>
 
     suspend fun modifyAccessLog(accessLog: AccessLog): AccessLog?
     fun getGenericDAO(): AccessLogDAO
+    suspend fun aggregatePatientByAccessLogs(userId: String, accessType: String?, startDate: Long?, startKey: String?, startDocumentId: String?, limit: Int): AggregatedAccessLogs
 }

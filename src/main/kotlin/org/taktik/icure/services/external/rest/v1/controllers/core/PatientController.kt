@@ -230,6 +230,8 @@ class PatientController(
         patientLogic.getByExternalId(externalId)?.let(patientToPatientDto)
     }
 
+
+
     @Operation(summary = "Get Paginated List of Patients sorted by Access logs descending")
     @GetMapping("/byAccess/{userId}")
     fun findByAccessLogUserAfterDate(@Parameter(description = "A User ID", required = true) @PathVariable userId: String,
@@ -238,65 +240,7 @@ class PatientController(
                                      @Parameter(description = "The start key for pagination") @RequestParam(required = false) startKey: String?,
                                      @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                                      @Parameter(description = "Number of rows") @RequestParam(defaultValue = DEFAULT_LIMIT.toString()) limit: Int): Mono<PaginatedList<PatientDto>> = mono {
-
-        fun decomposeStartKey(startKeyString: String?): Long? =
-            startKeyString?.let { objectMapper.readValue(it, objectMapper.typeFactory.constructType(Long::class.java)) }
-
-        val paginationOffset = PaginationOffset<List<Any>>(null, null, null, limit * 2 + 1)
-
-        tailrec suspend fun aggregatePatientByAccessLogs(
-            paginationOffset: PaginationOffset<List<Any>>,
-            patientIds: Set<String> = emptySet(),
-            totalCount: Int = 0
-        ): Triple<Int, Int, Pair<Set<String>, Instant?>> {
-            accessLogLogic.findAccessLogsByUserAfterDate(
-                userId,
-                accessType,
-                (decomposeStartKey(startKey) ?: startDate)?.let { Instant.ofEpochMilli(it) },
-                paginationOffset,
-                true
-            ).paginatedList<AccessLog>(limit * 2)
-                .let { accessLogPaginatedList ->
-                    val count = accessLogPaginatedList.rows.count()
-                    (patientIds + accessLogPaginatedList.rows.sortedBy { accessLog -> accessLog.date }
-                        .let { accessLogs ->
-                            if (decomposeStartKey(startKey) != null && startDocumentId != null && patientIds.isEmpty()) {
-                                accessLogs.dropWhile { it.patientId != startDocumentId }
-                            }
-                            accessLogs
-                        }.mapNotNull { it.patientId }.distinct()).toSet().let { newPatientIds ->
-                        if (newPatientIds.size < limit && accessLogPaginatedList.nextKeyPair != null) {
-                            return aggregatePatientByAccessLogs(
-                                PaginationOffset(
-                                    objectMapper.convertValue(
-                                        accessLogPaginatedList.nextKeyPair.startKey,
-                                        objectMapper.typeFactory.constructCollectionType(
-                                            List::class.java,
-                                            Object::class.java
-                                        )
-                                    ), accessLogPaginatedList.nextKeyPair.startKeyDocId, null, limit * 2 + 1
-                                ), newPatientIds, totalCount + count
-                            )
-                        }
-                        if (newPatientIds.size > limit) {
-                            newPatientIds.take(limit + 1).toSet().let { patientIdsPlusNextKey ->
-                                val lastKeyInstant =
-                                    accessLogPaginatedList.rows.sortedBy { accessLog -> accessLog.date }
-                                        .firstOrNull { it.patientId == patientIdsPlusNextKey.last() }?.date
-                                return Triple(
-                                    accessLogPaginatedList.totalSize,
-                                    totalCount + count,
-                                    patientIdsPlusNextKey to lastKeyInstant
-                                )
-                            }
-                        }
-                        return Triple(accessLogPaginatedList.totalSize, totalCount + count, newPatientIds to null)
-                    }
-                }
-        }
-
-        return@mono aggregatePatientByAccessLogs(paginationOffset).let { (totalSize, count, patientIdsAndNextKey) ->
-            val (patientIds, dateNextKey) = patientIdsAndNextKey
+        accessLogLogic.aggregatePatientByAccessLogs(userId, accessType, startDate, startKey, startDocumentId, limit).let { (totalSize, count, patientIds, dateNextKey) ->
             val patients = patientLogic.getPatients(patientIds.take(limit).toList())
                 .filter { patient -> patient.deletionDate == null }
                 .map { patient ->
@@ -321,7 +265,7 @@ class PatientController(
             PaginatedList(
                 nextKeyPair = dateNextKey?.let {
                     PaginatedDocumentKeyIdPair(
-                        it.toEpochMilli(),
+                        it,
                         patientIds.last()
                     )
                 },
@@ -329,7 +273,6 @@ class PatientController(
                 totalSize = (totalSize * (patientIds.size / count.toDouble())).toInt(),
                 rows = patients.toList()
             )
-
         }
     }
 
