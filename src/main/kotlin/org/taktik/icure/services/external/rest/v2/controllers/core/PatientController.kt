@@ -55,6 +55,7 @@ import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.services.external.rest.v2.dto.IdWithRevDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
+import org.taktik.icure.services.external.rest.v2.dto.PaginatedDocumentKeyIdPair
 import org.taktik.icure.services.external.rest.v2.dto.PaginatedList
 import org.taktik.icure.services.external.rest.v2.dto.PatientDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.ContentDto
@@ -219,31 +220,98 @@ class PatientController(
                                      @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                                      @Parameter(description = "Number of rows") @RequestParam(defaultValue = DEFAULT_LIMIT.toString()) limit: Int): Mono<PaginatedList<PatientDto>> = mono {
 
-        val startKeyElements = startKey?.let { objectMapper.readValue<List<Any>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, Object::class.java)) }
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
-        accessLogLogic.findAccessLogsByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, true).paginatedList<AccessLog>(limit)
-                .let { it: PaginatedList<AccessLog> ->
-                    val patientIds = it.rows.sortedBy { accessLog -> accessLog.date }.mapNotNull { it.patientId }.distinct()
-                    PaginatedList(
-                            nextKeyPair = it.nextKeyPair,
-                            pageSize = it.pageSize,
-                            totalSize = it.totalSize,
-                            rows = patientLogic.getPatients(patientIds).filter { it.deletionDate == null }.map { p ->
-                                PatientDto(
-                                        id = p.id,
-                                        lastName = p.lastName,
-                                        firstName = p.firstName,
-                                        partnerName = p.partnerName,
-                                        maidenName = p.maidenName,
-                                        dateOfBirth = p.dateOfBirth,
-                                        ssin = p.ssin,
-                                        externalId = p.externalId,
-                                        patientHealthCareParties = p.patientHealthCareParties.map { phcp -> patientHealthCarePartyV2Mapper.map(phcp) },
-                                        addresses = p.addresses.map { addressV2Mapper.map(it) }
+        fun decomposeStartKey(startKeyString: String?): Long? =
+            startKeyString?.let { objectMapper.readValue(it, objectMapper.typeFactory.constructType(Long::class.java)) }
+
+        val paginationOffset = PaginationOffset<List<Any>>(null, null, null, limit * 2 + 1)
+
+        tailrec suspend fun aggregatePatientByAccessLogs(
+            paginationOffset: PaginationOffset<List<Any>>,
+            patientIds: Set<String> = emptySet(),
+            totalCount: Int = 0
+        ): Triple<Int, Int, Pair<Set<String>, Instant?>> {
+            accessLogLogic.findAccessLogsByUserAfterDate(
+                userId,
+                accessType,
+                (decomposeStartKey(startKey) ?: startDate)?.let { Instant.ofEpochMilli(it) },
+                paginationOffset,
+                true
+            ).paginatedList<AccessLog>(limit * 2)
+                .let { accessLogPaginatedList ->
+                    val count = accessLogPaginatedList.rows.count()
+                    (patientIds + accessLogPaginatedList.rows.sortedBy { accessLog -> accessLog.date }
+                        .let { accessLogs ->
+                            if (decomposeStartKey(startKey) != null && startDocumentId != null && patientIds.isEmpty()) {
+                                accessLogs.dropWhile { it.patientId != startDocumentId }
+                            }
+                            accessLogs
+                        }.mapNotNull { it.patientId }.distinct()).toSet().let { newPatientIds ->
+                        if (newPatientIds.size < limit && accessLogPaginatedList.nextKeyPair != null) {
+                            return aggregatePatientByAccessLogs(
+                                PaginationOffset(
+                                    objectMapper.convertValue(
+                                        accessLogPaginatedList.nextKeyPair.startKey,
+                                        objectMapper.typeFactory.constructCollectionType(
+                                            List::class.java,
+                                            Object::class.java
+                                        )
+                                    ), accessLogPaginatedList.nextKeyPair.startKeyDocId, null, limit * 2 + 1
+                                ), newPatientIds, totalCount + count
+                            )
+                        }
+                        if (newPatientIds.size > limit) {
+                            newPatientIds.take(limit + 1).toSet().let { patientIdsPlusNextKey ->
+                                val lastKeyInstant =
+                                    accessLogPaginatedList.rows.sortedBy { accessLog -> accessLog.date }
+                                        .firstOrNull { it.patientId == patientIdsPlusNextKey.last() }?.date
+                                return Triple(
+                                    accessLogPaginatedList.totalSize,
+                                    totalCount + count,
+                                    patientIdsPlusNextKey to lastKeyInstant
                                 )
-                            }.toList()
+                            }
+                        }
+                        return Triple(accessLogPaginatedList.totalSize, totalCount + count, newPatientIds to null)
+                    }
+                }
+        }
+
+        return@mono aggregatePatientByAccessLogs(paginationOffset).let { (totalSize, count, patientIdsAndNextKey) ->
+            val (patientIds, dateNextKey) = patientIdsAndNextKey
+            val patients = patientLogic.getPatients(patientIds.take(limit).toList())
+                .filter { patient -> patient.deletionDate == null }
+                .map { patient ->
+                    org.taktik.icure.services.external.rest.v2.dto.PatientDto(
+                        id = patient.id,
+                        lastName = patient.lastName,
+                        firstName = patient.firstName,
+                        partnerName = patient.partnerName,
+                        maidenName = patient.maidenName,
+                        dateOfBirth = patient.dateOfBirth,
+                        ssin = patient.ssin,
+                        externalId = patient.externalId,
+                        patientHealthCareParties = patient.patientHealthCareParties.map { phcp ->
+                            patientHealthCarePartyV2Mapper.map(
+                                phcp
+                            )
+                        },
+                        addresses = patient.addresses.map { addressV2Mapper.map(it) }
                     )
                 }
+
+            org.taktik.icure.services.external.rest.v2.dto.PaginatedList(
+                nextKeyPair = dateNextKey?.let {
+                    PaginatedDocumentKeyIdPair(
+                        it.toEpochMilli(),
+                        patientIds.last()
+                    )
+                },
+                pageSize = limit,
+                totalSize = (totalSize * (patientIds.size / count.toDouble())).toInt(),
+                rows = patients.toList()
+            )
+
+        }
     }
 
     @Operation(summary = "Filter patients for the current user (HcParty) ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
