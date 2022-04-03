@@ -113,7 +113,7 @@ class AccessLogController(
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = startKey?.let { objectMapper.readValue<List<*>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, Object::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
-        val accessLogs = accessLogLogic.findAccessLogsByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, descending
+        val accessLogs = accessLogLogic.findAccessLogsByUserAfterDate(userId, accessType, startDate, paginationOffset, descending
                 ?: false)
 
         accessLogs.paginatedList(accessLogToAccessLogDto, realLimit)

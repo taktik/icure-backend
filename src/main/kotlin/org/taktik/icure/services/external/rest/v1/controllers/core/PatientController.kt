@@ -240,10 +240,8 @@ class PatientController(
                                      @Parameter(description = "The start key for pagination") @RequestParam(required = false) startKey: String?,
                                      @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                                      @Parameter(description = "Number of rows") @RequestParam(defaultValue = DEFAULT_LIMIT.toString()) limit: Int): Mono<PaginatedList<PatientDto>> = mono {
-        accessLogLogic.aggregatePatientByAccessLogs(userId, accessType, startDate, startKey, startDocumentId, limit).let { (totalSize, count, patientIds, dateNextKey) ->
-            val patients = patientLogic.getPatients(patientIds.take(limit).toList())
-                .filter { patient -> patient.deletionDate == null }
-                .map { patient ->
+        accessLogLogic.aggregatePatientByAccessLogs(userId, accessType, startDate, startKey, startDocumentId, limit).let { (totalSize, count, patients, dateNextKey, nextDocumentId) ->
+            val patients = patients.map { patient ->
                     PatientDto(
                         id = patient.id,
                         lastName = patient.lastName,
@@ -266,11 +264,11 @@ class PatientController(
                 nextKeyPair = dateNextKey?.let {
                     PaginatedDocumentKeyIdPair(
                         it,
-                        patientIds.last()
+                        nextDocumentId
                     )
                 },
                 pageSize = limit,
-                totalSize = (totalSize * (patientIds.size / count.toDouble())).toInt(),
+                totalSize = (totalSize * (patients.size / count.toDouble())).toInt(),
                 rows = patients.toList()
             )
         }

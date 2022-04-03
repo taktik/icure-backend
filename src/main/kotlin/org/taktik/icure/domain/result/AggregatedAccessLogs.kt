@@ -1,3 +1,5 @@
 package org.taktik.icure.domain.result
 
-data class AggregatedAccessLogs(val totalSize: Int, val scannedAccessLogs: Int, val patientIds: Set<String>, val nextKey: Long?)
+import org.taktik.icure.entities.Patient
+
+data class AggregatedAccessLogs(val totalSize: Int, val scannedAccessLogs: Int, val patientIds: List<Patient>, val nextKey: Long?, val nextDocumentId: String?)
