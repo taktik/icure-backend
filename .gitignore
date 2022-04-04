@@ -46,10 +46,6 @@ dist-tz/
 test.json
 .gradletasknamecache
 
-web/icure-ht/package-lock\.json
-
-web/icure-ht/package\.json
-
 bin/
 misc/bin
 misc/build
