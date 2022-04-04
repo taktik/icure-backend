@@ -33,5 +33,5 @@ class ResultInfoDto(
         val labo: String? = null,
         val engine: String? = null,
         val codes: Set<CodeStubDto> = emptySet(),
-        val services: List<ServiceDto> = emptyList()
+        val services: List<ServiceDto>? = null
 )

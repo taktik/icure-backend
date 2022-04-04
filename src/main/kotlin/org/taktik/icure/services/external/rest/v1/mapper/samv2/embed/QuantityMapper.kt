@@ -18,10 +18,11 @@
 
 package org.taktik.icure.services.external.rest.v1.mapper.samv2.embed
 
+import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.Quantity
 import org.taktik.icure.services.external.rest.v1.dto.samv2.embed.QuantityDto
-import org.mapstruct.InjectionStrategy
+
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface QuantityMapper {
 	fun map(quantityDto: QuantityDto):Quantity

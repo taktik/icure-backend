@@ -26,9 +26,8 @@ import org.taktik.icure.entities.Receipt
 import org.taktik.icure.services.external.rest.v2.dto.ReceiptDto
 import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.ReceiptBlobTypeV2Mapper
 
-@Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class, DelegationV2Mapper::class, ReceiptBlobTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class, DelegationV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ReceiptV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),

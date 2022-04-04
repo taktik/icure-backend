@@ -25,10 +25,9 @@ import org.mapstruct.Mappings
 import org.taktik.icure.entities.DocumentTemplate
 import org.taktik.icure.services.external.rest.v2.dto.DocumentTemplateDto
 import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
-import org.taktik.icure.services.external.rest.v2.mapper.base.ReportVersionV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DocumentGroupV2Mapper
 
-@Mapper(componentModel = "spring", uses = [ReportVersionV2Mapper::class, DocumentGroupV2Mapper::class, CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [DocumentGroupV2Mapper::class, CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DocumentTemplateV2Mapper {
     @Mappings(
             Mapping(target = "isAttachmentDirty", ignore = true),

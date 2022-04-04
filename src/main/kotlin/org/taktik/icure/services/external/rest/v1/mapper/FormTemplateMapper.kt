@@ -27,7 +27,6 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.FormTemplate
 import org.taktik.icure.services.external.rest.v1.dto.FormTemplateDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.form.template.Field
 import org.taktik.icure.services.external.rest.v1.dto.embed.form.template.FormTemplateLayout
 import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper

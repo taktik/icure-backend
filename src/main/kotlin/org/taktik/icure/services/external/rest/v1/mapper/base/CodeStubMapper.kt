@@ -18,10 +18,11 @@
 
 package org.taktik.icure.services.external.rest.v1.mapper.base
 
+import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
-import org.mapstruct.InjectionStrategy
+
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 abstract class CodeStubMapper {
     fun map(codeStubDto: CodeStubDto?): CodeStub? {

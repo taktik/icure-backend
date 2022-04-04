@@ -25,11 +25,10 @@ import org.mapstruct.Mappings
 import org.taktik.icure.entities.User
 import org.taktik.icure.services.external.rest.v2.dto.UserDto
 import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubV2Mapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationTagV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.security.AuthenticationTokenV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.security.PermissionV2Mapper
 
-@Mapper(componentModel = "spring", uses = [PermissionV2Mapper::class, DelegationTagV2Mapper::class, PropertyStubV2Mapper::class, AuthenticationTokenV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [PermissionV2Mapper::class, PropertyStubV2Mapper::class, AuthenticationTokenV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface UserV2Mapper {
     @Mappings(
             Mapping(target = "lastLoginDate", ignore = true),

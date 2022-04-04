@@ -22,7 +22,7 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.StandardSubstance
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.StandardSubstanceDto
-@Mapper(componentModel = "spring", uses = [StandardSubstanceTypeV2Mapper::class, SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface StandardSubstanceV2Mapper {
 	fun map(standardSubstanceDto: StandardSubstanceDto):StandardSubstance
 	fun map(standardSubstance: StandardSubstance):StandardSubstanceDto

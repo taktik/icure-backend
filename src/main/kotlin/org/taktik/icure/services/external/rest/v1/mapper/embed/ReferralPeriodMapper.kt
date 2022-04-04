@@ -18,11 +18,11 @@
 
 package org.taktik.icure.services.external.rest.v1.mapper.embed
 
+import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.ReferralPeriod
 import org.taktik.icure.services.external.rest.v1.dto.embed.ReferralPeriodDto
 
-import org.mapstruct.InjectionStrategy
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ReferralPeriodMapper {
 	fun map(referralPeriodDto: ReferralPeriodDto):ReferralPeriod

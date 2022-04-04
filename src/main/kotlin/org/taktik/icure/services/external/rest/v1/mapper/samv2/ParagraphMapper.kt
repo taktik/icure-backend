@@ -24,7 +24,6 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.samv2.Paragraph
 import org.taktik.icure.services.external.rest.v1.dto.samv2.ParagraphDto
-import org.taktik.icure.services.external.rest.v1.mapper.samv2.embed.AddedDocumentMapper
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ParagraphMapper {

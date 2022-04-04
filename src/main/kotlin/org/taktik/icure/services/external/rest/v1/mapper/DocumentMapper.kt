@@ -26,11 +26,8 @@ import org.taktik.icure.entities.Document
 import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DocumentLocationMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DocumentStatusMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DocumentTypeMapper
 
-@Mapper(componentModel = "spring", uses = [DocumentTypeMapper::class, DocumentLocationMapper::class, CodeStubMapper::class, DelegationMapper::class, DocumentStatusMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [CodeStubMapper::class, DelegationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DocumentMapper {
     @Mappings(
             Mapping(target = "attachment", ignore = true),

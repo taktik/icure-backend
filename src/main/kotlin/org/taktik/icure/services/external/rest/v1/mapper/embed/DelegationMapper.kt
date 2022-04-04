@@ -22,7 +22,7 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
-@Mapper(componentModel = "spring", uses = [DelegationTagMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DelegationMapper {
 	fun map(delegationDto: DelegationDto):Delegation
 	fun map(delegation: Delegation):DelegationDto

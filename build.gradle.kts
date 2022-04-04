@@ -11,7 +11,7 @@ import java.util.*
 val repoUsername: String by project
 val repoPassword: String by project
 val mavenReleasesRepository: String by project
-val kmapVersion = "0.1.18-5c8a7088d1"
+val kmapVersion = "0.1.22-77b57a3b36"
 
 plugins {
     kotlin("jvm") version "1.6.10"

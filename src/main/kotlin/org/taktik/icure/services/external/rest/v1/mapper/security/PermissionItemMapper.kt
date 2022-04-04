@@ -7,7 +7,7 @@ import org.taktik.icure.entities.security.PermissionItem
 import org.taktik.icure.services.external.rest.v1.dto.security.AlwaysPermissionItemDto
 import org.taktik.icure.services.external.rest.v1.dto.security.PermissionItemDto
 
-@Mapper(componentModel = "spring", uses = [PermissionTypeMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 abstract class PermissionItemMapper {
     abstract fun map(alwaysPermissionItemDto: AlwaysPermissionItemDto): AlwaysPermissionItem
     abstract fun map(alwaysPermissionItem: AlwaysPermissionItem): AlwaysPermissionItemDto

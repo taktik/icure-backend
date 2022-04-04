@@ -24,7 +24,7 @@ import org.taktik.icure.entities.embed.CareTeamMember
 import org.taktik.icure.services.external.rest.v2.dto.embed.CareTeamMemberDto
 import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class, CareTeamMemberTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface CareTeamMemberV2Mapper {
 	fun map(careTeamMemberDto: CareTeamMemberDto):CareTeamMember
 	fun map(careTeamMember: CareTeamMember):CareTeamMemberDto

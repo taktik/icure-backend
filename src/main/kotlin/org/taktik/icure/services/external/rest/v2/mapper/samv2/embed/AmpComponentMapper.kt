@@ -24,7 +24,7 @@ import org.taktik.icure.entities.samv2.embed.AmpComponent
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.AmpComponentDto
 import org.taktik.icure.services.external.rest.v2.mapper.samv2.stub.PharmaceuticalFormStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [RouteOfAdministrationV2Mapper::class, PharmaceuticalFormStubV2Mapper::class, SamTextV2Mapper::class, ContainsAlcoholV2Mapper::class, IngredientV2Mapper::class, CrushableV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [IngredientV2Mapper::class, RouteOfAdministrationV2Mapper::class, PharmaceuticalFormStubV2Mapper::class, SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface AmpComponentV2Mapper {
 	fun map(ampComponentDto: AmpComponentDto):AmpComponent
 	fun map(ampComponent: AmpComponent):AmpComponentDto

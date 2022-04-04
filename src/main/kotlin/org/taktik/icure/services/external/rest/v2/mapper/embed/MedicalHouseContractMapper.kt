@@ -22,7 +22,7 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.MedicalHouseContract
 import org.taktik.icure.services.external.rest.v2.dto.embed.MedicalHouseContractDto
-@Mapper(componentModel = "spring", uses = [SuspensionReasonV2Mapper::class, ContractChangeTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface MedicalHouseContractV2Mapper {
 	fun map(medicalHouseContractDto: MedicalHouseContractDto):MedicalHouseContract
 	fun map(medicalHouseContract: MedicalHouseContract):MedicalHouseContractDto

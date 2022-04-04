@@ -22,7 +22,6 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.dto.result.ResultInfo
 import org.taktik.icure.services.external.rest.v1.dto.ResultInfoDto
-import org.taktik.icure.services.external.rest.v1.mapper.base.CodeMapper
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper

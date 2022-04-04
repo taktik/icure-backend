@@ -25,11 +25,7 @@ import org.mapstruct.Mappings
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.services.external.rest.v1.dto.samv2.VmpDto
 import org.taktik.icure.services.external.rest.v1.mapper.EntityReferenceMapper
-import org.taktik.icure.services.external.rest.v1.mapper.samv2.embed.CommentedClassificationMapper
-import org.taktik.icure.services.external.rest.v1.mapper.samv2.embed.SamTextMapper
-import org.taktik.icure.services.external.rest.v1.mapper.samv2.embed.VmpComponentMapper
-import org.taktik.icure.services.external.rest.v1.mapper.samv2.embed.VtmMapper
-import org.taktik.icure.services.external.rest.v1.mapper.samv2.embed.WadaMapper
+import org.taktik.icure.services.external.rest.v1.mapper.samv2.embed.*
 
 @Mapper(componentModel = "spring", uses = [VtmMapper::class, SamTextMapper::class, VmpGroupStubMapper::class, CommentedClassificationMapper::class, VmpComponentMapper::class, EntityReferenceMapper::class, WadaMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface VmpMapper {

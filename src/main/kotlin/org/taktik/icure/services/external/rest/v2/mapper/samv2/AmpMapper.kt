@@ -28,7 +28,7 @@ import org.taktik.icure.services.external.rest.v2.mapper.EntityReferenceV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.*
 import org.taktik.icure.services.external.rest.v2.mapper.samv2.stub.VmpStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [CompanyV2Mapper::class, AmpStatusV2Mapper::class, SamTextV2Mapper::class, VmpStubV2Mapper::class, MedicineTypeV2Mapper::class, AmpComponentV2Mapper::class, EntityReferenceV2Mapper::class, AmppV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [CompanyV2Mapper::class, SamTextV2Mapper::class, VmpStubV2Mapper::class, AmpComponentV2Mapper::class, EntityReferenceV2Mapper::class, AmppV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface AmpV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),

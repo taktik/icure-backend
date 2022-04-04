@@ -25,9 +25,8 @@ import org.mapstruct.Mappings
 import org.taktik.icure.entities.FrontEndMigration
 import org.taktik.icure.services.external.rest.v2.dto.FrontEndMigrationDto
 import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubV2Mapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.FrontEndMigrationStatusV2Mapper
 
-@Mapper(componentModel = "spring", uses = [FrontEndMigrationStatusV2Mapper::class, PropertyStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [PropertyStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface FrontEndMigrationV2Mapper {
     @Mappings(
             Mapping(target = "attachments", ignore = true),

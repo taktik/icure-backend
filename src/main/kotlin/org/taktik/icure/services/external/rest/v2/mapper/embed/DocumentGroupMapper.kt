@@ -23,7 +23,7 @@ import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.DocumentGroup
 import org.taktik.icure.services.external.rest.v2.dto.embed.DocumentGroupDto
 
-@Mapper(componentModel = "spring", uses = [DocumentLocationV2Mapper::class, DocumentStatusV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DocumentGroupV2Mapper {
 	fun map(documentGroupDto: DocumentGroupDto):DocumentGroup
 	fun map(documentGroup: DocumentGroup):DocumentGroupDto

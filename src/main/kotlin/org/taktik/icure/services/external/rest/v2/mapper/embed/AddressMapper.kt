@@ -24,7 +24,7 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.services.external.rest.v2.dto.embed.AddressDto
-@Mapper(componentModel = "spring", uses = [AddressTypeV2Mapper::class, TelecomV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [TelecomV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface AddressV2Mapper {
 	fun map(addressDto: AddressDto):Address
 	fun map(address: Address):AddressDto
