@@ -111,7 +111,7 @@ class TarificationController(
         @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?
     ) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements: List<*>? = startKey?.takeIf { it.isNotEmpty() }?.let {
+        val startKeyElements = startKey?.takeIf { it.isNotEmpty() }?.let {
             objectMapper.readValue<List<String>>(
                 startKey,
                 objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)
