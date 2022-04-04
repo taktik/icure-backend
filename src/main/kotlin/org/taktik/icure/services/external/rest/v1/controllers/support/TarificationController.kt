@@ -18,6 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.support
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -42,8 +43,8 @@ import org.taktik.icure.entities.Tarification
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.TarificationDto
 import org.taktik.icure.services.external.rest.v1.mapper.TarificationMapper
-import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.services.external.rest.v1.utils.paginatedList
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
 @ExperimentalCoroutinesApi
@@ -51,8 +52,9 @@ import reactor.core.publisher.Flux
 @RequestMapping("/rest/v1/tarification")
 @Tag(name = "tarification")
 class TarificationController(
-        private val tarificationLogic: TarificationLogic,
-        private val tarificationMapper: TarificationMapper
+    private val tarificationLogic: TarificationLogic,
+    private val tarificationMapper: TarificationMapper,
+    private val objectMapper: ObjectMapper
 ) {
     private val DEFAULT_LIMIT = 1000
     private val tarificationToTarificationDto = { it: Tarification -> tarificationMapper.map(it) }
@@ -84,22 +86,29 @@ class TarificationController(
     @Operation(summary = "Finding tarifications by tarification, type and version with pagination.", description = "Returns a list of tarifications matched with given input.")
     @GetMapping
     fun findPaginatedTarifications(
-            @RequestParam(required = false) region: String?,
-            @RequestParam(required = false) type: String?,
-            @RequestParam(required = false) tarification: String?,
-            @RequestParam(required = false) version: String?,
-            @Parameter(description = "A tarification document ID") @RequestParam(required = false) startDocumentId: String?,
-            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+        @RequestParam(required = false) region: String?,
+        @RequestParam(required = false) type: String?,
+        @RequestParam(required = false) tarification: String?,
+        @RequestParam(required = false) version: String?,
+        @Parameter(description = "A tarification document ID") @RequestParam(required = false) startDocumentId: String?,
+        @RequestParam(required = false) startKey: String?,
+        @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?
+    ) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        fun getStartKey(startKeyRegion: String?, startKeyType: String?, startKeyTarification: String?, startKeyVersion: String?): List<String?>? =
-                if (startKeyRegion != null && startKeyType != null && startKeyTarification != null && startKeyVersion != null) {
-                    listOf(startKeyRegion, startKeyType, startKeyTarification, startKeyVersion)
-                } else {
-                    null
-                }
-
-                tarificationLogic.findTarificationsBy(region, type, tarification, version, PaginationOffset(getStartKey(region, type, tarification, version), startDocumentId, null, realLimit+1))
-                        .paginatedList<Tarification, TarificationDto>(tarificationToTarificationDto, realLimit)
+        val startKeyElements: List<*>? = startKey?.takeIf { it.isNotEmpty() }?.let {
+            objectMapper.readValue<List<String>>(
+                startKey,
+                objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)
+            )
+        }
+        tarificationLogic.findTarificationsBy(
+            region,
+            type,
+            tarification,
+            version,
+            PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
+        )
+            .paginatedList<Tarification, TarificationDto>(tarificationToTarificationDto, realLimit)
     }
 
 
