@@ -59,17 +59,33 @@ class TarificationController(
     private val DEFAULT_LIMIT = 1000
     private val tarificationToTarificationDto = { it: Tarification -> tarificationMapper.map(it) }
 
-    @Operation(summary = "Finding tarifications by tarification, type and version with pagination.", description = "Returns a list of tarifications matched with given input.")
+    @Operation(
+        summary = "Finding tarifications by tarification, type and version with pagination.",
+        description = "Returns a list of tarifications matched with given input."
+    )
     @GetMapping("/byLabel")
     fun findPaginatedTarificationsByLabel(
-            @RequestParam(required = false) region: String?,
-            @RequestParam(required = false) types: String?,
-            @RequestParam(required = false) language: String?,
-            @RequestParam(required = false) label: String?,
-            @Parameter(description = "A tarification document ID") @RequestParam(required = false) startDocumentId: String?,
-            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+        @RequestParam(required = false) region: String?,
+        @RequestParam(required = false) types: String?,
+        @RequestParam(required = false) language: String?,
+        @RequestParam(required = false) label: String?,
+        @RequestParam(required = false) startKey: String?,
+        @Parameter(description = "A tarification document ID") @RequestParam(required = false) startDocumentId: String?,
+        @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?
+    ) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val tarificationsList = tarificationLogic.findTarificationsByLabel(region, language, label, PaginationOffset(listOf(region, language, label), startDocumentId, null, realLimit+1))
+        val startKeyElements = startKey?.takeIf { it.isNotEmpty() }?.let {
+            objectMapper.readValue<List<String>>(
+                startKey,
+                objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)
+            )
+        }
+        val tarificationsList = tarificationLogic.findTarificationsByLabel(
+            region,
+            language,
+            label,
+            PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
+        )
 
         types?.let {
             val splits = it.split(',')
