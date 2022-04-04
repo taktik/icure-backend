@@ -72,7 +72,7 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
     }
 
     @Throws(LoginException::class)
-    override fun findForCurrentHcParty(paginationOffset: PaginationOffset<List<Any>>) = flow<ViewQueryResultEvent> {
+    override fun findForCurrentHcParty(paginationOffset: PaginationOffset<List<*>>) = flow<ViewQueryResultEvent> {
         emitAll(messageDAO.findMessagesByHcParty(currentHealthCarPartyId(), paginationOffset))
     }
 

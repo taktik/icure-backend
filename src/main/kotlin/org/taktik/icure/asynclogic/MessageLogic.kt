@@ -78,7 +78,7 @@ interface MessageLogic : EntityPersister<Message, String> {
     fun setReadStatus(messageIds: List<String>, userId: String, status: Boolean, time: Long): Flow<Message>
 
     @Throws(LoginException::class)
-    fun findForCurrentHcParty(paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
+    fun findForCurrentHcParty(paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
 
     suspend fun addDelegations(messageId: String, delegations: List<Delegation>): Message?
     fun getMessageChildren(messageId: String): Flow<Message>

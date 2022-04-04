@@ -140,8 +140,13 @@ class MessageController(
                      @RequestParam(required = false) startDocumentId: String?,
                      @RequestParam(required = false) limit: Int?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it) }
-        val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, realLimit + 1)
+        val startKeyElements = startKey?.takeIf { it.isNotEmpty() }?.let {
+            objectMapper.readValue<List<String>>(
+                startKey,
+                objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)
+            )
+        }?.let { keys -> listOf(keys.getOrNull(0), keys.getOrNull(1)?.toLong()) }
+        val paginationOffset = PaginationOffset<List<*>>(startKeyElements, startDocumentId, null, realLimit + 1)
 
         messageLogic.findForCurrentHcParty(paginationOffset).paginatedList(messageToMessageDto, realLimit)
     }

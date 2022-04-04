@@ -47,7 +47,7 @@ interface MessageDAO: GenericDAO<Message> {
 
     fun findMessagesByHcParty(
         partyId: String,
-        paginationOffset: PaginationOffset<List<Any>>
+        paginationOffset: PaginationOffset<List<*>>
     ): Flow<ViewQueryResultEvent>
 
     fun findMessagesByTransportGuid(
