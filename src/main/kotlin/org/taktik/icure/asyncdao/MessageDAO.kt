@@ -23,52 +23,22 @@ import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Message
 
-interface MessageDAO: GenericDAO<Message> {
+interface MessageDAO : GenericDAO<Message> {
     fun listMessagesByFromAddressAndActor(partyId: String, fromAddress: String, actorKeys: List<String>?): Flow<Message>
     fun listMessagesByToAddressAndActor(partyId: String, toAddress: String, actorKeys: List<String>?): Flow<Message>
-    fun listMessagesByTransportGuidAndActor(
-        partyId: String,
-        transportGuid: String,
-        actorKeys: List<String>?
-    ): Flow<Message>
+    fun listMessagesByTransportGuidAndActor(partyId: String, transportGuid: String, actorKeys: List<String>?): Flow<Message>
 
-    fun listMessagesByFromAddress(
-        partyId: String,
-        fromAddress: String,
-        paginationOffset: PaginationOffset<List<*>>
-    ): Flow<ViewQueryResultEvent>
+    fun listMessagesByFromAddress(partyId: String, fromAddress: String, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
 
-    fun findMessagesByToAddress(
-        partyId: String,
-        toAddress: String,
-        paginationOffset: PaginationOffset<List<Any>>,
-        reverse: Boolean?
-    ): Flow<ViewQueryResultEvent>
+    fun findMessagesByToAddress(partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<Any>>, reverse: Boolean?): Flow<ViewQueryResultEvent>
 
-    fun findMessagesByHcParty(
-        partyId: String,
-        paginationOffset: PaginationOffset<List<*>>
-    ): Flow<ViewQueryResultEvent>
+    fun findMessagesByHcParty(partyId: String, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
 
-    fun findMessagesByTransportGuid(
-        partyId: String,
-        transportGuid: String?,
-        paginationOffset: PaginationOffset<List<*>>
-    ): Flow<ViewQueryResultEvent>
+    fun findMessagesByTransportGuid(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
 
-    fun findMessagesByTransportGuidReceived(
-        partyId: String,
-        transportGuid: String?,
-        paginationOffset: PaginationOffset<List<*>>
-    ): Flow<ViewQueryResultEvent>
+    fun findMessagesByTransportGuidReceived(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
 
-    fun findMessagesByTransportGuidAndSentDate(
-        partyId: String,
-        transportGuid: String,
-        fromDate: Long,
-        toDate: Long,
-        paginationOffset: PaginationOffset<List<Any>>
-    ): Flow<ViewQueryResultEvent>
+    fun findMessagesByTransportGuidAndSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
 
     fun listMessagesByHcPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Message>
     fun getChildren(messageId: String): Flow<Message>

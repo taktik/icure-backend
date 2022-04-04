@@ -27,38 +27,15 @@ import org.taktik.icure.exceptions.CreationException
 import org.taktik.icure.exceptions.MissingRequirementsException
 
 interface MessageLogic : EntityPersister<Message, String> {
-    fun findMessagesByFromAddress(
-        partyId: String,
-        fromAddress: String,
-        paginationOffset: PaginationOffset<List<*>>
-    ): Flow<ViewQueryResultEvent>
+    fun findMessagesByFromAddress(partyId: String, fromAddress: String, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
 
-    fun findMessagesByToAddress(
-        partyId: String,
-        toAddress: String,
-        paginationOffset: PaginationOffset<List<Any>>,
-        reverse: Boolean?
-    ): Flow<ViewQueryResultEvent>
+    fun findMessagesByToAddress(partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<Any>>, reverse: Boolean?): Flow<ViewQueryResultEvent>
 
-    fun findMessagesByTransportGuidReceived(
-        partyId: String,
-        transportGuid: String?,
-        paginationOffset: PaginationOffset<List<*>>
-    ): Flow<ViewQueryResultEvent>
+    fun findMessagesByTransportGuidReceived(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
 
-    fun findMessagesByTransportGuid(
-        partyId: String,
-        transportGuid: String?,
-        paginationOffset: PaginationOffset<List<*>>
-    ): Flow<ViewQueryResultEvent>
+    fun findMessagesByTransportGuid(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
 
-    fun findMessagesByTransportGuidSentDate(
-        partyId: String,
-        transportGuid: String,
-        fromDate: Long,
-        toDate: Long,
-        paginationOffset: PaginationOffset<List<Any>>
-    ): Flow<ViewQueryResultEvent>
+    fun findMessagesByTransportGuidSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
 
     suspend fun addDelegation(messageId: String, delegation: Delegation): Message?
 
