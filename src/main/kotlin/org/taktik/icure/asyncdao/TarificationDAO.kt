@@ -31,7 +31,7 @@ interface TarificationDAO: GenericDAO<Tarification> {
         type: String?,
         code: String?,
         version: String?,
-        pagination: PaginationOffset<List<*>>
+        pagination: PaginationOffset<List<String?>>
     ): Flow<ViewQueryResultEvent>
 
     fun findTarificationsByLabel(

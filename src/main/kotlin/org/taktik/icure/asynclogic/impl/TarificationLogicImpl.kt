@@ -76,7 +76,7 @@ class TarificationLogicImpl(private val tarificationDAO: TarificationDAO, privat
         type: String?,
         tarification: String?,
         version: String?,
-        paginationOffset: PaginationOffset<List<*>>
+        paginationOffset: PaginationOffset<List<String?>>
     ): Flow<ViewQueryResultEvent> = flow {
         emitAll(tarificationDAO.findTarificationsBy(region, type, tarification, version, paginationOffset))
     }

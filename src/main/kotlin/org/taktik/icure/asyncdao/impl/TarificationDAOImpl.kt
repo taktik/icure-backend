@@ -90,7 +90,7 @@ class TarificationDAOImpl(couchDbProperties: CouchDbProperties,
         type: String?,
         code: String?,
         version: String?,
-        pagination: PaginationOffset<List<*>>
+        pagination: PaginationOffset<List<String?>>
     ): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val from = ComplexKey.of(

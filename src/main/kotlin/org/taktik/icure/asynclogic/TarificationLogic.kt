@@ -37,7 +37,7 @@ interface TarificationLogic {
         type: String?,
         tarification: String?,
         version: String?,
-        paginationOffset: PaginationOffset<List<*>>
+        paginationOffset: PaginationOffset<List<String?>>
     ): Flow<ViewQueryResultEvent>
 
     fun findTarificationsByLabel(
