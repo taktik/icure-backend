@@ -267,7 +267,7 @@ class SoftwareMedicalFileExport(
                             val services: List<Service> = contact.services.filter { subContact.services.map{it.serviceId}.contains(it.id)}
                             ids.add(idKmehr(startIndex))
                             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; value = transactionMFID })
-                            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = cdTransactionRef })
+                            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = cdTransactionRef; dn = subContact.descr ?: contact.descr })
                             (contact.modified ?: contact.created)?.let {
                                 date = makeXGC(it)
                                 time = makeXGC(it)
