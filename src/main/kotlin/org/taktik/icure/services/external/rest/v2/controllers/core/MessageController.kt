@@ -209,8 +209,9 @@ class MessageController(
             @RequestParam(required = false) limit: Int?,
             @RequestParam(required = false) hcpId: String?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it) }
-        val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, realLimit + 1)
+        val startKeyList = startKey?.takeIf { it.isNotEmpty() }
+            ?.let { Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it) }
+        val paginationOffset = PaginationOffset<List<*>>(startKeyList, startDocumentId, null, realLimit + 1)
         messageLogic.findMessagesByTransportGuidSentDate(
                 hcpId ?: sessionLogic.getCurrentHealthcarePartyId(),
                 transportGuid,
@@ -231,8 +232,9 @@ class MessageController(
             @RequestParam(required = false) reverse: Boolean?,
             @RequestParam(required = false) hcpId: String?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = startKey?.takeIf { it.isNotEmpty() }?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
-        val paginationOffset = PaginationOffset<List<Any>>(startKeyElements, startDocumentId, null, realLimit + 1)
+        val startKeyElements = startKey?.takeIf { it.isNotEmpty() }
+            ?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
+        val paginationOffset = PaginationOffset<List<*>>(startKeyElements, startDocumentId, null, realLimit + 1)
         val hcpId = hcpId ?: sessionLogic.getCurrentHealthcarePartyId()
         messageLogic.findMessagesByToAddress(hcpId, toAddress, paginationOffset, reverse).paginatedList<Message, MessageDto>(messageToMessageDto, realLimit)
     }

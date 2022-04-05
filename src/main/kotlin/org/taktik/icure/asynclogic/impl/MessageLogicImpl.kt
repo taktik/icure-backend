@@ -84,9 +84,10 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
         emitAll(messageDAO.listMessagesByFromAddress(partyId, fromAddress, paginationOffset))
     }
 
-    override fun findMessagesByToAddress(partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<Any>>, reverse: Boolean?) = flow<ViewQueryResultEvent> {
-        emitAll(messageDAO.findMessagesByToAddress(partyId, toAddress, paginationOffset, reverse))
-    }
+    override fun findMessagesByToAddress(partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<*>>, reverse: Boolean?) =
+        flow<ViewQueryResultEvent> {
+            emitAll(messageDAO.findMessagesByToAddress(partyId, toAddress, paginationOffset, reverse))
+        }
 
     override fun findMessagesByTransportGuidReceived(
         partyId: String,
@@ -104,9 +105,10 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
         emitAll(messageDAO.findMessagesByTransportGuid(partyId, transportGuid, paginationOffset))
     }
 
-    override fun findMessagesByTransportGuidSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<Any>>) = flow<ViewQueryResultEvent> {
-        emitAll(messageDAO.findMessagesByTransportGuidAndSentDate(partyId, transportGuid, fromDate, toDate, paginationOffset))
-    }
+    override fun findMessagesByTransportGuidSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<*>>) =
+        flow<ViewQueryResultEvent> {
+            emitAll(messageDAO.findMessagesByTransportGuidAndSentDate(partyId, transportGuid, fromDate, toDate, paginationOffset))
+        }
 
     override suspend fun addDelegation(messageId: String, delegation: Delegation): Message? {
         val message = messageDAO.get(messageId)
