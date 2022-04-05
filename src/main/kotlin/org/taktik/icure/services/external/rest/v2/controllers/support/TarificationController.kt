@@ -18,6 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v2.controllers.support
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -51,23 +52,40 @@ import reactor.core.publisher.Flux
 @RequestMapping("/rest/v2/tarification")
 @Tag(name = "tarification")
 class TarificationController(
-        private val tarificationLogic: TarificationLogic,
-        private val tarificationV2Mapper: TarificationV2Mapper
+    private val tarificationLogic: TarificationLogic,
+    private val tarificationV2Mapper: TarificationV2Mapper,
+    private val objectMapper: ObjectMapper
 ) {
     private val DEFAULT_LIMIT = 1000
     private val tarificationToTarificationDto = { it: Tarification -> tarificationV2Mapper.map(it) }
 
-    @Operation(summary = "Finding tarifications by tarification, type and version with pagination.", description = "Returns a list of tarifications matched with given input.")
+    @Operation(
+        summary = "Finding tarifications by tarification, type and version with pagination.",
+        description = "Returns a list of tarifications matched with given input."
+    )
     @GetMapping("/byLabel")
     fun findTarificationsByLabel(
-            @RequestParam(required = false) region: String?,
-            @RequestParam(required = false) types: String?,
-            @RequestParam(required = false) language: String?,
-            @RequestParam(required = false) label: String?,
-            @Parameter(description = "A tarification document ID") @RequestParam(required = false) startDocumentId: String?,
-            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+        @RequestParam(required = false) region: String?,
+        @RequestParam(required = false) types: String?,
+        @RequestParam(required = false) language: String?,
+        @RequestParam(required = false) label: String?,
+        @RequestParam(required = false) startKey: String?,
+        @Parameter(description = "A tarification document ID") @RequestParam(required = false) startDocumentId: String?,
+        @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?
+    ) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val tarificationsList = tarificationLogic.findTarificationsByLabel(region, language, label, PaginationOffset(listOf(region, language, label), startDocumentId, null, realLimit+1))
+        val startKeyElements = startKey?.takeIf { it.isNotEmpty() }?.let {
+            objectMapper.readValue<List<String>>(
+                startKey,
+                objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)
+            )
+        }
+        val tarificationsList = tarificationLogic.findTarificationsByLabel(
+            region,
+            language,
+            label,
+            PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
+        )
 
         types?.let {
             val splits = it.split(',')
@@ -84,22 +102,30 @@ class TarificationController(
     @Operation(summary = "Finding tarifications by tarification, type and version with pagination.", description = "Returns a list of tarifications matched with given input.")
     @GetMapping
     fun findTarificationsBy(
-            @RequestParam(required = false) region: String?,
-            @RequestParam(required = false) type: String?,
-            @RequestParam(required = false) tarification: String?,
-            @RequestParam(required = false) version: String?,
-            @Parameter(description = "A tarification document ID") @RequestParam(required = false) startDocumentId: String?,
-            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+        @RequestParam(required = false) region: String?,
+        @RequestParam(required = false) type: String?,
+        @RequestParam(required = false) tarification: String?,
+        @RequestParam(required = false) version: String?,
+        @Parameter(description = "A tarification document ID") @RequestParam(required = false) startDocumentId: String?,
+        @RequestParam(required = false) startKey: String?,
+        @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?
+    ) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        fun getStartKey(startKeyRegion: String?, startKeyType: String?, startKeyTarification: String?, startKeyVersion: String?): List<String?>? =
-                if (startKeyRegion != null && startKeyType != null && startKeyTarification != null && startKeyVersion != null) {
-                    listOf(startKeyRegion, startKeyType, startKeyTarification, startKeyVersion)
-                } else {
-                    null
-                }
+        val startKeyElements = startKey?.takeIf { it.isNotEmpty() }?.let {
+            objectMapper.readValue<List<String>>(
+                startKey,
+                objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)
+            )
+        }
 
-                tarificationLogic.findTarificationsBy(region, type, tarification, version, PaginationOffset(getStartKey(region, type, tarification, version), startDocumentId, null, realLimit+1))
-                        .paginatedList<Tarification, TarificationDto>(tarificationToTarificationDto, realLimit)
+        tarificationLogic.findTarificationsBy(
+            region,
+            type,
+            tarification,
+            version,
+            PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
+        )
+            .paginatedList<Tarification, TarificationDto>(tarificationToTarificationDto, realLimit)
     }
 
 

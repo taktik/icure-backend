@@ -18,12 +18,19 @@
 
 package org.taktik.icure.services.external.rest.v2.controllers.support
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -63,7 +70,7 @@ import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainV2Map
 import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
-import java.util.*
+import java.util.Optional
 
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -71,16 +78,17 @@ import java.util.*
 @RequestMapping("/rest/v2/invoice")
 @Tag(name = "invoice")
 class InvoiceController(
-        private val invoiceLogic: InvoiceLogic,
-        private val sessionLogic: AsyncSessionLogic,
-        private val insuranceLogic: InsuranceLogic,
-        private val userLogic: UserLogic,
-        private val uuidGenerator: UUIDGenerator,
-        private val invoiceV2Mapper: InvoiceV2Mapper,
-        private val filterChainV2Mapper: FilterChainV2Mapper,
-        private val delegationV2Mapper: DelegationV2Mapper,
-        private val invoicingCodeV2Mapper: InvoicingCodeV2Mapper,
-        private val stubV2Mapper: StubV2Mapper
+    private val invoiceLogic: InvoiceLogic,
+    private val sessionLogic: AsyncSessionLogic,
+    private val insuranceLogic: InsuranceLogic,
+    private val userLogic: UserLogic,
+    private val uuidGenerator: UUIDGenerator,
+    private val invoiceV2Mapper: InvoiceV2Mapper,
+    private val filterChainV2Mapper: FilterChainV2Mapper,
+    private val delegationV2Mapper: DelegationV2Mapper,
+    private val invoicingCodeV2Mapper: InvoicingCodeV2Mapper,
+    private val stubV2Mapper: StubV2Mapper,
+    private val objectMapper: ObjectMapper
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -200,7 +208,25 @@ class InvoiceController(
                      @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                      @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val paginationOffset = PaginationOffset<List<*>>( startKey?.split(',')?.let { keys -> listOf(keys[0], keys[1].toLong())}, startDocumentId, 0, realLimit + 1) // fetch one more for nextKeyPair
+        val startKeyElements = startKey?.let { startKeyString ->
+            startKeyString
+                .takeIf { it.startsWith("[") }
+                ?.let { startKeyArray ->
+                    objectMapper.readValue(
+                        startKeyArray,
+                        objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)
+                    )
+                }
+                ?: startKeyString.split(',')
+        }?.let { keys ->
+            listOf(keys[0], keys[1].toLong())
+        }
+        val paginationOffset = PaginationOffset<List<*>>(
+            startKeyElements,
+            startDocumentId,
+            0,
+            realLimit + 1
+        ) // fetch one more for nextKeyPair
         val findByAuthor = invoiceLogic.findInvoicesByAuthor(hcPartyId, fromDate, toDate, paginationOffset)
         findByAuthor.paginatedList<Invoice, InvoiceDto>(invoiceToInvoiceDto, realLimit)
     }
