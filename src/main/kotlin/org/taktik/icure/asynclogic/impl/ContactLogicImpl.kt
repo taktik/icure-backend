@@ -275,16 +275,17 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     }
 
     override fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<org.taktik.icure.entities.embed.Service>) = flow {
-        val ids= filters.resolve(filter.filter)
+        val ids = filters.resolve(filter.filter)
 
-        val sortedIds = if (paginationOffset.startDocumentId != null) { // Sub-set starting from startDocId to the end (including last element)
-            ids.dropWhile { it != paginationOffset.startDocumentId }
-        } else {
-            ids
-        }
+        val sortedIds =
+            if (paginationOffset.startDocumentId != null) { // Sub-set starting from startDocId to the end (including last element)
+                ids.dropWhile { it != paginationOffset.startDocumentId }
+            } else {
+                ids
+            }
 
-        val selectedIds = sortedIds.take(paginationOffset.limit)
-        emitAll(getServices(selectedIds.toList()))
+        val filteredServices = filter.applyTo(getServices(sortedIds.toList()))
+        emitAll(filteredServices.take(paginationOffset.limit))
     }
 
     override fun solveConflicts() = contactDAO.listConflicts().mapNotNull { contactDAO.get(it.id, Option.CONFLICTS)?.let { contact ->
