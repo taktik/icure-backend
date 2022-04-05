@@ -514,6 +514,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 openingDate = contactDate,
                 closingDate = trn.isIscomplete.let { if (it) contactDate else null },
                 tags = listOfNotNull(trnCd, trnTypeCd).map { CodeStub.from("CD-TRANSACTION", it, "1.0") }.toSet(),
+                descr = trn.headingsAndItemsAndTexts.filterIsInstance<TextType>().firstOrNull()?.value ?: null,
                 location =
                 trn.findItem { it -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterlocation" } }
                         ?.let {
