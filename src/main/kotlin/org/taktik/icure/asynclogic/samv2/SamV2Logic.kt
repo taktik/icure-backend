@@ -26,6 +26,7 @@ import org.taktik.icure.entities.samv2.*
 
 interface SamV2Logic {
     fun findAmpsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
+    fun findNmpsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
     fun findVmpsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
     fun findVmpGroupsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
     fun findVmpGroupsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
@@ -37,10 +38,11 @@ interface SamV2Logic {
     fun findAmpsByVmpGroupId(vmpgId: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
     fun findAmpsByVmpCode(vmpCode: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
     fun findAmpsByVmpId(vmpId: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
-    fun findAmpsByDmppCode(dmppCode: String): Flow<ViewQueryResultEvent>
     fun findAmpsByAtcCode(atcCode: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
+    fun findAmpsByDmppCode(dmppCode: String): Flow<ViewQueryResultEvent>
 
     fun listAmpIdsByLabel(language: String?, label: String?): Flow<String>
+    fun listNmpIdsByLabel(language: String?, label: String?): Flow<String>
     fun listVmpIdsByLabel(language: String?, label: String?): Flow<String>
     fun listVmpGroupIdsByLabel(language: String?, label: String?): Flow<String>
     fun listVmpIdsByGroupCode(vmpgCode: String): Flow<String>
@@ -51,9 +53,9 @@ interface SamV2Logic {
     fun listAmpIdsByVmpId(vmpId: String): Flow<String>
 
     suspend fun getVersion(): SamVersion?
-    fun listProductIds(productIds: List<String>): Flow<ProductId>
-    fun findNmpsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
-    fun listNmpIdsByLabel(language: String?, label: String?): Flow<String>
+    suspend fun listAmpProductIds(ids: Collection<String>): List<ProductId?>
+    suspend fun listVmpgProductIds(ids: Collection<String>): List<ProductId?>
+    suspend fun listNmpProductIds(ids: Collection<String>): List<ProductId?>
     fun listSubstances(): Flow<Substance>
     fun listPharmaceuticalForms(): Flow<PharmaceuticalForm>
 

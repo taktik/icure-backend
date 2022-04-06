@@ -18,31 +18,31 @@
 
 package org.taktik.icure.asyncdao.samv2.impl
 
+
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryView
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
 import org.taktik.icure.asyncdao.impl.InternalDAOImpl
 import org.taktik.icure.asyncdao.samv2.AmpDAO
-import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.samv2.Amp
-import org.taktik.icure.entities.samv2.Paragraph
 import org.taktik.icure.entities.samv2.SamVersion
 import org.taktik.icure.properties.CouchDbProperties
-
-
+import org.taktik.icure.utils.toInputStream
 import java.net.URI
+import java.util.zip.GZIPInputStream
 
 @ExperimentalCoroutinesApi
 @Repository("ampDAO")
@@ -192,6 +192,16 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         return client.get("org.taktik.icure.samv2", SamVersion::class.java)
     }
 
+    override suspend fun getProductIdsFromSignature(type:String): Map<String, String> {
+        val dbInstanceUri = URI(couchDbProperties.url)
+        val client = couchDbDispatcher.getClient(dbInstanceUri)
+
+        return client.get("org.taktik.icure.samv2.signatures.${type}", SamVersion::class.java)?.let {
+            GZIPInputStream(client.getAttachment(it.id, "signatures", it.rev).toInputStream()).reader(Charsets.UTF_8).useLines { it.fold(HashMap()) { acc, l -> acc.also { l.split('|').let { parts -> acc[parts[0]] = parts[1] } } } }
+        } ?: throw IllegalArgumentException("Signature $type does not exist")
+    }
+
+
     @View(name = "by_language_label", map = "classpath:js/amp/By_language_label.js")
     override fun findAmpsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> = flow {
         val dbInstanceUri = URI(couchDbProperties.url)
@@ -199,8 +209,8 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
 
         val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
         val from = ComplexKey.of(
-                language ?: "\u0000",
-                sanitizedLabel ?: "\u0000"
+                language,
+                sanitizedLabel
         )
         val to = ComplexKey.of(
                 language ?: ComplexKey.emptyObject(),

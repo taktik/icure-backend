@@ -85,17 +85,23 @@ class TarificationDAOImpl(couchDbProperties: CouchDbProperties,
         )
     }
 
-    override fun findTarificationsBy(region: String?, type: String?, code: String?, version: String?, pagination: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
+    override fun findTarificationsBy(
+        region: String?,
+        type: String?,
+        code: String?,
+        version: String?,
+        pagination: PaginationOffset<List<String?>>
+    ): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         val from = ComplexKey.of(
-                        region ?: "\u0000",
-                        type ?: "\u0000",
-                        code ?: "\u0000",
-                        version ?: "\u0000"
-                )
+            region ?: "\u0000",
+            type ?: "\u0000",
+            code ?: "\u0000",
+            version ?: "\u0000"
+        )
         val to = ComplexKey.of(
-                region?.let { it + "" } ?: ComplexKey.emptyObject(),
-                type?.let { it + "" } ?: ComplexKey.emptyObject(),
+            region?.let { it + "" } ?: ComplexKey.emptyObject(),
+            type?.let { it + "" } ?: ComplexKey.emptyObject(),
                 code?.let { it + "" } ?: ComplexKey.emptyObject(),
                 version?.let { it + "" } ?: ComplexKey.emptyObject()
         )

@@ -32,7 +32,6 @@ import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
-import org.taktik.icure.be.ehealth.logic.kmehr.toInputStream
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.domain.mapping.ImportMapping
@@ -79,6 +78,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
 import org.taktik.icure.utils.FuzzyValues
+import org.taktik.icure.utils.toInputStream
 import java.io.Serializable
 import java.nio.ByteBuffer
 import java.util.LinkedList
@@ -104,8 +104,6 @@ class SumehrImport(val patientLogic: PatientLogic,
         val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
 
         var allRes = LinkedList<ImportResult>()
-
-        val standard = kmehrMessage.header.standard.cd.value
 
         //TODO Might want to have several implementations babsed on standards
         kmehrMessage.header.sender.hcparties?.forEach { createOrProcessHcp(it, saveToDatabase) }
