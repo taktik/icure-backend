@@ -33,7 +33,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.flow.toSet
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
@@ -59,6 +58,7 @@ import org.taktik.icure.entities.embed.ReferralPeriod
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto
 import org.taktik.icure.utils.FuzzyValues
+import org.taktik.icure.utils.aggregateResults
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
 import java.time.Instant
 
@@ -160,17 +160,24 @@ class PatientLogicImpl(
         }
     }
 
-    override fun listPatients(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?) = flow<ViewQueryResultEvent> {
-        var ids = filters.resolve(filterChain.filter).toSet().sorted()
-        var forPagination = patientDAO.findPatients(ids)
-        if (filterChain.predicate != null) {
-            forPagination = forPagination.filterIsInstance<ViewRowWithDoc<*, *, *>>()
-                    .filter { filterChain.predicate.apply(it.doc as Patient) }
-        }
-        if (sort != null && sort != "id") { // TODO MB is this the correct way to sort here ?
-            var patientsListToSort = forPagination.toList()
-            val pub = PropertyUtilsBean()
-            patientsListToSort = patientsListToSort.sortedWith(
+    override fun listPatients(paginationOffset: PaginationOffset<*>, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?) =
+        flow<ViewQueryResultEvent> {
+            var ids = filters.resolve(filterChain.filter)
+
+            val forPagination = aggregateResults<ViewQueryResultEvent>(
+                ids = ids,
+                limit = paginationOffset.limit,
+                supplier = { patientIds: Flow<String> -> patientDAO.findPatients(patientIds) },
+                filter = { queryResult: ViewQueryResultEvent ->
+                    filterChain.predicate?.let { queryResult is ViewRowWithDoc<*, *, *> && it.apply(queryResult.doc as Patient) }
+                        ?: true
+                },
+                startDocumentId = paginationOffset.startDocumentId
+            )
+            if (sort != null && sort != "id") { // TODO MB is this the correct way to sort here ?
+                var patientsListToSort = forPagination.toList()
+                val pub = PropertyUtilsBean()
+                patientsListToSort = patientsListToSort.sortedWith(
                     kotlin.Comparator { a, b ->
                         try {
                             val ap = pub.getProperty(a, sort) as Comparable<*>?
