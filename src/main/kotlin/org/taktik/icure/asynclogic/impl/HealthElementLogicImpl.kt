@@ -19,13 +19,11 @@ package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -42,6 +40,7 @@ import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Identifier
+import org.taktik.icure.utils.aggregateResults
 
 /**
  * Created by emad7105 on 24/06/2014.
@@ -165,14 +164,15 @@ class HealthElementLogicImpl(private val filters: Filters,
     override fun filter(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<HealthElement>) =
         flow<ViewQueryResultEvent> {
             val ids = filters.resolve(filter.filter)
-            val sortedIds = paginationOffset.takeUnless { it.startDocumentId == null }
-                ?.let { paginationOffset -> // Sub-set starting from startDocId to the end (including last element)
-                    ids.dropWhile { id -> id != paginationOffset.startDocumentId }
-                } ?: ids
-
-            val selectedIds =
-                sortedIds.take(paginationOffset.limit + 1) // Fetching one more health element for the start key of the next page
-            emitAll(healthElementDAO.findHealthElementsByIds(selectedIds))
+            emitAll(
+                aggregateResults(
+                    ids = ids,
+                    limit = paginationOffset.limit,
+                    supplier = { healthElementIds: Flow<String> -> healthElementDAO.findHealthElementsByIds(healthElementIds) },
+                    filter = { true },
+                    startDocumentId = paginationOffset.startDocumentId
+                )
+            )
         }
 
     companion object {
