@@ -18,8 +18,17 @@
 
 package org.taktik.icure.utils
 
-import org.taktik.icure.asynclogic.AsyncSessionLogic
 import javax.security.auth.login.LoginException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.dropWhile
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flattenConcat
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.take
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 
 suspend fun getLoggedHealthCarePartyId(sessionLogic: AsyncSessionLogic): String {
     val user = sessionLogic.getCurrentSessionContext().getUser()
@@ -27,4 +36,29 @@ suspend fun getLoggedHealthCarePartyId(sessionLogic: AsyncSessionLogic): String 
         throw LoginException("You must be logged to perform this action. ")
     }
     return user.healthcarePartyId!!
+}
+
+tailrec suspend fun <T> aggregateResults(
+    ids: Flow<String>,
+    limit: Int,
+    supplier: suspend (Flow<String>) -> Flow<T>,
+    filter: suspend (T) -> Boolean,
+    entities: Flow<T> = emptyFlow(),
+    startDocumentId: String? = null,
+    heuristic: Int = 2,
+): Flow<T> {
+    val heuristicLimit = limit * heuristic
+
+    val sortedIds = (startDocumentId?.takeIf { entities.count() == 0 }?.let {
+        ids.dropWhile { id -> it != id }
+    } ?: ids)
+
+    val filteredEntities =
+        flowOf(supplier(sortedIds.take(heuristicLimit)).filter { filter(it) }, entities).flattenConcat()
+    val remainingIds = ids.drop(heuristicLimit)
+
+    if (remainingIds.count() == 0 || filteredEntities.count() >= limit) {
+        return filteredEntities.take(limit)
+    }
+    return aggregateResults(remainingIds, limit, supplier, filter, filteredEntities)
 }
