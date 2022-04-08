@@ -601,18 +601,18 @@ class SoftwareMedicalFileExport(
         }
     }
 
-    private fun addHistoryLinkAndCacheService(item: ItemType, mfId: String, config: Config) {
-        mfId?.let {
-            if (itemByServiceId[it] != null && config.format != Config.Format.PMF) {
-                // this is a new version of and older service, add a link
-                // no history in PMF
-                item.lnks.add(
-                        LnkType().apply {
-                            type = CDLNKvalues.ISANEWVERSIONOF; url = makeLnkUrl(mfId)
-                        }
-                )
+    private fun addHistoryLinkAndCacheService(item: ItemType, serviceId: String, config: Config) {
+        if(config.format != Config.Format.PMF) {
+            itemByServiceId[serviceId]?.let {
+                getItemMFID(it)?.let {
+                    item.lnks.add(
+                            LnkType().apply {
+                                type = CDLNKvalues.ISANEWVERSIONOF; url = makeLnkUrl(it)
+                            }
+                    )
+                }
             }
-            itemByServiceId[mfId] = item
+            itemByServiceId[serviceId] = item
         }
     }
 
@@ -1296,6 +1296,13 @@ class SoftwareMedicalFileExport(
 		println(html)
 		return html.toByteArray()
 	}
+
+    fun getItemMFID(item: ItemType): String? {
+        item.ids.find { it.s == IDKMEHRschemes.LOCAL && it.sl == "MF-ID" }?.let {
+            return it.value
+        }
+        return null
+    }
 
 	fun renderKinePrescriptionTemplate(contact: Contact, subcon: SubContact, form: Form, language: String): ByteArray {
 		// TODO: not working yet, template and mapping need to be done
