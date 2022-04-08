@@ -132,6 +132,8 @@ class SoftwareMedicalFileExport(
         config.defaultLanguage = config.defaultLanguage ?: "en"
         config.format = config.format ?: Config.Format.SMF
 
+        itemByServiceId = HashMap();
+
 		val sfksUniq = sfks.toSet().toList() // duplicated sfk cause couchDb views to return duplicated results
 
 		val message = initializeMessage(sender, config)
