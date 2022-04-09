@@ -105,7 +105,6 @@ class SoftwareMedicalFileExport(
     private var newestServicesById: MutableMap<String?, Service> = HashMap()
 	private var itemByServiceId: MutableMap<String, ItemType> = HashMap()
 	private var oldestHeByHeId: Map<String?, HealthElement> = HashMap()
-    private var medicationMfIdByTreatmentId: MutableMap<String, String> = HashMap()
     private var heById:  Map<String?, List<HealthElement>> = HashMap()
 
 	fun exportSMF(
@@ -360,14 +359,6 @@ class SoftwareMedicalFileExport(
                                         } + codesToKmehr(svc.codes)
                                         if (contents.isNotEmpty()) {
                                             var mfId = svc.id
-                                            if(isServiceANewVersionOf(mfId)){
-                                                mfId = UUIDGenerator().newGUID().toString();
-                                                if(cdItem == "medication") {
-                                                    //Medispring temp fix, since we modify medication id in order to not have the same mfid we must
-                                                    val relatedTreatment = services.find { it.formId == svc.id && it.tags.find { (it.type == "CD-ITEM" && it.code == "treatment") || (it.type == "ICURE" && it.code == "PRESC") } != null }
-                                                    relatedTreatment?.let { medicationMfIdByTreatmentId[it.id] = mfId }
-                                                }
-                                            }
                                             createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID", mfId)?.apply {
                                                 this.ids.add(IDKMEHR().apply {
                                                     this.s = IDKMEHRschemes.LOCAL
@@ -495,7 +486,7 @@ class SoftwareMedicalFileExport(
                         addHistoryLinkAndCacheService(this, svc.id, config)
                         headingsAndItemsAndTexts.add(this)
                         svc.formId?.let {
-                            this.lnks.add(LnkType().apply { type = CDLNKvalues.ISATTESTATIONOF; url = makeLnkUrl(medicationMfIdByTreatmentId[it] ?: it) })
+                            this.lnks.add(LnkType().apply { type = CDLNKvalues.ISATTESTATIONOF; url = makeLnkUrl(it) })
                         }
                     }
                 }
