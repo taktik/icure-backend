@@ -69,6 +69,7 @@ import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
 import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.mapper.ContactMapper
 import org.taktik.icure.services.external.rest.v1.mapper.DocumentMapper
 import org.taktik.icure.services.external.rest.v1.mapper.HealthElementMapper
@@ -131,6 +132,8 @@ class SoftwareMedicalFileExport(
         config.soft = config.soft ?: Config.Software(name = "iCure", version = ICUREVERSION)
         config.defaultLanguage = config.defaultLanguage ?: "en"
         config.format = config.format ?: Config.Format.SMF
+
+        itemByServiceId = HashMap();
 
 		val sfksUniq = sfks.toSet().toList() // duplicated sfk cause couchDb views to return duplicated results
 
@@ -263,11 +266,11 @@ class SoftwareMedicalFileExport(
                                     }
                                 }
                             val transactionMFID: String = if(index > 0) UUIDGenerator().newGUID().toString() else contact.id
-                            val services: List<Service> = contact.services.filter { subContact.services.map{it.serviceId}.contains(it.id)}
                             val parentContactId: String? = if(index > 0) contact.id else null
+                            val services: List<Service> = contact.services.filter { subContact.services.map{it.serviceId}.contains(it.id)}
                             ids.add(idKmehr(startIndex))
                             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; value = transactionMFID })
-                            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = cdTransactionRef })
+                            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = cdTransactionRef; dn = subContact.descr ?: contact.descr })
                             (contact.modified ?: contact.created)?.let {
                                 date = makeXGC(it)
                                 time = makeXGC(it)
@@ -291,14 +294,14 @@ class SoftwareMedicalFileExport(
                             services.filter { s -> s.tags.find { t -> t.code == "incapacity" } != null }.forEach { incapacityService ->
                                 headingsAndItemsAndTexts.add(makeIncapacityItem(incapacityService, language))
                                 incapacityService.content[language]?.documentId?.let { docId ->
-                                    createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config, decryptor)
+                                    createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config, parentContactId ?: transactionMFID, decryptor)
                                 }
                             }
                             services.filter { s -> s.tags.find { t -> t.code == "physiotherapy" } != null }.forEach { kineService ->
-                                specialPrescriptions.add(makeKinePrescriptionTransaction(kineService, language, decryptor))
+                                specialPrescriptions.add(makeKinePrescriptionTransaction(kineService, language, decryptor, parentContactId ?: transactionMFID))
                             }
                             services.filter { s -> s.tags.find { t -> t.code == "medicalcares" } != null }.forEach { nurseService ->
-                                specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService, language, decryptor))
+                                specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService, language, decryptor, parentContactId ?: transactionMFID))
                             }
                             services.filter { s -> isSummary(s) }.forEach { summaryService ->
                                 summaries.add(makeSummaryTransaction(contact, summaryService, language))
@@ -311,8 +314,8 @@ class SoftwareMedicalFileExport(
                                 }
                             } else {
                                 services.forEach servicesLoop@{ svc ->
-                                    val incapacityTag = svc.tags.find { t -> t.code == "incapacity" }
-                                    if (incapacityTag != null) return@servicesLoop
+                                    val specialTag = svc.tags.find { t -> listOf("incapacity", "physiotherapy","medicalcares").contains(t.code) }
+                                    if (specialTag != null) return@servicesLoop
                                     var forSeparateTransaction = false // documents are in separate transaction in *MF
                                     svc.content.values.find { it.documentId != null }?.let {
                                         documents = documents.plus(Triple(it.documentId!!, svc, contact))
@@ -355,7 +358,8 @@ class SoftwareMedicalFileExport(
                                             } ?: emptyList()
                                         } + codesToKmehr(svc.codes)
                                         if (contents.isNotEmpty()) {
-                                            createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID")?.apply {
+                                            var mfId = svc.id
+                                            createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID", mfId)?.apply {
                                                 this.ids.add(IDKMEHR().apply {
                                                     this.s = IDKMEHRschemes.LOCAL
                                                     this.sv = "1.0"
@@ -410,7 +414,7 @@ class SoftwareMedicalFileExport(
                                                     }
                                                 }
                                             }?.let {
-                                                addHistoryLinkAndCacheService(it, svc, config)
+                                                addHistoryLinkAndCacheService(it, svc.id, config)
                                                 headingsAndItemsAndTexts.add(it)
                                             }
                                         }
@@ -479,12 +483,10 @@ class SoftwareMedicalFileExport(
                                 this.contents.add( ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
                             }
                         }
-                        addHistoryLinkAndCacheService(this, svc, config)
+                        addHistoryLinkAndCacheService(this, svc.id, config)
                         headingsAndItemsAndTexts.add(this)
-                        svc.formId?.let{
-                            (it != "") && it.let{
-                                this.lnks.add(LnkType().apply { type = CDLNKvalues.ISATTESTATIONOF; url = makeLnkUrl(it) })
-                            }
+                        svc.formId?.let {
+                            this.lnks.add(LnkType().apply { type = CDLNKvalues.ISATTESTATIONOF; url = makeLnkUrl(it) })
                         }
                     }
                 }
@@ -597,30 +599,37 @@ class SoftwareMedicalFileExport(
         }
     }
 
-    private fun addHistoryLinkAndCacheService(item: ItemType, svc: Service, config: Config) {
-        svc.id.let { svcId ->
-            if (itemByServiceId[svcId] != null && config.format != Config.Format.PMF) {
-                // this is a new version of and older service, add a link
-                // no history in PMF
-                item.lnks.add(
-                        LnkType().apply {
-                            type = CDLNKvalues.ISANEWVERSIONOF; url = makeLnkUrl(svcId)
-                        }
-                )
+    private fun addHistoryLinkAndCacheService(item: ItemType, serviceId: String, config: Config) {
+        if(config.format != Config.Format.PMF) {
+            itemByServiceId[serviceId]?.let {
+                getItemMFID(it)?.let {
+                    item.lnks.add(
+                            LnkType().apply {
+                                type = CDLNKvalues.ISANEWVERSIONOF; url = makeLnkUrl(it)
+                            }
+                    )
+                }
             }
-            itemByServiceId[svcId] = item
+            itemByServiceId[serviceId] = item
         }
     }
 
-    private suspend fun makeNursePrescriptionTransaction(contact: Service, language: String, decryptor: AsyncDecrypt?): TransactionType {
-        return makeSpecialPrescriptionTransaction(contact, "nursing", language, decryptor)
+    private fun isServiceANewVersionOf(mfId: String): Boolean {
+        itemByServiceId[mfId]?.let {
+            return true
+        }
+        return false
     }
 
-    private suspend fun makeKinePrescriptionTransaction(contact: Service, language: String, decryptor: AsyncDecrypt?): TransactionType {
-        return makeSpecialPrescriptionTransaction(contact, "physiotherapy", language, decryptor)
+    private suspend fun makeNursePrescriptionTransaction(contact: Service, language: String, decryptor: AsyncDecrypt?, transactionMfId: String): TransactionType {
+        return makeSpecialPrescriptionTransaction(contact, "nursing", language, decryptor, transactionMfId)
     }
 
-    private suspend fun makeSpecialPrescriptionTransaction(service: Service, transactionType: String, language: String, decryptor: AsyncDecrypt?): TransactionType {
+    private suspend fun makeKinePrescriptionTransaction(contact: Service, language: String, decryptor: AsyncDecrypt?, transactionMfId: String): TransactionType {
+        return makeSpecialPrescriptionTransaction(contact, "physiotherapy", language, decryptor, transactionMfId)
+    }
+
+    private suspend fun makeSpecialPrescriptionTransaction(service: Service, transactionType: String, language: String, decryptor: AsyncDecrypt?, transactionMfId: String): TransactionType {
 
         return TransactionType().apply {
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = "1" })
@@ -639,6 +648,7 @@ class SoftwareMedicalFileExport(
             }
             isIscomplete = true
             isIsvalidated = true
+            LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(transactionMfId) }.also { headingsAndItemsAndTexts.add(it) }
 
             service.content[language]?.documentId?.let {
                 try{
@@ -764,7 +774,7 @@ class SoftwareMedicalFileExport(
         }
     }
 
-    private suspend fun createLinkToDocument(documentId: String, healthcareParty: HealthcareParty, service: Service, folder: FolderType, language: String, config: Config, decryptor: AsyncDecrypt?){
+    private suspend fun createLinkToDocument(documentId: String, healthcareParty: HealthcareParty, service: Service, folder: FolderType, language: String, config: Config, transactionMfId: String, decryptor: AsyncDecrypt?){
         try {
             folder.transactions.add(TransactionType().apply {
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = "1.0"; value = service.id })
@@ -793,7 +803,7 @@ class SoftwareMedicalFileExport(
                     val element = makeMultimediaLnkType(d, it, decryptor)
                     headingsAndItemsAndTexts.add(element)
                 } }
-                LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(service.id!!) }.also { headingsAndItemsAndTexts.add(it) }
+                LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(transactionMfId) }.also { headingsAndItemsAndTexts.add(it) }
             })
         } catch(e:Exception) {
           log.error("Cannot export document ${documentId}")
@@ -1284,6 +1294,13 @@ class SoftwareMedicalFileExport(
 		println(html)
 		return html.toByteArray()
 	}
+
+    fun getItemMFID(item: ItemType): String? {
+        item.ids.find { it.s == IDKMEHRschemes.LOCAL && it.sl == "MF-ID" }?.let {
+            return it.value
+        }
+        return null
+    }
 
 	fun renderKinePrescriptionTemplate(contact: Contact, subcon: SubContact, form: Form, language: String): ByteArray {
 		// TODO: not working yet, template and mapping need to be done
