@@ -9,6 +9,7 @@ import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.incapacity.IncapacityLogic
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
+import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import java.time.Instant
@@ -19,14 +20,41 @@ class IncapacityLogicImpl(val incapacityExport: IncapacityExport): IncapacityLog
     @Value("\${icure.version}")
     internal val ICUREVERSION: String = "4.0.0"
 
-    override fun createIncapacityExport(patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, incapacityId: String, retraction: Boolean, dataset: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): Flow<DataBuffer> {
-        TODO("Not yet implemented")
-    }
-
-    override fun createIncapacityExport(patient: Patient, sender: HealthcareParty, language: String, incapacityId: String, retraction: Boolean, dataset: String, services: List<org.taktik.icure.entities.embed.Service>,
-                                        serviceAuthors: List<HealthcareParty>?, timeZone: String?, progressor: AsyncProgress?
+    override fun createIncapacityExport(patient: Patient,
+                                        sender: HealthcareParty,
+                                        language: String,
+                                        recipient: HealthcareParty?,
+                                        comment: String?,
+                                        incapacityId: String,
+                                        notificationDate: Long,
+                                        retraction: Boolean,
+                                        dataset: String,
+                                        transactionType: String,
+                                        incapacityreason: String,
+                                        beginmoment: Long,
+                                        endmoment: Long,
+                                        outofhomeallowed: Boolean,
+                                        incapWork: Boolean,
+                                        incapSchool: Boolean,
+                                        incapSwim: Boolean,
+                                        incapSchoolsports: Boolean,
+                                        incapHeavyphysicalactivity: Boolean,
+                                        diagnoseServices: List<org.taktik.icure.entities.embed.Service>,
+                                        jobstatus: String,
+                                        job: String,
+                                        occupationalDiseaseDeclDate: Long,
+                                        accidentDate: Long,
+                                        deliveryDate: Long,
+                                        hospitalisationBegin: Long,
+                                        hospitalisationEnd: Long,
+                                        hospital: HealthcareParty?,
+                                        recoveryAddress: Address?,
+                                        foreignStayRequestDate: Long,
+                                        timeZone: String?, progressor: AsyncProgress?
     ) =
-            incapacityExport.exportIncapacity(patient, listOf(), sender, language, incapacityId, retraction, dataset, services, null, null, progressor, Config(_kmehrId = System.currentTimeMillis().toString(),
+            incapacityExport.exportIncapacity(patient, listOf(), sender, language, recipient, comment, incapacityId, notificationDate, retraction, dataset, transactionType, incapacityreason, beginmoment, endmoment, outofhomeallowed,
+                    incapWork, incapSchool, incapSwim, incapSchoolsports, incapHeavyphysicalactivity, diagnoseServices, jobstatus, job, occupationalDiseaseDeclDate, accidentDate, deliveryDate,
+                    hospitalisationBegin, hospitalisationEnd, hospital, recoveryAddress, foreignStayRequestDate, null, progressor, Config(_kmehrId = System.currentTimeMillis().toString(),
                     date = Utils.makeXGC(Instant.now().toEpochMilli(), unsetMillis = false, setTimeZone = false, timeZone = timeZone ?: "Europe/Brussels")!!,
                     time = Utils.makeXGC(Instant.now().toEpochMilli(), unsetMillis = true, setTimeZone = false, timeZone = timeZone ?: "Europe/Brussels")!!,
                     soft = Config.Software(name = "iCure", version = ICUREVERSION),

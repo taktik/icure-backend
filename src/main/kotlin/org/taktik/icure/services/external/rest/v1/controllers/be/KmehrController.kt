@@ -53,10 +53,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.mapper.HealthElementMapper
 import org.taktik.icure.services.external.rest.v1.mapper.HealthcarePartyMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.ImportResultMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.PartnershipMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.PatientHealthCarePartyMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
+import org.taktik.icure.services.external.rest.v1.mapper.embed.*
 import org.taktik.icure.utils.injectReactorContext
 import java.time.Instant
 import java.util.stream.Collectors
@@ -82,6 +79,7 @@ class KmehrController(
         val serviceMapper: ServiceMapper,
         val healthcarePartyMapper: HealthcarePartyMapper,
         val patientHealthCarePartyMapper: PatientHealthCarePartyMapper,
+        val addressMapper: AddressMapper,
         val partnershipMapper: PartnershipMapper,
         val importResultMapper: ImportResultMapper
 ) {
@@ -387,11 +385,40 @@ class KmehrController(
 
         patient?.let {
             userHealthCareParty?.let {
-                if (incapacityExportParams.services.isEmpty())
-                    emitAll(incapacityLogic.createIncapacityExport(patient, incapacityExportParams.secretForeignKeys, userHealthCareParty, language,  incapacityExportParams.incapacityId, incapacityExportParams.retraction, incapacityExportParams.dataset, null, null))
-                else
-                    emitAll(incapacityLogic.createIncapacityExport(patient, userHealthCareParty, language, incapacityExportParams.incapacityId, incapacityExportParams.retraction, incapacityExportParams.dataset, incapacityExportParams.services.map { s -> serviceMapper.map(s) }, incapacityExportParams.serviceAuthors?.map{a -> healthcarePartyMapper.map(a)}, tz, null))
+                emitAll(incapacityLogic.createIncapacityExport(
+                        patient,
+                        userHealthCareParty,
+                        language,
+                        incapacityExportParams.recipient?.let { it1 -> healthcarePartyMapper.map(it1) },
+                        incapacityExportParams.comment,
+                        incapacityExportParams.incapacityId,
+                        incapacityExportParams.notificationDate,
+                        incapacityExportParams.retraction,
+                        incapacityExportParams.dataset,
+                        incapacityExportParams.transactionType,
+                        incapacityExportParams.incapacityreason,
+                        incapacityExportParams.beginmoment,
+                        incapacityExportParams.endmoment,
+                        incapacityExportParams.outofhomeallowed,
+                        incapacityExportParams.incapWork,
+                        incapacityExportParams.incapSchool,
+                        incapacityExportParams.incapSwim,
+                        incapacityExportParams.incapSchoolsports,
+                        incapacityExportParams.incapHeavyphysicalactivity,
+                        incapacityExportParams.diagnoseServices.map { s -> serviceMapper.map(s) },
+                        incapacityExportParams.jobstatus,
+                        incapacityExportParams.job,
+                        incapacityExportParams.occupationalDiseaseDeclDate,
+                        incapacityExportParams.accidentDate,
+                        incapacityExportParams.deliveryDate,
+                        incapacityExportParams.hospitalisationBegin,
+                        incapacityExportParams.hospitalisationEnd,
+                        incapacityExportParams.hospital?.let { it1 -> healthcarePartyMapper.map(it1) },
+                        incapacityExportParams.recoveryAddress?.let { it1 -> addressMapper.map(it1) },
+                        incapacityExportParams.foreignStayRequestDate,
+                        tz, null))
             }
+
         } ?: throw IllegalArgumentException("Missing argument")
     }.injectReactorContext()
 

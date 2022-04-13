@@ -1,9 +1,7 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.incapacity.impl.v20170601
 
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.toList
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDLIFECYCLE
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.LifecycleType
@@ -22,9 +20,13 @@ import org.taktik.icure.be.ehealth.logic.kmehr.v20170601.KmehrExport
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
+import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
 import java.time.Instant
 import java.util.*
@@ -46,11 +48,33 @@ class IncapacityExport(patientLogic: PatientLogic,
                          sfks: List<String>,
                          sender: HealthcareParty,
                          language: String,
+                         recipient: HealthcareParty?,
+                         comment: String?,
                          incapacityId: String,
+                         notificationDate: Long,
                          retraction: Boolean,
                          dataset: String,
-                         services: List<Service>?,
-                         serviceAuthors: List<HealthcareParty>?,
+                         transactionType: String,
+                         incapacityreason: String,
+                         beginmoment: Long,
+                         endmoment: Long,
+                         outofhomeallowed: Boolean,
+                         incapWork: Boolean,
+                         incapSchool: Boolean,
+                         incapSwim: Boolean,
+                         incapSchoolsports: Boolean,
+                         incapHeavyphysicalactivity: Boolean,
+                         diagnoseServices: List<Service>,
+                         jobstatus: String,
+                         job: String,
+                         occupationalDiseaseDeclDate: Long,
+                         accidentDate: Long,
+                         deliveryDate: Long,
+                         hospitalisationBegin: Long,
+                         hospitalisationEnd: Long,
+                         hospital: HealthcareParty?,
+                         recoveryAddress: Address?,
+                         foreignStayRequestDate: Long,
                          decryptor: AsyncDecrypt?,
                          progressor: AsyncProgress?,
                          config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
@@ -71,11 +95,33 @@ class IncapacityExport(patientLogic: PatientLogic,
                 sender,
                 config,
                 language,
-                services!!,
-                serviceAuthors,
-                dataset,
+                recipient,
+                comment,
+                incapacityId,
+                notificationDate,
                 retraction,
-                incapacityId
+                dataset,
+                transactionType,
+                incapacityreason,
+                beginmoment,
+                endmoment,
+                outofhomeallowed,
+                incapWork,
+                incapSchool,
+                incapSwim,
+                incapSchoolsports,
+                incapHeavyphysicalactivity,
+                diagnoseServices,
+                jobstatus,
+                job,
+                occupationalDiseaseDeclDate,
+                accidentDate,
+                deliveryDate,
+                hospitalisationBegin,
+                hospitalisationEnd,
+                hospital,
+                recoveryAddress,
+                foreignStayRequestDate
         )
         emitMessage(message.apply { folders.add(folder) }).collect { emit(it) }
     }
@@ -83,14 +129,36 @@ class IncapacityExport(patientLogic: PatientLogic,
     private suspend fun makePatientFolder(
             patientIndex: Int,
             patient: Patient,
-            healthcareParty: HealthcareParty,
+            sender: HealthcareParty,
             config: Config,
             language: String,
-            incapacityServices: List<Service>,
-            serviceAuthors: List<HealthcareParty>?,
-            dataset: String,
+            recipient: HealthcareParty?,
+            comment: String?,
+            incapacityId: String,
+            notificationDate: Long,
             retraction: Boolean,
-            incapacityId: String
+            dataset: String,
+            transactionType: String,
+            incapacityreason: String,
+            beginmoment: Long,
+            endmoment: Long,
+            outofhomeallowed: Boolean,
+            incapWork: Boolean,
+            incapSchool: Boolean,
+            incapSwim: Boolean,
+            incapSchoolsports: Boolean,
+            incapHeavyphysicalactivity: Boolean,
+            diagnoseServices: List<Service>,
+            jobstatus: String,
+            job: String,
+            occupationalDiseaseDeclDate: Long,
+            accidentDate: Long,
+            deliveryDate: Long,
+            hospitalisationBegin: Long,
+            hospitalisationEnd: Long,
+            hospital: HealthcareParty?,
+            recoveryAddress: Address?,
+            foreignStayRequestDate: Long
     ): FolderType {
         //creation of Patient
         val folder = FolderType().apply {
@@ -108,7 +176,7 @@ class IncapacityExport(patientLogic: PatientLogic,
                 cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION_TYPE); value = "incapacity" })
                 date = config.date
                 time = config.time
-                author = AuthorType().apply { hcparties.add(createParty(healthcareParty, emptyList())) }
+                author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
                 isIscomplete = true
                 isIsvalidated = true
                 headingsAndItemsAndTexts.add(ItemType().apply {
@@ -124,34 +192,34 @@ class IncapacityExport(patientLogic: PatientLogic,
             folder.transactions.add(TransactionType().apply {
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
                 cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = "notification" })
-                //TODO add CD-TRANSACTION-TYPE --> incapacityextension (fA, fB, rC), incapacityrelapse
-                cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION_TYPE); value = "incapacity" })
+
+                cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION_TYPE); value = transactionType })
                 date = config.date
                 time = config.time
-                author = AuthorType().apply { hcparties.add(createParty(healthcareParty, emptyList())) }
+                author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
                 isIscomplete = true
                 isIsvalidated = true
                 //TODO Start adding ITEMs here
-                // IF NO RETRACTION
                 // TODO: add filtering per dataset
                 //  CD-ITEM incapacity
                 //   ID-KMEHR = 1
-                //   CD-INCAPACITY = work
+                //   CD-INCAPACITY = work, school, swim, schoolsports, heavyphysicalactivity
                 //   incapacityreason = MS-MULTEMEDIATTINCAPACITY|multemediattincapacity -> content.descr
                 //   outofhomeallowed = MS-INCAPACITYOUTING|* -> content.descr
                 //   beginmoment = MS-INCAPACITYFIELD|datebegin -> content.instant
                 //   endmoment = MS-INCAPACITYFIELD|dateend -> content.instant
-                val incapacityreason = incapacityServices?.find { it -> it.tags.contains(CodeStub(id = "MS-MULTEMEDIATTINCAPACITY|multemediattincapacity|1", context = null, type = "MS-MULTEMEDIATTINCAPACITY", code = "multemediattincapacity", version = "1", label = null)) }?.content?.get("descr")?.stringValue;
-                val beginmoment = incapacityServices?.find { it -> it.tags.contains(CodeStub(id = "MS-INCAPACITYFIELD|datebegin|1", context = null, type = "MS-INCAPACITYFIELD", code = "datebegin", version = "1", label = null)) }?.content?.get("instant")?.fuzzyDateValue;
-                val endmoment = incapacityServices?.find { it -> it.tags.contains(CodeStub(id = "MS-INCAPACITYFIELD|dateend|1", context = null, type = "MS-INCAPACITYFIELD", code = "dateend", version = "1", label = null)) }?.content?.get("instant")?.fuzzyDateValue;
-                val outofhomeallowed = false //TODO get from services
+
                 headingsAndItemsAndTexts.add(ItemType().apply {
                     ids.add(idKmehr(itemsIdx++))
                     cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity" })
                     contents.add(ContentType().apply {
                         incapacity = IncapacityType().apply {
-                            //TODO: make type variable: work, school, swim, schoolsports or heavyphysicalactivity
-                            cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("work") })
+                            //TODO: make type variable: work, school, swim, schoolsports or heavyphysicalactivity : multiple possible
+                            if(incapWork) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("work") })
+                            if(incapSchool) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("school") })
+                            if(incapSwim) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("swim") })
+                            if(incapSchoolsports) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("schoolsports") })
+                            if(incapHeavyphysicalactivity) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("heavyphysicalactivity") })
                             this.incapacityreason = IncapacityreasonType().apply {
                                 this.cd = CDINCAPACITYREASON().apply { value = CDINCAPACITYREASONvalues.fromValue(incapacityreason) }
                             }
@@ -179,12 +247,16 @@ class IncapacityExport(patientLogic: PatientLogic,
                 //     ICPC = MS-INCAPACITYFIELD|diagnosis, ICPC|*|2
                 //     ...
                 //     text = griep ...
-                val diagnosisServices = incapacityServices.filter { it.tags.any { tag -> tag.id == "MS-INCAPACITYFIELD|diagnosis|1" } }
+                val diagnosisServices = diagnoseServices.filter{ it.tags.any { tag -> tag.id == "MS-INCAPACITYFIELD|diagnosis|1" } }
+                var addPrincipalCode = diagnoseServices.size > 1
                 headingsAndItemsAndTexts.addAll(diagnosisServices.map { svc ->
                     ItemType().apply {
                         ids.add(idKmehr(itemsIdx++))
                         cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "diagnosis" })
-                        //TODO: first diagnosis if multiple <cd S="LOCAL" SV="1.0" SL="MMEDIATT-ITEM">principal</cd>
+                        if(addPrincipalCode){
+                            cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL);  sl = "MMEDIATT-ITEM"; value = "principal"})
+                            addPrincipalCode = false
+                        }
                         //svc.codes has all the content
                         contents.add(ContentType().apply {
                             cds.addAll(svc.codes.map { cd ->
@@ -194,8 +266,8 @@ class IncapacityExport(patientLogic: PatientLogic,
                             val descr_nl = svc.content?.get("descr_nl")?.stringValue;
                             val descr = svc.content?.get("descr")?.stringValue;
                             texts.add(TextType().apply {
-                                this.l = "nl"
-                                this.value = descr_fr ?: descr_nl ?: descr
+                                this.l = "nl" //TODO make dynamic
+                                this.value = descr_fr ?: descr_nl ?: descr //mostly 2 languages are present so always returns french
                             })
                         })
                     }
@@ -212,12 +284,6 @@ class IncapacityExport(patientLogic: PatientLogic,
                 //   ID-KMEHR = idx
                 //  CD-ITEM dischargedatetime
                 //   ID-KMEHR = idx
-                //  IF RETRACTION
-                //  CD-ITEM incapacity
-                //  ID-KMEHR = 1
-                //  content
-                //    ID-KMEHR = incapacityId of related notification
-                //    CD-LIFECYCLE = retracted
             })
         }
 

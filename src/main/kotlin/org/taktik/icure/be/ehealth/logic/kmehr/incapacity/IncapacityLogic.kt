@@ -20,38 +20,47 @@ package org.taktik.icure.be.ehealth.logic.kmehr.incapacity
 
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
-import org.taktik.icure.domain.mapping.ImportMapping
-import org.taktik.icure.domain.result.ImportResult
+
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
-import org.taktik.icure.entities.User
+import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
-import java.nio.ByteBuffer
 
 interface IncapacityLogic {
 
     fun createIncapacityExport(
             patient: Patient,
-            sfks: List<String>,
             sender: HealthcareParty,
             language: String,
+            recipient: HealthcareParty?,
+            comment: String?,
             incapacityId: String,
+            notificationDate: Long,
             retraction: Boolean,
             dataset: String,
-            decryptor: AsyncDecrypt?,
-            progressor: AsyncProgress?
-    ): Flow<DataBuffer>
-    fun createIncapacityExport(
-            patient: Patient,
-            sender: HealthcareParty,
-            language: String,
-            incapacityId: String,
-            retraction: Boolean,
-            dataset: String,
-            services: List<Service>,
-            serviceAuthors: List<HealthcareParty>?,
+            transactionType: String,
+            incapacityreason: String,
+            beginmoment: Long,
+            endmoment: Long,
+            outofhomeallowed: Boolean,
+            incapWork: Boolean,
+            incapSchool: Boolean,
+            incapSwim: Boolean,
+            incapSchoolsports: Boolean,
+            incapHeavyphysicalactivity: Boolean,
+            diagnoseServices: List<Service>,
+            jobstatus: String,
+            job: String,
+            occupationalDiseaseDeclDate: Long,
+            accidentDate: Long,
+            deliveryDate: Long,
+            hospitalisationBegin: Long,
+            hospitalisationEnd: Long,
+            hospital: HealthcareParty?,
+            recoveryAddress: Address?,
+            foreignStayRequestDate: Long,
             timeZone: String?,
             progressor: AsyncProgress?
     ): Flow<DataBuffer>
