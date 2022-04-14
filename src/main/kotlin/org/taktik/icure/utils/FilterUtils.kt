@@ -21,8 +21,6 @@ package org.taktik.icure.utils
 import javax.security.auth.login.LoginException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flattenConcat
@@ -39,9 +37,9 @@ suspend fun getLoggedHealthCarePartyId(sessionLogic: AsyncSessionLogic): String 
 }
 
 tailrec suspend fun <T> aggregateResults(
-    ids: Flow<String>,
+    ids: Collection<String>,
     limit: Int,
-    supplier: suspend (Flow<String>) -> Flow<T>,
+    supplier: suspend (Collection<String>) -> Flow<T>,
     filter: suspend (T) -> Boolean,
     entities: Flow<T> = emptyFlow(),
     startDocumentId: String? = null,

@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.toSet
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
@@ -162,12 +163,12 @@ class PatientLogicImpl(
 
     override fun listPatients(paginationOffset: PaginationOffset<*>, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?) =
         flow<ViewQueryResultEvent> {
-            var ids = filters.resolve(filterChain.filter)
+            val ids = filters.resolve(filterChain.filter).toSet().toSortedSet()
 
             val forPagination = aggregateResults<ViewQueryResultEvent>(
                 ids = ids,
                 limit = paginationOffset.limit,
-                supplier = { patientIds: Flow<String> -> patientDAO.findPatients(patientIds) },
+                supplier = { patientIds: Collection<String> -> patientDAO.findPatients(patientIds) },
                 filter = { queryResult: ViewQueryResultEvent ->
                     filterChain.predicate?.let { queryResult is ViewRowWithDoc<*, *, *> && it.apply(queryResult.doc as Patient) }
                         ?: true
@@ -177,33 +178,31 @@ class PatientLogicImpl(
             if (sort != null && sort != "id") { // TODO MB is this the correct way to sort here ?
                 var patientsListToSort = forPagination.toList()
                 val pub = PropertyUtilsBean()
-                patientsListToSort = patientsListToSort.sortedWith(
-                    kotlin.Comparator { a, b ->
-                        try {
-                            val ap = pub.getProperty(a, sort) as Comparable<*>?
-                            val bp = pub.getProperty(b, sort) as Comparable<*>?
-                            if (ap is String && bp is String) {
-                                if (desc != null && desc) {
-                                    StringUtils.compareIgnoreCase(bp, ap)
-                                } else {
-                                    StringUtils.compareIgnoreCase(ap, bp)
-                                }
+                patientsListToSort = patientsListToSort.sortedWith { a, b ->
+                    try {
+                        val ap = pub.getProperty(a, sort) as Comparable<*>?
+                        val bp = pub.getProperty(b, sort) as Comparable<*>?
+                        if (ap is String && bp is String) {
+                            if (desc != null && desc) {
+                                StringUtils.compareIgnoreCase(bp, ap)
                             } else {
-                                ap as Comparable<Any>?
-                                bp as Comparable<Any>?
-                                if (desc != null && desc) {
-                                    ap?.let { bp?.compareTo(it) ?: 1 } ?: bp?.let { -1 } ?: 0
-                                } else {
-                                    bp?.let { ap?.compareTo(it) ?: 1 } ?: bp?.let { -1 } ?: 0
-                                }
+                                StringUtils.compareIgnoreCase(ap, bp)
                             }
-                        } catch (e: Exception) {
-                            0
+                        } else {
+                            ap as Comparable<Any>?
+                            bp as Comparable<Any>?
+                            if (desc != null && desc) {
+                                ap?.let { bp?.compareTo(it) ?: 1 } ?: bp?.let { -1 } ?: 0
+                            } else {
+                                bp?.let { ap?.compareTo(it) ?: 1 } ?: bp?.let { -1 } ?: 0
+                            }
                         }
+                    } catch (e: Exception) {
+                        0
                     }
-            )
-            emitAll(patientsListToSort.asFlow())
-        } else {
+                }
+                emitAll(patientsListToSort.asFlow())
+            } else {
             emitAll(forPagination)
         }
     }

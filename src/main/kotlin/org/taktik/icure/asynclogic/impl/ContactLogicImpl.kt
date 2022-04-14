@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.toSet
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
@@ -139,8 +140,8 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
 
     // TODO SH MB: make sure this works ('bufferedChunks')
     override fun getServices(selectedServiceIds: Collection<String>): Flow<org.taktik.icure.entities.embed.Service> = flow {
-        val contactIds = contactDAO.listIdsByServices(selectedServiceIds)
-        val orderById = selectedServiceIds.withIndex().associate { it.value to it.index }
+        val orderedIds = selectedServiceIds.toSortedSet()
+        val contactIds = contactDAO.listIdsByServices(orderedIds)
 
         val servicesToEmit = contactIds.bufferedChunksAtTransition(
             20,
@@ -159,7 +160,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
                         .forEach { s ->
                             val sId = s.id
                             val sModified = s.modified
-                            if (selectedServiceIds.contains(sId) && filteredCidSids.any { it.contactId == c.id && it.serviceId == sId }) {
+                            if (orderedIds.contains(sId) && filteredCidSids.any { it.contactId == c.id && it.serviceId == sId }) {
                                 val psModified = toEmit[sId]?.modified
                                 if (psModified == null || sModified != null && sModified > psModified) {
                                     toEmit[sId] = pimpServiceWithContactInformation(s, c)
@@ -169,8 +170,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
                 }
                 toEmit
             }
-        val orderedServices = servicesToEmit.values.sortedBy { orderById[it.id] }
-        emitAll(orderedServices.asFlow())
+        emitAll(servicesToEmit.values.toSortedSet(compareBy { it.id }).asFlow())
     }
 
     override fun getServicesLinkedTo(ids: List<String>, linkType: String?): Flow<org.taktik.icure.entities.embed.Service> = flow {
@@ -280,15 +280,17 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     }
 
     override fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<org.taktik.icure.entities.embed.Service>) = flow {
-        val ids = filters.resolve(filter.filter)
+        val ids = filters.resolve(filter.filter).toSet().toSortedSet()
 
         emitAll(
-            aggregateResults(
-                ids = ids,
-                limit = paginationOffset.limit,
-                supplier = { serviceIds: Flow<String> -> getServices(serviceIds.toList()) },
-                filter = { true },
-                startDocumentId = paginationOffset.startDocumentId
+            filter.applyTo(
+                aggregateResults(
+                    ids = ids,
+                    limit = paginationOffset.limit,
+                    supplier = { serviceIds: Collection<String> -> getServices(serviceIds.toList()) },
+                    filter = { true },
+                    startDocumentId = paginationOffset.startDocumentId
+                )
             )
         )
     }
