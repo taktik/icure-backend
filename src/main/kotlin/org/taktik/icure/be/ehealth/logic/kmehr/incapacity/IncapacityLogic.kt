@@ -25,7 +25,6 @@ import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.Service
-import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 
 interface IncapacityLogic {
@@ -55,12 +54,16 @@ interface IncapacityLogic {
             job: String,
             occupationalDiseaseDeclDate: Long,
             accidentDate: Long,
-            deliveryDate: Long,
+            expectedbirthgivingDate: Long,
+            maternityleaveBegin: Long,
+            maternityleaveEnd: Long,
             hospitalisationBegin: Long,
             hospitalisationEnd: Long,
             hospital: HealthcareParty?,
+            contactPersonTel: String,
             recoveryAddress: Address?,
-            foreignStayRequestDate: Long,
+            foreignStayBegin: Long,
+            foreignStayEnd: Long,
             timeZone: String?,
             progressor: AsyncProgress?
     ): Flow<DataBuffer>

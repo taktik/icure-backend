@@ -53,6 +53,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.mapper.HealthElementMapper
 import org.taktik.icure.services.external.rest.v1.mapper.HealthcarePartyMapper
+import org.taktik.icure.services.external.rest.v1.mapper.PatientMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.*
 import org.taktik.icure.utils.injectReactorContext
 import java.time.Instant
@@ -410,12 +411,16 @@ class KmehrController(
                         incapacityExportParams.job,
                         incapacityExportParams.occupationalDiseaseDeclDate,
                         incapacityExportParams.accidentDate,
-                        incapacityExportParams.deliveryDate,
+                        incapacityExportParams.expectedbirthgivingDate,
+                        incapacityExportParams.maternityleaveBegin,
+                        incapacityExportParams.maternityleaveEnd,
                         incapacityExportParams.hospitalisationBegin,
                         incapacityExportParams.hospitalisationEnd,
                         incapacityExportParams.hospital?.let { it1 -> healthcarePartyMapper.map(it1) },
+                        incapacityExportParams.contactPersonTel,
                         incapacityExportParams.recoveryAddress?.let { it1 -> addressMapper.map(it1) },
-                        incapacityExportParams.foreignStayRequestDate,
+                        incapacityExportParams.foreignStayBegin,
+                        incapacityExportParams.foreignStayEnd,
                         tz, null))
             }
 

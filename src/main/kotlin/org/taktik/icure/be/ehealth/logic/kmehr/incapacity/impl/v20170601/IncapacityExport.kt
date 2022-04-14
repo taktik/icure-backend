@@ -3,6 +3,8 @@ package org.taktik.icure.be.ehealth.logic.kmehr.incapacity.impl.v20170601
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import org.taktik.icure.asynclogic.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDTELECOM
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDTELECOMschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDLIFECYCLE
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.LifecycleType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.AuthorType
@@ -19,17 +21,12 @@ import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
 import org.taktik.icure.be.ehealth.logic.kmehr.v20170601.KmehrExport
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
-import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
-import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
 import java.time.Instant
-import java.util.*
 
 @Suppress("UNNECESSARY_SAFE_CALL")
 @org.springframework.stereotype.Service
@@ -69,12 +66,16 @@ class IncapacityExport(patientLogic: PatientLogic,
                          job: String,
                          occupationalDiseaseDeclDate: Long,
                          accidentDate: Long,
-                         deliveryDate: Long,
+                         expectedbirthgivingDate: Long,
+                         maternityleaveBegin: Long,
+                         maternityleaveEnd: Long,
                          hospitalisationBegin: Long,
                          hospitalisationEnd: Long,
                          hospital: HealthcareParty?,
+                         contactPersonTel: String,
                          recoveryAddress: Address?,
-                         foreignStayRequestDate: Long,
+                         foreignStayBegin: Long,
+                         foreignStayEnd: Long,
                          decryptor: AsyncDecrypt?,
                          progressor: AsyncProgress?,
                          config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
@@ -116,12 +117,16 @@ class IncapacityExport(patientLogic: PatientLogic,
                 job,
                 occupationalDiseaseDeclDate,
                 accidentDate,
-                deliveryDate,
+                expectedbirthgivingDate,
+                maternityleaveBegin,
+                maternityleaveEnd,
                 hospitalisationBegin,
                 hospitalisationEnd,
                 hospital,
+                contactPersonTel,
                 recoveryAddress,
-                foreignStayRequestDate
+                foreignStayBegin,
+                foreignStayEnd
         )
         emitMessage(message.apply { folders.add(folder) }).collect { emit(it) }
     }
@@ -153,17 +158,22 @@ class IncapacityExport(patientLogic: PatientLogic,
             job: String,
             occupationalDiseaseDeclDate: Long,
             accidentDate: Long,
-            deliveryDate: Long,
+            expectedbirthgivingDate: Long,
+            maternityleaveBegin: Long,
+            maternityleaveEnd: Long, //will not be used (yet)
             hospitalisationBegin: Long,
             hospitalisationEnd: Long,
             hospital: HealthcareParty?,
+            contactPersonTel: String,
             recoveryAddress: Address?,
-            foreignStayRequestDate: Long
+            foreignStayBegin: Long,
+            foreignStayEnd: Long
     ): FolderType {
         //creation of Patient
         val folder = FolderType().apply {
             ids.add(idKmehr(patientIndex))
-            //TODO add CD-EMPLOYMENTSITUATION (not for iter 1)
+            //TODO add CD-EMPLOYMENTSITUATION (not for iteration 1 of mult-e-mediatt) is only needed for self-employed
+            //TODO add recoveryAddress = careaddress
             this.patient = makePatient(patient, config)
         }
 
@@ -199,22 +209,12 @@ class IncapacityExport(patientLogic: PatientLogic,
                 author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
                 isIscomplete = true
                 isIsvalidated = true
-                //TODO Start adding ITEMs here
-                // TODO: add filtering per dataset
-                //  CD-ITEM incapacity
-                //   ID-KMEHR = 1
-                //   CD-INCAPACITY = work, school, swim, schoolsports, heavyphysicalactivity
-                //   incapacityreason = MS-MULTEMEDIATTINCAPACITY|multemediattincapacity -> content.descr
-                //   outofhomeallowed = MS-INCAPACITYOUTING|* -> content.descr
-                //   beginmoment = MS-INCAPACITYFIELD|datebegin -> content.instant
-                //   endmoment = MS-INCAPACITYFIELD|dateend -> content.instant
 
                 headingsAndItemsAndTexts.add(ItemType().apply {
                     ids.add(idKmehr(itemsIdx++))
                     cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity" })
                     contents.add(ContentType().apply {
                         incapacity = IncapacityType().apply {
-                            //TODO: make type variable: work, school, swim, schoolsports or heavyphysicalactivity : multiple possible
                             if(incapWork) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("work") })
                             if(incapSchool) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("school") })
                             if(incapSwim) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("swim") })
@@ -227,7 +227,7 @@ class IncapacityExport(patientLogic: PatientLogic,
                         }
                     })
                     contents.add(ContentType().apply {
-                        this.date = null //TODO this is creationdate.
+                        this.date = Utils.makeXMLGregorianCalendarFromFuzzyLong(notificationDate)
                     })
                     this.beginmoment = Utils.makeDateTypeFromFuzzyLong(beginmoment);
                     this.endmoment = Utils.makeDateTypeFromFuzzyLong(endmoment);
@@ -266,24 +266,90 @@ class IncapacityExport(patientLogic: PatientLogic,
                             val descr_nl = svc.content?.get("descr_nl")?.stringValue;
                             val descr = svc.content?.get("descr")?.stringValue;
                             texts.add(TextType().apply {
-                                this.l = "nl" //TODO make dynamic
-                                this.value = descr_fr ?: descr_nl ?: descr //mostly 2 languages are present so always returns french
+                                this.l = language
+                                this.value = if(language == "fr") descr_fr ?: descr_nl ?: descr else descr_nl ?: descr_fr ?: descr
                             })
                         })
                     }
                 })
-                //TODO:
-                //  CD-ITEM contactperson
-                //    ID-KMEHR = idx
-                //    CD-CONTACT-PERSON => mother, ...
-                //    person (firstame, id, address, telecom, ...)
-                //  CD-ITEM encountertype (has linked CD-ITEM: encounterdatetime, dischargedatetime
-                //   ID-KMEHR = idx
-                //   content CD-ENCOUNTER = hospital
-                //  CD-ITEM encounterdatetime
-                //   ID-KMEHR = idx
-                //  CD-ITEM dischargedatetime
-                //   ID-KMEHR = idx
+                if(!hospital?.id.isNullOrBlank() || hospitalisationEnd > 0 || hospitalisationBegin > 0){
+                    headingsAndItemsAndTexts.add(ItemType().apply {
+                        ids.add(idKmehr(itemsIdx++))
+                        cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "encountertype" })
+                        contents.add(ContentType().apply {
+                            cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ENCOUNTER); value = "hospital" })
+                        })
+                    })
+                    if(hospitalisationBegin > 0){
+                        headingsAndItemsAndTexts.add(ItemType().apply {
+                            ids.add(idKmehr(itemsIdx++))
+                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "encounterdatetime" })
+                            contents.add(ContentType().apply {
+                                date = Utils.makeXMLGregorianCalendarFromFuzzyLong(hospitalisationBegin)
+                            })
+                        })
+                    }
+                    if(hospitalisationEnd > 0){
+                        headingsAndItemsAndTexts.add(ItemType().apply {
+                            ids.add(idKmehr(itemsIdx++))
+                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "dischargedatetime" })
+                            contents.add(ContentType().apply {
+                                date = Utils.makeXMLGregorianCalendarFromFuzzyLong(hospitalisationEnd)
+                            })
+                        })
+                    }
+                    if(!hospital?.id.isNullOrBlank()){
+                        headingsAndItemsAndTexts.add(ItemType().apply {
+                            ids.add(idKmehr(itemsIdx++))
+                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "encounterlocation" })
+                            contents.add(ContentType().apply {
+                                hcparty = hospital?.let{ it ->
+                                    createParty(it,  emptyList())
+                                }
+                            })
+                        })
+                    }
+                }
+                contactPersonTel?.let{it ->
+                    headingsAndItemsAndTexts.add(ItemType().apply {
+                        ids.add(idKmehr(itemsIdx++))
+                        cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "contactperson" })
+                        cds.add(CDITEM().apply { s(CDITEMschemes.CD_CONTACT_PERSON); value = "contact" })
+                        contents.add(ContentType().apply {
+                            person = PersonType().apply {
+                                telecoms.add(TelecomType().apply {
+                                    cds.add(CDTELECOM().apply { s(CDTELECOMschemes.CD_TELECOM); value = "phone"})
+                                    telecomnumber = it
+                                })
+                            }
+                        }
+                        )
+                    })
+                }
+                if(expectedbirthgivingDate > 0){
+                    headingsAndItemsAndTexts.add(ItemType().apply {
+                        ids.add(idKmehr(itemsIdx++))
+                        cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL);  sl = "MMEDIATT-ITEM"; value = "expectedbirthgivingdate"})
+                        contents.add(ContentType().apply {
+                            date =  Utils.makeXMLGregorianCalendarFromFuzzyLong(expectedbirthgivingDate)
+                        })
+                    })
+                }
+                if(maternityleaveBegin > 0) {
+                    headingsAndItemsAndTexts.add(ItemType().apply {
+                        ids.add(idKmehr(itemsIdx++))
+                        cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "MMEDIATT-ITEM"; value = "maternityleave" })
+                        this.beginmoment = Utils.makeDateTypeFromFuzzyLong(maternityleaveBegin);
+                    })
+                }
+                if(foreignStayBegin > 0 && foreignStayEnd > 0){
+                    headingsAndItemsAndTexts.add(ItemType().apply {
+                        ids.add(idKmehr(itemsIdx++))
+                        cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "MMEDIATT-ITEM"; value = "maternityleave" })
+                        this.beginmoment = Utils.makeDateTypeFromFuzzyLong(foreignStayBegin);
+                        this.endmoment = Utils.makeDateTypeFromFuzzyLong(foreignStayEnd);
+                    })
+                }
             })
         }
 

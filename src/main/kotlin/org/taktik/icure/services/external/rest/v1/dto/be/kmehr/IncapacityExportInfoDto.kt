@@ -30,10 +30,14 @@ class IncapacityExportInfoDto : Serializable {
     var job: String = "" //freetext
     var occupationalDiseaseDeclDate: Long = 0
     var accidentDate: Long = 0
-    var deliveryDate: Long = 0
-    var hospitalisationBegin: Long = 0
-    var hospitalisationEnd: Long = 0
+    var expectedbirthgivingDate: Long = 0 //MMEDIATT-ITEM expectedbirthgivingdate
+    var maternityleaveBegin: Long = 0 //MMEDIATT-ITEM maternityleave
+    var maternityleaveEnd: Long = 0 //MMEDIATT-ITEM maternityleave
+    var hospitalisationBegin: Long = 0 //encounterdatetime
+    var hospitalisationEnd: Long = 0 //dischargedatetime
     var hospital: HealthcarePartyDto? = null
+    var contactPersonTel: String = ""
     var recoveryAddress: AddressDto? = null
-    var foreignStayRequestDate: Long = 0
+    var foreignStayBegin: Long = 0 //MMEDIATT-ITEM foreignstay
+    var foreignStayEnd: Long = 0
 }
