@@ -241,7 +241,7 @@ class SoftwareMedicalFileExport(
             log.info("Treating contact ${index}/${contacts.size}")
 
             var contact: Contact? = null;
-            if (decryptor != null && (encContact.services.isNotEmpty())) {
+            if (decryptor != null) {
                 log.info("Decrypt ${encContact.id}")
                 val ctcDto = contactMapper.map(encContact)
                 contact = decryptor.decrypt(listOf(ctcDto), ContactDto::class.java).firstOrNull()?.let { contactMapper.map(it) }
@@ -1199,7 +1199,6 @@ class SoftwareMedicalFileExport(
             res = contactLogic.listContactsByHCPartyAndPatient(hcp.parentId, sfks.toList()).toList()
         }
         res = res + contactLogic.listContactsByHCPartyAndPatient(hcp.id, sfks.toList()).toList()
-        res = res.filterNot { it.services.isEmpty() &&  it.subContacts.isEmpty()}
         return res.distinctBy { it.id }
     }
 
