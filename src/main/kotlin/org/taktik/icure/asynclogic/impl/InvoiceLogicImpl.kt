@@ -112,23 +112,36 @@ class InvoiceLogicImpl(private val filters: Filters,
         val invoice = getInvoice(invoiceId)
         return invoice?.let {
             return invoiceDAO.save(it.copy(
-                    delegations = it.delegations +
-                            delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
+                delegations = it.delegations +
+                        delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
             ))
         }
     }
 
-    override fun findInvoicesByAuthor(hcPartyId: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> = flow {
-        emitAll(invoiceDAO.findInvoicesByHcParty(hcPartyId, fromDate, toDate, paginationOffset.toComplexKeyPaginationOffset()))
+    override fun findInvoicesByAuthor(
+        hcPartyId: String,
+        fromDate: Long?,
+        toDate: Long?,
+        paginationOffset: PaginationOffset<List<*>>
+    ): Flow<ViewQueryResultEvent> = flow {
+        emitAll(
+            invoiceDAO.findInvoicesByHcParty(
+                hcPartyId,
+                fromDate,
+                toDate,
+                paginationOffset.toComplexKeyPaginationOffset()
+            )
+        )
     }
 
     override fun listInvoicesByHcPartyContacts(hcParty: String, contactIds: Set<String>): Flow<Invoice> = flow {
         emitAll(invoiceDAO.listInvoicesByHcPartyAndContacts(hcParty, contactIds))
     }
 
-    override fun listInvoicesByHcPartyAndRecipientIds(hcParty: String, recipientIds: Set<String?>): Flow<Invoice> = flow {
-        emitAll(invoiceDAO.listInvoicesByHcPartyAndRecipientIds(hcParty, recipientIds))
-    }
+    override fun listInvoicesByHcPartyAndRecipientIds(hcParty: String, recipientIds: Set<String?>): Flow<Invoice> =
+        flow {
+            emitAll(invoiceDAO.listInvoicesByHcPartyAndRecipientIds(hcParty, recipientIds))
+        }
 
     override fun listInvoicesByHcPartyAndPatientSks(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice> = flow {
         emitAll(invoiceDAO.listInvoicesByHcPartyAndPatientFk(hcParty, secretPatientKeys))

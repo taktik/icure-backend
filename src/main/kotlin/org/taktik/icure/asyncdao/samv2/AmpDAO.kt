@@ -19,10 +19,8 @@
 package org.taktik.icure.asyncdao.samv2
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.InternalDAO
-import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.SamVersion
@@ -50,4 +48,5 @@ interface AmpDAO : InternalDAO<Amp> {
     fun listAmpsByVmpIds(vmpIds: List<String>): Flow<Amp>
 
     suspend fun getVersion(): SamVersion?
+    suspend fun getProductIdsFromSignature(type: String): Map<String, String>
 }

@@ -414,24 +414,24 @@ class SamV2Controller(
     }
 
     private suspend fun addProductIdsToVmpGroups(vmpGroups: Collection<VmpGroupDto>): List<VmpGroupDto> {
-        val productIds = samV2Logic.listProductIds(vmpGroups.map { "SAMID:${it.id}" }).toList()
+        val productIds = samV2Logic.listVmpgProductIds(vmpGroups.map { "SAMID:${it.id}" }).toList()
         return vmpGroups.mapIndexed { index, g ->
-            g.copy(productId = if (index < productIds.size && productIds[index].id == "SAMID:${g.id}") productIds[index].productId else productIds.find { it.id == "SAMID:${g.id}"}?.productId)
+            g.copy(productId = (if (index < productIds.size) productIds[index]?.takeIf { it.id == "SAMID:${g.id}" }?.productId else null) ?: productIds.find { it?.id == "SAMID:${g.id}"}?.productId)
         }
     }
 
     private suspend fun addProductIdsToAmps(amps: Collection<AmpDto>): List<AmpDto> {
         val dmpps = amps.flatMap { it.ampps.flatMap { it.dmpps } }
-        val productIds = samV2Logic.listProductIds(dmpps.map { "SAMID:${it.id}" }).toList()
-        return amps.map { if (it.ampps.any { it.dmpps.isNotEmpty() }) it.copy(ampps = it.ampps.map { it.copy(dmpps = it.dmpps.map {
-            it.copy(productId = productIds.find { it.id == "SAMID:${it.id}"}?.productId)
+        val productIds = samV2Logic.listAmpProductIds(dmpps.map { "SAMID:${it.id}" }).toList()
+        return amps.map { if (it.ampps.any { it.dmpps.isNotEmpty() }) it.copy(ampps = it.ampps.map { it.copy(dmpps = it.dmpps.map { dmpp ->
+            dmpp.copy(productId = productIds.find { pi -> pi?.id == "SAMID:${dmpp.id}"}?.productId)
         }) }) else it }
     }
 
     private suspend fun addProductIdsToNmps(nmps: Collection<NmpDto>) : List<NmpDto> {
-        val productIds = samV2Logic.listProductIds(nmps.map { "SAMID:${it.id}" }).toList()
+        val productIds = samV2Logic.listNmpProductIds(nmps.map { "SAMID:${it.id}" }).toList()
         return nmps.mapIndexed { index, n ->
-            n.copy(productId = if (index < productIds.size && productIds[index].id == "SAMID:${n.id}") productIds[index].productId else productIds.find { it.id == "SAMID:${n.id}"}?.productId)
+            n.copy(productId = (if (index < productIds.size) productIds[index]?.takeIf { it.id == "SAMID:${n.id}" }?.productId else null) ?: productIds.find { it?.id == "SAMID:${n.id}"}?.productId)
         }
     }
 

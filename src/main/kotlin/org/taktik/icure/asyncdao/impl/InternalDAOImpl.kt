@@ -35,14 +35,14 @@ import org.taktik.couchdb.queryView
 import org.taktik.couchdb.support.StdDesignDocumentFactory
 import org.taktik.couchdb.update
 import org.taktik.icure.asyncdao.InternalDAO
-import org.taktik.icure.asyncdao.VersionnedDesignDocumentQueries
+import org.taktik.icure.asyncdao.VersionedDesignDocumentQueries
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.properties.CouchDbProperties
 import java.net.URI
 
 @ExperimentalCoroutinesApi
 @FlowPreview
-open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T>, val couchDbProperties: CouchDbProperties, val couchDbDispatcher: CouchDbDispatcher, val idGenerator: IDGenerator) : InternalDAO<T>, VersionnedDesignDocumentQueries<T>(entityClass, couchDbProperties) {
+open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T>, val couchDbProperties: CouchDbProperties, val couchDbDispatcher: CouchDbDispatcher, val idGenerator: IDGenerator) : InternalDAO<T>, VersionedDesignDocumentQueries<T>(entityClass, couchDbProperties) {
     private val log = LoggerFactory.getLogger(javaClass)
     //private val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
 
