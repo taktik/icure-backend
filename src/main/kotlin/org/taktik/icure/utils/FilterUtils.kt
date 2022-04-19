@@ -40,7 +40,7 @@ tailrec suspend fun <T> aggregateResults(
     ids: Collection<String>,
     limit: Int,
     supplier: suspend (Collection<String>) -> Flow<T>,
-    filter: suspend (T) -> Boolean,
+    filter: suspend (T) -> Boolean = { true },
     entities: Flow<T> = emptyFlow(),
     startDocumentId: String? = null,
     heuristic: Int = 2,

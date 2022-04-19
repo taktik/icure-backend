@@ -62,6 +62,7 @@ import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.aggregateResults
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
 import java.time.Instant
+import java.util.TreeSet
 
 
 @FlowPreview
@@ -163,7 +164,7 @@ class PatientLogicImpl(
 
     override fun listPatients(paginationOffset: PaginationOffset<*>, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?) =
         flow<ViewQueryResultEvent> {
-            val ids = filters.resolve(filterChain.filter).toSet().toSortedSet()
+            val ids = filters.resolve(filterChain.filter).toSet(TreeSet())
 
             val forPagination = aggregateResults<ViewQueryResultEvent>(
                 ids = ids,
@@ -175,6 +176,7 @@ class PatientLogicImpl(
                 },
                 startDocumentId = paginationOffset.startDocumentId
             )
+
             if (sort != null && sort != "id") { // TODO MB is this the correct way to sort here ?
                 var patientsListToSort = forPagination.toList()
                 val pub = PropertyUtilsBean()

@@ -57,6 +57,7 @@ import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.utils.aggregateResults
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
+import java.util.TreeSet
 
 @ExperimentalCoroutinesApi
 @Service
@@ -280,17 +281,14 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     }
 
     override fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<org.taktik.icure.entities.embed.Service>) = flow {
-        val ids = filters.resolve(filter.filter).toSet().toSortedSet()
+        val ids = filters.resolve(filter.filter).toSet(TreeSet())
 
         emitAll(
-            filter.applyTo(
-                aggregateResults(
-                    ids = ids,
-                    limit = paginationOffset.limit,
-                    supplier = { serviceIds: Collection<String> -> getServices(serviceIds.toList()) },
-                    filter = { true },
-                    startDocumentId = paginationOffset.startDocumentId
-                )
+            aggregateResults(
+                ids = ids,
+                limit = paginationOffset.limit,
+                supplier = { serviceIds: Collection<String> -> filter.applyTo(getServices(serviceIds.toList())) },
+                startDocumentId = paginationOffset.startDocumentId
             )
         )
     }

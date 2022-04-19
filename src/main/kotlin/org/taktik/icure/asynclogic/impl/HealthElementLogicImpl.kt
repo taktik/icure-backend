@@ -19,12 +19,14 @@ package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.toSet
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
@@ -41,6 +43,7 @@ import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.utils.aggregateResults
+import java.util.TreeSet
 
 /**
  * Created by emad7105 on 24/06/2014.
@@ -163,13 +166,12 @@ class HealthElementLogicImpl(private val filters: Filters,
 
     override fun filter(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<HealthElement>) =
         flow<ViewQueryResultEvent> {
-            val ids = filters.resolve(filter.filter)
+            val ids = filters.resolve(filter.filter).toSet(TreeSet())
             emitAll(
                 aggregateResults(
                     ids = ids,
                     limit = paginationOffset.limit,
-                    supplier = { healthElementIds: Flow<String> -> healthElementDAO.findHealthElementsByIds(healthElementIds) },
-                    filter = { true },
+                    supplier = { healthElementIds: Collection<String> -> healthElementDAO.findHealthElementsByIds(healthElementIds.asFlow()) },
                     startDocumentId = paginationOffset.startDocumentId
                 )
             )
