@@ -80,6 +80,7 @@ data class HealthcarePartyDto(
         @Schema(description = "The type of format for contacting the healthcare party, ex: mobile, phone, email, etc.") val sendFormats: Map<TelecomTypeDto, String> = emptyMap(),
         @Schema(description = "Text notes.") val notes: String? = null,
         @Schema(description = "List of financial information (Bank, bank account).") val financialInstitutionInformation: List<FinancialInstitutionInformationDto> = emptyList(),
+        @Schema(description = "A description of the HCP, meant for the public and in multiple languages.") val descr: Map<String, String>? = emptyMap(),
 
         // Medical houses
         @Schema(description = "The invoicing scheme this healthcare party adheres to : 'service fee' or 'flat rate'") var billingType: String? = null, // "serviceFee" (à l'acte) or "flatRate" (forfait)
