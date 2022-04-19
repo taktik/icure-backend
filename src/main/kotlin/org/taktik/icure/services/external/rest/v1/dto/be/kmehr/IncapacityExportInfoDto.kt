@@ -7,7 +7,6 @@ import java.io.Serializable
 
 class IncapacityExportInfoDto : Serializable {
     var secretForeignKeys: List<String> = emptyList()
-    var services: List<ServiceDto> = emptyList() //TODO move away of service usage
     var serviceAuthors: List<HealthcarePartyDto>? = null
     var recipient: HealthcarePartyDto? = null
     var comment: String? = null

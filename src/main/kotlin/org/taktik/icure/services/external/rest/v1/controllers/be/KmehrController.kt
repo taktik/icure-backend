@@ -53,7 +53,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.mapper.HealthElementMapper
 import org.taktik.icure.services.external.rest.v1.mapper.HealthcarePartyMapper
-import org.taktik.icure.services.external.rest.v1.mapper.PatientMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.*
 import org.taktik.icure.utils.injectReactorContext
 import java.time.Instant
