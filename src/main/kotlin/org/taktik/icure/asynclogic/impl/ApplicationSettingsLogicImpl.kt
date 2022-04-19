@@ -29,4 +29,8 @@ class ApplicationSettingsLogicImpl(private val applicationSettingsDAO: Applicati
     override fun getGenericDAO(): ApplicationSettingsDAO {
         return applicationSettingsDAO
     }
+
+    override suspend fun createApplicationSettings(applicationSettings: ApplicationSettings): ApplicationSettings? {
+        return applicationSettingsDAO.create(applicationSettings);
+    }
 }
