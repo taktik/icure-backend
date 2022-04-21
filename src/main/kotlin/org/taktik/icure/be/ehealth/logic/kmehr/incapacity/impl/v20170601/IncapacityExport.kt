@@ -325,7 +325,7 @@ class IncapacityExport(patientLogic: PatientLogic,
                         })
                     }
                 }
-                contactPersonTel?.let{it ->
+                if(!contactPersonTel.isNullOrEmpty()){
                     headingsAndItemsAndTexts.add(ItemType().apply {
                         ids.add(idKmehr(itemsIdx++))
                         cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "contactperson" })
@@ -334,7 +334,7 @@ class IncapacityExport(patientLogic: PatientLogic,
                             person = PersonType().apply {
                                 telecoms.add(TelecomType().apply {
                                     cds.add(CDTELECOM().apply { s(CDTELECOMschemes.CD_TELECOM); value = "phone"})
-                                    telecomnumber = it
+                                    telecomnumber = contactPersonTel
                                 })
                             }
                         }
