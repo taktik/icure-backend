@@ -177,6 +177,9 @@ class IncapacityExport(patientLogic: PatientLogic,
             if(recoveryAddress != null){
                 this.patient.addresses.addAll(makeAddresses(listOf(recoveryAddress)))
             }
+            if(listOf("civilservant", "employed", "selfemployed").contains(jobstatus)){
+                this.patient.profession.cds.add(CDEMPLOYMENTSITUATION().apply { value = CDEMPLOYMENTSITUATIONvalues.fromValue(jobstatus) })
+            }
         }
 
         var itemsIdx = 1;
