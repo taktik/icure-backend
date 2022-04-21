@@ -154,7 +154,7 @@ class IncapacityExport(patientLogic: PatientLogic,
             incapSchoolsports: Boolean,
             incapHeavyphysicalactivity: Boolean,
             diagnoseServices: List<Service>,
-            jobstatus: String,
+            jobstatus: String, //values of CD-EMPLOYMENTSITUATION --> patient.profession.cd
             job: String,
             occupationalDiseaseDeclDate: Long,
             accidentDate: Long,
@@ -173,7 +173,10 @@ class IncapacityExport(patientLogic: PatientLogic,
         val folder = FolderType().apply {
             ids.add(idKmehr(patientIndex))
             //TODO add CD-EMPLOYMENTSITUATION (not for iteration 1 of mult-e-mediatt) is only needed for self-employed
-            this.patient = makePatient(patient, recoveryAddress, config)
+            this.patient = makePatient(patient, config)
+            if(recoveryAddress != null){
+                this.patient.addresses.addAll(makeAddresses(listOf(recoveryAddress)))
+            }
         }
 
         var itemsIdx = 1;
