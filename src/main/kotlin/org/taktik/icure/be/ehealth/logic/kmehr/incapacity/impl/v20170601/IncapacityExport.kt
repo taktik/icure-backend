@@ -137,12 +137,12 @@ class IncapacityExport(patientLogic: PatientLogic,
             sender: HealthcareParty,
             config: Config,
             language: String,
-            recipient: HealthcareParty?,
-            comment: String?,
+            recipient: HealthcareParty?, //not needed (yet)
+            comment: String?, //not needed (yet)
             incapacityId: String,
             notificationDate: Long,
             retraction: Boolean,
-            dataset: String,
+            dataset: String, //will not use for now, front-end will decide what is sent
             transactionType: String,
             incapacityreason: String,
             beginmoment: Long,
@@ -226,9 +226,17 @@ class IncapacityExport(patientLogic: PatientLogic,
                             this.isOutofhomeallowed = outofhomeallowed
                         }
                     })
-                    contents.add(ContentType().apply {
-                        this.date = Utils.makeXMLGregorianCalendarFromFuzzyLong(notificationDate)
-                    })
+
+                    if(listOf("accident", "workaccident", "traveltofromworkaccident").contains(incapacityreason)) {
+                        contents.add(ContentType().apply {
+                            this.date = Utils.makeXMLGregorianCalendarFromFuzzyLong(accidentDate)
+                        })
+                    }
+                    if("occupationaldisease" == incapacityreason) {
+                        contents.add(ContentType().apply {
+                            this.date = Utils.makeXMLGregorianCalendarFromFuzzyLong(occupationalDiseaseDeclDate)
+                        })
+                    }
                     this.beginmoment = Utils.makeDateTypeFromFuzzyLong(beginmoment);
                     this.endmoment = Utils.makeDateTypeFromFuzzyLong(endmoment);
                 })
