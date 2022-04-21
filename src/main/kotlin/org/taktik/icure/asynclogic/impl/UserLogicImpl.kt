@@ -92,6 +92,9 @@ class UserLogicImpl(
         emitAll(userDAO.listUsersByHcpId(hcpartyId).mapNotNull { v: User -> v.id })
     }
 
+    override fun listUserIdsByNameEmailPhone(searchString: String) =
+            userDAO.listUserIdsByNameEmailPhone(searchString)
+
     override suspend fun newUser(type: Users.Type, status: Users.Status, email: String, createdDate: Instant): User {
         return userDAO.create(fix(User(
                 id = uuidGenerator.newGUID().toString(),
@@ -102,6 +105,11 @@ class UserLogicImpl(
                 email = email
         ))) ?: throw java.lang.IllegalStateException("Cannot create user")
     }
+
+    override fun findByNameEmailPhone(
+            searchString: String,
+            pagination: PaginationOffset<String>
+    ) = userDAO.findUsersByNameEmailPhone(searchString, pagination)
 
     override fun buildStandardUser(userName: String, password: String) = User(
             id = uuidGenerator.newGUID().toString(),

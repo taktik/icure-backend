@@ -20,6 +20,7 @@ package org.taktik.icure.asyncdao
 
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.annotation.View
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.User
 import java.net.URI
@@ -27,7 +28,8 @@ import java.time.Instant
 
 interface UserDAO : GenericDAO<User>{
 	fun getExpiredUsers(fromExpirationInstant: Instant, toExpirationInstant: Instant): Flow<User>
-	fun listUsersByUsername(searchString: String): Flow<User>
+    fun listUserIdsByNameEmailPhone(searchString: String): Flow<String>
+    fun listUsersByUsername(searchString: String): Flow<User>
     fun listUsersByEmail(searchString: String): Flow<User>
     fun listByEmailOnFallbackDb(email: String): Flow<User>
     fun findUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
@@ -41,4 +43,5 @@ interface UserDAO : GenericDAO<User>{
     suspend fun evictFromCache(userIds: Flow<String>)
     suspend fun saveOnFallback(user: User): User
     fun findUsersByIds(userIds: Flow<String>): Flow<ViewQueryResultEvent>
+    fun findUsersByNameEmailPhone(searchString: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
 }
