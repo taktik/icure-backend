@@ -88,6 +88,11 @@ class IncapacityExport(patientLogic: PatientLogic,
         config.defaultLanguage = if(sender.languages.firstOrNull() == "nl") "nl-BE" else if(sender.languages.firstOrNull() == "de") "de-BE" else "fr-BE"
         config.format = Config.Format.MULTEMEDIATT
         val message = initializeMessage(sender, config, incapacityId)
+        if(recipient != null){
+            message.header.recipients.add(
+                    RecipientType().apply { hcparties.add(createParty(recipient, emptyList())) }
+            )
+        }
 
 
         val folder = makePatientFolder(
@@ -96,7 +101,6 @@ class IncapacityExport(patientLogic: PatientLogic,
                 sender,
                 config,
                 language,
-                recipient,
                 comment,
                 incapacityId,
                 notificationDate,
@@ -137,7 +141,6 @@ class IncapacityExport(patientLogic: PatientLogic,
             sender: HealthcareParty,
             config: Config,
             language: String,
-            recipient: HealthcareParty?, //not needed (yet)
             comment: String?, //not needed (yet)
             incapacityId: String,
             notificationDate: Long,
@@ -172,7 +175,6 @@ class IncapacityExport(patientLogic: PatientLogic,
         //creation of Patient
         val folder = FolderType().apply {
             ids.add(idKmehr(patientIndex))
-            //TODO add CD-EMPLOYMENTSITUATION (not for iteration 1 of mult-e-mediatt) is only needed for self-employed
             this.patient = makePatient(patient, config)
             if(recoveryAddress != null){
                 this.patient.addresses.addAll(makeAddresses(listOf(recoveryAddress)))
