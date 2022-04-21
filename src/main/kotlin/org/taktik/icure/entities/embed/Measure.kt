@@ -37,6 +37,7 @@ data class Measure(
         val severityCode: String? = null,
         val evolution: Int? = null,
         val unit: String? = null,
+        val sign: String? = null,
 
         @field:ValidCode(autoFix = AutoFix.NORMALIZECODE)
         val unitCodes: Set<CodeStub>? = null,

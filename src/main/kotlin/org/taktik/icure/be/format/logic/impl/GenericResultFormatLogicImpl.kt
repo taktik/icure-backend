@@ -158,6 +158,7 @@ abstract class GenericResultFormatLogicImpl(val healthcarePartyLogic: Healthcare
         var unit: String? = null
         var severity: String? = null
         var value: String? = null
+        var sign: String? = null
 
     }
 

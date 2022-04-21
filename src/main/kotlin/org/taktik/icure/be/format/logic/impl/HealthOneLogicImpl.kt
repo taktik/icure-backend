@@ -237,7 +237,8 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
                         min = r?.minValue,
                         max = r?.maxValue,
                         severity = if (severity?.isNotEmpty() == true) 1 else null,
-                        severityCode = severity
+                        severityCode = severity,
+                        sign = lrl?.sign?.let{ if(!it.isBlank()) it else null }
                 ))),
                 label = lrl.analysisType ?: "",
                 index = position,
@@ -524,6 +525,7 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
             }
             if (lrl.value == "" && parts.size > 7) {
                 lrl.value = parts[7].trim { it <= ' ' }
+                lrl.sign = parts[7].trim().let { if (it.startsWith("<") || it.startsWith(">")) it.substring(0, 1) else null }
             }
             if (lrl.analysisType == null || lrl.analysisType == "") {
                 lrl.analysisType = "untitled"
@@ -682,10 +684,10 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
             val l: MutableList<String> = ArrayList()
             l.add(m.group(2))
             l.add(m.group(1))
-            l.addAll(listOf(*m.group(3).split("\\\\").dropLastWhile { it.isEmpty() }.toTypedArray()))
+            l.addAll(listOf(*m.group(3).split("\\\\".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()))
             l.toTypedArray()
         } else {
-            line.split("\\\\").dropLastWhile { it.isEmpty() }.toTypedArray()
+            line.split("\\\\".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         }
 
     }
