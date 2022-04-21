@@ -116,16 +116,24 @@ open class KmehrExport(
                 ((89 - nihii.substring(0, 6).toLong() % 89) == nihii.substring(6, 8).toLong())
             )
 
-    suspend fun makePatient(p : Patient, config: Config): PersonType {
+    suspend fun makePatient(p : Patient, additionalAddress: Address?, config: Config): PersonType {
         val ssin = p.ssin?.replace("[^0-9]".toRegex(), "")?.let { if (org.taktik.icure.utils.Math.isNissValid(it)) it else null }
-        return makePerson(p, config).apply {
+        return makePerson(p, additionalAddress, config).apply {
             ids.clear()
             ssin?.let { ssin -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.ID_PATIENT; sv = "1.0"; value = ssin }) }
             ids.add(IDPATIENT().apply {s= IDPATIENTschemes.LOCAL; sl= "MF-ID"; sv= config.soft?.version; value= p.id})
         }
     }
 
+    suspend fun makePatient(p : Patient, config: Config): PersonType {
+        return makePatient(p, null, config)
+    }
+
     suspend fun makePerson(p : Patient, config: Config) : PersonType {
+        return makePerson(p, null, config)
+    }
+
+    suspend fun makePerson(p : Patient, additionalAddress: Address?, config: Config) : PersonType {
         return makePersonBase(p, config).apply {
             p.dateOfDeath?.let { if(it != 0) deathdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
             p.placeOfBirth?.let { birthlocation = AddressTypeBase().apply { city= it }}
@@ -133,6 +141,7 @@ open class KmehrExport(
             p.profession?.let { profession = ProfessionType().apply { text = TextType().apply { l= "fr"; value = it } } }
             usuallanguage= p.languages.firstOrNull()
             addresses.addAll(makeAddresses(p.addresses))
+            if(additionalAddress != null ) addresses.addAll(makeAddresses(listOf(additionalAddress)))
             telecoms.addAll(makeTelecoms(p.addresses))
             if(!p.nationality.isNullOrBlank()) {
                 p.nationality?.let { nat -> nationality = PersonType.Nationality().apply { cd = CDCOUNTRY().apply { s(CDCOUNTRYschemes.CD_COUNTRY); value = nat } } }
