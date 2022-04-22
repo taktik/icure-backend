@@ -6,8 +6,6 @@ import org.taktik.icure.services.external.rest.v2.dto.embed.ServiceDto
 import java.io.Serializable
 
 class IncapacityExportInfoDto : Serializable {
-    var secretForeignKeys: List<String> = emptyList()
-    var serviceAuthors: List<HealthcarePartyDto>? = null
     var recipient: HealthcarePartyDto? = null
     var comment: String? = null
     var incapacityId: String = ""
@@ -25,7 +23,7 @@ class IncapacityExportInfoDto : Serializable {
     var incapSchoolsports: Boolean = false
     var incapHeavyphysicalactivity: Boolean = false
     var diagnoseServices: List<ServiceDto> = emptyList()
-    var jobstatus: String = "" //independent, employer, ...
+    var jobstatus: String = "" //values of CD-EMPLOYMENTSITUATION independent, employer, ...
     var job: String = "" //freetext
     var occupationalDiseaseDeclDate: Long = 0
     var accidentDate: Long = 0
