@@ -1,4 +1,4 @@
-package org.taktik.icure.services.external.rest.v1.dto.filter.user
+package org.taktik.icure.services.external.rest.v2.dto.filter.user
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude

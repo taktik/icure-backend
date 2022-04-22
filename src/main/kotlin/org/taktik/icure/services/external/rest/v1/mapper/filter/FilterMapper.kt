@@ -69,7 +69,9 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceById
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceBySecretForeignKeys
 import org.taktik.icure.services.external.rest.v1.dto.filter.user.AllUsersFilter
 import org.taktik.icure.services.external.rest.v1.dto.filter.user.UserByIdsFilter
+import org.taktik.icure.services.external.rest.v1.dto.filter.user.UserByNameEmailPhoneFilter
 
+@ExperimentalStdlibApi
 @Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 abstract class FilterMapper {
     abstract fun map(filterDto: CodeByRegionTypeLabelLanguageFilter): org.taktik.icure.domain.filter.impl.code.CodeByRegionTypeLabelLanguageFilter
@@ -110,6 +112,7 @@ abstract class FilterMapper {
     abstract fun map(filterDto: ServiceByHcPartyFilter): org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyFilter
     abstract fun map(filterDto: ServiceByIdsFilter): org.taktik.icure.domain.filter.impl.service.ServiceByIdsFilter
     abstract fun map(filterDto: UserByIdsFilter): org.taktik.icure.domain.filter.impl.user.UserByIdsFilter
+    abstract fun map(filterDto: UserByNameEmailPhoneFilter): org.taktik.icure.domain.filter.impl.user.UserByNameEmailPhoneFilter
 
 
     fun <O: Identifiable<String>>mapToDto(filterDto: UnionFilter<O>): org.taktik.icure.domain.filter.impl.UnionFilter<O> {
@@ -177,6 +180,7 @@ abstract class FilterMapper {
             is ServiceByHcPartyFilter -> map(filterDto)
             is ServiceByIdsFilter -> map(filterDto)
             is UserByIdsFilter -> map(filterDto)
+            is UserByNameEmailPhoneFilter -> map(filterDto)
             else -> throw IllegalArgumentException("Unsupported filter class")
         }
     }
@@ -219,6 +223,7 @@ abstract class FilterMapper {
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyFilter): ServiceByHcPartyFilter
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceByIdsFilter): ServiceByIdsFilter
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.user.UserByIdsFilter): UserByIdsFilter
+    abstract fun map(filter: org.taktik.icure.domain.filter.impl.user.UserByNameEmailPhoneFilter): UserByNameEmailPhoneFilter
 
 
     fun <O: Identifiable<String>>mapToDomain(filterDto: org.taktik.icure.domain.filter.impl.UnionFilter<O>): UnionFilter<O> {
@@ -288,6 +293,7 @@ abstract class FilterMapper {
             is org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyFilter -> map(filter)
             is org.taktik.icure.domain.filter.impl.service.ServiceByIdsFilter -> map(filter)
             is org.taktik.icure.domain.filter.impl.user.UserByIdsFilter -> map(filter)
+            is org.taktik.icure.domain.filter.impl.user.UserByNameEmailPhoneFilter -> map(filter)
             else -> throw IllegalArgumentException("Unsupported filter class")
         }
     }
