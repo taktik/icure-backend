@@ -360,7 +360,7 @@ class IncapacityExport(patientLogic: PatientLogic,
                 if(foreignStayBegin > 0 && foreignStayEnd > 0){
                     headingsAndItemsAndTexts.add(ItemType().apply {
                         ids.add(idKmehr(itemsIdx++))
-                        cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "MMEDIATT-ITEM"; value = "maternityleave" })
+                        cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "MMEDIATT-ITEM"; value = "foreignstay" })
                         this.beginmoment = Utils.makeDateTypeFromFuzzyLong(foreignStayBegin);
                         this.endmoment = Utils.makeDateTypeFromFuzzyLong(foreignStayEnd);
                     })
