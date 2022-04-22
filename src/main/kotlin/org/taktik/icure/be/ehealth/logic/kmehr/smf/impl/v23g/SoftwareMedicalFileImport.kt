@@ -71,7 +71,6 @@ import org.taktik.icure.entities.embed.Medication
 import org.taktik.icure.entities.embed.Medicinalproduct
 import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.entities.embed.PlanOfAction
-import org.taktik.icure.entities.embed.RegimenItem
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.entities.embed.ServiceLink
 import org.taktik.icure.entities.embed.SubContact
@@ -258,7 +257,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
         val contactDate = extractTransactionDateTime(trn)
 
-        val simplifiedSubContacts = simplifySubContacts(serviceAndSubContacts.mapNotNull {it.second}).toSet()
+        val simplifiedSubContacts = simplifySubContacts(serviceAndSubContacts.flatMap { it.second!!.mapNotNull { it }}).toSet()
         if (simplifiedSubContacts.isNotEmpty()) {
             v.forms.addAll(simplifiedSubContacts.filter { sc -> !v.forms.any { it.id == sc.formId } && sc.services.isNotEmpty() }.mapNotNull { it.formId }.toSet().map {
                 Form(   id = it,
@@ -292,8 +291,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
             } ?: trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) }
 
-    private fun makeSubContact(contactId: String, formId: String?, mfId: String?, service: Service, kmehrIndex: KmehrMessageIndex) =
-            kmehrIndex.serviceFor[mfId]?.mapNotNull { mf -> kmehrIndex.itemIds[mf]?.let { (mf to it) } }?.firstOrNull()?.let { (heOrHcaMfid, heOrHcaPair) ->
+    private fun makeSubContact(contactId: String, formId: String?, mfId: String?, service: Service, kmehrIndex: KmehrMessageIndex): List<SubContact>? =
+            kmehrIndex.serviceFor[mfId]?.mapNotNull { mf -> kmehrIndex.itemIds[mf]?.let { (mf to it) } }?.map { (heOrHcaMfid, heOrHcaPair) ->
                 val item = heOrHcaPair.second
                 if (item.cds.find { it.s == CDITEMschemes.CD_ITEM }?.value == "healthcareapproach") {
                     val heId = kmehrIndex.approachFor[heOrHcaMfid]?.mapNotNull { kmehrIndex.itemIds[it] }?.firstOrNull()?.first
@@ -308,10 +307,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     )
                 }
             } ?: formId?.let{
-                SubContact(
+                listOf(SubContact(
                     id = UUID.nameUUIDFromBytes(("$contactId|null|null|${formId}").toByteArray()).toString(),
                     formId = formId, services = listOf(ServiceLink(serviceId = service.id))
-                )
+                ))
             }
 
 
@@ -325,9 +324,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
         val transactionMfid = getTransactionMFID(trn)
         val trnauthorhcpid = extractTransactionAuthor(trn, saveToDatabase, author, v);
+        val trnTypeCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION_TYPE }?.value
 
         val services = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter { it.type == CDLNKvalues.MULTIMEDIA }?.map { lnk ->
-            val docname = trn.cds.firstOrNull { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.dn ?: "unnamed_document"
+            val docname = trn.cds.firstOrNull { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.dn ?: trnTypeCd ?: "unnamed_document"
             val svcRecordDateTime = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli()
 
             val serviceId = idGenerator.newGUID().toString()
@@ -339,19 +339,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 })
             }
 
-            val utis: List<UTI> = lnk.mediatype?.value()?.let {
-                UTI.utisForMimeType(it).toList()
-            } ?: let {
-                listOf(SimpleUTIDetector().detectUTI(lnk.value.inputStream(), null, null))
-            }
-
-            val (mainUti, otherUtis) = (utis.firstOrNull()?.identifier ?: "com.adobe.pdf").let {
-                val otherUtis = (if (utis.size > 1) utis.subList(1, utis.size).map { it.identifier } else listOf<String>()).toSet()
-                if (it == "public.plain-text") {
-                    Pair("public.plainText", otherUtis + "public.plain-text")
-                } else Pair(it, otherUtis)
-            }
-
+            val (mainUti, otherUtis) = extractUtis(lnk)
             val valueDate = extractTransactionDateTime(trn)
 
             Service(
@@ -360,6 +348,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     tags = setOf(CodeStub.from( "CD-ITEM-EXT", "document", "1")),
                     valueDate = valueDate,
                     openingDate = valueDate,
+                    qualifiedLinks = transactionMfid?.let{ kmehrIndex.itemIds[it]?.first?.toString()?.let { mapOf(LinkQualification.relatedService to mapOf( UUID.randomUUID().toString() to it)) } } ?: mapOf(),
+
                     content = mapOf(language to Content(
                             stringValue = docname,
                             documentId = Document(
@@ -384,11 +374,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
         val contactDate = extractTransactionDateTime(trn)
         val trnCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value
-        val trnTypeCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION_TYPE }?.value
         val contactId = transactionMfid?.let{ kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString()
         val formId = kmehrIndex.formIdMask.xor(UUID.fromString(contactId)).toString()
         val subContacts = services.map{makeSubContact(contactId, formId, transactionMfid, it, kmehrIndex)}
-        val simplifiedSubContacts = simplifySubContacts(subContacts.filterNotNull()).toSet()
+        val simplifiedSubContacts = simplifySubContacts(subContacts.flatMap { it!!.mapNotNull { it }}).toSet()
         if (simplifiedSubContacts.isNotEmpty()) {
             v.forms.addAll(simplifiedSubContacts.filter { sc -> !v.forms.any { it.id == sc.formId } && sc.services.isNotEmpty() }.mapNotNull { it.formId ?: idGenerator.newGUID().toString() }.toSet().map {
                 Form(id = it,
@@ -413,6 +402,21 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 closingDate = trn.isIscomplete.let { if (it) contactDate else null },
                 subContacts = simplifiedSubContacts
             )
+    }
+
+    private fun extractUtis(lnk: LnkType): Pair<String, Set<String>>{
+        val utis: List<UTI> = lnk.mediatype?.value()?.let {
+            UTI.utisForMimeType(it).toList()
+        } ?: let {
+            listOf(SimpleUTIDetector().detectUTI(lnk.value.inputStream(), null, null))
+        }
+
+        return (utis.firstOrNull()?.identifier ?: "com.adobe.pdf").let {
+            val otherUtis = (if (utis.size > 1) utis.subList(1, utis.size).map { it.identifier } else listOf<String>()).toSet()
+            if (it == "public.plain-text") {
+                Pair("public.plainText", otherUtis + "public.plain-text")
+            } else Pair(it, otherUtis)
+        }
     }
 
     private suspend fun parseGenericTransaction(trn: TransactionType,
@@ -453,9 +457,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 }
                 "encountertype", "encounterdatetime", "encounterlocation" -> Pair(svcs, sbctcs) // already added at contact level
                 "insurancystatus", "gmdmanager", "healthcareapproach" -> Pair(svcs, sbctcs) // not services,
-                "incapacity" -> parseIncapacity(item, author, trnauthorhcpid, language, kmehrIndex, contactId).let {
-                    val (services, subcontacts, form) = it
-                    v.forms.add(form)
+                "incapacity" -> parseIncapacity(item, author, trnauthorhcpid, language, kmehrIndex, contactId, formId, transactionMfid).let {
+                    val (services, subcontacts) = it
                     Pair(svcs + services, sbctcs + subcontacts)
                 }
                 else -> {
@@ -490,6 +493,15 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     created = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
                     modified = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli())
             })
+        }else{
+            v.forms.add(
+                    Form(id = formId,
+                        contactId = contactId,
+                        author = author.id,
+                        responsible = trnauthorhcpid,
+                        created = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
+                        modified = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli())
+            )
         }
 
         return Contact(
@@ -501,6 +513,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 openingDate = contactDate,
                 closingDate = trn.isIscomplete.let { if (it) contactDate else null },
                 tags = listOfNotNull(trnCd, trnTypeCd).map { CodeStub.from("CD-TRANSACTION", it, "1.0") }.toSet(),
+                descr = trn.headingsAndItemsAndTexts.filterIsInstance<TextType>().firstOrNull()?.value ?: null,
                 location =
                 trn.findItem { it -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterlocation" } }
                         ?.let {
@@ -598,11 +611,12 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
     private suspend fun parseIncapacity(item: ItemType, author: User, trnAuthorHcpId: String, language: String,
                                         kmehrIndex: KmehrMessageIndex,
-                                        contactId: String): Triple<List<Service>, Collection<SubContact>, Form> {
+                                        contactId: String, formId: String, transactionMfid: String?): Triple<List<Service>, Collection<SubContact>, Form> {
         val mfId = getItemMFID(item)
         val ittform = Form(
-                id = idGenerator.newGUID().toString(),
+                id = formId,
                 formTemplateId = getFormTemplateIdByGuid(author, "FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00"), // ITT form template
+                parent = transactionMfid?.let{ kmehrIndex.transactionChildOf[transactionMfid]?.firstOrNull()?.let { kmehrIndex.transactionIds[it]?.first?.let { cid -> kmehrIndex.formIdMask.xor(cid).toString() } } },
                 contactId = contactId,
                 responsible = trnAuthorHcpId,
                 author = author.id,
@@ -649,27 +663,29 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         )
 
         var serviceIndex = 0L
+        val mainServiceId = mfId?.let{ kmehrIndex.itemIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString();
         val servicesAndSubContacts = mapserv.map { entry ->
             entry.value?.let {
                 val service = Service(
-                        id = idGenerator.newGUID().toString(),
+                        id = if (serviceIndex == 0L) mainServiceId else idGenerator.newGUID().toString(),
                         label = entry.key,
                         contactId = contactId,
                         responsible = trnAuthorHcpId,
                         index = serviceIndex++,
                         author = author.id,
+                        qualifiedLinks = if (serviceIndex != 0L) mapOf(LinkQualification.relatedService to mapOf( UUID.randomUUID().toString() to mainServiceId)) else mapOf(),
                         created = item.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
                         modified = item.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
                         valueDate = item.beginmoment?.let { Utils.makeFuzzyLongFromMomentType(it) },
                         content = (it as? Pair<Content, List<CodeStub>>)?.let { mapOf(language to it.first) }
                                 ?: (it as? Content)?.let { mapOf(language to it) } ?: mapOf(),
-                        tags = (it as? Pair<Content, List<CodeStub>>)?.let { it.second.toSet() } ?: setOf()
+                        tags = setOf(CodeStub.from("CD-ITEM", "incapacity", "1")) + ((it as? Pair<Content, List<CodeStub>>)?.let { it.second.toSet() }
+                                ?: setOf())
                 )
                 service to makeSubContact(contactId, ittform.id, mfId, service, kmehrIndex)
             }
         }.filterNotNull()
-
-        return Triple(servicesAndSubContacts.map { it.first }, simplifySubContacts(servicesAndSubContacts.mapNotNull { it.second }), ittform)
+        return Triple(servicesAndSubContacts.map { it.first }, simplifySubContacts(servicesAndSubContacts.flatMap { it.second!!.mapNotNull { it }}), ittform)
     }
 
     private fun parseHealthcareElement(cdItem: String,
@@ -708,6 +724,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 created = item.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
                 modified = item.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
                 status = extractStatus(item),
+                relevant = item.isIsrelevant ?: false,
                 plansOfAction = kmehrIndex.approachFor.filter { (_,v) -> v.contains(mfId) }.mapNotNull { (k,_) ->
                     kmehrIndex.itemIds[k]?.second?.let { item ->
                         val (label, _) = mapItem(item, mappings, language)
@@ -1238,7 +1255,7 @@ data class KmehrMessageIndex(
 
 }
 
-fun simplifySubContacts(scts : Collection<SubContact>) : Collection<SubContact> =
+fun simplifySubContacts(scts: Collection<SubContact>) : Collection<SubContact> =
         scts.groupBy { it.id }.mapValues { it.value.first().copy(services = it.value.flatMap {it.services}) }.values
 
 fun Kmehrmessage.performIndexation(idGenerator: UUIDGenerator) = this.folders.fold(KmehrMessageIndex()) { kmi, folder ->

@@ -21,10 +21,7 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
@@ -54,18 +51,27 @@ class AccessLogDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
     @View(name = "all_by_user_date", map = "classpath:js/accesslog/all_by_user_type_and_date_map.js")
-    override fun findAccessLogsByUserAfterDate(userId: String, accessType: String?, startDate: Instant?, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> = flow {
+    override fun findAccessLogsByUserAfterDate(userId: String, accessType: String?, startDate: Long?, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = if (startDate == null) {
-            val key = ComplexKey.of(userId, accessType, 0L)
-            pagedViewQuery<AccessLog, ComplexKey>(client, "all_by_user_date", key, null, pagination, descending)
-        } else {
-            val startKey = ComplexKey.of(userId, accessType, startDate.toEpochMilli())
-            val endKey = ComplexKey.of(userId, accessType ?: ComplexKey.emptyObject(), java.lang.Long.MAX_VALUE)
-            pagedViewQuery<AccessLog, ComplexKey>(client, "all_by_user_date", if (descending) endKey else startKey, if (descending) startKey else endKey, pagination, descending)
-        }
-        emitAll(client.queryView(viewQuery, Array<Any>::class.java, String::class.java, AccessLog::class.java))
+        val startKey = ComplexKey.of(
+                userId,
+                accessType ?: ComplexKey.emptyObject().takeIf { descending },
+                startDate ?: Long.MAX_VALUE.takeIf { descending } ?: 0
+        )
+        val endKey = ComplexKey.of(
+                userId,
+                accessType ?: ComplexKey.emptyObject().takeIf { !descending },
+                Long.MAX_VALUE.takeIf { !descending } ?: 0
+        )
+
+        val items = client.queryView(
+                pagedViewQuery<AccessLog, ComplexKey>(client, "all_by_user_date", startKey, endKey, pagination, descending),
+                Array<Any>::class.java,
+                String::class.java,
+                AccessLog::class.java
+        ).toList()
+        emitAll(items.asFlow())
     }
 
     @View(name = "by_hcparty_patient", map = "classpath:js/accesslog/By_hcparty_patient_map.js")

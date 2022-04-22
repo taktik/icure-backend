@@ -71,7 +71,13 @@ class TarificationLogicImpl(private val tarificationDAO: TarificationDAO, privat
         emitAll(tarificationDAO.listTarificationsBy(region, type, tarification, version))
     }
 
-    override fun findTarificationsBy(region: String?, type: String?, tarification: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
+    override fun findTarificationsBy(
+        region: String?,
+        type: String?,
+        tarification: String?,
+        version: String?,
+        paginationOffset: PaginationOffset<List<String?>>
+    ): Flow<ViewQueryResultEvent> = flow {
         emitAll(tarificationDAO.findTarificationsBy(region, type, tarification, version, paginationOffset))
     }
 

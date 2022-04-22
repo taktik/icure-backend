@@ -154,10 +154,10 @@ open class KmehrExport(
         }
     }
 
-    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service") : ItemType? {
+    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service", mfId: String? = null) : ItemType? {
         return ItemType().apply {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
-            ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = svc.id })
+            ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = mfId ?: svc.id })
             cds.add(CDITEM().apply {s(CDITEMschemes.CD_ITEM); value = cdItem } )
             svc.tags.find { t -> t.type == "CD-LAB" }?.let { cds.add(CDITEM().apply {s(CDITEMschemes.CD_LAB); value = it.code } ) }
 
@@ -269,7 +269,7 @@ open class KmehrExport(
 
             this.contents.addAll(filterEmptyContent(contents))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
-                value = if (ServiceStatus.isIrrelevant(he.status) || (!ServiceStatus.isActive(he.status)) || (he.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate()))
+                value = if ((ServiceStatus.isIrrelevant(he.status) && !ServiceStatus.isActive(he.status)) || (he.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate()))
                     CDLIFECYCLEvalues.INACTIVE
                 else
                     he.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) } ?: CDLIFECYCLEvalues.ACTIVE

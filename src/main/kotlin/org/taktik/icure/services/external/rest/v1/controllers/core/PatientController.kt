@@ -26,7 +26,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import javax.security.auth.login.LoginException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -51,10 +50,10 @@ import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.Sorting
-import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.services.external.rest.v1.dto.IdWithRevDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
+import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
@@ -229,6 +228,8 @@ class PatientController(
         patientLogic.getByExternalId(externalId)?.let(patientToPatientDto)
     }
 
+
+
     @Operation(summary = "Get Paginated List of Patients sorted by Access logs descending")
     @GetMapping("/byAccess/{userId}")
     fun findByAccessLogUserAfterDate(@Parameter(description = "A User ID", required = true) @PathVariable userId: String,
@@ -237,32 +238,38 @@ class PatientController(
                                      @Parameter(description = "The start key for pagination") @RequestParam(required = false) startKey: String?,
                                      @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                                      @Parameter(description = "Number of rows") @RequestParam(defaultValue = DEFAULT_LIMIT.toString()) limit: Int): Mono<PaginatedList<PatientDto>> = mono {
-
-        val startKeyElements = startKey?.let { objectMapper.readValue<List<Any>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, Object::class.java)) }
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
-        accessLogLogic.findAccessLogsByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, true).paginatedList<AccessLog>(limit)
-                .let {
-                    val patientIds = it.rows.sortedBy { accessLog -> accessLog.date }.mapNotNull { it.patientId }.distinct()
-                    PaginatedList(
-                            nextKeyPair = it.nextKeyPair,
-                            pageSize = it.pageSize,
-                            totalSize = it.totalSize,
-                            rows = patientLogic.getPatients(patientIds).filter { it.deletionDate == null }.map { p ->
-                                PatientDto(
-                                        id = p.id,
-                                        lastName = p.lastName,
-                                        firstName = p.firstName,
-                                        partnerName = p.partnerName,
-                                        maidenName = p.maidenName,
-                                        dateOfBirth = p.dateOfBirth,
-                                        ssin = p.ssin,
-                                        externalId = p.externalId,
-                                        patientHealthCareParties = p.patientHealthCareParties.map { phcp -> patientHealthCarePartyMapper.map(phcp) },
-                                        addresses = p.addresses.map { addressMapper.map(it) }
-                                )
-                            }.toList()
+        accessLogLogic.aggregatePatientByAccessLogs(userId, accessType, startDate, startKey, startDocumentId, limit).let { (totalSize, count, patients, dateNextKey, nextDocumentId) ->
+            val patients = patients.map { patient ->
+                    PatientDto(
+                        id = patient.id,
+                        lastName = patient.lastName,
+                        firstName = patient.firstName,
+                        partnerName = patient.partnerName,
+                        maidenName = patient.maidenName,
+                        dateOfBirth = patient.dateOfBirth,
+                        ssin = patient.ssin,
+                        externalId = patient.externalId,
+                        patientHealthCareParties = patient.patientHealthCareParties.map { phcp ->
+                            patientHealthCarePartyMapper.map(
+                                phcp
+                            )
+                        },
+                        addresses = patient.addresses.map { addressMapper.map(it) }
                     )
                 }
+
+            PaginatedList(
+                nextKeyPair = dateNextKey?.let {
+                    PaginatedDocumentKeyIdPair(
+                        it,
+                        nextDocumentId
+                    )
+                },
+                pageSize = limit,
+                totalSize = (totalSize * (patients.size / count.toDouble())).toInt(),
+                rows = patients.toList()
+            )
+        }
     }
 
     @Operation(summary = "Filter patients for the current user (HcParty) ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")

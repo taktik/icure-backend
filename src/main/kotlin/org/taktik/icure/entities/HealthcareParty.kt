@@ -91,6 +91,7 @@ import org.taktik.icure.validation.ValidCode
  * @property publicKey The public RSA key of this healthcare party
  * @property bankAccount Bank Account identifier of the healhtcare party, IBAN, deprecated, use financial institutions instead
  * @property bic Bank Identifier Code, the SWIFT Address assigned to the bank, use financial institutions instead
+ * @property descr A description of the HCP, meant for the public and in multiple languages
  *
  */
 
@@ -127,6 +128,7 @@ data class HealthcareParty(
         val picture: ByteArray? = null,
         val statuses: Set<HealthcarePartyStatus> = emptySet(),
         val statusHistory: List<HealthcarePartyHistoryStatus> = emptyList(),
+        val descr: Map<String, String>? = emptyMap(),
         @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) val specialityCodes: Set<CodeStub> = emptySet(), //Speciality codes, default is first
 
         val sendFormats: Map<TelecomType, String> = emptyMap(),
@@ -193,6 +195,7 @@ data class HealthcareParty(
             "specialityCodes" to (other.specialityCodes + this.specialityCodes),
             "sendFormats" to (other.sendFormats + this.sendFormats),
             "notes" to (this.notes ?: other.notes),
+            "descr" to (this.descr ?: other.descr),
             "financialInstitutionInformation" to mergeListsDistinct(this.financialInstitutionInformation, other.financialInstitutionInformation,
                     { a, b -> a.key?.equals(b.key) ?: false }
             ),
