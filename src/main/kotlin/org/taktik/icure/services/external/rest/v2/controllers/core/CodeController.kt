@@ -58,6 +58,7 @@ import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
+@ExperimentalStdlibApi
 @ExperimentalCoroutinesApi
 @FlowPreview
 @RestController("codeControllerV2")

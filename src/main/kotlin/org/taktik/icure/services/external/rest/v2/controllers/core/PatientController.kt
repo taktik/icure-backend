@@ -73,6 +73,7 @@ import reactor.core.publisher.Mono
 import java.io.Serializable
 import java.time.Instant
 
+@ExperimentalStdlibApi
 @ExperimentalCoroutinesApi
 @RestController("patientControllerV2")
 @RequestMapping("/rest/v2/patient")

@@ -57,6 +57,7 @@ import org.taktik.icure.utils.injectReactorContext
  * is not required by default and overrides it, so we have to make sure they always match!
  * Nicknames are required so that operationId is e.g. 'modifyAccessLog' instead of 'modifyAccessLogUsingPUT' */
 
+@ExperimentalStdlibApi
 @ExperimentalCoroutinesApi
 @RestController("userControllerV2")
 @RequestMapping("/rest/v2/user")

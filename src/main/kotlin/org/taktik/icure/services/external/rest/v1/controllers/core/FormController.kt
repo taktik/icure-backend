@@ -61,7 +61,6 @@ import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
-@OptIn(ExperimentalStdlibApi::class)
 @ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/form")
@@ -72,7 +71,6 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
                      private val formMapper: FormMapper,
                      private val formTemplateMapper: FormTemplateMapper,
                      private val delegationMapper: DelegationMapper,
-                     private val filterMapper: FilterMapper,
                      private val stubMapper: StubMapper
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)

@@ -24,7 +24,7 @@ import org.taktik.icure.domain.filter.Filters
 import org.taktik.icure.entities.User
 import java.util.Locale
 
-@OptIn(ExperimentalStdlibApi::class)
+@ExperimentalStdlibApi
 @KotlinBuilder
 data class UserByNameEmailPhoneFilter(
         override val searchString: String,

@@ -24,7 +24,7 @@ import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 
-@OptIn(ExperimentalStdlibApi::class)
+@ExperimentalStdlibApi
 @Service
 class FilterChainMapper(val filterMapper: FilterMapper) {
     fun <O: Identifiable<String>> map(filterChain: org.taktik.icure.domain.filter.chain.FilterChain<O>): FilterChain<O> =
