@@ -17,6 +17,8 @@
  */
 package org.taktik.icure.asynclogic.impl.filter.contact
 
+import javax.security.auth.login.LoginException
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -30,8 +32,6 @@ import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.domain.filter.contact.ContactByHcPartyPatientTagCodeDateFilter
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.utils.getLoggedHealthCarePartyId
-import java.util.*
-import javax.security.auth.login.LoginException
 
 @Service
 class ContactByHcPartyPatientTagCodeDateFilter(private val contactLogic: ContactLogic,
@@ -44,27 +44,34 @@ class ContactByHcPartyPatientTagCodeDateFilter(private val contactLogic: Contact
 
             var ids: HashSet<String>? = null
             if (filter.tagType != null && filter.tagCode != null) {
-                ids = HashSet(contactLogic.listServiceIdsByTag(
+                ids = HashSet(contactLogic.listContactIdsByTag(
                         hcPartyId,
-                        patientSecretForeignKeys,
                         filter.tagType!!,
                         filter.tagCode!!,
-                        filter.startServiceValueDate, filter.endServiceValueDate).toSet())
+                        filter.startOfContactOpeningDate, filter.endOfContactOpeningDate).toSet())
             }
             if (filter.codeType != null && filter.codeCode != null) {
-                val byCode = contactLogic.listServiceIdsByCode(
+                val byCode = contactLogic.listContactIdsByCode(
                         hcPartyId,
-                        patientSecretForeignKeys,
-                        filter.tagType!!,
-                        filter.tagCode!!,
-                        filter.startServiceValueDate, filter.endServiceValueDate).toList()
+                        filter.codeType!!,
+                        filter.codeCode!!,
+                        filter.startOfContactOpeningDate, filter.endOfContactOpeningDate).toList()
                 if (ids == null) {
                     ids = HashSet(byCode)
                 } else {
                     ids.retainAll(byCode)
                 }
             }
-            emitAll(if (ids != null) contactLogic.listIdsByServices(ids) else flowOf())
+            if (!filter.patientSecretForeignKeys.isNullOrEmpty()) {
+                val byPatient = contactLogic.listContactIdsByHCPartyAndPatient(hcPartyId, filter.patientSecretForeignKeys!!).toList()
+
+                if (ids == null) {
+                    ids = HashSet(byPatient)
+                } else {
+                    ids.retainAll(byPatient)
+                }
+            }
+            emitAll(ids?.asFlow() ?: flowOf())
         } catch (e: LoginException) {
             throw IllegalArgumentException(e)
         }

@@ -33,11 +33,11 @@ data class ContactByHcPartyPatientTagCodeDateFilter(
         override val tagCode: String? = null,
         override val codeType: String? = null,
         override val codeCode: String? = null,
-        override val startServiceValueDate: Long? = null,
-        override val endServiceValueDate: Long? = null
+        override val startOfContactOpeningDate: Long? = null,
+        override val endOfContactOpeningDate: Long? = null
 ) : AbstractFilter<Contact>, org.taktik.icure.domain.filter.contact.ContactByHcPartyPatientTagCodeDateFilter {
     override fun hashCode(): Int {
-        return Objects.hashCode(healthcarePartyId, tagType, tagCode, codeType, codeCode, startServiceValueDate, endServiceValueDate)
+        return Objects.hashCode(healthcarePartyId, tagType, tagCode, codeType, codeCode, startOfContactOpeningDate, endOfContactOpeningDate)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -48,7 +48,7 @@ data class ContactByHcPartyPatientTagCodeDateFilter(
             return false
         }
         val filter = other as ContactByHcPartyPatientTagCodeDateFilter
-        return Objects.equal(healthcarePartyId, filter.healthcarePartyId) && Objects.equal(patientSecretForeignKeys, filter.patientSecretForeignKeys) && Objects.equal(tagType, filter.tagType) && Objects.equal(tagCode, filter.tagCode) && Objects.equal(codeType, filter.codeType) && Objects.equal(codeCode, filter.codeCode) && Objects.equal(startServiceValueDate, filter.startServiceValueDate) && Objects.equal(endServiceValueDate, filter.endServiceValueDate)
+        return Objects.equal(healthcarePartyId, filter.healthcarePartyId) && Objects.equal(patientSecretForeignKeys, filter.patientSecretForeignKeys) && Objects.equal(tagType, filter.tagType) && Objects.equal(tagCode, filter.tagCode) && Objects.equal(codeType, filter.codeType) && Objects.equal(codeCode, filter.codeCode) && Objects.equal(startOfContactOpeningDate, filter.startOfContactOpeningDate) && Objects.equal(endOfContactOpeningDate, filter.endOfContactOpeningDate)
     }
 
     override fun matches(item: Contact): Boolean {
@@ -57,8 +57,8 @@ data class ContactByHcPartyPatientTagCodeDateFilter(
                 && (tagType == null || item.services.any { svc ->
             (svc.tags.any { t -> tagType == t.type && (tagCode == null || tagCode == t.code) }
                     && (codeType == null || svc.codes.any { cs -> codeType == cs.type && (codeCode == null || codeCode == cs.code) })
-                    && (startServiceValueDate == null || svc.valueDate != null && svc.valueDate > startServiceValueDate!! || svc.openingDate != null && svc.openingDate > startServiceValueDate!!)
-                    && (endServiceValueDate == null || svc.valueDate != null && svc.valueDate < endServiceValueDate!! || svc.openingDate != null && svc.openingDate < endServiceValueDate!!))
+                    && (startOfContactOpeningDate == null || svc.valueDate != null && svc.valueDate > startOfContactOpeningDate!! || svc.openingDate != null && svc.openingDate > startOfContactOpeningDate!!)
+                    && (endOfContactOpeningDate == null || svc.valueDate != null && svc.valueDate < endOfContactOpeningDate!! || svc.openingDate != null && svc.openingDate < endOfContactOpeningDate!!))
         }))
     }
 }

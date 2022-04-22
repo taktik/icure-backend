@@ -113,6 +113,17 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryViewIncludeDocs<Array<String>, String, Contact>(viewQuery).distinctUntilChangedBy { it.id }.map { it.doc })
     }
 
+    @View(name = "by_hcparty_patientfk", map = "classpath:js/contact/By_hcparty_patientfk_map.js")
+    override fun listContactIdsByHcPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<String> = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+        val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
+
+        val viewQuery = createQuery(client, "by_hcparty_patientfk").keys(keys).includeDocs(false)
+
+        emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
+    }
+
     @View(name = "by_hcparty_formid", map = "classpath:js/contact/By_hcparty_formid_map.js")
     override fun listContactsByHcPartyAndFormId(hcPartyId: String, formId: String): Flow<Contact> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)

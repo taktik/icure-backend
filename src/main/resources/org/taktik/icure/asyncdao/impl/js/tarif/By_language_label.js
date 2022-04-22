@@ -1,11 +1,13 @@
 map = function(doc) {
-    var emit_normalized_substrings = function(region,language,text,latin_map) {
-			text.trim().split(/[ |/]+/).forEach(function(word) {
-        var r = word.toLowerCase().replace(/[^A-Za-z0-9]/g,function(a){return latin_map[a]||""});
-        if (r.length) {
-          emit([region, language, r], 1);
-        }
-      });
+    var emit_normalized_substrings = function(text,latin_map) {
+        var words = []
+        text.trim().split(/[ |/]+/).forEach(function(word) {
+            var r = word.toLowerCase().replace(/[^A-Za-z0-9]/g,function(a){return latin_map[a]||""});
+            if (r.length) {
+                words.push(r);
+            }
+        });
+        return words;
     };
 
     if (doc.java_type == 'org.taktik.icure.entities.Tarification' && !doc.deleted) {
@@ -37,20 +39,34 @@ map = function(doc) {
             "ʐ":"z","ƶ":"z","ɀ":"z","ﬀ":"ff","ﬃ":"ffi","ﬄ":"ffl","ﬁ":"fi","ﬂ":"fl","ĳ":"ij","œ":"oe","ﬆ":"st","ₐ":"a","ₑ":"e","ᵢ":"i","ⱼ":"j",
             "ₒ":"o","ᵣ":"r","ᵤ":"u","ᵥ":"v","ₓ":"x"};
         doc.regions.forEach(function (r) {
+            var wordsPerLanguage = {}
             Object.keys(doc.label).forEach(function (l) {
-							if (doc.type && doc.type.length) emit_normalized_substrings(r, l, doc.type, latin_map);
-							if (doc.code && doc.code.length) emit_normalized_substrings(r, l, doc.code, latin_map);
-							if (doc.label[l]) {
-									emit_normalized_substrings(r, l, doc.label[l],latin_map);
+                var words = wordsPerLanguage[l] || (wordsPerLanguage[l] = {})
+                if (doc.type && doc.type.length) emit_normalized_substrings(doc.type, latin_map).forEach(function (w) {
+                    words[w] = true
+                });
+                if (doc.code && doc.code.length) emit_normalized_substrings(doc.code, latin_map).forEach(function (w) {
+                    words[w] = true
+                });
+                if (doc.label[l]) {
+                    emit_normalized_substrings(doc.label[l], latin_map).forEach(function (w) {
+                        words[w] = true
+                    });
                 }
             });
             if (doc.searchTerms) {
                 Object.keys(doc.searchTerms).forEach(function (l) {
+                    var words = wordsPerLanguage[l] || (wordsPerLanguage[l] = {})
                     doc.searchTerms[l].forEach(function (t) {
-                        emit_normalized_substrings(r, l, t, latin_map);
+                        emit_normalized_substrings(t, latin_map).forEach(function(w) { words[w] = true });
                     });
                 });
             }
+            Object.keys(wordsPerLanguage).forEach(function(l) {
+                Object.keys(wordsPerLanguage[l]).forEach(function(w) {
+                    emit([r, l, w], 1);
+                })
+            })
         });
     }
-};
+}
