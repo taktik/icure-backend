@@ -61,6 +61,7 @@ import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
+@OptIn(ExperimentalStdlibApi::class)
 @ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/form")
