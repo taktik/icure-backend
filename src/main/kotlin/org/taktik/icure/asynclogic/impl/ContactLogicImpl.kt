@@ -82,6 +82,10 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(contactDAO.listContactsByHcPartyAndPatient(hcPartyId, secretPatientKeys))
     }
 
+    override fun listContactIdsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<String> = flow {
+        emitAll(contactDAO.listContactIdsByHcPartyAndPatient(hcPartyId, secretPatientKeys))
+    }
+
     override suspend fun addDelegation(contactId: String, delegation: Delegation): Contact? {
         val contact = getContact(contactId)
         return delegation.delegatedTo?.let { healthcarePartyId ->
