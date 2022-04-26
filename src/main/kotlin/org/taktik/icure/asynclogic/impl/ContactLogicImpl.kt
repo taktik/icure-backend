@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
@@ -32,7 +31,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.toSet
 import org.slf4j.LoggerFactory
@@ -273,7 +271,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     }
 
     override fun filterContacts(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<Contact>)= flow<ViewQueryResultEvent> {
-        val ids = filters.resolve(filter.filter)
+        val ids = filters.resolve(filter.filter).toSet(TreeSet())
 
         val sortedIds = if (paginationOffset.startDocumentId != null) { // Sub-set starting from startDocId to the end (including last element)
             ids.dropWhile { it != paginationOffset.startDocumentId }
@@ -287,14 +285,12 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     override fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<org.taktik.icure.entities.embed.Service>) = flow {
         val ids = filters.resolve(filter.filter).toSet(TreeSet())
 
-        emitAll(
-            aggregateResults(
-                ids = ids,
-                limit = paginationOffset.limit,
-                supplier = { serviceIds: Collection<String> -> filter.applyTo(getServices(serviceIds.toList())) },
-                startDocumentId = paginationOffset.startDocumentId
-            )
-        )
+        aggregateResults(
+            ids = ids,
+            limit = paginationOffset.limit,
+            supplier = { serviceIds: Collection<String> -> filter.applyTo(getServices(serviceIds.toList())) },
+            startDocumentId = paginationOffset.startDocumentId
+        ).forEach { emit(it) }
     }
 
     override fun solveConflicts() = contactDAO.listConflicts().mapNotNull { contactDAO.get(it.id, Option.CONFLICTS)?.let { contact ->

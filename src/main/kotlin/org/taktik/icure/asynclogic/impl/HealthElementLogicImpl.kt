@@ -167,14 +167,12 @@ class HealthElementLogicImpl(private val filters: Filters,
     override fun filter(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<HealthElement>) =
         flow<ViewQueryResultEvent> {
             val ids = filters.resolve(filter.filter).toSet(TreeSet())
-            emitAll(
-                aggregateResults(
-                    ids = ids,
-                    limit = paginationOffset.limit,
-                    supplier = { healthElementIds: Collection<String> -> healthElementDAO.findHealthElementsByIds(healthElementIds.asFlow()) },
-                    startDocumentId = paginationOffset.startDocumentId
-                )
-            )
+            aggregateResults(
+                ids = ids,
+                limit = paginationOffset.limit,
+                supplier = { healthElementIds: Collection<String> -> healthElementDAO.findHealthElementsByIds(healthElementIds.asFlow()) },
+                startDocumentId = paginationOffset.startDocumentId
+            ).forEach { emit(it) }
         }
 
     companion object {
