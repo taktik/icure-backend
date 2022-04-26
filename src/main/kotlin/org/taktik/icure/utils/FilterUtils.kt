@@ -55,7 +55,7 @@ tailrec suspend fun <T> aggregateResults(
         flowOf(supplier(sortedIds.take(heuristicLimit)).filter { filter(it) }, entities).flattenConcat()
     val remainingIds = ids.drop(heuristicLimit)
 
-    if (remainingIds.count() == 0 || filteredEntities.count() >= limit) {
+    if (remainingIds.isEmpty() || filteredEntities.count() >= limit) {
         return filteredEntities.take(limit)
     }
     return aggregateResults(remainingIds, limit, supplier, filter, filteredEntities)
