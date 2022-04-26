@@ -99,7 +99,7 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
                 .endKey(hcPartyId)
                 .includeDocs(false)
 
-        emitAll(client.queryView<String, String>(viewQuery).mapNotNull { it.value })
+        emitAll(client.queryView<String, String>(viewQuery).mapNotNull { it.id }.distinctUntilChanged())
     }
 
     @View(name = "by_hcparty_patientfk", map = "classpath:js/contact/By_hcparty_patientfk_map.js")
