@@ -41,6 +41,6 @@ data class ContactByHcPartyPatientTagCodeDateFilter(
         override val tagCode: String? = null,
         override val codeType: String? = null,
         override val codeCode: String? = null,
-        override val startServiceValueDate: Long? = null,
-        override val endServiceValueDate: Long? = null
+        override val startOfContactOpeningDate: Long? = null,
+        override val endOfContactOpeningDate: Long? = null
 ) : AbstractFilterDto<Contact>, org.taktik.icure.domain.filter.contact.ContactByHcPartyPatientTagCodeDateFilter

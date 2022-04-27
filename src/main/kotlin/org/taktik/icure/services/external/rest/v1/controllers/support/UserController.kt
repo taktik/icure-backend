@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -41,7 +42,6 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.User
 import org.taktik.icure.services.external.rest.v1.dto.PropertyStubDto
 import org.taktik.icure.services.external.rest.v1.dto.UserDto
@@ -136,7 +136,9 @@ class UserController(
 
     @Operation(summary = "Get the list of users by healthcare party id")
     @GetMapping("/byHealthcarePartyId/{id}")
-    fun findByHcpartyId(@PathVariable id: String) = userLogic.findByHcpartyId(id).injectReactorContext()
+    fun findByHcpartyId(@PathVariable id: String) = mono {
+        userLogic.findByHcpartyId(id).toList()
+    }
 
     @Operation(summary = "Delete a User based on his/her ID.", description = "Delete a User based on his/her ID. The return value is an array containing the ID of deleted user.")
     @DeleteMapping("/{userId}")

@@ -172,7 +172,7 @@ class PatientLogicImpl(
                 supplier = { patientIds: Collection<String> -> patientDAO.findPatients(patientIds) },
                 filter = { queryResult: ViewQueryResultEvent ->
                     filterChain.predicate?.let { queryResult is ViewRowWithDoc<*, *, *> && it.apply(queryResult.doc as Patient) }
-                        ?: true
+                        ?: (queryResult is ViewRowWithDoc<*, *, *> && queryResult.doc is Patient)
                 },
                 startDocumentId = paginationOffset.startDocumentId
             )

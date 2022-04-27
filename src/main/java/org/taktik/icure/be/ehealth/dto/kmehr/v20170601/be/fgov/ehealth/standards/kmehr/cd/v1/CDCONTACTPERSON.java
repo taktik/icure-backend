@@ -71,7 +71,7 @@ public class CDCONTACTPERSON
     @XmlAttribute(name = "S", required = true)
     protected String s = "CD-CONTACT-PERSON";
     @XmlAttribute(name = "SV", required = true)
-    protected String sv = "1.0";
+    protected String sv = "1.2";
     @XmlAttribute(name = "DN")
     protected String dn;
     @XmlAttribute(name = "L")

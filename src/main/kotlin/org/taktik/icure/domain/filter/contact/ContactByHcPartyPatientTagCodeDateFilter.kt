@@ -29,6 +29,6 @@ interface ContactByHcPartyPatientTagCodeDateFilter : Filter<String, Contact> {
     val tagCode: String?
     val codeType: String?
     val codeCode: String?
-    val startServiceValueDate: Long?
-    val endServiceValueDate: Long?
+    val startOfContactOpeningDate: Long?
+    val endOfContactOpeningDate: Long?
 }
