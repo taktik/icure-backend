@@ -72,6 +72,7 @@ import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.util.Optional
 
+@ExperimentalStdlibApi
 @FlowPreview
 @ExperimentalCoroutinesApi
 @RestController("invoiceControllerV2")

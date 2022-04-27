@@ -34,13 +34,15 @@ interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
     fun buildStandardUser(userName: String, password: String): User
     fun encodePassword(password: String): String
     fun findByHcpartyId(hcpartyId: String): Flow<String>
+    fun findByNameEmailPhone(searchString: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
     fun getExpiredUsers(fromExpirationDate: Instant, toExpirationDate: Instant): Flow<User>
     fun getProperties(userId: String): Flow<PropertyStub>
     fun getRoles(user: User): Flow<Role>
     fun getUsers(ids: List<String>): Flow<User>
     fun getUsersByLogin(login: String): Flow<User>
-    fun listUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
     fun listUsersByEmailOnFallbackDb(email: String): Flow<User>
+    fun listUserIdsByNameEmailPhone(searchString: String): Flow<String>
+    fun listUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
     fun listUsersByLoginOnFallbackDb(login: String): Flow<User>
     fun removeListener(listener: UserLogicListener)
     suspend fun checkPassword(password: String): Boolean

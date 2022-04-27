@@ -72,6 +72,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.Instant
 
+@ExperimentalStdlibApi
 @ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/patient")

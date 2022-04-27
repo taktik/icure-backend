@@ -35,6 +35,7 @@ import org.taktik.icure.services.external.rest.v2.mapper.filter.FilterChainV2Map
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
+@ExperimentalStdlibApi
 @ExperimentalCoroutinesApi
 @RestController("deviceControllerV2")
 @RequestMapping("/rest/v2/device")

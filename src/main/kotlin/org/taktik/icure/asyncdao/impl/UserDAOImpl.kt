@@ -30,7 +30,7 @@ import org.taktik.couchdb.update
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.HealthcareParty
+import org.taktik.couchdb.queryView
 import org.taktik.icure.entities.User
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
@@ -109,6 +109,22 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryViewIncludeDocsNoValue<String,User>(createQuery(client, "by_hcp_id").key(hcPartyId).includeDocs(true)).map { it.doc })
     }
 
+    @View(name = "by_name_email_phone", map = "classpath:js/user/By_name_email_phone.js")
+    override fun listUserIdsByNameEmailPhone(searchString: String): Flow<String> = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        emitAll(client.queryView<String, Int>(createQuery(client, "by_name_email_phone").startKey(searchString).endKey("$searchString\ufff0").includeDocs(false)).map { it.id })
+    }
+
+    override fun findUsersByNameEmailPhone(
+            searchString: String,
+            pagination: PaginationOffset<String>
+    ): Flow<ViewQueryResultEvent> = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+        val viewQuery = pagedViewQuery<User, String>(client, "by_name_email_phone", searchString, "$searchString\ufff0", pagination, false)
+        emitAll(client.queryView(viewQuery, String::class.java, Nothing::class.java, User::class.java))
+    }
+
     override fun findByUsernameOnFallback(login: String): Flow<User> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
@@ -169,4 +185,5 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(client.getForPagination(userIds, User::class.java))
     }
+
 }

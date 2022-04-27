@@ -71,7 +71,6 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
                      private val formMapper: FormMapper,
                      private val formTemplateMapper: FormTemplateMapper,
                      private val delegationMapper: DelegationMapper,
-                     private val filterMapper: FilterMapper,
                      private val stubMapper: StubMapper
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
