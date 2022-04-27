@@ -19,7 +19,6 @@ package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
@@ -173,7 +172,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
                 }
                 toEmit
             }
-        emitAll(servicesToEmit.values.toSortedSet(compareBy { it.id }).asFlow())
+        servicesToEmit.values.toSortedSet(compareBy { service -> service.id }).forEach { emit(it) }
     }
 
     override fun getServicesLinkedTo(ids: List<String>, linkType: String?): Flow<org.taktik.icure.entities.embed.Service> = flow {

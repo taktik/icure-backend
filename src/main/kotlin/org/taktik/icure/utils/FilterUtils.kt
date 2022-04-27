@@ -43,12 +43,12 @@ tailrec suspend fun <T> aggregateResults(
 ): List<T> {
     val heuristicLimit = limit * heuristic
 
-    val sortedIds = (startDocumentId?.takeIf { entities.isEmpty() }?.let {
+    val sortedIds = (startDocumentId?.let {
         ids.dropWhile { id -> it != id }
     } ?: ids)
 
     val filteredEntities = entities + supplier(sortedIds.take(heuristicLimit)).filter { filter(it) }.toList()
-    val remainingIds = ids.drop(heuristicLimit)
+    val remainingIds = sortedIds.drop(heuristicLimit)
 
     if (remainingIds.isEmpty() || filteredEntities.count() >= limit) {
         return filteredEntities.take(limit)
