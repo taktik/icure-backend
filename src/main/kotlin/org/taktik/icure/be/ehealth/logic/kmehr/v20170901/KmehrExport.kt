@@ -269,7 +269,7 @@ open class KmehrExport(
 
             this.contents.addAll(filterEmptyContent(contents))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
-                value = if ((ServiceStatus.isIrrelevant(he.status) && !ServiceStatus.isActive(he.status)) || he.closingDate ?: 0 < FuzzyValues.getCurrentFuzzyDate())
+                value = if ((ServiceStatus.isIrrelevant(he.status) && !ServiceStatus.isActive(he.status)) || (he.closingDate ?: 99999999 < FuzzyValues.getCurrentFuzzyDate()))
                     CDLIFECYCLEvalues.INACTIVE
                 else
                     he.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) } ?: CDLIFECYCLEvalues.ACTIVE
