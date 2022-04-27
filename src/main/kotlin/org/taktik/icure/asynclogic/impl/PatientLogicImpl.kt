@@ -32,7 +32,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.toSet
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.lang3.StringUtils
@@ -205,7 +204,7 @@ class PatientLogicImpl(
                 }
                 emitAll(patientsListToSort.asFlow())
             } else {
-            emitAll(forPagination)
+            forPagination.forEach { emit(it) }
         }
     }
 
