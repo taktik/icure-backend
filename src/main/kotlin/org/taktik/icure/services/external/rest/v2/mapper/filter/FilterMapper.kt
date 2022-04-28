@@ -43,30 +43,10 @@ import org.taktik.icure.services.external.rest.v2.dto.filter.device.DeviceByHcPa
 import org.taktik.icure.services.external.rest.v2.dto.filter.device.DeviceByIdsFilter
 import org.taktik.icure.services.external.rest.v2.dto.filter.hcparty.AllHealthcarePartiesFilter
 import org.taktik.icure.services.external.rest.v2.dto.filter.hcparty.HealthcarePartyByIdsFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.healthelement.HealthElementByHcPartyFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.healthelement.HealthElementByHcPartyIdentifiersFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.healthelement.HealthElementByHcPartySecretForeignKeysFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.healthelement.HealthElementByHcPartyTagCodeFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.healthelement.HealthElementByIdsFilter
+import org.taktik.icure.services.external.rest.v2.dto.filter.healthelement.*
 import org.taktik.icure.services.external.rest.v2.dto.filter.invoice.InvoiceByHcPartyCodeDateFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.patient.PatientByHcPartyAndActiveFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.patient.PatientByHcPartyAndExternalIdFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.patient.PatientByHcPartyAndIdentifiersFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.patient.PatientByHcPartyAndSsinFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.patient.PatientByHcPartyAndSsinsFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.patient.PatientByHcPartyDateOfBirthBetweenFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.patient.PatientByHcPartyDateOfBirthFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.patient.PatientByHcPartyFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.patient.PatientByHcPartyGenderEducationProfession
-import org.taktik.icure.services.external.rest.v2.dto.filter.patient.PatientByHcPartyNameContainsFuzzyFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.patient.PatientByHcPartyNameFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.patient.PatientByIdsFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.service.ServiceByContactsAndSubcontactsFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.service.ServiceByHcPartyFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.service.ServiceByHcPartyIdentifiersFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.service.ServiceByIdsFilter
-import org.taktik.icure.services.external.rest.v2.dto.filter.service.ServiceBySecretForeignKeys
+import org.taktik.icure.services.external.rest.v2.dto.filter.patient.*
+import org.taktik.icure.services.external.rest.v2.dto.filter.service.*
 import org.taktik.icure.services.external.rest.v2.dto.filter.user.AllUsersFilter
 import org.taktik.icure.services.external.rest.v2.dto.filter.user.UserByIdsFilter
 import org.taktik.icure.services.external.rest.v2.dto.filter.user.UserByNameEmailPhoneFilter
@@ -97,6 +77,7 @@ abstract class FilterV2Mapper {
     abstract fun map(filterDto: ServiceByContactsAndSubcontactsFilter): org.taktik.icure.domain.filter.impl.service.ServiceByContactsAndSubcontactsFilter
     abstract fun map(filterDto: ServiceByHcPartyTagCodeDateFilter): org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyTagCodeDateFilter
     abstract fun map(filterDto: ServiceByHcPartyIdentifiersFilter): org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyIdentifiersFilter
+    abstract fun map(filterDto: ServiceByHcPartyHealthElementIdsFilter): org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyHealthElementIdsFilter
     abstract fun map(filterDto: ServiceBySecretForeignKeys): org.taktik.icure.domain.filter.impl.service.ServiceBySecretForeignKeys
     abstract fun map(filterDto: DeviceByHcPartyFilter): org.taktik.icure.domain.filter.impl.device.DeviceByHcPartyFilter
     abstract fun map(filterDto: AllCodesFilter): org.taktik.icure.domain.filter.impl.code.AllCodesFilter
@@ -162,6 +143,7 @@ abstract class FilterV2Mapper {
             is ServiceByContactsAndSubcontactsFilter -> map(filterDto)
             is ServiceByHcPartyTagCodeDateFilter -> map(filterDto)
             is ServiceByHcPartyIdentifiersFilter -> map(filterDto)
+            is ServiceByHcPartyHealthElementIdsFilter -> map(filterDto)
             is ServiceBySecretForeignKeys -> map(filterDto)
             is DeviceByHcPartyFilter -> map(filterDto)
             is UnionFilter -> mapToDto(filterDto)
@@ -208,6 +190,7 @@ abstract class FilterV2Mapper {
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceByContactsAndSubcontactsFilter): ServiceByContactsAndSubcontactsFilter
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyTagCodeDateFilter): ServiceByHcPartyTagCodeDateFilter
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyIdentifiersFilter): ServiceByHcPartyIdentifiersFilter
+    abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyHealthElementIdsFilter): ServiceByHcPartyHealthElementIdsFilter
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceBySecretForeignKeys): ServiceBySecretForeignKeys
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.device.DeviceByHcPartyFilter): DeviceByHcPartyFilter
     abstract fun map(filter: org.taktik.icure.domain.filter.impl.code.AllCodesFilter): AllCodesFilter
@@ -275,6 +258,7 @@ abstract class FilterV2Mapper {
             is org.taktik.icure.domain.filter.impl.service.ServiceByContactsAndSubcontactsFilter -> map(filter)
             is org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyTagCodeDateFilter -> map(filter)
             is org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyIdentifiersFilter -> map(filter)
+            is org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyHealthElementIdsFilter -> map(filter)
             is org.taktik.icure.domain.filter.impl.service.ServiceBySecretForeignKeys -> map(filter)
             is org.taktik.icure.domain.filter.impl.device.DeviceByHcPartyFilter -> map(filter)
             is org.taktik.icure.domain.filter.impl.UnionFilter -> mapToDomain(filter)
