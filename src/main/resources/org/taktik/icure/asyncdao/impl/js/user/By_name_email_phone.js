@@ -9,7 +9,7 @@ function(doc) {
         });
     }
 
-    if (doc.java_type == 'org.taktik.icure.entities.Group' && !doc.deleted) {
+    if (doc.java_type === 'org.taktik.icure.entities.User' && !doc.deleted) {
         var latin_map={"á":"a","ă":"a","ắ":"a","ặ":"a","ằ":"a","ẳ":"a","ẵ":"a","ǎ":"a","â":"a","ấ":"a","ậ":"a","ầ":"a","ẩ":"a","ẫ":"a","ä":"a","ǟ":"a","ȧ":"a",
             "ǡ":"a","ạ":"a","ȁ":"a","à":"a","ả":"a","ȃ":"a","ā":"a","ą":"a","ᶏ":"a","ẚ":"a","å":"a","ǻ":"a","ḁ":"a","ⱥ":"a","ã":"a","ꜳ":"aa","æ":"ae",
             "ǽ":"ae","ǣ":"ae","ꜵ":"ao","ꜷ":"au","ꜹ":"av","ꜻ":"av","ꜽ":"ay","ḃ":"b","ḅ":"b","ɓ":"b","ḇ":"b","ᵬ":"b","ᶀ":"b","ƀ":"b","ƃ":"b","ɵ":"o",
@@ -37,27 +37,27 @@ function(doc) {
             "ỷ":"y","ỿ":"y","ȳ":"y","ẙ":"y","ɏ":"y","ỹ":"y","ź":"z","ž":"z","ẑ":"z","ʑ":"z","ⱬ":"z","ż":"z","ẓ":"z","ȥ":"z","ẕ":"z","ᵶ":"z","ᶎ":"z",
             "ʐ":"z","ƶ":"z","ɀ":"z","ﬀ":"ff","ﬃ":"ffi","ﬄ":"ffl","ﬁ":"fi","ﬂ":"fl","ĳ":"ij","œ":"oe","ﬆ":"st","ₐ":"a","ₑ":"e","ᵢ":"i","ⱼ":"j",
             "ₒ":"o","ᵣ":"r","ᵤ":"u","ᵥ":"v","ₓ":"x"};
-    }
 
-    var words = []
-    if (doc.login && doc.login.length) {
-        words = words.concat(normalize_substrings(doc.login, latin_map))
-    }
-    if (doc.name && doc.name.length) {
-        words = words.concat(normalize_substrings(doc.name, latin_map))
-    }
-    if (doc.email && doc.email.length) {
-        words = words.concat(normalize_substrings(doc.email, latin_map))
-    }
-    if (doc.mobilePhone && doc.mobilePhone.length) {
-        words = words.concat(normalize_substrings(doc.mobilePhone, latin_map))
-    }
-    if (doc.status && doc.status.length) {
-        words = words.concat(normalize_substrings(doc.status, latin_map))
-    }
-    words.sort().forEach(function (t, idx) {
-        if (idx === words.length - 1 || !(words[idx + 1].indexOf(t) === 0)) {
-            emit(t, 1)
+        var words = []
+        if (doc.login && doc.login.length) {
+            words = words.concat(normalize_substrings(doc.login, latin_map))
         }
-    })
+        if (doc.name && doc.name.length) {
+            words = words.concat(normalize_substrings(doc.name, latin_map))
+        }
+        if (doc.email && doc.email.length) {
+            words = words.concat(normalize_substrings(doc.email, latin_map))
+        }
+        if (doc.mobilePhone && doc.mobilePhone.length) {
+            words = words.concat(normalize_substrings(doc.mobilePhone.replace(/[^0-9]/g,''), latin_map))
+        }
+        if (doc.status && doc.status.length) {
+            words = words.concat(normalize_substrings(doc.status, latin_map))
+        }
+        words.sort().forEach(function (t, idx) {
+            if (idx === words.length - 1 || !(words[idx + 1].indexOf(t) === 0)) {
+                emit(t, 1)
+            }
+        })
+    }
 }

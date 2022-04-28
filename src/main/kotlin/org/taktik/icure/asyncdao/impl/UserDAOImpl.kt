@@ -42,7 +42,7 @@ import java.time.Instant
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) emit( null, doc._rev )}")
 class UserDAOImpl(couchDbProperties: CouchDbProperties,
                   @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager) : CachedDAOImpl<User>(User::class.java, couchDbProperties, couchDbDispatcher, idGenerator, asyncCacheManager), UserDAO {
-    @View(name = "by_exp_date", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.expirationDate.epochSecond, doc._id)  }}")
+    @View(name = "by_exp_date", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted && doc.expirationDate) {emit(doc.expirationDate.epochSecond, doc._id)  }}")
     override fun getExpiredUsers(fromExpirationInstant: Instant, toExpirationInstant: Instant): Flow<User> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
@@ -65,17 +65,11 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryViewIncludeDocsNoValue<String, User>(createQuery(client, "by_email").includeDocs(true).key(email)).mapNotNull { it.doc })
     }
 
-    @View(name = "by_phone", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted && doc.mobilePhone) { var m = doc.mobilePhone.trim(); emit(m.startsWith('+') ? '+' + m.replace(/[^0-9]/g, '') : m.replace(/[^0-9]/g, ''), null)}}")
+    @View(name = "by_phone", map = "classpath:js/user/By_phone.js")
     override fun listUsersByPhone(phone: String): Flow<User> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-
-        val nationalCodeRegex = Regex("^\\+(1|2[07]|2[1234569][0-9]|3[0123469]|3[578][0_9]|4[013-9]|42[0-9]|5[1-8]|5[09][0-9]|6[0-6]|6[789][0-9]|7[0-9]|8[1246]|8[0578][0-9]|9[80-5]|9[679][0-9])")
         val fullNormalized = phone.trim().let { if (it.startsWith("+")) "+${it.substring(1).replace(Regex("[^0-9]"), "")}" else it.replace(Regex("[^0-9]"),"")}
-        val noNationalCode = phone.replace(nationalCodeRegex, "")
-        val zeroPrefixedNoNationalCode = "0$noNationalCode"
-
-
-        emitAll(client.queryViewIncludeDocsNoValue<String, User>(createQuery(client, "by_phone").includeDocs(true).keys(listOf(fullNormalized, zeroPrefixedNoNationalCode, noNationalCode))).mapNotNull { it.doc })
+        emitAll(client.queryViewIncludeDocsNoValue<String, User>(createQuery(client, "by_phone").includeDocs(true).key(fullNormalized)).mapNotNull { it.doc })
     }
 
     /**

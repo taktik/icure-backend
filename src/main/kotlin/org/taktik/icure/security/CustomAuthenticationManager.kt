@@ -71,14 +71,16 @@ class CustomAuthenticationManager(
                 userDAO.listUsersByUsername(username).toList() + try {
                     userDAO.listUsersByEmail(username).toList()
                 } catch (e: Exception) {
+                    log.warn("Error while loading user by email", e)
                     emptyList()
                 } + try {
                     userDAO.listUsersByPhone(username).toList()
                 } catch (e: Exception) {
+                    log.warn("Error while loading user by phone", e)
                     emptyList()
                 }
             }
-        }.filter { it.status == Users.Status.ACTIVE }.sortedBy { it.id }
+        }.filter { it.status == Users.Status.ACTIVE }.sortedBy { it.id }.distinctBy { it.id }
 
 
         val matchingUsers = mutableListOf<User>()
