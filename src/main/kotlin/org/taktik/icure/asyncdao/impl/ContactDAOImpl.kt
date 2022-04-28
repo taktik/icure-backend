@@ -337,10 +337,10 @@ class ContactDAOImpl(couchDbProperties: CouchDbProperties,
     }
 
 
-    @View(name = "service_id_by_health_elements", map = "classpath:js/contact/Service_id_by_hcparty_helement_ids.js")
+    @View(name = "service_id_by_hcparty_helements", map = "classpath:js/contact/Service_id_by_hcparty_helement_ids.js")
     override fun listServiceIdsByHcPartyHealthElementIds(hcPartyId: String, healthElementIds: List<String>) = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val queryView = createQuery(client, "service_id_by_health_elements")
+        val queryView = createQuery(client, "service_id_by_hcparty_helements")
                 .keys(healthElementIds.map {
                     ComplexKey.of(hcPartyId, it)
                 })
