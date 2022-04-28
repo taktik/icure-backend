@@ -68,7 +68,15 @@ class CustomAuthenticationManager(
                 listOfNotNull(userDAO.get(username))
             }
             else -> {
-                userDAO.listUsersByUsername(username).toList() + userDAO.listUsersByEmail(username).toList() + userDAO.listUsersByPhone(username).toList()
+                userDAO.listUsersByUsername(username).toList() + try {
+                    userDAO.listUsersByEmail(username).toList()
+                } catch (e: Exception) {
+                    emptyList()
+                } + try {
+                    userDAO.listUsersByPhone(username).toList()
+                } catch (e: Exception) {
+                    emptyList()
+                }
             }
         }.filter { it.status == Users.Status.ACTIVE }.sortedBy { it.id }
 
