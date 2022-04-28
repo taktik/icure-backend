@@ -263,15 +263,14 @@ class IncapacityExport(patientLogic: PatientLogic,
                 //     ...
                 //     text = griep ...
                 val diagnosisServices = diagnoseServices.filter{ it.tags.any { tag -> tag.id == "MS-INCAPACITYFIELD|diagnosis|1" } }
-                var addPrincipalCode = diagnoseServices.size > 1
-                headingsAndItemsAndTexts.addAll(diagnosisServices.map { svc ->
+                headingsAndItemsAndTexts.addAll(diagnosisServices.mapIndexed { index, svc ->
                     ItemType().apply {
                         ids.add(idKmehr(itemsIdx++))
                         cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "diagnosis" })
-                        if(addPrincipalCode){
-                            cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL);  sl = "MMEDIATT-ITEM"; value = "principal"})
-                            addPrincipalCode = false
+                        if (index == 0 && diagnoseServices.size > 1) {
+                            cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "MMEDIATT-ITEM"; value = "principal" })
                         }
+
                         //svc.codes has all the content
                         contents.add(ContentType().apply {
                             cds.addAll(svc.codes.map { cd ->

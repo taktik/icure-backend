@@ -39,9 +39,6 @@ import java.time.Duration
 
 @Configuration
 class CouchDbConfig(val couchDbProperties: CouchDbProperties) {
-    @Value("\${icure.couchdb.prefix}")
-    private val couchDbPrefix: String? = null
-
     val webClientWithTimeoutLogger: Log = LogFactory.getLog("org.taktik.icure.config.WebClientWithTimeout")
     val webClientLogger: Log = LogFactory.getLog("org.taktik.icure.config.WebClient")
 
@@ -87,11 +84,11 @@ class CouchDbConfig(val couchDbProperties: CouchDbProperties) {
     @Bean
     fun asyncCacheManager() = AsyncMapCacheManager()
     @Bean
-    fun patientCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, "icure-tz-mm-sam-test-ms2", "patient", couchDbProperties.username!!, couchDbProperties.password!!, 1)
+    fun patientCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, couchDbProperties.prefix, "patient", couchDbProperties.username!!, couchDbProperties.password!!, 1)
     @Bean
-    fun healthdataCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, "icure-tz-mm-sam-test-ms2", "healthdata", couchDbProperties.username!!, couchDbProperties.password!!, 1)
+    fun healthdataCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, couchDbProperties.prefix, "healthdata", couchDbProperties.username!!, couchDbProperties.password!!, 1)
     @Bean
-    fun baseCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, "icure-tz-mm-sam-test-ms2", "base", couchDbProperties.username!!, couchDbProperties.password!!, 1)
+    fun baseCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, couchDbProperties.prefix, "base", couchDbProperties.username!!, couchDbProperties.password!!, 1)
     @Bean
     fun configCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, "icure", "config", couchDbProperties.username!!, couchDbProperties.password!!, 1)
     @Bean
