@@ -21,7 +21,7 @@ class ServiceByHcPartyHealthElementIdsFilter(private val contactLogic: ContactLo
     override fun resolve(filter: ServiceByHcPartyHealthElementIdsFilter, context: Filters): Flow<String> = flow {
         try {
             val hcPartyId = filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic)
-            emitAll(contactLogic.listServiceIdsForHealthElementIds(hcPartyId, filter.healthElementIds))
+            emitAll(contactLogic.listServiceIdsByHcPartyAndHealthElementIds(hcPartyId, filter.healthElementIds))
         } catch (e: LoginException) {
             throw IllegalArgumentException(e)
         }
