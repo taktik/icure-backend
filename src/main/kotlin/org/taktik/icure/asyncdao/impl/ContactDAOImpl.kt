@@ -337,15 +337,17 @@ class ContactDAOImpl(
 		emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
 	}
 
-	@View(name = "service_id_by_health_element", map = "classpath:js/contact/Service_id_by_health_element_id.js")
-	override fun listServiceIdsForHealthElementId(healthElementId: String) = flow {
-		val client = couchDbDispatcher.getClient(dbInstanceUrl)
-
-		val queryView = createQuery(client, "service_id_by_health_element")
-			.key(healthElementId)
+	@View(name = "service_id_by_health_elements", map = "classpath:js/contact/Service_id_by_hcparty_helement_ids.js")
+	override fun listServiceIdsByHcPartyHealthElementIds(hcPartyId: String, healthElementIds: List<String>) = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        val queryView = createQuery(client, "service_id_by_health_elements")
+			.keys(healthElementIds.map {
+                    ComplexKey.of(hcPartyId, it)
+                })
 			.includeDocs(false)
 
-		emitAll(client.queryView<String, String>(queryView).mapNotNull { it.value })
+		emitAll(client.queryView<ComplexKey, String>(queryView)
+                .mapNotNull { it.value })
 	}
 
 	@View(name = "service_by_hcparty_identifier", map = "classpath:js/contact/Service_by_hcparty_identifier.js")

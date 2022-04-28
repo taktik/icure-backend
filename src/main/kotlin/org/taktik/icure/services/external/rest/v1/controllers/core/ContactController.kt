@@ -25,26 +25,11 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
@@ -74,6 +59,9 @@ import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
+import java.util.Collections
 
 @ExperimentalStdlibApi
 @ExperimentalCoroutinesApi
@@ -390,11 +378,12 @@ class ContactController(
 		@RequestParam associationId: String,
 	) = contactLogic.listServicesByAssociationId(associationId).map { svc -> serviceMapper.map(svc) }.injectReactorContext()
 
-	@Operation(summary = "List services linked to a health element", description = "Returns the list of services linked to the provided health element id")
-	@GetMapping("/service/healthElementId/{healthElementId}")
-	fun listServicesByHealthElementId(
-		@PathVariable healthElementId: String,
-	) = contactLogic.listServicesForHealthElementId(healthElementId).map { svc -> serviceMapper.map(svc) }.injectReactorContext()
+    @Operation(summary = "List services linked to a health element", description = "Returns the list of services linked to the provided health element id")
+    @GetMapping("/service/healthElementId/{healthElementId}")
+    fun listServicesByHealthElementId(
+            @PathVariable healthElementId: String,
+            @Parameter(description = "hcPartyId", required = true) @RequestParam hcPartyId: String
+    ) = contactLogic.listServicesForHealthElementIds(hcPartyId, listOf(healthElementId)).map { svc -> serviceMapper.map(svc) }.injectReactorContext()
 
 	@Operation(summary = "List contacts bu opening date parties with(out) pagination", description = "Returns a list of contacts.")
 	@GetMapping("/byOpeningDate")

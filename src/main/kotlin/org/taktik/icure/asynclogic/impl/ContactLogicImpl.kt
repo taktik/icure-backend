@@ -58,6 +58,7 @@ import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.utils.aggregateResults
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
+import java.util.*
 
 @ExperimentalCoroutinesApi
 @Service
@@ -234,14 +235,18 @@ class ContactLogicImpl(
 		emitAll(contactDAO.listServiceIdsByHcPartyAndIdentifiers(hcPartyId, identifiers))
 	}
 
-	override fun listServicesForHealthElementId(healthElementId: String) = flow {
-		val serviceIds = contactDAO.listServiceIdsForHealthElementId(healthElementId)
+	override fun listServicesForHealthElementIds(hcPartyId: String, healthElementIds: List<String>) = flow {
+		val serviceIds = listServiceIdsForHealthElementIds(hcPartyId, healthElementIds)
 		emitAll(getServices(serviceIds.toList()))
 	}
 
-	override fun listContactIdsByCode(hcPartyId: String, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?) = flow {
-		emitAll(contactDAO.listContactIdsByTag(hcPartyId, codeType, codeCode, startValueDate, endValueDate))
-	}
+	override fun listServiceIdsForHealthElementIds(hcPartyId: String, healthElementIds: List<String>) = flow {
+        emitAll(contactDAO.listServiceIdsByHcPartyHealthElementIds(hcPartyId, healthElementIds))
+    }
+
+    override fun listContactIdsByCode(hcPartyId: String, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?) = flow {
+        emitAll(contactDAO.listContactIdsByTag(hcPartyId, codeType, codeCode, startValueDate, endValueDate))
+    }
 
 	override fun listContactIds(hcPartyId: String): Flow<String> = flow {
 		emitAll(contactDAO.listContactIdsByHealthcareParty(hcPartyId))

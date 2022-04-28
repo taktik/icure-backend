@@ -77,7 +77,8 @@ abstract class FilterMapper {
 	abstract fun map(filterDto: ServiceByContactsAndSubcontactsFilter): org.taktik.icure.domain.filter.impl.service.ServiceByContactsAndSubcontactsFilter
 	abstract fun map(filterDto: ServiceByHcPartyTagCodeDateFilter): org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyTagCodeDateFilter
 	abstract fun map(filterDto: ServiceByHcPartyIdentifiersFilter): org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyIdentifiersFilter
-	abstract fun map(filterDto: ServiceBySecretForeignKeys): org.taktik.icure.domain.filter.impl.service.ServiceBySecretForeignKeys
+	abstract fun map(filterDto: ServiceByHcPartyHealthElementIdsFilter): org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyHealthElementIdsFilter
+    abstract fun map(filterDto: ServiceBySecretForeignKeys): org.taktik.icure.domain.filter.impl.service.ServiceBySecretForeignKeys
 	abstract fun map(filterDto: DeviceByHcPartyFilter): org.taktik.icure.domain.filter.impl.device.DeviceByHcPartyFilter
 	abstract fun map(filterDto: AllCodesFilter): org.taktik.icure.domain.filter.impl.code.AllCodesFilter
 	abstract fun map(filterDto: AllDevicesFilter): org.taktik.icure.domain.filter.impl.device.AllDevicesFilter
@@ -141,7 +142,8 @@ abstract class FilterMapper {
 			is ServiceByContactsAndSubcontactsFilter -> map(filterDto)
 			is ServiceByHcPartyTagCodeDateFilter -> map(filterDto)
 			is ServiceByHcPartyIdentifiersFilter -> map(filterDto)
-			is ServiceBySecretForeignKeys -> map(filterDto)
+			is ServiceByHcPartyHealthElementIdsFilter -> map(filterDto)
+            is ServiceBySecretForeignKeys -> map(filterDto)
 			is DeviceByHcPartyFilter -> map(filterDto)
 			is UnionFilter -> mapToDto(filterDto)
 			is IntersectionFilter -> mapToDto(filterDto)
@@ -187,7 +189,8 @@ abstract class FilterMapper {
 	abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceByContactsAndSubcontactsFilter): ServiceByContactsAndSubcontactsFilter
 	abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyTagCodeDateFilter): ServiceByHcPartyTagCodeDateFilter
 	abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyIdentifiersFilter): ServiceByHcPartyIdentifiersFilter
-	abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceBySecretForeignKeys): ServiceBySecretForeignKeys
+	abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyHealthElementIdsFilter): ServiceByHcPartyHealthElementIdsFilter
+    abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceBySecretForeignKeys): ServiceBySecretForeignKeys
 	abstract fun map(filter: org.taktik.icure.domain.filter.impl.device.DeviceByHcPartyFilter): DeviceByHcPartyFilter
 	abstract fun map(filter: org.taktik.icure.domain.filter.impl.code.AllCodesFilter): AllCodesFilter
 	abstract fun map(filter: org.taktik.icure.domain.filter.impl.device.AllDevicesFilter): AllDevicesFilter
@@ -253,7 +256,8 @@ abstract class FilterMapper {
 			is org.taktik.icure.domain.filter.impl.service.ServiceByContactsAndSubcontactsFilter -> map(filter)
 			is org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyTagCodeDateFilter -> map(filter)
 			is org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyIdentifiersFilter -> map(filter)
-			is org.taktik.icure.domain.filter.impl.service.ServiceBySecretForeignKeys -> map(filter)
+			is org.taktik.icure.domain.filter.impl.service.ServiceByHcPartyHealthElementIdsFilter -> map(filter)
+            is org.taktik.icure.domain.filter.impl.service.ServiceBySecretForeignKeys -> map(filter)
 			is org.taktik.icure.domain.filter.impl.device.DeviceByHcPartyFilter -> map(filter)
 			is org.taktik.icure.domain.filter.impl.UnionFilter -> mapToDomain(filter)
 			is org.taktik.icure.domain.filter.impl.IntersectionFilter -> mapToDomain(filter)
