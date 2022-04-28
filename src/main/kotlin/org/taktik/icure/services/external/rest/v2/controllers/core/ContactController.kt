@@ -411,7 +411,7 @@ class ContactController(
     fun listServicesByHealthElementId(
             @PathVariable healthElementId: String,
             @Parameter(description = "hcPartyId", required = true) @RequestParam hcPartyId: String
-    ) = contactLogic.listServicesForHealthElementIds(hcPartyId, listOf(healthElementId))
+    ) = contactLogic.listServicesByHcPartyAndHealthElementIds(hcPartyId, listOf(healthElementId))
             .map { svc -> serviceV2Mapper.map(svc) }
             .injectReactorContext()
 

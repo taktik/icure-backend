@@ -383,7 +383,7 @@ class ContactController(
     fun listServicesByHealthElementId(
             @PathVariable healthElementId: String,
             @Parameter(description = "hcPartyId", required = true) @RequestParam hcPartyId: String
-    ) = contactLogic.listServicesForHealthElementIds(hcPartyId, listOf(healthElementId)).map { svc -> serviceMapper.map(svc) }.injectReactorContext()
+    ) = contactLogic.listServicesByHcPartyAndHealthElementIds(hcPartyId, listOf(healthElementId)).map { svc -> serviceMapper.map(svc) }.injectReactorContext()
 
 	@Operation(summary = "List contacts bu opening date parties with(out) pagination", description = "Returns a list of contacts.")
 	@GetMapping("/byOpeningDate")
