@@ -18,20 +18,7 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.fold
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.flow.toSet
+import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
@@ -54,7 +41,7 @@ import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.utils.aggregateResults
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
-import java.util.TreeSet
+import java.util.*
 
 @ExperimentalCoroutinesApi
 @Service
@@ -221,9 +208,13 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(contactDAO.listServiceIdsByHcPartyAndIdentifiers(hcPartyId, identifiers))
     }
 
-    override fun listServicesForHealthElementId(healthElementId: String) = flow {
-        val serviceIds = contactDAO.listServiceIdsForHealthElementId(healthElementId)
+    override fun listServicesForHealthElementIds(hcPartyId: String, healthElementIds: List<String>) = flow {
+        val serviceIds = listServiceIdsForHealthElementIds(hcPartyId, healthElementIds)
         emitAll(getServices(serviceIds.toList()))
+    }
+
+    override fun listServiceIdsForHealthElementIds(hcPartyId: String, healthElementIds: List<String>) = flow {
+        emitAll(contactDAO.listServiceIdsByHcPartyHealthElementIds(hcPartyId, healthElementIds))
     }
 
     override fun listContactIdsByCode(hcPartyId: String, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?) = flow {
