@@ -18,8 +18,11 @@
 
 package org.taktik.icure.utils
 
-import org.taktik.icure.asynclogic.AsyncSessionLogic
 import javax.security.auth.login.LoginException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.toList
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 
 suspend fun getLoggedHealthCarePartyId(sessionLogic: AsyncSessionLogic): String {
     val user = sessionLogic.getCurrentSessionContext().getUser()
@@ -27,4 +30,28 @@ suspend fun getLoggedHealthCarePartyId(sessionLogic: AsyncSessionLogic): String 
         throw LoginException("You must be logged to perform this action. ")
     }
     return user.healthcarePartyId!!
+}
+
+tailrec suspend fun <T> aggregateResults(
+    ids: Collection<String>,
+    limit: Int,
+    supplier: suspend (Collection<String>) -> Flow<T>,
+    filter: suspend (T) -> Boolean = { true },
+    entities: List<T> = emptyList(),
+    startDocumentId: String? = null,
+    heuristic: Int = 2,
+): List<T> {
+    val heuristicLimit = limit * heuristic
+
+    val sortedIds = (startDocumentId?.let {
+        ids.dropWhile { id -> it != id }
+    } ?: ids)
+
+    val filteredEntities = entities + supplier(sortedIds.take(heuristicLimit)).filter { filter(it) }.toList()
+    val remainingIds = sortedIds.drop(heuristicLimit)
+
+    if (remainingIds.isEmpty() || filteredEntities.count() >= limit) {
+        return filteredEntities.take(limit)
+    }
+    return aggregateResults(remainingIds, limit, supplier, filter, filteredEntities)
 }

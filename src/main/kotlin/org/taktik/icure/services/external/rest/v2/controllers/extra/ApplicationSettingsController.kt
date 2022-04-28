@@ -21,9 +21,10 @@ package org.taktik.icure.services.external.rest.v2.controllers.extra
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.map
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import kotlinx.coroutines.reactor.mono
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.ApplicationSettingsLogic
 import org.taktik.icure.services.external.rest.v2.dto.ApplicationSettingsDto
 import org.taktik.icure.services.external.rest.v2.mapper.ApplicationSettingsV2Mapper
@@ -41,6 +42,13 @@ class ApplicationSettingsController(private val applicationSettingsLogic: Applic
     fun getApplicationSettings(): Flux<ApplicationSettingsDto> {
         val applicationSettings = applicationSettingsLogic.getEntities()
         return applicationSettings.map { applicationSettingsV2Mapper.map(it) }.injectReactorContext()
+    }
+
+    @Operation(summary = "Create new application settings")
+    @PostMapping
+    fun createApplicationSettings(@RequestBody applicationSettingsDto: ApplicationSettingsDto) = mono {
+        val applicationSettings = applicationSettingsLogic.createApplicationSettings(applicationSettingsV2Mapper.map(applicationSettingsDto))  ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ApplicationSettings creation failed")
+        applicationSettingsV2Mapper.map(applicationSettings)
     }
 }
 

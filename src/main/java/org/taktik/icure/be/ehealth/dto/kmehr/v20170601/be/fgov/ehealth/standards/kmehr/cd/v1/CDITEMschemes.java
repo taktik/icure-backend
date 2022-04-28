@@ -79,7 +79,7 @@ import javax.xml.bind.annotation.XmlType;
 public enum CDITEMschemes {
 
     @XmlEnumValue("CD-ITEM")
-    CD_ITEM("CD-ITEM", "1.0"),
+    CD_ITEM("CD-ITEM", "1.11"),
     @XmlEnumValue("CD-ITEM-MAA")
     CD_ITEM_MAA("CD-ITEM-MAA", "1.0"),
     @XmlEnumValue("CD-ITEM-CARENET")
@@ -89,7 +89,7 @@ public enum CDITEMschemes {
     @XmlEnumValue("CD-TECHNICAL")
     CD_TECHNICAL("CD-TECHNICAL", "1.0"),
     @XmlEnumValue("CD-CONTACT-PERSON")
-    CD_CONTACT_PERSON("CD-CONTACT-PERSON", "1.0"),
+    CD_CONTACT_PERSON("CD-CONTACT-PERSON", "1.2"),
     ICD("ICD", "1.0"),
     ICPC("ICPC", "1.0"),
     LOCAL("LOCAL", "1.0"),

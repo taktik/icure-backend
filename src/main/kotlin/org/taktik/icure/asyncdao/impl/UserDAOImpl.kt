@@ -26,11 +26,10 @@ import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.exception.DocumentNotFoundException
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
-import org.taktik.couchdb.update
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.HealthcareParty
+import org.taktik.couchdb.queryView
 import org.taktik.icure.entities.User
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
@@ -38,13 +37,12 @@ import org.taktik.icure.spring.asynccache.AsyncCacheManager
 
 import java.net.URI
 import java.time.Instant
-import java.util.*
 
 @Repository("userDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) emit( null, doc._rev )}")
 class UserDAOImpl(couchDbProperties: CouchDbProperties,
                   @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager) : CachedDAOImpl<User>(User::class.java, couchDbProperties, couchDbDispatcher, idGenerator, asyncCacheManager), UserDAO {
-    @View(name = "by_exp_date", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.expirationDate.epochSecond, doc._id)  }}")
+    @View(name = "by_exp_date", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted && doc.expirationDate) {emit(doc.expirationDate.epochSecond, doc._id)  }}")
     override fun getExpiredUsers(fromExpirationInstant: Instant, toExpirationInstant: Instant): Flow<User> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
@@ -60,16 +58,18 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryViewIncludeDocsNoValue<String, User>(createQuery(client, "by_username").includeDocs(true).key(searchString)).mapNotNull { it.doc })
     }
 
-    @View(name = "by_email", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.email, null)}}")
-    override fun listUsersByEmail(searchString: String): Flow<User> = flow {
+    @View(name = "by_email", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted && doc.email) {emit(doc.email, null)}}")
+    override fun listUsersByEmail(email: String): Flow<User> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        emitAll(client.queryViewIncludeDocsNoValue<String, User>(createQuery(client, "by_email").includeDocs(true).key(searchString)).mapNotNull { it.doc })
+        emitAll(client.queryViewIncludeDocsNoValue<String, User>(createQuery(client, "by_email").includeDocs(true).key(email)).mapNotNull { it.doc })
     }
 
-    override fun listByEmailOnFallbackDb(email: String): Flow<User> = flow {
+    @View(name = "by_phone", map = "classpath:js/user/By_phone.js")
+    override fun listUsersByPhone(phone: String): Flow<User> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        emitAll(client.queryViewIncludeDocsNoValue<String, User>(createQuery(client, "by_email").includeDocs(true).key(email)).mapNotNull { it.doc })
+        val fullNormalized = phone.trim().let { if (it.startsWith("+")) "+${it.substring(1).replace(Regex("[^0-9]"), "")}" else it.replace(Regex("[^0-9]"),"")}
+        emitAll(client.queryViewIncludeDocsNoValue<String, User>(createQuery(client, "by_phone").includeDocs(true).key(fullNormalized)).mapNotNull { it.doc })
     }
 
     /**
@@ -83,25 +83,6 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryView(viewQuery, String::class.java, Nothing::class.java, User::class.java))
     }
 
-    override suspend fun getOnFallback(userId: String, bypassCache: Boolean): User? {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-
-        val valueWrapper = if (bypassCache) null else getWrapperFromCache(userId)
-        if (valueWrapper == null) {
-            val user = client.get(userId, User::class.java)
-            putInCache(userId, user)
-            return user
-        }
-        return valueWrapper.get() as User
-    }
-
-    @View(name = "by_id", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc._id.split(':')[1] || doc._id, null)}}")
-    override fun getUsersByPartialIdOnFallback(id: String): Flow<User> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-
-        emitAll(client.queryViewIncludeDocsNoValue<String, User>(createQuery(client, "by_id").includeDocs(true).key(id)).map { it.doc })
-    }
-
     @View(name = "by_hcp_id", map = "classpath:js/user/by_hcp_id.js")
     override fun listUsersByHcpId(hcPartyId: String): Flow<User> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
@@ -109,11 +90,22 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
         emitAll(client.queryViewIncludeDocsNoValue<String,User>(createQuery(client, "by_hcp_id").key(hcPartyId).includeDocs(true)).map { it.doc })
     }
 
-    override fun findByUsernameOnFallback(login: String): Flow<User> = flow {
+    @View(name = "by_name_email_phone", map = "classpath:js/user/By_name_email_phone.js")
+    override fun listUserIdsByNameEmailPhone(searchString: String): Flow<String> = flow {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        emitAll(client.queryView<String, Int>(createQuery(client, "by_name_email_phone").startKey(searchString).endKey("$searchString\ufff0").includeDocs(false)).map { it.id })
+    }
+
+    override fun findUsersByNameEmailPhone(
+            searchString: String,
+            pagination: PaginationOffset<String>
+    ): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        emitAll(client.queryViewIncludeDocsNoValue<String,User>(createQuery(client, "by_username").includeDocs(true).key(login)).map { it.doc })
+        val viewQuery = pagedViewQuery<User, String>(client, "by_name_email_phone", searchString, "$searchString\ufff0", pagination, false)
+        emitAll(client.queryView(viewQuery, String::class.java, Nothing::class.java, User::class.java))
     }
+
 
     override suspend fun getUserOnUserDb(userId: String, bypassCache: Boolean): User {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
@@ -160,13 +152,9 @@ class UserDAOImpl(couchDbProperties: CouchDbProperties,
         }
     }
 
-    override suspend fun saveOnFallback(user: User): User {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.update(user)
-    }
-
     override fun findUsersByIds(userIds: Flow<String>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         emitAll(client.getForPagination(userIds, User::class.java))
     }
+
 }

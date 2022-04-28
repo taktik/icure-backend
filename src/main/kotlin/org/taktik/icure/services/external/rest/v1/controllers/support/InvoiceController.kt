@@ -18,17 +18,32 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.support
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asynclogic.AsyncSessionLogic
@@ -55,24 +70,26 @@ import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMappe
 import org.taktik.icure.services.external.rest.v1.utils.paginatedList
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
-import java.util.*
+import java.util.Optional
 
+@ExperimentalStdlibApi
 @FlowPreview
 @ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/invoice")
 @Tag(name = "invoice")
 class InvoiceController(
-        private val invoiceLogic: InvoiceLogic,
-        private val sessionLogic: AsyncSessionLogic,
-        private val insuranceLogic: InsuranceLogic,
-        private val userLogic: UserLogic,
-        private val uuidGenerator: UUIDGenerator,
-        private val invoiceMapper: InvoiceMapper,
-        private val filterChainMapper: FilterChainMapper,
-        private val delegationMapper: DelegationMapper,
-        private val invoicingCodeMapper: InvoicingCodeMapper,
-        private val stubMapper: StubMapper
+    private val invoiceLogic: InvoiceLogic,
+    private val sessionLogic: AsyncSessionLogic,
+    private val insuranceLogic: InsuranceLogic,
+    private val userLogic: UserLogic,
+    private val uuidGenerator: UUIDGenerator,
+    private val invoiceMapper: InvoiceMapper,
+    private val filterChainMapper: FilterChainMapper,
+    private val delegationMapper: DelegationMapper,
+    private val invoicingCodeMapper: InvoicingCodeMapper,
+    private val stubMapper: StubMapper,
+    private val objectMapper: ObjectMapper
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -150,7 +167,7 @@ class InvoiceController(
         invoiceLogic.validateInvoice(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, invoiceLogic.getInvoice(invoiceId), scheme, forcedValue)?.let { invoiceMapper.map(it) }
     }
 
-    @Operation(summary = "Gets all invoices for author at date")
+    @Operation(summary = "Append codes to new or existing invoice")
     @PostMapping("/byauthor/{userId}/append/{type}/{sentMediumType}")
     fun appendCodes(@PathVariable userId: String,
                             @PathVariable type: String,
@@ -166,7 +183,7 @@ class InvoiceController(
         emitAll( invoices.map { invoiceMapper.map(it) })
     }.injectReactorContext()
 
-    @Operation(summary = "Gets all invoices for author at date")
+    @Operation(summary = "removeCodes for linked serviceId")
     @PostMapping("/byauthor/{userId}/service/{serviceId}")
     fun removeCodes(@PathVariable userId: String,
                     @PathVariable serviceId: String,
@@ -185,22 +202,37 @@ class InvoiceController(
 
     @Operation(summary = "Gets all invoices for author at date")
     @GetMapping("/byauthor/{hcPartyId}")
-    fun findByAuthor(@PathVariable hcPartyId: String,
-                     @RequestParam(required = false) fromDate: Long?,
-                     @RequestParam(required = false) toDate: Long?,
-                     @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam("startKey", required = false) startKey: String?,
-                     @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-                     @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+    fun findByAuthor(
+        @PathVariable hcPartyId: String,
+        @RequestParam(required = false) fromDate: Long?,
+        @RequestParam(required = false) toDate: Long?,
+        @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(
+            "startKey",
+            required = false
+        ) startKey: String?,
+        @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+        @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?
+    ) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val sk: Array<String>
-        var startKey1 = ""
-        var startKey2 = ""
-        if (startKey != null) {
-            sk = startKey.split(',').toTypedArray()
-            startKey1 = sk[0]
-            startKey2 = sk[1]
+        val startKeyElements = startKey?.let { startKeyString ->
+            startKeyString
+                .takeIf { it.startsWith("[") }
+                ?.let { startKeyArray ->
+                    objectMapper.readValue(
+                        startKeyArray,
+                        objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)
+                    )
+                }
+                ?: startKeyString.split(',')
+        }?.let { keys ->
+            listOf(keys[0], keys[1].toLong())
         }
-        val paginationOffset = PaginationOffset<List<String>>(listOf<String>(startKey1, startKey2), startDocumentId, 0, realLimit + 1) // fetch one more for nextKeyPair
+        val paginationOffset = PaginationOffset<List<*>>(
+            startKeyElements,
+            startDocumentId,
+            0,
+            realLimit + 1
+        ) // fetch one more for nextKeyPair
         val findByAuthor = invoiceLogic.findInvoicesByAuthor(hcPartyId, fromDate, toDate, paginationOffset)
         findByAuthor.paginatedList<Invoice, InvoiceDto>(invoiceToInvoiceDto, realLimit)
     }

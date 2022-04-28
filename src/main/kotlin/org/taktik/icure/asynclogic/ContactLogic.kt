@@ -35,6 +35,7 @@ interface ContactLogic : EntityPersister<Contact, String> {
     fun getContacts(selectedIds: Collection<String>): Flow<Contact>
         fun findContactsByIds(selectedIds: Collection<String>): Flow<ViewQueryResultEvent>
     fun listContactsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact>
+    fun listContactIdsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<String>
 
     suspend fun addDelegation(contactId: String, delegation: Delegation): Contact?
 

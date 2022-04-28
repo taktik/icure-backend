@@ -17,6 +17,8 @@
  */
 package org.taktik.icure.asynclogic.impl.filter.contact
 
+import javax.security.auth.login.LoginException
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
@@ -28,8 +30,6 @@ import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.domain.filter.contact.ContactByHcPartyTagCodeDateFilter
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.utils.getLoggedHealthCarePartyId
-import java.util.*
-import javax.security.auth.login.LoginException
 
 @Service
 class ContactByHcPartyTagCodeDateFilter(private val contactLogic: ContactLogic,
@@ -40,19 +40,17 @@ class ContactByHcPartyTagCodeDateFilter(private val contactLogic: ContactLogic,
             val hcPartyId: String = filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic)
             var ids: HashSet<String>? = null
             if (filter.tagType != null && filter.tagCode != null) {
-                ids = HashSet(contactLogic.listServiceIdsByTag(
+                ids = HashSet(contactLogic.listContactIdsByTag(
                         hcPartyId,
-                        null,
                         filter.tagType!!,
                         filter.tagCode!!,
                         filter.startOfContactOpeningDate, filter.endOfContactOpeningDate).toList())
             }
             if (filter.codeType != null && filter.codeCode != null) {
-                val byCode = contactLogic.listServiceIdsByCode(
+                val byCode = contactLogic.listContactIdsByCode(
                         hcPartyId,
-                        null,
-                        filter.tagType!!,
-                        filter.tagCode!!,
+                        filter.codeType!!,
+                        filter.codeCode!!,
                         filter.startOfContactOpeningDate, filter.endOfContactOpeningDate).toList()
                 if (ids == null) {
                     ids = HashSet(byCode)
@@ -60,7 +58,7 @@ class ContactByHcPartyTagCodeDateFilter(private val contactLogic: ContactLogic,
                     ids.retainAll(byCode)
                 }
             }
-            emitAll(if (ids == null) contactLogic.listContactIds(hcPartyId) else contactLogic.listIdsByServices(ids))
+            emitAll(ids?.asFlow() ?: contactLogic.listContactIds(hcPartyId))
         } catch (e: LoginException) {
             throw IllegalArgumentException(e)
         }

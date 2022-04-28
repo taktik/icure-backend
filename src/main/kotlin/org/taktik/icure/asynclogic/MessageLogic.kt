@@ -17,6 +17,7 @@
  */
 package org.taktik.icure.asynclogic
 
+import javax.security.auth.login.LoginException
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.db.PaginationOffset
@@ -24,14 +25,18 @@ import org.taktik.icure.entities.Message
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.exceptions.CreationException
 import org.taktik.icure.exceptions.MissingRequirementsException
-import javax.security.auth.login.LoginException
 
 interface MessageLogic : EntityPersister<Message, String> {
-    fun findMessagesByFromAddress(partyId: String, fromAddress: String, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
-    fun findMessagesByToAddress(partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<Any>>, reverse: Boolean?): Flow<ViewQueryResultEvent>
-    fun findMessagesByTransportGuidReceived(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
-    fun findMessagesByTransportGuid(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
-    fun findMessagesByTransportGuidSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
+    fun findMessagesByFromAddress(partyId: String, fromAddress: String, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
+
+    fun findMessagesByToAddress(partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<*>>, reverse: Boolean?): Flow<ViewQueryResultEvent>
+
+    fun findMessagesByTransportGuidReceived(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
+
+    fun findMessagesByTransportGuid(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
+
+    fun findMessagesByTransportGuidSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
+
     suspend fun addDelegation(messageId: String, delegation: Delegation): Message?
 
     @Throws(CreationException::class, LoginException::class)
@@ -50,7 +55,7 @@ interface MessageLogic : EntityPersister<Message, String> {
     fun setReadStatus(messageIds: List<String>, userId: String, status: Boolean, time: Long): Flow<Message>
 
     @Throws(LoginException::class)
-    fun findForCurrentHcParty(paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
+    fun findForCurrentHcParty(paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
 
     suspend fun addDelegations(messageId: String, delegations: List<Delegation>): Message?
     fun getMessageChildren(messageId: String): Flow<Message>

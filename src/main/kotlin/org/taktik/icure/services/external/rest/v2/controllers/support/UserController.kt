@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -57,6 +58,7 @@ import org.taktik.icure.utils.injectReactorContext
  * is not required by default and overrides it, so we have to make sure they always match!
  * Nicknames are required so that operationId is e.g. 'modifyAccessLog' instead of 'modifyAccessLogUsingPUT' */
 
+@ExperimentalStdlibApi
 @ExperimentalCoroutinesApi
 @RestController("userControllerV2")
 @RequestMapping("/rest/v2/user")
@@ -133,7 +135,9 @@ class UserController(
 
     @Operation(summary = "Get the list of users by healthcare party id")
     @GetMapping("/byHealthcarePartyId/{id}")
-    fun findByHcpartyId(@PathVariable id: String) = userLogic.findByHcpartyId(id).injectReactorContext()
+    fun findByHcpartyId(@PathVariable id: String) = mono {
+        userLogic.findByHcpartyId(id).toList()
+    }
 
     @Operation(summary = "Delete a User based on his/her ID.", description = "Delete a User based on his/her ID. The return value is an array containing the ID of deleted user.")
     @DeleteMapping("/{userId}")

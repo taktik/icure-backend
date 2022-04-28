@@ -25,5 +25,5 @@ import java.io.Serializable
  */
 @EnumVersion(1L)
 enum class AddressType : Serializable {
-    home, work, vacation, hospital, clinic, hq, other, temporary, postal, diplomatic, reference
+    home, work, vacation, hospital, clinic, hq, other, temporary, postal, diplomatic, reference, careaddress
 }

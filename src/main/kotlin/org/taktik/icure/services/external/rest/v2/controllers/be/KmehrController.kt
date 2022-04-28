@@ -32,12 +32,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpResponse
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
@@ -45,22 +40,21 @@ import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.diarynote.DiaryNoteLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.incapacity.IncapacityLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medex.KmehrNoteLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationSchemeLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.patientinfo.PatientInfoFileLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
 import org.taktik.icure.domain.mapping.ImportMapping
+import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.IncapacityExportInfoDto
 import org.taktik.icure.services.external.rest.v2.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.*
 import org.taktik.icure.services.external.rest.v2.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v2.mapper.HealthElementV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyV2Mapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.ImportResultV2Mapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.PartnershipV2Mapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.PatientHealthCarePartyV2Mapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.ServiceV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.*
 import org.taktik.icure.utils.injectReactorContext
 import java.time.Instant
 import java.util.stream.Collectors
@@ -75,6 +69,7 @@ class KmehrController(
         @Qualifier("sumehrLogicV2") val sumehrLogicV2: SumehrLogic,
         val softwareMedicalFileLogic: SoftwareMedicalFileLogic,
         val medicationSchemeLogic: MedicationSchemeLogic,
+        val incapacityLogic: IncapacityLogic,
         val diaryNoteLogic: DiaryNoteLogic,
         val kmehrNoteLogic: KmehrNoteLogic,
         val healthcarePartyLogic: HealthcarePartyLogic,
@@ -85,6 +80,7 @@ class KmehrController(
         val serviceV2Mapper: ServiceV2Mapper,
         val healthcarePartyV2Mapper: HealthcarePartyV2Mapper,
         val patientHealthCarePartyV2Mapper: PatientHealthCarePartyV2Mapper,
+        val addressV2Mapper: AddressV2Mapper,
         val partnershipV2Mapper: PartnershipV2Mapper,
         val importResultV2Mapper: ImportResultV2Mapper
 ) {
@@ -374,6 +370,59 @@ class KmehrController(
                 else
                     emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language, recipientSafe, version, medicationSchemeExportParams.services.map { s -> serviceV2Mapper.map(s) }, null, null, null))
             }
+        } ?: throw IllegalArgumentException("Missing argument")
+    }.injectReactorContext()
+
+    @Operation(summary = "Get Incapacity export", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+    @PostMapping("/incapacity/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+    fun generateIncapacityExport(@PathVariable patientId: String,
+                                 @RequestParam language: String,
+                                 @RequestHeader("X-Timezone-Offset") tz: String?,
+                                 @RequestBody incapacityExportParams: IncapacityExportInfoDto,
+                                 response: ServerHttpResponse) = flow {
+        val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
+        val patient = patientLogic.getPatient(patientId)
+
+        patient?.let {
+            userHealthCareParty?.let {
+                emitAll(incapacityLogic.createIncapacityExport(
+                        patient,
+                        userHealthCareParty,
+                        language,
+                        incapacityExportParams.recipient?.let { it1 -> healthcarePartyV2Mapper.map(it1) },
+                        incapacityExportParams.comment,
+                        incapacityExportParams.incapacityId,
+                        incapacityExportParams.notificationDate,
+                        incapacityExportParams.retraction,
+                        incapacityExportParams.dataset,
+                        incapacityExportParams.transactionType,
+                        incapacityExportParams.incapacityreason,
+                        incapacityExportParams.beginmoment,
+                        incapacityExportParams.endmoment,
+                        incapacityExportParams.outofhomeallowed,
+                        incapacityExportParams.incapWork,
+                        incapacityExportParams.incapSchool,
+                        incapacityExportParams.incapSwim,
+                        incapacityExportParams.incapSchoolsports,
+                        incapacityExportParams.incapHeavyphysicalactivity,
+                        incapacityExportParams.diagnoseServices.map { s -> serviceV2Mapper.map(s) },
+                        incapacityExportParams.jobstatus,
+                        incapacityExportParams.job,
+                        incapacityExportParams.occupationalDiseaseDeclDate,
+                        incapacityExportParams.accidentDate,
+                        incapacityExportParams.expectedbirthgivingDate,
+                        incapacityExportParams.maternityleaveBegin,
+                        incapacityExportParams.maternityleaveEnd,
+                        incapacityExportParams.hospitalisationBegin,
+                        incapacityExportParams.hospitalisationEnd,
+                        incapacityExportParams.hospital?.let { it1 -> healthcarePartyV2Mapper.map(it1) },
+                        incapacityExportParams.contactPersonTel,
+                        incapacityExportParams.recoveryAddress?.let { it1 -> addressV2Mapper.map(it1) },
+                        incapacityExportParams.foreignStayBegin,
+                        incapacityExportParams.foreignStayEnd,
+                        tz, null))
+            }
+
         } ?: throw IllegalArgumentException("Missing argument")
     }.injectReactorContext()
 

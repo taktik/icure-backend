@@ -72,6 +72,7 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.Collections
 
+@ExperimentalStdlibApi
 @ExperimentalCoroutinesApi
 @RestController("contactControllerV2")
 @RequestMapping("/rest/v2/contact")
