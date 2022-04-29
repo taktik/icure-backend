@@ -17,9 +17,6 @@
  */
 package org.taktik.icure.asynclogic.impl.filter.user
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flowOf
 import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
@@ -27,7 +24,7 @@ import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.entities.User
 
 @Service
-class UserByNamePhoneFilter(private val userLogic: UserLogic) : Filter<String, User, org.taktik.icure.domain.filter.user.UserByNameEmailPhoneFilter> {
+class UserByNameEmailPhoneFilter(private val userLogic: UserLogic) : Filter<String, User, org.taktik.icure.domain.filter.user.UserByNameEmailPhoneFilter> {
     override fun resolve(filter: org.taktik.icure.domain.filter.user.UserByNameEmailPhoneFilter, context: Filters) =
             userLogic.listUserIdsByNameEmailPhone(filter.searchString)
 }
