@@ -11,12 +11,12 @@ import java.util.*
 val repoUsername: String by project
 val repoPassword: String by project
 val mavenReleasesRepository: String by project
-val kmapVersion = "0.1.22-77b57a3b36"
+val kmapVersion = "0.1.23-0a1725c2ab"
 
 plugins {
-    kotlin("jvm") version "1.6.10"
+    kotlin("jvm") version "1.6.21"
     id("org.sonarqube") version "3.3"
-    id("com.google.devtools.ksp") version "1.6.10-1.0.4"
+    id("com.google.devtools.ksp") version "1.6.21-1.0.5"
     `maven-publish`
 }
 
@@ -138,17 +138,17 @@ dependencies {
     implementation(group = "io.icure", name = "kmap", version = kmapVersion)
     ksp(group = "io.icure", name = "kmap", version = kmapVersion)
 
-    implementation(group = "io.projectreactor", name = "reactor-core", version = "3.4.10")
-    implementation(group = "io.projectreactor", name = "reactor-tools", version = "3.4.10")
-    implementation(group = "io.projectreactor.netty", name = "reactor-netty", version = "1.0.1")
+    implementation(group = "io.projectreactor", name = "reactor-core", version = "3.4.17")
+    implementation(group = "io.projectreactor", name = "reactor-tools", version = "3.4.17")
+    implementation(group = "io.projectreactor.netty", name = "reactor-netty", version = "1.0.18")
 
-    implementation(group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version = "1.6.10")
-    implementation(group = "org.jetbrains.kotlin", name = "kotlin-reflect", version = "1.6.10")
-    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.6.0")
-    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core-jvm", version = "1.6.0")
-    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactive", version = "1.6.0")
-    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactor", version = "1.6.0")
-    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable-jvm", version = "0.3")
+    implementation(group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version = "1.6.21")
+    implementation(group = "org.jetbrains.kotlin", name = "kotlin-reflect", version = "1.6.21")
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.6.1")
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core-jvm", version = "1.6.1")
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactive", version = "1.6.1")
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactor", version = "1.6.1")
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable-jvm", version = "0.3.5")
 
     //Jackson
     implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.12.5")
@@ -174,16 +174,16 @@ dependencies {
     implementation(group = "org.hibernate.validator", name = "hibernate-validator-annotation-processor", version = "6.1.5.Final")
     implementation(group = "org.hibernate.validator", name = "hibernate-validator-cdi", version = "6.1.5.Final")
 
-    implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.0.4")
+    implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.0.6")
 
     // Logging
-    implementation(group = "ch.qos.logback", name = "logback-classic", version = "1.2.6")
-    implementation(group = "ch.qos.logback", name = "logback-access", version = "1.2.6")
+    implementation(group = "ch.qos.logback", name = "logback-classic", version = "1.2.11")
+    implementation(group = "ch.qos.logback", name = "logback-access", version = "1.2.11")
 
-    implementation(group = "org.slf4j", name = "slf4j-api", version = "1.7.32")
+    implementation(group = "org.slf4j", name = "slf4j-api", version = "1.7.36")
     implementation(group = "org.slf4j", name = "jul-to-slf4j", version = "1.7.32")
     implementation(group = "org.slf4j", name = "jcl-over-slf4j", version = "1.7.32")
-    implementation(group = "org.slf4j", name = "log4j-over-slf4j", version = "1.7.32")
+    implementation(group = "org.slf4j", name = "log4j-over-slf4j", version = "1.7.36")
 
     // Java Commons
     implementation(group = "org.taktik.commons", name = "commons-uti", version = "1.0")
@@ -191,7 +191,7 @@ dependencies {
     // APIs
     implementation(group = "javax.servlet", name = "javax.servlet-api", version = "3.1.0")
     implementation(group = "javax.annotation", name = "jsr250-api", version = "1.0")
-    implementation(group = "javax.activation", name = "activation", version = "1.1")
+    implementation(group = "javax.activation", name = "activation", version = "1.1.1")
     implementation(group = "javax.xml.bind", name = "jaxb-api", version = "2.3.1")
     implementation(group = "javax.el", name = "javax.el-api", version = "3.0.0")
 
@@ -200,7 +200,7 @@ dependencies {
     implementation(group = "org.reflections", name = "reflections", version = "0.9.12")
 
     // Commons
-    implementation(group = "com.google.guava", name = "guava", version = "30.1.1-jre")
+    implementation(group = "com.google.guava", name = "guava", version = "31.1-jre")
     implementation(group = "commons-io", name = "commons-io", version = "2.11.0")
     implementation(group = "org.apache.commons", name = "commons-lang3", version = "3.12.0")
     implementation(group = "org.apache.commons", name = "commons-compress", version = "1.21")
@@ -208,14 +208,14 @@ dependencies {
     implementation(group = "commons-beanutils", name = "commons-beanutils", version = "1.9.4")
 
     // Bouncy Castle
-    implementation(group = "org.bouncycastle", name = "bcprov-jdk15on", version = "1.69")
-    implementation(group = "org.bouncycastle", name = "bcmail-jdk15on", version = "1.69")
+    implementation(group = "org.bouncycastle", name = "bcprov-jdk15on", version = "1.70")
+    implementation(group = "org.bouncycastle", name = "bcmail-jdk15on", version = "1.70")
 
     //2FA
     implementation(group = "org.jboss.aerogear", name = "aerogear-otp-java", version = "1.0.0")
 
     // Swagger
-    implementation(group = "org.springdoc", name = "springdoc-openapi-webflux-ui", version = "1.5.13")
+    implementation(group = "org.springdoc", name = "springdoc-openapi-webflux-ui", version = "1.6.7")
     implementation(group = "org.springdoc", name = "springdoc-openapi-kotlin", version = "1.5.13")
 
     //Saxon
