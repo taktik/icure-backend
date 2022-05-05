@@ -437,8 +437,8 @@ class UserLogicImpl(
 		return userDAO.save(hashPasswordAndTokens(user))
 	}
 
-	override fun listUsers(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
-		emitAll(userDAO.findUsers(paginationOffset))
+	override fun listUsers(paginationOffset: PaginationOffset<String>, skipPatients: Boolean): Flow<ViewQueryResultEvent> = flow {
+		emitAll(userDAO.findUsers(paginationOffset, skipPatients))
 	}
 
 	override fun filterUsers(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<User>): Flow<ViewQueryResultEvent> = flow {

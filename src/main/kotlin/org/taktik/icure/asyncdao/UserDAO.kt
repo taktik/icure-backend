@@ -31,7 +31,7 @@ interface UserDAO : GenericDAO<User> {
 	fun listUsersByUsername(searchString: String): Flow<User>
 	fun listUsersByEmail(email: String): Flow<User>
 	fun listUsersByPhone(phone: String): Flow<User>
-	fun findUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
+	fun findUsers(pagination: PaginationOffset<String>, skipPatients: Boolean = false): Flow<ViewQueryResultEvent>
 	fun listUsersByHcpId(hcPartyId: String): Flow<User>
 	suspend fun getUserOnUserDb(userId: String, bypassCache: Boolean): User
 	suspend fun findUserOnUserDb(userId: String, bypassCache: Boolean): User?

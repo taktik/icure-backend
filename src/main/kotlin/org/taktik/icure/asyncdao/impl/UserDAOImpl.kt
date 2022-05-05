@@ -78,11 +78,62 @@ class UserDAOImpl(
 	 * startKey in pagination is the email of the patient.
 	 */
 	@View(name = "allForPagination", map = "map = function (doc) { if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) { emit(doc.login, null); }};")
-	override fun findUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
+	override fun findUsers(pagination: PaginationOffset<String>, skipPatients: Boolean): Flow<ViewQueryResultEvent> = findUsers(pagination, skipPatients, 1f, 0, false)
+    fun findUsers(pagination: PaginationOffset<String>, skipPatients: Boolean, extensionFactor: Float, prevTotalCount: Int, isContinuation: Boolean): Flow<ViewQueryResultEvent> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
-
-		val viewQuery = pagedViewQuery<User, String>(client, "allForPagination", null, "\ufff0", pagination, false)
-		emitAll(client.queryView(viewQuery, String::class.java, Nothing::class.java, User::class.java))
+        val extendedLimit = (pagination.limit * extensionFactor).toInt()
+		val viewQuery = pagedViewQuery<User, String>(
+                client,
+                "allForPagination",
+                null,
+                "\ufff0",
+                pagination.copy(limit = extendedLimit),
+                false
+        )
+        var seenElements = 0
+        var sentElements = 0
+        var totalCount = 0
+        var latestResult: ViewRowWithDoc<*, *, *>? = null
+        var skipped = false
+		emitAll(client.queryView(viewQuery, String::class.java, Nothing::class.java, User::class.java).let { flw ->
+            if (!skipPatients) flw else
+                flw.filter {
+                    when (it) {
+                        is ViewRowWithDoc<*, *, *> -> {
+                            latestResult = it
+                            seenElements++
+                            if (skipped || !isContinuation) {
+                                if ((it.doc as User).patientId === null && sentElements < pagination.limit) {
+                                    sentElements++
+                                    true
+                                } else false
+                            } else {
+                                skipped = true
+                                false
+                            }
+                        }
+                        is TotalCount -> {
+                            totalCount = it.total
+                            false
+                        }
+                        else -> true
+                    }
+                }.onCompletion {
+                    if ((seenElements >= extendedLimit) && (sentElements < seenElements)) {
+                        emitAll(
+                                findUsers(
+                                        pagination.copy(startKey = latestResult?.key as? String, startDocumentId = latestResult?.id, limit = pagination.limit - sentElements),
+                                        true,
+                                        (if (seenElements == 0) extensionFactor * 2 else (seenElements.toFloat() / sentElements)).coerceAtMost(100f),
+                                        totalCount + prevTotalCount,
+                                        true
+                                )
+                        )
+                    } else {
+                        emit(TotalCount(totalCount + prevTotalCount))
+                    }
+                }
+        })
 	}
 
 	@View(name = "by_hcp_id", map = "classpath:js/user/by_hcp_id.js")
