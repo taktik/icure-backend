@@ -41,7 +41,7 @@ interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
     fun getUsers(ids: List<String>): Flow<User>
     fun getUsersByLogin(login: String): Flow<User>
     fun listUserIdsByNameEmailPhone(searchString: String): Flow<String>
-    fun listUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
+    fun listUsers(pagination: PaginationOffset<String>, skipPatients: Boolean = false): Flow<ViewQueryResultEvent>
     fun removeListener(listener: UserLogicListener)
     suspend fun checkPassword(password: String): Boolean
     suspend fun checkUsersExpiration()

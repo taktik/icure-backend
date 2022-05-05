@@ -20,7 +20,6 @@ package org.taktik.icure.asyncdao
 
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
-import org.taktik.couchdb.annotation.View
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.User
 import java.net.URI
@@ -32,7 +31,7 @@ interface UserDAO : GenericDAO<User>{
     fun listUsersByUsername(searchString: String): Flow<User>
     fun listUsersByEmail(email: String): Flow<User>
     fun listUsersByPhone(phone: String): Flow<User>
-    fun findUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
+    fun findUsers(pagination: PaginationOffset<String>, skipPatients: Boolean = false): Flow<ViewQueryResultEvent>
     fun listUsersByHcpId(hcPartyId: String): Flow<User>
     suspend fun getUserOnUserDb(userId: String, bypassCache: Boolean): User
     suspend fun findUserOnUserDb(userId: String, bypassCache: Boolean): User?
