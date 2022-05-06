@@ -1,0 +1,9 @@
+#!/bin/sh
+# https://github.com/pinterest/ktlint pre-commit hook
+
+files=$(git diff --name-only --cached --relative ./ | cut -d '/' -f 2- | grep --color=never '\.kt[s"]\?$' | paste -sd "," -)
+if [ "$files" != "" ]; then
+	./gradlew ktlintFiles -PinputFiles="$files"
+	[ $? -ne 0 ] && exit 1
+	cd -
+fi
