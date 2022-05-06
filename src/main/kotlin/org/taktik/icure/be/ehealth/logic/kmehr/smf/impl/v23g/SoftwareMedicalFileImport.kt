@@ -785,6 +785,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
     private fun extractTags(item: ItemType): Collection<CodeStub> {
         return (item.cds.filter { it.s == CDITEMschemes.CD_PARAMETER || it.s == CDITEMschemes.CD_LAB || it.s == CDITEMschemes.CD_TECHNICAL || it.s == CDITEMschemes.CD_CONTACT_PERSON }.map { CodeStub.from(it.s.value(), it.value, it.sv) } +
                 item.cds.filter { (it.s == CDITEMschemes.LOCAL && it.sl.equals("LOCAL-PARAMETER")) }.map { CodeStub.from(it.sl, it.value, it.sv) } +
+                item.cds.filter { (it.s == CDITEMschemes.LOCAL && it.sl.equals("GPSMF-PARAMETER")) }.map { CodeStub.from(it.sl, it.dn, it.sv) } +
                 item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
                     it.cds.filter {
                         listOf(CDCONTENTschemes.CD_LAB).contains(it.s)
