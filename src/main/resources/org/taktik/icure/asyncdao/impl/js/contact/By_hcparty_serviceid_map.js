@@ -9,14 +9,6 @@ function(doc) {
         }
       }
     });
-    doc.subContacts.forEach(function (sc) {
-      if (sc._id) {
-        if (!idsMap[sc._id]) {
-          idsMap[sc._id] = 1;
-          emit([k, sc._id], doc._id);
-        }
-      }
-    });
   };
 
   if (doc.java_type === 'org.taktik.icure.entities.Contact' && !doc.deleted && doc.secretForeignKeys && doc.secretForeignKeys.length && doc.delegations && Object.keys(doc.delegations).length) {
