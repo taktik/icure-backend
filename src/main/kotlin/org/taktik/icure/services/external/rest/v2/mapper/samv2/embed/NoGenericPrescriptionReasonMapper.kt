@@ -24,6 +24,6 @@ import org.taktik.icure.entities.samv2.embed.NoGenericPrescriptionReason
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.NoGenericPrescriptionReasonDto
 @Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface NoGenericPrescriptionReasonV2Mapper {
-	fun map(noGenericPrescriptionReasonDto: NoGenericPrescriptionReasonDto):NoGenericPrescriptionReason
-	fun map(noGenericPrescriptionReason: NoGenericPrescriptionReason):NoGenericPrescriptionReasonDto
+	fun map(noGenericPrescriptionReasonDto: NoGenericPrescriptionReasonDto): NoGenericPrescriptionReason
+	fun map(noGenericPrescriptionReason: NoGenericPrescriptionReason): NoGenericPrescriptionReasonDto
 }

@@ -33,12 +33,12 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 
 @Mapper(componentModel = "spring", uses = [DelegationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface StubMapper {
-    fun mapToStub(contact: Contact): IcureStubDto
-    fun mapToStub(calendarItem: CalendarItem): IcureStubDto
-    fun mapToStub(message: Message): IcureStubDto
-    fun mapToStub(healthElement: HealthElement): IcureStubDto
-    fun mapToStub(form: Form): IcureStubDto
-    fun mapToStub(document: Document): IcureStubDto
-    fun mapToStub(classification: Classification): IcureStubDto
-    fun mapToStub(invoice: Invoice): IcureStubDto
+	fun mapToStub(contact: Contact): IcureStubDto
+	fun mapToStub(calendarItem: CalendarItem): IcureStubDto
+	fun mapToStub(message: Message): IcureStubDto
+	fun mapToStub(healthElement: HealthElement): IcureStubDto
+	fun mapToStub(form: Form): IcureStubDto
+	fun mapToStub(document: Document): IcureStubDto
+	fun mapToStub(classification: Classification): IcureStubDto
+	fun mapToStub(invoice: Invoice): IcureStubDto
 }

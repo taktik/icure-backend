@@ -19,5 +19,5 @@
 package org.taktik.icure.entities.embed
 
 enum class MembershipType {
-    doctor, mutuality, patient, specialist, other
+	doctor, mutuality, patient, specialist, other
 }

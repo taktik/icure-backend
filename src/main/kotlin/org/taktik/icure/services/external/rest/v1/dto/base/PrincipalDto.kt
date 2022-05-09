@@ -21,7 +21,7 @@ import org.taktik.icure.services.external.rest.v1.dto.PropertyStubDto
 import org.taktik.icure.services.external.rest.v1.dto.security.PermissionDto
 
 interface PrincipalDto : IdentifiableDto<String>, NamedDto {
-    val permissions: Set<PermissionDto>
-    val properties: Set<PropertyStubDto>
-    fun getParents(): Set<String>
+	val permissions: Set<PermissionDto>
+	val properties: Set<PropertyStubDto>
+	fun getParents(): Set<String>
 }

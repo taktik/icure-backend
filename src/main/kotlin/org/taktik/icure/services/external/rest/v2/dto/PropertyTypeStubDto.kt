@@ -26,6 +26,6 @@ import org.taktik.icure.constants.TypedValuesType
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class PropertyTypeStubDto(
-        val identifier: String? = null,
-        val type: TypedValuesType? = null
+	val identifier: String? = null,
+	val type: TypedValuesType? = null
 )

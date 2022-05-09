@@ -23,6 +23,6 @@ import org.taktik.icure.entities.embed.FormSkeleton
 import org.taktik.icure.services.external.rest.v2.dto.embed.FormSkeletonDto
 @Mapper(componentModel = "spring")
 interface FormSkeletonV2Mapper {
-	fun map(formSkeletonDto: FormSkeletonDto):FormSkeleton
-	fun map(formSkeleton: FormSkeleton):FormSkeletonDto
+	fun map(formSkeletonDto: FormSkeletonDto): FormSkeleton
+	fun map(formSkeleton: FormSkeleton): FormSkeletonDto
 }

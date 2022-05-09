@@ -18,19 +18,18 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.be.kmehr
 
+import java.io.Serializable
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
-import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class SoftwareMedicalFileExportDto(
-        var secretForeignKeys: List<String>,
-        var comment: String? = null,
-        var exportAsPMF: Boolean,
-        var softwareName: String? = null,
-        var softwareVersion: String? = null
-) : Serializable {
-}
+	var secretForeignKeys: List<String>,
+	var comment: String? = null,
+	var exportAsPMF: Boolean,
+	var softwareName: String? = null,
+	var softwareVersion: String? = null
+) : Serializable

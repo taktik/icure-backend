@@ -17,18 +17,18 @@
  */
 package org.taktik.icure.be.mikrono.dto
 
-import org.taktik.icure.be.mikrono.dto.kmehr.Person
 import java.io.Serializable
+import org.taktik.icure.be.mikrono.dto.kmehr.Person
 
 /**
  * Created by aduchate on 16/12/11, 13:57
  */
 class PatientDTO : Serializable {
-    var doctorId: Long? = null
-    var patient: Person? = null
-    var externalId: String? = null
+	var doctorId: Long? = null
+	var patient: Person? = null
+	var externalId: String? = null
 
-    companion object {
-        private const val serialVersionUID = 1L
-    }
+	companion object {
+		private const val serialVersionUID = 1L
+	}
 }

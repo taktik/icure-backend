@@ -20,6 +20,5 @@ package org.taktik.icure.be.mikrono.dto
 import java.io.Serializable
 
 class ListPatientsDto : Serializable {
-    var patients: List<String>? = null
-
+	var patients: List<String>? = null
 }

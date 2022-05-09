@@ -23,6 +23,6 @@ import org.taktik.icure.entities.embed.Gender
 import org.taktik.icure.services.external.rest.v1.dto.embed.GenderDto
 @Mapper(componentModel = "spring")
 interface GenderMapper {
-	fun map(genderDto: GenderDto):Gender
-	fun map(gender: Gender):GenderDto
+	fun map(genderDto: GenderDto): Gender
+	fun map(gender: Gender): GenderDto
 }

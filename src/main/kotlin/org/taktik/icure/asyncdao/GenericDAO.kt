@@ -18,38 +18,37 @@
 
 package org.taktik.icure.asyncdao
 
+import java.net.URI
+import java.nio.ByteBuffer
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.Client
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.id.Identifiable
-import java.net.URI
-import java.nio.ByteBuffer
-
 
 interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
-    fun getAttachment(documentId: String, attachmentId: String, rev: String? = null): Flow<ByteBuffer>
-    suspend fun createAttachment(documentId: String, attachmentId: String, rev: String, contentType: String, data: Flow<ByteBuffer>): String
-    suspend fun deleteAttachment(documentId: String, rev: String, attachmentId: String): String
+	fun getAttachment(documentId: String, attachmentId: String, rev: String? = null): Flow<ByteBuffer>
+	suspend fun createAttachment(documentId: String, attachmentId: String, rev: String, contentType: String, data: Flow<ByteBuffer>): String
+	suspend fun deleteAttachment(documentId: String, rev: String, attachmentId: String): String
 
-    fun <K : Collection<T>> create(entities: K): Flow<T>
-    fun <K : Collection<T>> save(entities: K): Flow<T>
+	fun <K : Collection<T>> create(entities: K): Flow<T>
+	fun <K : Collection<T>> save(entities: K): Flow<T>
 
-    suspend fun contains(id: String): Boolean
-    suspend fun hasAny(): Boolean
+	suspend fun contains(id: String): Boolean
+	suspend fun hasAny(): Boolean
 
-    fun getEntities(): Flow<T>
-    fun getEntityIds(limit: Int? = null): Flow<String>
-    fun getEntities(ids: Collection<String>): Flow<T>
-    fun getEntities(ids: Flow<String>): Flow<T>
+	fun getEntities(): Flow<T>
+	fun getEntityIds(limit: Int? = null): Flow<String>
+	fun getEntities(ids: Collection<String>): Flow<T>
+	fun getEntities(ids: Flow<String>): Flow<T>
 
-    suspend fun remove(entity: T): DocIdentifier
-    fun remove(entities: Collection<T>): Flow<DocIdentifier>
-    suspend fun purge(entity: T): DocIdentifier
-    suspend fun purge(entities: Collection<T>)
-    fun unRemove(entities: Collection<T>): Flow<DocIdentifier>
-    suspend fun unRemove(entity: T): DocIdentifier
-    suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean = true, useVersioning: Boolean = true)
-    suspend fun forceInitStandardDesignDocument(client: Client, updateIfExists: Boolean = true, useVersioning: Boolean = true)
-    suspend fun initSystemDocumentIfAbsent(dbInstanceUrl: URI)
-    suspend fun initSystemDocumentIfAbsent(client: Client)
+	suspend fun remove(entity: T): DocIdentifier
+	fun remove(entities: Collection<T>): Flow<DocIdentifier>
+	suspend fun purge(entity: T): DocIdentifier
+	suspend fun purge(entities: Collection<T>)
+	fun unRemove(entities: Collection<T>): Flow<DocIdentifier>
+	suspend fun unRemove(entity: T): DocIdentifier
+	suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean = true, useVersioning: Boolean = true)
+	suspend fun forceInitStandardDesignDocument(client: Client, updateIfExists: Boolean = true, useVersioning: Boolean = true)
+	suspend fun initSystemDocumentIfAbsent(dbInstanceUrl: URI)
+	suspend fun initSystemDocumentIfAbsent(client: Client)
 }

@@ -23,8 +23,8 @@ import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Gender
 
 interface PatientByHcPartyGenderEducationProfession : Filter<String, Patient> {
-    val gender: Gender?
-    val education: String?
-    val profession: String?
-    val healthcarePartyId: String?
+	val gender: Gender?
+	val education: String?
+	val profession: String?
+	val healthcarePartyId: String?
 }

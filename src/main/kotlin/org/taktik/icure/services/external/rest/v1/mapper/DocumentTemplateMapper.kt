@@ -30,13 +30,13 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.DocumentGroupMapp
 
 @Mapper(componentModel = "spring", uses = [ReportVersionMapper::class, DocumentGroupMapper::class, CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DocumentTemplateMapper {
-    @Mappings(
-            Mapping(target = "isAttachmentDirty", ignore = true),
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(documentTemplateDto: DocumentTemplateDto):DocumentTemplate
-	fun map(documentTemplate: DocumentTemplate):DocumentTemplateDto
+	@Mappings(
+		Mapping(target = "isAttachmentDirty", ignore = true),
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(documentTemplateDto: DocumentTemplateDto): DocumentTemplate
+	fun map(documentTemplate: DocumentTemplate): DocumentTemplateDto
 }

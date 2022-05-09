@@ -17,25 +17,25 @@
  */
 package org.taktik.icure.validation
 
+import java.time.Instant
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.entities.base.CodeIdentification
 import org.taktik.icure.utils.FuzzyValues
-import java.time.Instant
 
-enum class AutoFix(private val fixer: suspend (b:Any?,v:Any?,sl:AsyncSessionLogic?) -> Any?) {
-    FUZZYNOW({ _: Any?, _: Any?, _: AsyncSessionLogic? -> FuzzyValues.getCurrentFuzzyDateTime() }),
-    NOW({ _: Any?, _: Any?, _: AsyncSessionLogic? -> Instant.now().toEpochMilli() }),
-    UUID({ _: Any?, _: Any?, _: AsyncSessionLogic? -> java.util.UUID.randomUUID().toString() }),
-    CURRENTUSERID({ _: Any?, _: Any?, sl: AsyncSessionLogic? -> sl?.getCurrentUserId() }),
-    CURRENTHCPID({ _: Any?, _: Any?, sl: AsyncSessionLogic? -> sl?.getCurrentHealthcarePartyId() }),
-    NOFIX({ _: Any?, v: Any?, _: AsyncSessionLogic? -> v }),
-    NORMALIZECODE({ _: Any?, v: Any?, _: AsyncSessionLogic? -> (v as? CodeIdentification)?.normalizeIdentification() ?: v });
+enum class AutoFix(private val fixer: suspend (b: Any?, v: Any?, sl: AsyncSessionLogic?) -> Any?) {
+	FUZZYNOW({ _: Any?, _: Any?, _: AsyncSessionLogic? -> FuzzyValues.getCurrentFuzzyDateTime() }),
+	NOW({ _: Any?, _: Any?, _: AsyncSessionLogic? -> Instant.now().toEpochMilli() }),
+	UUID({ _: Any?, _: Any?, _: AsyncSessionLogic? -> java.util.UUID.randomUUID().toString() }),
+	CURRENTUSERID({ _: Any?, _: Any?, sl: AsyncSessionLogic? -> sl?.getCurrentUserId() }),
+	CURRENTHCPID({ _: Any?, _: Any?, sl: AsyncSessionLogic? -> sl?.getCurrentHealthcarePartyId() }),
+	NOFIX({ _: Any?, v: Any?, _: AsyncSessionLogic? -> v }),
+	NORMALIZECODE({ _: Any?, v: Any?, _: AsyncSessionLogic? -> (v as? CodeIdentification)?.normalizeIdentification() ?: v });
 
-    suspend fun fix(bean: Any?, value: Any?, sessionLogic: AsyncSessionLogic?): Any? {
-        return (value as? MutableSet<*>)?.let { it.map { v: Any? -> fixer(bean, v, sessionLogic) }.toMutableSet() }
-                ?: (value as? MutableList<*>)?.let { it.map { v: Any? -> fixer(bean, v, sessionLogic) }.toMutableList() }
-                ?: (value as? Set<*>)?.let { it.map { v: Any? -> fixer(bean, v, sessionLogic) }.toSet() }
-                ?: (value as? Collection<*>)?.let { it.map { v: Any? -> fixer(bean, v, sessionLogic) } }
-                ?: fixer(bean, value, sessionLogic)
-    }
+	suspend fun fix(bean: Any?, value: Any?, sessionLogic: AsyncSessionLogic?): Any? {
+		return (value as? MutableSet<*>)?.let { it.map { v: Any? -> fixer(bean, v, sessionLogic) }.toMutableSet() }
+			?: (value as? MutableList<*>)?.let { it.map { v: Any? -> fixer(bean, v, sessionLogic) }.toMutableList() }
+			?: (value as? Set<*>)?.let { it.map { v: Any? -> fixer(bean, v, sessionLogic) }.toSet() }
+			?: (value as? Collection<*>)?.let { it.map { v: Any? -> fixer(bean, v, sessionLogic) } }
+			?: fixer(bean, value, sessionLogic)
+	}
 }

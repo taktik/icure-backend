@@ -17,6 +17,7 @@
  */
 package org.taktik.icure.asynclogic.impl
 
+import java.util.TreeSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -43,139 +44,149 @@ import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.utils.aggregateResults
-import java.util.TreeSet
 
 /**
  * Created by emad7105 on 24/06/2014.
  */
 @ExperimentalCoroutinesApi
 @Service
-class HealthElementLogicImpl(private val filters: Filters,
-                             private val healthElementDAO: HealthElementDAO,
-                             private val uuidGenerator: UUIDGenerator,
-                             private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<HealthElement, HealthElementDAO>(sessionLogic), HealthElementLogic {
+class HealthElementLogicImpl(
+	private val filters: Filters,
+	private val healthElementDAO: HealthElementDAO,
+	private val uuidGenerator: UUIDGenerator,
+	private val sessionLogic: AsyncSessionLogic
+) : GenericLogicImpl<HealthElement, HealthElementDAO>(sessionLogic), HealthElementLogic {
 
-    override fun getGenericDAO(): HealthElementDAO {
-        return healthElementDAO
-    }
+	override fun getGenericDAO(): HealthElementDAO {
+		return healthElementDAO
+	}
 
-    override suspend fun createHealthElement(healthElement: HealthElement) = fix(healthElement) { healthElement ->
-        try { // Fetching the hcParty
-            createEntities(setOf(healthElement)).firstOrNull()
-        } catch (e: Exception) {
-            log.error("createHealthElement: " + e.message)
-            throw IllegalArgumentException("Invalid Healthcare problem", e)
-        }
-    }
+	override suspend fun createHealthElement(healthElement: HealthElement) = fix(healthElement) { healthElement ->
+		try { // Fetching the hcParty
+			createEntities(setOf(healthElement)).firstOrNull()
+		} catch (e: Exception) {
+			log.error("createHealthElement: " + e.message)
+			throw IllegalArgumentException("Invalid Healthcare problem", e)
+		}
+	}
 
-    override suspend fun getHealthElement(healthElementId: String): HealthElement? {
-        return healthElementDAO.getHealthElement(healthElementId)
-    }
+	override suspend fun getHealthElement(healthElementId: String): HealthElement? {
+		return healthElementDAO.getHealthElement(healthElementId)
+	}
 
-    override fun getHealthElements(healthElementIds: List<String>): Flow<HealthElement> = flow {
-        emitAll(healthElementDAO.getEntities(healthElementIds))
-    }
+	override fun getHealthElements(healthElementIds: List<String>): Flow<HealthElement> = flow {
+		emitAll(healthElementDAO.getEntities(healthElementIds))
+	}
 
-    override fun listHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>) = flow {
-        emitAll(healthElementDAO.listHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys))
-    }
+	override fun listHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>) = flow {
+		emitAll(healthElementDAO.listHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys))
+	}
 
-    override fun listHealthElementIdsByHcParty(hcpId: String) = flow {
-        emitAll(healthElementDAO.listHealthElementsByHcParty(hcpId))
-    }
+	override fun listHealthElementIdsByHcParty(hcpId: String) = flow {
+		emitAll(healthElementDAO.listHealthElementsByHcParty(hcpId))
+	}
 
-    override fun listHealthElementIdsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatinetKeys: List<String>) = flow {
-        emitAll(healthElementDAO.listHealthElementIdsByHcPartyAndSecretPatientKeys(hcPartyId, secretPatinetKeys))
-    }
+	override fun listHealthElementIdsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatinetKeys: List<String>) = flow {
+		emitAll(healthElementDAO.listHealthElementIdsByHcPartyAndSecretPatientKeys(hcPartyId, secretPatinetKeys))
+	}
 
-    override suspend fun listLatestHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): List<HealthElement> {
-        return healthElementDAO.listHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys).toList()
-                .groupBy { it.healthElementId }.values.mapNotNull { value -> value.maxByOrNull { it: HealthElement ->
-                    it.modified ?: it.created ?: 0L
-                } }
-    }
+	override suspend fun listLatestHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): List<HealthElement> {
+		return healthElementDAO.listHealthElementsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys).toList()
+			.groupBy { it.healthElementId }.values.mapNotNull { value ->
+				value.maxByOrNull { it: HealthElement ->
+					it.modified ?: it.created ?: 0L
+				}
+			}
+	}
 
-    override fun listHealthElementIdsByHcPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String) = flow {
-        emitAll(healthElementDAO.listHealthElementsByHcPartyAndCodes(hcPartyId, codeType, codeNumber))
-    }
+	override fun listHealthElementIdsByHcPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String) = flow {
+		emitAll(healthElementDAO.listHealthElementsByHcPartyAndCodes(hcPartyId, codeType, codeNumber))
+	}
 
-    override fun listHealthElementIdsByHcPartyAndTags(hcPartyId: String, tagType: String, tagCode: String) = flow {
-        emitAll(healthElementDAO.listHealthElementsByHcPartyAndTags(hcPartyId, tagType, tagCode))
-    }
+	override fun listHealthElementIdsByHcPartyAndTags(hcPartyId: String, tagType: String, tagCode: String) = flow {
+		emitAll(healthElementDAO.listHealthElementsByHcPartyAndTags(hcPartyId, tagType, tagCode))
+	}
 
-    override fun listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>) = flow {
-        emitAll(healthElementDAO.listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId, identifiers))
-    }
+	override fun listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>) = flow {
+		emitAll(healthElementDAO.listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId, identifiers))
+	}
 
-    override fun listHealthElementIdsByHcPartyAndStatus(hcPartyId: String, status: Int) = flow {
-        emitAll(healthElementDAO.listHealthElementsByHcPartyAndStatus(hcPartyId, status))
-    }
+	override fun listHealthElementIdsByHcPartyAndStatus(hcPartyId: String, status: Int) = flow {
+		emitAll(healthElementDAO.listHealthElementsByHcPartyAndStatus(hcPartyId, status))
+	}
 
-    override fun deleteHealthElements(ids: Set<String>): Flow<DocIdentifier> {
-        return try {
-            deleteEntities(ids)
-        } catch (e: Exception) {
-            log.error(e.message, e)
-            flowOf()
-        }
-    }
+	override fun deleteHealthElements(ids: Set<String>): Flow<DocIdentifier> {
+		return try {
+			deleteEntities(ids)
+		} catch (e: Exception) {
+			log.error(e.message, e)
+			flowOf()
+		}
+	}
 
-    override suspend fun modifyHealthElement(healthElement: HealthElement) = fix(healthElement) { healthElement ->
-        try {
-            modifyEntities(setOf(healthElement)).firstOrNull()
-        } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid Health problem", e)
-        }
-    }
+	override suspend fun modifyHealthElement(healthElement: HealthElement) = fix(healthElement) { healthElement ->
+		try {
+			modifyEntities(setOf(healthElement)).firstOrNull()
+		} catch (e: Exception) {
+			throw IllegalArgumentException("Invalid Health problem", e)
+		}
+	}
 
-    override suspend fun addDelegation(healthElementId: String, delegation: Delegation): HealthElement? {
-        val healthElement = getHealthElement(healthElementId)
-        return delegation.delegatedTo?.let { healthcarePartyId ->
-            healthElement?.let { c -> healthElementDAO.save(c.copy(delegations = c.delegations + mapOf(
-                    healthcarePartyId to setOf(delegation)
-            )))}
-        } ?: healthElement
-    }
+	override suspend fun addDelegation(healthElementId: String, delegation: Delegation): HealthElement? {
+		val healthElement = getHealthElement(healthElementId)
+		return delegation.delegatedTo?.let { healthcarePartyId ->
+			healthElement?.let { c ->
+				healthElementDAO.save(
+					c.copy(
+						delegations = c.delegations + mapOf(
+							healthcarePartyId to setOf(delegation)
+						)
+					)
+				)
+			}
+		} ?: healthElement
+	}
 
-    override suspend fun addDelegations(healthElementId: String, delegations: List<Delegation>): HealthElement? {
-        val healthElement = getHealthElement(healthElementId)
-        return healthElement?.let {
-            return healthElementDAO.save(it.copy(
-                    delegations = it.delegations +
-                            delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
-            ))
-        }
-    }
+	override suspend fun addDelegations(healthElementId: String, delegations: List<Delegation>): HealthElement? {
+		val healthElement = getHealthElement(healthElementId)
+		return healthElement?.let {
+			return healthElementDAO.save(
+				it.copy(
+					delegations = it.delegations +
+						delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
+				)
+			)
+		}
+	}
 
-    override fun solveConflicts(): Flow<HealthElement> =
-        healthElementDAO.listConflicts().mapNotNull {
-            healthElementDAO.get(it.id, Option.CONFLICTS)?.let { healthElement ->
-                healthElement.conflicts?.mapNotNull { conflictingRevision ->
-                    healthElementDAO.get(
-                        healthElement.id,
-                        conflictingRevision
-                    )
-                }
-                    ?.fold(healthElement) { kept, conflict ->
-                        kept.merge(conflict).also { healthElementDAO.purge(conflict) }
-                    }
-                    ?.let { mergedHealthElement -> healthElementDAO.save(mergedHealthElement) }
-            }
-        }
+	override fun solveConflicts(): Flow<HealthElement> =
+		healthElementDAO.listConflicts().mapNotNull {
+			healthElementDAO.get(it.id, Option.CONFLICTS)?.let { healthElement ->
+				healthElement.conflicts?.mapNotNull { conflictingRevision ->
+					healthElementDAO.get(
+						healthElement.id,
+						conflictingRevision
+					)
+				}
+					?.fold(healthElement) { kept, conflict ->
+						kept.merge(conflict).also { healthElementDAO.purge(conflict) }
+					}
+					?.let { mergedHealthElement -> healthElementDAO.save(mergedHealthElement) }
+			}
+		}
 
+	override fun filter(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<HealthElement>) =
+		flow<ViewQueryResultEvent> {
+			val ids = filters.resolve(filter.filter).toSet(TreeSet())
+			aggregateResults(
+				ids = ids,
+				limit = paginationOffset.limit,
+				supplier = { healthElementIds: Collection<String> -> healthElementDAO.findHealthElementsByIds(healthElementIds.asFlow()) },
+				startDocumentId = paginationOffset.startDocumentId
+			).forEach { emit(it) }
+		}
 
-    override fun filter(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<HealthElement>) =
-        flow<ViewQueryResultEvent> {
-            val ids = filters.resolve(filter.filter).toSet(TreeSet())
-            aggregateResults(
-                ids = ids,
-                limit = paginationOffset.limit,
-                supplier = { healthElementIds: Collection<String> -> healthElementDAO.findHealthElementsByIds(healthElementIds.asFlow()) },
-                startDocumentId = paginationOffset.startDocumentId
-            ).forEach { emit(it) }
-        }
-
-    companion object {
-        private val log = LoggerFactory.getLogger(HealthElementLogicImpl::class.java)
-    }
+	companion object {
+		private val log = LoggerFactory.getLogger(HealthElementLogicImpl::class.java)
+	}
 }

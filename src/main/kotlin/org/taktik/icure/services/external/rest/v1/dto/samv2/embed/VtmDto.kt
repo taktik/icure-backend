@@ -26,8 +26,8 @@ import com.github.pozo.KotlinBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class VtmDto(
-        override val from: Long? = null,
-        override val to: Long? = null,
-        val code: String? = null,
-        val name: SamTextDto? = null
+	override val from: Long? = null,
+	override val to: Long? = null,
+	val code: String? = null,
+	val name: SamTextDto? = null
 ) : DataPeriodDto

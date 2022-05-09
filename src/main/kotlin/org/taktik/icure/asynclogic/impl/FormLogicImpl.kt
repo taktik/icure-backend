@@ -39,102 +39,112 @@ import org.taktik.icure.entities.embed.Delegation
 
 @ExperimentalCoroutinesApi
 @Service
-class FormLogicImpl(private val formDAO: FormDAO,
-                    private val sessionLogic: AsyncSessionLogic,
-                    private val uuidGenerator: UUIDGenerator) : GenericLogicImpl<Form, FormDAO>(sessionLogic), FormLogic {
+class FormLogicImpl(
+	private val formDAO: FormDAO,
+	private val sessionLogic: AsyncSessionLogic,
+	private val uuidGenerator: UUIDGenerator
+) : GenericLogicImpl<Form, FormDAO>(sessionLogic), FormLogic {
 
-    override suspend fun getForm(id: String): Form? {
-        return formDAO.get(id)
-    }
+	override suspend fun getForm(id: String): Form? {
+		return formDAO.get(id)
+	}
 
-    override fun getForms(selectedIds: Collection<String>): Flow<Form> = flow {
-        emitAll(formDAO.getEntities(selectedIds))
-    }
+	override fun getForms(selectedIds: Collection<String>): Flow<Form> = flow {
+		emitAll(formDAO.getEntities(selectedIds))
+	}
 
-    override suspend fun getAllByLogicalUuid(formUuid: String): List<Form> {
-        return formDAO.getAllByLogicalUuid(formUuid)
-    }
+	override suspend fun getAllByLogicalUuid(formUuid: String): List<Form> {
+		return formDAO.getAllByLogicalUuid(formUuid)
+	}
 
-    override suspend fun getAllByUniqueId(lid: String): List<Form> {
-        return formDAO.getAllByUniqueId(lid)
-    }
+	override suspend fun getAllByUniqueId(lid: String): List<Form> {
+		return formDAO.getAllByUniqueId(lid)
+	}
 
+	override fun listFormsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>, healthElementId: String?, planOfActionId: String?, formTemplateId: String?): Flow<Form> = flow {
+		val forms = formDAO.listFormsByHcPartyPatient(hcPartyId, secretPatientKeys)
+		val filteredForms = forms.filter { f ->
+			(healthElementId == null || healthElementId == f.healthElementId) &&
+				(planOfActionId == null || planOfActionId == f.planOfActionId) &&
+				(formTemplateId == null || formTemplateId == f.formTemplateId)
+		}
+		emitAll(filteredForms)
+	}
 
-    override fun listFormsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>, healthElementId: String?, planOfActionId: String?, formTemplateId: String?): Flow<Form> = flow {
-        val forms = formDAO.listFormsByHcPartyPatient(hcPartyId, secretPatientKeys)
-        val filteredForms = forms.filter { f ->
-            (healthElementId == null || healthElementId == f.healthElementId) &&
-                    (planOfActionId == null || planOfActionId == f.planOfActionId) &&
-                    (formTemplateId == null || formTemplateId == f.formTemplateId)
-        }
-        emitAll(filteredForms)
-    }
+	override suspend fun addDelegation(formId: String, delegation: Delegation): Form? {
+		val form = getForm(formId)
+		return delegation.delegatedTo?.let { healthcarePartyId ->
+			form?.let { c ->
+				formDAO.save(
+					c.copy(
+						delegations = c.delegations + mapOf(
+							healthcarePartyId to setOf(delegation)
+						)
+					)
+				)
+			}
+		} ?: form
+	}
 
-    override suspend fun addDelegation(formId: String, delegation: Delegation): Form? {
-        val form = getForm(formId)
-        return delegation.delegatedTo?.let { healthcarePartyId ->
-            form?.let { c -> formDAO.save(c.copy(delegations = c.delegations + mapOf(
-                    healthcarePartyId to setOf(delegation)
-            )))}
-        } ?: form
-    }
+	override suspend fun createForm(form: Form): Form? = fix(form) { form ->
+		try { // Fetching the hcParty
+			createEntities(setOf(form)).firstOrNull()
+		} catch (e: Exception) {
+			logger.error("createContact: " + e.message)
+			throw IllegalArgumentException("Invalid form", e)
+		}
+	}
 
-    override suspend fun createForm(form: Form): Form? = fix(form) { form ->
-        try { // Fetching the hcParty
-            createEntities(setOf(form)).firstOrNull()
-        } catch (e: Exception) {
-            logger.error("createContact: " + e.message)
-            throw IllegalArgumentException("Invalid form", e)
-        }
-    }
+	override fun deleteForms(ids: Set<String>): Flow<DocIdentifier> {
+		return try {
+			deleteEntities(ids)
+		} catch (e: Exception) {
+			logger.error(e.message, e)
+			return flowOf()
+		}
+	}
 
-    override fun deleteForms(ids: Set<String>): Flow<DocIdentifier> {
-        return try {
-            deleteEntities(ids)
-        } catch (e: Exception) {
-            logger.error(e.message, e)
-            return flowOf()
-        }
-    }
+	override suspend fun modifyForm(form: Form) = fix(form) { form ->
+		try {
+			formDAO.save(if (form.created == null) form.copy(created = getForm(form.id)?.created) else form)
+		} catch (e: CouchDbException) { //resolveConflict(form, e);
+			logger.warn("Documents of class {} with id {} and rev {} could not be merged", form.javaClass.simpleName, form.id, form.rev)
+			throw IllegalArgumentException("Invalid form", e)
+		} catch (e: Exception) {
+			throw IllegalArgumentException("Invalid form", e)
+		}
+	}
 
-    override suspend fun modifyForm(form: Form) = fix(form) { form ->
-        try {
-            formDAO.save(if (form.created == null) form.copy(created = getForm(form.id)?.created) else form)
-        } catch (e: CouchDbException) { //resolveConflict(form, e);
-            logger.warn("Documents of class {} with id {} and rev {} could not be merged", form.javaClass.simpleName, form.id, form.rev)
-            throw IllegalArgumentException("Invalid form", e)
-        } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid form", e)
-        }
-    }
+	override fun listByHcPartyAndParentId(hcPartyId: String, formId: String): Flow<Form> = flow {
+		emitAll(formDAO.listFormsByHcPartyAndParentId(hcPartyId, formId))
+	}
 
-    override fun listByHcPartyAndParentId(hcPartyId: String, formId: String): Flow<Form> = flow {
-        emitAll(formDAO.listFormsByHcPartyAndParentId(hcPartyId, formId))
-    }
+	override suspend fun addDelegations(formId: String, delegations: List<Delegation>): Form? {
+		val form = getForm(formId)
+		return form?.let {
+			formDAO.save(
+				it.copy(
+					delegations = it.delegations +
+						delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
+				)
+			)
+		}
+	}
 
-    override suspend fun addDelegations(formId: String, delegations: List<Delegation>): Form? {
-        val form = getForm(formId)
-        return form?.let {
-            formDAO.save(it.copy(
-                    delegations = it.delegations +
-                            delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
-            ))
-        }
-    }
+	override fun getGenericDAO(): FormDAO {
+		return formDAO
+	}
 
-    override fun getGenericDAO(): FormDAO {
-        return formDAO
-    }
+	override fun solveConflicts(): Flow<Form> =
+		formDAO.listConflicts().mapNotNull {
+			formDAO.get(it.id, Option.CONFLICTS)?.let { form ->
+				form.conflicts?.mapNotNull { conflictingRevision -> formDAO.get(form.id, conflictingRevision) }
+					?.fold(form) { kept, conflict -> kept.merge(conflict).also { formDAO.purge(conflict) } }
+					?.let { mergedForm -> formDAO.save(mergedForm) }
+			}
+		}
 
-    override fun solveConflicts(): Flow<Form> =
-            formDAO.listConflicts().mapNotNull { formDAO.get(it.id, Option.CONFLICTS)?.let { form ->
-                form.conflicts?.mapNotNull { conflictingRevision -> formDAO.get(form.id, conflictingRevision) }
-                        ?.fold(form) { kept, conflict -> kept.merge(conflict).also { formDAO.purge(conflict) } }
-                        ?.let { mergedForm -> formDAO.save(mergedForm) }
-            } }
-
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(FormLogicImpl::class.java)
-    }
+	companion object {
+		private val logger = LoggerFactory.getLogger(FormLogicImpl::class.java)
+	}
 }

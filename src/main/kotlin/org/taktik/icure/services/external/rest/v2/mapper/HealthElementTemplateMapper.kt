@@ -29,12 +29,12 @@ import org.taktik.icure.services.external.rest.v2.mapper.embed.PlanOfActionTempl
 
 @Mapper(componentModel = "spring", uses = [PlanOfActionTemplateV2Mapper::class, CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface HealthElementTemplateV2Mapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(healthElementTemplateDto: HealthElementTemplateDto):HealthElementTemplate
-	fun map(healthElementTemplate: HealthElementTemplate):HealthElementTemplateDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(healthElementTemplateDto: HealthElementTemplateDto): HealthElementTemplate
+	fun map(healthElementTemplate: HealthElementTemplate): HealthElementTemplateDto
 }

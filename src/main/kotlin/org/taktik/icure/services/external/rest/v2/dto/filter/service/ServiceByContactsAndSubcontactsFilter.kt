@@ -32,10 +32,10 @@ import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class ServiceByContactsAndSubcontactsFilter(
-        override val desc:String? = null,
-        override val healthcarePartyId: String? = null,
-        override val contacts: Set<String>,
-        override val subContacts: Set<String>? = null,
-        override val startValueDate: Long? = null,
-        override val endValueDate: Long? = null
+	override val desc: String? = null,
+	override val healthcarePartyId: String? = null,
+	override val contacts: Set<String>,
+	override val subContacts: Set<String>? = null,
+	override val startValueDate: Long? = null,
+	override val endValueDate: Long? = null
 ) : AbstractFilterDto<Service>, org.taktik.icure.domain.filter.service.ServiceByContactsAndSubcontactsFilter

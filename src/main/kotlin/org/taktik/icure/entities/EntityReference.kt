@@ -21,8 +21,6 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.entities.base.StoredDocument
@@ -34,25 +32,25 @@ import org.taktik.icure.utils.invoke
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class EntityReference(
-        @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String? = null,
-        @JsonProperty("deleted") override val deletionDate: Long? = null,
+	@JsonProperty("_id") override val id: String,
+	@JsonProperty("_rev") override val rev: String? = null,
+	@JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        val docId: String? = null,
+	val docId: String? = null,
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
+	@JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+	@JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+	@JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredDocument {
-    companion object : DynamicInitializer<EntityReference>
+	companion object : DynamicInitializer<EntityReference>
 
-    fun merge(other: EntityReference) = EntityReference(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: EntityReference) = super.solveConflictsWith(other) + mapOf(
-            "docId" to (this.docId ?: other.docId)
-    )
+	fun merge(other: EntityReference) = EntityReference(args = this.solveConflictsWith(other))
+	fun solveConflictsWith(other: EntityReference) = super.solveConflictsWith(other) + mapOf(
+		"docId" to (this.docId ?: other.docId)
+	)
 
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

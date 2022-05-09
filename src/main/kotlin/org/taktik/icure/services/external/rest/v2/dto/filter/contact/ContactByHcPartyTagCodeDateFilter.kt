@@ -32,12 +32,12 @@ import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class ContactByHcPartyTagCodeDateFilter(
-        override val desc:String? = null,
-        override val healthcarePartyId: String? = null,
-        override val tagType: String? = null,
-        override val tagCode: String? = null,
-        override val codeType: String? = null,
-        override val codeCode: String? = null,
-        override val startOfContactOpeningDate: Long? = null,
-        override val endOfContactOpeningDate: Long? = null
+	override val desc: String? = null,
+	override val healthcarePartyId: String? = null,
+	override val tagType: String? = null,
+	override val tagCode: String? = null,
+	override val codeType: String? = null,
+	override val codeCode: String? = null,
+	override val startOfContactOpeningDate: Long? = null,
+	override val endOfContactOpeningDate: Long? = null
 ) : AbstractFilterDto<Contact>, org.taktik.icure.domain.filter.contact.ContactByHcPartyTagCodeDateFilter

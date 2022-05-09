@@ -23,6 +23,6 @@ import org.taktik.icure.entities.embed.PersonalStatus
 import org.taktik.icure.services.external.rest.v2.dto.embed.PersonalStatusDto
 @Mapper(componentModel = "spring")
 interface PersonalStatusV2Mapper {
-	fun map(personalStatusDto: PersonalStatusDto):PersonalStatus
-	fun map(personalStatus: PersonalStatus):PersonalStatusDto
+	fun map(personalStatusDto: PersonalStatusDto): PersonalStatus
+	fun map(personalStatus: PersonalStatus): PersonalStatusDto
 }

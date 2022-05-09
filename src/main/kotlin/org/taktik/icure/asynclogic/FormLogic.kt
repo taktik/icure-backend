@@ -25,21 +25,21 @@ import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.embed.Delegation
 
 interface FormLogic : EntityPersister<Form, String> {
-    suspend fun getForm(id: String): Form?
-    fun getForms(selectedIds: Collection<String>): Flow<Form>
-    fun listFormsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>, healthElementId: String?, planOfActionId: String?, formTemplateId: String?): Flow<Form>
+	suspend fun getForm(id: String): Form?
+	fun getForms(selectedIds: Collection<String>): Flow<Form>
+	fun listFormsByHCPartyAndPatient(hcPartyId: String, secretPatientKeys: List<String>, healthElementId: String?, planOfActionId: String?, formTemplateId: String?): Flow<Form>
 
-    suspend fun addDelegation(formId: String, delegation: Delegation): Form?
+	suspend fun addDelegation(formId: String, delegation: Delegation): Form?
 
-    suspend fun createForm(form: Form): Form?
-    fun deleteForms(ids: Set<String>): Flow<DocIdentifier>
+	suspend fun createForm(form: Form): Form?
+	fun deleteForms(ids: Set<String>): Flow<DocIdentifier>
 
-    suspend fun modifyForm(form: Form): Form?
-    fun listByHcPartyAndParentId(hcPartyId: String, formId: String): Flow<Form>
+	suspend fun modifyForm(form: Form): Form?
+	fun listByHcPartyAndParentId(hcPartyId: String, formId: String): Flow<Form>
 
-    suspend fun addDelegations(formId: String, delegations: List<Delegation>): Form?
-    fun getGenericDAO(): FormDAO
-    fun solveConflicts(): Flow<Form>
-    suspend fun getAllByLogicalUuid(formUuid: String): List<Form>
-    suspend fun getAllByUniqueId(lid: String): List<Form>
+	suspend fun addDelegations(formId: String, delegations: List<Delegation>): Form?
+	fun getGenericDAO(): FormDAO
+	fun solveConflicts(): Flow<Form>
+	suspend fun getAllByLogicalUuid(formUuid: String): List<Form>
+	suspend fun getAllByUniqueId(lid: String): List<Form>
 }

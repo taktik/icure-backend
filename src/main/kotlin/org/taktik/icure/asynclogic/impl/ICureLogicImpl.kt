@@ -17,6 +17,7 @@
  */
 package org.taktik.icure.asynclogic.impl
 
+import java.net.URI
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.LoggerContext
 import kotlinx.coroutines.flow.toList
@@ -33,85 +34,85 @@ import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.entities.embed.DatabaseSynchronization
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.services.external.rest.v1.dto.ReplicationInfoDto
-import java.net.URI
 
 @Service
-class ICureLogicImpl(couchDbProperties: CouchDbProperties,
-                     private val sessionLogic: AsyncSessionLogic,
-                     private val iCureDAO: ICureDAO,
-                     private val propertyLogic: PropertyLogic,
-                     private val allDaos: List<GenericDAO<*>>,
-                     private val userDAO: UserDAO) : ICureLogic {
+class ICureLogicImpl(
+	couchDbProperties: CouchDbProperties,
+	private val sessionLogic: AsyncSessionLogic,
+	private val iCureDAO: ICureDAO,
+	private val propertyLogic: PropertyLogic,
+	private val allDaos: List<GenericDAO<*>>,
+	private val userDAO: UserDAO
+) : ICureLogic {
 
-    private val dbInstanceUri = URI(couchDbProperties.url)
+	private val dbInstanceUri = URI(couchDbProperties.url)
 
-    override suspend fun getIndexingStatus(): Map<String, Number>? {
-        return iCureDAO.getIndexingStatus(dbInstanceUri)
-    }
+	override suspend fun getIndexingStatus(): Map<String, Number>? {
+		return iCureDAO.getIndexingStatus(dbInstanceUri)
+	}
 
-    override suspend fun getReplicationInfo(): ReplicationInfoDto {
-        val changes: Map<DatabaseSynchronization, Long> = iCureDAO.getPendingChanges(dbInstanceUri)
-        return changes.toList().fold(ReplicationInfoDto()) { r, (db, pending) ->
-            r.copy(
-                    active = true,
-                    pendingFrom = if(db.source?.contains(dbInstanceUri.host) == true) ((r.pendingFrom ?: 0) + pending).toInt() else r.pendingFrom,
-                    pendingTo = if(db.source?.contains(dbInstanceUri.host) == true) ((r.pendingTo ?: 0) + pending).toInt() else r.pendingTo
-            )
-        }
-    }
+	override suspend fun getReplicationInfo(): ReplicationInfoDto {
+		val changes: Map<DatabaseSynchronization, Long> = iCureDAO.getPendingChanges(dbInstanceUri)
+		return changes.toList().fold(ReplicationInfoDto()) { r, (db, pending) ->
+			r.copy(
+				active = true,
+				pendingFrom = if (db.source?.contains(dbInstanceUri.host) == true) ((r.pendingFrom ?: 0) + pending).toInt() else r.pendingFrom,
+				pendingTo = if (db.source?.contains(dbInstanceUri.host) == true) ((r.pendingTo ?: 0) + pending).toInt() else r.pendingTo
+			)
+		}
+	}
 
-    override suspend fun modifyDesignDoc(daoEntityName: String, warmup:Boolean) {
-        allDaos
-                .firstOrNull { dao: GenericDAO<*> -> dao.javaClass.simpleName.startsWith(daoEntityName + "DAO") }
-                ?.let { dao: GenericDAO<*> ->
-                    dao.forceInitStandardDesignDocument()
-                    if (warmup) {
-                        val allIds = dao.getEntityIds(1).toList()
-                    }
-                }
-    }
+	override suspend fun modifyDesignDoc(daoEntityName: String, warmup: Boolean) {
+		allDaos
+			.firstOrNull { dao: GenericDAO<*> -> dao.javaClass.simpleName.startsWith(daoEntityName + "DAO") }
+			?.let { dao: GenericDAO<*> ->
+				dao.forceInitStandardDesignDocument()
+				if (warmup) {
+					val allIds = dao.getEntityIds(1).toList()
+				}
+			}
+	}
 
-    override suspend fun modifyDesignDocs() {
-        allDaos.forEach { dao: GenericDAO<*> ->
-            try {
-                dao.forceInitStandardDesignDocument()
-            } catch (ignored: Throwable) {
-            }
-        }
-    }
+	override suspend fun modifyDesignDocs() {
+		allDaos.forEach { dao: GenericDAO<*> ->
+			try {
+				dao.forceInitStandardDesignDocument()
+			} catch (ignored: Throwable) {
+			}
+		}
+	}
 
-    override suspend fun setLogLevel(logLevel: String, packageName: String): String {
-        val retVal: String
-        val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
-        if (logLevel.equals("TRACE", ignoreCase = true)) {
-            loggerContext.getLogger(packageName).level = Level.TRACE
-            retVal = "ok"
-        } else if (logLevel.equals("DEBUG", ignoreCase = true)) {
-            loggerContext.getLogger(packageName).level = Level.DEBUG
-            retVal = "ok"
-        } else if (logLevel.equals("INFO", ignoreCase = true)) {
-            loggerContext.getLogger(packageName).level = Level.INFO
-            retVal = "ok"
-        } else if (logLevel.equals("WARN", ignoreCase = true)) {
-            loggerContext.getLogger(packageName).level = Level.WARN
-            retVal = "ok"
-        } else if (logLevel.equals("ERROR", ignoreCase = true)) {
-            loggerContext.getLogger(packageName).level = Level.ERROR
-            retVal = "ok"
-        } else {
-            retVal = "Error, not a known loglevel: $logLevel"
-        }
-        return retVal
-    }
+	override suspend fun setLogLevel(logLevel: String, packageName: String): String {
+		val retVal: String
+		val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
+		if (logLevel.equals("TRACE", ignoreCase = true)) {
+			loggerContext.getLogger(packageName).level = Level.TRACE
+			retVal = "ok"
+		} else if (logLevel.equals("DEBUG", ignoreCase = true)) {
+			loggerContext.getLogger(packageName).level = Level.DEBUG
+			retVal = "ok"
+		} else if (logLevel.equals("INFO", ignoreCase = true)) {
+			loggerContext.getLogger(packageName).level = Level.INFO
+			retVal = "ok"
+		} else if (logLevel.equals("WARN", ignoreCase = true)) {
+			loggerContext.getLogger(packageName).level = Level.WARN
+			retVal = "ok"
+		} else if (logLevel.equals("ERROR", ignoreCase = true)) {
+			loggerContext.getLogger(packageName).level = Level.ERROR
+			retVal = "ok"
+		} else {
+			retVal = "Error, not a known loglevel: $logLevel"
+		}
+		return retVal
+	}
 
-    override fun getVersion(): String {
-        val manifest = JarUtils.getManifest()
-        return if (manifest != null) {
-            val version = manifest.mainAttributes.getValue("Build-revision")
-            version?.trim { it <= ' ' } ?: ""
-        } else {
-            propertyLogic.getSystemPropertyValue<Any>(PropertyTypes.System.VERSION.identifier).toString().trim { it <= ' ' }
-        }
-    }
-
+	override fun getVersion(): String {
+		val manifest = JarUtils.getManifest()
+		return if (manifest != null) {
+			val version = manifest.mainAttributes.getValue("Build-revision")
+			version?.trim { it <= ' ' } ?: ""
+		} else {
+			propertyLogic.getSystemPropertyValue<Any>(PropertyTypes.System.VERSION.identifier).toString().trim { it <= ' ' }
+		}
+	}
 }

@@ -24,5 +24,5 @@ import org.springframework.stereotype.Component
 @Component
 @ConfigurationProperties("icure.authentication")
 data class AuthenticationProperties(
-    var local:Boolean = false
+	var local: Boolean = false
 )

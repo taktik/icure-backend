@@ -21,6 +21,6 @@ import org.taktik.icure.domain.filter.Filter
 import org.taktik.icure.entities.Patient
 
 interface PatientByHcPartyDateOfBirthFilter : Filter<String, Patient> {
-    val dateOfBirth: Int
-    val healthcarePartyId: String?
+	val dateOfBirth: Int
+	val healthcarePartyId: String?
 }

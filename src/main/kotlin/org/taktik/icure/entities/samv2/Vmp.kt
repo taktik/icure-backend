@@ -36,27 +36,27 @@ import org.taktik.icure.entities.samv2.stub.VmpGroupStub
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class Vmp(
-        @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String? = null,
-        @JsonProperty("deleted") override val deletionDate: Long? = null,
+	@JsonProperty("_id") override val id: String,
+	@JsonProperty("_rev") override val rev: String? = null,
+	@JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        val from: Long? = null,
-        val to: Long? = null,
-        val code: String? = null,
-        val vmpGroup: VmpGroupStub? = null,
-        val name: SamText? = null,
-        val abbreviation: SamText? = null,
-        val vtm: Vtm? = null,
-        val wadas: Set<Wada>? = null,
-        val components: Set<VmpComponent>? = null,
-        val commentedClassifications: Set<CommentedClassification>? = null,
+	val from: Long? = null,
+	val to: Long? = null,
+	val code: String? = null,
+	val vmpGroup: VmpGroupStub? = null,
+	val name: SamText? = null,
+	val abbreviation: SamText? = null,
+	val vtm: Vtm? = null,
+	val wadas: Set<Wada>? = null,
+	val components: Set<VmpComponent>? = null,
+	val commentedClassifications: Set<CommentedClassification>? = null,
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
+	@JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+	@JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+	@JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredDocument {
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

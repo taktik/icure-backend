@@ -24,23 +24,23 @@ import org.taktik.icure.entities.Patient
 
 @KotlinBuilder
 data class PatientByHcPartyAndActiveFilter(
-        override val desc: String? = null,
-        override val active: Boolean = false,
-        override val healthcarePartyId: String? = null
+	override val desc: String? = null,
+	override val active: Boolean = false,
+	override val healthcarePartyId: String? = null
 ) : AbstractFilter<Patient>, org.taktik.icure.domain.filter.patient.PatientByHcPartyAndActiveFilter {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val filter = other as PatientByHcPartyAndActiveFilter
-        return Objects.equal(active, filter.active) &&
-                Objects.equal(healthcarePartyId, filter.healthcarePartyId)
-    }
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (other == null || javaClass != other.javaClass) return false
+		val filter = other as PatientByHcPartyAndActiveFilter
+		return Objects.equal(active, filter.active) &&
+			Objects.equal(healthcarePartyId, filter.healthcarePartyId)
+	}
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(active, healthcarePartyId)
-    }
+	override fun hashCode(): Int {
+		return Objects.hashCode(active, healthcarePartyId)
+	}
 
-    override fun matches(item: Patient): Boolean {
-        return (healthcarePartyId == null || item.delegations.keys.contains(healthcarePartyId)) && active == item.active
-    }
+	override fun matches(item: Patient): Boolean {
+		return (healthcarePartyId == null || item.delegations.keys.contains(healthcarePartyId)) && active == item.active
+	}
 }

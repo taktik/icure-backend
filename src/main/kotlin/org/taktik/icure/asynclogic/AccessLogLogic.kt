@@ -25,21 +25,20 @@ import org.taktik.icure.asyncdao.AccessLogDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.result.AggregatedAccessLogs
 import org.taktik.icure.entities.AccessLog
-import java.time.Instant
 
 interface AccessLogLogic : EntityPersister<AccessLog, String> {
-    suspend fun createAccessLog(accessLog: AccessLog): AccessLog?
+	suspend fun createAccessLog(accessLog: AccessLog): AccessLog?
 
-    fun deleteAccessLogs(ids: List<String>): Flow<DocIdentifier>
-    fun listAccessLogsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<AccessLog>
+	fun deleteAccessLogs(ids: List<String>): Flow<DocIdentifier>
+	fun listAccessLogsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<AccessLog>
 
-    suspend fun getAccessLog(accessLogId: String): AccessLog?
+	suspend fun getAccessLog(accessLogId: String): AccessLog?
 
-    fun listAccessLogsBy(fromEpoch: Long, toEpoch: Long, paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent>
+	fun listAccessLogsBy(fromEpoch: Long, toEpoch: Long, paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent>
 
-    fun findAccessLogsByUserAfterDate(userId: String, accessType: String?, startDate: Long?, pagination: PaginationOffset<List<*>>, descending: Boolean): Flow<ViewQueryResultEvent>
+	fun findAccessLogsByUserAfterDate(userId: String, accessType: String?, startDate: Long?, pagination: PaginationOffset<List<*>>, descending: Boolean): Flow<ViewQueryResultEvent>
 
-    suspend fun modifyAccessLog(accessLog: AccessLog): AccessLog?
-    fun getGenericDAO(): AccessLogDAO
-    suspend fun aggregatePatientByAccessLogs(userId: String, accessType: String?, startDate: Long?, startKey: String?, startDocumentId: String?, limit: Int): AggregatedAccessLogs
+	suspend fun modifyAccessLog(accessLog: AccessLog): AccessLog?
+	fun getGenericDAO(): AccessLogDAO
+	suspend fun aggregatePatientByAccessLogs(userId: String, accessType: String?, startDate: Long?, startKey: String?, startDocumentId: String?, limit: Int): AggregatedAccessLogs
 }

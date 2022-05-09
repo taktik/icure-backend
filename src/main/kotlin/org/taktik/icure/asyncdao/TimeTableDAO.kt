@@ -18,14 +18,12 @@
 
 package org.taktik.icure.asyncdao
 
-
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.TimeTable
-import java.net.URI
 
-interface TimeTableDAO: GenericDAO<TimeTable> {
+interface TimeTableDAO : GenericDAO<TimeTable> {
 	fun listTimeTableByAgendaId(agendaId: String): Flow<TimeTable>
 	fun listTimeTableByStartDateAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable>
 	fun listTimeTableByEndDateAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable>
-    fun listTimeTableByPeriodAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable>
+	fun listTimeTableByPeriodAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable>
 }

@@ -16,7 +16,7 @@ import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class HealthElementByHcPartyIdentifiersFilter(
-    override val desc:String? = null,
-    override val hcPartyId: String? = null,
-    override val identifiers: List<Identifier> = emptyList(),
+	override val desc: String? = null,
+	override val hcPartyId: String? = null,
+	override val identifiers: List<Identifier> = emptyList(),
 ) : AbstractFilterDto<HealthElement>, org.taktik.icure.domain.filter.healthelement.HealthElementByHcPartyIdentifiersFilter

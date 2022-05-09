@@ -23,6 +23,6 @@ import org.taktik.icure.entities.embed.DeactivationReason
 import org.taktik.icure.services.external.rest.v2.dto.embed.DeactivationReasonDto
 @Mapper(componentModel = "spring")
 interface DeactivationReasonV2Mapper {
-	fun map(deactivationReasonDto: DeactivationReasonDto):DeactivationReason
-	fun map(deactivationReason: DeactivationReason):DeactivationReasonDto
+	fun map(deactivationReasonDto: DeactivationReasonDto): DeactivationReason
+	fun map(deactivationReason: DeactivationReason): DeactivationReasonDto
 }

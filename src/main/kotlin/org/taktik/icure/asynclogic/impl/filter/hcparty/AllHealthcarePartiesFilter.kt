@@ -26,5 +26,5 @@ import org.taktik.icure.entities.HealthcareParty
 
 @Service
 class AllHealthcarePartiesFilter(private val healthcarePartyLogic: HealthcarePartyLogic) : Filter<String, HealthcareParty, org.taktik.icure.domain.filter.Filters.AllFilter<String, HealthcareParty>> {
-    override fun resolve(filter: org.taktik.icure.domain.filter.Filters.AllFilter<String, HealthcareParty>, context: Filters) = healthcarePartyLogic.getEntityIds()
+	override fun resolve(filter: org.taktik.icure.domain.filter.Filters.AllFilter<String, HealthcareParty>, context: Filters) = healthcarePartyLogic.getEntityIds()
 }

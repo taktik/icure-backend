@@ -23,6 +23,6 @@ import org.taktik.icure.entities.embed.FormGroup
 import org.taktik.icure.services.external.rest.v2.dto.embed.FormGroupDto
 @Mapper(componentModel = "spring")
 interface FormGroupV2Mapper {
-	fun map(formGroupDto: FormGroupDto):FormGroup
-	fun map(formGroup: FormGroup):FormGroupDto
+	fun map(formGroupDto: FormGroupDto): FormGroup
+	fun map(formGroup: FormGroup): FormGroupDto
 }

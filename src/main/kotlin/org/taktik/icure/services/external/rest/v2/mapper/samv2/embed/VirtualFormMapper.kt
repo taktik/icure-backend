@@ -26,6 +26,6 @@ import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
 @Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class, CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface VirtualFormV2Mapper {
-	fun map(virtualFormDto: VirtualFormDto):VirtualForm
-	fun map(virtualForm: VirtualForm):VirtualFormDto
+	fun map(virtualFormDto: VirtualFormDto): VirtualForm
+	fun map(virtualForm: VirtualForm): VirtualFormDto
 }

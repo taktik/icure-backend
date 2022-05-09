@@ -30,40 +30,40 @@ import org.taktik.icure.exceptions.DeletionException
 @Service
 class AgendaLogicImpl(private val agendaDAO: AgendaDAO, private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Agenda, AgendaDAO>(sessionLogic), AgendaLogic {
 
-    override suspend fun createAgenda(agenda: Agenda) = fix(agenda) { agenda ->
-        agendaDAO.create(agenda)
-    }
+	override suspend fun createAgenda(agenda: Agenda) = fix(agenda) { agenda ->
+		agendaDAO.create(agenda)
+	}
 
-    override fun deleteAgendas(ids: List<String>): Flow<DocIdentifier> {
-        return try {
-            deleteEntities(ids)
-        } catch (e: Exception) {
-            throw DeletionException(e.message, e)
-        }
-    }
+	override fun deleteAgendas(ids: List<String>): Flow<DocIdentifier> {
+		return try {
+			deleteEntities(ids)
+		} catch (e: Exception) {
+			throw DeletionException(e.message, e)
+		}
+	}
 
-    override suspend fun getAgenda(agenda: String): Agenda? {
-        return agendaDAO.get(agenda)
-    }
+	override suspend fun getAgenda(agenda: String): Agenda? {
+		return agendaDAO.get(agenda)
+	}
 
-    override suspend fun modifyAgenda(agenda: Agenda) = fix(agenda) { agenda ->
-        agendaDAO.save(agenda)
-    }
+	override suspend fun modifyAgenda(agenda: Agenda) = fix(agenda) { agenda ->
+		agendaDAO.save(agenda)
+	}
 
-    override fun getAgendasByUser(userId: String) = flow<Agenda> {
-        emitAll(agendaDAO.getAgendasByUser(userId))
-    }
+	override fun getAgendasByUser(userId: String) = flow<Agenda> {
+		emitAll(agendaDAO.getAgendasByUser(userId))
+	}
 
-    override fun getReadableAgendaForUser(userId: String) = flow<Agenda> {
-        emitAll(agendaDAO.getReadableAgendaByUser(userId))
-    }
+	override fun getReadableAgendaForUser(userId: String) = flow<Agenda> {
+		emitAll(agendaDAO.getReadableAgendaByUser(userId))
+	}
 
-    override fun getAnonymousAgendasByUser(userId: String) = flow {
-        val agendasByUser = getAgendasByUser(userId).toList()
-        emitAll(agendasByUser.filter { it.rights.any { r -> r.read && r.userId == null } }.asFlow())
-    }
+	override fun getAnonymousAgendasByUser(userId: String) = flow {
+		val agendasByUser = getAgendasByUser(userId).toList()
+		emitAll(agendasByUser.filter { it.rights.any { r -> r.read && r.userId == null } }.asFlow())
+	}
 
-    override fun getGenericDAO(): AgendaDAO {
-        return agendaDAO
-    }
+	override fun getGenericDAO(): AgendaDAO {
+		return agendaDAO
+	}
 }

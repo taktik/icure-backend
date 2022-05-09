@@ -14,16 +14,15 @@ import org.taktik.icure.utils.getLoggedHealthCarePartyId
 
 @Service
 class HealthElementByHcPartyIdentifiersFilter(
-    private val healthElementLogic: HealthElementLogic,
-    private val sessionLogic: AsyncSessionLogic
+	private val healthElementLogic: HealthElementLogic,
+	private val sessionLogic: AsyncSessionLogic
 ) : Filter<String, HealthElement, HealthElementByHcPartyIdentifiersFilter> {
-    override fun resolve(filter: HealthElementByHcPartyIdentifiersFilter, context: Filters) = flow {
-        try {
-            val hcPartyId: String = filter.hcPartyId ?: getLoggedHealthCarePartyId(sessionLogic)
-            emitAll(healthElementLogic.listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId, filter.identifiers))
-        } catch (e: LoginException) {
-            throw IllegalArgumentException(e)
-        }
-    }
-
+	override fun resolve(filter: HealthElementByHcPartyIdentifiersFilter, context: Filters) = flow {
+		try {
+			val hcPartyId: String = filter.hcPartyId ?: getLoggedHealthCarePartyId(sessionLogic)
+			emitAll(healthElementLogic.listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId, filter.identifiers))
+		} catch (e: LoginException) {
+			throw IllegalArgumentException(e)
+		}
+	}
 }

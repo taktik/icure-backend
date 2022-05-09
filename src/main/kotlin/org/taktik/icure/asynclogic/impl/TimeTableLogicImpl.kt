@@ -29,32 +29,31 @@ import org.taktik.icure.entities.TimeTable
 
 @Service
 class TimeTableLogicImpl(private val timeTableDAO: TimeTableDAO, private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<TimeTable, TimeTableDAO>(sessionLogic), TimeTableLogic {
-    override suspend fun createTimeTable(timeTable: TimeTable) = fix(timeTable) { timeTable ->
-        timeTableDAO.create(timeTable)
-    }
+	override suspend fun createTimeTable(timeTable: TimeTable) = fix(timeTable) { timeTable ->
+		timeTableDAO.create(timeTable)
+	}
 
-    override fun deleteTimeTables(ids: List<String>): Flow<DocIdentifier> {
-        return deleteEntities(ids)
-    }
+	override fun deleteTimeTables(ids: List<String>): Flow<DocIdentifier> {
+		return deleteEntities(ids)
+	}
 
-    override suspend fun getTimeTable(timeTableId: String): TimeTable? {
-        return timeTableDAO.get(timeTableId)
-    }
+	override suspend fun getTimeTable(timeTableId: String): TimeTable? {
+		return timeTableDAO.get(timeTableId)
+	}
 
-    override fun getTimeTablesByPeriodAndAgendaId(startDate: Long, endDate: Long, agendaId: String): Flow<TimeTable> = flow {
-        emitAll(timeTableDAO.listTimeTableByPeriodAndAgendaId(startDate, endDate, agendaId))
-    }
+	override fun getTimeTablesByPeriodAndAgendaId(startDate: Long, endDate: Long, agendaId: String): Flow<TimeTable> = flow {
+		emitAll(timeTableDAO.listTimeTableByPeriodAndAgendaId(startDate, endDate, agendaId))
+	}
 
-    override fun getTimeTablesByAgendaId(agendaId: String): Flow<TimeTable> = flow {
-        emitAll(timeTableDAO.listTimeTableByAgendaId(agendaId))
-    }
+	override fun getTimeTablesByAgendaId(agendaId: String): Flow<TimeTable> = flow {
+		emitAll(timeTableDAO.listTimeTableByAgendaId(agendaId))
+	}
 
-    override suspend fun modifyTimeTable(timeTable: TimeTable) = fix(timeTable) { timeTable ->
-        timeTableDAO.save(timeTable)
-    }
+	override suspend fun modifyTimeTable(timeTable: TimeTable) = fix(timeTable) { timeTable ->
+		timeTableDAO.save(timeTable)
+	}
 
-    override fun getGenericDAO(): TimeTableDAO {
-        return timeTableDAO
-    }
-
+	override fun getGenericDAO(): TimeTableDAO {
+		return timeTableDAO
+	}
 }

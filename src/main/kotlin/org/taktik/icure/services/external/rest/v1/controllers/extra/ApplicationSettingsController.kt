@@ -30,29 +30,26 @@ import org.taktik.icure.services.external.rest.v1.dto.ApplicationSettingsDto
 import org.taktik.icure.services.external.rest.v1.mapper.ApplicationSettingsMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
-import org.taktik.icure.entities.ApplicationSettings
-
-
-
 
 @RestController
 @RequestMapping("/rest/v1/appsettings")
 @Tag(name = "applicationsettings")
-class ApplicationSettingsController(private val applicationSettingsLogic: ApplicationSettingsLogic,
-                                    private val applicationSettingsMapper: ApplicationSettingsMapper) {
+class ApplicationSettingsController(
+	private val applicationSettingsLogic: ApplicationSettingsLogic,
+	private val applicationSettingsMapper: ApplicationSettingsMapper
+) {
 
-    @Operation(summary = "Gets all application settings")
-    @GetMapping
-    fun getApplicationSettings(): Flux<ApplicationSettingsDto> {
-        val applicationSettings = applicationSettingsLogic.getEntities()
-        return applicationSettings.map { applicationSettingsMapper.map(it) }.injectReactorContext()
-    }
+	@Operation(summary = "Gets all application settings")
+	@GetMapping
+	fun getApplicationSettings(): Flux<ApplicationSettingsDto> {
+		val applicationSettings = applicationSettingsLogic.getEntities()
+		return applicationSettings.map { applicationSettingsMapper.map(it) }.injectReactorContext()
+	}
 
-    @Operation(summary = "Create new application settings")
-    @PostMapping
-    fun createApplicationSettings(@RequestBody applicationSettingsDto: ApplicationSettingsDto) = mono {
-        val applicationSettings = applicationSettingsLogic.createApplicationSettings(applicationSettingsMapper.map(applicationSettingsDto))  ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ApplicationSettings creation failed")
-        applicationSettingsMapper.map(applicationSettings)
-    }
+	@Operation(summary = "Create new application settings")
+	@PostMapping
+	fun createApplicationSettings(@RequestBody applicationSettingsDto: ApplicationSettingsDto) = mono {
+		val applicationSettings = applicationSettingsLogic.createApplicationSettings(applicationSettingsMapper.map(applicationSettingsDto)) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ApplicationSettings creation failed")
+		applicationSettingsMapper.map(applicationSettings)
+	}
 }
-

@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -45,49 +44,48 @@ import reactor.core.publisher.Flux
 @RequestMapping("/rest/v2/place")
 @Tag(name = "place")
 class PlaceController(
-        private val placeLogic: PlaceLogic,
-        private val placeV2Mapper: PlaceV2Mapper
+	private val placeLogic: PlaceLogic,
+	private val placeV2Mapper: PlaceV2Mapper
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
+	private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Operation(summary = "Creates a place")
-    @PostMapping
-    fun createPlace(@RequestBody placeDto: PlaceDto) = mono {
-        placeLogic.createPlace(placeV2Mapper.map(placeDto))?.let { placeV2Mapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place creation failed")
-    }
+	@Operation(summary = "Creates a place")
+	@PostMapping
+	fun createPlace(@RequestBody placeDto: PlaceDto) = mono {
+		placeLogic.createPlace(placeV2Mapper.map(placeDto))?.let { placeV2Mapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place creation failed")
+	}
 
-    @Operation(summary = "Deletes places")
-    @PostMapping("/delete/batch")
-    fun deletePlaces(@RequestBody placeIds: ListOfIdsDto) : Flux<DocIdentifier> {
-        return placeIds.ids.takeIf { it.isNotEmpty() }
-                ?.let { ids ->
-                    try {
-                        placeLogic.deleteEntities(ids).injectReactorContext()
-                    }
-                    catch (e: java.lang.Exception) {
-                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
-                    }
-                }
-                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
-    }
+	@Operation(summary = "Deletes places")
+	@PostMapping("/delete/batch")
+	fun deletePlaces(@RequestBody placeIds: ListOfIdsDto): Flux<DocIdentifier> {
+		return placeIds.ids.takeIf { it.isNotEmpty() }
+			?.let { ids ->
+				try {
+					placeLogic.deleteEntities(ids).injectReactorContext()
+				} catch (e: java.lang.Exception) {
+					throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+				}
+			}
+			?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
+	}
 
-    @Operation(summary = "Gets an place")
-    @GetMapping("/{placeId}")
-    fun getPlace(@PathVariable placeId: String) = mono {
-        placeLogic.getPlace(placeId)?.let { placeV2Mapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Place fetching failed")
-    }
+	@Operation(summary = "Gets an place")
+	@GetMapping("/{placeId}")
+	fun getPlace(@PathVariable placeId: String) = mono {
+		placeLogic.getPlace(placeId)?.let { placeV2Mapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Place fetching failed")
+	}
 
-    @Operation(summary = "Gets all places")
-    @GetMapping
-    fun getPlaces() =
-            placeLogic.getEntities().let { it.map { c -> placeV2Mapper.map(c) } }.injectReactorContext()
+	@Operation(summary = "Gets all places")
+	@GetMapping
+	fun getPlaces() =
+		placeLogic.getEntities().let { it.map { c -> placeV2Mapper.map(c) } }.injectReactorContext()
 
-    @Operation(summary = "Modifies an place")
-    @PutMapping
-    fun modifyPlace(@RequestBody placeDto: PlaceDto) = mono {
-        placeLogic.modifyPlace(placeV2Mapper.map(placeDto))?.let { placeV2Mapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place modification failed")
-    }
+	@Operation(summary = "Modifies an place")
+	@PutMapping
+	fun modifyPlace(@RequestBody placeDto: PlaceDto) = mono {
+		placeLogic.modifyPlace(placeV2Mapper.map(placeDto))?.let { placeV2Mapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place modification failed")
+	}
 }

@@ -26,6 +26,6 @@ import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
 
 @Mapper(componentModel = "spring", uses = [FormSkeletonMapper::class, CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface PlanOfActionTemplateMapper {
-	fun map(planOfActionTemplateDto: PlanOfActionTemplateDto):PlanOfActionTemplate
-	fun map(planOfActionTemplate: PlanOfActionTemplate):PlanOfActionTemplateDto
+	fun map(planOfActionTemplateDto: PlanOfActionTemplateDto): PlanOfActionTemplate
+	fun map(planOfActionTemplate: PlanOfActionTemplate): PlanOfActionTemplateDto
 }

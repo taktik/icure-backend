@@ -24,6 +24,6 @@ import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.EmailOrSmsMessa
 
 @Mapper(componentModel = "spring")
 interface EmailOrSmsMessageMapper {
-    fun map(emailOrSmsMessageDto: EmailOrSmsMessageDto): EmailOrSmsMessage
-    fun map(emailOrSmsMessage: EmailOrSmsMessage): EmailOrSmsMessageDto
+	fun map(emailOrSmsMessageDto: EmailOrSmsMessageDto): EmailOrSmsMessage
+	fun map(emailOrSmsMessage: EmailOrSmsMessage): EmailOrSmsMessageDto
 }

@@ -17,7 +17,6 @@
  */
 package org.taktik.icure.domain.filter.impl.device
 
-
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.AbstractFilter
 import org.taktik.icure.domain.filter.Filters
@@ -25,8 +24,8 @@ import org.taktik.icure.entities.Device
 
 @KotlinBuilder
 data class DeviceByIdsFilter(
-        override val ids: Set<String>,
-        override val desc: String? = null
+	override val ids: Set<String>,
+	override val desc: String? = null
 ) : AbstractFilter<Device>, Filters.IdsFilter<String, Device> {
-    override fun matches(item: Device) = ids.contains(item.id)
+	override fun matches(item: Device) = ids.contains(item.id)
 }

@@ -32,7 +32,7 @@ import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class PatientByHcPartyAndExternalIdFilter(
-        override val desc: String? = null,
-        override val externalId: String? = null,
-        override val healthcarePartyId: String? = null
+	override val desc: String? = null,
+	override val externalId: String? = null,
+	override val healthcarePartyId: String? = null
 ) : AbstractFilterDto<Patient>, org.taktik.icure.domain.filter.patient.PatientByHcPartyAndExternalIdFilter

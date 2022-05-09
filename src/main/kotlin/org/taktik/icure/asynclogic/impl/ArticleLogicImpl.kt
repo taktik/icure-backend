@@ -30,25 +30,25 @@ import org.taktik.icure.exceptions.DeletionException
 @Service
 class ArticleLogicImpl(private val articleDAO: ArticleDAO, private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Article, ArticleDAO>(sessionLogic), ArticleLogic {
 
-    override suspend fun createArticle(article: Article) = fix(article) { article ->
-        articleDAO.create(article)
-    }
+	override suspend fun createArticle(article: Article) = fix(article) { article ->
+		articleDAO.create(article)
+	}
 
-    override fun deleteArticles(ids: List<String>): Flow<DocIdentifier> {
-        try {
-            return deleteEntities(ids)
-        } catch (e: Exception) {
-            throw DeletionException(e.message, e)
-        }
-    }
+	override fun deleteArticles(ids: List<String>): Flow<DocIdentifier> {
+		try {
+			return deleteEntities(ids)
+		} catch (e: Exception) {
+			throw DeletionException(e.message, e)
+		}
+	}
 
-    override suspend fun getArticle(articleId: String): Article? {
-        return articleDAO.get(articleId)
-    }
+	override suspend fun getArticle(articleId: String): Article? {
+		return articleDAO.get(articleId)
+	}
 
-    override suspend fun modifyArticle(article: Article) = fix(article) { article ->
-        articleDAO.save(article)
-    }
+	override suspend fun modifyArticle(article: Article) = fix(article) { article ->
+		articleDAO.save(article)
+	}
 
-    override fun getGenericDAO() = articleDAO
+	override fun getGenericDAO() = articleDAO
 }

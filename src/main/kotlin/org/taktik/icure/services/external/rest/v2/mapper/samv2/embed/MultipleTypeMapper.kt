@@ -23,6 +23,6 @@ import org.taktik.icure.entities.samv2.embed.MultipleType
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.MultipleTypeDto
 @Mapper(componentModel = "spring")
 interface MultipleTypeV2Mapper {
-	fun map(multipleTypeDto: MultipleTypeDto):MultipleType
-	fun map(multipleType: MultipleType):MultipleTypeDto
+	fun map(multipleTypeDto: MultipleTypeDto): MultipleType
+	fun map(multipleType: MultipleType): MultipleTypeDto
 }

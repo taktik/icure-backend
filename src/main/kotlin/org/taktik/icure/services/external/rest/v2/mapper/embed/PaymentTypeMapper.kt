@@ -23,6 +23,6 @@ import org.taktik.icure.entities.embed.PaymentType
 import org.taktik.icure.services.external.rest.v2.dto.embed.PaymentTypeDto
 @Mapper(componentModel = "spring")
 interface PaymentTypeV2Mapper {
-	fun map(paymentTypeDto: PaymentTypeDto):PaymentType
-	fun map(paymentType: PaymentType):PaymentTypeDto
+	fun map(paymentTypeDto: PaymentTypeDto): PaymentType
+	fun map(paymentType: PaymentType): PaymentTypeDto
 }

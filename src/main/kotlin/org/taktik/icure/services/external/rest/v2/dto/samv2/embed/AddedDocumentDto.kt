@@ -26,13 +26,13 @@ import com.github.pozo.KotlinBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class AddedDocumentDto(
-        override val from: Long? = null,
-        override val to: Long? = null,
-        val verseSeq: Long,
-        val documentSeq: Long,
-        val mimeType: String? = null,
-        val addressUrl: String? = null,
-        val descrNl: String? = null,
-        val descrFr: String? = null,
-        val localPath: String? = null,
+	override val from: Long? = null,
+	override val to: Long? = null,
+	val verseSeq: Long,
+	val documentSeq: Long,
+	val mimeType: String? = null,
+	val addressUrl: String? = null,
+	val descrNl: String? = null,
+	val descrFr: String? = null,
+	val localPath: String? = null,
 ) : DataPeriodDto

@@ -20,4 +20,6 @@ package org.taktik.icure.be.mikrono.dto
 import org.taktik.icure.entities.Patient
 
 class MikronoSynchronizationResult(//In ms
-        var lastAccessIcure: Long, var patients: List<Patient>)
+	var lastAccessIcure: Long,
+	var patients: List<Patient>
+)

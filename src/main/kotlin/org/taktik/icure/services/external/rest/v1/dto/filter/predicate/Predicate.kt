@@ -17,9 +17,9 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.filter.predicate
 
+import java.io.Serializable
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import org.taktik.icure.handlers.JacksonPredicateDeserializer
-import java.io.Serializable
 
 @JsonDeserialize(using = JacksonPredicateDeserializer::class)
 interface Predicate : Serializable

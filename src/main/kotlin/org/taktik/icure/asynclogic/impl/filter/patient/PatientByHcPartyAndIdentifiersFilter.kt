@@ -12,13 +12,13 @@ import org.taktik.icure.entities.Patient
 import org.taktik.icure.utils.getLoggedHealthCarePartyId
 
 @Service
-class PatientByHcPartyAndIdentifiersFilter (private val patientLogic: PatientLogic, private val sessionLogic: AsyncSessionLogic) : Filter<String, Patient, org.taktik.icure.domain.filter.patient.PatientByHcPartyAndIdentifiersFilter> {
+class PatientByHcPartyAndIdentifiersFilter(private val patientLogic: PatientLogic, private val sessionLogic: AsyncSessionLogic) : Filter<String, Patient, org.taktik.icure.domain.filter.patient.PatientByHcPartyAndIdentifiersFilter> {
 
-    override fun resolve(filter: org.taktik.icure.domain.filter.patient.PatientByHcPartyAndIdentifiersFilter, context: Filters) = flow {
-        try {
-            emitAll(patientLogic.listPatientIdsByHcpartyAndIdentifiers( filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic), filter.identifiers))
-        } catch (e: LoginException) {
-            throw IllegalArgumentException(e)
-        }
-    }
+	override fun resolve(filter: org.taktik.icure.domain.filter.patient.PatientByHcPartyAndIdentifiersFilter, context: Filters) = flow {
+		try {
+			emitAll(patientLogic.listPatientIdsByHcpartyAndIdentifiers(filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic), filter.identifiers))
+		} catch (e: LoginException) {
+			throw IllegalArgumentException(e)
+		}
+	}
 }

@@ -21,6 +21,6 @@ package org.taktik.icure.asyncdao
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.FrontEndMigration
 
-interface FrontEndMigrationDAO: GenericDAO<FrontEndMigration> {
-    fun getFrontEndMigrationsByUserIdAndName(userId: String, name: String?): Flow<FrontEndMigration>
+interface FrontEndMigrationDAO : GenericDAO<FrontEndMigration> {
+	fun getFrontEndMigrationsByUserIdAndName(userId: String, name: String?): Flow<FrontEndMigration>
 }

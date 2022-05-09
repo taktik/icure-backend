@@ -27,13 +27,13 @@ import io.swagger.v3.oas.annotations.media.Schema
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class MedexInfoDto(
-    val beginDate: Long,
-    val endDate: Long,
-    val author: HealthcarePartyDto? = null,
-    val patient: PatientDto? = null,
-    @Schema(defaultValue = "\"fr\"") val patientLanguage: String = "fr",
-    @Schema(defaultValue = "\"incapacity\"") val incapacityType // incapacity or incapacityextension
-            : String = "incapacity",
+	val beginDate: Long,
+	val endDate: Long,
+	val author: HealthcarePartyDto? = null,
+	val patient: PatientDto? = null,
+	@Schema(defaultValue = "\"fr\"") val patientLanguage: String = "fr",
+	@Schema(defaultValue = "\"incapacity\"") val incapacityType: // incapacity or incapacityextension
+		String = "incapacity",
 
     /*
         Possible values:
@@ -44,8 +44,8 @@ data class MedexInfoDto(
         workaccident
         occupationaldisease
      */
-    @Schema(defaultValue = "\"sickness\"") val incapacityReason: String = "sickness",
-    val outOfHomeAllowed: Boolean = true,
+	@Schema(defaultValue = "\"sickness\"") val incapacityReason: String = "sickness",
+	val outOfHomeAllowed: Boolean = true,
 
     /*
     "Optional field
@@ -53,9 +53,9 @@ data class MedexInfoDto(
     when incapacityreason = occupationaldisease this field must contain the request date for a dossier for occupatialdesease.
     This date must be < or =  beginmoment of the incapacity period."
      */
-    val certificateDate: Long? = null,
-    val contentDate: Long? = null,
-    val diagnosisICPC: String? = null,
-    val diagnosisICD: String? = null,
-    val diagnosisDescr: String? = null
+	val certificateDate: Long? = null,
+	val contentDate: Long? = null,
+	val diagnosisICPC: String? = null,
+	val diagnosisICD: String? = null,
+	val diagnosisDescr: String? = null
 )

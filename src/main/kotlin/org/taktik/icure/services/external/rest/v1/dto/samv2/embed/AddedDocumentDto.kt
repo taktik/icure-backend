@@ -21,19 +21,18 @@ package org.taktik.icure.services.external.rest.v1.dto.samv2.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
-import org.taktik.icure.services.external.rest.v1.dto.samv2.stub.PharmaceuticalFormStubDto
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class AddedDocumentDto(
-        override val from: Long? = null,
-        override val to: Long? = null,
-        val verseSeq: Long,
-        val documentSeq: Long,
-        val mimeType: String? = null,
-        val addressUrl: String? = null,
-        val descrNl: String? = null,
-        val descrFr: String? = null,
-        val localPath: String? = null,
+	override val from: Long? = null,
+	override val to: Long? = null,
+	val verseSeq: Long,
+	val documentSeq: Long,
+	val mimeType: String? = null,
+	val addressUrl: String? = null,
+	val descrNl: String? = null,
+	val descrFr: String? = null,
+	val localPath: String? = null,
 ) : DataPeriodDto

@@ -19,5 +19,5 @@
 package org.taktik.icure.services.external.rest.v2.dto.embed
 
 enum class CareTeamMemberTypeDto {
-    physician, specialist, other
+	physician, specialist, other
 }

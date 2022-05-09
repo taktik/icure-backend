@@ -34,46 +34,52 @@ import org.taktik.icure.entities.Contact
 import org.taktik.icure.utils.getLoggedHealthCarePartyId
 
 @Service
-class ContactByHcPartyPatientTagCodeDateFilter(private val contactLogic: ContactLogic,
-                                               private val sessionLogic: AsyncSessionLogic) : Filter<String, Contact, ContactByHcPartyPatientTagCodeDateFilter> {
+class ContactByHcPartyPatientTagCodeDateFilter(
+	private val contactLogic: ContactLogic,
+	private val sessionLogic: AsyncSessionLogic
+) : Filter<String, Contact, ContactByHcPartyPatientTagCodeDateFilter> {
 
-    override fun resolve(filter: ContactByHcPartyPatientTagCodeDateFilter, context: Filters) = flow {
-        try {
-            val hcPartyId: String = filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic)
-            @Suppress("DEPRECATION") val patientSecretForeignKeys: List<String>? = filter.patientSecretForeignKeys ?: filter.patientSecretForeignKey?.let { listOf(it) } ?: listOf()
+	override fun resolve(filter: ContactByHcPartyPatientTagCodeDateFilter, context: Filters) = flow {
+		try {
+			val hcPartyId: String = filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic)
+			@Suppress("DEPRECATION") val patientSecretForeignKeys: List<String>? = filter.patientSecretForeignKeys ?: filter.patientSecretForeignKey?.let { listOf(it) } ?: listOf()
 
-            var ids: HashSet<String>? = null
-            if (filter.tagType != null && filter.tagCode != null) {
-                ids = HashSet(contactLogic.listContactIdsByTag(
-                        hcPartyId,
-                        filter.tagType!!,
-                        filter.tagCode!!,
-                        filter.startOfContactOpeningDate, filter.endOfContactOpeningDate).toSet())
-            }
-            if (filter.codeType != null && filter.codeCode != null) {
-                val byCode = contactLogic.listContactIdsByCode(
-                        hcPartyId,
-                        filter.codeType!!,
-                        filter.codeCode!!,
-                        filter.startOfContactOpeningDate, filter.endOfContactOpeningDate).toList()
-                if (ids == null) {
-                    ids = HashSet(byCode)
-                } else {
-                    ids.retainAll(byCode)
-                }
-            }
-            if (!filter.patientSecretForeignKeys.isNullOrEmpty()) {
-                val byPatient = contactLogic.listContactIdsByHCPartyAndPatient(hcPartyId, filter.patientSecretForeignKeys!!).toList()
+			var ids: HashSet<String>? = null
+			if (filter.tagType != null && filter.tagCode != null) {
+				ids = HashSet(
+					contactLogic.listContactIdsByTag(
+						hcPartyId,
+						filter.tagType!!,
+						filter.tagCode!!,
+						filter.startOfContactOpeningDate, filter.endOfContactOpeningDate
+					).toSet()
+				)
+			}
+			if (filter.codeType != null && filter.codeCode != null) {
+				val byCode = contactLogic.listContactIdsByCode(
+					hcPartyId,
+					filter.codeType!!,
+					filter.codeCode!!,
+					filter.startOfContactOpeningDate, filter.endOfContactOpeningDate
+				).toList()
+				if (ids == null) {
+					ids = HashSet(byCode)
+				} else {
+					ids.retainAll(byCode)
+				}
+			}
+			if (!filter.patientSecretForeignKeys.isNullOrEmpty()) {
+				val byPatient = contactLogic.listContactIdsByHCPartyAndPatient(hcPartyId, filter.patientSecretForeignKeys!!).toList()
 
-                if (ids == null) {
-                    ids = HashSet(byPatient)
-                } else {
-                    ids.retainAll(byPatient)
-                }
-            }
-            emitAll(ids?.asFlow() ?: flowOf())
-        } catch (e: LoginException) {
-            throw IllegalArgumentException(e)
-        }
-    }
+				if (ids == null) {
+					ids = HashSet(byPatient)
+				} else {
+					ids.retainAll(byPatient)
+				}
+			}
+			emitAll(ids?.asFlow() ?: flowOf())
+		} catch (e: LoginException) {
+			throw IllegalArgumentException(e)
+		}
+	}
 }

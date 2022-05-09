@@ -26,6 +26,6 @@ import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
 @Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface MeasureV2Mapper {
-	fun map(measureDto: MeasureDto):Measure
-	fun map(measure: Measure):MeasureDto
+	fun map(measureDto: MeasureDto): Measure
+	fun map(measure: Measure): MeasureDto
 }

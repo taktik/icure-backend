@@ -17,6 +17,9 @@
  */
 package org.taktik.icure.be.format.logic.impl
 
+import java.io.IOException
+import java.time.LocalDateTime
+import java.util.function.Consumer
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.stereotype.Service
@@ -27,50 +30,46 @@ import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
-import java.io.IOException
-import java.time.LocalDateTime
-import java.util.function.Consumer
 
 @Service
 class MultiFormatLogicImpl(var engines: List<ResultFormatLogic>) : MultiFormatLogic {
-    @Throws(IOException::class)
-    override fun canHandle(doc: Document, enckeys: List<String>): Boolean {
-        for (e in engines) {
-            if (e.canHandle(doc, enckeys)) {
-                return true
-            }
-        }
-        return false
-    }
+	@Throws(IOException::class)
+	override fun canHandle(doc: Document, enckeys: List<String>): Boolean {
+		for (e in engines) {
+			if (e.canHandle(doc, enckeys)) {
+				return true
+			}
+		}
+		return false
+	}
 
-    @Throws(IOException::class)
-    override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: List<String>): List<ResultInfo> {
-        for (e in engines) {
-            if (e.canHandle(doc, enckeys)) {
-                val infos = e.getInfos(doc, full, language, enckeys)
-                infos!!.forEach(Consumer { i: ResultInfo? -> i!!.engine = e.javaClass.name })
-                return infos
-            }
-        }
-        throw IllegalArgumentException("Invalid format")
-    }
+	@Throws(IOException::class)
+	override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: List<String>): List<ResultInfo> {
+		for (e in engines) {
+			if (e.canHandle(doc, enckeys)) {
+				val infos = e.getInfos(doc, full, language, enckeys)
+				infos!!.forEach(Consumer { i: ResultInfo? -> i!!.engine = e.javaClass.name })
+				return infos
+			}
+		}
+		throw IllegalArgumentException("Invalid format")
+	}
 
-    @Throws(IOException::class)
-    override suspend fun doImport(language: String, doc: Document, hcpId: String?, protocolIds: List<String>, formIds: List<String>, planOfActionId: String?, ctc: Contact, enckeys: List<String>): Contact? {
-        for (e in engines) {
-            if (e.canHandle(doc, enckeys)) {
-                return e.doImport(language, doc, hcpId, protocolIds, formIds, planOfActionId, ctc, enckeys)
-            }
-        }
-        throw IllegalArgumentException("Invalid format")
-    }
+	@Throws(IOException::class)
+	override suspend fun doImport(language: String, doc: Document, hcpId: String?, protocolIds: List<String>, formIds: List<String>, planOfActionId: String?, ctc: Contact, enckeys: List<String>): Contact? {
+		for (e in engines) {
+			if (e.canHandle(doc, enckeys)) {
+				return e.doImport(language, doc, hcpId, protocolIds, formIds, planOfActionId, ctc, enckeys)
+			}
+		}
+		throw IllegalArgumentException("Invalid format")
+	}
 
-    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?) : Flow<DataBuffer> {
-        throw UnsupportedOperationException()
-    }
+	override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?): Flow<DataBuffer> {
+		throw UnsupportedOperationException()
+	}
 
-    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?) : Flow<DataBuffer> {
-        throw UnsupportedOperationException()
-    }
-
+	override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?): Flow<DataBuffer> {
+		throw UnsupportedOperationException()
+	}
 }

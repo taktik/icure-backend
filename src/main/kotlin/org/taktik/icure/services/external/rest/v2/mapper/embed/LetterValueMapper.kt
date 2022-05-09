@@ -24,6 +24,6 @@ import org.taktik.icure.entities.embed.LetterValue
 import org.taktik.icure.services.external.rest.v2.dto.embed.LetterValueDto
 @Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface LetterValueV2Mapper {
-	fun map(letterValueDto: LetterValueDto):LetterValue
-	fun map(letterValue: LetterValue):LetterValueDto
+	fun map(letterValueDto: LetterValueDto): LetterValue
+	fun map(letterValue: LetterValue): LetterValueDto
 }

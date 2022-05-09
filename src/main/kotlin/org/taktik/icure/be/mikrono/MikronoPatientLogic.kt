@@ -17,19 +17,19 @@
  */
 package org.taktik.icure.be.mikrono
 
+import java.util.*
 import org.taktik.icure.be.mikrono.dto.ChangeExternalIDReplyDto
 import org.taktik.icure.entities.Patient
-import java.util.*
 
 /**
  * Created by aduchate on 16/12/11, 12:59
  */
 interface MikronoPatientLogic {
-    fun createPatients(url: String?, patients: Collection<Patient>, mikronoUser: String, mikronoPassword: String): List<Long>
-    fun loadPatient(url: String?, id: String?, mikronoUser: String, mikronoPassword: String): Patient?
-    fun listPatients(url: String?, fromDate: Date?, mikronoUser: String, mikronoPassword: String): List<String>
-    fun updateExternalIds(url: String?, ids: Map<String, String>?, mikronoUser: String, mikronoPassword: String): ChangeExternalIDReplyDto
-    fun updatePatientId(url: String?, id: String?, externalId: String, mikronoUser: String, mikronoPassword: String)
-    fun loadPatientWithIcureId(url: String?, id: String?, mikronoUser: String, mikronoPassword: String): Patient?
-    fun updatePatients(url: String?, patients: Collection<Patient>, mikronoUser: String, mikronoPassword: String)
+	fun createPatients(url: String?, patients: Collection<Patient>, mikronoUser: String, mikronoPassword: String): List<Long>
+	fun loadPatient(url: String?, id: String?, mikronoUser: String, mikronoPassword: String): Patient?
+	fun listPatients(url: String?, fromDate: Date?, mikronoUser: String, mikronoPassword: String): List<String>
+	fun updateExternalIds(url: String?, ids: Map<String, String>?, mikronoUser: String, mikronoPassword: String): ChangeExternalIDReplyDto
+	fun updatePatientId(url: String?, id: String?, externalId: String, mikronoUser: String, mikronoPassword: String)
+	fun loadPatientWithIcureId(url: String?, id: String?, mikronoUser: String, mikronoPassword: String): Patient?
+	fun updatePatients(url: String?, patients: Collection<Patient>, mikronoUser: String, mikronoPassword: String)
 }

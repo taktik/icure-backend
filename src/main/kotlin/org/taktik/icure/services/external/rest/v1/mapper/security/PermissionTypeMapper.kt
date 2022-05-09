@@ -6,6 +6,6 @@ import org.taktik.icure.services.external.rest.v1.dto.security.PermissionTypeDto
 
 @Mapper(componentModel = "spring")
 interface PermissionTypeMapper {
-    fun map(permissionsTypeDto: PermissionTypeDto): PermissionType
-    fun map(permissionsType: PermissionType): PermissionTypeDto
+	fun map(permissionsTypeDto: PermissionTypeDto): PermissionType
+	fun map(permissionsType: PermissionType): PermissionTypeDto
 }

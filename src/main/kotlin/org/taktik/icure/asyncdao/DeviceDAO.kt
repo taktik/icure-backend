@@ -4,15 +4,15 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.entities.Device
 
-interface DeviceDAO: GenericDAO<Device> {
+interface DeviceDAO : GenericDAO<Device> {
 
-    fun findDevicesByIds(deviceIds: Flow<String>): Flow<ViewQueryResultEvent>
+	fun findDevicesByIds(deviceIds: Flow<String>): Flow<ViewQueryResultEvent>
 
-    fun listDeviceIdsByResponsible(healthcarePartyId: String): Flow<String>
+	fun listDeviceIdsByResponsible(healthcarePartyId: String): Flow<String>
 
-    suspend fun getDevice(deviceId: String): Device?
+	suspend fun getDevice(deviceId: String): Device?
 
-    fun getDevices(deviceIds: Collection<String>): Flow<Device>
+	fun getDevices(deviceIds: Collection<String>): Flow<Device>
 
-    suspend fun getHcPartyKeysForDelegate(deviceId: String): Map<String, String>
+	suspend fun getHcPartyKeysForDelegate(deviceId: String): Map<String, String>
 }

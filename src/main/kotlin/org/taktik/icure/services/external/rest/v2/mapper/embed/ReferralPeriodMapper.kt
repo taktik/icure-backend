@@ -24,6 +24,6 @@ import org.taktik.icure.services.external.rest.v2.dto.embed.ReferralPeriodDto
 
 @Mapper(componentModel = "spring")
 interface ReferralPeriodV2Mapper {
-	fun map(referralPeriodDto: ReferralPeriodDto):ReferralPeriod
-	fun map(referralPeriod: ReferralPeriod):ReferralPeriodDto
+	fun map(referralPeriodDto: ReferralPeriodDto): ReferralPeriod
+	fun map(referralPeriod: ReferralPeriod): ReferralPeriodDto
 }

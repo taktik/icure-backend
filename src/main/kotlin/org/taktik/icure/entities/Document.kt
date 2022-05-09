@@ -17,6 +17,9 @@
  */
 package org.taktik.icure.entities
 
+import java.security.GeneralSecurityException
+import java.security.KeyException
+import java.util.*
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
@@ -39,10 +42,6 @@ import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
-import java.nio.ByteBuffer
-import java.security.GeneralSecurityException
-import java.security.KeyException
-import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -90,95 +89,96 @@ import java.util.*
  */
 
 data class Document(
-        @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
-        @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
-        @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
-        override val medicalLocationId: String? = null,
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
-        override val endOfLife: Long? = null,
-        @JsonProperty("deleted") override val deletionDate: Long? = null,
-        val size: Long? = null,
-        val hash: String? = null,
-        val openingContactId: String? = null,
+	@JsonProperty("_id") override val id: String,
+	@JsonProperty("_rev") override val rev: String? = null,
+	@field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+	@field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+	@field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+	@field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+	override val medicalLocationId: String? = null,
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
+	override val endOfLife: Long? = null,
+	@JsonProperty("deleted") override val deletionDate: Long? = null,
+	val size: Long? = null,
+	val hash: String? = null,
+	val openingContactId: String? = null,
 
-        val objectStoreReference: String? = null,
-        @JsonIgnore val attachment: ByteArray? = null,
-        @JsonIgnore var isAttachmentDirty: Boolean = false,
-        val documentLocation: DocumentLocation? = null,
-        val documentType: DocumentType? = null,
-        val documentStatus: DocumentStatus? = null,
-        val externalUri: String? = null,
-        val mainUti: String? = null,
-        val name: String? = null,
-        val version: String? = null,
-        val otherUtis: Set<String> = emptySet(),
-        val storedICureDocumentId: String? = null, //The ICureDocument (Form, Contact, ...) that has been used to generate the document
-        val externalUuid: String? = null,
-        val attachmentId: String? = null,
+	val objectStoreReference: String? = null,
+	@JsonIgnore val attachment: ByteArray? = null,
+	@JsonIgnore var isAttachmentDirty: Boolean = false,
+	val documentLocation: DocumentLocation? = null,
+	val documentType: DocumentType? = null,
+	val documentStatus: DocumentStatus? = null,
+	val externalUri: String? = null,
+	val mainUti: String? = null,
+	val name: String? = null,
+	val version: String? = null,
+	val otherUtis: Set<String> = emptySet(),
+	val storedICureDocumentId: String? = null, //The ICureDocument (Form, Contact, ...) that has been used to generate the document
+	val externalUuid: String? = null,
+	val attachmentId: String? = null,
 
-        override val secretForeignKeys: Set<String> = emptySet(),
-        override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
-        override val delegations: Map<String, Set<Delegation>> = emptyMap(),
-        override val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(),
-        override val encryptedSelf: String? = null,
+	override val secretForeignKeys: Set<String> = emptySet(),
+	override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
+	override val delegations: Map<String, Set<Delegation>> = emptyMap(),
+	override val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(),
+	override val encryptedSelf: String? = null,
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
+	@JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+	@JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+	@JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredICureDocument, Encryptable {
-    companion object : DynamicInitializer<Document>
+	companion object : DynamicInitializer<Document>
 
-    fun merge(other: Document) = Document(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Document) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
-            "documentLocation" to (this.documentLocation ?: other.documentLocation),
-            "documentType" to (this.documentType ?: other.documentType),
-            "documentStatus" to (this.documentStatus ?: other.documentStatus),
-            "openingContactId" to (this.openingContactId ?: other.openingContactId),
-            "externalUri" to (this.externalUri ?: other.externalUri),
-            "mainUti" to (this.mainUti ?: other.mainUti),
-            "name" to (this.name ?: other.name),
-            "version" to (this.version ?: other.version),
-            "otherUtis" to (other.otherUtis + this.otherUtis),
-            "storedICureDocumentId" to (this.storedICureDocumentId ?: other.storedICureDocumentId),
-            "externalUuid" to (this.externalUuid ?: other.externalUuid),
-            "attachmentId" to (this.attachmentId ?: other.attachmentId),
-            "attachment" to (this.attachment?.let { if (it.size >= other.attachment?.size ?: 0) it else other.attachment }
-                    ?: other.attachment)
-    )
+	fun merge(other: Document) = Document(args = this.solveConflictsWith(other))
+	fun solveConflictsWith(other: Document) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+		"documentLocation" to (this.documentLocation ?: other.documentLocation),
+		"documentType" to (this.documentType ?: other.documentType),
+		"documentStatus" to (this.documentStatus ?: other.documentStatus),
+		"openingContactId" to (this.openingContactId ?: other.openingContactId),
+		"externalUri" to (this.externalUri ?: other.externalUri),
+		"mainUti" to (this.mainUti ?: other.mainUti),
+		"name" to (this.name ?: other.name),
+		"version" to (this.version ?: other.version),
+		"otherUtis" to (other.otherUtis + this.otherUtis),
+		"storedICureDocumentId" to (this.storedICureDocumentId ?: other.storedICureDocumentId),
+		"externalUuid" to (this.externalUuid ?: other.externalUuid),
+		"attachmentId" to (this.attachmentId ?: other.attachmentId),
+		"attachment" to (
+			this.attachment?.let { if (it.size >= other.attachment?.size ?: 0) it else other.attachment }
+				?: other.attachment
+			)
+	)
 
-    fun decryptAttachment(enckeys: List<String?>?): ByteArray? {
-        return enckeys
-                ?.filterNotNull()
-                ?.filter { sfk -> sfk.keyFromHexString().isValidAesKey() }
-                ?.mapNotNull { sfk ->
-                    try {
-                        attachment?.let { CryptoUtils.decryptAES(it, sfk.keyFromHexString()) }
-                    } catch (ignored: GeneralSecurityException) {
-                        null
-                    } catch (ignored: KeyException) {
-                        null
-                    } catch (ignored: IllegalArgumentException) {
-                        null
-                    }
-                }
-                ?.firstOrNull()
-                ?: attachment
-    }
+	fun decryptAttachment(enckeys: List<String?>?): ByteArray? {
+		return enckeys
+			?.filterNotNull()
+			?.filter { sfk -> sfk.keyFromHexString().isValidAesKey() }
+			?.mapNotNull { sfk ->
+				try {
+					attachment?.let { CryptoUtils.decryptAES(it, sfk.keyFromHexString()) }
+				} catch (ignored: GeneralSecurityException) {
+					null
+				} catch (ignored: KeyException) {
+					null
+				} catch (ignored: IllegalArgumentException) {
+					null
+				}
+			}
+			?.firstOrNull()
+			?: attachment
+	}
 
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
-    override fun withTimestamps(created: Long?, modified: Long?) =
-            when {
-                created != null && modified != null -> this.copy(created = created, modified = modified)
-                created != null -> this.copy(created = created)
-                modified != null -> this.copy(modified = modified)
-                else -> this
-            }
-
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withTimestamps(created: Long?, modified: Long?) =
+		when {
+			created != null && modified != null -> this.copy(created = created, modified = modified)
+			created != null -> this.copy(created = created)
+			modified != null -> this.copy(modified = modified)
+			else -> this
+		}
 }

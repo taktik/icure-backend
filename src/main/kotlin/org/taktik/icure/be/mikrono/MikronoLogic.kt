@@ -23,12 +23,12 @@ import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.AppointmentImpo
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentTypeRestDto
 
 interface MikronoLogic {
-    fun getPassword(licenseId: String): String
-    fun register(serverUrl: String, userId: String?, token: String?): String?
-    fun getMikronoServer(serverUrl: String?): String?
-    fun sendMessage(serverUrl: String?, username: String, userToken: String, emailOrSmsMessage: EmailOrSmsMessage)
-    fun getAppointmentsByDate(serverUrl: String?, username: String?, userToken: String?, ownerId: String?, calendarDate: Long?): List<AppointmentDto?>
-    fun getAppointmentsByPatient(serverUrl: String?, username: String?, userToken: String?, ownerId: String?, patientId: String?, startTime: Long?, EndTime: Long?): List<AppointmentDto?>
-    fun createAppointments(serverUrl: String?, username: String, userToken: String, appointments: List<AppointmentImportDto>): List<String>
-    fun createAppointmentTypes(serverUrl: String?, username: String, userToken: String, appointmentTypes: List<MikronoAppointmentTypeRestDto?>): List<MikronoAppointmentTypeRestDto?>
+	fun getPassword(licenseId: String): String
+	fun register(serverUrl: String, userId: String?, token: String?): String?
+	fun getMikronoServer(serverUrl: String?): String?
+	fun sendMessage(serverUrl: String?, username: String, userToken: String, emailOrSmsMessage: EmailOrSmsMessage)
+	fun getAppointmentsByDate(serverUrl: String?, username: String?, userToken: String?, ownerId: String?, calendarDate: Long?): List<AppointmentDto?>
+	fun getAppointmentsByPatient(serverUrl: String?, username: String?, userToken: String?, ownerId: String?, patientId: String?, startTime: Long?, EndTime: Long?): List<AppointmentDto?>
+	fun createAppointments(serverUrl: String?, username: String, userToken: String, appointments: List<AppointmentImportDto>): List<String>
+	fun createAppointmentTypes(serverUrl: String?, username: String, userToken: String, appointmentTypes: List<MikronoAppointmentTypeRestDto?>): List<MikronoAppointmentTypeRestDto?>
 }

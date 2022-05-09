@@ -18,53 +18,53 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import java.net.URI
 import io.icure.asyncjacksonhttpclient.net.web.WebClient
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ClientImpl
+import org.taktik.couchdb.ReplicatorResponse
 import org.taktik.couchdb.entity.Indexer
+import org.taktik.couchdb.entity.ReplicateCommand
 import org.taktik.couchdb.entity.ReplicationTask
+import org.taktik.couchdb.entity.Scheduler
 import org.taktik.icure.asyncdao.ICureDAO
 import org.taktik.icure.entities.embed.DatabaseSynchronization
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.couchdb.ReplicatorResponse
-import org.taktik.couchdb.entity.ReplicateCommand
-import org.taktik.couchdb.entity.Scheduler
-import java.net.URI
 
 @ExperimentalCoroutinesApi
 @Repository("iCureDAO")
 class ICureDAOImpl(val couchDbProperties: CouchDbProperties, val httpClient: WebClient) : ICureDAO {
-    private val dbInstanceUrl = URI(couchDbProperties.url)
+	private val dbInstanceUrl = URI(couchDbProperties.url)
 
-    override suspend fun getIndexingStatus(dbInstanceUri: URI): Map<String, Int> {
-        val client = ClientImpl(httpClient, dbInstanceUri, couchDbProperties.username!!, couchDbProperties.password!!)
-        return client.activeTasks().filterIsInstance<Indexer>().fold(mutableMapOf()) { map, at ->
-            map["${at.database}/${at.design_document}"] = at.progress ?: 0
-            map
-        }
-    }
+	override suspend fun getIndexingStatus(dbInstanceUri: URI): Map<String, Int> {
+		val client = ClientImpl(httpClient, dbInstanceUri, couchDbProperties.username!!, couchDbProperties.password!!)
+		return client.activeTasks().filterIsInstance<Indexer>().fold(mutableMapOf()) { map, at ->
+			map["${at.database}/${at.design_document}"] = at.progress ?: 0
+			map
+		}
+	}
 
-    override suspend fun getPendingChanges(dbInstanceUri: URI): Map<DatabaseSynchronization, Long> {
-        val client = ClientImpl(httpClient, dbInstanceUri, couchDbProperties.username!!, couchDbProperties.password!!)
-        return client.activeTasks().filterIsInstance<ReplicationTask>().fold(mutableMapOf()) { map, at ->
-            map[DatabaseSynchronization(at.source, at.target)] = at.changes_pending?.toLong() ?: 0
-            map
-        }
-    }
+	override suspend fun getPendingChanges(dbInstanceUri: URI): Map<DatabaseSynchronization, Long> {
+		val client = ClientImpl(httpClient, dbInstanceUri, couchDbProperties.username!!, couchDbProperties.password!!)
+		return client.activeTasks().filterIsInstance<ReplicationTask>().fold(mutableMapOf()) { map, at ->
+			map[DatabaseSynchronization(at.source, at.target)] = at.changes_pending?.toLong() ?: 0
+			map
+		}
+	}
 
-    override suspend fun replicate(command: ReplicateCommand): ReplicatorResponse {
-        val client = ClientImpl(httpClient, dbInstanceUrl, couchDbProperties.username!!, couchDbProperties.password!!)
-        return client.replicate(command)
-    }
+	override suspend fun replicate(command: ReplicateCommand): ReplicatorResponse {
+		val client = ClientImpl(httpClient, dbInstanceUrl, couchDbProperties.username!!, couchDbProperties.password!!)
+		return client.replicate(command)
+	}
 
-    override suspend fun deleteReplicatorDoc(docId: String): ReplicatorResponse {
-        val client = ClientImpl(httpClient, dbInstanceUrl, couchDbProperties.username!!, couchDbProperties.password!!)
-        return client.deleteReplication(docId)
-    }
+	override suspend fun deleteReplicatorDoc(docId: String): ReplicatorResponse {
+		val client = ClientImpl(httpClient, dbInstanceUrl, couchDbProperties.username!!, couchDbProperties.password!!)
+		return client.deleteReplication(docId)
+	}
 
-    override suspend fun getSchedulerDocs(): Scheduler.Docs {
-        val client = ClientImpl(httpClient, dbInstanceUrl, couchDbProperties.username!!, couchDbProperties.password!!)
-        return client.schedulerDocs()
-    }
+	override suspend fun getSchedulerDocs(): Scheduler.Docs {
+		val client = ClientImpl(httpClient, dbInstanceUrl, couchDbProperties.username!!, couchDbProperties.password!!)
+		return client.schedulerDocs()
+	}
 }

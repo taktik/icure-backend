@@ -47,69 +47,70 @@ import reactor.core.publisher.Flux
 @RestController("agendaControllerV2")
 @RequestMapping("/rest/v2/agenda")
 @Tag(name = "agenda")
-class AgendaController(private val agendaLogic: AgendaLogic,
-                       private val agendaV2Mapper: AgendaV2Mapper) {
-    private val logger = LoggerFactory.getLogger(javaClass)
+class AgendaController(
+	private val agendaLogic: AgendaLogic,
+	private val agendaV2Mapper: AgendaV2Mapper
+) {
+	private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Operation(summary = "Gets all agendas")
-    @GetMapping
-    fun getAgendas(): Flux<AgendaDto> {
-        val agendas = agendaLogic.getEntities()
-        return agendas.map { agendaV2Mapper.map(it) }.injectReactorContext()
-    }
+	@Operation(summary = "Gets all agendas")
+	@GetMapping
+	fun getAgendas(): Flux<AgendaDto> {
+		val agendas = agendaLogic.getEntities()
+		return agendas.map { agendaV2Mapper.map(it) }.injectReactorContext()
+	}
 
-    @Operation(summary = "Creates a agenda")
-    @PostMapping
-    fun createAgenda(@RequestBody agendaDto: AgendaDto) = mono {
-        val agenda = agendaLogic.createAgenda(agendaV2Mapper.map(agendaDto))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Agenda creation failed")
+	@Operation(summary = "Creates a agenda")
+	@PostMapping
+	fun createAgenda(@RequestBody agendaDto: AgendaDto) = mono {
+		val agenda = agendaLogic.createAgenda(agendaV2Mapper.map(agendaDto))
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Agenda creation failed")
 
-        agendaV2Mapper.map(agenda)
-    }
+		agendaV2Mapper.map(agenda)
+	}
 
-    @Operation(summary = "Deletes agendas")
-    @PostMapping("/delete/batch")
-    fun deleteAgendas(@RequestBody agendaIds: ListOfIdsDto): Flux<DocIdentifier> {
-        return agendaIds.ids.takeIf { it.isNotEmpty() }
-                ?.let { ids ->
-                    try {
-                        agendaLogic.deleteEntities(HashSet(ids)).injectReactorContext()
-                    }catch (e: java.lang.Exception) {
-                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
-                    }
-                }
-                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
-    }
+	@Operation(summary = "Deletes agendas")
+	@PostMapping("/delete/batch")
+	fun deleteAgendas(@RequestBody agendaIds: ListOfIdsDto): Flux<DocIdentifier> {
+		return agendaIds.ids.takeIf { it.isNotEmpty() }
+			?.let { ids ->
+				try {
+					agendaLogic.deleteEntities(HashSet(ids)).injectReactorContext()
+				} catch (e: java.lang.Exception) {
+					throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+				}
+			}
+			?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
+	}
 
-    @Operation(summary = "Gets an agenda")
-    @GetMapping("/{agendaId}")
-    fun getAgenda(@PathVariable agendaId: String) = mono {
-        val agenda = agendaLogic.getAgenda(agendaId)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Agenda fetching failed")
-        agendaV2Mapper.map(agenda)
-    }
+	@Operation(summary = "Gets an agenda")
+	@GetMapping("/{agendaId}")
+	fun getAgenda(@PathVariable agendaId: String) = mono {
+		val agenda = agendaLogic.getAgenda(agendaId)
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Agenda fetching failed")
+		agendaV2Mapper.map(agenda)
+	}
 
-    @Operation(summary = "Gets all agendas for user")
-    @GetMapping("/byUser")
-    fun getAgendasForUser(@RequestParam userId: String) = mono {
-        agendaLogic.getAgendasByUser(userId).firstOrNull()?.let { agendaV2Mapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Agendas fetching failed")
-    }
+	@Operation(summary = "Gets all agendas for user")
+	@GetMapping("/byUser")
+	fun getAgendasForUser(@RequestParam userId: String) = mono {
+		agendaLogic.getAgendasByUser(userId).firstOrNull()?.let { agendaV2Mapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Agendas fetching failed")
+	}
 
-    @Operation(summary = "Gets readable agendas for user")
-    @GetMapping("/readableForUser")
-    fun getReadableAgendasForUser(@RequestParam userId: String): Flux<AgendaDto> {
-        val agendas = agendaLogic.getReadableAgendaForUser(userId)
-        return agendas.map { agendaV2Mapper.map(it) }.injectReactorContext()
-    }
+	@Operation(summary = "Gets readable agendas for user")
+	@GetMapping("/readableForUser")
+	fun getReadableAgendasForUser(@RequestParam userId: String): Flux<AgendaDto> {
+		val agendas = agendaLogic.getReadableAgendaForUser(userId)
+		return agendas.map { agendaV2Mapper.map(it) }.injectReactorContext()
+	}
 
+	@Operation(summary = "Modifies an agenda")
+	@PutMapping
+	fun modifyAgenda(@RequestBody agendaDto: AgendaDto) = mono {
+		val agenda = agendaLogic.modifyAgenda(agendaV2Mapper.map(agendaDto))
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Agenda modification failed")
 
-    @Operation(summary = "Modifies an agenda")
-    @PutMapping
-    fun modifyAgenda(@RequestBody agendaDto: AgendaDto) = mono {
-        val agenda = agendaLogic.modifyAgenda(agendaV2Mapper.map(agendaDto))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Agenda modification failed")
-
-        agendaV2Mapper.map(agenda)
-    }
+		agendaV2Mapper.map(agenda)
+	}
 }

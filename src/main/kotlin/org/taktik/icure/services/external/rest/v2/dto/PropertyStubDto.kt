@@ -27,9 +27,9 @@ import org.taktik.icure.services.external.rest.v2.dto.embed.TypedValueDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class PropertyStubDto(
-        val id: String? = null,
-        val type: PropertyTypeStubDto? = null,
-        val typedValue: TypedValueDto<*>? = null,
-        @Deprecated("Remove from list instead") val deletionDate: Long? = null,
-        override val encryptedSelf: String? = null
+	val id: String? = null,
+	val type: PropertyTypeStubDto? = null,
+	val typedValue: TypedValueDto<*>? = null,
+	@Deprecated("Remove from list instead") val deletionDate: Long? = null,
+	override val encryptedSelf: String? = null
 ) : EncryptedDto

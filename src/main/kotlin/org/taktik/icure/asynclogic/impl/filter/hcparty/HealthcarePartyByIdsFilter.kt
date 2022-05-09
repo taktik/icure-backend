@@ -26,7 +26,7 @@ import org.taktik.icure.entities.HealthcareParty
 
 @Service
 class HealthcarePartyByIdsFilter : Filter<String, HealthcareParty, org.taktik.icure.domain.filter.Filters.IdsFilter<String, HealthcareParty>> {
-    override fun resolve(filter: org.taktik.icure.domain.filter.Filters.IdsFilter<String, HealthcareParty>, context: Filters): Flow<String> {
-        return filter.ids.asFlow()
-    }
+	override fun resolve(filter: org.taktik.icure.domain.filter.Filters.IdsFilter<String, HealthcareParty>, context: Filters): Flow<String> {
+		return filter.ids.asFlow()
+	}
 }

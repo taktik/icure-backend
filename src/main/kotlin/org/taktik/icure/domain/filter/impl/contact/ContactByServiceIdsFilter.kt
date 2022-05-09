@@ -24,21 +24,21 @@ import org.taktik.icure.entities.Contact
 
 @KotlinBuilder
 data class ContactByServiceIdsFilter(
-        override val desc: String? = null,
-        override val ids: List<String>? = null
+	override val desc: String? = null,
+	override val ids: List<String>? = null
 ) : AbstractFilter<Contact>, org.taktik.icure.domain.filter.contact.ContactByServiceIdsFilter {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val filter = other as ContactByServiceIdsFilter
-        return Objects.equal(ids, filter.ids)
-    }
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (other == null || javaClass != other.javaClass) return false
+		val filter = other as ContactByServiceIdsFilter
+		return Objects.equal(ids, filter.ids)
+	}
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(ids)
-    }
+	override fun hashCode(): Int {
+		return Objects.hashCode(ids)
+	}
 
-    override fun matches(item: Contact): Boolean {
-        return item.services.stream().filter { (id) -> ids!!.contains(id) }.findAny().isPresent
-    }
+	override fun matches(item: Contact): Boolean {
+		return item.services.stream().filter { (id) -> ids!!.contains(id) }.findAny().isPresent
+	}
 }

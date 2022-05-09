@@ -23,6 +23,6 @@ import org.taktik.icure.entities.embed.MessagesReadStatusUpdate
 import org.taktik.icure.services.external.rest.v2.dto.embed.MessagesReadStatusUpdateDto
 @Mapper(componentModel = "spring")
 interface MessagesReadStatusUpdateV2Mapper {
-	fun map(messagesReadStatusUpdateDto: MessagesReadStatusUpdateDto):MessagesReadStatusUpdate
-	fun map(messagesReadStatusUpdate: MessagesReadStatusUpdate):MessagesReadStatusUpdateDto
+	fun map(messagesReadStatusUpdateDto: MessagesReadStatusUpdateDto): MessagesReadStatusUpdate
+	fun map(messagesReadStatusUpdate: MessagesReadStatusUpdate): MessagesReadStatusUpdateDto
 }

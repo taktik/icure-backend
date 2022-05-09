@@ -18,5 +18,5 @@
 package org.taktik.icure.entities.base
 
 interface Named {
-    val name: String?
+	val name: String?
 }

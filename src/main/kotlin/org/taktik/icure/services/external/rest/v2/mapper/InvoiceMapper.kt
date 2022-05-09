@@ -29,12 +29,12 @@ import org.taktik.icure.services.external.rest.v2.mapper.embed.*
 
 @Mapper(componentModel = "spring", uses = [InvoiceTypeV2Mapper::class, PaymentTypeV2Mapper::class, InvoicingCodeV2Mapper::class, IdentityDocumentReaderV2Mapper::class, MediumTypeV2Mapper::class, CodeStubV2Mapper::class, PaymentV2Mapper::class, DelegationV2Mapper::class, InvoiceInterventionTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface InvoiceV2Mapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(invoiceDto: InvoiceDto):Invoice
-	fun map(invoice: Invoice):InvoiceDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(invoiceDto: InvoiceDto): Invoice
+	fun map(invoice: Invoice): InvoiceDto
 }

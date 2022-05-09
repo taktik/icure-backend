@@ -17,7 +17,7 @@
  */
 package org.taktik.icure.services.external.rest.v2.dto
 
-import org.taktik.icure.services.external.rest.v2.dto.data.FormContent
 import java.io.Serializable
+import org.taktik.icure.services.external.rest.v2.dto.data.FormContent
 
 class GetFormLayoutAndContentReply(val formContent: FormContent? = null, val templates: List<FormTemplateDto>? = null) : Serializable

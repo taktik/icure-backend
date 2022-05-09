@@ -24,6 +24,6 @@ import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.services.external.rest.v2.dto.embed.PatientHealthCarePartyDto
 @Mapper(componentModel = "spring", uses = [TelecomTypeV2Mapper::class, ReferralPeriodV2Mapper::class, PatientHealthCarePartyTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface PatientHealthCarePartyV2Mapper {
-	fun map(patientHealthCarePartyDto: PatientHealthCarePartyDto):PatientHealthCareParty
-	fun map(patientHealthCareParty: PatientHealthCareParty):PatientHealthCarePartyDto
+	fun map(patientHealthCarePartyDto: PatientHealthCarePartyDto): PatientHealthCareParty
+	fun map(patientHealthCareParty: PatientHealthCareParty): PatientHealthCarePartyDto
 }

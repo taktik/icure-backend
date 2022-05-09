@@ -29,12 +29,12 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.KeywordSubwordMap
 
 @Mapper(componentModel = "spring", uses = [CodeStubMapper::class, KeywordSubwordMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface KeywordMapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(keywordDto: KeywordDto):Keyword
-	fun map(keyword: Keyword):KeywordDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(keywordDto: KeywordDto): Keyword
+	fun map(keyword: Keyword): KeywordDto
 }

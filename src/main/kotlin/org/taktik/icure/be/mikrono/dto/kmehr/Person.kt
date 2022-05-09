@@ -28,26 +28,25 @@ import java.util.*
  * To change this template use File | Settings | File Templates.
  */
 class Person : KmehrElement() {
-    var firstname: String? = null
-    var familyname: String? = null
-    var birthdate: Date? = null
-    var birthlocation: Address? = null
-    var deathdate: Date? = null
-    var deathlocation: Address? = null
-    var sex: String? = null
-    var nationality: String? = null
-    var addresses: MutableList<Address?> = ArrayList()
-    var telecoms: MutableList<Telecom?> = ArrayList()
-    var usuallanguage: String? = null
-    var profession: String? = null
-    var recorddatetime: Date? = null
-    var comments: List<String> = ArrayList()
-    fun addAddress(a: Address?) {
-        addresses.add(a)
-    }
+	var firstname: String? = null
+	var familyname: String? = null
+	var birthdate: Date? = null
+	var birthlocation: Address? = null
+	var deathdate: Date? = null
+	var deathlocation: Address? = null
+	var sex: String? = null
+	var nationality: String? = null
+	var addresses: MutableList<Address?> = ArrayList()
+	var telecoms: MutableList<Telecom?> = ArrayList()
+	var usuallanguage: String? = null
+	var profession: String? = null
+	var recorddatetime: Date? = null
+	var comments: List<String> = ArrayList()
+	fun addAddress(a: Address?) {
+		addresses.add(a)
+	}
 
-    fun addTelecom(t: Telecom?) {
-        telecoms.add(t)
-    }
-
+	fun addTelecom(t: Telecom?) {
+		telecoms.add(t)
+	}
 }

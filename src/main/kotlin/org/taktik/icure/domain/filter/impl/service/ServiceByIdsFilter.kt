@@ -17,7 +17,6 @@
  */
 package org.taktik.icure.domain.filter.impl.service
 
-
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.AbstractFilter
 import org.taktik.icure.domain.filter.Filters
@@ -25,8 +24,8 @@ import org.taktik.icure.entities.embed.Service
 
 @KotlinBuilder
 data class ServiceByIdsFilter(
-        override val ids: Set<String>,
-        override val desc: String? = null
+	override val ids: Set<String>,
+	override val desc: String? = null
 ) : AbstractFilter<Service>, Filters.IdsFilter<String, Service> {
-    override fun matches(item: Service) = ids.contains(item.id)
+	override fun matches(item: Service) = ids.contains(item.id)
 }

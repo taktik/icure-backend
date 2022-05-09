@@ -25,6 +25,6 @@ import org.taktik.icure.entities.User
 
 @Service
 class UserByNameEmailPhoneFilter(private val userLogic: UserLogic) : Filter<String, User, org.taktik.icure.domain.filter.user.UserByNameEmailPhoneFilter> {
-    override fun resolve(filter: org.taktik.icure.domain.filter.user.UserByNameEmailPhoneFilter, context: Filters) =
-            userLogic.listUserIdsByNameEmailPhone(filter.searchString)
+	override fun resolve(filter: org.taktik.icure.domain.filter.user.UserByNameEmailPhoneFilter, context: Filters) =
+		userLogic.listUserIdsByNameEmailPhone(filter.searchString)
 }

@@ -26,18 +26,18 @@ import org.taktik.couchdb.id.Identifiable
 
 interface InternalDAO<T : Identifiable<String>> {
 
-    fun getEntities(): Flow<T>
-    fun getEntityIds(): Flow<String>
-    suspend fun get(id: String, vararg options: Option): T?
-    suspend fun get(id: String, rev: String?, vararg options: Option): T?
-    fun getEntities(ids: Collection<String>): Flow<T>
-    suspend fun save(entity: T): T?
-    fun save(entities: Flow<T>): Flow<DocIdentifier>
-    suspend fun update(entity: T): T?
+	fun getEntities(): Flow<T>
+	fun getEntityIds(): Flow<String>
+	suspend fun get(id: String, vararg options: Option): T?
+	suspend fun get(id: String, rev: String?, vararg options: Option): T?
+	fun getEntities(ids: Collection<String>): Flow<T>
+	suspend fun save(entity: T): T?
+	fun save(entities: Flow<T>): Flow<DocIdentifier>
+	suspend fun update(entity: T): T?
 
-    fun save(entities: List<T>): Flow<DocIdentifier>
-    fun purge(entities: Flow<T>): Flow<BulkUpdateResult>
-    fun remove(entities: Flow<T>): Flow<BulkUpdateResult>
+	fun save(entities: List<T>): Flow<DocIdentifier>
+	fun purge(entities: Flow<T>): Flow<BulkUpdateResult>
+	fun remove(entities: Flow<T>): Flow<BulkUpdateResult>
 
-    suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean)
+	suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean)
 }

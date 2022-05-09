@@ -24,6 +24,6 @@ import org.taktik.icure.entities.embed.Employer
 import org.taktik.icure.services.external.rest.v2.dto.embed.EmployerDto
 @Mapper(componentModel = "spring", uses = [AddressV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface EmployerV2Mapper {
-	fun map(employerDto: EmployerDto):Employer
-	fun map(employer: Employer):EmployerDto
+	fun map(employerDto: EmployerDto): Employer
+	fun map(employer: Employer): EmployerDto
 }

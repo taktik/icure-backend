@@ -18,12 +18,12 @@
 
 package org.taktik.icure.asynclogic.impl.filter
 
+import java.io.Serializable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import org.taktik.couchdb.id.Identifiable
-import java.io.Serializable
 
 class ComplementFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, org.taktik.icure.domain.filter.Filters.ComplementFilter<T, O>> {
 	override fun resolve(filter: org.taktik.icure.domain.filter.Filters.ComplementFilter<T, O>, context: Filters): Flow<T> = flow {

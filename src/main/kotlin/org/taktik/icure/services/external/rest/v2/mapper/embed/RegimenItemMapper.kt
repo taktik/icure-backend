@@ -26,6 +26,6 @@ import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
 @Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface RegimenItemV2Mapper {
-	fun map(regimenItemDto: RegimenItemDto):RegimenItem
-	fun map(regimenItem: RegimenItem):RegimenItemDto
+	fun map(regimenItemDto: RegimenItemDto): RegimenItem
+	fun map(regimenItem: RegimenItem): RegimenItemDto
 }

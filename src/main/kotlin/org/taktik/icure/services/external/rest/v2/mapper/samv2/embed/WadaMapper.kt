@@ -24,6 +24,6 @@ import org.taktik.icure.entities.samv2.embed.Wada
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.WadaDto
 @Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface WadaV2Mapper {
-	fun map(wadaDto: WadaDto):Wada
-	fun map(wada: Wada):WadaDto
+	fun map(wadaDto: WadaDto): Wada
+	fun map(wada: Wada): WadaDto
 }

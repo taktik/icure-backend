@@ -30,17 +30,17 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class KeyValuePredicate(val key: String? = null, val operator: Operator? = null, val value: Any? = null) : Predicate {
-    enum class Operator(val code: String) {
-        EQUAL("=="),
-        NOTEQUAL("!="),
-        GREATERTHAN(">"),
-        SMALLERTHAN("<"),
-        GREATERTHANOREQUAL(">="),
-        SMALLERTHANOREQUAL("<="),
-        LIKE("%="),
-        ILIKE("%%=");
-        override fun toString(): String {
-            return code
-        }
-    }
+	enum class Operator(val code: String) {
+		EQUAL("=="),
+		NOTEQUAL("!="),
+		GREATERTHAN(">"),
+		SMALLERTHAN("<"),
+		GREATERTHANOREQUAL(">="),
+		SMALLERTHANOREQUAL("<="),
+		LIKE("%="),
+		ILIKE("%%=");
+		override fun toString(): String {
+			return code
+		}
+	}
 }

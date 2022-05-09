@@ -8,8 +8,8 @@ import com.github.pozo.KotlinBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class FormTemplateLayout(
-    val form: String,
-    val sections: List<Section> = emptyList(),
-    val description: String? = null,
-    val keywords: List<String>? = null,
+	val form: String,
+	val sections: List<Section> = emptyList(),
+	val description: String? = null,
+	val keywords: List<String>? = null,
 )

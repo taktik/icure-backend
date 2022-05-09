@@ -28,12 +28,12 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.DatabaseSynchroni
 
 @Mapper(componentModel = "spring", uses = [DatabaseSynchronizationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ReplicationMapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(replicationDto: ReplicationDto):Replication
-	fun map(replication: Replication):ReplicationDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(replicationDto: ReplicationDto): Replication
+	fun map(replication: Replication): ReplicationDto
 }

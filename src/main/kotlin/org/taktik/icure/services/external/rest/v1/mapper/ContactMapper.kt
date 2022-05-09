@@ -31,12 +31,12 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.SubContactMapper
 
 @Mapper(componentModel = "spring", uses = [SubContactMapper::class, CodeStubMapper::class, DelegationMapper::class, ServiceMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ContactMapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-    fun map(contactDto: ContactDto): Contact
-    fun map(contact: Contact): ContactDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(contactDto: ContactDto): Contact
+	fun map(contact: Contact): ContactDto
 }

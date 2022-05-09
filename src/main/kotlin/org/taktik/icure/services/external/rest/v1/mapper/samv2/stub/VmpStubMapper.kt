@@ -26,5 +26,5 @@ import org.taktik.icure.services.external.rest.v1.dto.samv2.stub.VmpStubDto
 @Mapper(componentModel = "spring", uses = [VmpGroupStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface VmpStubMapper {
 	fun map(vmpStubDto: VmpStubDto): VmpStub
-	fun map(vmpStub: VmpStub):VmpStubDto
+	fun map(vmpStub: VmpStub): VmpStubDto
 }

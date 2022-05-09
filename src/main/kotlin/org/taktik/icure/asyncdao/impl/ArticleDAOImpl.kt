@@ -18,16 +18,18 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
-import org.taktik.icure.asyncdao.ArticleDAO
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.id.IDGenerator
+import org.taktik.icure.asyncdao.ArticleDAO
 import org.taktik.icure.entities.Article
 import org.taktik.icure.properties.CouchDbProperties
 
-
 @Repository("articleDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Article' && !doc.deleted) emit( null, doc._id )}")
-class ArticleDAOImpl(couchDbProperties: CouchDbProperties,
-                     @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Article>(couchDbProperties, Article::class.java, couchDbDispatcher, idGenerator), ArticleDAO
+class ArticleDAOImpl(
+	couchDbProperties: CouchDbProperties,
+	@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
+	idGenerator: IDGenerator
+) : GenericDAOImpl<Article>(couchDbProperties, Article::class.java, couchDbDispatcher, idGenerator), ArticleDAO

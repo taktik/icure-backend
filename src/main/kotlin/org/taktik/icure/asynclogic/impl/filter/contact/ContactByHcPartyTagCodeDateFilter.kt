@@ -32,35 +32,41 @@ import org.taktik.icure.entities.Contact
 import org.taktik.icure.utils.getLoggedHealthCarePartyId
 
 @Service
-class ContactByHcPartyTagCodeDateFilter(private val contactLogic: ContactLogic,
-                                        private val sessionLogic: AsyncSessionLogic) : Filter<String, Contact, ContactByHcPartyTagCodeDateFilter> {
+class ContactByHcPartyTagCodeDateFilter(
+	private val contactLogic: ContactLogic,
+	private val sessionLogic: AsyncSessionLogic
+) : Filter<String, Contact, ContactByHcPartyTagCodeDateFilter> {
 
-    override fun resolve(filter: ContactByHcPartyTagCodeDateFilter, context: Filters) = flow {
-        try {
-            val hcPartyId: String = filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic)
-            var ids: HashSet<String>? = null
-            if (filter.tagType != null && filter.tagCode != null) {
-                ids = HashSet(contactLogic.listContactIdsByTag(
-                        hcPartyId,
-                        filter.tagType!!,
-                        filter.tagCode!!,
-                        filter.startOfContactOpeningDate, filter.endOfContactOpeningDate).toList())
-            }
-            if (filter.codeType != null && filter.codeCode != null) {
-                val byCode = contactLogic.listContactIdsByCode(
-                        hcPartyId,
-                        filter.codeType!!,
-                        filter.codeCode!!,
-                        filter.startOfContactOpeningDate, filter.endOfContactOpeningDate).toList()
-                if (ids == null) {
-                    ids = HashSet(byCode)
-                } else {
-                    ids.retainAll(byCode)
-                }
-            }
-            emitAll(ids?.asFlow() ?: contactLogic.listContactIds(hcPartyId))
-        } catch (e: LoginException) {
-            throw IllegalArgumentException(e)
-        }
-    }
+	override fun resolve(filter: ContactByHcPartyTagCodeDateFilter, context: Filters) = flow {
+		try {
+			val hcPartyId: String = filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic)
+			var ids: HashSet<String>? = null
+			if (filter.tagType != null && filter.tagCode != null) {
+				ids = HashSet(
+					contactLogic.listContactIdsByTag(
+						hcPartyId,
+						filter.tagType!!,
+						filter.tagCode!!,
+						filter.startOfContactOpeningDate, filter.endOfContactOpeningDate
+					).toList()
+				)
+			}
+			if (filter.codeType != null && filter.codeCode != null) {
+				val byCode = contactLogic.listContactIdsByCode(
+					hcPartyId,
+					filter.codeType!!,
+					filter.codeCode!!,
+					filter.startOfContactOpeningDate, filter.endOfContactOpeningDate
+				).toList()
+				if (ids == null) {
+					ids = HashSet(byCode)
+				} else {
+					ids.retainAll(byCode)
+				}
+			}
+			emitAll(ids?.asFlow() ?: contactLogic.listContactIds(hcPartyId))
+		} catch (e: LoginException) {
+			throw IllegalArgumentException(e)
+		}
+	}
 }

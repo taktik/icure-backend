@@ -11,6 +11,6 @@ import com.github.pozo.KotlinBuilder
 @KotlinBuilder
 @JsonDeserialize(using = JsonDeserializer.None::class)
 data class Group(
-    val group: String,
-    val fields: List<StructureElement>? = null,
+	val group: String,
+	val fields: List<StructureElement>? = null,
 ) : StructureElement

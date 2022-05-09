@@ -30,12 +30,12 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.ReceiptBlobTypeMa
 
 @Mapper(componentModel = "spring", uses = [CodeStubMapper::class, DelegationMapper::class, ReceiptBlobTypeMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ReceiptMapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(receiptDto: ReceiptDto):Receipt
-	fun map(receipt: Receipt):ReceiptDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(receiptDto: ReceiptDto): Receipt
+	fun map(receipt: Receipt): ReceiptDto
 }

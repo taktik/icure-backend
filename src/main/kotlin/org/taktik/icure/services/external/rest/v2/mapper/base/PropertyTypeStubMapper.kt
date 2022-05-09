@@ -24,6 +24,6 @@ import org.taktik.icure.services.external.rest.v2.dto.PropertyTypeStubDto
 
 @Mapper(componentModel = "spring")
 interface PropertyTypeStubV2Mapper {
-	fun map(propertyTypeStubDto: PropertyTypeStubDto):PropertyTypeStub
-	fun map(propertyTypeStub: PropertyTypeStub):PropertyTypeStubDto
+	fun map(propertyTypeStubDto: PropertyTypeStubDto): PropertyTypeStub
+	fun map(propertyTypeStub: PropertyTypeStub): PropertyTypeStubDto
 }

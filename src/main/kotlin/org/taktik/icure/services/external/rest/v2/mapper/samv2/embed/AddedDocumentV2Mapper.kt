@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.AddedDocumentD
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface AddedDocumentV2Mapper {
-	fun map(addedDocumentDto: AddedDocumentDto):AddedDocument
-	fun map(addedDocument: AddedDocument):AddedDocumentDto
+	fun map(addedDocumentDto: AddedDocumentDto): AddedDocument
+	fun map(addedDocument: AddedDocument): AddedDocumentDto
 }

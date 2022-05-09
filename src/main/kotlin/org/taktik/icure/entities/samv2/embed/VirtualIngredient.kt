@@ -27,10 +27,10 @@ import org.taktik.icure.entities.samv2.stub.SubstanceStub
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class VirtualIngredient(
-        override val from: Long? = null,
-        override val to: Long? = null,
-        val rank: Int? = null,
-        val type: IngredientType? = null,
-        val strengthRange: StrengthRange? = null,
-        val substance: SubstanceStub? = null
+	override val from: Long? = null,
+	override val to: Long? = null,
+	val rank: Int? = null,
+	val type: IngredientType? = null,
+	val strengthRange: StrengthRange? = null,
+	val substance: SubstanceStub? = null
 ) : DataPeriod

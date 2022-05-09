@@ -23,6 +23,6 @@ import org.taktik.icure.entities.embed.FinancialInstitutionInformation
 import org.taktik.icure.services.external.rest.v2.dto.embed.FinancialInstitutionInformationDto
 @Mapper(componentModel = "spring")
 interface FinancialInstitutionInformationV2Mapper {
-	fun map(financialInstitutionInformationDto: FinancialInstitutionInformationDto):FinancialInstitutionInformation
-	fun map(financialInstitutionInformation: FinancialInstitutionInformation):FinancialInstitutionInformationDto
+	fun map(financialInstitutionInformationDto: FinancialInstitutionInformationDto): FinancialInstitutionInformation
+	fun map(financialInstitutionInformation: FinancialInstitutionInformation): FinancialInstitutionInformationDto
 }

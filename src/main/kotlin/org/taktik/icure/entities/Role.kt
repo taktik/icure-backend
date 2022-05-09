@@ -17,50 +17,50 @@
  */
 package org.taktik.icure.entities
 
+import java.io.Serializable
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.entity.Attachment
-import org.taktik.icure.entities.security.Principal
 import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.base.StoredDocument
-import org.taktik.icure.entities.security.Permission
 import org.taktik.icure.entities.embed.RevisionInfo
+import org.taktik.icure.entities.security.Permission
+import org.taktik.icure.entities.security.Principal
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
-import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class Role(
-        @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String? = null,
-        @JsonProperty("deleted") override val deletionDate: Long? = null,
+	@JsonProperty("_id") override val id: String,
+	@JsonProperty("_rev") override val rev: String? = null,
+	@JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        override val name: String? = null,
-        override val properties: Set<PropertyStub> = emptySet(),
-        override val permissions: Set<Permission> = emptySet(),
-        private val parents: Set<String> = emptySet(),
+	override val name: String? = null,
+	override val properties: Set<PropertyStub> = emptySet(),
+	override val permissions: Set<Permission> = emptySet(),
+	private val parents: Set<String> = emptySet(),
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
+	@JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+	@JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+	@JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredDocument, Principal, Cloneable, Serializable {
-    companion object : DynamicInitializer<Role>
+	companion object : DynamicInitializer<Role>
 
-    fun merge(other: Role) = Role(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Role) = super.solveConflictsWith(other) + mapOf(
-            "name" to (this.name ?: other.name),
-            "properties" to (other.properties + this.properties),
-            "permissions" to (other.permissions + this.permissions),
-            "parents" to (other.parents + this.parents)
-    )
+	fun merge(other: Role) = Role(args = this.solveConflictsWith(other))
+	fun solveConflictsWith(other: Role) = super.solveConflictsWith(other) + mapOf(
+		"name" to (this.name ?: other.name),
+		"properties" to (other.properties + this.properties),
+		"permissions" to (other.permissions + this.permissions),
+		"parents" to (other.parents + this.parents)
+	)
 
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
-    override fun getParents(): Set<String> = parents
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun getParents(): Set<String> = parents
 }

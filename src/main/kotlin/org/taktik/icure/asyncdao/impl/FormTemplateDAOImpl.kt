@@ -18,6 +18,8 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import java.io.IOException
+import java.nio.ByteBuffer
 import kotlinx.coroutines.flow.*
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
@@ -35,8 +37,6 @@ import org.taktik.icure.entities.FormTemplate
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import org.taktik.icure.utils.writeTo
-import java.io.IOException
-import java.nio.ByteBuffer
 
 /**
  * Created by aduchate on 02/02/13, 15:24
@@ -44,130 +44,135 @@ import java.nio.ByteBuffer
 
 @Repository("formTemplateDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted) emit(null, doc._id)}")
-internal class FormTemplateDAOImpl(couchDbProperties: CouchDbProperties,
-                                   private val uuidGenerator: UUIDGenerator, @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager) : GenericDAOImpl<FormTemplate>(couchDbProperties, FormTemplate::class.java, couchDbDispatcher, idGenerator), FormTemplateDAO {
+internal class FormTemplateDAOImpl(
+	couchDbProperties: CouchDbProperties,
+	private val uuidGenerator: UUIDGenerator,
+	@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
+	idGenerator: IDGenerator,
+	@Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager
+) : GenericDAOImpl<FormTemplate>(couchDbProperties, FormTemplate::class.java, couchDbDispatcher, idGenerator), FormTemplateDAO {
 
-    @View(name = "by_userId_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted && doc.author) emit([doc.author,doc.guid], null )}")
-    override fun listFormTemplatesByUserGuid(userId: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	@View(name = "by_userId_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted && doc.author) emit([doc.author,doc.guid], null )}")
+	override fun listFormTemplatesByUserGuid(userId: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val from = ComplexKey.of(userId, guid ?: "")
-        val to = ComplexKey.of(userId, guid ?: "\ufff0")
-        val formTemplates = client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery(client, "by_userId_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
+		val from = ComplexKey.of(userId, guid ?: "")
+		val to = ComplexKey.of(userId, guid ?: "\ufff0")
+		val formTemplates = client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery(client, "by_userId_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
 
-        // invoke postLoad()
-        emitAll(
-                if (loadLayout) {
-                    formTemplates.map {
-                        this@FormTemplateDAOImpl.postLoad(it)
-                    }
-                } else formTemplates
-        )
-    }
+		// invoke postLoad()
+		emitAll(
+			if (loadLayout) {
+				formTemplates.map {
+					this@FormTemplateDAOImpl.postLoad(it)
+				}
+			} else formTemplates
+		)
+	}
 
-    @View(name = "by_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted) emit(doc.guid, null )}")
-    override fun listFormsByGuid(guid: String, loadLayout: Boolean): Flow<FormTemplate> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	@View(name = "by_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted) emit(doc.guid, null )}")
+	override fun listFormsByGuid(guid: String, loadLayout: Boolean): Flow<FormTemplate> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val formTemplates = client.queryViewIncludeDocsNoValue<String, FormTemplate>(createQuery(client, "by_guid").key(guid).includeDocs(true)).map { it.doc }
+		val formTemplates = client.queryViewIncludeDocsNoValue<String, FormTemplate>(createQuery(client, "by_guid").key(guid).includeDocs(true)).map { it.doc }
 
-        emitAll(
-                if (loadLayout) {
-                    formTemplates.map {
-                        this@FormTemplateDAOImpl.postLoad(it)
-                    }
-                } else formTemplates
-        )
-    }
+		emitAll(
+			if (loadLayout) {
+				formTemplates.map {
+					this@FormTemplateDAOImpl.postLoad(it)
+				}
+			} else formTemplates
+		)
+	}
 
-    @View(name = "by_specialty_code_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted && doc.specialty) emit([doc.specialty.code,doc.guid], null )}")
-    override fun listFormsBySpecialtyAndGuid(specialityCode: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	@View(name = "by_specialty_code_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted && doc.specialty) emit([doc.specialty.code,doc.guid], null )}")
+	override fun listFormsBySpecialtyAndGuid(specialityCode: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val formTemplates = if (guid != null) {
-            val key = ComplexKey.of(specialityCode, guid)
-            client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery(client, "by_specialty_code_and_guid").key(key).includeDocs(true)).map { it.doc }
-        } else {
-            val from = ComplexKey.of(specialityCode, null)
-            val to = ComplexKey.of(specialityCode, ComplexKey.emptyObject())
-            client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery(client, "by_specialty_code_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
-        }
+		val formTemplates = if (guid != null) {
+			val key = ComplexKey.of(specialityCode, guid)
+			client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery(client, "by_specialty_code_and_guid").key(key).includeDocs(true)).map { it.doc }
+		} else {
+			val from = ComplexKey.of(specialityCode, null)
+			val to = ComplexKey.of(specialityCode, ComplexKey.emptyObject())
+			client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery(client, "by_specialty_code_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
+		}
 
-        emitAll(
-                if (loadLayout) {
-                    formTemplates.map {
-                        this@FormTemplateDAOImpl.postLoad(it)
-                    }
-                } else formTemplates
-        )
-    }
+		emitAll(
+			if (loadLayout) {
+				formTemplates.map {
+					this@FormTemplateDAOImpl.postLoad(it)
+				}
+			} else formTemplates
+		)
+	}
 
+	override suspend fun createFormTemplate(entity: FormTemplate): FormTemplate {
+		super.save(true, entity)
+		return entity
+	}
 
-    override suspend fun createFormTemplate(entity: FormTemplate): FormTemplate {
-        super.save(true, entity)
-        return entity
-    }
+	override suspend fun beforeSave(entity: FormTemplate) =
+		super.beforeSave(entity).let { formTemplate ->
+			if (formTemplate.layout != null) {
+				val newAttachmentId = DigestUtils.sha256Hex(formTemplate.layout)
 
-    override suspend fun beforeSave(entity: FormTemplate) =
-            super.beforeSave(entity).let { formTemplate ->
-                if (formTemplate.layout != null) {
-                    val newAttachmentId = DigestUtils.sha256Hex(formTemplate.layout)
+				if (newAttachmentId != formTemplate.layoutAttachmentId && formTemplate.rev != null && formTemplate.layoutAttachmentId != null) {
+					formTemplate.attachments?.containsKey(formTemplate.layoutAttachmentId)?.takeIf { it }?.let {
+						formTemplate.copy(
+							rev = deleteAttachment(formTemplate.id, formTemplate.rev, formTemplate.layoutAttachmentId),
+							attachments = formTemplate.attachments - formTemplate.layoutAttachmentId,
+							layoutAttachmentId = newAttachmentId,
+							isAttachmentDirty = true
+						)
+					} ?: formTemplate.copy(
+						layoutAttachmentId = newAttachmentId,
+						isAttachmentDirty = true
+					)
+				} else
+					formTemplate
+			} else {
+				if (formTemplate.layoutAttachmentId != null && formTemplate.rev != null) {
+					formTemplate.copy(
+						rev = deleteAttachment(formTemplate.id, formTemplate.rev, formTemplate.layoutAttachmentId),
+						layoutAttachmentId = null,
+						isAttachmentDirty = false
+					)
+				} else formTemplate
+			}
+		}
 
-                    if (newAttachmentId != formTemplate.layoutAttachmentId && formTemplate.rev != null && formTemplate.layoutAttachmentId != null) {
-                        formTemplate.attachments?.containsKey(formTemplate.layoutAttachmentId)?.takeIf { it }?.let {
-                            formTemplate.copy(
-                                    rev = deleteAttachment(formTemplate.id, formTemplate.rev, formTemplate.layoutAttachmentId),
-                                    attachments = formTemplate.attachments - formTemplate.layoutAttachmentId,
-                                    layoutAttachmentId = newAttachmentId,
-                                    isAttachmentDirty = true
-                            )
-                        } ?: formTemplate.copy(
-                                layoutAttachmentId = newAttachmentId,
-                                isAttachmentDirty = true
-                        )
-                    } else
-                        formTemplate
-                } else {
-                    if (formTemplate.layoutAttachmentId != null && formTemplate.rev != null) {
-                        formTemplate.copy(
-                                rev = deleteAttachment(formTemplate.id, formTemplate.rev, formTemplate.layoutAttachmentId),
-                                layoutAttachmentId = null,
-                                isAttachmentDirty = false
-                        )
-                    } else formTemplate
-                }
-            }
+	override suspend fun afterSave(entity: FormTemplate) =
+		super.afterSave(entity).let { formTemplate ->
+			if (formTemplate.isAttachmentDirty && formTemplate.layoutAttachmentId != null && formTemplate.rev != null && formTemplate.layout != null) {
+				createAttachment(formTemplate.id, formTemplate.layoutAttachmentId, formTemplate.rev, "application/json", flowOf(ByteBuffer.wrap(formTemplate.layout))).let {
+					formTemplate.copy(
+						rev = it,
+						isAttachmentDirty = false
+					)
+				}
+			} else formTemplate
+		}
 
-    override suspend  fun afterSave(entity: FormTemplate) =
-            super.afterSave(entity).let { formTemplate ->
-                if (formTemplate.isAttachmentDirty && formTemplate.layoutAttachmentId != null && formTemplate.rev != null && formTemplate.layout != null) {
-                    createAttachment(formTemplate.id, formTemplate.layoutAttachmentId, formTemplate.rev, "application/json", flowOf(ByteBuffer.wrap(formTemplate.layout))).let {
-                        formTemplate.copy(
-                                rev = it,
-                                isAttachmentDirty = false
-                        )
-                    }
-                } else formTemplate
-            }
+	override suspend fun postLoad(entity: FormTemplate) =
+		super.postLoad(entity).let { formTemplate ->
+			if (formTemplate.layoutAttachmentId != null) {
+				try {
+					val attachmentFlow = getAttachment(formTemplate.id, formTemplate.layoutAttachmentId, formTemplate.rev)
+					val copy = formTemplate.copy(
+						layout = ByteArrayOutputStream().use {
+							attachmentFlow.writeTo(it)
+							it.toByteArray()
+						}
+					)
+					copy
+				} catch (e: IOException) {
+					formTemplate //Could not load
+				}
+			} else formTemplate
+		}
 
-
-    override suspend fun postLoad(entity: FormTemplate) =
-            super.postLoad(entity).let { formTemplate ->
-                if (formTemplate.layoutAttachmentId != null) {
-                    try {
-                        val attachmentFlow = getAttachment(formTemplate.id, formTemplate.layoutAttachmentId, formTemplate.rev)
-                        val copy = formTemplate.copy(layout = ByteArrayOutputStream().use {
-                            attachmentFlow.writeTo(it)
-                            it.toByteArray()
-                        })
-                        copy
-                    } catch (e: IOException) {
-                        formTemplate //Could not load
-                    }
-                } else formTemplate
-            }
-
-    companion object {
-        val log: Logger = LoggerFactory.getLogger(FormTemplateDAOImpl::class.java)
-    }
+	companion object {
+		val log: Logger = LoggerFactory.getLogger(FormTemplateDAOImpl::class.java)
+	}
 }

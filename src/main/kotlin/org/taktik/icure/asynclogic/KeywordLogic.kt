@@ -24,13 +24,13 @@ import org.taktik.icure.asyncdao.KeywordDAO
 import org.taktik.icure.entities.Keyword
 
 interface KeywordLogic : EntityPersister<Keyword, String> {
-    fun getGenericDAO(): KeywordDAO
+	fun getGenericDAO(): KeywordDAO
 
-    suspend fun createKeyword(keyword: Keyword): Keyword?
+	suspend fun createKeyword(keyword: Keyword): Keyword?
 
-    suspend fun getKeyword(keywordId: String): Keyword?
-    fun deleteKeywords(ids: Set<String>): Flow<DocIdentifier>
+	suspend fun getKeyword(keywordId: String): Keyword?
+	fun deleteKeywords(ids: Set<String>): Flow<DocIdentifier>
 
-    suspend fun modifyKeyword(keyword: Keyword): Keyword?
-    fun getKeywordsByUser(userId: String): Flow<Keyword>
+	suspend fun modifyKeyword(keyword: Keyword): Keyword?
+	fun getKeywordsByUser(userId: String): Flow<Keyword>
 }

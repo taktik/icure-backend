@@ -20,14 +20,14 @@ package org.taktik.icure.services.external.rest.v1.dto
 import java.io.Serializable
 
 class CreateMikronoAccountReply : Serializable {
-    var mikronoUrl: String? = null
-    var oauthUrl: String? = null
-    var sessionId: String? = null
+	var mikronoUrl: String? = null
+	var oauthUrl: String? = null
+	var sessionId: String? = null
 
-    companion object {
-        /**
-         *
-         */
-        private const val serialVersionUID = 1L
-    }
+	companion object {
+		/**
+		 *
+		 */
+		private const val serialVersionUID = 1L
+	}
 }

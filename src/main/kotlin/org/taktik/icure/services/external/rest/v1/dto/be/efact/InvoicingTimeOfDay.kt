@@ -26,22 +26,21 @@ package org.taktik.icure.services.external.rest.v1.dto.be.efact
  * To change this template use File | Settings | File Templates.
  */
 enum class InvoicingTimeOfDay(val code: Int) {
-    Other(0),
-    Night(1),
-    Weekend(2),
-    Bankholiday(3),
-    Urgent(4);
+	Other(0),
+	Night(1),
+	Weekend(2),
+	Bankholiday(3),
+	Urgent(4);
 
+	companion object {
 
-    companion object {
-
-        fun withCode(code: Int): InvoicingTimeOfDay? {
-            for (itd in InvoicingTimeOfDay.values()) {
-                if (itd.code == code) {
-                    return itd
-                }
-            }
-            return null
-        }
-    }
+		fun withCode(code: Int): InvoicingTimeOfDay? {
+			for (itd in InvoicingTimeOfDay.values()) {
+				if (itd.code == code) {
+					return itd
+				}
+			}
+			return null
+		}
+	}
 }

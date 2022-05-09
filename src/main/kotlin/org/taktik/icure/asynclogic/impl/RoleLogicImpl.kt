@@ -34,69 +34,71 @@ import org.taktik.icure.entities.Role
 @Service
 class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogic, roleDAO: RoleDAO) : PrincipalLogicImpl<Role>(roleDAO, sessionLogic), RoleLogic {
 
-    override suspend fun getRoleByName(name: String): Role? {
-        return roleDAO.getRoleByName(name)
-    }
+	override suspend fun getRoleByName(name: String): Role? {
+		return roleDAO.getRoleByName(name)
+	}
 
-    override suspend fun getRole(id: String): Role? {
-        return roleDAO.get(id)
-    }
+	override suspend fun getRole(id: String): Role? {
+		return roleDAO.get(id)
+	}
 
-    override suspend fun createDefaultRoleIfNecessary() {
-        getRoleByName(Roles.DEFAULT_ROLE_NAME)?.let {
-            return
-        }
-        saveRole(Role(
-                id = Roles.DEFAULT_ROLE_NAME,
-                name = Roles.DEFAULT_ROLE_NAME,
-                permissions = setOf()
-        ))
-    }
+	override suspend fun createDefaultRoleIfNecessary() {
+		getRoleByName(Roles.DEFAULT_ROLE_NAME)?.let {
+			return
+		}
+		saveRole(
+			Role(
+				id = Roles.DEFAULT_ROLE_NAME,
+				name = Roles.DEFAULT_ROLE_NAME,
+				permissions = setOf()
+			)
+		)
+	}
 
-    private suspend fun saveRole(role: Role): Role? { // Save role
-        return roleDAO.save(role)
-    }
+	private suspend fun saveRole(role: Role): Role? { // Save role
+		return roleDAO.save(role)
+	}
 
-    override suspend fun newRole(role: Role): Role? {
-        return saveRole(role)
-    }
+	override suspend fun newRole(role: Role): Role? {
+		return saveRole(role)
+	}
 
-    override fun createEntities(entities: Collection<Role>) = flow {
-        emitAll(roleDAO.create(entities))
-    }
+	override fun createEntities(entities: Collection<Role>) = flow {
+		emitAll(roleDAO.create(entities))
+	}
 
-    @Throws(Exception::class)
-    override fun modifyEntities(roles: Collection<Role>) = flow {
-        roles.map { role: Role -> saveRole(role) }
-                .filterNotNull()
-                .onEach { emit(it) }
-    }
+	@Throws(Exception::class)
+	override fun modifyEntities(roles: Collection<Role>) = flow {
+		roles.map { role: Role -> saveRole(role) }
+			.filterNotNull()
+			.onEach { emit(it) }
+	}
 
-    override fun getEntities() = flow() {
-        emitAll(roleDAO.getEntities())
-    }
+	override fun getEntities() = flow() {
+		emitAll(roleDAO.getEntities())
+	}
 
-    override fun getEntityIds() = flow<String> {
-        emitAll(roleDAO.getEntities().mapNotNull { it.id })
-    }
+	override fun getEntityIds() = flow<String> {
+		emitAll(roleDAO.getEntities().mapNotNull { it.id })
+	}
 
-    override suspend fun exists(id: String): Boolean {
-        return roleDAO.contains(id)
-    }
+	override suspend fun exists(id: String): Boolean {
+		return roleDAO.contains(id)
+	}
 
-    override suspend fun hasEntities(): Boolean {
-        return roleDAO.hasAny()
-    }
+	override suspend fun hasEntities(): Boolean {
+		return roleDAO.hasAny()
+	}
 
-    override suspend fun getEntity(id: String): Role? {
-        return getRole(id)
-    }
+	override suspend fun getEntity(id: String): Role? {
+		return getRole(id)
+	}
 
-    override suspend fun getPrincipal(roleId: String): Role? {
-        return getRole(roleId)
-    }
+	override suspend fun getPrincipal(roleId: String): Role? {
+		return getRole(roleId)
+	}
 
-    override fun getGenericDAO(): GenericDAO<Role> {
-        return roleDAO
-    }
+	override fun getGenericDAO(): GenericDAO<Role> {
+		return roleDAO
+	}
 }

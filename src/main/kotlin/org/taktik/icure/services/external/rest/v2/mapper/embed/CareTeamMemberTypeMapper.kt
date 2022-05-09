@@ -23,6 +23,6 @@ import org.taktik.icure.entities.embed.CareTeamMemberType
 import org.taktik.icure.services.external.rest.v2.dto.embed.CareTeamMemberTypeDto
 @Mapper(componentModel = "spring")
 interface CareTeamMemberTypeV2Mapper {
-	fun map(careTeamMemberTypeDto: CareTeamMemberTypeDto):CareTeamMemberType
-	fun map(careTeamMemberType: CareTeamMemberType):CareTeamMemberTypeDto
+	fun map(careTeamMemberTypeDto: CareTeamMemberTypeDto): CareTeamMemberType
+	fun map(careTeamMemberType: CareTeamMemberType): CareTeamMemberTypeDto
 }
