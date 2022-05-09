@@ -42,7 +42,7 @@ Any action performed by the healthcare party which is relevant for the healthcar
 data class ServiceDto(
 	@Schema(description = "The Id of the Service. We encourage using either a v4 UUID or a HL7 Id.") override val id: String = UUID.randomUUID().toString(),
 	@Schema(description = "The transactionId is used when a single service had to be split into parts for technical reasons. Several services with the same non null transaction id form one single service") val transactionId: String? = null,
-	val identifier: List<IdentifierDto> = listOf(),
+	val identifier: List<IdentifierDto> = emptyList(),
 	@Schema(description = "Id of the contact during which the service is provided") val contactId: String? = null,
 	@Schema(description = "List of IDs of all sub-contacts that link the service to structural elements. Only used when the Service is emitted outside of its contact") val subContactIds: Set<String>? = null, //Only used when the ServiceDto is emitted outside of its contact
 	@Schema(description = "List of IDs of all plans of actions (healthcare approaches) as a part of which the Service is provided. Only used when the Service is emitted outside of its contact") val plansOfActionIds: Set<String>? = null, //Only used when the ServiceDto is emitted outside of its contact
