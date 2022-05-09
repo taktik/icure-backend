@@ -29,18 +29,6 @@ data class PatientByHcPartyDateOfBirthBetweenFilter(
 	override val maxDateOfBirth: Int? = null,
 	override val healthcarePartyId: String? = null
 ) : AbstractFilter<Patient>, org.taktik.icure.domain.filter.patient.PatientByHcPartyDateOfBirthBetweenFilter {
-	override fun equals(other: Any?): Boolean {
-		if (this === other) return true
-		if (other == null || javaClass != other.javaClass) return false
-		val filter = other as PatientByHcPartyDateOfBirthBetweenFilter
-		return minDateOfBirth == filter.minDateOfBirth &&
-			maxDateOfBirth == filter.maxDateOfBirth &&
-			healthcarePartyId == filter.healthcarePartyId
-	}
-
-	override fun hashCode(): Int {
-		return Objects.hash(minDateOfBirth, maxDateOfBirth, healthcarePartyId)
-	}
 
 	override fun matches(item: Patient): Boolean {
 		return (
