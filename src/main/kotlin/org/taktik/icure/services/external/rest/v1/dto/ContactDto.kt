@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.EncryptableDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
+import org.taktik.icure.services.external.rest.v1.dto.base.IdentifierDto
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
@@ -49,6 +50,7 @@ data class ContactDto(
         override val medicalLocationId: String? = null,
         override val tags: Set<CodeStubDto> = emptySet(),
         override val codes: Set<CodeStubDto> = emptySet(),
+        @Schema(description = "The identifiers of the Contact") val identifier: List<IdentifierDto> = emptyList(),
         override val endOfLife: Long? = null,
         override val deletionDate: Long? = null,
 

@@ -81,7 +81,7 @@ import java.util.UUID
 data class Service(
         @JsonProperty("_id") override val id: String = UUID.randomUUID().toString(),
         val transactionId: String? = null, //Used when a single service had to be split into parts for technical reasons. Several services with the same non null transaction id form one single service
-        val identifier: List<Identifier> = listOf(),
+        val identifier: List<Identifier> = emptyList(),
         @JsonIgnore val subContactIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
         @JsonIgnore val plansOfActionIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
         @JsonIgnore val healthElementsIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
