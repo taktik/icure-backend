@@ -56,4 +56,27 @@ data class CodeStub(
 			version = this.version ?: parts[2]
 		) else this
 	}
+
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (other !is CodeStub) return false
+
+		if (id != other.id) return false
+		if (context != other.context) return false
+		if (type != other.type) return false
+		if (code != other.code) return false
+		if (version != other.version) return false
+		if (label != other.label && ((label?.size ?: 0) > 0 || ((other.label?.size ?: 0) > 0))) return false
+
+		return true
+	}
+
+	override fun hashCode(): Int {
+		var result = id.hashCode()
+		result = 31 * result + (context?.hashCode() ?: 0)
+		result = 31 * result + (type?.hashCode() ?: 0)
+		result = 31 * result + (code?.hashCode() ?: 0)
+		result = 31 * result + (version?.hashCode() ?: 0)
+		return result
+	}
 }
