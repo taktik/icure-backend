@@ -9,7 +9,7 @@ function(doc) {
         }
       }
     });
-    doc.services.forEach(function (sc) {
+    doc.subContacts.forEach(function (sc) {
       if (sc._id) {
         if (!idsMap[sc._id]) {
           idsMap[sc._id] = 1;
