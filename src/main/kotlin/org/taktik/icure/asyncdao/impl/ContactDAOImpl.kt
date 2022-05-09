@@ -158,6 +158,7 @@ class ContactDAOImpl(
 		emitAll(relink(result))
 	}
 
+
 	@View(name = "service_by_linked_id", map = "classpath:js/contact/Service_by_linked_id.js")
 	override fun findServiceIdsByIdQualifiedLink(ids: List<String>, linkType: String?): Flow<String> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
@@ -339,15 +340,19 @@ class ContactDAOImpl(
 
 	@View(name = "service_id_by_hcparty_helements", map = "classpath:js/contact/Service_id_by_hcparty_helement_ids.js")
 	override fun listServiceIdsByHcPartyHealthElementIds(hcPartyId: String, healthElementIds: List<String>) = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val queryView = createQuery(client, "service_id_by_hcparty_helements")
-			.keys(healthElementIds.map {
-                    ComplexKey.of(hcPartyId, it)
-                })
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val queryView = createQuery(client, "service_id_by_hcparty_helements")
+			.keys(
+				healthElementIds.map {
+					ComplexKey.of(hcPartyId, it)
+				}
+			)
 			.includeDocs(false)
 
-		emitAll(client.queryView<ComplexKey, String>(queryView)
-                .mapNotNull { it.value })
+		emitAll(
+			client.queryView<ComplexKey, String>(queryView)
+				.mapNotNull { it.value }
+		)
 	}
 
 	@View(name = "service_by_hcparty_identifier", map = "classpath:js/contact/Service_by_hcparty_identifier.js")

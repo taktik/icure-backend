@@ -77,9 +77,8 @@ object MergeUtil {
 	 * @param b The second list
 	 * @param comparator A comparator that tells if two values are considered equals (String::equals for example)
 	 * @param merger A merger that combines two equals values in one. Must be commutative ((a,b)->a in case of above for example)
-	 * @param <K> the class of the elements in the list
 	 * @return the merged list with duplicates (a first)
-	 </K> */
+	 */
 	fun <K> mergeLists(a: List<K>, b: List<K>, comparator: (K, K) -> Boolean = { aa, bb -> aa == bb }, merger: (K, K) -> K = { a, _ -> a }): List<K> {
 		val pivot = getLongestCommonSubSeq(b, a, comparator)
 		if (pivot.isEmpty()) {
@@ -111,9 +110,8 @@ object MergeUtil {
 	 * @param b The second list
 	 * @param comparator A comparator that tells if two values are considered equals (String::equals for example)
 	 * @param merger A merger that combines two equals values in one. Must be commutative ((a,b)->a in case of above for example)
-	 * @param <V> the class of the elements in the list
 	 * @return the merged list without duplicates
-	 </V> */
+	 */
 	fun <V> mergeListsDistinct(a: List<V>, b: List<V>, comparator: (V, V) -> Boolean = { aa, bb -> aa == bb }, merger: (V, V) -> V = { a, _ -> a }): List<V> {
 		val ks = mergeLists(a, b, comparator, merger)
 		val result: MutableList<V> = ArrayList()

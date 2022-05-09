@@ -6,7 +6,7 @@ indent_size = 4
 tab_width = 4
 ij_continuation_indent_size = 8
 insert_final_newline = true
-max_line_length = 500
+max_line_length = 700
 trim_trailing_whitespace = true
 ij_formatter_off_tag = @formatter:off
 ij_formatter_on_tag = @formatter:on
@@ -14,7 +14,7 @@ ij_formatter_tags_enabled = false
 ij_smart_tabs = false
 ij_visual_guides = none
 ij_wrap_on_typing = false
-disabled_rules = comment-spacing
+disabled_rules = comment-spacing, no-wildcard-imports, filename
 
 [*.css]
 ij_css_align_closing_brace_with_properties = false

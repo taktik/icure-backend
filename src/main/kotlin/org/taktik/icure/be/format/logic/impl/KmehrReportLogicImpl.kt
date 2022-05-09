@@ -89,20 +89,19 @@ class KmehrReportLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic
 
 		return msg?.folders?.flatMap { f ->
 			f.transactions.filter { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && (it.value == "contactreport" || it.value == "note" || it.value == "report" || it.value == "prescription" || it.value == "request") } }.map { t ->
-				ResultInfo()
-					.apply {
-						ssin = f.patient.ids.find { it.s == IDPATIENTschemes.INSS }?.value
-						lastName = f.patient.familyname
-						firstName = f.patient.firstnames.firstOrNull()
-						dateOfBirth = f.patient.birthdate.date?. let { FuzzyValues.getFuzzyDate(LocalDateTime.of(it.year, it.month, it.day, 0, 0), ChronoUnit.DAYS) }
-						sex = f.patient.sex?.cd?.value?.value() ?: "unknown"
-						documentId = doc.id
-						protocol = t.ids.find { it.s == IDKMEHRschemes.LOCAL }?.value
-						complete = t.isIscomplete
-						labo = getAuthorDescription(t)
-						demandDate = demandEpochMillis(t)
-						codes = listOf(CodeStub.from("CD-TRANSACTION", "report", "1"))
-					}
+				ResultInfo().apply {
+					ssin = f.patient.ids.find { it.s == IDPATIENTschemes.INSS }?.value
+					lastName = f.patient.familyname
+					firstName = f.patient.firstnames.firstOrNull()
+					dateOfBirth = f.patient.birthdate.date?. let { FuzzyValues.getFuzzyDate(LocalDateTime.of(it.year, it.month, it.day, 0, 0), ChronoUnit.DAYS) }
+					sex = f.patient.sex?.cd?.value?.value() ?: "unknown"
+					documentId = doc.id
+					protocol = t.ids.find { it.s == IDKMEHRschemes.LOCAL }?.value
+					complete = t.isIscomplete
+					labo = getAuthorDescription(t)
+					demandDate = demandEpochMillis(t)
+					codes = listOf(CodeStub.from("CD-TRANSACTION", "report", "1"))
+				}
 			}
 		} ?: listOf()
 	}

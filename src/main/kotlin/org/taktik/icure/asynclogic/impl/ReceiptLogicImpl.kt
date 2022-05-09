@@ -19,6 +19,7 @@
 package org.taktik.icure.asynclogic.impl
 
 import java.nio.ByteBuffer
+import java.nio.ByteBuffer
 import kotlinx.coroutines.flow.*
 import org.apache.commons.codec.digest.DigestUtils
 import org.springframework.stereotype.Service
@@ -34,10 +35,12 @@ class ReceiptLogicImpl(
 	private val sessionLogic: AsyncSessionLogic
 ) : GenericLogicImpl<Receipt, ReceiptDAO>(sessionLogic), ReceiptLogic {
 
+	
 	override fun listReceiptsByReference(ref: String): Flow<Receipt> = flow {
 		emitAll(receiptDAO.listByReference(ref))
 	}
 
+	
 	override fun getAttachment(receiptId: String, attachmentId: String): Flow<ByteBuffer> = flow {
 		emitAll(receiptDAO.getAttachment(receiptId, attachmentId))
 	}

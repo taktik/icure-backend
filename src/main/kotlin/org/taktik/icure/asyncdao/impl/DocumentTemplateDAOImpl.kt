@@ -20,6 +20,8 @@ package org.taktik.icure.asyncdao.impl
 
 import java.io.IOException
 import java.nio.ByteBuffer
+import java.io.IOException
+import java.nio.ByteBuffer
 import kotlinx.coroutines.flow.*
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
@@ -152,6 +154,7 @@ class DocumentTemplateDAOImpl(
 				}
 			} else documentTemplate
 		}
+
 
 	override suspend fun postLoad(entity: DocumentTemplate) =
 		super.postLoad(entity).let { documentTemplate ->

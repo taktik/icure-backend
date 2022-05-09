@@ -61,7 +61,7 @@ interface ContactLogic : EntityPersister<Contact, String> {
 	fun listContactsByExternalId(externalId: String): Flow<Contact>
 	fun listServicesByAssociationId(associationId: String): Flow<Service>
 	fun listServicesByHcPartyAndHealthElementIds(hcPartyId: String, healthElementIds: List<String>): Flow<Service>
-    fun listServiceIdsByHcPartyAndHealthElementIds(hcPartyId: String, healthElementIds: List<String>): Flow<String>
+	fun listServiceIdsByHcPartyAndHealthElementIds(hcPartyId: String, healthElementIds: List<String>): Flow<String>
 
 	suspend fun getServiceCodesOccurences(hcPartyId: String, codeType: String, minOccurences: Long): List<LabelledOccurence>
 	fun listContactsByHcPartyAndFormIds(hcPartyId: String, ids: List<String>): Flow<Contact>

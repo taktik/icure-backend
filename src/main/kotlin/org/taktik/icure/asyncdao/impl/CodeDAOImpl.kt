@@ -131,6 +131,7 @@ class CodeDAOImpl(
 		)
 	}
 
+
 	override fun findCodesBy(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
@@ -315,6 +316,7 @@ class CodeDAOImpl(
 	}
 
 	override suspend fun isValid(codeType: String, codeCode: String, codeVersion: String?) = listCodesBy(codeType, codeCode, codeVersion).firstOrNull() != null
+
 
 	override suspend fun getCodeByLabel(region: String, label: String, ofType: String, labelLang: List<String>): Code? {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)

@@ -31,6 +31,7 @@ import org.taktik.icure.services.external.rest.v2.mapper.base.IdentifierV2Mapper
 
 @Mapper(componentModel = "spring", uses = [IdentifierV2Mapper::class, CodeStubV2Mapper::class, DelegationV2Mapper::class, MedicationV2Mapper::class, MeasureV2Mapper::class, AnnotationV2Mapper::class, TimeSeriesV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ServiceV2Mapper {
+
 	@Mappings(
 		Mapping(target = "dataClassName", ignore = true)
 	)

@@ -21,6 +21,9 @@ package org.taktik.icure.services.external.rest.v2.controllers.core
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.Collections
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
+import java.util.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -406,14 +409,14 @@ class ContactController(
 		@RequestParam associationId: String,
 	) = contactLogic.listServicesByAssociationId(associationId).map { svc -> serviceV2Mapper.map(svc) }.injectReactorContext()
 
-    @Operation(summary = "List services linked to a health element", description = "Returns the list of services linked to the provided health element id")
-    @GetMapping("/service/healthElementId/{healthElementId}")
-    fun listServicesByHealthElementId(
-            @PathVariable healthElementId: String,
-            @Parameter(description = "hcPartyId", required = true) @RequestParam hcPartyId: String
-    ) = contactLogic.listServicesByHcPartyAndHealthElementIds(hcPartyId, listOf(healthElementId))
-            .map { svc -> serviceV2Mapper.map(svc) }
-            .injectReactorContext()
+	@Operation(summary = "List services linked to a health element", description = "Returns the list of services linked to the provided health element id")
+	@GetMapping("/service/healthElementId/{healthElementId}")
+	fun listServicesByHealthElementId(
+		@PathVariable healthElementId: String,
+		@Parameter(description = "hcPartyId", required = true) @RequestParam hcPartyId: String
+	) = contactLogic.listServicesByHcPartyAndHealthElementIds(hcPartyId, listOf(healthElementId))
+		.map { svc -> serviceV2Mapper.map(svc) }
+		.injectReactorContext()
 
 	@Operation(summary = "List contacts by opening date parties with(out) pagination", description = "Returns a list of contacts.")
 	@GetMapping("/byOpeningDate")

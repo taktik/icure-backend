@@ -29,12 +29,12 @@ import org.taktik.icure.services.external.rest.v1.dto.base.MimeAttachmentDto
 @KotlinBuilder
 data class ImportResultDto(
 	val patient: PatientDto? = null,
-	val hes: List<HealthElementDto> = listOf(),
-	val ctcs: List<ContactDto> = listOf(),
-	val warnings: List<String> = listOf(),
-	val errors: List<String> = listOf(),
-	val forms: List<FormDto> = listOf(),
-	val hcps: List<HealthcarePartyDto> = listOf(),
-	val documents: List<DocumentDto> = listOf(),
-	val attachments: Map<String, MimeAttachmentDto> = mapOf()
+	val hes: List<HealthElementDto> = emptyList(),
+	val ctcs: List<ContactDto> = emptyList(),
+	val warnings: List<String> = emptyList(),
+	val errors: List<String> = emptyList(),
+	val forms: List<FormDto> = emptyList(),
+	val hcps: List<HealthcarePartyDto> = emptyList(),
+	val documents: List<DocumentDto> = emptyList(),
+	val attachments: Map<String, MimeAttachmentDto> = emptyMap()
 )

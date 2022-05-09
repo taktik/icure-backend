@@ -22,7 +22,7 @@ import java.util.*
 
 class PrimitiveBoolean(val value: Boolean? = null) : Primitive {
 	override fun getPrimitiveValue(): Serializable? {
-		return value
+	return value
 	}
 
 	companion object {

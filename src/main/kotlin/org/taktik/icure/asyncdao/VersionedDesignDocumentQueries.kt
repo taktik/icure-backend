@@ -67,9 +67,9 @@ open class VersionedDesignDocumentQueries<T : StoredDocument>(protected open val
 	private suspend fun isReadyDesignDoc(client: Client, designDocumentId: String): Boolean =
 		viewsBeingIndexed.get(client).await().takeIf { it.contains(designDocumentId) }?.let { false }
 			?: client.queryView<String, String>(ViewQuery().designDocId(designDocumentId).viewName("all").limit(1), Duration.ofMillis(couchdDbProperties.desingDocumentStatusCheckTimeoutMilliseconds))
-			.map { true }
-			.catch { emit(false) }
-			.firstOrNull() ?: true
+				.map { true }
+				.catch { emit(false) }
+				.firstOrNull() ?: true
 
 	private suspend fun designDocId(client: Client) = designDocIdProvider.get(Pair(client, this.entityClass)).await()
 

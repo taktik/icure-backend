@@ -356,8 +356,12 @@ class SoftwareMedicalFileImport(
 			val documentId = idGenerator.newGUID().toString()
 
 			lnk.mediatype?.value()?.let {
-				v.attachments.put(documentId, MimeAttachment().copy(data = lnk.value))
-			}
+				v.attachments.put(
+					documentId,
+					MimeAttachment().copy(
+						data = lnk.value))
+					}
+				
 
 			val (mainUti, otherUtis) = extractUtis(lnk)
 			val valueDate = extractTransactionDateTime(trn)

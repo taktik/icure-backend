@@ -20,14 +20,14 @@ package org.taktik.icure.services.external.rest.v1.dto.gui.layout
 import java.io.Serializable
 import org.taktik.icure.services.external.rest.v1.dto.gui.Tag
 
-class FormLayout : Serializable {
+	class FormLayout : Serializable {
 	var name: String? = null
-	var width: Double? = null
+		var width: Double? = null
 	var height: Double? = null
 	var descr: String? = null
 	var tag: Tag? = null
-	var guid: String? = null
-	var group: String? = null
-	var sections: List<FormSection> = ArrayList()
-	var importedServiceXPaths: List<String>? = null
+		var guid: String? = null
+		 var group: String? = null
+		 var sections: List<FormSection> = ArrayList()
+		var importedServiceXPaths: List<String>? = null
 }
