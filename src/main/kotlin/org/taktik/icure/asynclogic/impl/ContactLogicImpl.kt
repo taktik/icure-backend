@@ -219,13 +219,13 @@ class ContactLogicImpl(
 	}
 
 	override fun listContactIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
-        emitAll(contactDAO.listContactIdsByHcPartyAndIdentifiers(hcPartyId = hcPartyId, identifiers = identifiers))
-    }
+		emitAll(contactDAO.listContactIdsByHcPartyAndIdentifiers(hcPartyId = hcPartyId, identifiers = identifiers))
+	}
 
-    override fun listServicesByHcPartyAndHealthElementIds(hcPartyId: String, healthElementIds: List<String>) = flow {
-        val serviceIds = listServiceIdsByHcPartyAndHealthElementIds(hcPartyId, healthElementIds)
-        emitAll(getServices(serviceIds.toList()))
-    }
+	override fun listServicesByHcPartyAndHealthElementIds(hcPartyId: String, healthElementIds: List<String>) = flow {
+		val serviceIds = listServiceIdsByHcPartyAndHealthElementIds(hcPartyId, healthElementIds)
+		emitAll(getServices(serviceIds.toList()))
+	}
 
 	override fun listServiceIdsByHcPartyAndHealthElementIds(hcPartyId: String, healthElementIds: List<String>) = flow {
 		emitAll(contactDAO.listServiceIdsByHcPartyHealthElementIds(hcPartyId, healthElementIds))

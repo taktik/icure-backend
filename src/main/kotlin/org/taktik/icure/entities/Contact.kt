@@ -92,8 +92,8 @@ data class Contact(
 	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
 	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
 	val identifier: List<Identifier> = emptyList(),
-        override val endOfLife: Long? = null,
-        @field:JsonProperty("deleted") override val deletionDate: Long? = null,
+	override val endOfLife: Long? = null,
+	@field:JsonProperty("deleted") override val deletionDate: Long? = null,
 
 	@field:NotNull(autoFix = AutoFix.UUID) val groupId: String? = null, // Several contacts can be combined in a logical contact if they share the same groupId
 

@@ -52,8 +52,8 @@ data class ContactDto(
 	override val tags: Set<CodeStubDto> = emptySet(),
 	override val codes: Set<CodeStubDto> = emptySet(),
 	@Schema(description = "The identifiers of the Contact") val identifier: List<IdentifierDto> = emptyList(),
-        override val endOfLife: Long? = null,
-        override val deletionDate: Long? = null,
+	override val endOfLife: Long? = null,
+	override val deletionDate: Long? = null,
 
 	@Schema(description = "Separate contacts can merged in one logical contact if they share the same groupId. When a contact must be split to selectively assign rights to healthcare parties, the split contacts all share the same groupId") val groupId: String? = null, // Several contacts can be combined in a logical contact if they share the same groupId
 	@Schema(description = "The date (YYYYMMDDhhmmss) of the start of the contact.") val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
