@@ -28,10 +28,10 @@ import org.taktik.icure.services.external.rest.v2.mapper.*
 
 @Mapper(componentModel = "spring", uses = [DelegationV2Mapper::class, PatientV2Mapper::class, HealthElementV2Mapper::class, ContactV2Mapper::class, FormV2Mapper::class, HealthcarePartyV2Mapper::class, DocumentV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ImportResultV2Mapper {
-    @Mappings(
-            Mapping(target = "warning", ignore = true),
-            Mapping(target = "error", ignore = true)
-    )
-    fun map(importResultDto: ImportResultDto): ImportResult
-    fun map(importResult: ImportResult): ImportResultDto
+	@Mappings(
+		Mapping(target = "warning", ignore = true),
+		Mapping(target = "error", ignore = true)
+	)
+	fun map(importResultDto: ImportResultDto): ImportResult
+	fun map(importResult: ImportResult): ImportResultDto
 }

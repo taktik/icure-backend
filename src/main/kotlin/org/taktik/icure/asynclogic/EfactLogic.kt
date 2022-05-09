@@ -18,13 +18,12 @@
 
 package org.taktik.icure.asynclogic
 
+import java.util.*
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Insurance
 import org.taktik.icure.entities.Invoice
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.MessageWithBatch
-import java.util.*
 
-
-interface EfactLogic  {
-    suspend fun prepareBatch(messageId: String, numericalRef: Long, hcp: HealthcareParty, insurance: Insurance, b: Boolean, invoices: HashMap<String, List<Invoice>>): MessageWithBatch?
+interface EfactLogic {
+	suspend fun prepareBatch(messageId: String, numericalRef: Long, hcp: HealthcareParty, insurance: Insurance, b: Boolean, invoices: HashMap<String, List<Invoice>>): MessageWithBatch?
 }

@@ -22,9 +22,9 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.Classification
 
 interface ClassificationDAO : GenericDAO<Classification> {
-    fun listClassificationByPatient(patientId: String): Flow<Classification>
+	fun listClassificationByPatient(patientId: String): Flow<Classification>
 
-    suspend fun getClassification(classificationId: String): Classification?
+	suspend fun getClassification(classificationId: String): Classification?
 
-    fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification>
+	fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification>
 }

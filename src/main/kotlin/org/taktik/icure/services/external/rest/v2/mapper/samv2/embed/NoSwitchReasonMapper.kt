@@ -24,6 +24,6 @@ import org.taktik.icure.entities.samv2.embed.NoSwitchReason
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.NoSwitchReasonDto
 @Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface NoSwitchReasonV2Mapper {
-	fun map(noSwitchReasonDto: NoSwitchReasonDto):NoSwitchReason
-	fun map(noSwitchReason: NoSwitchReason):NoSwitchReasonDto
+	fun map(noSwitchReasonDto: NoSwitchReasonDto): NoSwitchReason
+	fun map(noSwitchReason: NoSwitchReason): NoSwitchReasonDto
 }

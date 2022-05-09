@@ -26,9 +26,11 @@ import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.entities.embed.Service
 
 @org.springframework.stereotype.Service
-class ServiceByHcPartyFilter(private val contactLogic: ContactLogic,
-                             private val sessionLogic: AsyncSessionLogic) : Filter<String, Service, org.taktik.icure.domain.filter.Filters.ByHcpartyFilter<String, Service>> {
-    override fun resolve(filter: org.taktik.icure.domain.filter.Filters.ByHcpartyFilter<String, Service>, context: Filters) = flow {
-        emitAll(contactLogic.listServiceIdsByHcParty(filter.hcpId))
-    }
+class ServiceByHcPartyFilter(
+	private val contactLogic: ContactLogic,
+	private val sessionLogic: AsyncSessionLogic
+) : Filter<String, Service, org.taktik.icure.domain.filter.Filters.ByHcpartyFilter<String, Service>> {
+	override fun resolve(filter: org.taktik.icure.domain.filter.Filters.ByHcpartyFilter<String, Service>, context: Filters) = flow {
+		emitAll(contactLogic.listServiceIdsByHcParty(filter.hcpId))
+	}
 }

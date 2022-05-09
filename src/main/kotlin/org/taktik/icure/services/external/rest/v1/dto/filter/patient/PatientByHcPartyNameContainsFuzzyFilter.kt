@@ -32,7 +32,7 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class PatientByHcPartyNameContainsFuzzyFilter(
-        override val desc: String? = null,
-        override val searchString: String? = null,
-        override val healthcarePartyId: String? = null
+	override val desc: String? = null,
+	override val searchString: String? = null,
+	override val healthcarePartyId: String? = null
 ) : AbstractFilterDto<Patient>, org.taktik.icure.domain.filter.patient.PatientByHcPartyNameContainsFuzzyFilter

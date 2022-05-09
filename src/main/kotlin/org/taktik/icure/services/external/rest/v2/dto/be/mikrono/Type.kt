@@ -19,5 +19,5 @@
 package org.taktik.icure.services.external.rest.v2.dto.be.mikrono
 
 enum class Type {
-    EMAIL, SMS
+	EMAIL, SMS
 }

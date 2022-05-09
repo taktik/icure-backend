@@ -32,7 +32,7 @@ import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class ServiceBySecretForeignKeys(
-        override val desc:String? = null,
-        override val healthcarePartyId: String? = null,
-        override val patientSecretForeignKeys: Set<String>
+	override val desc: String? = null,
+	override val healthcarePartyId: String? = null,
+	override val patientSecretForeignKeys: Set<String>
 ) : AbstractFilterDto<Service>, org.taktik.icure.domain.filter.service.ServiceBySecretForeignKeys

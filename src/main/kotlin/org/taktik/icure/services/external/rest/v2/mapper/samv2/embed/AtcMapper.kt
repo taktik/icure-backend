@@ -23,6 +23,6 @@ import org.taktik.icure.entities.samv2.embed.Atc
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.AtcDto
 @Mapper(componentModel = "spring")
 interface AtcV2Mapper {
-	fun map(atcDto: AtcDto):Atc
-	fun map(atc: Atc):AtcDto
+	fun map(atcDto: AtcDto): Atc
+	fun map(atc: Atc): AtcDto
 }

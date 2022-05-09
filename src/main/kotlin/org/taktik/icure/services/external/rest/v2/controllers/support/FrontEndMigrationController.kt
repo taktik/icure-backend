@@ -47,61 +47,61 @@ import reactor.core.publisher.Flux
 @RequestMapping("/rest/v2/frontendmigration")
 @Tag(name = "frontendmigration")
 class FrontEndMigrationController(
-        private val frontEndMigrationLogic: FrontEndMigrationLogic,
-        private val sessionLogic: AsyncSessionLogic,
-        private val frontEndMigrationV2Mapper: FrontEndMigrationV2Mapper
+	private val frontEndMigrationLogic: FrontEndMigrationLogic,
+	private val sessionLogic: AsyncSessionLogic,
+	private val frontEndMigrationV2Mapper: FrontEndMigrationV2Mapper
 ) {
 
-    @Operation(summary = "Gets a front end migration")
-    @GetMapping
-    fun getFrontEndMigrations(): Flux<FrontEndMigrationDto> = flow {
-        val userId = sessionLogic.getCurrentSessionContext().getUser().id
-        emitAll(
-                frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, null)
-                        .map { frontEndMigrationV2Mapper.map(it) }
-        )
-    }.injectReactorContext()
+	@Operation(summary = "Gets a front end migration")
+	@GetMapping
+	fun getFrontEndMigrations(): Flux<FrontEndMigrationDto> = flow {
+		val userId = sessionLogic.getCurrentSessionContext().getUser().id
+		emitAll(
+			frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, null)
+				.map { frontEndMigrationV2Mapper.map(it) }
+		)
+	}.injectReactorContext()
 
-    @Operation(summary = "Creates a front end migration")
-    @PostMapping
-    fun createFrontEndMigration(@RequestBody frontEndMigrationDto: FrontEndMigrationDto) = mono {
-        val frontEndMigration = frontEndMigrationLogic.createFrontEndMigration(frontEndMigrationV2Mapper.map(frontEndMigrationDto))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Frontend migration creation failed")
+	@Operation(summary = "Creates a front end migration")
+	@PostMapping
+	fun createFrontEndMigration(@RequestBody frontEndMigrationDto: FrontEndMigrationDto) = mono {
+		val frontEndMigration = frontEndMigrationLogic.createFrontEndMigration(frontEndMigrationV2Mapper.map(frontEndMigrationDto))
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Frontend migration creation failed")
 
-        frontEndMigrationV2Mapper.map(frontEndMigration)
-    }
+		frontEndMigrationV2Mapper.map(frontEndMigration)
+	}
 
-    @Operation(summary = "Deletes a front end migration")
-    @DeleteMapping("/{frontEndMigrationId}")
-    fun deleteFrontEndMigration(@PathVariable frontEndMigrationId: String) = mono {
-        frontEndMigrationLogic.deleteFrontEndMigration(frontEndMigrationId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Frontend migration deletion failed")
-    }
+	@Operation(summary = "Deletes a front end migration")
+	@DeleteMapping("/{frontEndMigrationId}")
+	fun deleteFrontEndMigration(@PathVariable frontEndMigrationId: String) = mono {
+		frontEndMigrationLogic.deleteFrontEndMigration(frontEndMigrationId)
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Frontend migration deletion failed")
+	}
 
-    @Operation(summary = "Gets a front end migration")
-    @GetMapping("/{frontEndMigrationId}")
-    fun getFrontEndMigration(@PathVariable frontEndMigrationId: String) = mono {
-        val migration = frontEndMigrationLogic.getFrontEndMigration(frontEndMigrationId)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Frontend migration fetching failed")
-        frontEndMigrationV2Mapper.map(migration)
-    }
+	@Operation(summary = "Gets a front end migration")
+	@GetMapping("/{frontEndMigrationId}")
+	fun getFrontEndMigration(@PathVariable frontEndMigrationId: String) = mono {
+		val migration = frontEndMigrationLogic.getFrontEndMigration(frontEndMigrationId)
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Frontend migration fetching failed")
+		frontEndMigrationV2Mapper.map(migration)
+	}
 
-    @Operation(summary = "Gets an front end migration")
-    @GetMapping("/byName/{frontEndMigrationName}")
-    fun getFrontEndMigrationByName(@PathVariable frontEndMigrationName: String): Flux<FrontEndMigrationDto> = flow {
-        val userId = sessionLogic.getCurrentSessionContext().getUser().id
+	@Operation(summary = "Gets an front end migration")
+	@GetMapping("/byName/{frontEndMigrationName}")
+	fun getFrontEndMigrationByName(@PathVariable frontEndMigrationName: String): Flux<FrontEndMigrationDto> = flow {
+		val userId = sessionLogic.getCurrentSessionContext().getUser().id
 
-        emitAll(
-                frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, frontEndMigrationName)
-                        .map { frontEndMigrationV2Mapper.map(it) }
-        )
-    }.injectReactorContext()
+		emitAll(
+			frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, frontEndMigrationName)
+				.map { frontEndMigrationV2Mapper.map(it) }
+		)
+	}.injectReactorContext()
 
-    @Operation(summary = "Modifies a front end migration")
-    @PutMapping
-    fun modifyFrontEndMigration(@RequestBody frontEndMigrationDto: FrontEndMigrationDto) = mono {
-        val migration = frontEndMigrationLogic.modifyFrontEndMigration(frontEndMigrationV2Mapper.map(frontEndMigrationDto))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Front end migration modification failed")
-        frontEndMigrationV2Mapper.map(migration)
-    }
+	@Operation(summary = "Modifies a front end migration")
+	@PutMapping
+	fun modifyFrontEndMigration(@RequestBody frontEndMigrationDto: FrontEndMigrationDto) = mono {
+		val migration = frontEndMigrationLogic.modifyFrontEndMigration(frontEndMigrationV2Mapper.map(frontEndMigrationDto))
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Front end migration modification failed")
+		frontEndMigrationV2Mapper.map(migration)
+	}
 }

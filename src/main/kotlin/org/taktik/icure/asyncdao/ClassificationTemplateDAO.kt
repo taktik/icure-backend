@@ -24,9 +24,9 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.ClassificationTemplate
 
 interface ClassificationTemplateDAO : GenericDAO<ClassificationTemplate> {
-    suspend fun getClassificationTemplate(classificationTemplateId: String): ClassificationTemplate?
+	suspend fun getClassificationTemplate(classificationTemplateId: String): ClassificationTemplate?
 
-    fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate>
+	fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate>
 
-    fun findClassificationTemplates(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
+	fun findClassificationTemplates(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
 }

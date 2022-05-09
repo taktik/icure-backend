@@ -24,6 +24,6 @@ import org.taktik.icure.entities.samv2.embed.StrengthRange
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.StrengthRangeDto
 @Mapper(componentModel = "spring", uses = [NumeratorRangeV2Mapper::class, QuantityV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface StrengthRangeV2Mapper {
-	fun map(strengthRangeDto: StrengthRangeDto):StrengthRange
-	fun map(strengthRange: StrengthRange):StrengthRangeDto
+	fun map(strengthRangeDto: StrengthRangeDto): StrengthRange
+	fun map(strengthRange: StrengthRange): StrengthRangeDto
 }

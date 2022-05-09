@@ -34,65 +34,67 @@ import org.taktik.icure.entities.FormTemplate
 
 @ExperimentalCoroutinesApi
 @Service
-class FormTemplateLogicImpl(private val formTemplateDAO: FormTemplateDAO,
-                            private val sessionLogic: AsyncSessionLogic,
-                            private val objectMapper: ObjectMapper) : GenericLogicImpl<FormTemplate, FormTemplateDAO>(sessionLogic), FormTemplateLogic {
+class FormTemplateLogicImpl(
+	private val formTemplateDAO: FormTemplateDAO,
+	private val sessionLogic: AsyncSessionLogic,
+	private val objectMapper: ObjectMapper
+) : GenericLogicImpl<FormTemplate, FormTemplateDAO>(sessionLogic), FormTemplateLogic {
 
-    override fun createFormTemplates(entities: Collection<FormTemplate>, createdEntities: Collection<FormTemplate>) = flow {
-        emitAll(super.createEntities(entities))
-    }
+	override fun createFormTemplates(entities: Collection<FormTemplate>, createdEntities: Collection<FormTemplate>) = flow {
+		emitAll(super.createEntities(entities))
+	}
 
-    override suspend fun createFormTemplate(entity: FormTemplate) = fix(entity) { entity ->
-        formTemplateDAO.createFormTemplate(entity)
-    }
+	override suspend fun createFormTemplate(entity: FormTemplate) = fix(entity) { entity ->
+		formTemplateDAO.createFormTemplate(entity)
+	}
 
-    override suspend fun getFormTemplate(formTemplateId: String): FormTemplate? {
-        return formTemplateDAO.get(formTemplateId)
-    }
+	override suspend fun getFormTemplate(formTemplateId: String): FormTemplate? {
+		return formTemplateDAO.get(formTemplateId)
+	}
 
-    override fun getFormTemplatesByGuid(userId: String, specialityCode: String, formTemplateGuid: String): Flow<FormTemplate> = flow {
-        val byUserGuid = formTemplateDAO.listFormTemplatesByUserGuid(userId, formTemplateGuid, true)
-        if (byUserGuid.firstOrNull() != null) {
-            emitAll(byUserGuid)
-        } else {
-            emitAll(formTemplateDAO.listFormsBySpecialtyAndGuid(specialityCode, formTemplateGuid, true))
-        }
-    }
+	override fun getFormTemplatesByGuid(userId: String, specialityCode: String, formTemplateGuid: String): Flow<FormTemplate> = flow {
+		val byUserGuid = formTemplateDAO.listFormTemplatesByUserGuid(userId, formTemplateGuid, true)
+		if (byUserGuid.firstOrNull() != null) {
+			emitAll(byUserGuid)
+		} else {
+			emitAll(formTemplateDAO.listFormsBySpecialtyAndGuid(specialityCode, formTemplateGuid, true))
+		}
+	}
 
-    override fun getFormTemplatesBySpecialty(specialityCode: String, loadLayout: Boolean): Flow<FormTemplate> = flow {
-        emitAll(formTemplateDAO.listFormsBySpecialtyAndGuid(specialityCode, null, loadLayout))
-    }
+	override fun getFormTemplatesBySpecialty(specialityCode: String, loadLayout: Boolean): Flow<FormTemplate> = flow {
+		emitAll(formTemplateDAO.listFormsBySpecialtyAndGuid(specialityCode, null, loadLayout))
+	}
 
-    override fun getFormTemplatesByUser(userId: String, loadLayout: Boolean): Flow<FormTemplate> = flow {
-        emitAll(formTemplateDAO.listFormTemplatesByUserGuid(userId, null, loadLayout))
-    }
+	override fun getFormTemplatesByUser(userId: String, loadLayout: Boolean): Flow<FormTemplate> = flow {
+		emitAll(formTemplateDAO.listFormTemplatesByUserGuid(userId, null, loadLayout))
+	}
 
-    override suspend fun modifyFormTemplate(formTemplate: FormTemplate) = fix(formTemplate) { formTemplate ->
-        formTemplateDAO.save(formTemplate)
-    }
+	override suspend fun modifyFormTemplate(formTemplate: FormTemplate) = fix(formTemplate) { formTemplate ->
+		formTemplateDAO.save(formTemplate)
+	}
 
-    override suspend fun build(data: ByteArray): FormLayout {
-        return objectMapper.readValue(String(data, Charsets.UTF_8), FormLayout::class.java)
-    }
+	override suspend fun build(data: ByteArray): FormLayout {
+		return objectMapper.readValue(String(data, Charsets.UTF_8), FormLayout::class.java)
+	}
 
-    override fun getGenericDAO(): FormTemplateDAO {
-        return formTemplateDAO
-    }
+	override fun getGenericDAO(): FormTemplateDAO {
+		return formTemplateDAO
+	}
 
-    override fun getFieldsNames(formLayout: FormLayout): List<String> {
-        val fieldNames: MutableList<String> = ArrayList()
-        val sections = formLayout.sections
-        sections.forEach { section ->
-            val formColumns = section.formColumns
-            formColumns.forEach { column ->
-                val formDataList = column.formDataList
-                formDataList.forEach { formData -> fieldNames.add(formData.name) }
-            }
-        }
-        return fieldNames
-    }
+	override fun getFieldsNames(formLayout: FormLayout): List<String> {
+		val fieldNames: MutableList<String> = ArrayList()
+		val sections = formLayout.sections
+		sections.forEach { section ->
+			val formColumns = section.formColumns
+			formColumns.forEach { column ->
+				val formDataList = column.formDataList
+				formDataList.forEach { formData -> fieldNames.add(formData.name) }
+			}
+		}
+		return fieldNames
+	}
 
-    companion object {
-        private val logger = LoggerFactory.getLogger(FormTemplateLogicImpl::class.java)
-    }
+	companion object {
+		private val logger = LoggerFactory.getLogger(FormTemplateLogicImpl::class.java)
+	}
 }

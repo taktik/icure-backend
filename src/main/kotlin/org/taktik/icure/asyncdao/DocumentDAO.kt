@@ -18,20 +18,20 @@
 
 package org.taktik.icure.asyncdao
 
+import java.nio.ByteBuffer
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.Document
-import java.nio.ByteBuffer
 
-interface DocumentDAO: GenericDAO<Document> {
-    fun listConflicts(): Flow<Document>
+interface DocumentDAO : GenericDAO<Document> {
+	fun listConflicts(): Flow<Document>
 
-    fun listDocumentsByHcPartyAndSecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>
+	fun listDocumentsByHcPartyAndSecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>
 
-    fun listDocumentsWithNoDelegations(limit: Int): Flow<Document>
+	fun listDocumentsWithNoDelegations(limit: Int): Flow<Document>
 
-    fun listDocumentsByDocumentTypeHcPartySecretMessageKeys(documentTypeCode: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>
+	fun listDocumentsByDocumentTypeHcPartySecretMessageKeys(documentTypeCode: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>
 
-    fun readAttachment(documentId: String, attachmentId: String, rev: String?): Flow<ByteBuffer>
+	fun readAttachment(documentId: String, attachmentId: String, rev: String?): Flow<ByteBuffer>
 
-    suspend fun listDocumentsByExternalUuid(externalUuid: String): List<Document>
+	suspend fun listDocumentsByExternalUuid(externalUuid: String): List<Document>
 }

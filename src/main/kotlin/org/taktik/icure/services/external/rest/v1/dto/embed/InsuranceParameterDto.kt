@@ -24,5 +24,5 @@ import org.taktik.icure.services.external.rest.v1.dto.base.EnumVersionDto
  */
 @EnumVersionDto(1L)
 enum class InsuranceParameterDto {
-    status, tc1, tc2, preferentialstatus, chronicaldisease, paymentapproval, mdaInputReference
+	status, tc1, tc2, preferentialstatus, chronicaldisease, paymentapproval, mdaInputReference
 }

@@ -32,32 +32,34 @@ import org.taktik.icure.asyncdao.ReceiptDAO
 import org.taktik.icure.entities.Receipt
 import org.taktik.icure.properties.CouchDbProperties
 
-
 @Repository("receiptDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.Receipt' && !doc.deleted) emit(null, doc._id)}")
-class ReceiptDAOImpl(couchDbProperties: CouchDbProperties,
-                     @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Receipt>(Receipt::class.java, couchDbProperties, couchDbDispatcher, idGenerator), ReceiptDAO {
-    @View(name = "by_reference", map = "classpath:js/receipt/By_ref.js")
-    override fun listByReference(ref: String): Flow<Receipt> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        emitAll(client.queryViewIncludeDocs<String, String, Receipt>(createQuery(client, "by_reference").startKey(ref).endKey(ref + "\ufff0").includeDocs(true)).map { it.doc })
-    }
+class ReceiptDAOImpl(
+	couchDbProperties: CouchDbProperties,
+	@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
+	idGenerator: IDGenerator
+) : GenericIcureDAOImpl<Receipt>(Receipt::class.java, couchDbProperties, couchDbDispatcher, idGenerator), ReceiptDAO {
+	@View(name = "by_reference", map = "classpath:js/receipt/By_ref.js")
+	override fun listByReference(ref: String): Flow<Receipt> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		emitAll(client.queryViewIncludeDocs<String, String, Receipt>(createQuery(client, "by_reference").startKey(ref).endKey(ref + "\ufff0").includeDocs(true)).map { it.doc })
+	}
 
-    @View(name = "by_date", map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.Receipt' && !doc.deleted) emit(doc.created)}")
-    override fun listReceiptsAfterDate(date: Long): Flow<Receipt> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        emitAll(client.queryViewIncludeDocs<String, String, Receipt>(createQuery(client, "by_date").startKey(999999999999L).endKey(date).descending(true).includeDocs(true)).map { it.doc })
-    }
+	@View(name = "by_date", map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.Receipt' && !doc.deleted) emit(doc.created)}")
+	override fun listReceiptsAfterDate(date: Long): Flow<Receipt> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		emitAll(client.queryViewIncludeDocs<String, String, Receipt>(createQuery(client, "by_date").startKey(999999999999L).endKey(date).descending(true).includeDocs(true)).map { it.doc })
+	}
 
-    @View(name = "by_category", map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.Receipt' && !doc.deleted) emit([doc.category,doc.subCategory,doc.created])}")
-    override fun listReceiptsByCategory(category: String, subCategory: String, startDate: Long, endDate: Long): Flow<Receipt> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        emitAll(client.queryViewIncludeDocs<Array<String>, String,Receipt>(createQuery(client, "by_date").startKey(ComplexKey.of(category, subCategory, startDate ?: 999999999999L)).endKey(ComplexKey.of(category, subCategory, endDate)).descending(true).includeDocs(true)).map { it.doc })
-    }
+	@View(name = "by_category", map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.Receipt' && !doc.deleted) emit([doc.category,doc.subCategory,doc.created])}")
+	override fun listReceiptsByCategory(category: String, subCategory: String, startDate: Long, endDate: Long): Flow<Receipt> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		emitAll(client.queryViewIncludeDocs<Array<String>, String, Receipt>(createQuery(client, "by_date").startKey(ComplexKey.of(category, subCategory, startDate ?: 999999999999L)).endKey(ComplexKey.of(category, subCategory, endDate)).descending(true).includeDocs(true)).map { it.doc })
+	}
 
-    @View(name = "by_doc_id", map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.Receipt' && !doc.deleted) emit(doc.documentId)}")
-    override fun listReceiptsByDocId(date: Long): Flow<Receipt> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        emitAll(client.queryViewIncludeDocs<String, String, Receipt>(createQuery(client, "by_date").startKey(999999999999L).endKey(date).descending(true).includeDocs(true)).map{ it.doc })
-    }
+	@View(name = "by_doc_id", map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.Receipt' && !doc.deleted) emit(doc.documentId)}")
+	override fun listReceiptsByDocId(date: Long): Flow<Receipt> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		emitAll(client.queryViewIncludeDocs<String, String, Receipt>(createQuery(client, "by_date").startKey(999999999999L).endKey(date).descending(true).includeDocs(true)).map { it.doc })
+	}
 }

@@ -44,43 +44,44 @@ import reactor.core.publisher.Flux
 @RestController
 @RequestMapping("/rest/v1/calendarItemType")
 @Tag(name = "calendarItemType")
-class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItemTypeLogic,
-                                 private val calendarItemTypeMapper: CalendarItemTypeMapper) {
+class CalendarItemTypeController(
+	private val calendarItemTypeLogic: CalendarItemTypeLogic,
+	private val calendarItemTypeMapper: CalendarItemTypeMapper
+) {
 
-    @Operation(summary = "Gets all calendarItemTypes")
-    @GetMapping
-    fun getCalendarItemTypes(): Flux<CalendarItemTypeDto> =
-            calendarItemTypeLogic.getEntities().map { calendarItemTypeMapper.map(it) }.injectReactorContext()
+	@Operation(summary = "Gets all calendarItemTypes")
+	@GetMapping
+	fun getCalendarItemTypes(): Flux<CalendarItemTypeDto> =
+		calendarItemTypeLogic.getEntities().map { calendarItemTypeMapper.map(it) }.injectReactorContext()
 
-    @Operation(summary = "Gets all calendarItemTypes include deleted")
-    @GetMapping("/includeDeleted")
-    fun getCalendarItemTypesIncludeDeleted(): Flux<CalendarItemTypeDto> =
-            calendarItemTypeLogic.getAllEntitiesIncludeDelete().map { calendarItemTypeMapper.map(it) }.injectReactorContext()
+	@Operation(summary = "Gets all calendarItemTypes include deleted")
+	@GetMapping("/includeDeleted")
+	fun getCalendarItemTypesIncludeDeleted(): Flux<CalendarItemTypeDto> =
+		calendarItemTypeLogic.getAllEntitiesIncludeDelete().map { calendarItemTypeMapper.map(it) }.injectReactorContext()
 
-    @Operation(summary = "Creates a calendarItemType")
-    @PostMapping
-    fun createCalendarItemType(@RequestBody calendarItemTypeDto: CalendarItemTypeDto) = mono {
-        calendarItemTypeLogic.createCalendarItemType(calendarItemTypeMapper.map(calendarItemTypeDto))?.let { calendarItemTypeMapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItemType creation failed")
-    }
+	@Operation(summary = "Creates a calendarItemType")
+	@PostMapping
+	fun createCalendarItemType(@RequestBody calendarItemTypeDto: CalendarItemTypeDto) = mono {
+		calendarItemTypeLogic.createCalendarItemType(calendarItemTypeMapper.map(calendarItemTypeDto))?.let { calendarItemTypeMapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItemType creation failed")
+	}
 
-    @Operation(summary = "Deletes an calendarItemType")
-    @DeleteMapping("/{calendarItemTypeIds}")
-    fun deleteCalendarItemType(@PathVariable calendarItemTypeIds: String): Flux<DocIdentifier> =
-            calendarItemTypeLogic.deleteCalendarItemTypes(calendarItemTypeIds.split(',')).injectReactorContext()
+	@Operation(summary = "Deletes an calendarItemType")
+	@DeleteMapping("/{calendarItemTypeIds}")
+	fun deleteCalendarItemType(@PathVariable calendarItemTypeIds: String): Flux<DocIdentifier> =
+		calendarItemTypeLogic.deleteCalendarItemTypes(calendarItemTypeIds.split(',')).injectReactorContext()
 
-    @Operation(summary = "Gets an calendarItemType")
-    @GetMapping("/{calendarItemTypeId}")
-    fun getCalendarItemType(@PathVariable calendarItemTypeId: String) = mono {
-        calendarItemTypeLogic.getCalendarItemType(calendarItemTypeId)?.let { calendarItemTypeMapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "CalendarItemType fetching failed")
-    }
+	@Operation(summary = "Gets an calendarItemType")
+	@GetMapping("/{calendarItemTypeId}")
+	fun getCalendarItemType(@PathVariable calendarItemTypeId: String) = mono {
+		calendarItemTypeLogic.getCalendarItemType(calendarItemTypeId)?.let { calendarItemTypeMapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "CalendarItemType fetching failed")
+	}
 
-
-    @Operation(summary = "Modifies an calendarItemType")
-    @PutMapping
-    fun modifyCalendarItemType(@RequestBody calendarItemTypeDto: CalendarItemTypeDto) = mono {
-        calendarItemTypeLogic.modifyCalendarTypeItem(calendarItemTypeMapper.map(calendarItemTypeDto))?.let { calendarItemTypeMapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItemType modification failed")
-    }
+	@Operation(summary = "Modifies an calendarItemType")
+	@PutMapping
+	fun modifyCalendarItemType(@RequestBody calendarItemTypeDto: CalendarItemTypeDto) = mono {
+		calendarItemTypeLogic.modifyCalendarTypeItem(calendarItemTypeMapper.map(calendarItemTypeDto))?.let { calendarItemTypeMapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItemType modification failed")
+	}
 }

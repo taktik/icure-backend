@@ -18,10 +18,10 @@
 
 package org.taktik.icure.asynclogic.impl.filter
 
+import java.io.Serializable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import org.taktik.couchdb.id.Identifiable
-import java.io.Serializable
 
 class IdsFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, org.taktik.icure.domain.filter.Filters.IdsFilter<T, O>> {
 	override fun resolve(filter: org.taktik.icure.domain.filter.Filters.IdsFilter<T, O>, context: Filters): Flow<T> {

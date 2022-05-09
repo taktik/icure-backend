@@ -17,6 +17,7 @@
  */
 package org.taktik.icure.asynclogic.impl.filter.patient
 
+import javax.security.auth.login.LoginException
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import org.springframework.stereotype.Service
@@ -27,17 +28,18 @@ import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.domain.filter.patient.PatientByHcPartyAndSsinsFilter
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.utils.getLoggedHealthCarePartyId
-import javax.security.auth.login.LoginException
 
 @Service
-class PatientByHcPartyAndSsinsFilter(private val patientLogic: PatientLogic,
-                                     private val sessionLogic: AsyncSessionLogic) : Filter<String, Patient, PatientByHcPartyAndSsinsFilter> {
+class PatientByHcPartyAndSsinsFilter(
+	private val patientLogic: PatientLogic,
+	private val sessionLogic: AsyncSessionLogic
+) : Filter<String, Patient, PatientByHcPartyAndSsinsFilter> {
 
-    override fun resolve(filter: PatientByHcPartyAndSsinsFilter, context: Filters) = flow<String> {
-        try {
-            emitAll(patientLogic.listByHcPartyAndSsinsIdsOnly(filter.ssins ?: listOf(), filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic)))
-        } catch (e: LoginException) {
-            throw IllegalArgumentException(e)
-        }
-    }
+	override fun resolve(filter: PatientByHcPartyAndSsinsFilter, context: Filters) = flow<String> {
+		try {
+			emitAll(patientLogic.listByHcPartyAndSsinsIdsOnly(filter.ssins ?: listOf(), filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic)))
+		} catch (e: LoginException) {
+			throw IllegalArgumentException(e)
+		}
+	}
 }

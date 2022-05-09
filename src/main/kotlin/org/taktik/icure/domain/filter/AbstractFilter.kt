@@ -17,44 +17,23 @@
  */
 package org.taktik.icure.domain.filter
 
+import java.io.Serializable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import org.taktik.couchdb.id.Identifiable
-import java.io.Serializable
 
 interface AbstractFilter<O : Identifiable<String>> : Filter<String, O>, Serializable {
-    val desc: String?
+	val desc: String?
 
-    override fun applyTo(items: Flow<O>): Flow<O> {
-        return items.filter { item -> this.matches(item) }
-    }
+	override fun applyTo(items: Flow<O>): Flow<O> {
+		return items.filter { item -> this.matches(item) }
+	}
 
-    override fun applyTo(items: List<O>): List<O> {
-        return items.filter { item -> this.matches(item) }
-    }
+	override fun applyTo(items: List<O>): List<O> {
+		return items.filter { item -> this.matches(item) }
+	}
 
-    override fun applyTo(items: Set<O>): Set<O> {
-        return items.filter { item -> this.matches(item) }.toSet()
-    }
+	override fun applyTo(items: Set<O>): Set<O> {
+		return items.filter { item -> this.matches(item) }.toSet()
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

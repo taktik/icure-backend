@@ -13,15 +13,15 @@ import org.taktik.icure.utils.getLoggedHealthCarePartyId
 
 @org.springframework.stereotype.Service
 class ServiceByHcPartyIdentifiersFilter(
-        private val contactLogic: ContactLogic,
-        private val sessionLogic: AsyncSessionLogic,
+	private val contactLogic: ContactLogic,
+	private val sessionLogic: AsyncSessionLogic,
 ) : Filter<String, Service, ServiceByHcPartyIdentifiersFilter> {
-    override fun resolve(filter: ServiceByHcPartyIdentifiersFilter, context: Filters) = flow {
-        try {
-            val hcPartyId = filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic)
-            emitAll(contactLogic.listServiceIdsByHcPartyAndIdentifiers(hcPartyId, filter.identifiers))
-        } catch (e: LoginException) {
-            throw IllegalArgumentException(e)
-        }
-    }
+	override fun resolve(filter: ServiceByHcPartyIdentifiersFilter, context: Filters) = flow {
+		try {
+			val hcPartyId = filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic)
+			emitAll(contactLogic.listServiceIdsByHcPartyAndIdentifiers(hcPartyId, filter.identifiers))
+		} catch (e: LoginException) {
+			throw IllegalArgumentException(e)
+		}
+	}
 }

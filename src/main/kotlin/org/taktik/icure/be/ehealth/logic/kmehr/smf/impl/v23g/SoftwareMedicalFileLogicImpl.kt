@@ -18,6 +18,7 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 
+import java.nio.ByteBuffer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
@@ -32,33 +33,36 @@ import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.User
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
-import java.nio.ByteBuffer
 
 /**
  * @author Bernard Paulus on 24/05/17.
  */
 @ExperimentalCoroutinesApi
 @Service
-class SoftwareMedicalFileLogicImpl(val softwareMedicalFileExport: SoftwareMedicalFileExport,
-                                   val softwareMedicalFileImport: SoftwareMedicalFileImport) : SoftwareMedicalFileLogic {
+class SoftwareMedicalFileLogicImpl(
+	val softwareMedicalFileExport: SoftwareMedicalFileExport,
+	val softwareMedicalFileImport: SoftwareMedicalFileImport
+) : SoftwareMedicalFileLogic {
 
-    override suspend fun importSmfFile(inputData: ByteArray,
-                                       author: User,
-                                       language: String,
-                                       dryRun: Boolean,
-                                       dest: Patient?,
-                                       mappings: Map<String, List<ImportMapping>>
-                              ) : List<ImportResult> =
-            softwareMedicalFileImport.importSMF(inputData, author, language, !dryRun, mappings, dest)
+	override suspend fun importSmfFile(
+		inputData: ByteArray,
+		author: User,
+		language: String,
+		dryRun: Boolean,
+		dest: Patient?,
+		mappings: Map<String, List<ImportMapping>>
+	): List<ImportResult> =
+		softwareMedicalFileImport.importSMF(inputData, author, language, !dryRun, mappings, dest)
 
-    override suspend fun checkIfSMFPatientsExists(inputData : Flow<ByteBuffer>,
-                                                  author: User,
-                                                  language: String,
-                                                  dest: Patient?,
-                                                  mappings: Map<String, List<ImportMapping>>
-    ) : List<CheckSMFPatientResult> =
-            softwareMedicalFileImport.checkIfSMFPatientsExists(inputData, author, language, mappings, dest)
+	override suspend fun checkIfSMFPatientsExists(
+		inputData: Flow<ByteBuffer>,
+		author: User,
+		language: String,
+		dest: Patient?,
+		mappings: Map<String, List<ImportMapping>>
+	): List<CheckSMFPatientResult> =
+		softwareMedicalFileImport.checkIfSMFPatientsExists(inputData, author, language, mappings, dest)
 
-    override fun createSmfExport(patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?, config: Config): Flow<DataBuffer> =
-            softwareMedicalFileExport.exportSMF(patient, sfks, sender, language, decryptor, progressor, config)
+	override fun createSmfExport(patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?, config: Config): Flow<DataBuffer> =
+		softwareMedicalFileExport.exportSMF(patient, sfks, sender, language, decryptor, progressor, config)
 }

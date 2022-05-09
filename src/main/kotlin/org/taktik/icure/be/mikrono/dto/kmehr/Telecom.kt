@@ -28,35 +28,35 @@ import java.util.*
  * To change this template use File | Settings | File Templates.
  */
 class Telecom : KmehrElement {
-    var location: String? = null
-    var type: String? = null
-    var address: String? = null
+	var location: String? = null
+	var type: String? = null
+	var address: String? = null
 
-    constructor() {}
-    constructor(address: String?, location: String?, type: String?) {
-        this.location = location
-        this.type = type
-        this.address = address
-    }
+	constructor() {}
+	constructor(address: String?, location: String?, type: String?) {
+		this.location = location
+		this.type = type
+		this.address = address
+	}
 
-    override var types: MutableList<String?>?
-        get() {
-            var res = super.types
-            if (res == null && type == null && location == null) {
-                return res
-            }
-            if (res == null) {
-                res = ArrayList()
-            }
-            if (location != null) {
-                res.add("CD-ADDRESS:$location")
-            }
-            if (type != null) {
-                res.add("CD-TELECOM:$type")
-            }
-            return res
-        }
-        set(types) {
-            super.types = types
-        }
+	override var types: MutableList<String?>?
+		get() {
+			var res = super.types
+			if (res == null && type == null && location == null) {
+				return res
+			}
+			if (res == null) {
+				res = ArrayList()
+			}
+			if (location != null) {
+				res.add("CD-ADDRESS:$location")
+			}
+			if (type != null) {
+				res.add("CD-TELECOM:$type")
+			}
+			return res
+		}
+		set(types) {
+			super.types = types
+		}
 }

@@ -28,54 +28,58 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DocumentTemplateLogic
 import org.taktik.icure.entities.DocumentTemplate
 
-
 @ExperimentalCoroutinesApi
 @Service
-class DocumentTemplateLogicImpl(private val documentTemplateDAO: DocumentTemplateDAO,
-                                private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<DocumentTemplate, DocumentTemplateDAO>(sessionLogic), DocumentTemplateLogic {
+class DocumentTemplateLogicImpl(
+	private val documentTemplateDAO: DocumentTemplateDAO,
+	private val sessionLogic: AsyncSessionLogic
+) : GenericLogicImpl<DocumentTemplate, DocumentTemplateDAO>(sessionLogic), DocumentTemplateLogic {
 
-    override fun createEntities(entities: Collection<DocumentTemplate>): Flow<DocumentTemplate> = flow {
-        emitAll(super.createEntities(
-                entities.map {dt ->
-                    fix(dt) { e ->
-                        e.owner?.let { e } ?: e.copy(owner = sessionLogic.getCurrentUserId())
-                    }
-                }))
-    }
+	override fun createEntities(entities: Collection<DocumentTemplate>): Flow<DocumentTemplate> = flow {
+		emitAll(
+			super.createEntities(
+				entities.map { dt ->
+					fix(dt) { e ->
+						e.owner?.let { e } ?: e.copy(owner = sessionLogic.getCurrentUserId())
+					}
+				}
+			)
+		)
+	}
 
-    override suspend fun createDocumentTemplate(documentTemplate: DocumentTemplate) = fix(documentTemplate) { documentTemplate ->
-        documentTemplateDAO.createDocumentTemplate(documentTemplate.owner?.let { documentTemplate } ?: documentTemplate.copy(owner = sessionLogic.getCurrentUserId()))
-    }
+	override suspend fun createDocumentTemplate(documentTemplate: DocumentTemplate) = fix(documentTemplate) { documentTemplate ->
+		documentTemplateDAO.createDocumentTemplate(documentTemplate.owner?.let { documentTemplate } ?: documentTemplate.copy(owner = sessionLogic.getCurrentUserId()))
+	}
 
-    override suspend fun getDocumentTemplate(documentTemplateId: String): DocumentTemplate? {
-        return documentTemplateDAO.get(documentTemplateId)
-    }
+	override suspend fun getDocumentTemplate(documentTemplateId: String): DocumentTemplate? {
+		return documentTemplateDAO.get(documentTemplateId)
+	}
 
-    override fun getDocumentTemplatesBySpecialty(specialityCode: String): Flow<DocumentTemplate> = flow {
-        emitAll(documentTemplateDAO.listDocumentTemplatesBySpecialtyAndGuid(specialityCode, null))
-    }
+	override fun getDocumentTemplatesBySpecialty(specialityCode: String): Flow<DocumentTemplate> = flow {
+		emitAll(documentTemplateDAO.listDocumentTemplatesBySpecialtyAndGuid(specialityCode, null))
+	}
 
-    override fun getDocumentTemplatesByDocumentType(documentTypeCode: String): Flow<DocumentTemplate> = flow {
-        emitAll(documentTemplateDAO.listDocumentsByTypeUserGuid(documentTypeCode, null, null))
-    }
+	override fun getDocumentTemplatesByDocumentType(documentTypeCode: String): Flow<DocumentTemplate> = flow {
+		emitAll(documentTemplateDAO.listDocumentsByTypeUserGuid(documentTypeCode, null, null))
+	}
 
-    override fun getDocumentTemplatesByDocumentTypeAndUser(documentTypeCode: String, userId: String): Flow<DocumentTemplate> = flow {
-        emitAll(documentTemplateDAO.listDocumentsByTypeUserGuid(documentTypeCode, userId, null))
-    }
+	override fun getDocumentTemplatesByDocumentTypeAndUser(documentTypeCode: String, userId: String): Flow<DocumentTemplate> = flow {
+		emitAll(documentTemplateDAO.listDocumentsByTypeUserGuid(documentTypeCode, userId, null))
+	}
 
-    override fun getDocumentTemplatesByUser(userId: String): Flow<DocumentTemplate> = flow {
-        emitAll(documentTemplateDAO.listDocumentTemplatesByUserGuid(userId, null))
-    }
+	override fun getDocumentTemplatesByUser(userId: String): Flow<DocumentTemplate> = flow {
+		emitAll(documentTemplateDAO.listDocumentTemplatesByUserGuid(userId, null))
+	}
 
-    override suspend fun modifyDocumentTemplate(documentTemplate: DocumentTemplate) = fix(documentTemplate) { documentTemplate ->
-        documentTemplateDAO.save(documentTemplate.owner?.let { documentTemplate } ?: documentTemplate.copy(owner = sessionLogic.getCurrentUserId()))
-    }
+	override suspend fun modifyDocumentTemplate(documentTemplate: DocumentTemplate) = fix(documentTemplate) { documentTemplate ->
+		documentTemplateDAO.save(documentTemplate.owner?.let { documentTemplate } ?: documentTemplate.copy(owner = sessionLogic.getCurrentUserId()))
+	}
 
-    override fun getGenericDAO(): DocumentTemplateDAO {
-        return documentTemplateDAO
-    }
+	override fun getGenericDAO(): DocumentTemplateDAO {
+		return documentTemplateDAO
+	}
 
-    companion object {
-        private val logger = LoggerFactory.getLogger(DocumentTemplateLogicImpl::class.java)
-    }
+	companion object {
+		private val logger = LoggerFactory.getLogger(DocumentTemplateLogicImpl::class.java)
+	}
 }

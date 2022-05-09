@@ -10,6 +10,6 @@ import org.taktik.icure.services.external.rest.v1.dto.security.PermissionDto
 
 @Mapper(componentModel = "spring", uses = [PermissionItemMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface PermissionMapper {
-    fun map(alwaysPermissionDto: PermissionDto): Permission
-    fun map(permission: Permission): PermissionDto
+	fun map(alwaysPermissionDto: PermissionDto): Permission
+	fun map(permission: Permission): PermissionDto
 }

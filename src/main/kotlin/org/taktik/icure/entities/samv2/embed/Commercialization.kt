@@ -26,10 +26,10 @@ import com.github.pozo.KotlinBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class Commercialization(
-        override val from: Long? = null,
-        override val to: Long? = null,
-        val reason: SamText? = null,
-        val endOfComercialization: SamText? = null,
-        val impact: SamText? = null,
-        val additionalInformation: SamText? = null
+	override val from: Long? = null,
+	override val to: Long? = null,
+	val reason: SamText? = null,
+	val endOfComercialization: SamText? = null,
+	val impact: SamText? = null,
+	val additionalInformation: SamText? = null
 ) : DataPeriod

@@ -20,14 +20,14 @@ package org.taktik.icure.services.external.rest.v2.dto
 import java.io.Serializable
 
 class IndexingInfoDto : Serializable {
-    var statuses: Map<String, Number>? = null
+	var statuses: Map<String, Number>? = null
 
-    constructor() {}
-    constructor(statuses: Map<String, Number>?) {
-        this.statuses = statuses
-    }
+	constructor() {}
+	constructor(statuses: Map<String, Number>?) {
+		this.statuses = statuses
+	}
 
-    companion object {
-        private const val serialVersionUID = 1L
-    }
+	companion object {
+		private const val serialVersionUID = 1L
+	}
 }

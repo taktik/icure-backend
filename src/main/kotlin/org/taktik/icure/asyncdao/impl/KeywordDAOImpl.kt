@@ -31,20 +31,22 @@ import org.taktik.icure.asyncdao.KeywordDAO
 import org.taktik.icure.entities.Keyword
 import org.taktik.icure.properties.CouchDbProperties
 
-
 @Repository("keywordDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Keyword' && !doc.deleted) emit( null, doc._id )}")
-internal class KeywordDAOImpl(couchDbProperties: CouchDbProperties,
-                              @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Keyword>(Keyword::class.java, couchDbProperties, couchDbDispatcher, idGenerator), KeywordDAO {
+internal class KeywordDAOImpl(
+	couchDbProperties: CouchDbProperties,
+	@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
+	idGenerator: IDGenerator
+) : GenericIcureDAOImpl<Keyword>(Keyword::class.java, couchDbProperties, couchDbDispatcher, idGenerator), KeywordDAO {
 
-    override suspend fun getKeyword(keywordId: String): Keyword? {
-        return get(keywordId)
-    }
+	override suspend fun getKeyword(keywordId: String): Keyword? {
+		return get(keywordId)
+	}
 
-    @View(name = "by_user", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Keyword' && !doc.deleted) emit( doc.userId, doc)}")
-    override fun getKeywordsByUserId(userId: String): Flow<Keyword> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	@View(name = "by_user", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Keyword' && !doc.deleted) emit( doc.userId, doc)}")
+	override fun getKeywordsByUserId(userId: String): Flow<Keyword> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        emitAll(client.queryView<String, Keyword>(createQuery(client, "by_user").startKey(userId).endKey(userId).includeDocs(false)).mapNotNull { it.value })
-    }
+		emitAll(client.queryView<String, Keyword>(createQuery(client, "by_user").startKey(userId).endKey(userId).includeDocs(false)).mapNotNull { it.value })
+	}
 }

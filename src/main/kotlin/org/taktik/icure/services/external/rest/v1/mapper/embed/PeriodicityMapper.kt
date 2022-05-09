@@ -26,6 +26,6 @@ import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
 
 @Mapper(componentModel = "spring", uses = [CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface PeriodicityMapper {
-	fun map(periodicityDto: PeriodicityDto):Periodicity
-	fun map(periodicity: Periodicity):PeriodicityDto
+	fun map(periodicityDto: PeriodicityDto): Periodicity
+	fun map(periodicity: Periodicity): PeriodicityDto
 }

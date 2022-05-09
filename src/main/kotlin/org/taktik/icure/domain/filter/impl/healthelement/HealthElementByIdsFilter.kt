@@ -17,7 +17,6 @@
  */
 package org.taktik.icure.domain.filter.impl.healthelement
 
-
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.AbstractFilter
 import org.taktik.icure.domain.filter.Filters
@@ -25,8 +24,8 @@ import org.taktik.icure.entities.HealthElement
 
 @KotlinBuilder
 data class HealthElementByIdsFilter(
-        override val ids: Set<String>,
-        override val desc: String? = null
+	override val ids: Set<String>,
+	override val desc: String? = null
 ) : AbstractFilter<HealthElement>, Filters.IdsFilter<String, HealthElement> {
-    override fun matches(item: HealthElement) = ids.contains(item.id)
+	override fun matches(item: HealthElement) = ids.contains(item.id)
 }

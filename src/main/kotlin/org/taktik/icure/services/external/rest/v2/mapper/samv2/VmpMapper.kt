@@ -29,12 +29,12 @@ import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.*
 
 @Mapper(componentModel = "spring", uses = [VtmV2Mapper::class, SamTextV2Mapper::class, VmpGroupStubV2Mapper::class, CommentedClassificationV2Mapper::class, VmpComponentV2Mapper::class, EntityReferenceV2Mapper::class, WadaV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface VmpV2Mapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(vmpDto: VmpDto):Vmp
-	fun map(vmp: Vmp):VmpDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(vmpDto: VmpDto): Vmp
+	fun map(vmp: Vmp): VmpDto
 }

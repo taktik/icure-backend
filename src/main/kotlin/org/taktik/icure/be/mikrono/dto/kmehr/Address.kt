@@ -29,41 +29,41 @@ import org.taktik.icure.be.ehealth.logic.kmehr.KmehrUtils
  * To change this template use File | Settings | File Templates.
  */
 class Address : KmehrElement {
-    var countryCode: String? = null
-    var zip: String? = null
-    var nis: String? = null
-    var city: String? = null
-    var district: String? = null
-    var street: String? = null
-    var houseNumber: String? = null
-    var postboxNumber: String? = null
-    var text: String? = null
+	var countryCode: String? = null
+	var zip: String? = null
+	var nis: String? = null
+	var city: String? = null
+	var district: String? = null
+	var street: String? = null
+	var houseNumber: String? = null
+	var postboxNumber: String? = null
+	var text: String? = null
 
-    constructor() {}
-    constructor(type: String?, street: String?, houseNumber: String?, postboxNumber: String?, zip: String?, city: String?, country: String?) {
-        addType(type)
-        this.street = street
-        this.houseNumber = houseNumber
-        this.postboxNumber = postboxNumber
-        this.zip = zip
-        this.city = city
-        countryCode = country
-    }
+	constructor() {}
+	constructor(type: String?, street: String?, houseNumber: String?, postboxNumber: String?, zip: String?, city: String?, country: String?) {
+		addType(type)
+		this.street = street
+		this.houseNumber = houseNumber
+		this.postboxNumber = postboxNumber
+		this.zip = zip
+		this.city = city
+		countryCode = country
+	}
 
-    constructor(street: String?, houseNumber: String?, postboxNumber: String?, zip: String?, city: String?, country: String?) : this("CD-ADDRESS:home", street, houseNumber, postboxNumber, zip, city, country) {}
-    constructor(text: String?) {
-        this.text = text
-    }
+	constructor(street: String?, houseNumber: String?, postboxNumber: String?, zip: String?, city: String?, country: String?) : this("CD-ADDRESS:home", street, houseNumber, postboxNumber, zip, city, country) {}
+	constructor(text: String?) {
+		this.text = text
+	}
 
-    @get:JsonIgnore
-    val fullStreetAddress: String
-        get() = ((if (text != null) text else "") + (if (street != null) " $street" else "") + (if (houseNumber != null) ", $houseNumber" else "") + if (postboxNumber != null) " b$postboxNumber" else "").trim { it <= ' ' }.replace("  ".toRegex(), " ")
+	@get:JsonIgnore
+	val fullStreetAddress: String
+		get() = ((if (text != null) text else "") + (if (street != null) " $street" else "") + (if (houseNumber != null) ", $houseNumber" else "") + if (postboxNumber != null) " b$postboxNumber" else "").trim { it <= ' ' }.replace("  ".toRegex(), " ")
 
-    @get:JsonIgnore
-    val fullLocality: String
-        get() = ((if (zip != null) zip else "") + (if (city != null) " $city" else "") + if (district != null) " ($district) " else "").trim { it <= ' ' }.replace("  ".toRegex(), " ")
+	@get:JsonIgnore
+	val fullLocality: String
+		get() = ((if (zip != null) zip else "") + (if (city != null) " $city" else "") + if (district != null) " ($district) " else "").trim { it <= ' ' }.replace("  ".toRegex(), " ")
 
-    @get:JsonIgnore
-    val fullAddress: String
-        get() = (fullStreetAddress + " " + fullLocality + " " + if (countryCode != null) KmehrUtils.getValue(countryCode) else "").trim { it <= ' ' }
+	@get:JsonIgnore
+	val fullAddress: String
+		get() = (fullStreetAddress + " " + fullLocality + " " + if (countryCode != null) KmehrUtils.getValue(countryCode) else "").trim { it <= ' ' }
 }

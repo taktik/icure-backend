@@ -19,13 +19,13 @@ package org.taktik.icure.asynclogic.impl.filter.service
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import org.taktik.icure.asynclogic.impl.filter.Filter
 import org.springframework.stereotype.Service
+import org.taktik.icure.asynclogic.impl.filter.Filter
 import org.taktik.icure.asynclogic.impl.filter.Filters
 
 @Service
 class ServiceByIdsFilter : Filter<String, org.taktik.icure.entities.embed.Service, org.taktik.icure.domain.filter.Filters.IdsFilter<String, org.taktik.icure.entities.embed.Service>> {
-    override fun resolve(filter: org.taktik.icure.domain.filter.Filters.IdsFilter<String, org.taktik.icure.entities.embed.Service>, context: Filters): Flow<String> {
-        return filter.ids.asFlow()
-    }
+	override fun resolve(filter: org.taktik.icure.domain.filter.Filters.IdsFilter<String, org.taktik.icure.entities.embed.Service>, context: Filters): Flow<String> {
+		return filter.ids.asFlow()
+	}
 }

@@ -24,6 +24,6 @@ import org.taktik.icure.entities.embed.FlatRateTarification
 import org.taktik.icure.services.external.rest.v2.dto.embed.FlatRateTarificationDto
 @Mapper(componentModel = "spring", uses = [ValorisationV2Mapper::class, FlatRateTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface FlatRateTarificationV2Mapper {
-	fun map(flatRateTarificationDto: FlatRateTarificationDto):FlatRateTarification
-	fun map(flatRateTarification: FlatRateTarification):FlatRateTarificationDto
+	fun map(flatRateTarificationDto: FlatRateTarificationDto): FlatRateTarification
+	fun map(flatRateTarification: FlatRateTarification): FlatRateTarificationDto
 }

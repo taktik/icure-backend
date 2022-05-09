@@ -33,9 +33,9 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class CodeByRegionTypeLabelLanguageFilter(
-        override val desc:String? = null,
-        override val region: String? = null,
-        override val type: String? = null,
-        override val language: String? = null,
-        override val label: String? = null
+	override val desc: String? = null,
+	override val region: String? = null,
+	override val type: String? = null,
+	override val language: String? = null,
+	override val label: String? = null
 ) : AbstractFilterDto<Code>, org.taktik.icure.domain.filter.code.CodeByRegionTypeLabelLanguageFilter

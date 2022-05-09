@@ -19,8 +19,8 @@ package org.taktik.icure.services.external.rest.v2.dto.embed
 
 /** Created by aduchate on 06/07/13, 09:59 */
 object LocaleDto {
-    val SPANISH = "es"
-    val ENGLISH = "en"
-    val FRENCH = "fr"
-    val DUTCH = "nl"
+	val SPANISH = "es"
+	val ENGLISH = "en"
+	val FRENCH = "fr"
+	val DUTCH = "nl"
 }

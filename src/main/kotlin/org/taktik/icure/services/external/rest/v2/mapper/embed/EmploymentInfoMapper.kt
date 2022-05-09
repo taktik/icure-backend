@@ -26,6 +26,6 @@ import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
 @Mapper(componentModel = "spring", uses = [EmployerV2Mapper::class, CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface EmploymentInfoV2Mapper {
-	fun map(employmentInfoDto: EmploymentInfoDto):EmploymentInfo
-	fun map(employmentInfo: EmploymentInfo):EmploymentInfoDto
+	fun map(employmentInfoDto: EmploymentInfoDto): EmploymentInfo
+	fun map(employmentInfo: EmploymentInfo): EmploymentInfoDto
 }

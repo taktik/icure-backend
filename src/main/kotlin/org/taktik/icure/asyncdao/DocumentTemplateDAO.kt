@@ -21,12 +21,12 @@ package org.taktik.icure.asyncdao
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.DocumentTemplate
 
-interface DocumentTemplateDAO: GenericDAO<DocumentTemplate> {
-    fun listDocumentTemplatesByUserGuid(userId: String, guid: String?): Flow<DocumentTemplate>
+interface DocumentTemplateDAO : GenericDAO<DocumentTemplate> {
+	fun listDocumentTemplatesByUserGuid(userId: String, guid: String?): Flow<DocumentTemplate>
 
-    fun listDocumentTemplatesBySpecialtyAndGuid(healthcarePartyId: String, guid: String?): Flow<DocumentTemplate>
+	fun listDocumentTemplatesBySpecialtyAndGuid(healthcarePartyId: String, guid: String?): Flow<DocumentTemplate>
 
-    fun listDocumentsByTypeUserGuid(documentTypeCode: String, userId: String?, guid: String?): Flow<DocumentTemplate>
+	fun listDocumentsByTypeUserGuid(documentTypeCode: String, userId: String?, guid: String?): Flow<DocumentTemplate>
 
-    suspend fun createDocumentTemplate(entity: DocumentTemplate): DocumentTemplate
+	suspend fun createDocumentTemplate(entity: DocumentTemplate): DocumentTemplate
 }

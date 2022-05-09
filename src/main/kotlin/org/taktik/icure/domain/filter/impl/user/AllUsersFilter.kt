@@ -25,7 +25,7 @@ import org.taktik.icure.entities.User
 
 @KotlinBuilder
 data class AllUsersFilter(
-        override val desc:String? = null,
+	override val desc: String? = null,
 ) : AbstractFilter<User>, Filters.AllFilter<String, User> {
-    override fun matches(item: User) = true
+	override fun matches(item: User) = true
 }

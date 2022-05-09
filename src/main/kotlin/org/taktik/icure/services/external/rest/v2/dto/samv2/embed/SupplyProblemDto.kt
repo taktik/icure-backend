@@ -26,10 +26,10 @@ import com.github.pozo.KotlinBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class SupplyProblemDto(
-        override val from: Long? = null,
-        override val to: Long? = null,
-        val reason: SamTextDto? = null,
-        val expectedEndOn: Long? = null,
-        val impact: SamTextDto? = null,
-        val additionalInformation: SamTextDto? = null
+	override val from: Long? = null,
+	override val to: Long? = null,
+	val reason: SamTextDto? = null,
+	val expectedEndOn: Long? = null,
+	val impact: SamTextDto? = null,
+	val additionalInformation: SamTextDto? = null
 ) : DataPeriodDto

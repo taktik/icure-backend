@@ -26,8 +26,8 @@ import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.entities.base.Code
 
 @Service
-class CodeByIdsFilter : Filter<String, Code, org.taktik.icure.domain.filter.Filters.IdsFilter<String,Code>> {
-    override fun resolve(filter: org.taktik.icure.domain.filter.Filters.IdsFilter<String,Code>, context: Filters): Flow<String> {
-        return filter.ids.asFlow() ?: flowOf()
-    }
+class CodeByIdsFilter : Filter<String, Code, org.taktik.icure.domain.filter.Filters.IdsFilter<String, Code>> {
+	override fun resolve(filter: org.taktik.icure.domain.filter.Filters.IdsFilter<String, Code>, context: Filters): Flow<String> {
+		return filter.ids.asFlow() ?: flowOf()
+	}
 }

@@ -21,8 +21,8 @@ package org.taktik.icure.asyncdao
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.Keyword
 
-interface KeywordDAO: GenericDAO<Keyword> {
-    suspend fun getKeyword(keywordId: String): Keyword?
+interface KeywordDAO : GenericDAO<Keyword> {
+	suspend fun getKeyword(keywordId: String): Keyword?
 
-    fun getKeywordsByUserId(userId: String): Flow<Keyword>
+	fun getKeywordsByUserId(userId: String): Flow<Keyword>
 }

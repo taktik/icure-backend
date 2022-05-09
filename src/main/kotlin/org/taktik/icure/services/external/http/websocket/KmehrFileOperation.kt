@@ -17,6 +17,12 @@
  */
 package org.taktik.icure.services.external.http.websocket
 
+import java.io.IOException
+import java.io.Serializable
+import java.time.Duration
+import java.util.*
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeoutException
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -25,57 +31,51 @@ import org.springframework.web.reactive.socket.WebSocketSession
 import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import reactor.core.publisher.Mono
-import java.io.IOException
-import java.io.Serializable
-import java.time.Duration
-import java.util.*
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.TimeoutException
 
 class KmehrFileOperation(webSocket: WebSocketSession, objectMapper: ObjectMapper) : BinaryOperation(webSocket, objectMapper), AsyncDecrypt {
-    private val log = LogFactory.getLog(KmehrExport::class.java)
-    private val decodingSessions: MutableMap<String?, DecodingSession<*>> = HashMap()
+	private val log = LogFactory.getLog(KmehrExport::class.java)
+	private val decodingSessions: MutableMap<String?, DecodingSession<*>> = HashMap()
 
-    @Throws(IOException::class)
-    override suspend fun <K : Serializable?> decrypt(encrypted: List<K>, clazz: Class<K>): List<K> {
-        val message: Message<*> = Message("decrypt", clazz.simpleName, UUID.randomUUID().toString(), encrypted)
-        val future = CompletableFuture<List<K>>()
-        val decodingSession = DecodingSession(future, clazz)
-        decodingSessions[message.uuid] = decodingSession
-        val jsonMessage = objectMapper.writeValueAsString(message)
-        val wsMessage = if (jsonMessage.length > 65000) webSocket.binaryMessage { it.wrap(jsonMessage.toByteArray(Charsets.UTF_8)) } else webSocket.textMessage(objectMapper.writeValueAsString(message))
-        webSocket.send(Mono.just(wsMessage)).awaitFirstOrNull()
-        return try {
-            Mono.fromFuture(future).timeout(Duration.ofSeconds(120)).awaitFirst()
-        } catch (toe: TimeoutException) {
-            decodingSessions.remove(message.uuid)
-            listOf()
-        }
-    }
+	@Throws(IOException::class)
+	override suspend fun <K : Serializable?> decrypt(encrypted: List<K>, clazz: Class<K>): List<K> {
+		val message: Message<*> = Message("decrypt", clazz.simpleName, UUID.randomUUID().toString(), encrypted)
+		val future = CompletableFuture<List<K>>()
+		val decodingSession = DecodingSession(future, clazz)
+		decodingSessions[message.uuid] = decodingSession
+		val jsonMessage = objectMapper.writeValueAsString(message)
+		val wsMessage = if (jsonMessage.length > 65000) webSocket.binaryMessage { it.wrap(jsonMessage.toByteArray(Charsets.UTF_8)) } else webSocket.textMessage(objectMapper.writeValueAsString(message))
+		webSocket.send(Mono.just(wsMessage)).awaitFirstOrNull()
+		return try {
+			Mono.fromFuture(future).timeout(Duration.ofSeconds(120)).awaitFirst()
+		} catch (toe: TimeoutException) {
+			decodingSessions.remove(message.uuid)
+			listOf()
+		}
+	}
 
-    override fun <K : Serializable> handle(message: String?) {
-        val dto = try {
-            objectMapper.readTree(message)
-        } catch(e:Exception) {
-            log.error("Cannot parse because of ${e}. Object is: ${message}", e)
-            throw(e)
-        }
-        if (dto["command"].asText() == "decryptResponse") {
-            val uuid = dto["uuid"].asText()
-            val decodingSession = decodingSessions[uuid] as DecodingSession<K>
-            val result = dto["body"].mapNotNull { jsonObject ->
-                try {
-                    val value = objectMapper.treeToValue<K>(jsonObject, decodingSession.clazz)
-                    value
-                } catch (ee: Exception) {
-                    log.error("Cannot parse because of ${ee}")
-                    null
-                }
-            }
-            decodingSession.future.complete(result)
-            decodingSessions.remove(uuid)
-        }
-    }
+	override fun <K : Serializable> handle(message: String?) {
+		val dto = try {
+			objectMapper.readTree(message)
+		} catch (e: Exception) {
+			log.error("Cannot parse because of $e. Object is: $message", e)
+			throw(e)
+		}
+		if (dto["command"].asText() == "decryptResponse") {
+			val uuid = dto["uuid"].asText()
+			val decodingSession = decodingSessions[uuid] as DecodingSession<K>
+			val result = dto["body"].mapNotNull { jsonObject ->
+				try {
+					val value = objectMapper.treeToValue<K>(jsonObject, decodingSession.clazz)
+					value
+				} catch (ee: Exception) {
+					log.error("Cannot parse because of $ee")
+					null
+				}
+			}
+			decodingSession.future.complete(result)
+			decodingSessions.remove(uuid)
+		}
+	}
 
-    private inner class DecodingSession<K : Serializable?> internal constructor(var future: CompletableFuture<List<K>>, var clazz: Class<K>)
+	private inner class DecodingSession<K : Serializable?> internal constructor(var future: CompletableFuture<List<K>>, var clazz: Class<K>)
 }

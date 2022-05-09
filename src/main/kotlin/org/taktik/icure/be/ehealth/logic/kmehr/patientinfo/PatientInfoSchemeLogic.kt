@@ -19,12 +19,11 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.patientinfo
 
+import java.awt.image.DataBuffer
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
-import java.awt.image.DataBuffer
-import java.io.OutputStream
 
 interface PatientInfoFileLogic {
-    fun createExport(patient: Patient, sender: HealthcareParty, language: String): Flow<org.springframework.core.io.buffer.DataBuffer>
+	fun createExport(patient: Patient, sender: HealthcareParty, language: String): Flow<org.springframework.core.io.buffer.DataBuffer>
 }

@@ -34,21 +34,22 @@ import reactor.core.publisher.Flux
 @RestController("applicationSettingsControllerV2")
 @RequestMapping("/rest/v2/appsettings")
 @Tag(name = "applicationsettings")
-class ApplicationSettingsController(private val applicationSettingsLogic: ApplicationSettingsLogic,
-                                    private val applicationSettingsV2Mapper: ApplicationSettingsV2Mapper) {
+class ApplicationSettingsController(
+	private val applicationSettingsLogic: ApplicationSettingsLogic,
+	private val applicationSettingsV2Mapper: ApplicationSettingsV2Mapper
+) {
 
-    @Operation(summary = "Gets all application settings")
-    @GetMapping
-    fun getApplicationSettings(): Flux<ApplicationSettingsDto> {
-        val applicationSettings = applicationSettingsLogic.getEntities()
-        return applicationSettings.map { applicationSettingsV2Mapper.map(it) }.injectReactorContext()
-    }
+	@Operation(summary = "Gets all application settings")
+	@GetMapping
+	fun getApplicationSettings(): Flux<ApplicationSettingsDto> {
+		val applicationSettings = applicationSettingsLogic.getEntities()
+		return applicationSettings.map { applicationSettingsV2Mapper.map(it) }.injectReactorContext()
+	}
 
-    @Operation(summary = "Create new application settings")
-    @PostMapping
-    fun createApplicationSettings(@RequestBody applicationSettingsDto: ApplicationSettingsDto) = mono {
-        val applicationSettings = applicationSettingsLogic.createApplicationSettings(applicationSettingsV2Mapper.map(applicationSettingsDto))  ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ApplicationSettings creation failed")
-        applicationSettingsV2Mapper.map(applicationSettings)
-    }
+	@Operation(summary = "Create new application settings")
+	@PostMapping
+	fun createApplicationSettings(@RequestBody applicationSettingsDto: ApplicationSettingsDto) = mono {
+		val applicationSettings = applicationSettingsLogic.createApplicationSettings(applicationSettingsV2Mapper.map(applicationSettingsDto)) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ApplicationSettings creation failed")
+		applicationSettingsV2Mapper.map(applicationSettings)
+	}
 }
-

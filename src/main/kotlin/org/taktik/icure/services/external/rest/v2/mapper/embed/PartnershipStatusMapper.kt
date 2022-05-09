@@ -23,6 +23,6 @@ import org.taktik.icure.entities.embed.PartnershipStatus
 import org.taktik.icure.services.external.rest.v2.dto.embed.PartnershipStatusDto
 @Mapper(componentModel = "spring")
 interface PartnershipStatusV2Mapper {
-	fun map(partnershipStatusDto: PartnershipStatusDto):PartnershipStatus
-	fun map(partnershipStatus: PartnershipStatus):PartnershipStatusDto
+	fun map(partnershipStatusDto: PartnershipStatusDto): PartnershipStatus
+	fun map(partnershipStatus: PartnershipStatus): PartnershipStatusDto
 }

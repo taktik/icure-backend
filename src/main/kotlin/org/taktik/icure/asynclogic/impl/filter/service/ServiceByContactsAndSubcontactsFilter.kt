@@ -31,12 +31,12 @@ import org.taktik.icure.domain.filter.service.ServiceByContactsAndSubcontactsFil
 @Service
 class ServiceByContactsAndSubcontactsFilter(private val contactLogic: ContactLogic) : Filter<String, org.taktik.icure.entities.embed.Service, ServiceByContactsAndSubcontactsFilter> {
 
-    override fun resolve(filter: ServiceByContactsAndSubcontactsFilter, context: Filters): Flow<String> {
-        val contacts = contactLogic.getContacts(filter.contacts)
-        return if (filter.subContacts != null) {
-            contacts.flatMapConcat { c -> c.subContacts.flatMap { sc -> if (filter.subContacts!!.contains(sc.id)) sc.services.mapNotNull { it.serviceId } else listOf() }.asFlow() }
-        } else {
-            contacts.flatMapConcat { c -> c.services.map { it.id }.asFlow() }
-        }
-    }
+	override fun resolve(filter: ServiceByContactsAndSubcontactsFilter, context: Filters): Flow<String> {
+		val contacts = contactLogic.getContacts(filter.contacts)
+		return if (filter.subContacts != null) {
+			contacts.flatMapConcat { c -> c.subContacts.flatMap { sc -> if (filter.subContacts!!.contains(sc.id)) sc.services.mapNotNull { it.serviceId } else listOf() }.asFlow() }
+		} else {
+			contacts.flatMapConcat { c -> c.services.map { it.id }.asFlow() }
+		}
+	}
 }

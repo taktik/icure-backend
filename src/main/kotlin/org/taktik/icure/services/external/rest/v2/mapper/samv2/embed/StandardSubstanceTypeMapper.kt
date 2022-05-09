@@ -23,6 +23,6 @@ import org.taktik.icure.entities.samv2.embed.StandardSubstanceType
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.StandardSubstanceTypeDto
 @Mapper(componentModel = "spring")
 interface StandardSubstanceTypeV2Mapper {
-	fun map(standardSubstanceTypeDto: StandardSubstanceTypeDto):StandardSubstanceType
-	fun map(standardSubstanceType: StandardSubstanceType):StandardSubstanceTypeDto
+	fun map(standardSubstanceTypeDto: StandardSubstanceTypeDto): StandardSubstanceType
+	fun map(standardSubstanceType: StandardSubstanceType): StandardSubstanceTypeDto
 }

@@ -26,11 +26,11 @@ import com.github.pozo.KotlinBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class AmppComponentDto(
-        override val from: Long? = null,
-        override val to: Long? = null,
-        val contentType: ContentTypeDto? = null,
-        val contentMultiplier: Int? = null,
-        val packSpecification: String? = null,
-        val deviceType: DeviceTypeDto? = null,
-        val packagingType: PackagingTypeDto? = null
+	override val from: Long? = null,
+	override val to: Long? = null,
+	val contentType: ContentTypeDto? = null,
+	val contentMultiplier: Int? = null,
+	val packSpecification: String? = null,
+	val deviceType: DeviceTypeDto? = null,
+	val packagingType: PackagingTypeDto? = null
 ) : DataPeriodDto

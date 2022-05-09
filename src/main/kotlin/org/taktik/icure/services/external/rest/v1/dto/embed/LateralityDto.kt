@@ -22,5 +22,5 @@ import org.taktik.icure.services.external.rest.v1.dto.base.EnumVersionDto
 
 @EnumVersionDto(1L)
 enum class LateralityDto {
-    left, right
+	left, right
 }

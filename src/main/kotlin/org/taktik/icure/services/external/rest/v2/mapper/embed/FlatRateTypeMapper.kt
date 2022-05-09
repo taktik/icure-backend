@@ -23,6 +23,6 @@ import org.taktik.icure.entities.embed.FlatRateType
 import org.taktik.icure.services.external.rest.v2.dto.embed.FlatRateTypeDto
 @Mapper(componentModel = "spring")
 interface FlatRateTypeV2Mapper {
-	fun map(flatRateTypeDto: FlatRateTypeDto):FlatRateType
-	fun map(flatRateType: FlatRateType):FlatRateTypeDto
+	fun map(flatRateTypeDto: FlatRateTypeDto): FlatRateType
+	fun map(flatRateType: FlatRateType): FlatRateTypeDto
 }

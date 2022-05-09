@@ -24,8 +24,8 @@ import org.taktik.icure.entities.base.Code
 
 @KotlinBuilder
 data class CodeByIdsFilter(
-        override val ids: Set<String>,
-        override val desc: String? = null
+	override val ids: Set<String>,
+	override val desc: String? = null
 ) : AbstractFilter<Code>, Filters.IdsFilter<String, Code> {
-    override fun matches(item: Code) = ids.contains(item.id)
+	override fun matches(item: Code) = ids.contains(item.id)
 }

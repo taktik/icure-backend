@@ -28,6 +28,6 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.predicate.Predicate
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class FilterChain<O : Identifiable<String>> (
-        val filter: AbstractFilterDto<O>,
-        val predicate: Predicate? = null
+	val filter: AbstractFilterDto<O>,
+	val predicate: Predicate? = null
 )

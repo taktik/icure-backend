@@ -21,5 +21,5 @@ import org.taktik.icure.domain.filter.Filter
 import org.taktik.icure.entities.Patient
 
 interface PatientByIdsFilter : Filter<String, Patient> {
-    val ids: List<String>?
+	val ids: List<String>?
 }

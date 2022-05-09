@@ -26,12 +26,12 @@ import org.taktik.icure.entities.embed.ServiceLink
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceLinkDto
 @Mapper(componentModel = "spring", uses = [DelegationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ServiceLinkMapper {
-    @Mappings(
-            Mapping(target = "service", ignore = true)
-    )
-    fun map(serviceLinkDto: ServiceLinkDto):ServiceLink
-    @Mappings(
-            Mapping(target = "service", ignore = true)
-    )
-	fun map(serviceLink: ServiceLink):ServiceLinkDto
+	@Mappings(
+		Mapping(target = "service", ignore = true)
+	)
+	fun map(serviceLinkDto: ServiceLinkDto): ServiceLink
+	@Mappings(
+		Mapping(target = "service", ignore = true)
+	)
+	fun map(serviceLink: ServiceLink): ServiceLinkDto
 }

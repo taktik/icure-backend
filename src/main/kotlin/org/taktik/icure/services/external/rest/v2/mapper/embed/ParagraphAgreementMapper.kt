@@ -24,6 +24,6 @@ import org.taktik.icure.entities.embed.ParagraphAgreement
 import org.taktik.icure.services.external.rest.v2.dto.embed.ParagraphAgreementDto
 @Mapper(componentModel = "spring", uses = [AgreementAppendixV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ParagraphAgreementV2Mapper {
-	fun map(paragraphAgreementDto: ParagraphAgreementDto):ParagraphAgreement
-	fun map(paragraphAgreement: ParagraphAgreement):ParagraphAgreementDto
+	fun map(paragraphAgreementDto: ParagraphAgreementDto): ParagraphAgreement
+	fun map(paragraphAgreement: ParagraphAgreement): ParagraphAgreementDto
 }

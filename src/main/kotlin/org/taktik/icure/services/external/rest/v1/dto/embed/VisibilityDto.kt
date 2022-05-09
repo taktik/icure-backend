@@ -21,5 +21,5 @@ import org.taktik.icure.services.external.rest.v1.dto.base.EnumVersionDto
 
 @EnumVersionDto(1L)
 enum class VisibilityDto {
-    maskedfromsummary, maskedfromexportedfile, proeminent, highlighted, visible
+	maskedfromsummary, maskedfromexportedfile, proeminent, highlighted, visible
 }

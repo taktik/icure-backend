@@ -24,6 +24,6 @@ import org.taktik.icure.entities.samv2.embed.DeviceType
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.DeviceTypeDto
 @Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DeviceTypeV2Mapper {
-	fun map(deviceTypeDto: DeviceTypeDto):DeviceType
-	fun map(deviceType: DeviceType):DeviceTypeDto
+	fun map(deviceTypeDto: DeviceTypeDto): DeviceType
+	fun map(deviceType: DeviceType): DeviceTypeDto
 }

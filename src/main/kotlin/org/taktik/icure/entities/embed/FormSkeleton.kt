@@ -26,6 +26,6 @@ import com.github.pozo.KotlinBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class FormSkeleton(
-        val descr: String? = null,
-        val formTemplateId: String? = null
+	val descr: String? = null,
+	val formTemplateId: String? = null
 )

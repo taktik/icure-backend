@@ -29,13 +29,13 @@ import org.taktik.icure.services.external.rest.v2.mapper.security.PermissionV2Ma
 
 @Mapper(componentModel = "spring", uses = [PropertyStubV2Mapper::class, PermissionV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface RoleV2Mapper {
-    @Mappings(
-            Mapping(target = "parents", ignore = true),
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(roleDto: RoleDto):Role
-	fun map(role: Role):RoleDto
+	@Mappings(
+		Mapping(target = "parents", ignore = true),
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(roleDto: RoleDto): Role
+	fun map(role: Role): RoleDto
 }

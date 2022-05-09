@@ -33,11 +33,11 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class HealthElementByHcPartyTagCodeFilter(
-        override val desc:String? = null,
-        override val healthCarePartyId: String? = null,
-        override val codeType: String? = null,
-        override val codeCode: String? = null,
-        override val tagType: String? = null,
-        override val tagCode: String? = null,
-        override val status: Int? = null
-        ) : AbstractFilterDto<HealthElement>, org.taktik.icure.domain.filter.healthelement.HealthElementByHcPartyTagCodeFilter
+	override val desc: String? = null,
+	override val healthCarePartyId: String? = null,
+	override val codeType: String? = null,
+	override val codeCode: String? = null,
+	override val tagType: String? = null,
+	override val tagCode: String? = null,
+	override val status: Int? = null
+) : AbstractFilterDto<HealthElement>, org.taktik.icure.domain.filter.healthelement.HealthElementByHcPartyTagCodeFilter

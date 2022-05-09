@@ -33,6 +33,6 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class ServiceByHcPartyFilter(
-        override val hcpId: String,
-        override val desc:String? = null
+	override val hcpId: String,
+	override val desc: String? = null
 ) : AbstractFilterDto<Service>, Filters.ByHcpartyFilter<String, Service>

@@ -28,6 +28,6 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
 
 @Mapper(componentModel = "spring", uses = [DelegationMapper::class, ServiceMapper::class, CodeMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ResultInfoMapper {
-    fun map(resultInfoDto: ResultInfoDto): ResultInfo
-    fun map(resultInfo: ResultInfo): ResultInfoDto
+	fun map(resultInfoDto: ResultInfoDto): ResultInfo
+	fun map(resultInfo: ResultInfo): ResultInfoDto
 }

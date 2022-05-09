@@ -33,12 +33,12 @@ import org.taktik.icure.services.external.rest.v1.mapper.samv2.embed.WadaMapper
 
 @Mapper(componentModel = "spring", uses = [VtmMapper::class, SamTextMapper::class, VmpGroupStubMapper::class, CommentedClassificationMapper::class, VmpComponentMapper::class, EntityReferenceMapper::class, WadaMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface VmpMapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(vmpDto: VmpDto):Vmp
-	fun map(vmp: Vmp):VmpDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(vmpDto: VmpDto): Vmp
+	fun map(vmp: Vmp): VmpDto
 }

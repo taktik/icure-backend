@@ -26,6 +26,6 @@ import org.taktik.icure.services.external.rest.v2.mapper.embed.TypedValueV2Mappe
 
 @Mapper(componentModel = "spring", uses = [TypedValueV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface PropertyStubV2Mapper {
-	fun map(propertyStubDto: PropertyStubDto):PropertyStub
-	fun map(propertyStub: PropertyStub):PropertyStubDto
+	fun map(propertyStubDto: PropertyStubDto): PropertyStub
+	fun map(propertyStub: PropertyStub): PropertyStubDto
 }

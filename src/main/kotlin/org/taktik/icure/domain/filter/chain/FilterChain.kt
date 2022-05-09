@@ -20,23 +20,23 @@ package org.taktik.icure.domain.filter.chain
 import com.github.pozo.KotlinBuilder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
-import org.taktik.icure.domain.filter.AbstractFilter
 import org.taktik.couchdb.id.Identifiable
+import org.taktik.icure.domain.filter.AbstractFilter
 
 @KotlinBuilder
 data class FilterChain<O : Identifiable<String>>(val filter: AbstractFilter<O>, val predicate: org.taktik.icure.domain.filter.predicate.Predicate? = null) {
-    fun applyTo(items: List<O>): List<O> {
-        val filteredItems: List<O> = filter.applyTo(items)
-        return if (predicate == null) filteredItems else filteredItems.filter { input: O -> predicate.apply(input) }
-    }
+	fun applyTo(items: List<O>): List<O> {
+		val filteredItems: List<O> = filter.applyTo(items)
+		return if (predicate == null) filteredItems else filteredItems.filter { input: O -> predicate.apply(input) }
+	}
 
-    fun applyTo(items: Set<O>): Set<O> {
-        val filteredItems: Set<O> = filter.applyTo(items)
-        return if (predicate == null) filteredItems else filteredItems.filter { input: O -> predicate.apply(input) }.toSet()
-    }
+	fun applyTo(items: Set<O>): Set<O> {
+		val filteredItems: Set<O> = filter.applyTo(items)
+		return if (predicate == null) filteredItems else filteredItems.filter { input: O -> predicate.apply(input) }.toSet()
+	}
 
-    fun applyTo(items: Flow<O>): Flow<O> {
-        val filteredItems: Flow<O> = filter.applyTo(items)
-        return if (predicate == null) filteredItems else filteredItems.filter { input: O -> predicate.apply(input) }
-    }
+	fun applyTo(items: Flow<O>): Flow<O> {
+		val filteredItems: Flow<O> = filter.applyTo(items)
+		return if (predicate == null) filteredItems else filteredItems.filter { input: O -> predicate.apply(input) }
+	}
 }

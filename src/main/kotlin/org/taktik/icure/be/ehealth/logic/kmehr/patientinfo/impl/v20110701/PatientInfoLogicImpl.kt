@@ -28,7 +28,7 @@ import org.taktik.icure.entities.Patient
 
 @Service
 class PatientInfoLogicImpl(val patientInfoFileExport: PatientInfoFileExport) : PatientInfoFileLogic {
-    override fun createExport(patient: Patient, sender: HealthcareParty, language: String): Flow<DataBuffer> {
-        return patientInfoFileExport.export(patient, sender, language)
-    }
+	override fun createExport(patient: Patient, sender: HealthcareParty, language: String): Flow<DataBuffer> {
+		return patientInfoFileExport.export(patient, sender, language)
+	}
 }

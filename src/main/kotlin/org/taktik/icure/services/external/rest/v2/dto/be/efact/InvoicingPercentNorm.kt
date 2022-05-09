@@ -26,25 +26,24 @@ package org.taktik.icure.services.external.rest.v2.dto.be.efact
  * To change this template use File | Settings | File Templates.
  */
 enum class InvoicingPercentNorm(val code: Int) {
-    None(0),
-    SurgicalAid1(1),
-    SurgicalAid2(2),
-    ReducedFee(3),
-    Ah1n1(4),
-    HalfPriceSecondAct(5),
-    InvoiceException(6),
-    ForInformation(7);
+	None(0),
+	SurgicalAid1(1),
+	SurgicalAid2(2),
+	ReducedFee(3),
+	Ah1n1(4),
+	HalfPriceSecondAct(5),
+	InvoiceException(6),
+	ForInformation(7);
 
+	companion object {
 
-    companion object {
-
-        fun withCode(prescriberCode: Int): InvoicingPercentNorm? {
-            for (ipc in InvoicingPercentNorm.values()) {
-                if (ipc.code == prescriberCode) {
-                    return ipc
-                }
-            }
-            return null
-        }
-    }
+		fun withCode(prescriberCode: Int): InvoicingPercentNorm? {
+			for (ipc in InvoicingPercentNorm.values()) {
+				if (ipc.code == prescriberCode) {
+					return ipc
+				}
+			}
+			return null
+		}
+	}
 }

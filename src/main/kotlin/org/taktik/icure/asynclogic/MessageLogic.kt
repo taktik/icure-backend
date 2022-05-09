@@ -27,41 +27,41 @@ import org.taktik.icure.exceptions.CreationException
 import org.taktik.icure.exceptions.MissingRequirementsException
 
 interface MessageLogic : EntityPersister<Message, String> {
-    fun findMessagesByFromAddress(partyId: String, fromAddress: String, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
+	fun findMessagesByFromAddress(partyId: String, fromAddress: String, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
 
-    fun findMessagesByToAddress(partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<*>>, reverse: Boolean?): Flow<ViewQueryResultEvent>
+	fun findMessagesByToAddress(partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<*>>, reverse: Boolean?): Flow<ViewQueryResultEvent>
 
-    fun findMessagesByTransportGuidReceived(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
+	fun findMessagesByTransportGuidReceived(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
 
-    fun findMessagesByTransportGuid(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
+	fun findMessagesByTransportGuid(partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
 
-    fun findMessagesByTransportGuidSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
+	fun findMessagesByTransportGuidSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
 
-    suspend fun addDelegation(messageId: String, delegation: Delegation): Message?
+	suspend fun addDelegation(messageId: String, delegation: Delegation): Message?
 
-    @Throws(CreationException::class, LoginException::class)
-    suspend fun createMessage(message: Message): Message?
+	@Throws(CreationException::class, LoginException::class)
+	suspend fun createMessage(message: Message): Message?
 
-    @Throws(LoginException::class)
-    suspend fun getMessage(messageId: String): Message?
+	@Throws(LoginException::class)
+	suspend fun getMessage(messageId: String): Message?
 
-    @Throws(MissingRequirementsException::class)
-    suspend fun modifyMessage(message: Message): Message?
+	@Throws(MissingRequirementsException::class)
+	suspend fun modifyMessage(message: Message): Message?
 
-    @Throws(LoginException::class)
-    fun listMessagesByHCPartySecretPatientKeys(secretPatientKeys: List<String>): Flow<Message>
+	@Throws(LoginException::class)
+	fun listMessagesByHCPartySecretPatientKeys(secretPatientKeys: List<String>): Flow<Message>
 
-    fun setStatus(messageIds: List<String>, status: Int): Flow<Message>
-    fun setReadStatus(messageIds: List<String>, userId: String, status: Boolean, time: Long): Flow<Message>
+	fun setStatus(messageIds: List<String>, status: Int): Flow<Message>
+	fun setReadStatus(messageIds: List<String>, userId: String, status: Boolean, time: Long): Flow<Message>
 
-    @Throws(LoginException::class)
-    fun findForCurrentHcParty(paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
+	@Throws(LoginException::class)
+	fun findForCurrentHcParty(paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
 
-    suspend fun addDelegations(messageId: String, delegations: List<Delegation>): Message?
-    fun getMessageChildren(messageId: String): Flow<Message>
-    fun getMessagesChildren(parentIds: List<String>): Flow<List<Message>>
-    fun getMessagesByTransportGuids(hcpId: String, transportGuids: Set<String>): Flow<Message>
-    fun listMessagesByInvoiceIds(ids: List<String>): Flow<Message>
-    fun listMessagesByExternalRefs(hcPartyId: String, externalRefs: List<String>): Flow<Message>
-    fun solveConflicts(): Flow<Message>
+	suspend fun addDelegations(messageId: String, delegations: List<Delegation>): Message?
+	fun getMessageChildren(messageId: String): Flow<Message>
+	fun getMessagesChildren(parentIds: List<String>): Flow<List<Message>>
+	fun getMessagesByTransportGuids(hcpId: String, transportGuids: Set<String>): Flow<Message>
+	fun listMessagesByInvoiceIds(ids: List<String>): Flow<Message>
+	fun listMessagesByExternalRefs(hcPartyId: String, externalRefs: List<String>): Flow<Message>
+	fun solveConflicts(): Flow<Message>
 }

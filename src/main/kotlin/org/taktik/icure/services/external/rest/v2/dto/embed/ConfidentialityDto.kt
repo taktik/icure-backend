@@ -18,5 +18,5 @@
 package org.taktik.icure.services.external.rest.v2.dto.embed
 
 enum class ConfidentialityDto {
-    freeaccess, personal, secret
+	freeaccess, personal, secret
 }

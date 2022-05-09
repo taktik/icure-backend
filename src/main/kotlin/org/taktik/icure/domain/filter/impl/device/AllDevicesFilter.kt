@@ -25,7 +25,7 @@ import org.taktik.icure.entities.Device
 
 @KotlinBuilder
 data class AllDevicesFilter(
-        override val desc:String? = null,
+	override val desc: String? = null,
 ) : AbstractFilter<Device>, Filters.AllFilter<String, Device> {
-    override fun matches(item: Device) = true
+	override fun matches(item: Device) = true
 }

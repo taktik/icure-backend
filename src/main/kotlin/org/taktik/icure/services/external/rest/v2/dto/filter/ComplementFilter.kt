@@ -33,7 +33,7 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class ComplementFilter<O : Identifiable<String>>(
-        override val desc: String? = null,
-        override val superSet: AbstractFilterDto<O>,
-        override val subSet: AbstractFilterDto<O>
+	override val desc: String? = null,
+	override val superSet: AbstractFilterDto<O>,
+	override val subSet: AbstractFilterDto<O>
 ) : AbstractFilterDto<O>, Filters.ComplementFilter<String, O>

@@ -17,8 +17,8 @@
  */
 package org.taktik.icure.db
 
-import com.github.pozo.KotlinBuilder
 import java.io.Serializable
+import com.github.pozo.KotlinBuilder
 
 /**
  * Created by emad7105 on 11/07/2014.

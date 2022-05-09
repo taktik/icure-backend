@@ -19,8 +19,7 @@ package org.taktik.icure.domain.filter.hcparty
 
 import org.taktik.icure.domain.filter.Filter
 import org.taktik.icure.entities.HealthcareParty
-import org.taktik.icure.entities.User
 
 interface HealthcarePartyByIdsFilter : Filter<String, HealthcareParty> {
-    val ids: List<String>?
+	val ids: List<String>?
 }

@@ -26,8 +26,8 @@ import com.github.pozo.KotlinBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class CopaymentDto(
-        val regimeType: Int? = null,
-        override val from: Long? = null,
-        override val to: Long? = null,
-        val feeAmount: String? = null
+	val regimeType: Int? = null,
+	override val from: Long? = null,
+	override val to: Long? = null,
+	val feeAmount: String? = null
 ) : DataPeriodDto

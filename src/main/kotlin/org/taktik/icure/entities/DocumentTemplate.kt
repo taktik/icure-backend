@@ -39,67 +39,68 @@ import org.taktik.icure.validation.ValidCode
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class DocumentTemplate(
-        @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
-        @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
-        @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
-        override val medicalLocationId: String? = null,
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
-        override val endOfLife: Long? = null,
-        @JsonProperty("deleted") override val deletionDate: Long? = null,
+	@JsonProperty("_id") override val id: String,
+	@JsonProperty("_rev") override val rev: String? = null,
+	@field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+	@field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+	@field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+	@field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+	override val medicalLocationId: String? = null,
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
+	override val endOfLife: Long? = null,
+	@JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        @JsonIgnore val attachment: ByteArray? = null,
-        @JsonIgnore var isAttachmentDirty: Boolean = false,
-        val mainUti: String? = null,
-        val name: String? = null,
-        val otherUtis: Set<String> = emptySet(),
-        val attachmentId: String? = null,
-        val version: ReportVersion? = null,
-        val owner: String? = null,
-        val guid: String? = null,
-        val group: DocumentGroup? = null,
-        val descr: String? = null,
-        val disabled: String? = null,
-        val specialty: CodeStub? = null,
-        val documentType: DocumentType? = null,
+	@JsonIgnore val attachment: ByteArray? = null,
+	@JsonIgnore var isAttachmentDirty: Boolean = false,
+	val mainUti: String? = null,
+	val name: String? = null,
+	val otherUtis: Set<String> = emptySet(),
+	val attachmentId: String? = null,
+	val version: ReportVersion? = null,
+	val owner: String? = null,
+	val guid: String? = null,
+	val group: DocumentGroup? = null,
+	val descr: String? = null,
+	val disabled: String? = null,
+	val specialty: CodeStub? = null,
+	val documentType: DocumentType? = null,
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
+	@JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+	@JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+	@JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredICureDocument {
-    companion object : DynamicInitializer<DocumentTemplate>
+	companion object : DynamicInitializer<DocumentTemplate>
 
-    fun merge(other: DocumentTemplate) = DocumentTemplate(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: DocumentTemplate) = super<StoredICureDocument>.solveConflictsWith(other) + mapOf(
-            "mainUti" to (this.mainUti ?: other.mainUti),
-            "name" to (this.name ?: other.name),
-            "otherUtis" to (other.otherUtis + this.otherUtis),
-            "attachmentId" to (this.attachmentId ?: other.attachmentId),
-            "version" to (this.version ?: other.version),
-            "owner" to (this.owner ?: other.owner),
-            "guid" to (this.guid ?: other.guid),
-            "group" to (this.group ?: other.group),
-            "descr" to (this.descr ?: other.descr),
-            "disabled" to (this.disabled ?: other.disabled),
-            "specialty" to (this.specialty ?: other.specialty),
-            "attachment" to (this.attachment?.let { if (it.size >= other.attachment?.size ?: 0) it else other.attachment }
-                    ?: other.attachment),
-            "documentType" to (this.documentType ?: other.documentType)
-    )
+	fun merge(other: DocumentTemplate) = DocumentTemplate(args = this.solveConflictsWith(other))
+	fun solveConflictsWith(other: DocumentTemplate) = super<StoredICureDocument>.solveConflictsWith(other) + mapOf(
+		"mainUti" to (this.mainUti ?: other.mainUti),
+		"name" to (this.name ?: other.name),
+		"otherUtis" to (other.otherUtis + this.otherUtis),
+		"attachmentId" to (this.attachmentId ?: other.attachmentId),
+		"version" to (this.version ?: other.version),
+		"owner" to (this.owner ?: other.owner),
+		"guid" to (this.guid ?: other.guid),
+		"group" to (this.group ?: other.group),
+		"descr" to (this.descr ?: other.descr),
+		"disabled" to (this.disabled ?: other.disabled),
+		"specialty" to (this.specialty ?: other.specialty),
+		"attachment" to (
+			this.attachment?.let { if (it.size >= other.attachment?.size ?: 0) it else other.attachment }
+				?: other.attachment
+			),
+		"documentType" to (this.documentType ?: other.documentType)
+	)
 
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
-    override fun withTimestamps(created: Long?, modified: Long?) =
-            when {
-                created != null && modified != null -> this.copy(created = created, modified = modified)
-                created != null -> this.copy(created = created)
-                modified != null -> this.copy(modified = modified)
-                else -> this
-            }
-
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withTimestamps(created: Long?, modified: Long?) =
+		when {
+			created != null && modified != null -> this.copy(created = created, modified = modified)
+			created != null -> this.copy(created = created)
+			modified != null -> this.copy(modified = modified)
+			else -> this
+		}
 }

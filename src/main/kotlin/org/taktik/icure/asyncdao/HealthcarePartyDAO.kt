@@ -23,26 +23,26 @@ import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.HealthcareParty
 
-interface HealthcarePartyDAO: GenericDAO<HealthcareParty> {
-    fun listHealthcarePartiesByNihii(nihii: String?): Flow<HealthcareParty>
+interface HealthcarePartyDAO : GenericDAO<HealthcareParty> {
+	fun listHealthcarePartiesByNihii(nihii: String?): Flow<HealthcareParty>
 
-    fun listHealthcarePartiesBySsin(ssin: String): Flow<HealthcareParty>
+	fun listHealthcarePartiesBySsin(ssin: String): Flow<HealthcareParty>
 
-    fun listHealthcarePartiesBySpecialityAndPostcode(type: String, spec: String, firstCode: String, lastCode: String): Flow<ViewQueryResultEvent>
+	fun listHealthcarePartiesBySpecialityAndPostcode(type: String, spec: String, firstCode: String, lastCode: String): Flow<ViewQueryResultEvent>
 
-    fun findHealthCareParties(pagination: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent>
+	fun findHealthCareParties(pagination: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent>
 
-    fun listHealthcarePartiesByName(name: String): Flow<HealthcareParty>
+	fun listHealthcarePartiesByName(name: String): Flow<HealthcareParty>
 
-    fun findHealthcarePartiesBySsinOrNihii(searchValue: String?, offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent>
+	fun findHealthcarePartiesBySsinOrNihii(searchValue: String?, offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent>
 
-    fun findHealthcarePartiesByHcPartyNameContainsFuzzy(searchString: String?, offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent>
+	fun findHealthcarePartiesByHcPartyNameContainsFuzzy(searchString: String?, offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent>
 
-    fun listHealthcareParties(searchString: String, offset: Int, limit: Int): Flow<HealthcareParty>
+	fun listHealthcareParties(searchString: String, offset: Int, limit: Int): Flow<HealthcareParty>
 
-    suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String>
+	suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String>
 
-    fun listHealthcarePartiesByParentId(parentId: String): Flow<HealthcareParty>
+	fun listHealthcarePartiesByParentId(parentId: String): Flow<HealthcareParty>
 
-    fun findHealthcarePartiesByIds(hcpIds: Flow<String>): Flow<ViewQueryResultEvent>
+	fun findHealthcarePartiesByIds(hcpIds: Flow<String>): Flow<ViewQueryResultEvent>
 }

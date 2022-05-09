@@ -32,45 +32,45 @@ import org.taktik.icure.entities.embed.InvoicingCode
 import org.taktik.icure.entities.embed.MediumType
 
 interface InvoiceLogic : EntityPersister<Invoice, String> {
-    suspend fun createInvoice(invoice: Invoice): Invoice?
-    suspend fun deleteInvoice(invoiceId: String): DocIdentifier?
+	suspend fun createInvoice(invoice: Invoice): Invoice?
+	suspend fun deleteInvoice(invoiceId: String): DocIdentifier?
 
-    suspend fun getInvoice(invoiceId: String): Invoice?
-    fun getInvoices(ids: List<String>): Flow<Invoice>
+	suspend fun getInvoice(invoiceId: String): Invoice?
+	fun getInvoices(ids: List<String>): Flow<Invoice>
 
-    suspend fun modifyInvoice(invoice: Invoice): Invoice?
-    fun modifyInvoices(invoices: List<Invoice>): Flow<Invoice>
+	suspend fun modifyInvoice(invoice: Invoice): Invoice?
+	fun modifyInvoices(invoices: List<Invoice>): Flow<Invoice>
 
-    suspend fun addDelegation(invoiceId: String, delegation: Delegation): Invoice?
-    fun findInvoicesByAuthor(hcPartyId: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
+	suspend fun addDelegation(invoiceId: String, delegation: Delegation): Invoice?
+	fun findInvoicesByAuthor(hcPartyId: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<List<*>>): Flow<ViewQueryResultEvent>
 
-    fun listInvoicesByHcPartyContacts(hcParty: String, contactIds: Set<String>): Flow<Invoice>
-    fun listInvoicesByHcPartyAndRecipientIds(hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
-    fun listInvoicesByHcPartyAndPatientSks(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice>
-    fun listInvoicesByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty: String, sentMediumType: MediumType, invoiceType: InvoiceType, sent: Boolean, fromDate: Long?, toDate: Long?): Flow<Invoice>
+	fun listInvoicesByHcPartyContacts(hcParty: String, contactIds: Set<String>): Flow<Invoice>
+	fun listInvoicesByHcPartyAndRecipientIds(hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
+	fun listInvoicesByHcPartyAndPatientSks(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice>
+	fun listInvoicesByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty: String, sentMediumType: MediumType, invoiceType: InvoiceType, sent: Boolean, fromDate: Long?, toDate: Long?): Flow<Invoice>
 
-    fun listInvoicesByHcPartySendingModeStatus(hcParty: String, sendingMode: String?, status: String?, fromDate: Long?, toDate: Long?): Flow<Invoice>
+	fun listInvoicesByHcPartySendingModeStatus(hcParty: String, sendingMode: String?, status: String?, fromDate: Long?, toDate: Long?): Flow<Invoice>
 
-    fun listInvoicesByHcPartyAndGroupId(hcParty: String, inputGroupId: String): Flow<Invoice>
-    fun listInvoicesByHcPartyAndRecipientIdsUnsent(hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
-    fun listInvoicesByHcPartyAndPatientSksUnsent(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice>
-    fun listInvoicesByServiceIds(serviceIds: Set<String>): Flow<Invoice>
+	fun listInvoicesByHcPartyAndGroupId(hcParty: String, inputGroupId: String): Flow<Invoice>
+	fun listInvoicesByHcPartyAndRecipientIdsUnsent(hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
+	fun listInvoicesByHcPartyAndPatientSksUnsent(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice>
+	fun listInvoicesByServiceIds(serviceIds: Set<String>): Flow<Invoice>
 
-    suspend fun mergeInvoices(hcParty: String, invoices: List<Invoice>, destination: Invoice?): Invoice?
+	suspend fun mergeInvoices(hcParty: String, invoices: List<Invoice>, destination: Invoice?): Invoice?
 
-    suspend fun validateInvoice(hcParty: String, invoice: Invoice?, refScheme: String, forcedValue: String?): Invoice?
-    fun appendCodes(hcPartyId: String, userId: String, insuranceId: String?, secretPatientKeys: Set<String>, type: InvoiceType, sentMediumType: MediumType, invoicingCodes: List<InvoicingCode>, invoiceId: String?, invoiceGraceTime: Int?): Flow<Invoice>
+	suspend fun validateInvoice(hcParty: String, invoice: Invoice?, refScheme: String, forcedValue: String?): Invoice?
+	fun appendCodes(hcPartyId: String, userId: String, insuranceId: String?, secretPatientKeys: Set<String>, type: InvoiceType, sentMediumType: MediumType, invoicingCodes: List<InvoicingCode>, invoiceId: String?, invoiceGraceTime: Int?): Flow<Invoice>
 
-    suspend fun addDelegations(invoiceId: String, delegations: List<Delegation>): Invoice?
-    fun removeCodes(userId: String, secretPatientKeys: Set<String>, serviceId: String, tarificationIds: List<String>): Flow<Invoice>
-    fun listInvoicesHcpsByStatus(status: String, from: Long?, to: Long?, hcpIds: List<String>): Flow<Invoice>
+	suspend fun addDelegations(invoiceId: String, delegations: List<Delegation>): Invoice?
+	fun removeCodes(userId: String, secretPatientKeys: Set<String>, serviceId: String, tarificationIds: List<String>): Flow<Invoice>
+	fun listInvoicesHcpsByStatus(status: String, from: Long?, to: Long?, hcpIds: List<String>): Flow<Invoice>
 
-    fun solveConflicts(): Flow<Invoice>
+	fun solveConflicts(): Flow<Invoice>
 
-    suspend fun getTarificationsCodesOccurences(hcPartyId: String, minOccurences: Long): List<LabelledOccurence>
-    fun listInvoicesIdsByTarificationsByCode(hcPartyId: String, codeCode: String, startValueDate: Long, endValueDate: Long): Flow<String>
-    fun listInvoiceIdsByTarificationsByCode(hcPartyId: String, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
+	suspend fun getTarificationsCodesOccurences(hcPartyId: String, minOccurences: Long): List<LabelledOccurence>
+	fun listInvoicesIdsByTarificationsByCode(hcPartyId: String, codeCode: String, startValueDate: Long, endValueDate: Long): Flow<String>
+	fun listInvoiceIdsByTarificationsByCode(hcPartyId: String, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
 
-    fun filter(filter: FilterChain<Invoice>): Flow<Invoice>
-    fun getGenericDAO(): InvoiceDAO
+	fun filter(filter: FilterChain<Invoice>): Flow<Invoice>
+	fun getGenericDAO(): InvoiceDAO
 }

@@ -33,34 +33,36 @@ import org.taktik.icure.exceptions.DeletionException
 
 @ExperimentalCoroutinesApi
 @Service
-class FrontEndMigrationLogicImpl(private val frontEndMigrationDAO: FrontEndMigrationDAO,
-                                 private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<FrontEndMigration, FrontEndMigrationDAO>(sessionLogic), FrontEndMigrationLogic {
+class FrontEndMigrationLogicImpl(
+	private val frontEndMigrationDAO: FrontEndMigrationDAO,
+	private val sessionLogic: AsyncSessionLogic
+) : GenericLogicImpl<FrontEndMigration, FrontEndMigrationDAO>(sessionLogic), FrontEndMigrationLogic {
 
-    override suspend fun createFrontEndMigration(frontEndMigration: FrontEndMigration): FrontEndMigration? {
-        return frontEndMigrationDAO.create(frontEndMigration)
-    }
+	override suspend fun createFrontEndMigration(frontEndMigration: FrontEndMigration): FrontEndMigration? {
+		return frontEndMigrationDAO.create(frontEndMigration)
+	}
 
-    override suspend fun deleteFrontEndMigration(frontEndMigrationId: String): DocIdentifier? {
-        return try {
-            deleteEntities(setOf(frontEndMigrationId)).firstOrNull()
-        } catch (e: Exception) {
-            throw DeletionException(e.message, e)
-        }
-    }
+	override suspend fun deleteFrontEndMigration(frontEndMigrationId: String): DocIdentifier? {
+		return try {
+			deleteEntities(setOf(frontEndMigrationId)).firstOrNull()
+		} catch (e: Exception) {
+			throw DeletionException(e.message, e)
+		}
+	}
 
-    override suspend fun getFrontEndMigration(frontEndMigrationId: String): FrontEndMigration? {
-        return frontEndMigrationDAO.get(frontEndMigrationId)
-    }
+	override suspend fun getFrontEndMigration(frontEndMigrationId: String): FrontEndMigration? {
+		return frontEndMigrationDAO.get(frontEndMigrationId)
+	}
 
-    override fun getFrontEndMigrationByUserIdName(userId: String, name: String?): Flow<FrontEndMigration> = flow {
-        emitAll(frontEndMigrationDAO.getFrontEndMigrationsByUserIdAndName(userId, name))
-    }
+	override fun getFrontEndMigrationByUserIdName(userId: String, name: String?): Flow<FrontEndMigration> = flow {
+		emitAll(frontEndMigrationDAO.getFrontEndMigrationsByUserIdAndName(userId, name))
+	}
 
-    override suspend fun modifyFrontEndMigration(frontEndMigration: FrontEndMigration): FrontEndMigration? {
-        return frontEndMigrationDAO.save(frontEndMigration)
-    }
+	override suspend fun modifyFrontEndMigration(frontEndMigration: FrontEndMigration): FrontEndMigration? {
+		return frontEndMigrationDAO.save(frontEndMigration)
+	}
 
-    override fun getGenericDAO(): FrontEndMigrationDAO {
-        return frontEndMigrationDAO
-    }
+	override fun getGenericDAO(): FrontEndMigrationDAO {
+		return frontEndMigrationDAO
+	}
 }

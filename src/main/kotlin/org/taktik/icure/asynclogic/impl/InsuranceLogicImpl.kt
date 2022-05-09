@@ -32,41 +32,43 @@ import org.taktik.icure.exceptions.DeletionException
 
 @ExperimentalCoroutinesApi
 @Service
-class InsuranceLogicImpl(private val insuranceDAO: InsuranceDAO,
-                         private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Insurance, InsuranceDAO>(sessionLogic), InsuranceLogic {
-    override suspend fun createInsurance(insurance: Insurance) = fix(insurance) { insurance ->
-        insuranceDAO.create(insurance)
-    }
+class InsuranceLogicImpl(
+	private val insuranceDAO: InsuranceDAO,
+	private val sessionLogic: AsyncSessionLogic
+) : GenericLogicImpl<Insurance, InsuranceDAO>(sessionLogic), InsuranceLogic {
+	override suspend fun createInsurance(insurance: Insurance) = fix(insurance) { insurance ->
+		insuranceDAO.create(insurance)
+	}
 
-    override suspend fun deleteInsurance(insuranceId: String): DocIdentifier? {
-        return try {
-            deleteEntities(listOf(insuranceId)).firstOrNull()
-        } catch (e: Exception) {
-            throw DeletionException(e.message, e)
-        }
-    }
+	override suspend fun deleteInsurance(insuranceId: String): DocIdentifier? {
+		return try {
+			deleteEntities(listOf(insuranceId)).firstOrNull()
+		} catch (e: Exception) {
+			throw DeletionException(e.message, e)
+		}
+	}
 
-    override suspend fun getInsurance(insuranceId: String): Insurance? {
-        return insuranceDAO.get(insuranceId)
-    }
+	override suspend fun getInsurance(insuranceId: String): Insurance? {
+		return insuranceDAO.get(insuranceId)
+	}
 
-    override fun listInsurancesByCode(code: String): Flow<Insurance> = flow {
-        emitAll(insuranceDAO.listInsurancesByCode(code))
-    }
+	override fun listInsurancesByCode(code: String): Flow<Insurance> = flow {
+		emitAll(insuranceDAO.listInsurancesByCode(code))
+	}
 
-    override fun listInsurancesByName(name: String): Flow<Insurance> = flow {
-        emitAll(insuranceDAO.listInsurancesByName(name))
-    }
+	override fun listInsurancesByName(name: String): Flow<Insurance> = flow {
+		emitAll(insuranceDAO.listInsurancesByName(name))
+	}
 
-    override suspend fun modifyInsurance(insurance: Insurance) = fix(insurance) { insurance ->
-        insuranceDAO.save(insurance)
-    }
+	override suspend fun modifyInsurance(insurance: Insurance) = fix(insurance) { insurance ->
+		insuranceDAO.save(insurance)
+	}
 
-    override fun getInsurances(ids: Set<String>): Flow<Insurance> = flow {
-        emitAll(insuranceDAO.getEntities(ids))
-    }
+	override fun getInsurances(ids: Set<String>): Flow<Insurance> = flow {
+		emitAll(insuranceDAO.getEntities(ids))
+	}
 
-    override fun getGenericDAO(): InsuranceDAO {
-        return insuranceDAO
-    }
+	override fun getGenericDAO(): InsuranceDAO {
+		return insuranceDAO
+	}
 }

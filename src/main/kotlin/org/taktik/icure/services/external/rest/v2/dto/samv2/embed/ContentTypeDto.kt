@@ -19,8 +19,8 @@
 package org.taktik.icure.services.external.rest.v2.dto.samv2.embed
 
 enum class ContentTypeDto {
-    ACTIVE_COMPONENT,
-    SOLVENT,
-    DEVICE,
-    EXCIPIENT
+	ACTIVE_COMPONENT,
+	SOLVENT,
+	DEVICE,
+	EXCIPIENT
 }

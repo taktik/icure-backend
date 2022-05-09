@@ -31,33 +31,35 @@ import org.taktik.icure.asyncdao.AgendaDAO
 import org.taktik.icure.entities.Agenda
 import org.taktik.icure.properties.CouchDbProperties
 
-
 @Repository("AgendaDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Agenda' && !doc.deleted) emit( null, doc._id )}")
-class AgendaDAOImpl(couchDbProperties: CouchDbProperties,
-                    @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Agenda>(couchDbProperties, Agenda::class.java, couchDbDispatcher, idGenerator), AgendaDAO {
+class AgendaDAOImpl(
+	couchDbProperties: CouchDbProperties,
+	@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
+	idGenerator: IDGenerator
+) : GenericDAOImpl<Agenda>(couchDbProperties, Agenda::class.java, couchDbDispatcher, idGenerator), AgendaDAO {
 
-    @View(name = "by_user", map = "classpath:js/agenda/by_user.js")
-    override fun getAgendasByUser(userId: String): Flow<Agenda> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	@View(name = "by_user", map = "classpath:js/agenda/by_user.js")
+	override fun getAgendasByUser(userId: String): Flow<Agenda> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery(client, "by_user")
-                .startKey(userId)
-                .endKey(userId)
-                .includeDocs(true)
+		val viewQuery = createQuery(client, "by_user")
+			.startKey(userId)
+			.endKey(userId)
+			.includeDocs(true)
 
-        emitAll(client.queryViewIncludeDocsNoValue<String, Agenda>(viewQuery).map { it.doc })
-    }
+		emitAll(client.queryViewIncludeDocsNoValue<String, Agenda>(viewQuery).map { it.doc })
+	}
 
-    @View(name = "readable_by_user", map = "classpath:js/agenda/readable_by_user.js")
-    override fun getReadableAgendaByUser(userId: String): Flow<Agenda> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	@View(name = "readable_by_user", map = "classpath:js/agenda/readable_by_user.js")
+	override fun getReadableAgendaByUser(userId: String): Flow<Agenda> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery(client, "readable_by_user")
-                .startKey(userId)
-                .endKey(userId)
-                .includeDocs(true)
+		val viewQuery = createQuery(client, "readable_by_user")
+			.startKey(userId)
+			.endKey(userId)
+			.includeDocs(true)
 
-        emitAll(client.queryViewIncludeDocsNoValue<String, Agenda>(viewQuery).map { it.doc })
-    }
+		emitAll(client.queryViewIncludeDocsNoValue<String, Agenda>(viewQuery).map { it.doc })
+	}
 }

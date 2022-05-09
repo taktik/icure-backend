@@ -17,22 +17,20 @@
  */
 package org.taktik.icure.entities.embed
 
+import java.io.Serializable
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
-import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class Partnership(
-        val type: PartnershipType? = null, //codes are from CD-CONTACT-PERSON
-        val status: PartnershipStatus? = null,
-        val partnerId: String? = null, //Person: can either be a patient or a hcp
-        @Deprecated("use type instead")
-        val meToOtherRelationshipDescription: String? = null, //son if partnerId is my son - codes are from CD-CONTACT-PERSON
-        @Deprecated("use type instead")
-        val otherToMeRelationshipDescription: String? = null //father/mother if partnerId is my son
-) : Serializable {
-
-}
+	val type: PartnershipType? = null, //codes are from CD-CONTACT-PERSON
+	val status: PartnershipStatus? = null,
+	val partnerId: String? = null, //Person: can either be a patient or a hcp
+	@Deprecated("use type instead")
+	val meToOtherRelationshipDescription: String? = null, //son if partnerId is my son - codes are from CD-CONTACT-PERSON
+	@Deprecated("use type instead")
+	val otherToMeRelationshipDescription: String? = null //father/mother if partnerId is my son
+) : Serializable

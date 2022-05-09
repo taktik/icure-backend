@@ -31,7 +31,7 @@ package org.taktik.icure.services.external.rest.v1.dto.base
 //When creating a link, we encourage creating single direction links. The reverse link can be found through a view
 //Favour parent over child as it is better (for conflicts) to change 5 different documents once instead of changing 5 times the same document
 enum class LinkQualificationDto {
-    exact, narrower, broader, approximate, sequence, parent, child, relatedCode, linkedPackage,
-    relatedService, inResponseTo, replaces, transforms, transformsAndReplaces, appendsTo,
-    basedOn, derivedFrom, device, focus, hasMember, performer, specimen
+	exact, narrower, broader, approximate, sequence, parent, child, relatedCode, linkedPackage,
+	relatedService, inResponseTo, replaces, transforms, transformsAndReplaces, appendsTo,
+	basedOn, derivedFrom, device, focus, hasMember, performer, specimen
 }

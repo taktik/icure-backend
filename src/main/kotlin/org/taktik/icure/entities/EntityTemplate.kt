@@ -33,37 +33,36 @@ import org.taktik.icure.validation.NotNull
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class EntityTemplate(
-        @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String? = null,
-        @JsonProperty("deleted") override val deletionDate: Long? = null,
+	@JsonProperty("_id") override val id: String,
+	@JsonProperty("_rev") override val rev: String? = null,
+	@JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        @field:NotNull(autoFix = AutoFix.CURRENTUSERID) var userId: String? = null,
-        val descr: String? = null,
-        val keywords: Set<String>? = null,
-        val entityType: String? = null,
-        val subType: String? = null,
-        @JsonProperty("isDefaultTemplate") val defaultTemplate: Boolean? = null,
-        val entity: List<Map<String, Any>> = emptyList(),
+	@field:NotNull(autoFix = AutoFix.CURRENTUSERID) var userId: String? = null,
+	val descr: String? = null,
+	val keywords: Set<String>? = null,
+	val entityType: String? = null,
+	val subType: String? = null,
+	@JsonProperty("isDefaultTemplate") val defaultTemplate: Boolean? = null,
+	val entity: List<Map<String, Any>> = emptyList(),
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
+	@JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+	@JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+	@JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredDocument {
-    companion object : DynamicInitializer<EntityTemplate>
+	companion object : DynamicInitializer<EntityTemplate>
 
-    fun merge(other: EntityTemplate) = EntityTemplate(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: EntityTemplate) = super.solveConflictsWith(other) + mapOf(
-            "descr" to (this.descr ?: other.descr),
-            "keywords" to ((other.keywords ?: setOf()) + (this.keywords ?: setOf())),
-            "entityType" to (this.entityType ?: other.entityType),
-            "subType" to (this.subType ?: other.subType),
-            "defaultTemplate" to (this.defaultTemplate ?: other.defaultTemplate),
-            "entity" to (this.entity)
-    )
+	fun merge(other: EntityTemplate) = EntityTemplate(args = this.solveConflictsWith(other))
+	fun solveConflictsWith(other: EntityTemplate) = super.solveConflictsWith(other) + mapOf(
+		"descr" to (this.descr ?: other.descr),
+		"keywords" to ((other.keywords ?: setOf()) + (this.keywords ?: setOf())),
+		"entityType" to (this.entityType ?: other.entityType),
+		"subType" to (this.subType ?: other.subType),
+		"defaultTemplate" to (this.defaultTemplate ?: other.defaultTemplate),
+		"entity" to (this.entity)
+	)
 
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }
-

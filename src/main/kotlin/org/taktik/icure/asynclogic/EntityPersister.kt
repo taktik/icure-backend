@@ -23,19 +23,19 @@ import org.taktik.couchdb.DocIdentifier
 
 interface EntityPersister<E, I> {
 
-    fun createEntities(entities: Collection<E>): Flow<E>
+	fun createEntities(entities: Collection<E>): Flow<E>
 
-    fun modifyEntities(entities: Collection<E>): Flow<E>
+	fun modifyEntities(entities: Collection<E>): Flow<E>
 
-    fun deleteEntities(identifiers: Collection<I>): Flow<DocIdentifier>
-    fun undeleteByIds(identifiers: Collection<I>): Flow<DocIdentifier>
+	fun deleteEntities(identifiers: Collection<I>): Flow<DocIdentifier>
+	fun undeleteByIds(identifiers: Collection<I>): Flow<DocIdentifier>
 
-    fun getEntities(): Flow<E>
-    fun getEntityIds(): Flow<I>
+	fun getEntities(): Flow<E>
+	fun getEntityIds(): Flow<I>
 
-    suspend fun hasEntities(): Boolean
+	suspend fun hasEntities(): Boolean
 
-    suspend fun exists(id: I): Boolean
+	suspend fun exists(id: I): Boolean
 
-    suspend fun getEntity(id: I): E?
+	suspend fun getEntity(id: I): E?
 }

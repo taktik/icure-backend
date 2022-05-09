@@ -19,4 +19,4 @@
 package org.taktik.couchdb.dao
 
 fun designDocName(clazz: Class<*>) = designDocName(clazz.simpleName)
-fun designDocName(name: String) = "_design/${name}"
+fun designDocName(name: String) = "_design/$name"

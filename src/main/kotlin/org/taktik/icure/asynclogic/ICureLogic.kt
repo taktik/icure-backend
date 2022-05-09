@@ -21,10 +21,10 @@ package org.taktik.icure.asynclogic
 import org.taktik.icure.services.external.rest.v1.dto.ReplicationInfoDto
 
 interface ICureLogic {
-    suspend fun getIndexingStatus(): Map<String, Number>?
-    suspend fun modifyDesignDoc(daoEntityName: String, warmup: Boolean = false)
-    fun getVersion(): String
-    suspend fun getReplicationInfo(): ReplicationInfoDto
-    suspend fun modifyDesignDocs()
-    suspend fun setLogLevel(logLevel: String, packageName: String): String
+	suspend fun getIndexingStatus(): Map<String, Number>?
+	suspend fun modifyDesignDoc(daoEntityName: String, warmup: Boolean = false)
+	fun getVersion(): String
+	suspend fun getReplicationInfo(): ReplicationInfoDto
+	suspend fun modifyDesignDocs()
+	suspend fun setLogLevel(logLevel: String, packageName: String): String
 }

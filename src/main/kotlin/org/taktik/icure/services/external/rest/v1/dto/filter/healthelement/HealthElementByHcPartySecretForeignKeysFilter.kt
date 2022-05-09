@@ -15,7 +15,7 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class HealthElementByHcPartySecretForeignKeysFilter(
-        override val desc:String? = null,
-        override val healthcarePartyId: String? = null,
-        override val patientSecretForeignKeys: Set<String> = emptySet(),
+	override val desc: String? = null,
+	override val healthcarePartyId: String? = null,
+	override val patientSecretForeignKeys: Set<String> = emptySet(),
 ) : AbstractFilterDto<HealthElement>, org.taktik.icure.domain.filter.healthelement.HealthElementByHcPartySecretForeignKeysFilter

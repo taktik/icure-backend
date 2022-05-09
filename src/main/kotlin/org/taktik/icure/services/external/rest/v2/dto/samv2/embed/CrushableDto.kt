@@ -19,5 +19,5 @@
 package org.taktik.icure.services.external.rest.v2.dto.samv2.embed
 
 enum class CrushableDto {
-    Y, N, X
+	Y, N, X
 }

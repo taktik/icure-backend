@@ -17,6 +17,8 @@
  */
 package org.taktik.icure.asynclogic.impl.filter.service
 
+import java.util.*
+import javax.security.auth.login.LoginException
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
@@ -28,40 +30,42 @@ import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.domain.filter.service.ServiceByHcPartyTagCodeDateFilter
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.utils.getLoggedHealthCarePartyId
-import java.util.*
-import javax.security.auth.login.LoginException
 
 @org.springframework.stereotype.Service
-class ServiceByHcPartyTagCodeDateFilter(private val contactLogic: ContactLogic,
-                                        private val sessionLogic: AsyncSessionLogic) : Filter<String, Service, ServiceByHcPartyTagCodeDateFilter> {
-    override fun resolve(filter: ServiceByHcPartyTagCodeDateFilter, context: Filters) = flow {
-        try {
-            val hcPartyId = filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic)
-            var ids: HashSet<String>? = null
-            val patientSFK = filter.patientSecretForeignKey
-            val patientSFKList = if (patientSFK != null) listOf(patientSFK) else null
-            if (filter.tagType != null && filter.tagCode != null) {
-                ids = HashSet(contactLogic.listServiceIdsByTag(
-                        hcPartyId,
-                        patientSFKList, filter.tagType!!,
-                        filter.tagCode!!, filter.startValueDate, filter.endValueDate
-                ).toSet())
-            }
-            if (filter.codeType != null && filter.codeCode != null) {
-                val byCode = contactLogic.listServiceIdsByCode(
-                        hcPartyId,
-                        patientSFKList, filter.codeType!!,
-                        filter.codeCode!!, filter.startValueDate, filter.endValueDate
-                ).toSet()
-                if (ids == null) {
-                    ids = HashSet(byCode)
-                } else {
-                    ids.retainAll(byCode)
-                }
-            }
-            emitAll((ids ?: HashSet()).asFlow())
-        } catch (e: LoginException) {
-            throw IllegalArgumentException(e)
-        }
-    }
+class ServiceByHcPartyTagCodeDateFilter(
+	private val contactLogic: ContactLogic,
+	private val sessionLogic: AsyncSessionLogic
+) : Filter<String, Service, ServiceByHcPartyTagCodeDateFilter> {
+	override fun resolve(filter: ServiceByHcPartyTagCodeDateFilter, context: Filters) = flow {
+		try {
+			val hcPartyId = filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic)
+			var ids: HashSet<String>? = null
+			val patientSFK = filter.patientSecretForeignKey
+			val patientSFKList = if (patientSFK != null) listOf(patientSFK) else null
+			if (filter.tagType != null && filter.tagCode != null) {
+				ids = HashSet(
+					contactLogic.listServiceIdsByTag(
+						hcPartyId,
+						patientSFKList, filter.tagType!!,
+						filter.tagCode!!, filter.startValueDate, filter.endValueDate
+					).toSet()
+				)
+			}
+			if (filter.codeType != null && filter.codeCode != null) {
+				val byCode = contactLogic.listServiceIdsByCode(
+					hcPartyId,
+					patientSFKList, filter.codeType!!,
+					filter.codeCode!!, filter.startValueDate, filter.endValueDate
+				).toSet()
+				if (ids == null) {
+					ids = HashSet(byCode)
+				} else {
+					ids.retainAll(byCode)
+				}
+			}
+			emitAll((ids ?: HashSet()).asFlow())
+		} catch (e: LoginException) {
+			throw IllegalArgumentException(e)
+		}
+	}
 }

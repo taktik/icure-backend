@@ -23,17 +23,19 @@ import org.taktik.icure.entities.Invoice
 
 @KotlinBuilder
 data class InvoiceByHcPartyCodeDateFilter(
-        override val desc: String? = null,
-        override val healthcarePartyId: String? = null,
-        override val code: String,
-        override val startInvoiceDate: Long? = null,
-        override val endInvoiceDate: Long? = null) : AbstractFilter<Invoice>, org.taktik.icure.domain.filter.invoice.InvoiceByHcPartyCodeDateFilter {
+	override val desc: String? = null,
+	override val healthcarePartyId: String? = null,
+	override val code: String,
+	override val startInvoiceDate: Long? = null,
+	override val endInvoiceDate: Long? = null
+) : AbstractFilter<Invoice>, org.taktik.icure.domain.filter.invoice.InvoiceByHcPartyCodeDateFilter {
 
-    override fun matches(item: Invoice): Boolean {
-        return ((healthcarePartyId == null || item.delegations.keys.contains(healthcarePartyId))
-                && item.invoicingCodes.any {ic -> code.let { ic.tarificationId?.contains(it) } ?: false }
-                && (startInvoiceDate == null || item.invoiceDate != null || startInvoiceDate < item.invoiceDate ?: 0)
-                && (endInvoiceDate == null || item.invoiceDate != null || item.invoiceDate ?: 0 > endInvoiceDate))
-    }
-
+	override fun matches(item: Invoice): Boolean {
+		return (
+			(healthcarePartyId == null || item.delegations.keys.contains(healthcarePartyId)) &&
+				item.invoicingCodes.any { ic -> code.let { ic.tarificationId?.contains(it) } ?: false } &&
+				(startInvoiceDate == null || item.invoiceDate != null || startInvoiceDate < item.invoiceDate ?: 0) &&
+				(endInvoiceDate == null || item.invoiceDate != null || item.invoiceDate ?: 0 > endInvoiceDate)
+			)
+	}
 }

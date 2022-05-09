@@ -16,17 +16,15 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.asynclogic;
+package org.taktik.icure.asynclogic
 
-import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.Role
-import org.taktik.icure.entities.User
 
 interface RoleLogic : EntityPersister<Role, String> {
-    suspend fun getRoleByName(name: String): Role?
+	suspend fun getRoleByName(name: String): Role?
 
-    suspend fun getRole(id: String): Role?
-    suspend fun createDefaultRoleIfNecessary()
+	suspend fun getRole(id: String): Role?
+	suspend fun createDefaultRoleIfNecessary()
 
-    suspend fun newRole(role: Role): Role?
+	suspend fun newRole(role: Role): Role?
 }

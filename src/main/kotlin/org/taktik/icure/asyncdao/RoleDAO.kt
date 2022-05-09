@@ -21,5 +21,5 @@ package org.taktik.icure.asyncdao
 import org.taktik.icure.entities.Role
 
 interface RoleDAO : GenericDAO<Role> {
-    suspend fun getRoleByName(name: String): Role?
+	suspend fun getRoleByName(name: String): Role?
 }

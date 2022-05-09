@@ -23,6 +23,6 @@ import org.taktik.icure.entities.embed.DocumentLocation
 import org.taktik.icure.services.external.rest.v2.dto.embed.DocumentLocationDto
 @Mapper(componentModel = "spring")
 interface DocumentLocationV2Mapper {
-	fun map(documentLocationDto: DocumentLocationDto):DocumentLocation
-	fun map(documentLocation: DocumentLocation):DocumentLocationDto
+	fun map(documentLocationDto: DocumentLocationDto): DocumentLocation
+	fun map(documentLocation: DocumentLocation): DocumentLocationDto
 }

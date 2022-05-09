@@ -64,172 +64,173 @@ import org.taktik.icure.utils.injectReactorContext
 @RequestMapping("/rest/v1/user")
 @Tag(name = "user") // otherwise would default to "user-controller"
 class UserController(
-        private val filters: Filters,
-        private val userLogic: UserLogic,
-        private val sessionLogic: AsyncSessionLogic,
-        private val userMapper: UserMapper,
-        private val propertyStubMapper: PropertyStubMapper,
-        private val filterChainMapper: FilterChainMapper,
+	private val filters: Filters,
+	private val userLogic: UserLogic,
+	private val sessionLogic: AsyncSessionLogic,
+	private val userMapper: UserMapper,
+	private val propertyStubMapper: PropertyStubMapper,
+	private val filterChainMapper: FilterChainMapper,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-    private val DEFAULT_LIMIT = 1000
-    private val userToUserDto = { it: User -> userMapper.map(it) }
+	private val logger = LoggerFactory.getLogger(javaClass)
+	private val DEFAULT_LIMIT = 1000
+	private val userToUserDto = { it: User -> userMapper.map(it) }
 
-    @Operation(summary = "Get presently logged-in user.", description = "Get current user.")
-    @GetMapping(value = ["/current"])
-    fun getCurrentUser() = mono {
-            val user = userLogic.getUser(sessionLogic.getCurrentUserId())
-                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
-            userMapper.map(user)
-    }
+	@Operation(summary = "Get presently logged-in user.", description = "Get current user.")
+	@GetMapping(value = ["/current"])
+	fun getCurrentUser() = mono {
+		val user = userLogic.getUser(sessionLogic.getCurrentUserId())
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
+		userMapper.map(user)
+	}
 
-    @Operation(summary = "Get Currently logged-in user session.", description = "Get current user.")
-    @GetMapping("/session", produces = ["text/plain"])
-    fun getCurrentSession(): String? { // TODO MB nullable or exception ?
-        return sessionLogic.getOrCreateSession()?.id
-    }
+	@Operation(summary = "Get Currently logged-in user session.", description = "Get current user.")
+	@GetMapping("/session", produces = ["text/plain"])
+	fun getCurrentSession(): String? { // TODO MB nullable or exception ?
+		return sessionLogic.getOrCreateSession()?.id
+	}
 
-    @Operation(summary = "List users with(out) pagination", description = "Returns a list of users.")
-    @GetMapping
-    fun listUsers(
-            @Parameter(description = "An user email") @RequestParam(required = false) startKey: String?,
-            @Parameter(description = "An user document ID") @RequestParam(required = false) startDocumentId: String?,
-            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
-            @Parameter(description = "Filter out patient users") @RequestParam(required = false) skipPatients: Boolean?,
-    ) = mono {
+	@Operation(summary = "List users with(out) pagination", description = "Returns a list of users.")
+	@GetMapping
+	fun listUsers(
+		@Parameter(description = "An user email") @RequestParam(required = false) startKey: String?,
+		@Parameter(description = "An user document ID") @RequestParam(required = false) startDocumentId: String?,
+		@Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+		@Parameter(description = "Filter out patient users") @RequestParam(required = false) skipPatients: Boolean?,
+	) = mono {
 
-        val realLimit = limit ?: DEFAULT_LIMIT // TODO SH MB: rather use defaultValue = DEFAULT_LIMIT everywhere?
-        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
-        val allUsers = userLogic.listUsers(paginationOffset, skipPatients ?: true)
+		val realLimit = limit ?: DEFAULT_LIMIT // TODO SH MB: rather use defaultValue = DEFAULT_LIMIT everywhere?
+		val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
+		val allUsers = userLogic.listUsers(paginationOffset, skipPatients ?: true)
 
-        allUsers.paginatedList<User, UserDto>(userToUserDto, realLimit)
-    }
+		allUsers.paginatedList<User, UserDto>(userToUserDto, realLimit)
+	}
 
-    @Operation(summary = "Create a user", description = "Create a user. HealthcareParty ID should be set. Email has to be set and the Login has to be null. On server-side, Email will be used for Login.")
-    @PostMapping
-    fun createUser(@RequestBody userDto: UserDto) = mono {
-        val user = try {
-            userLogic.createUser(userMapper.map(userDto.copy(groupId = null)))
-        } catch (e: Exception) {
-            logger.warn(e.message, e)
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
-        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User creation failed.")
+	@Operation(summary = "Create a user", description = "Create a user. HealthcareParty ID should be set. Email has to be set and the Login has to be null. On server-side, Email will be used for Login.")
+	@PostMapping
+	fun createUser(@RequestBody userDto: UserDto) = mono {
+		val user = try {
+			userLogic.createUser(userMapper.map(userDto.copy(groupId = null)))
+		} catch (e: Exception) {
+			logger.warn(e.message, e)
+			throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+		} ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User creation failed.")
 
-        userMapper.map(user)
-    }
+		userMapper.map(user)
+	}
 
+	@Operation(summary = "Get a user by his ID", description = "General information about the user")
+	@GetMapping("/{userId}")
+	fun getUser(@PathVariable userId: String) = mono {
+		val user = userLogic.getUser(userId)
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
+		userMapper.map(user)
+	}
 
-    @Operation(summary = "Get a user by his ID", description = "General information about the user")
-    @GetMapping("/{userId}")
-    fun getUser(@PathVariable userId: String) = mono {
-        val user = userLogic.getUser(userId)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
-        userMapper.map(user)
-    }
+	@Operation(summary = "Get a user by his Email/Login", description = "General information about the user")
+	@GetMapping("/byEmail/{email}")
 
-    @Operation(summary = "Get a user by his Email/Login", description = "General information about the user")
-    @GetMapping("/byEmail/{email}")
+	fun getUserByEmail(@PathVariable email: String) = mono {
+		val user = userLogic.getUserByEmail(email)
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
+		userMapper.map(user)
+	}
 
-    fun getUserByEmail(@PathVariable email: String) = mono {
-        val user = userLogic.getUserByEmail(email)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
-        userMapper.map(user)
-    }
+	@Operation(summary = "Get the list of users by healthcare party id")
+	@GetMapping("/byHealthcarePartyId/{id}")
+	fun findByHcpartyId(@PathVariable id: String) = mono {
+		userLogic.findByHcpartyId(id).toList()
+	}
 
-    @Operation(summary = "Get the list of users by healthcare party id")
-    @GetMapping("/byHealthcarePartyId/{id}")
-    fun findByHcpartyId(@PathVariable id: String) = mono {
-        userLogic.findByHcpartyId(id).toList()
-    }
+	@Operation(summary = "Delete a User based on his/her ID.", description = "Delete a User based on his/her ID. The return value is an array containing the ID of deleted user.")
+	@DeleteMapping("/{userId}")
+	fun deleteUser(@PathVariable userId: String) = mono {
+		try {
+			userLogic.deleteEntities(setOf(userId)).firstOrNull()
+		} catch (e: Exception) {
+			logger.warn(e.message, e)
+			throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
+		}
+	}
 
-    @Operation(summary = "Delete a User based on his/her ID.", description = "Delete a User based on his/her ID. The return value is an array containing the ID of deleted user.")
-    @DeleteMapping("/{userId}")
-    fun deleteUser(@PathVariable userId: String) = mono {
-        try {
-            userLogic.deleteEntities(setOf(userId)).firstOrNull()
-        } catch (e: Exception) {
-            logger.warn(e.message, e)
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
-        }
-    }
+	@Operation(summary = "Modify a user.", description = "No particular return value. It's just a message.")
+	@PutMapping
+	fun modifyUser(@RequestBody userDto: UserDto) = mono {
+		//Sanitize group
+		userLogic.modifyUser(userMapper.map(userDto.copy(groupId = null)))
+		val modifiedUser = userLogic.getUser(userDto.id)
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User modification failed.")
 
+		userMapper.map(modifiedUser)
+	}
 
-    @Operation(summary = "Modify a user.", description = "No particular return value. It's just a message.")
-    @PutMapping
-    fun modifyUser(@RequestBody userDto: UserDto) = mono {
-        //Sanitize group
-        userLogic.modifyUser(userMapper.map(userDto.copy(groupId = null)))
-        val modifiedUser = userLogic.getUser(userDto.id)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User modification failed.")
+	@Operation(summary = "Assign a healthcare party ID to current user", description = "UserDto gets returned.")
+	@PutMapping("/current/hcparty/{healthcarePartyId}")
+	fun assignHealthcareParty(@PathVariable healthcarePartyId: String) = mono {
+		val modifiedUser = userLogic.getUser(sessionLogic.getCurrentUserId())
+		modifiedUser?.let {
+			userLogic.save(modifiedUser.copy(healthcarePartyId = healthcarePartyId))
 
-        userMapper.map(modifiedUser)
-    }
+			userMapper.map(modifiedUser)
+		} ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Assigning healthcare party ID to the current user failed.").also { logger.error(it.message) }
+	}
 
-    @Operation(summary = "Assign a healthcare party ID to current user", description = "UserDto gets returned.")
-    @PutMapping("/current/hcparty/{healthcarePartyId}")
-    fun assignHealthcareParty(@PathVariable healthcarePartyId: String) = mono {
-        val modifiedUser = userLogic.getUser(sessionLogic.getCurrentUserId())
-        modifiedUser?.let {
-            userLogic.save(modifiedUser.copy(healthcarePartyId = healthcarePartyId))
+	@Operation(summary = "Modify a User property", description = "Modify a User properties based on his/her ID. The return value is the modified user.")
+	@PutMapping("/{userId}/properties")
+	fun modifyProperties(@PathVariable userId: String, @RequestBody properties: List<PropertyStubDto>?) = mono {
+		val user = userLogic.getUser(userId)
+		user?.let {
+			val modifiedUser = userLogic.setProperties(
+				user,
+				properties?.map { p -> propertyStubMapper.map(p) }
+					?: listOf()
+			)
+			if (modifiedUser == null) {
+				logger.error("Modify a User property failed.")
+				throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modify a User property failed.")
+			}
+			userMapper.map(modifiedUser)
+		} ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modify a User property failed.")
+	}
 
-            userMapper.map(modifiedUser)
-        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Assigning healthcare party ID to the current user failed.").also { logger.error(it.message) }
-    }
+	@GetMapping("/checkPassword")
+	fun checkPassword(@RequestHeader("password") password: String) = mono {
+		userLogic.checkPassword(password)
+	}
 
-    @Operation(summary = "Modify a User property", description = "Modify a User properties based on his/her ID. The return value is the modified user.")
-    @PutMapping("/{userId}/properties")
-    fun modifyProperties(@PathVariable userId: String, @RequestBody properties: List<PropertyStubDto>?) = mono {
-        val user = userLogic.getUser(userId)
-        user?.let {
-            val modifiedUser = userLogic.setProperties(user, properties?.map { p -> propertyStubMapper.map(p) }
-                    ?: listOf())
-            if (modifiedUser == null) {
-                logger.error("Modify a User property failed.")
-                throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modify a User property failed.")
-            }
-            userMapper.map(modifiedUser)
-        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modify a User property failed.")
+	@GetMapping("/encodePassword")
+	fun encodePassword(@RequestHeader("password") password: String) = mono {
+		userLogic.encodePassword(password)
+	}
 
-    }
+	@Operation(summary = "Request a new temporary token for authentication")
+	@PostMapping("/token/{userId}/{key}")
+	fun getToken(@PathVariable userId: String, @Parameter(description = "The token key. Only one instance of a token with a defined key can exist at the same time") @PathVariable key: String, @Parameter(description = "The token validity in seconds", required = false) @RequestParam(required = false) tokenValidity: Long?) = mono {
+		userLogic.getUser(userId)?.let {
+			userLogic.getToken(it, key, tokenValidity ?: 3600)
+		} ?: throw IllegalStateException("Invalid User")
+	}
 
-    @GetMapping("/checkPassword")
-    fun checkPassword(@RequestHeader("password") password: String)  = mono {
-        userLogic.checkPassword(password)
-    }
+	@Operation(summary = "Check token validity")
+	@GetMapping("/token/{userId}")
+	fun checkTokenValidity(@PathVariable userId: String, @RequestHeader token: String) = mono {
+		userLogic.verifyAuthenticationToken(userId, token)
+	}
 
-    @GetMapping("/encodePassword")
-    fun encodePassword(@RequestHeader("password") password: String)  = mono {
-        userLogic.encodePassword(password)
-    }
+	@Operation(summary = "Filter users for the current user (HcParty)", description = "Returns a list of users along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
+	@PostMapping("/filter")
+	fun filterUsersBy(
+		@Parameter(description = "A User document ID") @RequestParam(required = false) startDocumentId: String?,
+		@Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+		@RequestBody filterChain: FilterChain<User>
+	) = mono {
+		val realLimit = limit ?: DEFAULT_LIMIT
+		val paginationOffset = PaginationOffset(null, startDocumentId, null, realLimit + 1)
+		val users = userLogic.filterUsers(paginationOffset, filterChainMapper.map(filterChain))
 
-    @Operation(summary = "Request a new temporary token for authentication")
-    @PostMapping("/token/{userId}/{key}")
-    fun getToken(@PathVariable userId: String, @Parameter(description = "The token key. Only one instance of a token with a defined key can exist at the same time") @PathVariable key: String, @Parameter(description = "The token validity in seconds", required = false) @RequestParam(required = false) tokenValidity: Long?) = mono {
-        userLogic.getUser(userId)?.let {
-            userLogic.getToken(it, key, tokenValidity ?: 3600)
-        } ?: throw IllegalStateException("Invalid User")
-    }
+		users.paginatedList(userToUserDto, realLimit)
+	}
 
-    @Operation(summary = "Check token validity")
-    @GetMapping("/token/{userId}")
-    fun checkTokenValidity(@PathVariable userId: String, @RequestHeader token: String) = mono {
-        userLogic.verifyAuthenticationToken(userId, token)
-    }
-
-    @Operation(summary = "Filter users for the current user (HcParty)", description = "Returns a list of users along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
-    @PostMapping("/filter")
-    fun filterUsersBy( @Parameter(description = "A User document ID") @RequestParam(required = false) startDocumentId: String?,
-                               @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
-                               @RequestBody filterChain: FilterChain<User>
-    ) = mono {
-        val realLimit = limit ?: DEFAULT_LIMIT
-        val paginationOffset = PaginationOffset(null, startDocumentId, null, realLimit+1)
-        val users = userLogic.filterUsers(paginationOffset, filterChainMapper.map(filterChain))
-
-        users.paginatedList(userToUserDto, realLimit)
-    }
-
-    @Operation(summary = "Get ids of healthcare party matching the provided filter for the current user (HcParty) ")
-    @PostMapping("/match")
-    fun matchUsersBy(@RequestBody filter: AbstractFilterDto<User>) = filters.resolve(filter).injectReactorContext()
+	@Operation(summary = "Get ids of healthcare party matching the provided filter for the current user (HcParty) ")
+	@PostMapping("/match")
+	fun matchUsersBy(@RequestBody filter: AbstractFilterDto<User>) = filters.resolve(filter).injectReactorContext()
 }

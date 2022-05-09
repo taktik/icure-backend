@@ -45,49 +45,47 @@ import reactor.core.publisher.Flux
 @RequestMapping("/rest/v2/medicallocation")
 @Tag(name = "medicallocation")
 class MedicalLocationController(
-        private val medicalLocationLogic: MedicalLocationLogic,
-        private val medicalLocationV2Mapper: MedicalLocationV2Mapper
+	private val medicalLocationLogic: MedicalLocationLogic,
+	private val medicalLocationV2Mapper: MedicalLocationV2Mapper
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
+	private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Operation(summary = "Creates a medical location")
-    @PostMapping
-    fun createMedicalLocation(@RequestBody medicalLocationDto: MedicalLocationDto) = mono {
-        medicalLocationLogic.createMedicalLocation(medicalLocationV2Mapper.map(medicalLocationDto))?.let { medicalLocationV2Mapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Medical location creation failed")
-    }
+	@Operation(summary = "Creates a medical location")
+	@PostMapping
+	fun createMedicalLocation(@RequestBody medicalLocationDto: MedicalLocationDto) = mono {
+		medicalLocationLogic.createMedicalLocation(medicalLocationV2Mapper.map(medicalLocationDto))?.let { medicalLocationV2Mapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Medical location creation failed")
+	}
 
-    @Operation(summary = "Deletes medical locations")
-    @DeleteMapping("/delete/batch")
-    fun deleteMedicalLocations(@RequestBody locationIds: ListOfIdsDto): Flux<DocIdentifier> {
-        return locationIds.ids.takeIf { it.isNotEmpty() }
-                ?.let { ids ->
-                    try {
-                        medicalLocationLogic.deleteEntities(HashSet(ids)).injectReactorContext()
-                    }
-                    catch (e: java.lang.Exception) {
-                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
-                    }
-                }
-                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
-    }
+	@Operation(summary = "Deletes medical locations")
+	@DeleteMapping("/delete/batch")
+	fun deleteMedicalLocations(@RequestBody locationIds: ListOfIdsDto): Flux<DocIdentifier> {
+		return locationIds.ids.takeIf { it.isNotEmpty() }
+			?.let { ids ->
+				try {
+					medicalLocationLogic.deleteEntities(HashSet(ids)).injectReactorContext()
+				} catch (e: java.lang.Exception) {
+					throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+				}
+			}
+			?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
+	}
 
+	@Operation(summary = "Gets a medical location")
+	@GetMapping("/{locationId}")
+	fun getMedicalLocation(@PathVariable locationId: String) = mono {
+		medicalLocationLogic.getMedicalLocation(locationId)?.let { medicalLocationV2Mapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "medical location fetching failed")
+	}
 
-    @Operation(summary = "Gets a medical location")
-    @GetMapping("/{locationId}")
-    fun getMedicalLocation(@PathVariable locationId: String) = mono {
-        medicalLocationLogic.getMedicalLocation(locationId)?.let { medicalLocationV2Mapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "medical location fetching failed")
-    }
+	@Operation(summary = "Gets all medical locations")
+	@GetMapping
+	fun getMedicalLocations() = medicalLocationLogic.getEntities().map { c -> medicalLocationV2Mapper.map(c) }.injectReactorContext()
 
-    @Operation(summary = "Gets all medical locations")
-    @GetMapping
-    fun getMedicalLocations() = medicalLocationLogic.getEntities().map { c -> medicalLocationV2Mapper.map(c) }.injectReactorContext()
-
-    @Operation(summary = "Modifies a medical location")
-    @PutMapping
-    fun modifyMedicalLocation(@RequestBody medicalLocationDto: MedicalLocationDto) = mono {
-        medicalLocationLogic.modifyMedicalLocation(medicalLocationV2Mapper.map(medicalLocationDto))?.let { medicalLocationV2Mapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "medical location modification failed")
-    }
+	@Operation(summary = "Modifies a medical location")
+	@PutMapping
+	fun modifyMedicalLocation(@RequestBody medicalLocationDto: MedicalLocationDto) = mono {
+		medicalLocationLogic.modifyMedicalLocation(medicalLocationV2Mapper.map(medicalLocationDto))?.let { medicalLocationV2Mapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "medical location modification failed")
+	}
 }

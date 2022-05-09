@@ -20,5 +20,5 @@ package org.taktik.icure.services.external.rest.v1.dto.base
 import java.io.Serializable
 
 interface IdentifiableDto<T> : Serializable {
-    val id: T
+	val id: T
 }

@@ -15,6 +15,6 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class UserByNameEmailPhoneFilter(
-        override val searchString: String,
-        override val desc: String? = null
+	override val searchString: String,
+	override val desc: String? = null
 ) : AbstractFilterDto<User>, org.taktik.icure.domain.filter.user.UserByNameEmailPhoneFilter

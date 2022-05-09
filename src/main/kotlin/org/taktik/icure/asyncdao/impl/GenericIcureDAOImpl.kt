@@ -31,25 +31,29 @@ import org.taktik.icure.properties.CouchDbProperties
  * Automatically update the modified date
  *
  */
-open class GenericIcureDAOImpl<T : StoredICureDocument>(entityClass: Class<T>, couchDbProperties: CouchDbProperties,
-                                                        couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<T>(couchDbProperties, entityClass, couchDbDispatcher, idGenerator) {
-    override suspend fun save(newEntity: Boolean?, entity: T): T? =
-            super.save(newEntity, entity.apply { setTimestamps(this) })
+open class GenericIcureDAOImpl<T : StoredICureDocument>(
+	entityClass: Class<T>,
+	couchDbProperties: CouchDbProperties,
+	couchDbDispatcher: CouchDbDispatcher,
+	idGenerator: IDGenerator
+) : GenericDAOImpl<T>(couchDbProperties, entityClass, couchDbDispatcher, idGenerator) {
+	override suspend fun save(newEntity: Boolean?, entity: T): T? =
+		super.save(newEntity, entity.apply { setTimestamps(this) })
 
-    override fun <K : Collection<T>> save(newEntity: Boolean?, entities: K): Flow<T> =
-            super.save(newEntity, entities.map { it.apply { setTimestamps(this) } })
+	override fun <K : Collection<T>> save(newEntity: Boolean?, entities: K): Flow<T> =
+		super.save(newEntity, entities.map { it.apply { setTimestamps(this) } })
 
-    override suspend fun unRemove(entity: T) =
-            super.unRemove(entity.apply { setTimestamps(this) })
+	override suspend fun unRemove(entity: T) =
+		super.unRemove(entity.apply { setTimestamps(this) })
 
-    override fun unRemove(entities: Collection<T>) =
-            super.unRemove(entities.map { it.apply { setTimestamps(this) } })
+	override fun unRemove(entities: Collection<T>) =
+		super.unRemove(entities.map { it.apply { setTimestamps(this) } })
 
-    private fun setTimestamps(entity: ICureDocument<String>) {
-        val epochMillis = System.currentTimeMillis()
-        if (entity.created == null) {
-            entity.withTimestamps(created = epochMillis, modified = epochMillis)
-        }
-        entity.withTimestamps(modified = epochMillis)
-    }
+	private fun setTimestamps(entity: ICureDocument<String>) {
+		val epochMillis = System.currentTimeMillis()
+		if (entity.created == null) {
+			entity.withTimestamps(created = epochMillis, modified = epochMillis)
+		}
+		entity.withTimestamps(modified = epochMillis)
+	}
 }

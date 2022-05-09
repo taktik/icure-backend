@@ -17,12 +17,12 @@
  */
 package org.taktik.icure.entities.embed
 
+import java.io.Serializable
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
-import java.io.Serializable
 
 /**
  * Created by aduchate on 21/01/13, 14:47
@@ -31,21 +31,21 @@ import java.io.Serializable
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class Telecom(
-        val telecomType: TelecomType? = null,
-        val telecomNumber: String? = null,
-        val telecomDescription: String? = null,
-        override val encryptedSelf: String? = null
+	val telecomType: TelecomType? = null,
+	val telecomNumber: String? = null,
+	val telecomDescription: String? = null,
+	override val encryptedSelf: String? = null
 ) : Encrypted, Serializable, Comparable<Telecom> {
-    companion object : DynamicInitializer<Telecom>
+	companion object : DynamicInitializer<Telecom>
 
-    fun merge(other: Telecom) = Telecom(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Telecom) = super.solveConflictsWith(other) + mapOf(
-            "telecomType" to (this.telecomType ?: other.telecomType),
-            "telecomNumber" to (this.telecomNumber ?: other.telecomNumber),
-            "telecomDescription" to (this.telecomDescription ?: other.telecomDescription)
-    )
+	fun merge(other: Telecom) = Telecom(args = this.solveConflictsWith(other))
+	fun solveConflictsWith(other: Telecom) = super.solveConflictsWith(other) + mapOf(
+		"telecomType" to (this.telecomType ?: other.telecomType),
+		"telecomNumber" to (this.telecomNumber ?: other.telecomNumber),
+		"telecomDescription" to (this.telecomDescription ?: other.telecomDescription)
+	)
 
-    override fun compareTo(other: Telecom): Int {
-        return telecomType?.compareTo(other.telecomType ?: TelecomType.other) ?: 0
-    }
+	override fun compareTo(other: Telecom): Int {
+		return telecomType?.compareTo(other.telecomType ?: TelecomType.other) ?: 0
+	}
 }

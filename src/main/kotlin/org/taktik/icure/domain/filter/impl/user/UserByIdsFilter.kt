@@ -17,7 +17,6 @@
  */
 package org.taktik.icure.domain.filter.impl.user
 
-
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.AbstractFilter
 import org.taktik.icure.domain.filter.Filters
@@ -25,8 +24,8 @@ import org.taktik.icure.entities.User
 
 @KotlinBuilder
 data class UserByIdsFilter(
-        override val ids: Set<String>,
-        override val desc: String? = null
+	override val ids: Set<String>,
+	override val desc: String? = null
 ) : AbstractFilter<User>, Filters.IdsFilter<String, User> {
-    override fun matches(item: User) = ids.contains(item.id)
+	override fun matches(item: User) = ids.contains(item.id)
 }

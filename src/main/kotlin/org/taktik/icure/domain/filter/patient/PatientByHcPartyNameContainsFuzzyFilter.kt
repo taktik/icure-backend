@@ -21,6 +21,6 @@ import org.taktik.icure.domain.filter.Filter
 import org.taktik.icure.entities.Patient
 
 interface PatientByHcPartyNameContainsFuzzyFilter : Filter<String, Patient> {
-    val searchString: String?
-    val healthcarePartyId: String?
+	val searchString: String?
+	val healthcarePartyId: String?
 }

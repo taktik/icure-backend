@@ -18,34 +18,34 @@
 
 package org.taktik.icure.asynclogic
 
+import java.io.Serializable
 import javax.servlet.http.HttpSession
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.security.core.Authentication
 import org.springframework.web.server.WebSession
 import org.taktik.icure.entities.User
 import org.taktik.icure.security.UserDetails
-import java.io.Serializable
 
 interface AsyncSessionLogic {
-    suspend fun login(username: String, password: String, request : ServerHttpRequest, session: WebSession): Authentication?
+	suspend fun login(username: String, password: String, request: ServerHttpRequest, session: WebSession): Authentication?
 
-    suspend fun logout()
-    fun getSessionContext(authentication: Authentication?): AsyncSessionContext?
+	suspend fun logout()
+	fun getSessionContext(authentication: Authentication?): AsyncSessionContext?
 
-    suspend fun getCurrentSessionContext(): AsyncSessionContext
+	suspend fun getCurrentSessionContext(): AsyncSessionContext
 
-    fun getOrCreateSession(): HttpSession?
-    suspend fun getCurrentUserId(): String
-    suspend fun getCurrentHealthcarePartyId(): String
-    suspend fun getCurrentDataOwnerId(): String
+	fun getOrCreateSession(): HttpSession?
+	suspend fun getCurrentUserId(): String
+	suspend fun getCurrentHealthcarePartyId(): String
+	suspend fun getCurrentDataOwnerId(): String
 
-    interface AsyncSessionContext : Serializable {
-        fun getAuthentication(): Authentication
-        fun getUserDetails(): UserDetails
-        fun isAuthenticated(): Boolean
-        fun isAnonymous(): Boolean
-        suspend fun getUser(): User
-    }
+	interface AsyncSessionContext : Serializable {
+		fun getAuthentication(): Authentication
+		fun getUserDetails(): UserDetails
+		fun isAuthenticated(): Boolean
+		fun isAnonymous(): Boolean
+		suspend fun getUser(): User
+	}
 
-    suspend fun getCurrentPatientId(): String?
+	suspend fun getCurrentPatientId(): String?
 }

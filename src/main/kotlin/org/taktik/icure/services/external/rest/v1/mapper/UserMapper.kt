@@ -31,21 +31,21 @@ import org.taktik.icure.services.external.rest.v1.mapper.security.PermissionMapp
 
 @Mapper(componentModel = "spring", uses = [PermissionMapper::class, DelegationTagMapper::class, PropertyStubMapper::class, AuthenticationTokenMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface UserMapper {
-    @Mappings(
-            Mapping(target = "lastLoginDate", ignore = true),
-            Mapping(target = "expirationDate", ignore = true),
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(userDto: UserDto):User
+	@Mappings(
+		Mapping(target = "lastLoginDate", ignore = true),
+		Mapping(target = "expirationDate", ignore = true),
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(userDto: UserDto): User
 
-    @Mappings(
-            Mapping(target = "passwordHash", expression = "java(user.getPasswordHash() != null ? \"*\" : null)"),
-            Mapping(target = "secret", ignore = true),
-            Mapping(target = "applicationTokens", expression = "java(new java.util.HashMap<>())"),
-            Mapping(target = "authenticationTokens", expression = "java(new java.util.HashMap<>())")
-    )
-	fun map(user: User):UserDto
+	@Mappings(
+		Mapping(target = "passwordHash", expression = "java(user.getPasswordHash() != null ? \"*\" : null)"),
+		Mapping(target = "secret", ignore = true),
+		Mapping(target = "applicationTokens", expression = "java(new java.util.HashMap<>())"),
+		Mapping(target = "authenticationTokens", expression = "java(new java.util.HashMap<>())")
+	)
+	fun map(user: User): UserDto
 }

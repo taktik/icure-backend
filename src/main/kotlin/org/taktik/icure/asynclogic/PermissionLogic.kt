@@ -23,5 +23,5 @@ import org.taktik.icure.security.PermissionSetIdentifier
 import org.taktik.icure.security.PermissionSetWithAuthorities
 
 interface PermissionLogic {
-    suspend fun getPermissionSet(permissionSetIdentifier: PermissionSetIdentifier, principal: Principal?): PermissionSetWithAuthorities?
+	suspend fun getPermissionSet(permissionSetIdentifier: PermissionSetIdentifier, principal: Principal?): PermissionSetWithAuthorities?
 }

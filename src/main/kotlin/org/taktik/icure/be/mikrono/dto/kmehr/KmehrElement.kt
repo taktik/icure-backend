@@ -17,9 +17,9 @@
  */
 package org.taktik.icure.be.mikrono.dto.kmehr
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import java.io.Serializable
 import java.util.*
+import com.fasterxml.jackson.annotation.JsonIgnore
 
 /**
  * Created by IntelliJ IDEA.
@@ -29,50 +29,50 @@ import java.util.*
  * To change this template use File | Settings | File Templates.
  */
 open class KmehrElement : Serializable {
-    var id: String? = null
-    var otherIds: MutableList<String?>? = ArrayList()
-    open var types: MutableList<String?>? = ArrayList()
+	var id: String? = null
+	var otherIds: MutableList<String?>? = ArrayList()
+	open var types: MutableList<String?>? = ArrayList()
 
-    fun addType(s: String?) {
-        if (types == null) {
-            types = ArrayList()
-        }
-        types!!.add(s)
-    }
+	fun addType(s: String?) {
+		if (types == null) {
+			types = ArrayList()
+		}
+		types!!.add(s)
+	}
 
-    fun addId(s: String?) {
-        if (id == null) {
-            id = s
-        } else {
-            if (otherIds == null) {
-                otherIds = ArrayList()
-            }
-            otherIds!!.add(s)
-        }
-    }
+	fun addId(s: String?) {
+		if (id == null) {
+			id = s
+		} else {
+			if (otherIds == null) {
+				otherIds = ArrayList()
+			}
+			otherIds!!.add(s)
+		}
+	}
 
-    fun getId(s: String): String? {
-        if (id != null && id!!.startsWith("$s:")) {
-            return id!!.split(":").toTypedArray()[1]
-        }
-        if (otherIds != null) {
-            for (sid in otherIds!!) {
-                if (sid!!.startsWith("$s:")) {
-                    return sid.split(":").toTypedArray()[1]
-                }
-            }
-        }
-        return null
-    }
+	fun getId(s: String): String? {
+		if (id != null && id!!.startsWith("$s:")) {
+			return id!!.split(":").toTypedArray()[1]
+		}
+		if (otherIds != null) {
+			for (sid in otherIds!!) {
+				if (sid!!.startsWith("$s:")) {
+					return sid.split(":").toTypedArray()[1]
+				}
+			}
+		}
+		return null
+	}
 
-    @get:JsonIgnore
-    val ids: List<String?>
-        get() {
-            val result: MutableList<String?> = ArrayList()
-            result.add(id)
-            if (otherIds != null) {
-                result.addAll(otherIds!!)
-            }
-            return result
-        }
+	@get:JsonIgnore
+	val ids: List<String?>
+		get() {
+			val result: MutableList<String?> = ArrayList()
+			result.add(id)
+			if (otherIds != null) {
+				result.addAll(otherIds!!)
+			}
+			return result
+		}
 }

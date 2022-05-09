@@ -17,19 +17,19 @@
  */
 package org.taktik.icure.services.external.rest.v2.dto.embed
 
-import org.taktik.icure.services.external.rest.v2.dto.base.EnumVersionDto
 import java.io.Serializable
+import org.taktik.icure.services.external.rest.v2.dto.base.EnumVersionDto
 
 /**
  * Created by aduchate on 21/01/13, 14:56
  */
 @EnumVersionDto(1L)
 enum class GenderDto(val code: String) : Serializable {
-    male("M"), female("F"), indeterminate("I"), changed("C"), changedToMale("Y"), changedToFemale("X"), unknown("U");
+	male("M"), female("F"), indeterminate("I"), changed("C"), changedToMale("Y"), changedToFemale("X"), unknown("U");
 
-    companion object {
-        fun fromCode(code: String?): GenderDto? {
-            return code?.let { c -> values().find { c == it.code } }
-        }
-    }
+	companion object {
+		fun fromCode(code: String?): GenderDto? {
+			return code?.let { c -> values().find { c == it.code } }
+		}
+	}
 }
