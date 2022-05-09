@@ -18,7 +18,6 @@
 package org.taktik.icure.domain.filter.impl.contact
 
 import com.github.pozo.KotlinBuilder
-import com.google.common.base.Objects
 import org.taktik.icure.domain.filter.AbstractFilter
 import org.taktik.icure.entities.Contact
 
@@ -33,20 +32,6 @@ data class ContactByHcPartyTagCodeDateFilter(
 	override val startOfContactOpeningDate: Long? = null,
 	override val endOfContactOpeningDate: Long? = null
 ) : AbstractFilter<Contact>, org.taktik.icure.domain.filter.contact.ContactByHcPartyTagCodeDateFilter {
-	override fun hashCode(): Int {
-		return Objects.hashCode(healthcarePartyId, tagType, tagCode, codeType, codeCode, startOfContactOpeningDate, endOfContactOpeningDate)
-	}
-
-	override fun equals(other: Any?): Boolean {
-		if (this === other) {
-			return true
-		}
-		if (other == null || javaClass != other.javaClass) {
-			return false
-		}
-		val filter = other as ContactByHcPartyTagCodeDateFilter
-		return Objects.equal(healthcarePartyId, filter.healthcarePartyId) && Objects.equal(tagType, filter.tagType) && Objects.equal(tagCode, filter.tagCode) && Objects.equal(codeType, filter.codeType) && Objects.equal(codeCode, filter.codeCode) && Objects.equal(startOfContactOpeningDate, filter.startOfContactOpeningDate) && Objects.equal(endOfContactOpeningDate, filter.endOfContactOpeningDate)
-	}
 
 	override fun matches(item: Contact): Boolean {
 		return (

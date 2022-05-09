@@ -31,17 +31,6 @@ data class PatientByHcPartyGenderEducationProfession(
 	override val education: String? = null,
 	override val profession: String? = null
 ) : AbstractFilter<Patient>, org.taktik.icure.domain.filter.patient.PatientByHcPartyGenderEducationProfession {
-	override fun equals(other: Any?): Boolean {
-		if (this === other) return true
-		if (other !is PatientByHcPartyGenderEducationProfession) return false
-		return healthcarePartyId == other.healthcarePartyId && gender === other.gender &&
-			education == other.education &&
-			profession == other.profession
-	}
-
-	override fun hashCode(): Int {
-		return Objects.hash(healthcarePartyId, gender, education, profession)
-	}
 
 	override fun matches(item: Patient): Boolean {
 		return (

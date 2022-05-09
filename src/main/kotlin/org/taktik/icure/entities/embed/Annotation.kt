@@ -31,30 +31,4 @@ data class Annotation(
 	@field:NotNull(autoFix = AutoFix.NOW) val modified: Long? = null,
 	val text: String? = null,
 	val location: String? = null
-) : Identifiable<String> {
-	override fun equals(other: Any?): Boolean {
-		if (this === other) return true
-		if (javaClass != other?.javaClass) return false
-
-		other as Annotation
-
-		if (id != other.id) return false
-		if (author != other.author) return false
-		if (created != other.created) return false
-		if (modified != other.modified) return false
-		if (text != other.text) return false
-		if (location != other.location) return false
-
-		return true
-	}
-
-	override fun hashCode(): Int {
-		var result = id.hashCode()
-		result = 31 * result + (author?.hashCode() ?: 0)
-		result = 31 * result + (created?.hashCode() ?: 0)
-		result = 31 * result + (modified?.hashCode() ?: 0)
-		result = 31 * result + (text?.hashCode() ?: 0)
-		result = 31 * result + (location?.hashCode() ?: 0)
-		return result
-	}
-}
+) : Identifiable<String>
