@@ -26,7 +26,7 @@ open class VersionedDesignDocumentQueries<T : StoredDocument>(protected open val
 
     private val designDocIdProvider = CacheBuilder.newBuilder()
             .maximumSize(100)
-            .expireAfterAccess(couchdDbProperties.cachedDesignDocuemntTtlMinutes, TimeUnit.MINUTES)
+            .expireAfterAccess(couchdDbProperties.cachedDesignDocumentTtlMinutes, TimeUnit.MINUTES)
             .build(object : CacheLoader<Pair<Client, Class<T>>, Deferred<String>>() {
                 @Throws(Exception::class)
                 override fun load(key: Pair<Client, Class<T>>): Deferred<String> {

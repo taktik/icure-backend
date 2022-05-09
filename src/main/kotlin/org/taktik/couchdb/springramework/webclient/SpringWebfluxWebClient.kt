@@ -54,6 +54,10 @@ class SpringWebfluxRequest(
     override fun retrieve() = SpringWebfluxResponse(headers.entries().fold(client.method(method.toSpringMethod()).uri(uri)) { acc, (name, value) -> acc.header(name, value) }.let {
             bodyPublisher?.let { bp -> it.body(bp.asFlux(), ByteBuffer::class.java) } ?: it
         })
+
+    override fun toString(): String {
+        return "-X $method $uri ${headers.map { "-H '${it.key}: ${it.value}'" }}"
+    }
 }
 
 class SpringWebfluxResponse(

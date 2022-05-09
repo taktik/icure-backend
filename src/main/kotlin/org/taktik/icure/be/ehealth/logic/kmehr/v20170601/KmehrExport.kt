@@ -16,7 +16,7 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.be.ehealth.logic.kmehr.v20170901
+package org.taktik.icure.be.ehealth.logic.kmehr.v20170601
 
 import kotlinx.coroutines.flow.collect
 import org.apache.commons.logging.LogFactory
@@ -24,12 +24,12 @@ import org.springframework.beans.factory.annotation.Value
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.asynclogic.impl.filter.Filters
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.*
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.id.v1.*
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.*
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.Utils
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.id.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.constants.ServiceStatus
 import org.taktik.icure.entities.*
@@ -67,7 +67,7 @@ open class KmehrExport(
 ) {
     val unitCodes = HashMap<String,Code>()
 
-    internal val STANDARD = "20170901"
+    internal val STANDARD = "20170601"
     @Value("\${icure.version}")
     internal val ICUREVERSION: String = "4.0.0"
 
@@ -154,10 +154,10 @@ open class KmehrExport(
         }
     }
 
-    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service", mfId: String? = null) : ItemType? {
+    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service") : ItemType? {
         return ItemType().apply {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
-            ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = mfId ?: svc.id })
+            ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = svc.id })
             cds.add(CDITEM().apply {s(CDITEMschemes.CD_ITEM); value = cdItem } )
             svc.tags.find { t -> t.type == "CD-LAB" }?.let { cds.add(CDITEM().apply {s(CDITEMschemes.CD_LAB); value = it.code } ) }
 
@@ -269,7 +269,7 @@ open class KmehrExport(
 
             this.contents.addAll(filterEmptyContent(contents))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
-                value = if ((ServiceStatus.isIrrelevant(he.status) && !ServiceStatus.isActive(he.status)) || (he.closingDate ?: 99999999 < FuzzyValues.getCurrentFuzzyDate()))
+                value = if (ServiceStatus.isIrrelevant(he.status) || (!ServiceStatus.isActive(he.status)) || (he.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate()))
                     CDLIFECYCLEvalues.INACTIVE
                 else
                     he.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) } ?: CDLIFECYCLEvalues.ACTIVE
@@ -282,7 +282,7 @@ open class KmehrExport(
             }
             severity = he.tags.find { t -> t.type == "CD-SEVERITY" }?.let {
                 SeverityType().apply {
-                    cd = CDSEVERITY().apply { s = "CD-SEVERITY"; value = CDSEVERITYvalues.fromValue(it.code) }
+                    cd = CDSEVERITY().apply { s = CDSEVERITYschemes.CD_SEVERITY; value =it.code }
                 }
             }
             isIsrelevant = ServiceStatus.isRelevant(he.status)
@@ -550,7 +550,7 @@ open class KmehrExport(
         }
     }
 
-    suspend fun initializeMessage(sender : HealthcareParty, config: Config) : Kmehrmessage {
+    suspend fun initializeMessage(sender : HealthcareParty, config: Config, kmehrId: String? = null) : Kmehrmessage {
         return Kmehrmessage().apply {
             header = HeaderType().apply {
                 standard = StandardType().apply {
@@ -566,7 +566,7 @@ open class KmehrExport(
                         specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; value = filetype }; version = SMF_VERSION }
                     }
                 }
-                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (sender.nihii ?: sender.id) + "." + (config._kmehrId ?: System.currentTimeMillis()) })
+                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value =  kmehrId ?: ((sender.nihii ?: sender.id) + "." + (config._kmehrId ?: System.currentTimeMillis())) })
                 makeXGC(Instant.now().toEpochMilli()).let {
                     date = it
                     time = it

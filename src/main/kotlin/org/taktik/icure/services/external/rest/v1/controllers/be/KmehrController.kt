@@ -40,6 +40,7 @@ import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.diarynote.DiaryNoteLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.incapacity.IncapacityLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medex.KmehrNoteLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationSchemeLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.patientinfo.PatientInfoFileLogic
@@ -52,10 +53,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.mapper.HealthElementMapper
 import org.taktik.icure.services.external.rest.v1.mapper.HealthcarePartyMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.ImportResultMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.PartnershipMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.PatientHealthCarePartyMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
+import org.taktik.icure.services.external.rest.v1.mapper.embed.*
 import org.taktik.icure.utils.injectReactorContext
 import java.time.Instant
 import java.util.stream.Collectors
@@ -70,6 +68,7 @@ class KmehrController(
         @Qualifier("sumehrLogicV2") val sumehrLogicV2: SumehrLogic,
         val softwareMedicalFileLogic: SoftwareMedicalFileLogic,
         val medicationSchemeLogic: MedicationSchemeLogic,
+        val incapacityLogic: IncapacityLogic,
         val diaryNoteLogic: DiaryNoteLogic,
         val kmehrNoteLogic: KmehrNoteLogic,
         val healthcarePartyLogic: HealthcarePartyLogic,
@@ -80,6 +79,7 @@ class KmehrController(
         val serviceMapper: ServiceMapper,
         val healthcarePartyMapper: HealthcarePartyMapper,
         val patientHealthCarePartyMapper: PatientHealthCarePartyMapper,
+        val addressMapper: AddressMapper,
         val partnershipMapper: PartnershipMapper,
         val importResultMapper: ImportResultMapper
 ) {
@@ -370,6 +370,59 @@ class KmehrController(
                 else
                     emitAll(medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language, recipientSafe, version, medicationSchemeExportParams.services.map { s -> serviceMapper.map(s) }, medicationSchemeExportParams.serviceAuthors?.map{a -> healthcarePartyMapper.map(a)}, tz, null))
             }
+        } ?: throw IllegalArgumentException("Missing argument")
+    }.injectReactorContext()
+
+    @Operation(summary = "Get Incapacity export", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+    @PostMapping("/incapacity/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+    fun generateIncapacityExport(@PathVariable patientId: String,
+                                       @RequestParam language: String,
+                                       @RequestHeader("X-Timezone-Offset") tz: String?,
+                                       @RequestBody incapacityExportParams: IncapacityExportInfoDto,
+                                       response: ServerHttpResponse) = flow {
+        val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
+        val patient = patientLogic.getPatient(patientId)
+
+        patient?.let {
+            userHealthCareParty?.let {
+                emitAll(incapacityLogic.createIncapacityExport(
+                        patient,
+                        userHealthCareParty,
+                        language,
+                        incapacityExportParams.recipient?.let { it1 -> healthcarePartyMapper.map(it1) },
+                        incapacityExportParams.comment,
+                        incapacityExportParams.incapacityId,
+                        incapacityExportParams.notificationDate,
+                        incapacityExportParams.retraction,
+                        incapacityExportParams.dataset,
+                        incapacityExportParams.transactionType,
+                        incapacityExportParams.incapacityreason,
+                        incapacityExportParams.beginmoment,
+                        incapacityExportParams.endmoment,
+                        incapacityExportParams.outofhomeallowed,
+                        incapacityExportParams.incapWork,
+                        incapacityExportParams.incapSchool,
+                        incapacityExportParams.incapSwim,
+                        incapacityExportParams.incapSchoolsports,
+                        incapacityExportParams.incapHeavyphysicalactivity,
+                        incapacityExportParams.diagnoseServices.map { s -> serviceMapper.map(s) },
+                        incapacityExportParams.jobstatus,
+                        incapacityExportParams.job,
+                        incapacityExportParams.occupationalDiseaseDeclDate,
+                        incapacityExportParams.accidentDate,
+                        incapacityExportParams.expectedbirthgivingDate,
+                        incapacityExportParams.maternityleaveBegin,
+                        incapacityExportParams.maternityleaveEnd,
+                        incapacityExportParams.hospitalisationBegin,
+                        incapacityExportParams.hospitalisationEnd,
+                        incapacityExportParams.hospital?.let { it1 -> healthcarePartyMapper.map(it1) },
+                        incapacityExportParams.contactPersonTel,
+                        incapacityExportParams.recoveryAddress?.let { it1 -> addressMapper.map(it1) },
+                        incapacityExportParams.foreignStayBegin,
+                        incapacityExportParams.foreignStayEnd,
+                        tz, null))
+            }
+
         } ?: throw IllegalArgumentException("Missing argument")
     }.injectReactorContext()
 

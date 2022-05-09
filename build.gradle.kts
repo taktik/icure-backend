@@ -8,6 +8,8 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 import java.text.SimpleDateFormat
 import java.util.*
 
+val ktlint by configurations.creating
+
 val repoUsername: String by project
 val repoPassword: String by project
 val mavenReleasesRepository: String by project
@@ -121,9 +123,9 @@ dependencies {
     api("com.github.pozo:mapstruct-kotlin:1.3.1.2")
     kapt("com.github.pozo:mapstruct-kotlin-processor:1.3.1.2")
 
-    implementation(group = "io.projectreactor", name = "reactor-core", version = "3.4.10")
-    implementation(group = "io.projectreactor", name = "reactor-tools", version = "3.4.10")
-    implementation(group = "io.projectreactor.netty", name = "reactor-netty", version = "1.0.1")
+    implementation(group = "io.projectreactor", name = "reactor-core", version = "3.4.17")
+    implementation(group = "io.projectreactor", name = "reactor-tools", version = "3.4.17")
+    implementation(group = "io.projectreactor.netty", name = "reactor-netty", version = "1.0.18")
 
     implementation(group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version = "1.4.32")
     implementation(group = "org.jetbrains.kotlin", name = "kotlin-reflect", version = "1.4.32")
@@ -134,15 +136,14 @@ dependencies {
     implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable-jvm", version = "0.3")
 
     //Jackson
-    implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.12.5")
-    implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = "2.12.5")
-    implementation(group = "com.fasterxml.jackson.datatype", name="jackson-datatype-jsr310", version = "2.12.5")
+    implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.13.2")
+    implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = "2.13.2.2")
+    implementation(group = "com.fasterxml.jackson.datatype", name="jackson-datatype-jsr310", version = "2.13.2")
     implementation(group = "org.mapstruct", name = "mapstruct", version = "1.3.1.Final")
 
     //Krouch
     implementation(group = "org.taktik.couchdb", name = "krouch", version = "jack211-1.0.2-96-g9eff2f70a0")
     implementation(group = "io.icure", name = "async-jackson-http-client", version = "0.1.12-dd2039b194")
-    implementation(group = "org.springframework.boot", name = "spring-boot-starter-mail", version = "2.5.5")
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-webflux", version = "2.5.5")
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-security", version = "2.5.5")
 
@@ -158,8 +159,8 @@ dependencies {
     implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.0.4")
 
     // Logging
-    implementation(group = "ch.qos.logback", name = "logback-classic", version = "1.2.6")
-    implementation(group = "ch.qos.logback", name = "logback-access", version = "1.2.6")
+    implementation(group = "ch.qos.logback", name = "logback-classic", version = "1.2.9")
+    implementation(group = "ch.qos.logback", name = "logback-access", version = "1.2.9")
 
     implementation(group = "org.slf4j", name = "slf4j-api", version = "1.7.32")
     implementation(group = "org.slf4j", name = "jul-to-slf4j", version = "1.7.32")
@@ -186,7 +187,7 @@ dependencies {
     implementation(group = "org.apache.commons", name = "commons-lang3", version = "3.12.0")
     implementation(group = "org.apache.commons", name = "commons-compress", version = "1.21")
     implementation(group = "org.apache.commons", name = "commons-math3", version = "3.6.1")
-    implementation(group = "commons-beanutils", name = "commons-beanutils", version = "1.9.4")
+    implementation(group = "commons-beanutils", name = "commons-beanutils", version = "1.9.4-")
 
     // Bouncy Castle
     implementation(group = "org.bouncycastle", name = "bcprov-jdk15on", version = "1.69")
@@ -212,9 +213,60 @@ dependencies {
     //Sendgrid
     implementation(group = "com.sendgrid", name = "sendgrid-java", version = "4.4.7")
 
+    ktlint("com.pinterest:ktlint:0.45.2") {
+        attributes {
+            attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
+        }
+    }
+    // additional 3rd party ruleset(s) can be specified here
+    // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and
+    // ktlint will pick them up
+
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.4.2")
     testImplementation(group = "org.springframework.boot", name = "spring-boot-starter-test", version = "2.5.5")
 
+}
+
+val outputDir = "${project.buildDir}/reports/ktlint/"
+val inputFiles = project.fileTree(mapOf("dir" to "src", "include" to "**/*.kt"))
+
+val ktlintCheck by tasks.creating(JavaExec::class) {
+    inputs.files(inputFiles)
+    outputs.dir(outputDir)
+
+    description = "Check Kotlin code style."
+    classpath = ktlint
+    mainClass.set("com.pinterest.ktlint.Main")
+    args = listOf("src/**/*.kt")
+}
+
+val ktlintFiles by tasks.creating(JavaExec::class) {
+    inputs.files(inputFiles)
+    outputs.dir(outputDir)
+
+    val split = if (project.hasProperty("inputFiles")) project.property("inputFiles")?.toString()?.split(',') ?: emptyList() else emptyList()
+
+    description = "Check Kotlin code style."
+    classpath = ktlint
+    mainClass.set("com.pinterest.ktlint.Main")
+    args = split
+}
+
+val ktlintFormat by tasks.creating(JavaExec::class) {
+    inputs.files(inputFiles)
+    outputs.dir(outputDir)
+
+    description = "Fix Kotlin code style deviations."
+    classpath = ktlint
+    mainClass.set("com.pinterest.ktlint.Main")
+    args = listOf("-F", "src/**/*.kt")
+}
+
+val setupKtlintPreCommitHook by tasks.creating(Exec::class) {
+    exec {
+        workingDir = File("${rootProject.projectDir}")
+        commandLine = listOf("sh", "-c", "git config --local include.path ./.gitconfig > /dev/null 2>&1 || true")
+    }
 }
 
 publishing {

@@ -37,6 +37,7 @@ import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.taktik.couchdb.TotalCount
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.ViewRowWithDoc
@@ -165,7 +166,8 @@ class PatientLogicImpl(
         flow<ViewQueryResultEvent> {
             val ids = filters.resolve(filterChain.filter).toSet(TreeSet())
 
-            val forPagination = aggregateResults<ViewQueryResultEvent>(
+
+        val forPagination = aggregateResults(
                 ids = ids,
                 limit = paginationOffset.limit,
                 supplier = { patientIds: Collection<String> -> patientDAO.findPatients(patientIds) },
@@ -173,39 +175,45 @@ class PatientLogicImpl(
                     filterChain.predicate?.let { queryResult is ViewRowWithDoc<*, *, *> && it.apply(queryResult.doc as Patient) }
                         ?: (queryResult is ViewRowWithDoc<*, *, *> && queryResult.doc is Patient)
                 },
+                filteredOutAccumulator = 0,
+                filteredOutElementsReducer = { totalCount, filteredOutElement -> when(filteredOutElement) {
+                    is TotalCount -> totalCount + 1
+                    else -> totalCount
+                } },
                 startDocumentId = paginationOffset.startDocumentId
             )
 
-            if (sort != null && sort != "id") { // TODO MB is this the correct way to sort here ?
-                var patientsListToSort = forPagination.toList()
-                val pub = PropertyUtilsBean()
-                patientsListToSort = patientsListToSort.sortedWith { a, b ->
-                    try {
-                        val ap = pub.getProperty(a, sort) as Comparable<*>?
-                        val bp = pub.getProperty(b, sort) as Comparable<*>?
-                        if (ap is String && bp is String) {
-                            if (desc != null && desc) {
-                                StringUtils.compareIgnoreCase(bp, ap)
-                            } else {
-                                StringUtils.compareIgnoreCase(ap, bp)
-                            }
+        if (sort != null && sort != "id") { // TODO MB is this the correct way to sort here ?
+            var patientsListToSort = forPagination.second.toList()
+            val pub = PropertyUtilsBean()
+            patientsListToSort = patientsListToSort.sortedWith { a, b ->
+                try {
+                    val ap = pub.getProperty(a, sort) as Comparable<*>?
+                    val bp = pub.getProperty(b, sort) as Comparable<*>?
+                    if (ap is String && bp is String) {
+                        if (desc != null && desc) {
+                            StringUtils.compareIgnoreCase(bp, ap)
                         } else {
-                            ap as Comparable<Any>?
-                            bp as Comparable<Any>?
-                            if (desc != null && desc) {
-                                ap?.let { bp?.compareTo(it) ?: 1 } ?: bp?.let { -1 } ?: 0
-                            } else {
-                                bp?.let { ap?.compareTo(it) ?: 1 } ?: bp?.let { -1 } ?: 0
-                            }
+                            StringUtils.compareIgnoreCase(ap, bp)
                         }
-                    } catch (e: Exception) {
-                        0
+                    } else {
+                        ap as Comparable<Any>?
+                        bp as Comparable<Any>?
+                        if (desc != null && desc) {
+                            ap?.let { bp?.compareTo(it) ?: 1 } ?: bp?.let { -1 } ?: 0
+                        } else {
+                            bp?.let { ap?.compareTo(it) ?: 1 } ?: bp?.let { -1 } ?: 0
+                        }
                     }
+                } catch (e: Exception) {
+                    0
                 }
-                emitAll(patientsListToSort.asFlow())
-            } else {
-            forPagination.forEach { emit(it) }
+            }
+            emitAll(patientsListToSort.asFlow())
+        } else {
+            forPagination.second.forEach { emit(it) }
         }
+        emit(TotalCount(forPagination.first))
     }
 
     override fun findByHcPartyNameContainsFuzzy(searchString: String?, healthcarePartyId: String, offset: PaginationOffset<*>, descending: Boolean) = flow<ViewQueryResultEvent> {

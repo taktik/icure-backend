@@ -94,11 +94,13 @@ class UserController(
     fun listUsers(
             @Parameter(description = "An user email") @RequestParam(required = false) startKey: String?,
             @Parameter(description = "An user document ID") @RequestParam(required = false) startDocumentId: String?,
-            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+            @Parameter(description = "Filter out patient users") @RequestParam(required = false) skipPatients: Boolean?,
+    ) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT // TODO SH MB: rather use defaultValue = DEFAULT_LIMIT everywhere?
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
-        val allUsers = userLogic.listUsers(paginationOffset)
+        val allUsers = userLogic.listUsers(paginationOffset, skipPatients ?: true)
 
         allUsers.paginatedList<User, UserDto>(userToUserDto, realLimit)
     }

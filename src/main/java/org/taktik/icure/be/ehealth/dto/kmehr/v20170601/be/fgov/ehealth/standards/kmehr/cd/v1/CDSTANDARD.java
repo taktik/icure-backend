@@ -71,7 +71,7 @@ public class CDSTANDARD
     @XmlAttribute(name = "S", required = true)
     protected String s = "CD-STANDARD";
     @XmlAttribute(name = "SV", required = true)
-    protected String sv = "1.0";
+    protected String sv = "1.22";
     @XmlAttribute(name = "DN")
     protected String dn;
     @XmlAttribute(name = "L")

@@ -19,8 +19,6 @@
 package org.taktik.icure.security
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.apache.commons.logging.LogFactory
@@ -62,23 +60,27 @@ class CustomAuthenticationManager(
         val isFullToken = username.matches(Regex("(.+/)([0-9a-zA-Z]{8}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{12}|idUser_.+)"))
         val isPartialToken = username.matches(Regex("[0-9a-zA-Z]{8}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{12}|idUser_.+"))
 
-        val usersFlow = when {
+        val users = when {
             isFullToken -> {
-                userDAO.getUsersByPartialIdOnFallback(username.replace(Regex("(.+/)"),""))
+                listOfNotNull(userDAO.get(username.replace(Regex("(.+/)"), "")))
             }
             isPartialToken -> {
-                userDAO.getUsersByPartialIdOnFallback(username)
+                listOfNotNull(userDAO.get(username))
             }
             else -> {
-                userDAO.findByUsernameOnFallback(username)
+                userDAO.listUsersByUsername(username).toList() + try {
+                    userDAO.listUsersByEmail(username).toList()
+                } catch (e: Exception) {
+                    log.warn("Error while loading user by email", e)
+                    emptyList()
+                } + try {
+                    userDAO.listUsersByPhone(username).toList()
+                } catch (e: Exception) {
+                    log.warn("Error while loading user by phone", e)
+                    emptyList()
+                }
             }
-        }
-
-        val users = usersFlow
-                .filterNotNull()
-                .filter { it.status == Users.Status.ACTIVE }
-                .toList()
-                .sortedBy { it.id }
+        }.filter { it.status == Users.Status.ACTIVE }.sortedBy { it.id }.distinctBy { it.id }
 
 
         val matchingUsers = mutableListOf<User>()

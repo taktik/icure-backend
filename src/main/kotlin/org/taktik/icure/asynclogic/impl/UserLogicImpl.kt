@@ -84,8 +84,9 @@ class UserLogicImpl(
         return findByEmail.firstOrNull()
     }
 
-    suspend fun getUserByEmail(groupId: String, email: String): User? {
-        return userDAO.listUsersByEmail(email).firstOrNull()
+    override suspend fun getUserByPhone(phone: String): User? {
+        val findByEmail = userDAO.listUsersByPhone(phone).toList()
+        return findByEmail.firstOrNull()
     }
 
     override fun findByHcpartyId(hcpartyId: String): Flow<String> = flow {
@@ -142,12 +143,6 @@ class UserLogicImpl(
     override fun getUsersByLogin(login: String): Flow<User> = flow {
         emitAll(userDAO.listUsersByUsername(formatLogin(login)))
     }
-
-    override fun listUsersByLoginOnFallbackDb(login: String): Flow<User> =
-            userDAO.findByUsernameOnFallback(login)
-
-    override fun listUsersByEmailOnFallbackDb(email: String): Flow<User> =
-            userDAO.listByEmailOnFallbackDb(email)
 
     override suspend fun getUserByLogin(login: String): User? { // Format login
         return userDAO.listUsersByUsername(formatLogin(login)).firstOrNull()
@@ -421,8 +416,8 @@ class UserLogicImpl(
         return userDAO.save(hashPasswordAndTokens(user))
     }
 
-    override fun listUsers(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
-        emitAll(userDAO.findUsers(paginationOffset))
+    override fun listUsers(paginationOffset: PaginationOffset<String>, skipPatients: Boolean): Flow<ViewQueryResultEvent> = flow {
+        emitAll(userDAO.findUsers(paginationOffset, skipPatients))
     }
 
     override fun filterUsers(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<User>): Flow<ViewQueryResultEvent> = flow {
@@ -447,10 +442,6 @@ class UserLogicImpl(
 
     override fun getUsers(ids: List<String>): Flow<User> = flow {
         emitAll(userDAO.getEntities(ids))
-    }
-
-    override suspend fun getUserOnFallbackDb(userId: String): User? {
-        return userDAO.getOnFallback(userId, false)
     }
 
     override suspend fun createUserOnUserDb(user: User): User? {

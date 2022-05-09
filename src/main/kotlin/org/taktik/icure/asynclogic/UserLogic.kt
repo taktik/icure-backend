@@ -40,10 +40,8 @@ interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
     fun getRoles(user: User): Flow<Role>
     fun getUsers(ids: List<String>): Flow<User>
     fun getUsersByLogin(login: String): Flow<User>
-    fun listUsersByEmailOnFallbackDb(email: String): Flow<User>
     fun listUserIdsByNameEmailPhone(searchString: String): Flow<String>
-    fun listUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
-    fun listUsersByLoginOnFallbackDb(login: String): Flow<User>
+    fun listUsers(pagination: PaginationOffset<String>, skipPatients: Boolean = false): Flow<ViewQueryResultEvent>
     fun removeListener(listener: UserLogicListener)
     suspend fun checkPassword(password: String): Boolean
     suspend fun checkUsersExpiration()
@@ -59,7 +57,6 @@ interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
     suspend fun getUserByEmail(email: String): User?
     suspend fun getUserByEmailOnUserDb(email: String): User?
     suspend fun getUserByLogin(login: String): User?
-    suspend fun getUserOnFallbackDb(userId: String): User?
     suspend fun getUserOnUserDb(userId: String): User?
     suspend fun isLoginValid(login: String?): Boolean
     suspend fun isPasswordValid(password: String): Boolean
@@ -80,4 +77,5 @@ interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
      */
     suspend fun getToken(user: User, key: String, tokenValidity: Long = 3600): String
     fun filterUsers(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<User>): Flow<ViewQueryResultEvent>
+    suspend fun getUserByPhone(phone: String): User?
 }
