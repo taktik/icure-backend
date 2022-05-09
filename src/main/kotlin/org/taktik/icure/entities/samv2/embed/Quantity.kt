@@ -26,22 +26,4 @@ import com.github.pozo.KotlinBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
-data class Quantity(val value: BigDecimal? = null, val unit: String? = null) {
-	override fun equals(other: Any?): Boolean {
-		if (this === other) return true
-		if (other !is Quantity) return false
-
-		other as Quantity
-
-		if (value != null && other.value == null || value == null && other.value != null || (value?.compareTo(other.value) != 0 && value != other.value)) return false
-		if (unit != other.unit) return false
-
-		return true
-	}
-
-	override fun hashCode(): Int {
-		var result = value?.toInt() ?: 0
-		result = 31 * result + (unit?.hashCode() ?: 0)
-		return result
-	}
-}
+data class Quantity(val value: BigDecimal? = null, val unit: String? = null)

@@ -40,17 +40,6 @@ data class ContactByHcPartyPatientTagCodeDateFilter(
 		return Objects.hashCode(healthcarePartyId, tagType, tagCode, codeType, codeCode, startOfContactOpeningDate, endOfContactOpeningDate)
 	}
 
-	override fun equals(other: Any?): Boolean {
-		if (this === other) {
-			return true
-		}
-		if (other == null || javaClass != other.javaClass) {
-			return false
-		}
-		val filter = other as ContactByHcPartyPatientTagCodeDateFilter
-		return Objects.equal(healthcarePartyId, filter.healthcarePartyId) && Objects.equal(patientSecretForeignKeys, filter.patientSecretForeignKeys) && Objects.equal(tagType, filter.tagType) && Objects.equal(tagCode, filter.tagCode) && Objects.equal(codeType, filter.codeType) && Objects.equal(codeCode, filter.codeCode) && Objects.equal(startOfContactOpeningDate, filter.startOfContactOpeningDate) && Objects.equal(endOfContactOpeningDate, filter.endOfContactOpeningDate)
-	}
-
 	override fun matches(item: Contact): Boolean {
 		return (
 			(healthcarePartyId == null || item.delegations.keys.contains(healthcarePartyId!!)) &&

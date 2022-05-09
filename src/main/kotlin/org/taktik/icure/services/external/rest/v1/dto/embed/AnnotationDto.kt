@@ -22,30 +22,4 @@ data class AnnotationDto(
 	@get:Schema(description = "The timestamp (unix epoch in ms) of the latest modification of this note, will be filled automatically if missing. Not enforced by the application server.") val modified: Long? = null,
 	@get:Schema(description = "Text contained in the note, written as markdown.") val text: String? = null,
 	@get:Schema(description = "Defines to which part of the corresponding information the note is related to.") val location: String? = null
-) : IdentifiableDto<String> {
-	override fun equals(other: Any?): Boolean {
-		if (this === other) return true
-		if (javaClass != other?.javaClass) return false
-
-		other as AnnotationDto
-
-		if (id != other.id) return false
-		if (author != other.author) return false
-		if (created != other.created) return false
-		if (modified != other.modified) return false
-		if (text != other.text) return false
-		if (location != other.location) return false
-
-		return true
-	}
-
-	override fun hashCode(): Int {
-		var result = id.hashCode()
-		result = 31 * result + (author?.hashCode() ?: 0)
-		result = 31 * result + (created?.hashCode() ?: 0)
-		result = 31 * result + (modified?.hashCode() ?: 0)
-		result = 31 * result + (text?.hashCode() ?: 0)
-		result = 31 * result + (location?.hashCode() ?: 0)
-		return result
-	}
-}
+) : IdentifiableDto<String>
