@@ -207,7 +207,7 @@ dependencies {
     implementation(group = "org.apache.commons", name = "commons-lang3", version = "3.12.0")
     implementation(group = "org.apache.commons", name = "commons-compress", version = "1.21")
     implementation(group = "org.apache.commons", name = "commons-math3", version = "3.6.1")
-    implementation(group = "commons-beanutils", name = "commons-beanutils", version = "1.9.4-")
+    implementation(group = "commons-beanutils", name = "commons-beanutils", version = "1.9.4")
 
     // Bouncy Castle
     implementation(group = "org.bouncycastle", name = "bcprov-jdk15on", version = "1.70")
