@@ -17,4 +17,22 @@ data class NumeratorRange(
 	val min: BigDecimal? = null,
 	val max: BigDecimal? = null,
 	val unit: String? = null
-) : Serializable
+) : Serializable {
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (other !is NumeratorRange) return false
+
+		if (min != null && other.min == null || min == null && other.min != null || (min?.compareTo(other.min) != 0 && min != other.min)) return false
+		if (max != null && other.max == null || max == null && other.max != null || (max?.compareTo(other.max) != 0 && max != other.max)) return false
+		if (unit != other.unit) return false
+
+		return true
+	}
+
+	override fun hashCode(): Int {
+		var result = min?.toInt() ?: 0
+		result = 31 * result + (max?.toInt() ?: 0)
+		result = 31 * result + (unit?.hashCode() ?: 0)
+		return result
+	}
+}

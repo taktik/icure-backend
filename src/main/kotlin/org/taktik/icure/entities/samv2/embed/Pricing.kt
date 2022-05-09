@@ -30,4 +30,20 @@ import com.github.pozo.KotlinBuilder
 data class Pricing(
 	val quantity: BigDecimal? = null,
 	val label: SamText? = null
-) : Serializable
+) : Serializable {
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (other !is Pricing) return false
+
+		if (quantity != null && other.quantity == null || quantity == null && other.quantity != null || (quantity?.compareTo(other.quantity) != 0 && quantity != other.quantity)) return false
+		if (label != other.label) return false
+
+		return true
+	}
+
+	override fun hashCode(): Int {
+		var result = quantity?.toInt() ?: 0
+		result = 31 * result + (label?.hashCode() ?: 0)
+		return result
+	}
+}
