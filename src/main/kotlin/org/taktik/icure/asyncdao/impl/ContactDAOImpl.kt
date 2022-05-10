@@ -83,6 +83,18 @@ class ContactDAOImpl(
 		emitAll(client.queryView(viewQuery, String::class.java, String::class.java, Contact::class.java))
 	}
 
+	@View(name = "by_hcparty_identifier", map = "classpath:js/contact/By_hcparty_identifier.js")
+	override fun listContactIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String> =
+		flow {
+			val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+			val keys = identifiers.map { identifier -> ComplexKey.of(hcPartyId, identifier.system, identifier.value) }
+
+			val viewQuery = createQuery(client, "by_hcparty_identifier").keys(keys).includeDocs(false)
+
+			emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
+		}
+
 	override fun findContactsByIds(contactIds: Flow<String>): Flow<ViewQueryResultEvent> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 		emitAll(client.getForPagination(contactIds, Contact::class.java))
