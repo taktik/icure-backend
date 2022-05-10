@@ -231,7 +231,7 @@ class SamV2Controller(
 	}
 
 	@Operation(summary = "Finding AMPs by atc code with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
-	@GetMapping("/vmp/byAtc/{atcCode}")
+	@GetMapping("/amp/byAtc/{atcCode}", "/vmp/byAtc/{atcCode}")
 	fun findPaginatedAmpsByAtc(
 		@Parameter(description = "atcCode", required = true) @PathVariable atcCode: String,
 		@Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
