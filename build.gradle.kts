@@ -166,8 +166,10 @@ dependencies {
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-mail", version = "2.5.5")
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-webflux", version = "2.5.5")
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-security", version = "2.5.5")
+	implementation(group = "org.springframework.boot", name= "spring-boot-starter-cache", version = "2.5.5")
 
-    implementation(group = "org.springframework", name = "spring-aspects", version = "5.3.10")
+
+	implementation(group = "org.springframework", name = "spring-aspects", version = "5.3.10")
     implementation(group = "org.springframework", name = "spring-websocket", version = "5.3.10")
 
     implementation(group = "org.springframework.session", name = "spring-session-core", version = "2.5.2")
