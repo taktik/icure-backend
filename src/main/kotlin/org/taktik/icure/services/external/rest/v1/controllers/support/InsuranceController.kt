@@ -18,7 +18,6 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.support
 
-import java.util.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi

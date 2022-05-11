@@ -7,7 +7,6 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
-import java.lang.Exception
 import java.nio.ByteBuffer
 import java.security.InvalidAlgorithmParameterException
 import java.security.InvalidKeyException
@@ -23,7 +22,8 @@ import java.security.Security
 import java.security.cert.Certificate
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
-import java.util.*
+import java.util.Arrays
+import java.util.UUID
 import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
 import javax.crypto.IllegalBlockSizeException
@@ -31,7 +31,6 @@ import javax.crypto.KeyGenerator
 import javax.crypto.NoSuchPaddingException
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
-import kotlin.Throws
 import com.google.common.primitives.Bytes
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.taktik.icure.exceptions.EncryptionException
@@ -180,7 +179,7 @@ object CryptoUtils {
 	@Throws(Exception::class)
 	fun generateIV(ivSize: Int): ByteArray {
 		val ivBytes = ByteArray(ivSize)
-		random!!.nextBytes(ivBytes)
+		random.nextBytes(ivBytes)
 		return ivBytes
 	}
 

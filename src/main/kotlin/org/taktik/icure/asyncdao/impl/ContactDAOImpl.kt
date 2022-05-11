@@ -20,7 +20,17 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flattenConcat
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
@@ -292,10 +302,10 @@ class ContactDAOImpl(
 		var startValueDate = startValueDate
 		var endValueDate = endValueDate
 		if (startValueDate != null && startValueDate < 99999999) {
-			startValueDate = startValueDate * 1000000
+			startValueDate *= 1000000
 		}
 		if (endValueDate != null && endValueDate < 99999999) {
-			endValueDate = endValueDate * 1000000
+			endValueDate *= 1000000
 		}
 		val from = ComplexKey.of(
 			hcPartyId,
@@ -485,11 +495,12 @@ class ContactDAOImpl(
 	}
 
 	override fun listServicesIdsByPatientForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String> {
-		return this.listContactsByHcPartyAndPatient(hcPartyId, patientSecretForeignKeys.toList()).mapNotNull { it.services?.mapNotNull { it.id }?.asFlow() }.flattenConcat() // no distinct ?
+		return this.listContactsByHcPartyAndPatient(hcPartyId, patientSecretForeignKeys.toList()).mapNotNull { it.services.mapNotNull { it.id }.asFlow() }.flattenConcat() // no distinct ?
 	}
 
 	@View(name = "by_service", map = "classpath:js/contact/By_service.js")
-	fun legacy() {}
+	fun legacy() {
+	}
 
 	@View(name = "by_service_emit_modified", map = "classpath:js/contact/By_service_emit_modified.js")
 	override fun listIdsByServices(services: Collection<String>): Flow<ContactIdServiceId> = flow {

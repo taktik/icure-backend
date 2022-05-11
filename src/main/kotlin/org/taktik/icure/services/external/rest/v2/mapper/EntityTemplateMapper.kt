@@ -24,6 +24,7 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.EntityTemplate
 import org.taktik.icure.services.external.rest.v2.dto.EntityTemplateDto
+
 @Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface EntityTemplateV2Mapper {
 	@Mappings(

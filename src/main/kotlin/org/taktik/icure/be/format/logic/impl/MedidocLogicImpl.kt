@@ -32,7 +32,8 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.Date
+import java.util.LinkedList
 import java.util.regex.Pattern
 import com.google.common.base.Strings
 import kotlinx.coroutines.flow.Flow
@@ -80,7 +81,7 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
 		var hasRHash = false
 		var hasRHashSlash = false
 		var hasFinalTag = false
-		val text = decodeRawData(doc!!.decryptAttachment(enckeys))
+		val text = decodeRawData(doc.decryptAttachment(enckeys))
 		if (text != null) {
 			val reader = BufferedReader(StringReader(text))
 			while (reader.readLine()?.also { line ->
@@ -100,7 +101,8 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
 					hasFinalTag = true
 				}
 			} != null
-			) { }
+			) {
+			}
 		}
 		return hasAHash && hasAHashSlash && hasRHash && hasRHashSlash && hasFinalTag
 	}
@@ -210,7 +212,7 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
 
 	@Throws(IOException::class)
 	override suspend fun doImport(language: String, doc: Document, hcpId: String?, protocolIds: List<String>, formIds: List<String>, planOfActionId: String?, ctc: Contact, enckeys: List<String>): Contact? {
-		val br = getBufferedReader(doc!!, enckeys)
+		val br = getBufferedReader(doc, enckeys)
 		val lines = IOUtils.readLines(br)
 		val lls: MutableList<LaboLine?> = ArrayList()
 		var i = 0
@@ -223,7 +225,7 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
 				val demandDate = getResultDate(lines, i, isStandardFormat)
 				val code = getProtocolCode(lines, i, isStandardFormat, demandDate)
 				i += if (isStandardFormat) 6 else 9
-				if (protocolIds!!.contains(code) || protocolIds.size == 1 && protocolIds[0] != null && protocolIds[0]!!.startsWith("***")) {
+				if (protocolIds.contains(code) || protocolIds.size == 1 && protocolIds[0] != null && protocolIds[0].startsWith("***")) {
 					val (ii, s) = fillService(language, lines, i, demandDate)
 					i = ii
 					val labo = lines[1].replace("  +".toRegex(), " ")
@@ -343,7 +345,7 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
 			//3
 			pw.print(patient.dateOfBirth.toString() + "\r\n")
 			//4
-			pw.print((if (patient.gender == null) "Z" else if (patient.gender!!.code == "F") "X" else "Y") + "\r\n")
+			pw.print((if (patient.gender == null) "Z" else if (patient.gender.code == "F") "X" else "Y") + "\r\n")
 			pw.print(date!!.format(dtf) + "\r\n")
 			pw.print(ref!!.replace("-".toRegex(), "").substring(0, 14) + "\r\n")
 			pw.print("C\r\n")

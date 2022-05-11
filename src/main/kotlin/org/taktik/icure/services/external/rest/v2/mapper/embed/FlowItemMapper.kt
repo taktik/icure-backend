@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.FlowItem
 import org.taktik.icure.services.external.rest.v2.dto.embed.FlowItemDto
+
 @Mapper(componentModel = "spring")
 interface FlowItemV2Mapper {
 	fun map(flowItemDto: FlowItemDto): FlowItem

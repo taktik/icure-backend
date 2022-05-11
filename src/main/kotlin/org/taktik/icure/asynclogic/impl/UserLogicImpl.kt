@@ -21,7 +21,18 @@ import java.net.URI
 import java.time.Duration
 import java.time.Instant
 import java.util.regex.Pattern
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.dropWhile
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.lang3.Validate
 import org.slf4j.LoggerFactory
@@ -315,7 +326,7 @@ class UserLogicImpl(
 	} ?: false
 
 	override suspend fun checkPassword(password: String) =
-		sessionLogic.getCurrentSessionContext().getUser().let { passwordEncoder.matches(password, it?.passwordHash) }
+		sessionLogic.getCurrentSessionContext().getUser().let { passwordEncoder.matches(password, it.passwordHash) }
 
 	override suspend fun verifyAuthenticationToken(userId: String, token: String): Boolean =
 		getUser(userId)?.takeIf { it.authenticationTokens.isNotEmpty() }?.authenticationTokens?.any { (_, tok) ->
@@ -450,6 +461,7 @@ class UserLogicImpl(
 		val selectedIds = sortedIds.take(paginationOffset.limit + 1) // Fetching one more healthcare parties for the start key of the next page
 		emitAll(userDAO.findUsersByIds(selectedIds))
 	}
+
 	override suspend fun setProperties(user: User, properties: List<PropertyStub>): User? {
 		val properties = properties.fold(user.properties) { props, p ->
 			val prop = user.properties.find { pp -> pp.type?.identifier == p.type?.identifier }

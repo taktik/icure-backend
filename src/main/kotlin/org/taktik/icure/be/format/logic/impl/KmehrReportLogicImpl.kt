@@ -93,7 +93,7 @@ class KmehrReportLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic
 					ssin = f.patient.ids.find { it.s == IDPATIENTschemes.INSS }?.value
 					lastName = f.patient.familyname
 					firstName = f.patient.firstnames.firstOrNull()
-					dateOfBirth = f.patient.birthdate.date?. let { FuzzyValues.getFuzzyDate(LocalDateTime.of(it.year, it.month, it.day, 0, 0), ChronoUnit.DAYS) }
+					dateOfBirth = f.patient.birthdate.date?.let { FuzzyValues.getFuzzyDate(LocalDateTime.of(it.year, it.month, it.day, 0, 0), ChronoUnit.DAYS) }
 					sex = f.patient.sex?.cd?.value?.value() ?: "unknown"
 					documentId = doc.id
 					protocol = t.ids.find { it.s == IDKMEHRschemes.LOCAL }?.value
@@ -109,7 +109,7 @@ class KmehrReportLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic
 	override suspend fun doImport(language: String, doc: Document, hcpId: String?, protocolIds: List<String>, formIds: List<String>, planOfActionId: String?, ctc: Contact, enckeys: List<String>): Contact? {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 		val subContactsAndServices = msg?.folders?.flatMap { f ->
-			f.transactions.filter { it.ids.any { it.s == IDKMEHRschemes.LOCAL && protocolIds?.contains(it.value) == true } }.map { t ->
+			f.transactions.filter { it.ids.any { it.s == IDKMEHRschemes.LOCAL && protocolIds.contains(it.value) == true } }.map { t ->
 				val protocolId = t.ids.find { it.s == IDKMEHRschemes.LOCAL }?.value
 				val demandTimestamp = demandEpochMillis(t)
 
@@ -163,7 +163,7 @@ class KmehrReportLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic
 					planOfActionId = planOfActionId,
 
 					status = SubContact.STATUS_PROTOCOL_RESULT or SubContact.STATUS_UNREAD or (if (t.isIscomplete) SubContact.STATUS_COMPLETE else 0),
-					formId = protocolIds?.indexOf(protocolId)?.let { formIds?.get(it) },
+					formId = protocolIds.indexOf(protocolId).let { formIds.get(it) },
 					services = services.map { ServiceLink(it.id) }
 				) to services
 			}
@@ -179,7 +179,9 @@ class KmehrReportLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic
 	private fun extractMessage(doc: Document, enckeys: List<String>?) =
 		try {
 			JAXBContext.newInstance(Kmehrmessage::class.java).createUnmarshaller().unmarshal(getBufferedReader(doc, enckeys)) as Kmehrmessage
-		} catch (e: Exception) { null }
+		} catch (e: Exception) {
+			null
+		}
 
 	private fun demandEpochMillis(t: TransactionType) =
 		t.date?.let {

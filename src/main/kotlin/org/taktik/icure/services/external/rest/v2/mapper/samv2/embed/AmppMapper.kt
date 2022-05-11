@@ -22,6 +22,7 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.Ampp
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.AmppDto
+
 @Mapper(componentModel = "spring", uses = [CompanyV2Mapper::class, SupplyProblemV2Mapper::class, AmpStatusV2Mapper::class, DmppV2Mapper::class, SamTextV2Mapper::class, AtcV2Mapper::class, CommercializationV2Mapper::class, AmppComponentV2Mapper::class, QuantityV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface AmppV2Mapper {
 	fun map(amppDto: AmppDto): Ampp

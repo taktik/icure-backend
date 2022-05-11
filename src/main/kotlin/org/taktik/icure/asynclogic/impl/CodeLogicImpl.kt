@@ -20,13 +20,21 @@ package org.taktik.icure.asynclogic.impl
 
 import java.io.InputStream
 import java.lang.reflect.InvocationTargetException
-import java.util.*
+import java.util.LinkedList
 import javax.xml.parsers.SAXParserFactory
 import kotlin.coroutines.coroutineContext
 import com.google.common.collect.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.logging.LogFactory
@@ -435,8 +443,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 							}
 							"CODE" -> charsHandler = { ch -> code["code"] = ch }
 							"DESCRIPTION" -> charsHandler = {
-								attributes?.getValue("L")?.let {
-										attributesValue ->
+								attributes?.getValue("L")?.let { attributesValue ->
 									code["label"] = (code["label"] as Map<*, *>) + (attributesValue to it.trim())
 								}
 							}
@@ -507,7 +514,11 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 					}
 				}.toList().sortedBy { it ->
 					val itCode = it.doc as Code
-					try { pub.getProperty(itCode, sort) as? String } catch (e: Exception) { "" } ?: ""
+					try {
+						pub.getProperty(itCode, sort) as? String
+					} catch (e: Exception) {
+						""
+					} ?: ""
 				}
 				emitAll(codesList.asFlow())
 			} ?: emitAll(codes)

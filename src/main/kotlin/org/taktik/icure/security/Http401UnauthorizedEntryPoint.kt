@@ -3,7 +3,6 @@
  */
 package org.taktik.icure.security
 
-import java.lang.Void
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint

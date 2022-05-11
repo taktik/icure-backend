@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Country
 import org.taktik.icure.services.external.rest.v2.dto.embed.CountryDto
+
 @Mapper(componentModel = "spring")
 interface CountryV2Mapper {
 	fun map(countryDto: CountryDto): Country

@@ -23,7 +23,8 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.Date
+import java.util.GregorianCalendar
 import javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED
 import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
@@ -192,14 +193,14 @@ object Utils {
 
 	fun makeFuzzyLongFromXMLGregorianCalendar(cal: XMLGregorianCalendar?): Long? {
 		return makeFuzzyIntFromXMLGregorianCalendar(cal)?.let {
-			(it * 1000000L + (cal!!.hour ?: 0) * 10000 + (cal.minute ?: 0) * 100 + (cal.second ?: 0))
+			(it * 1000000L + cal!!.hour * 10000 + cal.minute * 100 + cal.second)
 		}
 	}
 
 	fun makeFuzzyLongFromDateAndTime(date: XMLGregorianCalendar?, time: XMLGregorianCalendar?): Long? {
 		return makeFuzzyIntFromXMLGregorianCalendar(date)?.let { d ->
 			time?.let {
-				d * 1000000L + (it.hour ?: 0) * 10000 + (it.minute ?: 0) * 100 + (it.second ?: 0)
+				d * 1000000L + it.hour * 10000 + it.minute * 100 + it.second
 			} ?: d.toLong()
 		}
 	}

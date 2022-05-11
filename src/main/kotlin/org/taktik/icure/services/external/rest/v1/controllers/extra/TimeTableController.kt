@@ -18,7 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.extra
 
-import java.util.*
+import java.util.UUID
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag

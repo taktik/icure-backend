@@ -26,7 +26,7 @@ import org.taktik.icure.entities.Device
 import org.taktik.icure.services.external.rest.v2.dto.DeviceDto
 import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubV2Mapper
 
-@Mapper(componentModel = "spring", uses = [ PropertyStubV2Mapper::class ], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [PropertyStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DeviceV2Mapper {
 	@Mappings(
 		Mapping(target = "attachments", ignore = true),

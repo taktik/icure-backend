@@ -32,6 +32,7 @@ class Fixer<E : Any>(private val sessionLogic: AsyncSessionLogic, private val fa
 	data class Fix(val fixPath: List<FixPointSelector>, val value: Any?) {
 		fun behead() = this.copy(fixPath = fixPath.drop(1))
 	}
+
 	data class FixPointSelector(val name: String, val leaf: Boolean, val iterable: Boolean, val beanInIteration: Any?)
 
 	fun <K : Any> applyFixes(doc: K, fixes: List<Fix>): K {

@@ -22,7 +22,7 @@ import javax.validation.ConstraintValidatorContext
 import org.taktik.icure.entities.base.CodeIdentification
 
 class ValidCodeValidator : ConstraintValidator<ValidCode?, Any?> {
-	override fun initialize(parameters: org.taktik.icure.validation.ValidCode?) {}
+	override fun initialize(parameters: ValidCode?) {}
 	override fun isValid(`object`: Any?, constraintValidatorContext: ConstraintValidatorContext): Boolean {
 		return if (`object` is Collection<*>) {
 			val c = `object` as Collection<Any>

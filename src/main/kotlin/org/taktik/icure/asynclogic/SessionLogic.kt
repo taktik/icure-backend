@@ -47,6 +47,7 @@ interface SessionLogic {
 		val isAnonymous: Boolean
 		val user: User?
 		val dbInstanceUrl: String?
+
 		@get:Throws(URISyntaxException::class)
 		val dbInstanceUri: URI?
 

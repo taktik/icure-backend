@@ -57,20 +57,20 @@ data class MessageDto(
 	@Schema(description = "The timestamp (unix epoch in ms) when the message was sent") val sent: Long? = null,
 	val metas: Map<String, String> = emptyMap(),
 	@Schema(description = "Status showing whether the message is read or not and the time of reading") val readStatus: Map<String, MessageReadStatusDto> = emptyMap(),
-        /*
-            CHAP4:IN:   ${Mycarenet message ref}
-            CHAP4:OUT:  ${Mycarenet message ref}
-            EFACT:BATCH:${Mycarenet message ref}
-            EFACT:IN:   ${Mycarenet message ref}
-            EFACT:OUT:  ${Mycarenet message ref}
-            GMD:IN:     ${Mycarenet message ref}
-            INBOX:      ${Ehealth box message ref}
-            SENTBOX:    ${Ehealth box message ref}
-            BININBOX:   ${Ehealth box message ref}
-            BINSENTBOX: ${Ehealth box message ref}
-            REPORT:IN:  ${iCure ref}
-            REPORT:OUT: ${iCure ref}
-         */
+	/*
+		CHAP4:IN:   ${Mycarenet message ref}
+		CHAP4:OUT:  ${Mycarenet message ref}
+		EFACT:BATCH:${Mycarenet message ref}
+		EFACT:IN:   ${Mycarenet message ref}
+		EFACT:OUT:  ${Mycarenet message ref}
+		GMD:IN:     ${Mycarenet message ref}
+		INBOX:      ${Ehealth box message ref}
+		SENTBOX:    ${Ehealth box message ref}
+		BININBOX:   ${Ehealth box message ref}
+		BINSENTBOX: ${Ehealth box message ref}
+		REPORT:IN:  ${iCure ref}
+		REPORT:OUT: ${iCure ref}
+	 */
 	val transportGuid: String? = null, //Each message should have a transportGuid: see above for formats
 	val remark: String? = null,
 	val conversationGuid: String? = null,

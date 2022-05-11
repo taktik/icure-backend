@@ -18,7 +18,7 @@
 
 package org.taktik.icure.domain.filter.impl.code
 
-import java.util.*
+import java.util.Objects
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.db.StringUtils.sanitizeString
 import org.taktik.icure.domain.filter.AbstractFilter

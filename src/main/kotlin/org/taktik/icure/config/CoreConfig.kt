@@ -26,7 +26,10 @@ import org.taktik.icure.asynclogic.impl.filter.Filters
 
 @Configuration
 class CoreConfig {
-	@Bean fun uuidGenerator() = UUIDGenerator()
-	@Bean fun filters() = Filters()
-	@Bean fun permissionSetCache() = ConcurrentMapCache("permissionSetCache")
+	@Bean
+	fun uuidGenerator() = UUIDGenerator()
+	@Bean
+	fun filters() = Filters()
+	@Bean
+	fun permissionSetCache() = ConcurrentMapCache("permissionSetCache")
 }

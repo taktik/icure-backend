@@ -19,7 +19,6 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.patientinfo
 
-import java.awt.image.DataBuffer
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient

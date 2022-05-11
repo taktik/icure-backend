@@ -44,6 +44,7 @@ import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.SoftwareMedicalFi
 import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.SumehrExportInfoDto
 import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyV2Mapper
 import reactor.core.publisher.Mono
+
 @RestController("/ws/be_kmehr/v2")
 @RequestMapping("/rest/v2/be_kmehr")
 class KmehrWsController(

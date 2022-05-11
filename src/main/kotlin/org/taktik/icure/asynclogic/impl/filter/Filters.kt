@@ -18,7 +18,6 @@
 package org.taktik.icure.asynclogic.impl.filter
 
 import java.io.Serializable
-import java.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow

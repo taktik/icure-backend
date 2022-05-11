@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v2.mapper.base
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.base.NotificationEvent
 import org.taktik.icure.services.external.rest.v2.dto.base.NotificationEventDto
+
 @Mapper(componentModel = "spring")
 interface NotificationEventV2Mapper {
 	fun map(notificationEventDto: NotificationEventDto): NotificationEvent

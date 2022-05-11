@@ -4,7 +4,7 @@
 
 package org.taktik.icure.services.external.rest.v2.controllers.support
 
-import java.util.*
+import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -18,7 +18,12 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextImpl
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.WebSession
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.security.SecurityToken
@@ -39,7 +44,7 @@ class LoginController(
 
 	@Operation(summary = "login", description = "Login using username and password")
 	@PostMapping("/login")
-	fun login(request: ServerHttpRequest, @RequestBody loginCredentials: LoginCredentials, @Parameter(hidden = true) session: WebSession,) = mono {
+	fun login(request: ServerHttpRequest, @RequestBody loginCredentials: LoginCredentials, @Parameter(hidden = true) session: WebSession) = mono {
 		val response = AuthenticationResponse()
 		val authentication = sessionLogic.login(loginCredentials.username!!, loginCredentials.password!!, request, session)
 		response.successful = authentication != null && authentication.isAuthenticated

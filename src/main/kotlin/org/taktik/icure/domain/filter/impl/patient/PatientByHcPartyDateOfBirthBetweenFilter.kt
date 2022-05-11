@@ -17,7 +17,6 @@
  */
 package org.taktik.icure.domain.filter.impl.patient
 
-import java.util.*
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.AbstractFilter
 import org.taktik.icure.entities.Patient

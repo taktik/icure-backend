@@ -14,7 +14,7 @@ ij_formatter_tags_enabled = false
 ij_smart_tabs = false
 ij_visual_guides = none
 ij_wrap_on_typing = false
-disabled_rules = comment-spacing, no-wildcard-imports, filename
+disabled_rules = comment-spacing, filename
 
 [*.css]
 ij_css_align_closing_brace_with_properties = false

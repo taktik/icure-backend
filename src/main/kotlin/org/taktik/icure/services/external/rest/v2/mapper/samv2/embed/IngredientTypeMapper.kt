@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v2.mapper.samv2.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.IngredientType
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.IngredientTypeDto
+
 @Mapper(componentModel = "spring")
 interface IngredientTypeV2Mapper {
 	fun map(ingredientTypeDto: IngredientTypeDto): IngredientType

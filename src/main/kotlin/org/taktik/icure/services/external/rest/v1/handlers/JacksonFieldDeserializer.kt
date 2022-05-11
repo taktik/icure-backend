@@ -18,7 +18,6 @@
 
 package org.taktik.icure.services.external.rest.v1.handlers
 
-import java.util.*
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.ObjectCodec
 import com.fasterxml.jackson.databind.DeserializationContext

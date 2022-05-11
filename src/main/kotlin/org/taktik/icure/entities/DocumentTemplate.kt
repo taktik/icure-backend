@@ -75,7 +75,7 @@ data class DocumentTemplate(
 	companion object : DynamicInitializer<DocumentTemplate>
 
 	fun merge(other: DocumentTemplate) = DocumentTemplate(args = this.solveConflictsWith(other))
-	fun solveConflictsWith(other: DocumentTemplate) = super<StoredICureDocument>.solveConflictsWith(other) + mapOf(
+	fun solveConflictsWith(other: DocumentTemplate) = super.solveConflictsWith(other) + mapOf(
 		"mainUti" to (this.mainUti ?: other.mainUti),
 		"name" to (this.name ?: other.name),
 		"otherUtis" to (other.otherUtis + this.otherUtis),

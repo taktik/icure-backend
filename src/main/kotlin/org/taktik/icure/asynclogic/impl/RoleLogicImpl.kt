@@ -74,7 +74,7 @@ class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogi
 			.onEach { emit(it) }
 	}
 
-	override fun getEntities() = flow() {
+	override fun getEntities() = flow {
 		emitAll(roleDAO.getEntities())
 	}
 

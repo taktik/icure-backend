@@ -18,7 +18,6 @@
 
 package org.taktik.icure.services.external.rest.v1.dto
 
-import java.util.*
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder

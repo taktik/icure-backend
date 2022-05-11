@@ -126,7 +126,7 @@ class SumehrExport(
 		decryptor: AsyncDecrypt?,
 		services: List<Service>?,
 		healthElements: List<HealthElement>?,
-		config: org.taktik.icure.be.ehealth.logic.kmehr.Config = Config(
+		config: Config = Config(
 			_kmehrId = System.currentTimeMillis().toString(),
 			date = makeXGC(Instant.now().toEpochMilli())!!,
 			time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -151,7 +151,7 @@ class SumehrExport(
 
 	// was set from private to public for unit tests
 	internal suspend fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, comment: String?, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, services: List<Service>?, healthElements: List<HealthElement>?): FolderType {
-		val hcpartyIds = healthcarePartyLogic!!.getHcpHierarchyIds(sender)
+		val hcpartyIds = healthcarePartyLogic.getHcpHierarchyIds(sender)
 		val treatedServiceIds = HashSet<String>()
 		//Create transaction
 		val trn = TransactionType().apply {
@@ -191,7 +191,9 @@ class SumehrExport(
 		addActiveServiceUsingContent(hcpartyIds, sfks, trn, "healthcareelement", language, excludedIds, treatedServiceIds, decryptor, services, false, "problem", includeIrrelevantInformation)
 
 		//global comment
-		if (comment?.length ?: 0 > 0) { trn.headingsAndItemsAndTexts.add(TextType().apply { l = sender.languages.firstOrNull() ?: "fr"; value = comment }) }
+		if (comment?.length ?: 0 > 0) {
+			trn.headingsAndItemsAndTexts.add(TextType().apply { l = sender.languages.firstOrNull() ?: "fr"; value = comment })
+		}
 
 		//Remove empty headings
 		val iterator = folder.transactions[0].headingsAndItemsAndTexts.iterator()
@@ -215,7 +217,7 @@ class SumehrExport(
 
 	internal fun isInactiveAndIrrelevant(s: Service) =
 		(
-			(ServiceStatus.isInactive(s.status) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) && //Inactive
+			(ServiceStatus.isInactive(s.status) || s.tags.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" }) && //Inactive
 				ServiceStatus.isIrrelevant(s.status)
 			)
 
@@ -258,7 +260,7 @@ class SumehrExport(
 				}
 				services?.map { if (toBeDecryptedServices.contains(it)) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
 			} else services
-			).filterNotNull()?.distinctBy { s -> s.contactId + s.id }
+			).filterNotNull().distinctBy { s -> s.contactId + s.id }
 	}
 
 	internal fun <T : ICureDocument<String>> getNonConfidentialItems(items: List<T>): List<T> {
@@ -314,9 +316,9 @@ class SumehrExport(
 	internal fun getMedicationServiceClosingDate(it: Service): Long? {
 		return (
 			it.closingDate
-				?: it.content?.values?.mapNotNull {
+				?: it.content.values.mapNotNull {
 					it.medicationValue?.endMoment?.let { FuzzyValues.getFuzzyDateTime(FuzzyValues.getDateTime(it), ChronoUnit.SECONDS) }
-				}?.firstOrNull()
+				}.firstOrNull()
 			)
 	}
 
@@ -382,7 +384,7 @@ class SumehrExport(
 					if (it != null) {
 						it.contents.add(
 							ContentType().apply {
-								svc.codes?.forEach { c ->
+								svc.codes.forEach { c ->
 									try {
 										// CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0
 										val version = if (c.type == "CD-ATC") "1.0" else c.version
@@ -455,7 +457,7 @@ class SumehrExport(
 	}
 
 	internal suspend fun addContactPeople(pat: Patient, trn: TransactionType, config: Config, excludedIds: List<String>) {
-		pat.partnerships?.filter { s -> !excludedIds.contains(s.partnerId) }?.mapNotNull { it?.partnerId }?.let {
+		pat.partnerships.filter { s -> !excludedIds.contains(s.partnerId) }.mapNotNull { it.partnerId }.let {
 			patientLogic.getPatients(it).toList().forEach { p ->
 				val rel = pat.partnerships.find { it.partnerId == p.id }?.otherToMeRelationshipDescription
 				try {
@@ -503,7 +505,7 @@ class SumehrExport(
 
 	internal suspend fun addGmdmanager(pat: Patient, trn: TransactionType) {
 		try {
-			val gmdRelationship = pat.patientHealthCareParties?.find { it.referralPeriods?.any { r -> r.startDate?.isBefore(Instant.now()) == true && null == r.endDate } }
+			val gmdRelationship = pat.patientHealthCareParties.find { it.referralPeriods.any { r -> r.startDate?.isBefore(Instant.now()) == true && null == r.endDate } }
 			if (gmdRelationship != null) {
 				gmdRelationship.healthcarePartyId?.let {
 					healthcarePartyLogic.getHealthcareParty(it)?.let { hcp ->
@@ -590,9 +592,9 @@ class SumehrExport(
 
 		val toBeDecryptedHcElements = nonConfidentialItems.filter { it.encryptedSelf?.length ?: 0 > 0 }
 
-		if (decryptor != null && toBeDecryptedHcElements.size ?: 0 > 0) {
+		if (decryptor != null && toBeDecryptedHcElements.size > 0) {
 			val decryptedHcElements = decryptor.decrypt(toBeDecryptedHcElements.map { healthElementMapper.map(it) }, HealthElementDto::class.java).map { healthElementMapper.map(it) }
-			nonConfidentialItems = nonConfidentialItems?.map { if (toBeDecryptedHcElements.contains(it) == true) decryptedHcElements[toBeDecryptedHcElements.indexOf(it)] else it }
+			nonConfidentialItems = nonConfidentialItems.map { if (toBeDecryptedHcElements.contains(it) == true) decryptedHcElements[toBeDecryptedHcElements.indexOf(it)] else it }
 		}
 
 		for (healthElement in nonConfidentialItems) {
@@ -610,14 +612,14 @@ class SumehrExport(
 			}
 
 			listOf("healthcareelement", "allergy", "adr", "risk", "socialrisk").forEach { edType ->
-				if (eds.tags?.find { it.type == "CD-ITEM" && it.code == edType } != null) {
+				if (eds.tags.find { it.type == "CD-ITEM" && it.code == edType } != null) {
 					createItemWithContent(eds, items.size + 1, edType, listOfNotNull(makeContent("fr", Content(eds.descr))))?.let {
 						eds.note?.trim()?.let { note -> if (note.isNotEmpty()) it.texts.add(TextType().apply { value = note; l = "fr" }) }
 						if (!eds.codes.isEmpty()) {
 							// Notice the content can not be empty (sumehr validator)
 							it.contents.add(
 								ContentType().apply {
-									eds.codes?.forEach { c ->
+									eds.codes.forEach { c ->
 										try {
 											val cdt = CDCONTENTschemes.fromValue(c.type)
 											// CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0

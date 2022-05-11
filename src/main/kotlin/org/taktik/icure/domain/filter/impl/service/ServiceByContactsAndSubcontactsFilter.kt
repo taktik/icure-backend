@@ -34,7 +34,7 @@ data class ServiceByContactsAndSubcontactsFilter(
 	override fun matches(item: Service): Boolean {
 		return (
 			(healthcarePartyId == null || item.delegations.keys.contains(healthcarePartyId)) &&
-				contacts!!.contains(item.contactId) &&
+				contacts.contains(item.contactId) &&
 				(subContacts == null || subContacts.intersect(item.subContactIds ?: setOf()).isNotEmpty())
 			)
 	}

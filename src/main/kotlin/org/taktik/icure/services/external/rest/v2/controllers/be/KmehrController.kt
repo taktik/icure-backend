@@ -34,7 +34,13 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpResponse
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
@@ -50,13 +56,23 @@ import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
 import org.taktik.icure.domain.mapping.ImportMapping
 import org.taktik.icure.services.external.rest.v2.dto.HealthElementDto
-import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.*
+import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.DiaryNoteExportInfoDto
 import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.IncapacityExportInfoDto
+import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.MedicationSchemeExportInfoDto
+import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.SoftwareMedicalFileExportDto
+import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.SumehrContentDto
+import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.SumehrExportInfoDto
+import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.SumehrStatus
+import org.taktik.icure.services.external.rest.v2.dto.be.kmehr.SumehrValidityDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v2.mapper.HealthElementV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyV2Mapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.*
+import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.ImportResultV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.PartnershipV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.PatientHealthCarePartyV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.ServiceV2Mapper
 import org.taktik.icure.utils.injectReactorContext
 
 @ExperimentalCoroutinesApi
@@ -87,7 +103,7 @@ class KmehrController(
 	@Value("\${icure.version}")
 	internal val ICUREVERSION: String = "4.0.0"
 
-	@Operation(summary = "Generate diarynote", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Generate diarynote", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@PostMapping("/diarynote/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun generateDiaryNote(
 		@PathVariable patientId: String,
@@ -115,7 +131,7 @@ class KmehrController(
 		} ?: throw IllegalArgumentException("Missing argument")
 	}
 
-	@Operation(summary = "Generate sumehr", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Generate sumehr", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@PostMapping("/sumehr/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun generateSumehr(
 		@PathVariable patientId: String,
@@ -152,7 +168,7 @@ class KmehrController(
 		} ?: throw IllegalArgumentException("Missing argument")
 	}
 
-	@Operation(summary = "Validate sumehr", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Validate sumehr", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@PostMapping("/sumehr/{patientId}/validate", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun validateSumehr(
 		@PathVariable patientId: String,
@@ -236,7 +252,7 @@ class KmehrController(
 		SumehrValidityDto(sumehrValid = patientLogic.getPatient(patientId)?.let { sumehrLogicV1.isSumehrValid(sessionLogic.getCurrentHealthcarePartyId(), it, info.secretForeignKeys, info.excludedIds, false, mapServices(info.services), mapHealthElements(info.healthElements)).name }?.let { SumehrStatus.valueOf(it) } ?: SumehrStatus.absent)
 	}
 
-	@Operation(summary = "Generate sumehr", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Generate sumehr", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@PostMapping("/sumehrv2/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun generateSumehrV2(
 		@PathVariable patientId: String,
@@ -273,7 +289,7 @@ class KmehrController(
 		} ?: throw IllegalArgumentException("Missing argument")
 	}
 
-	@Operation(summary = "Validate sumehr", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Validate sumehr", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@PostMapping("/sumehrv2/{patientId}/validate", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun validateSumehrV2(
 		@PathVariable patientId: String,
@@ -370,7 +386,7 @@ class KmehrController(
 		)
 	}
 
-	@Operation(summary = "Get SMF (Software Medical File) export", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Get SMF (Software Medical File) export", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@PostMapping("/smf/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun generateSmfExport(
 		@PathVariable patientId: String,
@@ -398,7 +414,7 @@ class KmehrController(
 			} ?: throw IllegalArgumentException("Missing argument")
 	}
 
-	@Operation(summary = "Get KMEHR Patient Info export", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Get KMEHR Patient Info export", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@PostMapping("/patientinfo/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun generatePatientInfoExport(@PathVariable patientId: String, @RequestParam language: String?) = flow {
 		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
@@ -410,7 +426,7 @@ class KmehrController(
 		} ?: throw IllegalArgumentException("Missing argument")
 	}.injectReactorContext()
 
-	@Operation(summary = "Get Medicationscheme export", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Get Medicationscheme export", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@PostMapping("/medicationscheme/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun generateMedicationSchemeExport(
 		@PathVariable patientId: String,
@@ -433,7 +449,7 @@ class KmehrController(
 		} ?: throw IllegalArgumentException("Missing argument")
 	}.injectReactorContext()
 
-	@Operation(summary = "Get Incapacity export", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Get Incapacity export", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@PostMapping("/incapacity/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun generateIncapacityExport(
 		@PathVariable patientId: String,
@@ -490,7 +506,7 @@ class KmehrController(
 		} ?: throw IllegalArgumentException("Missing argument")
 	}.injectReactorContext()
 
-	@Operation(summary = "Get Kmehr contactreport", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Get Kmehr contactreport", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@PostMapping("/contactreport/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun generateContactreportExport(
 		@PathVariable patientId: String,
@@ -513,7 +529,7 @@ class KmehrController(
 		} else throw IllegalArgumentException("Missing argument")
 	}.injectReactorContext()
 
-	@Operation(summary = "Get Kmehr labresult", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Get Kmehr labresult", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@PostMapping("/labresult/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun generateLabresultExport(
 		@PathVariable patientId: String,
@@ -536,7 +552,7 @@ class KmehrController(
 		} else throw IllegalArgumentException("Missing argument")
 	}.injectReactorContext()
 
-	@Operation(summary = "Get Kmehr note", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Get Kmehr note", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@PostMapping("/note/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun generateNoteExport(
 		@PathVariable patientId: String,
@@ -558,7 +574,7 @@ class KmehrController(
 		} else throw IllegalArgumentException("Missing argument")
 	}.injectReactorContext()
 
-	@Operation(summary = "Get Kmehr prescription", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Get Kmehr prescription", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@PostMapping("/prescription/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun generatePrescriptionExport(
 		@PathVariable patientId: String,
@@ -580,7 +596,7 @@ class KmehrController(
 		} else throw IllegalArgumentException("Missing argument")
 	}.injectReactorContext()
 
-	@Operation(summary = "Get Kmehr report", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Get Kmehr report", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@PostMapping("/report/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun generateReportExport(
 		@PathVariable patientId: String,
@@ -602,7 +618,7 @@ class KmehrController(
 		} else throw IllegalArgumentException("Missing argument")
 	}.injectReactorContext()
 
-	@Operation(summary = "Get Kmehr request", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Get Kmehr request", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@PostMapping("/request/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun generateRequestExport(
 		@PathVariable patientId: String,
@@ -624,7 +640,7 @@ class KmehrController(
 		} else throw IllegalArgumentException("Missing argument")
 	}.injectReactorContext()
 
-	@Operation(summary = "Get Kmehr result", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Get Kmehr result", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@PostMapping("/result/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun generateResultExport(
 		@PathVariable patientId: String,

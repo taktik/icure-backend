@@ -22,7 +22,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.services.external.rest.v2.dto.base.StoredDocumentDto
-import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.*
+import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.AmpComponentDto
+import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.AmpStatusDto
+import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.AmppDto
+import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.CompanyDto
+import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.MedicineTypeDto
+import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.SamTextDto
 import org.taktik.icure.services.external.rest.v2.dto.samv2.stub.VmpStubDto
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

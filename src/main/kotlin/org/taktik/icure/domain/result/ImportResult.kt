@@ -18,7 +18,6 @@
 
 package org.taktik.icure.domain.result
 
-import java.util.*
 import org.taktik.icure.dto.common.MimeAttachment
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Document

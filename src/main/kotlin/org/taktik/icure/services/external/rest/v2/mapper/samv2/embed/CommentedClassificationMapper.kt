@@ -22,6 +22,7 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.CommentedClassification
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.CommentedClassificationDto
+
 @Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface CommentedClassificationV2Mapper {
 	fun map(commentedClassificationDto: CommentedClassificationDto): CommentedClassification

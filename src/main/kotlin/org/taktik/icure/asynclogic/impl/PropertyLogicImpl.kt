@@ -45,15 +45,18 @@ class PropertyLogicImpl(private val environment: ConfigurableEnvironment) : Prop
 	}
 
 	private fun getEnvironmentProperties(): Map<String, *> {
-		val propertyNames = environment.propertySources.filterIsInstance(EnumerablePropertySource::class.java).flatMap {
-				eps ->
+		val propertyNames = environment.propertySources.filterIsInstance(EnumerablePropertySource::class.java).flatMap { eps ->
 			eps.propertyNames.map { it.replace('_', '.').toLowerCase() }.filter { it.startsWith(PropertyTypes.ENVIRONMENT_PROPERTY_PREFIX) && !it.endsWith("password") }
 		}
 
 		return propertyNames.fold(mutableMapOf<String, Any>()) { acc, propertyName ->
 			val propertyKey = PropertyTypes.Category.System + propertyName.substring(PropertyTypes.ENVIRONMENT_PROPERTY_PREFIX.length)
 			environment.getProperty(propertyName)?.let { propertyValue: String ->
-				if ("null" == propertyValue) { acc } else if (propertyValue.trim { it <= ' ' }.toLowerCase() == "true" || propertyValue.trim { it <= ' ' }.toLowerCase() == "false") { acc[propertyKey] = java.lang.Boolean.valueOf(propertyValue); acc } else {
+				if ("null" == propertyValue) {
+					acc
+				} else if (propertyValue.trim { it <= ' ' }.toLowerCase() == "true" || propertyValue.trim { it <= ' ' }.toLowerCase() == "false") {
+					acc[propertyKey] = java.lang.Boolean.valueOf(propertyValue); acc
+				} else {
 					try {
 						acc[propertyKey] = Integer.valueOf(propertyValue)
 					} catch (ignored: NumberFormatException) {

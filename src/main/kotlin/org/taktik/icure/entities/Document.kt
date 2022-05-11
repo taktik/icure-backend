@@ -19,7 +19,6 @@ package org.taktik.icure.entities
 
 import java.security.GeneralSecurityException
 import java.security.KeyException
-import java.util.*
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude

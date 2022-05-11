@@ -63,7 +63,7 @@ data class HealthElementTemplate(
 	companion object : DynamicInitializer<HealthElementTemplate>
 
 	fun merge(other: HealthElementTemplate) = HealthElementTemplate(args = this.solveConflictsWith(other))
-	fun solveConflictsWith(other: HealthElementTemplate) = super<StoredICureDocument>.solveConflictsWith(other) + mapOf(
+	fun solveConflictsWith(other: HealthElementTemplate) = super.solveConflictsWith(other) + mapOf(
 		"descr" to (this.descr ?: other.descr),
 		"note" to (this.note ?: other.note),
 		"relevant" to (this.relevant),

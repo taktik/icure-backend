@@ -18,7 +18,7 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
 import java.io.Serializable
-import java.util.*
+import java.util.SortedSet
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder

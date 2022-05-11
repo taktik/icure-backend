@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory
 abstract class AbstractHttpServlet : Servlet {
 	protected val log = LoggerFactory.getLogger(javaClass)
 	protected var theServletConfig: ServletConfig? = null
+
 	@Throws(ServletException::class)
 	override fun init(servletConfig: ServletConfig) {
 		this.theServletConfig = servletConfig

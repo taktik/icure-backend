@@ -18,7 +18,6 @@
 
 package org.taktik.icure.handlers
 
-import java.lang.IllegalArgumentException
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer

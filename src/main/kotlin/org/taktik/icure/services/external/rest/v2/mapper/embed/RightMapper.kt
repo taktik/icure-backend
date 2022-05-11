@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Right
 import org.taktik.icure.services.external.rest.v2.dto.embed.RightDto
+
 @Mapper(componentModel = "spring")
 interface RightV2Mapper {
 	fun map(rightDto: RightDto): Right

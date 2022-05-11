@@ -36,7 +36,21 @@ import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENT
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHEADING
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHEADINGschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEM
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDLIFECYCLE
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDLIFECYCLEvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDPATIENTWILLvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTION
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.LnkType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
@@ -135,7 +149,7 @@ class SumehrExport(
 	}
 
 	internal suspend fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, comment: String?, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, services: List<Service>?, healthElements: List<HealthElement>?): FolderType {
-		val hcpartyIds = healthcarePartyLogic!!.getHcpHierarchyIds(sender)
+		val hcpartyIds = healthcarePartyLogic.getHcpHierarchyIds(sender)
 		val treatedServiceIds = HashSet<String>()
 		//Create transaction
 		val trn = TransactionType().apply {
@@ -251,7 +265,7 @@ class SumehrExport(
 
 	internal fun isInactiveAndIrrelevant(s: Service) =
 		(
-			(ServiceStatus.isInactive(s.status) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) && //Inactive
+			(ServiceStatus.isInactive(s.status) || s.tags.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" }) && //Inactive
 				ServiceStatus.isIrrelevant(s.status)
 			)
 
@@ -296,7 +310,7 @@ class SumehrExport(
 				}
 				services?.map { if (toBeDecryptedServices.contains(it)) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
 			} else services
-			).filterNotNull()?.distinctBy { s -> s.contactId + s.id }
+			).filterNotNull().distinctBy { s -> s.contactId + s.id }
 	}
 
 	internal fun <T : ICureDocument<String>> getNonConfidentialItems(items: List<T>): List<T> {
@@ -328,7 +342,7 @@ class SumehrExport(
 				!(it.descr?.matches("INBOX|Etat g\\u00e9n\\u00e9ral.*".toRegex()) ?: false) &&
 					(if (includeIrrelevantInformation) !isInactiveAndIrrelevant(it) else !ServiceStatus.isIrrelevant(it.status))
 				)
-		}.filter { s -> !excludedIds.contains(s.id) }.filter { s -> !s.tags.any { t -> t.code =="familyrisk" } }.distinctBy { s -> s.healthElementId }
+		}.filter { s -> !excludedIds.contains(s.id) }.filter { s -> !s.tags.any { t -> t.code == "familyrisk" } }.distinctBy { s -> s.healthElementId }
 	}
 
 	internal fun addOmissionOfMedicalDataItem(trn: TransactionType) {
@@ -384,9 +398,9 @@ class SumehrExport(
 	internal fun getMedicationServiceClosingDate(it: Service): Long? {
 		return (
 			it.closingDate
-				?: it.content?.values?.mapNotNull {
+				?: it.content.values.mapNotNull {
 					it.medicationValue?.endMoment?.let { FuzzyValues.getFuzzyDateTime(FuzzyValues.getDateTime(it), ChronoUnit.SECONDS) }
-				}?.firstOrNull()
+				}.firstOrNull()
 			)
 	}
 
@@ -446,7 +460,7 @@ class SumehrExport(
 				var contentCode = ""
 				for ((key, value) in it.content) {
 					if (value.stringValue != null) {
-						contentCode = value.stringValue!!
+						contentCode = value.stringValue
 						break
 					}
 				}
@@ -478,7 +492,7 @@ class SumehrExport(
 						it.contents.addAll(
 							listOf(
 								ContentType().apply {
-									svc.codes?.forEach { c ->
+									svc.codes.forEach { c ->
 										try {
 											// CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0
 											val version = if (c.type == "CD-ATC") "1.0" else c.version
@@ -558,7 +572,7 @@ class SumehrExport(
 	}
 
 	internal suspend fun addContactPeople(pat: Patient, trn: TransactionType, config: Config, excludedIds: List<String>) {
-		pat.partnerships?.filter { s -> !excludedIds.contains(s.partnerId) }?.mapNotNull { it?.partnerId }?.let {
+		pat.partnerships.filter { s -> !excludedIds.contains(s.partnerId) }.mapNotNull { it.partnerId }.let {
 			patientLogic.getPatients(it).toList().forEach { p ->
 				val rel = pat.partnerships.find { it.partnerId == p.id }?.type.toString()
 				try {
@@ -697,7 +711,7 @@ class SumehrExport(
 
 		val toBeDecryptedHcElements = nonConfidentialItems //Decrypt everything so that the frontend has a chance to fix the tags
 
-		if (decryptor != null && toBeDecryptedHcElements.size ?: 0 > 0) {
+		if (decryptor != null && toBeDecryptedHcElements.size > 0) {
 			val decryptedHcElements = decryptor.decrypt(toBeDecryptedHcElements.map { healthElementMapper.map(it) }, HealthElementDto::class.java).map { healthElementMapper.map(it) }
 			nonConfidentialItems = nonConfidentialItems.map { if (toBeDecryptedHcElements.contains(it)) decryptedHcElements[toBeDecryptedHcElements.indexOf(it)] else it }
 		}
@@ -733,7 +747,7 @@ class SumehrExport(
 							it.contents.addAll(
 								listOf(
 									ContentType().apply {
-										he.codes?.forEach { c ->
+										he.codes.forEach { c ->
 											try {
 												val cdt = CDCONTENTschemes.fromValue(c.type)
 												// CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0

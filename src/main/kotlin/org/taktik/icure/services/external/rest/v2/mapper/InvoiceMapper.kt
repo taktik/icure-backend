@@ -25,7 +25,14 @@ import org.mapstruct.Mappings
 import org.taktik.icure.entities.Invoice
 import org.taktik.icure.services.external.rest.v2.dto.InvoiceDto
 import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.*
+import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.IdentityDocumentReaderV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.InvoiceInterventionTypeV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.InvoiceTypeV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.InvoicingCodeV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.MediumTypeV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.PaymentTypeV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.PaymentV2Mapper
 
 @Mapper(componentModel = "spring", uses = [InvoiceTypeV2Mapper::class, PaymentTypeV2Mapper::class, InvoicingCodeV2Mapper::class, IdentityDocumentReaderV2Mapper::class, MediumTypeV2Mapper::class, CodeStubV2Mapper::class, PaymentV2Mapper::class, DelegationV2Mapper::class, InvoiceInterventionTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface InvoiceV2Mapper {

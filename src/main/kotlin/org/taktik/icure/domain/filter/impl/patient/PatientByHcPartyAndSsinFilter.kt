@@ -42,6 +42,6 @@ data class PatientByHcPartyAndSsinFilter(
 	}
 
 	override fun matches(item: Patient): Boolean {
-		return (healthcarePartyId == null || item.delegations.keys.contains(healthcarePartyId!!)) && (ssin == null || ssin == item.ssin)
+		return (healthcarePartyId == null || item.delegations.keys.contains(healthcarePartyId)) && (ssin == null || ssin == item.ssin)
 	}
 }

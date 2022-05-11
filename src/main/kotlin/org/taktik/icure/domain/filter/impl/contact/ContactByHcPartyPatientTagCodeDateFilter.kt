@@ -42,15 +42,15 @@ data class ContactByHcPartyPatientTagCodeDateFilter(
 
 	override fun matches(item: Contact): Boolean {
 		return (
-			(healthcarePartyId == null || item.delegations.keys.contains(healthcarePartyId!!)) &&
-				(patientSecretForeignKeys == null || item.secretForeignKeys.any { o: String? -> patientSecretForeignKeys!!.contains(o) }) &&
+			(healthcarePartyId == null || item.delegations.keys.contains(healthcarePartyId)) &&
+				(patientSecretForeignKeys == null || item.secretForeignKeys.any { o: String? -> patientSecretForeignKeys.contains(o) }) &&
 				(
 					tagType == null || item.services.any { svc ->
 						(
 							svc.tags.any { t -> tagType == t.type && (tagCode == null || tagCode == t.code) } &&
 								(codeType == null || svc.codes.any { cs -> codeType == cs.type && (codeCode == null || codeCode == cs.code) }) &&
-								(startOfContactOpeningDate == null || svc.valueDate != null && svc.valueDate > startOfContactOpeningDate!! || svc.openingDate != null && svc.openingDate > startOfContactOpeningDate!!) &&
-								(endOfContactOpeningDate == null || svc.valueDate != null && svc.valueDate < endOfContactOpeningDate!! || svc.openingDate != null && svc.openingDate < endOfContactOpeningDate!!)
+								(startOfContactOpeningDate == null || svc.valueDate != null && svc.valueDate > startOfContactOpeningDate || svc.openingDate != null && svc.openingDate > startOfContactOpeningDate) &&
+								(endOfContactOpeningDate == null || svc.valueDate != null && svc.valueDate < endOfContactOpeningDate || svc.openingDate != null && svc.openingDate < endOfContactOpeningDate)
 							)
 					}
 					)
