@@ -26,7 +26,12 @@ import org.taktik.icure.domain.result.ImportResult
 import org.taktik.icure.dto.result.MimeAttachment
 import org.taktik.icure.services.external.rest.v2.dto.ImportResultDto
 import org.taktik.icure.services.external.rest.v2.dto.base.MimeAttachmentDto
-import org.taktik.icure.services.external.rest.v2.mapper.*
+import org.taktik.icure.services.external.rest.v2.mapper.ContactV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.DocumentV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.FormV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.HealthElementV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.HealthcarePartyV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.PatientV2Mapper
 
 @Mapper(componentModel = "spring", uses = [DelegationV2Mapper::class, PatientV2Mapper::class, HealthElementV2Mapper::class, ContactV2Mapper::class, FormV2Mapper::class, HealthcarePartyV2Mapper::class, DocumentV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ImportResultV2Mapper {

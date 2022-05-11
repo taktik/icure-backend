@@ -23,7 +23,8 @@ import java.io.Serializable
  * Created by aduchate on 03/12/13, 16:27
  */
 class FormPlanning : Serializable {
-	var planninfForAnyDoctor: Boolean? = null
+
+var planninfForAnyDoctor: Boolean? = null
 	var planningForDelegate: Boolean? = null
 	var planningForPatientDoctor: Boolean? = null
 	var planningForMe: Boolean? = null

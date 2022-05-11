@@ -22,6 +22,7 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.CalendarItemTag
 import org.taktik.icure.services.external.rest.v2.dto.embed.CalendarItemTagDto
+
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface CalendarItemTagV2Mapper {
 	fun map(calendarItemTagDto: CalendarItemTagDto): CalendarItemTag

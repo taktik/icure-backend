@@ -28,6 +28,7 @@ interface StoredDocument : Versionable<String> {
 	fun getJavaType(): String {
 		return this::class.qualifiedName!!
 	}
+
 	@JsonProperty("java_type")
 	fun setJavaType(value: String) {
 		if (this::class.qualifiedName != value) throw IllegalArgumentException("Object with ID ${this.id} is not of expected type ${this::class.qualifiedName} but of type $value")

@@ -22,6 +22,7 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.SamText
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.SamTextDto
+
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface SamTextV2Mapper {
 	fun map(samTextDto: SamTextDto): SamText

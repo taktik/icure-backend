@@ -18,7 +18,6 @@
 
 package org.taktik.icure.asynclogic.impl
 
-import java.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.cache.Cache
 import org.springframework.security.core.GrantedAuthority

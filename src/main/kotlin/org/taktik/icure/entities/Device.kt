@@ -22,8 +22,14 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.entity.Attachment
-import org.taktik.icure.entities.base.*
-import org.taktik.icure.entities.embed.*
+import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.CryptoActor
+import org.taktik.icure.entities.base.DataOwner
+import org.taktik.icure.entities.base.Named
+import org.taktik.icure.entities.base.PropertyStub
+import org.taktik.icure.entities.base.StoredICureDocument
+import org.taktik.icure.entities.embed.Identifier
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke

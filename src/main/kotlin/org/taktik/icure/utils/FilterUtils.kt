@@ -38,7 +38,7 @@ suspend fun getLoggedDataOwnerId(sessionLogic: AsyncSessionLogic): String {
 		?: throw LoginException("You must be logged to perform this action. ")
 }
 
-suspend fun <T>aggregateResults(
+suspend fun <T> aggregateResults(
 	ids: Collection<String>,
 	limit: Int,
 	supplier: suspend (Collection<String>) -> Flow<T>,
@@ -68,7 +68,13 @@ tailrec suspend fun <T, A> aggregateResults(
 		)
 
 	var acc = filteredOutAccumulator
-	val filteredEntities = entities + supplier(sortedIds.take(heuristicLimit)).filter { el -> filter(el).also { if (!it) { acc = filteredOutElementsReducer(acc, el) } } }.toList()
+	val filteredEntities = entities + supplier(sortedIds.take(heuristicLimit)).filter { el ->
+		filter(el).also {
+			if (!it) {
+				acc = filteredOutElementsReducer(acc, el)
+			}
+		}
+	}.toList()
 	val remainingIds = sortedIds.drop(heuristicLimit)
 
 	if (remainingIds.isEmpty() || filteredEntities.count() >= limit) {

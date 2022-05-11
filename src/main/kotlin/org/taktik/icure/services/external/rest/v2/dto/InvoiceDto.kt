@@ -25,7 +25,14 @@ import org.taktik.icure.services.external.rest.v2.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v2.dto.base.EncryptableDto
 import org.taktik.icure.services.external.rest.v2.dto.base.ICureDocumentDto
 import org.taktik.icure.services.external.rest.v2.dto.base.StoredDocumentDto
-import org.taktik.icure.services.external.rest.v2.dto.embed.*
+import org.taktik.icure.services.external.rest.v2.dto.embed.DelegationDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.IdentityDocumentReaderDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.InvoiceInterventionTypeDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.InvoiceTypeDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.InvoicingCodeDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.MediumTypeDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.PaymentDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.PaymentTypeDto
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)

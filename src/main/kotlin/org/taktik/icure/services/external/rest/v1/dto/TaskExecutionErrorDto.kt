@@ -18,7 +18,7 @@
 package org.taktik.icure.services.external.rest.v1.dto
 
 import java.io.Serializable
-import java.util.*
+import java.util.Date
 
 class TaskExecutionErrorDto : Serializable {
 	var date: Date? = null

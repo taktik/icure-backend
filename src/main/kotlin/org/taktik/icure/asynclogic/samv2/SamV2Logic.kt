@@ -21,7 +21,16 @@ package org.taktik.icure.asynclogic.samv2
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.samv2.*
+import org.taktik.icure.entities.samv2.Amp
+import org.taktik.icure.entities.samv2.Nmp
+import org.taktik.icure.entities.samv2.Paragraph
+import org.taktik.icure.entities.samv2.PharmaceuticalForm
+import org.taktik.icure.entities.samv2.ProductId
+import org.taktik.icure.entities.samv2.SamVersion
+import org.taktik.icure.entities.samv2.Substance
+import org.taktik.icure.entities.samv2.Verse
+import org.taktik.icure.entities.samv2.Vmp
+import org.taktik.icure.entities.samv2.VmpGroup
 
 interface SamV2Logic {
 	fun findAmpsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>

@@ -24,6 +24,7 @@ import org.taktik.icure.entities.embed.TimeSeries
 import org.taktik.icure.services.external.rest.v2.dto.embed.TimeSeriesDto
 import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
+
 @Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface TimeSeriesV2Mapper {
 	fun map(measureDto: TimeSeriesDto): TimeSeries

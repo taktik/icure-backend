@@ -18,7 +18,7 @@
 package org.taktik.icure.services.external.http.websocket
 
 import java.io.IOException
-import java.util.*
+import java.util.UUID
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList

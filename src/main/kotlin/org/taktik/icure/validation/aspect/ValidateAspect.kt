@@ -19,7 +19,6 @@ package org.taktik.icure.validation.aspect
 
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
-import java.util.*
 import javax.validation.ConstraintViolation
 import javax.validation.ConstraintViolationException
 import javax.validation.Path
@@ -63,7 +62,7 @@ class ValidateAspect(val validator: Validator, val sessionLogic: AsyncSessionLog
 	}
 
 	private suspend fun getConstraintViolations(arg: Any, check: Check): Set<ConstraintViolation<Any>> {
-		var paramViolations = validator!!.validate(arg, *check.groups.map { it.java }.toTypedArray())
+		var paramViolations = validator.validate(arg, *check.groups.map { it.java }.toTypedArray())
 		var pub: PropertyUtilsBean? = null
 		var shouldRecheck = false
 		for (cv in paramViolations) {

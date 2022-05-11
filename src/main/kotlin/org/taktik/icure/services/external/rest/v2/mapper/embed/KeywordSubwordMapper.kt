@@ -22,6 +22,7 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.KeywordSubword
 import org.taktik.icure.services.external.rest.v2.dto.embed.KeywordSubwordDto
+
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface KeywordSubwordV2Mapper {
 	fun map(keywordSubwordDto: KeywordSubwordDto): KeywordSubword

@@ -52,7 +52,7 @@ object KmehrPrescriptionHelper {
 			1 -> intakes[0].let { intake ->
 				if (isDaily(intake)) {
 					Period(ChronoUnit.DAYS, 1)
-				} else if (intake.weekday?.weekday?.code != null && intake.weekday?.weekNumber == null && intake.weekday?.weekday?.type == "CD-WEEKDAY") {
+				} else if (intake.weekday?.weekday?.code != null && intake.weekday.weekNumber == null && intake.weekday.weekday.type == "CD-WEEKDAY") {
 					Period(ChronoUnit.WEEKS, 1)
 				} else inferPeriodFromFrequency(frequency)
 			}
@@ -330,7 +330,7 @@ object KmehrPrescriptionHelper {
 	fun toDaytime(intake: RegimenItem): ItemType.Regimen.Daytime {
 		return ItemType.Regimen.Daytime().apply {
 			if (intake.timeOfDay != null) {
-				time = Utils.makeXMLGregorianCalendarFromHHMMSSLong(intake.timeOfDay!!)
+				time = Utils.makeXMLGregorianCalendarFromHHMMSSLong(intake.timeOfDay)
 			} else {
 				val timeOfDay = intake.dayPeriod?.code ?: CDDAYPERIODvalues.DURINGLUNCH.value()
 				when (timeOfDay) {

@@ -18,11 +18,10 @@
 
 package org.taktik.icure.spring.asynccache
 
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
-class AsyncMapCacheManager() : AsyncCacheManager {
+class AsyncMapCacheManager : AsyncCacheManager {
 
 	private val caches: ConcurrentMap<String, Cache<Any, Any>> = ConcurrentHashMap()
 

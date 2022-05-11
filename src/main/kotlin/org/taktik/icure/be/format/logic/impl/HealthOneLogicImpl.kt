@@ -34,7 +34,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.LinkedList
 import java.util.regex.Pattern
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -68,15 +68,15 @@ import org.taktik.icure.utils.FuzzyValues
 class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: FormLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic, val contactLogic: ContactLogic) : GenericResultFormatLogicImpl(healthcarePartyLogic, formLogic), HealthOneLogic {
 	private val shortDateTimeFormatter = DateTimeFormatter.ofPattern("ddMMyyyy")
 
-    /* Import a series of protocols from a document into a contact
+	/* Import a series of protocols from a document into a contact
 
-     */
+	 */
 	override suspend fun doImport(language: String, doc: Document, hcpId: String?, protocolIds: List<String>, formIds: List<String>, planOfActionId: String?, ctc: Contact, enckeys: List<String>): Contact? {
 		val text = decodeRawData(doc.decryptAttachment(enckeys))
 		return if (text != null) {
 			val r: Reader = StringReader(text)
 			val lls = parseReportsAndLabs(language, protocolIds, r).filterNotNull()
-			val subContactsWithServices = fillContactWithLines(lls, planOfActionId, hcpId, protocolIds!!, formIds!!)
+			val subContactsWithServices = fillContactWithLines(lls, planOfActionId, hcpId, protocolIds, formIds)
 			contactLogic.modifyContact(ctc.copy(subContacts = ctc.subContacts + subContactsWithServices.map { it.first }, services = ctc.services + subContactsWithServices.flatMap { it.second }))
 		} else {
 			throw UnsupportedCharsetException("Charset could not be detected")
@@ -222,7 +222,7 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 			content = mapOf(language to Content(stringValue = value)),
 			label = lrl.analysisType ?: "",
 			index = position,
-			valueDate = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril!!.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS),
+			valueDate = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS),
 			codes = if (severity?.isNotEmpty() == true) setOf(CodeStub.from("CD-SEVERITY", "abnormal", "1")) else setOf()
 		)
 	}
@@ -266,8 +266,8 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 			var m = betweenReference.matcher(refValues)
 			if (m.matches()) {
 				val r = Reference()
-				r.minValue = m.group(1).replace(",".toRegex(), ".")?.toDouble()
-				r.maxValue = m.group(2).replace(",".toRegex(), ".")?.toDouble()
+				r.minValue = m.group(1).replace(",".toRegex(), ".").toDouble()
+				r.maxValue = m.group(2).replace(",".toRegex(), ".").toDouble()
 				if (m.group(3) != null) {
 					r.unit = m.group(3)
 				}
@@ -279,7 +279,7 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 			m = lessThanReference.matcher(refValues)
 			if (m.matches()) {
 				val r = Reference()
-				r.maxValue = m.group(1).replace(",".toRegex(), ".")?.toDouble()
+				r.maxValue = m.group(1).replace(",".toRegex(), ".").toDouble()
 				if (m.group(2) != null) {
 					r.unit = m.group(2)
 				}
@@ -644,7 +644,7 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 		}
 		var namePat = if (patient!!.lastName != null) patient.lastName else ""
 		var firstPat = if (patient.firstName != null) patient.firstName else ""
-		var sexPat = if (patient.gender != null) patient.gender!!.code else ""
+		var sexPat = if (patient.gender != null) patient.gender.code else ""
 		var birthPat = if (patient.dateOfBirth != null) patient.dateOfBirth.toString().replace("(....)(..)(..)".toRegex(), "$3$2$1") else ""
 		var ssinPat = if (patient.ssin != null) patient.ssin else ""
 		val a = patient.addresses.stream().filter { ad: Address -> ad.addressType == AddressType.home }.findFirst()
@@ -657,16 +657,16 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 		var dateAnal = if (date != null) date.format(shortDateTimeFormatter) else ""
 		val isFull = "C"
 		namePat = namePat!!.replace("\n".toRegex(), "").replace("\r".toRegex(), "")
-		firstPat = firstPat!!.replace("\n".toRegex(), "").replace("\r".toRegex(), "")
+		firstPat = firstPat.replace("\n".toRegex(), "").replace("\r".toRegex(), "")
 		sexPat = sexPat.replace("\n".toRegex(), "").replace("\r".toRegex(), "")
 		birthPat = birthPat.replace("\n".toRegex(), "").replace("\r".toRegex(), "")
-		ssinPat = ssinPat!!.replace("\n".toRegex(), "").replace("\r".toRegex(), "")
+		ssinPat = ssinPat.replace("\n".toRegex(), "").replace("\r".toRegex(), "")
 		addrPat3 = addrPat3!!.replace("\n".toRegex(), "").replace("\r".toRegex(), "")
 		addrPat2 = addrPat2!!.replace("\n".toRegex(), "").replace("\r".toRegex(), "")
 		addrPat1 = addrPat1!!.replace("\n".toRegex(), "").replace("\r".toRegex(), "")
 		inamiMed = inamiMed!!.replace("\n".toRegex(), "").replace("\r".toRegex(), "")
-		nameMed = nameMed!!.replace("\n".toRegex(), "").replace("\r".toRegex(), "")
-		firstMed = firstMed!!.replace("\n".toRegex(), "").replace("\r".toRegex(), "")
+		nameMed = nameMed.replace("\n".toRegex(), "").replace("\r".toRegex(), "")
+		firstMed = firstMed.replace("\n".toRegex(), "").replace("\r".toRegex(), "")
 		dateAnal = dateAnal.replace("\n".toRegex(), "").replace("\r".toRegex(), "")
 		pw.print("A1\\$ref\\$inamiMed $nameMed $firstMed\\\r\n")
 		pw.print("A2\\$ref\\$namePat\\$firstPat\\$sexPat\\$birthPat\\\r\n")
@@ -698,7 +698,7 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 
 	@Throws(IOException::class)
 	override fun canHandle(doc: Document, enckeys: List<String>): Boolean {
-		val br = getBufferedReader(doc!!, enckeys)
+		val br = getBufferedReader(doc, enckeys)
 		val firstLine = br!!.readLine()
 		br.close()
 		return firstLine != null && isLaboLine(firstLine)
@@ -749,13 +749,16 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 		var shorterDateFormat = SimpleDateFormat("ddMMyy")
 		var shortDateFormat = SimpleDateFormat("ddMMyyyy")
 		var extraDateFormat = SimpleDateFormat("dd/MM/yyyy")
+
 		//\s*>\s*((?:-|\+)?[0-9]*(?:\.|,)?[0-9]*) matches __>__-01.29 and >+2,245 and >1  into $1
 //(?:(?:\s*([^0-9\s]\S*))|(?:\s+(\S+)))?\s* matches a0eraa and __a5656 (first part) or (_898989) in other words: any garbage that is separed by a space or
 //an alphanumerical character
 //We also allow for an open parenthesis, an open [ or both
 		var greaterThanReference = Pattern.compile("\\s*(?:[\\(\\[]+\\s*)?>\\s*((?:-|\\+)?[0-9]*(?:\\.|,)?[0-9]*)(?:(?:\\s*([^0-9\\s]\\S*))|(?:\\s+(\\S+)))?\\s*")
+
 		//The same with <
 		var lessThanReference = Pattern.compile("\\s*(?:[\\(\\[]+\\s*)?<\\s*((?:-|\\+)?[0-9]*(?:\\.|,)?[0-9]*)(?:(?:\\s*([^0-9\\s]\\S*))|(?:\\s+(\\S+)))?\\s*")
+
 		//GROUPA = ((?:-|\+)?[0-9]*(?:\.|,)?[0-9]*)\s* matches -01.29 and +2,245 and 1  into $1
 //We match _GROUPA__-__GROUPA[GARBAGE]
 //We also allow for an open parenthesis

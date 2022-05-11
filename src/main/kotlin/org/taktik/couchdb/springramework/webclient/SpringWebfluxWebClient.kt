@@ -23,7 +23,11 @@ import java.nio.ByteBuffer
 import java.time.Duration
 import java.util.AbstractMap
 import java.util.function.Consumer
-import io.icure.asyncjacksonhttpclient.net.web.*
+import io.icure.asyncjacksonhttpclient.net.web.HttpMethod
+import io.icure.asyncjacksonhttpclient.net.web.Request
+import io.icure.asyncjacksonhttpclient.net.web.Response
+import io.icure.asyncjacksonhttpclient.net.web.ResponseStatus
+import io.icure.asyncjacksonhttpclient.net.web.WebClient
 import io.netty.handler.codec.http.DefaultHttpHeaders
 import io.netty.handler.codec.http.HttpHeaders
 import kotlinx.coroutines.flow.Flow
@@ -96,10 +100,20 @@ class SpringWebfluxResponse(
 					val res = handler(object : ResponseStatus(statusCode, flatHeaders) {
 						override fun responseBodyAsString() = arr.toString(Charsets.UTF_8)
 					})
-					if (res == Mono.empty<Throwable>()) { Mono.just(ByteBuffer.wrap(arr)) } else { res.flatMap { Mono.error(it) } }
+					if (res == Mono.empty<Throwable>()) {
+						Mono.just(ByteBuffer.wrap(arr))
+					} else {
+						res.flatMap { Mono.error(it) }
+					}
 				}.switchIfEmpty(
-					handler(object : ResponseStatus(statusCode, flatHeaders) { override fun responseBodyAsString() = "" }).let { res ->
-						if (res == Mono.empty<Throwable>()) { Mono.just(ByteBuffer.wrap(ByteArray(0))) } else { res.flatMap { Mono.error(it) } }
+					handler(object : ResponseStatus(statusCode, flatHeaders) {
+						override fun responseBodyAsString() = ""
+					}).let { res ->
+						if (res == Mono.empty<Throwable>()) {
+							Mono.just(ByteBuffer.wrap(ByteArray(0)))
+						} else {
+							res.flatMap { Mono.error(it) }
+						}
 					}
 				)
 			} ?: cr.bodyToFlux(ByteBuffer::class.java)

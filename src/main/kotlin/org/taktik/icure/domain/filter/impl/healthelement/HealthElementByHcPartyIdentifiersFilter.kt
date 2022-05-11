@@ -13,7 +13,7 @@ data class HealthElementByHcPartyIdentifiersFilter(
 ) : AbstractFilter<HealthElement>, org.taktik.icure.domain.filter.healthelement.HealthElementByHcPartyIdentifiersFilter {
 	override fun matches(item: HealthElement): Boolean {
 		return (
-			(hcPartyId == null || item.delegations.keys.contains(hcPartyId!!)) &&
+			(hcPartyId == null || item.delegations.keys.contains(hcPartyId)) &&
 				identifiers.any { searchIdentifier -> item.identifiers.any { it.system == searchIdentifier.system && it.id == searchIdentifier.id } }
 			)
 	}

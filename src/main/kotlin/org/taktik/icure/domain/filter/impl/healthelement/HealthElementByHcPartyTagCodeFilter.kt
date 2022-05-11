@@ -36,7 +36,7 @@ data class HealthElementByHcPartyTagCodeFilter(
 
 	override fun matches(item: HealthElement): Boolean {
 		return (
-			(healthCarePartyId == null || item.delegations.keys.contains(healthCarePartyId!!)) &&
+			(healthCarePartyId == null || item.delegations.keys.contains(healthCarePartyId)) &&
 				(
 					codeType == null || (
 						item.codes.any { code: CodeStub -> codeType == code.type && codeCode == code.code } &&

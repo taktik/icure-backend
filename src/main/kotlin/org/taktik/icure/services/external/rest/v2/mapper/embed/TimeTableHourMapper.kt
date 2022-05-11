@@ -22,6 +22,7 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.TimeTableHour
 import org.taktik.icure.services.external.rest.v2.dto.embed.TimeTableHourDto
+
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface TimeTableHourV2Mapper {
 	fun map(timeTableHourDto: TimeTableHourDto): TimeTableHour

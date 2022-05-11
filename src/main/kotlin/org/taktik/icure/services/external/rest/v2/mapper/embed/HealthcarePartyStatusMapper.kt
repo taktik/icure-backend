@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.HealthcarePartyStatus
 import org.taktik.icure.services.external.rest.v2.dto.embed.HealthcarePartyStatusDto
+
 @Mapper(componentModel = "spring")
 interface HealthcarePartyStatusV2Mapper {
 	fun map(healthcarePartyStatusDto: HealthcarePartyStatusDto): HealthcarePartyStatus

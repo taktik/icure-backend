@@ -293,7 +293,7 @@ class InvoiceLogicImpl(
 		if (user != null) {
 			val invoices = listInvoicesByHcPartyAndPatientSksUnsent(user.healthcarePartyId ?: throw IllegalArgumentException("The provided user must be linked to an hcp"), secretPatientKeys)
 				.filter { i -> i.invoicingCodes.any { ic -> serviceId == ic.serviceId && tarificationIds.contains(ic.tarificationId) } }
-				.toList().sortedWith(Comparator { a: Invoice, b: Invoice -> ((b.invoiceDate ?: 99999999999999L) as Long).compareTo(a.invoiceDate ?: 0L) })
+				.toList().sortedWith(Comparator { a: Invoice, b: Invoice -> (b.invoiceDate ?: 99999999999999L).compareTo(a.invoiceDate ?: 0L) })
 			for (i in invoices) {
 				var hasChanged = false
 				val l: MutableList<InvoicingCode> = LinkedList(i.invoicingCodes)

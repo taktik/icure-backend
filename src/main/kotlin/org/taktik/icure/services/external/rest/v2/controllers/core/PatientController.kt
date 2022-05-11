@@ -206,7 +206,7 @@ class PatientController(
 	@Operation(summary = "List patients by pages for a specific HcParty", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
 	@GetMapping("/byHcPartyId")
 	fun findPatientsIdsByHealthcareParty(
-		@Parameter(description = "Healthcare party id")@RequestParam hcPartyId: String,
+		@Parameter(description = "Healthcare party id") @RequestParam hcPartyId: String,
 		@Parameter(description = "The page first id") @RequestParam(required = false) startKey: String?,
 		@Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
 		@Parameter(description = "Page size") @RequestParam(required = false) limit: Int?
@@ -302,6 +302,7 @@ class PatientController(
 	fun matchPatientsBy(@RequestBody filter: AbstractFilterDto<Patient>) = mono {
 		filters.resolve(filter).toList()
 	}
+
 	@Operation(summary = "Filter patients for the current user (HcParty) ", description = "Returns a list of patients")
 	@GetMapping("/fuzzy")
 	fun fuzzySearch(

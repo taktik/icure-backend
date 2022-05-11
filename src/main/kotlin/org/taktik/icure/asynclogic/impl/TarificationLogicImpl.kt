@@ -56,7 +56,7 @@ class TarificationLogicImpl(private val tarificationDAO: TarificationDAO, privat
 	}
 
 	override suspend fun modifyTarification(tarification: Tarification) = fix(tarification) { tarification ->
-		val existingTarification = tarification.id?.let { tarificationDAO.get(it) }
+		val existingTarification = tarification.id.let { tarificationDAO.get(it) }
 		Preconditions.checkState(existingTarification?.code == tarification.code, "Modification failed. Tarification field is immutable.")
 		Preconditions.checkState(existingTarification?.type == tarification.type, "Modification failed. Type field is immutable.")
 		Preconditions.checkState(existingTarification?.version == tarification.version, "Modification failed. Version field is immutable.")

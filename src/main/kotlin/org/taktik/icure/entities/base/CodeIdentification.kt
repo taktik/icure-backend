@@ -36,5 +36,6 @@ interface CodeIdentification {
 			"label" to (other.label?.let { it + (this.label ?: mapOf()) } ?: this.label)
 		)
 	}
+
 	fun normalizeIdentification(): CodeIdentification
 }

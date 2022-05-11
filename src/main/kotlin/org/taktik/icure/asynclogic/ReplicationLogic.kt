@@ -14,6 +14,7 @@ interface ReplicationLogic {
 		targetPassword: String,
 		id: String?
 	): ReplicatorResponse
+
 	suspend fun createContinuousReplicationDoc(
 		sourceUrl: URI,
 		sourceUsername: String,
@@ -23,6 +24,7 @@ interface ReplicationLogic {
 		targetPassword: String,
 		id: String?
 	): ReplicatorResponse
+
 	suspend fun deleteReplicationDoc(docId: String): ReplicatorResponse
 	suspend fun listReplicationDocs(): List<ReplicatorDocument>
 }

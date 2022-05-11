@@ -22,6 +22,7 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.couchdb.entity.Security
 import org.taktik.icure.services.external.rest.v2.dto.base.SecurityDto
+
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface SecurityV2Mapper {
 	fun map(securityDto: SecurityDto): Security

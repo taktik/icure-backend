@@ -60,7 +60,7 @@ data class Agenda(
 	companion object : DynamicInitializer<Agenda>
 
 	fun merge(other: Agenda) = Agenda(args = this.solveConflictsWith(other))
-	fun solveConflictsWith(other: Agenda) = super<StoredICureDocument>.solveConflictsWith(other) + mapOf(
+	fun solveConflictsWith(other: Agenda) = super.solveConflictsWith(other) + mapOf(
 		"name" to (this.name ?: other.name),
 		"userId" to (this.userId ?: other.userId),
 		"rights" to MergeUtil.mergeListsDistinct(this.rights, other.rights, { a, b -> a == b }) { a, _ -> a }

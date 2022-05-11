@@ -18,7 +18,6 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.core
 
-import java.util.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -96,7 +95,7 @@ class DocumentController(
 		}
 	}.injectReactorContext()
 
-	@Operation(summary = "Load document's attachment", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@Operation(summary = "Load document's attachment", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
 	@GetMapping("/{documentId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun getDocumentAttachment(
 		@PathVariable documentId: String,

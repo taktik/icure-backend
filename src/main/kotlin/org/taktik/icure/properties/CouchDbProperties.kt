@@ -32,7 +32,7 @@ data class CouchDbProperties(
 	var socketTimeout: Int = 60_000,
 	var username: String? = "icure",
 	var password: String? = object : Any() {
-		internal var t: Int = 0
+		var t: Int = 0
 		override fun toString(): String {
 			val buf = ByteArray(14)
 			t = 1207948484

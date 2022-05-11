@@ -124,7 +124,7 @@ data class PlanOfAction(
 		"name" to (this.descr ?: other.descr),
 		"descr" to (this.descr ?: other.descr),
 		"note" to (this.note ?: other.note),
-		"relevant" to (this.relevant ?: other.relevant),
+		"relevant" to this.relevant,
 		"idOpeningContact" to (this.idOpeningContact ?: other.idOpeningContact),
 		"idClosingContact" to (this.idClosingContact ?: other.idClosingContact),
 		"status" to (this.status),
@@ -134,6 +134,7 @@ data class PlanOfAction(
 		"numberOfCares" to (this.numberOfCares ?: other.numberOfCares),
 		"careTeamMemberships" to MergeUtil.mergeListsDistinct(this.careTeamMemberships, other.careTeamMemberships)
 	)
+
 	override fun withTimestamps(created: Long?, modified: Long?) =
 		when {
 			created != null && modified != null -> this.copy(created = created, modified = modified)

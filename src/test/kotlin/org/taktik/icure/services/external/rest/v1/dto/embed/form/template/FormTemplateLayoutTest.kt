@@ -1,6 +1,7 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed.form.template
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -14,7 +15,16 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.DocumentGroupMapp
 internal class FormTemplateLayoutTest {
 	@Test
 	fun map() {
-		val objectMapper = ObjectMapper().registerModule(KotlinModule())
+		val objectMapper = ObjectMapper().registerModule(
+			KotlinModule.Builder()
+				.withReflectionCacheSize(512)
+				.configure(KotlinFeature.NullToEmptyCollection, false)
+				.configure(KotlinFeature.NullToEmptyMap, false)
+				.configure(KotlinFeature.NullIsSameAsDefault, false)
+				.configure(KotlinFeature.SingletonSupport, DISABLED)
+				.configure(KotlinFeature.StrictNullChecks, false)
+				.build()
+		)
 		val layout = objectMapper.writeValueAsBytes(
 			FormTemplateLayout(
 				form = "My form",

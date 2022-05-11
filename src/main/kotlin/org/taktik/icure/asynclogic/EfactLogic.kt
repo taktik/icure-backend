@@ -18,7 +18,6 @@
 
 package org.taktik.icure.asynclogic
 
-import java.util.*
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Insurance
 import org.taktik.icure.entities.Invoice

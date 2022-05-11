@@ -20,7 +20,11 @@ package org.taktik.icure.services.external.rest.v2.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
-import org.taktik.icure.services.external.rest.v2.dto.base.*
+import org.taktik.icure.services.external.rest.v2.dto.base.AppendixTypeDto
+import org.taktik.icure.services.external.rest.v2.dto.base.CodeFlagDto
+import org.taktik.icure.services.external.rest.v2.dto.base.CodeIdentificationDto
+import org.taktik.icure.services.external.rest.v2.dto.base.LinkQualificationDto
+import org.taktik.icure.services.external.rest.v2.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.LetterValueDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.PeriodicityDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.ValorisationDto

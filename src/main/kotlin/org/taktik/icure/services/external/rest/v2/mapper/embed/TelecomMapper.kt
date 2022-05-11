@@ -22,6 +22,7 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Telecom
 import org.taktik.icure.services.external.rest.v2.dto.embed.TelecomDto
+
 @Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface TelecomV2Mapper {
 	fun map(telecomDto: TelecomDto): Telecom

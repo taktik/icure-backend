@@ -23,13 +23,31 @@ import com.github.pozo.KotlinBuilder
 import io.swagger.v3.oas.annotations.extensions.Extension
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty
 import io.swagger.v3.oas.annotations.media.Schema
-import org.taktik.icure.services.external.rest.v1.dto.base.*
-import org.taktik.icure.services.external.rest.v1.dto.embed.*
+import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
+import org.taktik.icure.services.external.rest.v1.dto.base.CryptoActorDto
+import org.taktik.icure.services.external.rest.v1.dto.base.EncryptableDto
+import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
+import org.taktik.icure.services.external.rest.v1.dto.base.IdentifierDto
+import org.taktik.icure.services.external.rest.v1.dto.base.PersonDto
+import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.DeactivationReasonDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.EmploymentInfoDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.FinancialInstitutionInformationDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.GenderDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.InsurabilityDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.MedicalHouseContractDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.PartnershipDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePartyDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.PersonNameDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.PersonalStatusDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.SchoolingInfoDto
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
-@Schema(description = """This entity is a root level object. It represents a patient It is serialized in JSON and saved in the underlying icure-patient CouchDB database.""", extensions = [ Extension(name = "is-deprecated", properties = [ ExtensionProperty(name = "fatherBirthCountry", value = "true"), ExtensionProperty(name = "birthCountry", value = "true"), ExtensionProperty(name = "nativeCountry", value = "true"), ExtensionProperty(name = "socialStatus", value = "true"), ExtensionProperty(name = "mainSourceOfIncome", value = "true") ])])
+@Schema(description = """This entity is a root level object. It represents a patient It is serialized in JSON and saved in the underlying icure-patient CouchDB database.""", extensions = [Extension(name = "is-deprecated", properties = [ExtensionProperty(name = "fatherBirthCountry", value = "true"), ExtensionProperty(name = "birthCountry", value = "true"), ExtensionProperty(name = "nativeCountry", value = "true"), ExtensionProperty(name = "socialStatus", value = "true"), ExtensionProperty(name = "mainSourceOfIncome", value = "true")])])
 data class PatientDto(
 	@Schema(description = "the Id of the patient. We encourage using either a v4 UUID or a HL7 Id.") override val id: String,
 	@Schema(description = "the revision of the patient in the database, used for conflict management / optimistic locking.") override val rev: String? = null,

@@ -73,7 +73,7 @@ data class Medication(
 ) : Serializable {
 	override fun toString(): String {
 		var result = String.format("%s, %s", if (compoundPrescription != null) compoundPrescription else if (substanceProduct != null) substanceProduct else medicinalProduct, posologyText)
-		if (numberOfPackages != null && numberOfPackages!! > 0) {
+		if (numberOfPackages != null && numberOfPackages > 0) {
 			result = String.format("%s packages of %s", numberOfPackages, result)
 		}
 		if (duration != null) {

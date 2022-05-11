@@ -149,6 +149,7 @@ data class Service(
 		idx = id.compareTo(other.id)
 		return if (idx != 0) idx else 1
 	}
+
 	override fun withTimestamps(created: Long?, modified: Long?) =
 		when {
 			created != null && modified != null -> this.copy(created = created, modified = modified)

@@ -29,6 +29,7 @@ import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.SamTextV2Ma
 @Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface VmpGroupStubV2Mapper {
 	fun map(vmpGroupStubDto: VmpGroupStubDto): VmpGroupStub
+
 	@Mappings(
 		Mapping(target = "productId", ignore = true)
 	)

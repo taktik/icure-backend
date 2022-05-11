@@ -21,7 +21,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import io.swagger.v3.oas.annotations.media.Schema
-import org.taktik.icure.services.external.rest.v1.dto.base.*
+import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
+import org.taktik.icure.services.external.rest.v1.dto.base.CryptoActorDto
+import org.taktik.icure.services.external.rest.v1.dto.base.DataOwnerDto
+import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
+import org.taktik.icure.services.external.rest.v1.dto.base.IdentifierDto
+import org.taktik.icure.services.external.rest.v1.dto.base.NamedDto
+import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)

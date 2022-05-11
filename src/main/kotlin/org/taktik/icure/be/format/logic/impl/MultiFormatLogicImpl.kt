@@ -48,7 +48,7 @@ class MultiFormatLogicImpl(var engines: List<ResultFormatLogic>) : MultiFormatLo
 		for (e in engines) {
 			if (e.canHandle(doc, enckeys)) {
 				val infos = e.getInfos(doc, full, language, enckeys)
-				infos!!.forEach(Consumer { i: ResultInfo? -> i!!.engine = e.javaClass.name })
+				infos.forEach(Consumer { i: ResultInfo? -> i!!.engine = e.javaClass.name })
 				return infos
 			}
 		}

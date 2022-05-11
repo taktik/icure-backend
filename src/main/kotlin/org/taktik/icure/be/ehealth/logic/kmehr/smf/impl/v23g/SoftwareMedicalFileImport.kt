@@ -195,7 +195,9 @@ class SoftwareMedicalFileImport(
 			else -> parseGenericTransaction(trn, author, res, language, mymappings, saveToDatabase, kmehrIndex)
 		}.let { con ->
 			if (saveToDatabase) {
-				try { contactLogic.createContact(con) } catch (e: UpdateConflictException) {
+				try {
+					contactLogic.createContact(con)
+				} catch (e: UpdateConflictException) {
 					contactLogic.createContact(con.copy(id = idGenerator.newGUID().toString())) //This happens when the Kmehr file is corrupted
 				} ?: throw IllegalStateException("Cannot save contact")
 			} else con
@@ -495,8 +497,7 @@ class SoftwareMedicalFileImport(
 				}
 				else -> {
 					val mfId = getItemMFID(item)
-					val service = parseGenericItem(cdItem, label, item, author, trnauthorhcpid, language, kmehrIndex).let {
-							service ->
+					val service = parseGenericItem(cdItem, label, item, author, trnauthorhcpid, language, kmehrIndex).let { service ->
 						service.copy(tags = service.tags + tags.filter { it.type != "CD-ITEM" })
 					}.let { service ->
 						if (cdItem == "diagnostic") {
@@ -681,7 +682,7 @@ class SoftwareMedicalFileImport(
 			"incapacité de" to
 				item.contents.find { it.incapacity != null }?.let {
 					//TODO Dorian fix that
-					it.incapacity.cds.filterIsInstance<CDINCAPACITY>()?.map { it -> it.value }
+					it.incapacity.cds.filterIsInstance<CDINCAPACITY>().map { it -> it.value }
 				}?.let {
 					Pair(
 						Content(stringValue = it.joinToString("|") { incapacityValue -> incapacityValue.value() }),
@@ -1034,7 +1035,7 @@ class SoftwareMedicalFileImport(
 		val specialty: String? = p.cds.find { it.s == CDHCPARTYschemes.CD_HCPARTY }?.value?.trim()
 
 		// test if already exist in current file
-		var existing = v?.hcps?.find {
+		var existing = v.hcps.find {
 			nihii?.let { ni -> it.nihii == ni } == true ||
 				niss?.let { ni -> it.ssin == ni } == true ||
 				(
@@ -1059,7 +1060,7 @@ class SoftwareMedicalFileImport(
 		) {
 			existing = p.name?.let { healthcarePartyLogic.listHealthcarePartiesByName(p.name).firstOrNull() }
 			existing?.let {
-				v?.hcps?.add(it) // do not create it, but should appear in patient external hcparties
+				v.hcps.add(it) // do not create it, but should appear in patient external hcparties
 			}
 		}
 
@@ -1067,7 +1068,7 @@ class SoftwareMedicalFileImport(
 			?: (
 				try {
 					copyFromHcpToHcp(p, HealthcareParty(id = idGenerator.newGUID().toString(), nihii = nihii, ssin = niss)).also {
-						v?.hcps?.add(it)
+						v.hcps.add(it)
 						if (saveToDatabase) healthcarePartyLogic.createHealthcareParty(it)
 					}
 				} catch (e: MissingRequirementsException) {
@@ -1144,7 +1145,7 @@ class SoftwareMedicalFileImport(
 		val parentAuthor: User?
 		var parentPatient: Patient? = null
 		if (hcp != null && hcp.parentId != null) {
-			parentAuthorId = userLogic.findByHcpartyId(hcp.parentId)?.let { it.firstOrNull() }
+			parentAuthorId = userLogic.findByHcpartyId(hcp.parentId).let { it.firstOrNull() }
 			if (parentAuthorId != null) {
 				parentAuthor = userLogic.getUser(parentAuthorId)
 				if (parentAuthor != null) {

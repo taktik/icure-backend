@@ -39,7 +39,18 @@ import org.taktik.icure.asyncdao.InternalDAO
 import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.asynclogic.ICureLogic
 import org.taktik.icure.asynclogic.PropertyLogic
-import org.taktik.icure.entities.embed.*
+import org.taktik.icure.entities.embed.AddressType
+import org.taktik.icure.entities.embed.Confidentiality
+import org.taktik.icure.entities.embed.DocumentStatus
+import org.taktik.icure.entities.embed.DocumentType
+import org.taktik.icure.entities.embed.Gender
+import org.taktik.icure.entities.embed.InsuranceStatus
+import org.taktik.icure.entities.embed.PartnershipStatus
+import org.taktik.icure.entities.embed.PartnershipType
+import org.taktik.icure.entities.embed.PaymentType
+import org.taktik.icure.entities.embed.PersonalStatus
+import org.taktik.icure.entities.embed.TelecomType
+import org.taktik.icure.entities.embed.Visibility
 import org.taktik.icure.properties.CouchDbProperties
 
 @SpringBootApplication(

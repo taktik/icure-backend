@@ -22,6 +22,7 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.Copayment
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.CopaymentDto
+
 @Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface CopaymentV2Mapper {
 	fun map(copaymentDto: CopaymentDto): Copayment

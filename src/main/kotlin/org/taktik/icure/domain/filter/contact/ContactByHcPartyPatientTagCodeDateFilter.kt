@@ -22,6 +22,7 @@ import org.taktik.icure.entities.Contact
 
 interface ContactByHcPartyPatientTagCodeDateFilter : Filter<String, Contact> {
 	val healthcarePartyId: String?
+
 	@Deprecated("Use patientSecretForeignKeys instead")
 	val patientSecretForeignKey: String?
 	val patientSecretForeignKeys: List<String>?

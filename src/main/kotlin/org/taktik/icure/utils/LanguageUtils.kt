@@ -18,9 +18,9 @@
 
 package org.taktik.icure.utils
 
-import java.util.*
+import java.util.UUID
 
-tailrec fun <K>retry(trials: Int, closure: () -> K): K {
+tailrec fun <K> retry(trials: Int, closure: () -> K): K {
 	try {
 		return closure()
 	} catch (e: Exception) {
@@ -31,7 +31,7 @@ tailrec fun <K>retry(trials: Int, closure: () -> K): K {
 	return retry(trials - 1, closure)
 }
 
-tailrec suspend fun <K>suspendRetry(trials: Int, closure: suspend () -> K): K {
+tailrec suspend fun <K> suspendRetry(trials: Int, closure: suspend () -> K): K {
 	try {
 		return closure()
 	} catch (e: Exception) {

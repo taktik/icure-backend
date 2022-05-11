@@ -18,7 +18,6 @@
 
 package org.taktik.icure.services.external.rest.v2.controllers.be
 
-import java.util.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.toList

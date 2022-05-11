@@ -60,10 +60,11 @@ data class PlanOfActionTemplate(
 		"name" to (this.descr ?: other.descr),
 		"descr" to (this.descr ?: other.descr),
 		"note" to (this.note ?: other.note),
-		"relevant" to (this.relevant ?: other.relevant),
+		"relevant" to this.relevant,
 		"status" to (this.status),
 		"forms" to mergeListsDistinct(this.forms, other.forms)
 	)
+
 	override fun withTimestamps(created: Long?, modified: Long?) =
 		when {
 			created != null && modified != null -> this.copy(created = created, modified = modified)

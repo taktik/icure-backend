@@ -22,6 +22,7 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Episode
 import org.taktik.icure.services.external.rest.v2.dto.embed.EpisodeDto
+
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface EpisodeV2Mapper {
 	fun map(episodeDto: EpisodeDto): Episode

@@ -24,7 +24,8 @@ class InvoiceSender {
 	var nihii: Long? = null
 	var bic: String? = null
 	var iban: String? = null
-	@Schema(defaultValue = "999999922L") var bce: Long? = 999999922L
+	@Schema(defaultValue = "999999922L")
+	var bce: Long? = 999999922L
 
 	var ssin: String? = null
 	var lastName: String? = null
@@ -32,6 +33,7 @@ class InvoiceSender {
 	var phoneNumber: Long? = null
 	var conventionCode: Int? = null
 
-	@Schema(defaultValue = "false") var isSpecialist: Boolean = false
+	@Schema(defaultValue = "false")
+	var isSpecialist: Boolean = false
 		get() = nihii!! % 1000L >= 10
 }

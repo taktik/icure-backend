@@ -18,17 +18,39 @@
 
 package org.taktik.icure.asynclogic.samv2.impl
 
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.entity.ComplexKey
-import org.taktik.icure.asyncdao.samv2.*
+import org.taktik.icure.asyncdao.samv2.AmpDAO
+import org.taktik.icure.asyncdao.samv2.NmpDAO
+import org.taktik.icure.asyncdao.samv2.ParagraphDAO
+import org.taktik.icure.asyncdao.samv2.PharmaceuticalFormDAO
+import org.taktik.icure.asyncdao.samv2.ProductIdDAO
+import org.taktik.icure.asyncdao.samv2.SubstanceDAO
+import org.taktik.icure.asyncdao.samv2.VerseDAO
+import org.taktik.icure.asyncdao.samv2.VmpDAO
+import org.taktik.icure.asyncdao.samv2.VmpGroupDAO
 import org.taktik.icure.asynclogic.samv2.SamV2Logic
 import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.samv2.*
+import org.taktik.icure.entities.samv2.Amp
+import org.taktik.icure.entities.samv2.Nmp
+import org.taktik.icure.entities.samv2.Paragraph
+import org.taktik.icure.entities.samv2.PharmaceuticalForm
+import org.taktik.icure.entities.samv2.ProductId
+import org.taktik.icure.entities.samv2.SamVersion
+import org.taktik.icure.entities.samv2.Substance
+import org.taktik.icure.entities.samv2.Verse
+import org.taktik.icure.entities.samv2.Vmp
+import org.taktik.icure.entities.samv2.VmpGroup
 import org.taktik.icure.utils.bufferedChunks
 import org.taktik.icure.utils.distinct
 
@@ -261,7 +283,7 @@ class SamV2LogicImpl(
 			.map { it.doc }
 	}
 
-	
+
 	override fun getVtmNamesForParagraph(chapterName: String, paragraphName: String, language: String): Flow<String> {
 		return getAmpsForParagraph(chapterName, paragraphName).bufferedChunks(100, 200).flatMapConcat {
 			vmpDAO.getEntities(it.mapNotNull { it.vmp?.id }).mapNotNull {

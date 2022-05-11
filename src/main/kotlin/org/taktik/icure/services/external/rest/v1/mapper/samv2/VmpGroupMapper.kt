@@ -38,6 +38,7 @@ interface VmpGroupMapper {
 		Mapping(target = "revisionsInfo", ignore = true)
 	)
 	fun map(vmpGroupDto: VmpGroupDto): VmpGroup
+
 	@Mappings(
 		Mapping(target = "productId", ignore = true)
 	)

@@ -22,6 +22,7 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.Company
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.CompanyDto
+
 @Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface CompanyV2Mapper {
 	fun map(companyDto: CompanyDto): Company

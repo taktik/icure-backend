@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.http.websocket
 import java.io.IOException
 import java.io.Serializable
 import java.time.Duration
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeoutException
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -58,7 +58,7 @@ class KmehrFileOperation(webSocket: WebSocketSession, objectMapper: ObjectMapper
 			objectMapper.readTree(message)
 		} catch (e: Exception) {
 			log.error("Cannot parse because of $e. Object is: $message", e)
-			throw(e)
+			throw (e)
 		}
 		if (dto["command"].asText() == "decryptResponse") {
 			val uuid = dto["uuid"].asText()
@@ -77,5 +77,5 @@ class KmehrFileOperation(webSocket: WebSocketSession, objectMapper: ObjectMapper
 		}
 	}
 
-	private inner class DecodingSession<K : Serializable?> internal constructor(var future: CompletableFuture<List<K>>, var clazz: Class<K>)
+	private inner class DecodingSession<K : Serializable?>(var future: CompletableFuture<List<K>>, var clazz: Class<K>)
 }

@@ -138,6 +138,7 @@ class CodeController(
 		codeLogic.findCodesBy(region, type, code, version, paginationOffset)
 			.paginatedList(codeToCodeDto, realLimit)
 	}
+
 	private fun getStartKey(startKeyRegion: String?, startKeyType: String?, startKeyCode: String?, startKeyVersion: String?): List<String?>? {
 		return if (startKeyRegion != null && startKeyType != null && startKeyCode != null && startKeyVersion != null) {
 			listOf(startKeyRegion, startKeyType, startKeyCode, startKeyVersion)
@@ -145,6 +146,7 @@ class CodeController(
 			null
 		}
 	}
+
 	@Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a list of codes matched with given input.")
 	@GetMapping("/byLink/{linkType}")
 	fun findCodesByLink(

@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.InvoiceInterventionType
 import org.taktik.icure.services.external.rest.v2.dto.embed.InvoiceInterventionTypeDto
+
 @Mapper(componentModel = "spring")
 interface InvoiceInterventionTypeV2Mapper {
 	fun map(invoiceInterventionTypeDto: InvoiceInterventionTypeDto): InvoiceInterventionType

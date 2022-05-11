@@ -28,7 +28,7 @@ import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.base.IdentifierMapper
 import org.taktik.icure.services.external.rest.v1.mapper.base.PropertyStubMapper
 
-@Mapper(componentModel = "spring", uses = [ CodeStubMapper::class, IdentifierMapper::class, PropertyStubMapper::class ], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [CodeStubMapper::class, IdentifierMapper::class,PropertyStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DeviceMapper {
 	@Mappings(
 		Mapping(target = "attachments", ignore = true),
