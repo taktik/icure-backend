@@ -155,6 +155,23 @@ internal class HealthcarePartyDAOImpl(
 		return resultMap
 	}
 
+	@View(name = "by_delegate_aes_exchange_keys", map = "classpath:js/healthcareparty/By_delegate_aes_exchange_keys_map.js")
+	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, List<String>> {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+		//Not transactional aware
+		val result = client.queryView<String, List<String>>(createQuery(client, "by_delegate_aes_exchange_keys")
+			.key(healthcarePartyId)
+			.includeDocs(false)
+		).mapNotNull { it.value }
+
+		val resultMap = HashMap<String, List<String>>()
+		result.collect {
+			resultMap[it[0]] = it.subList(1, it.size)
+		}
+		return resultMap
+	}
+
 	@View(name = "by_parent", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthcareParty' && !doc.deleted && doc.parentId) emit(doc.parentId, doc._id)}")
 	override fun listHealthcarePartiesByParentId(parentId: String): Flow<HealthcareParty> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)

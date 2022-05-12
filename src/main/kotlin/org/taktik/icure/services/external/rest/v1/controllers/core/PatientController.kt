@@ -181,6 +181,7 @@ class PatientController(
                     "hcparty 2 delegator ID": "other AES hcparty key (encrypted using patient public RSA key)"
                 }
                 """,
+		deprecated = true,
 		responses = [
 			ApiResponse(responseCode = "200", description = "Successful operation"),
 			ApiResponse(
@@ -193,6 +194,15 @@ class PatientController(
 	@GetMapping("/{patientId}/keys")
 	fun getPatientHcPartyKeysForDelegate(@Parameter(description = "The patient Id for which information is shared") @PathVariable patientId: String) = mono {
 		patientLogic.getHcPartyKeysForDelegate(patientId)
+	}
+
+	@Operation(
+		summary = "Get the HcParty encrypted AES keys indexed by owner.",
+		description = "(key, value) of the map is as follows: (ID of the owner of the encrypted AES key, encrypted AES keys)"
+	)
+	@GetMapping("/{patientId}/aesExchangeKeys")
+	fun getPatientAesExchangeKeysForDelegate(@PathVariable patientId: String) = mono {
+		patientLogic.getAesExchangeKeysForDelegate(patientId)
 	}
 
 	@Operation(summary = "Get count of patients for a specific HcParty or for the current HcParty ", description = "Returns the count of patients")

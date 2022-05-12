@@ -77,7 +77,10 @@ interface PatientDAO : GenericDAO<Patient> {
 
 	fun listPatientsByHcPartyName(searchString: String?, healthcarePartyId: String): Flow<String>
 
+	@Deprecated(message = "A Data Owner may now have multiple AES Keys. Use getAesExchangeKeysForDelegate instead")
 	suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String>
+
+	suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, List<String>>
 
 	fun getDuplicatePatientsBySsin(healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
 
