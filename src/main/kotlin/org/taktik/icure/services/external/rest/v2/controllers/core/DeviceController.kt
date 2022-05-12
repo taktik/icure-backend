@@ -120,10 +120,13 @@ class DeviceController(
 			.paginatedList(deviceToDeviceDto, realLimit)
 	}
 
-	@Operation(summary = "Get the HcParty encrypted AES keys indexed by owner", description = "(key, value) of the map is as follows: (ID of the owner of the encrypted AES key, encrypted AES key)")
-	@GetMapping("/{deviceId}/keys")
-	fun getDeviceHcPartyKeysForDelegate(@Parameter(description = "The deviceId Id for which information is shared") @PathVariable deviceId: String) = mono {
-		deviceLogic.getHcPartyKeysForDelegate(deviceId)
+	@Operation(
+		summary = "Get the HcParty encrypted AES keys indexed by owner.",
+		description = "(key, value) of the map is as follows: (ID of the owner of the encrypted AES key, encrypted AES keys)"
+	)
+	@GetMapping("/{deviceId}/aesExchangeKeys")
+	fun getDeviceAesExchangeKeysForDelegate(@PathVariable deviceId: String) = mono {
+		deviceLogic.getAesExchangeKeysForDelegate(deviceId)
 	}
 
 	@Operation(summary = "Get ids of devices matching the provided filter for the current user (HcParty) ")

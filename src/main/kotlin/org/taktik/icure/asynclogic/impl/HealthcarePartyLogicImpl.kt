@@ -73,6 +73,10 @@ class HealthcarePartyLogicImpl(
 		return healthcarePartyDAO.getHcPartyKeysForDelegate(healthcarePartyId)
 	}
 
+	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, List<String>> {
+		return healthcarePartyDAO.getAesExchangeKeysForDelegate(healthcarePartyId)
+	}
+
 	override suspend fun modifyHealthcareParty(healthcareParty: HealthcareParty) = fix(healthcareParty) { healthcareParty ->
 		if (healthcareParty.nihii == null && healthcareParty.ssin == null && healthcareParty.name == null && healthcareParty.lastName == null) {
 			throw MissingRequirementsException("modifyHealthcareParty: one of Name or Last name, Nihii or  Ssin are required.")

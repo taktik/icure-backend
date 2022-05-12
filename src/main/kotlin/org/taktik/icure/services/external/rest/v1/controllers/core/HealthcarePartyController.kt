@@ -171,10 +171,23 @@ class HealthcarePartyController(
 		}
 	}
 
-	@Operation(summary = "Get the HcParty encrypted AES keys indexed by owner", description = "(key, value) of the map is as follows: (ID of the owner of the encrypted AES key, encrypted AES key)")
+	@Operation(
+		summary = "Get the HcParty encrypted AES keys indexed by owner. As a HCp may now have multiple AES keys, this service is deprecated. Use /{healthcarePartyId}/aesExchangeKeys",
+		description = "(key, value) of the map is as follows: (ID of the owner of the encrypted AES key, encrypted AES key)",
+		deprecated = true
+	)
 	@GetMapping("/{healthcarePartyId}/keys")
 	fun getHcPartyKeysForDelegate(@PathVariable healthcarePartyId: String) = mono {
 		healthcarePartyLogic.getHcPartyKeysForDelegate(healthcarePartyId)
+	}
+
+	@Operation(
+		summary = "Get the HcParty encrypted AES keys indexed by owner.",
+		description = "(key, value) of the map is as follows: (ID of the owner of the encrypted AES key, encrypted AES keys)"
+	)
+	@GetMapping("/{healthcarePartyId}/aesExchangeKeys")
+	fun getAesExchangeKeysForDelegate(@PathVariable healthcarePartyId: String) = mono {
+		healthcarePartyLogic.getAesExchangeKeysForDelegate(healthcarePartyId)
 	}
 
 	@Operation(summary = "Get a healthcareParty by his ID", description = "General information about the healthcare Party")
