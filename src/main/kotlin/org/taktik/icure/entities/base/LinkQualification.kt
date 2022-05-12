@@ -33,5 +33,6 @@ package org.taktik.icure.entities.base
 enum class LinkQualification {
 	exact, narrower, broader, approximate, sequence, parent, child, relatedCode, linkedPackage,
 	relatedService, inResponseTo, replaces, transforms, transformsAndReplaces, appendsTo,
-	basedOn, derivedFrom, device, focus, hasMember, performer, specimen
+	basedOn, derivedFrom, device, focus, hasMember, performer, specimen,
+	resultInterpreter
 }

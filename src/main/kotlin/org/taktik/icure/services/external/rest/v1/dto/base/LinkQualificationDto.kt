@@ -33,5 +33,5 @@ package org.taktik.icure.services.external.rest.v1.dto.base
 enum class LinkQualificationDto {
 	exact, narrower, broader, approximate, sequence, parent, child, relatedCode, linkedPackage,
 	relatedService, inResponseTo, replaces, transforms, transformsAndReplaces, appendsTo,
-	basedOn, derivedFrom, device, focus, hasMember, performer, specimen
+	basedOn, derivedFrom, device, focus, hasMember, performer, specimen, resultInterpreter
 }
