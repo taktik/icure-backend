@@ -58,6 +58,12 @@
         <DESCRIPTION L='en'>vaccine against meningococcal serogroups A, C, W and Y</DESCRIPTION>
         <DESCRIPTION L='nl'>vaccin tegen meningokokkeninfectie van serogroepen A, C, W et Y</DESCRIPTION>
     </VALUE>
+	<VALUE>
+		<CODE>meningitisb</CODE>
+		<DESCRIPTION L="en">vaccine against meningococcal serogroup B</DESCRIPTION>
+		<DESCRIPTION L="nl">vaccin tegen meningokokkeninfectie van serogroep B</DESCRIPTION>
+		<DESCRIPTION L="fr">vaccin contre les infections à méningocoques du sérogroupe B</DESCRIPTION>
+	</VALUE>
     <VALUE>
         <CODE>meningitisc</CODE>
         <DESCRIPTION L='fr'>vaccin contre les infections à méningocoques du sérogroupe C</DESCRIPTION>
