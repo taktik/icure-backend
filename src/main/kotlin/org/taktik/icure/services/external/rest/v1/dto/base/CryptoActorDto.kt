@@ -30,9 +30,6 @@ interface CryptoActorDto {
 	@get:Schema(description = "Our private keys encrypted with our public keys. The structure is { publicKey1: { publicKey2: privateKey2_encrypted_with_publicKey1, publicKey3: privateKey3_encrypted_with_publicKey1 } }")
 	val transferKeys: Map<String, Map<String, String>>
 
-	@get:Schema(description = "The hcparty keys (first of the pair) for which we are asking a re-encryption by the delegate using our new publicKey.")
-	val lostHcPartyKeys: Set<String>
-
 	@get:Schema(description = "The privateKeyShamirPartitions are used to share this hcp's private RSA key with a series of other hcParties using Shamir's algorithm. The key of the map is the hcp Id with whom this partition has been shared. The value is \"threshold⎮partition in hex\" encrypted using the the partition's holder's public RSA key")
 	val privateKeyShamirPartitions: Map<String, String>
 
