@@ -42,8 +42,6 @@ interface CryptoActor {
 	// The structure is { publicKey1: { publicKey2: privateKey2_encrypted_with_publicKey1, publicKey3: privateKey3_encrypted_with_publicKey1 } }
 	val transferKeys: Map<String, Map<String, String>>
 
-	// The hcparty keys (first of the pair) for which we are asking a re-encryption by the delegate using our new publicKey
-	val lostHcPartyKeys: Set<String>
 	val privateKeyShamirPartitions: Map<String, String> //Format is hcpId of key that has been partitionned : "threshold|partition in hex"
 	val publicKey: String?
 
@@ -51,7 +49,9 @@ interface CryptoActor {
 		return mapOf(
 			"hcPartyKeys" to mergeMapsOfArraysDistinct(this.hcPartyKeys, other.hcPartyKeys),
 			"privateKeyShamirPartitions" to (other.privateKeyShamirPartitions + this.privateKeyShamirPartitions),
-			"publicKey" to (this.publicKey ?: other.publicKey)
+			"publicKey" to (this.publicKey ?: other.publicKey),
+			"aesExchangeKeys" to (other.aesExchangeKeys + this.aesExchangeKeys),
+			"transferKeys" to (other.transferKeys + this.transferKeys)
 		)
 	}
 }

@@ -64,7 +64,6 @@ data class DeviceDto(
 	override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
 	override val aesExchangeKeys: Map<String, Map<String, Array<String>>> = emptyMap(),
 	override val transferKeys: Map<String, Map<String, String>> = emptyMap(),
-	override val lostHcPartyKeys: Set<String> = emptySet(),
 	override val privateKeyShamirPartitions: Map<String, String> = emptyMap(), //Format is hcpId of key that has been partitioned : "threshold|partition in hex"
 	override val publicKey: String? = null,
 ) : StoredDocumentDto, ICureDocumentDto<String>, NamedDto, CryptoActorDto, DataOwnerDto {

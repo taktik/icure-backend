@@ -205,8 +205,6 @@ data class Patient(
 	// Our private keys encrypted with our public keys
 	// The structure is { publicKey1: { publicKey2: privateKey2_encrypted_with_publicKey1, publicKey3: privateKey3_encrypted_with_publicKey1 } }
 	override val transferKeys: Map<String, Map<String, String>> = emptyMap(),
-	// The hcparty keys (first of the pair) for which we are asking a re-encryption by the delegate using our new publicKey
-	override val lostHcPartyKeys: Set<String> = emptySet(),
 
 	override val privateKeyShamirPartitions: Map<String, String> = emptyMap(),
 	override val publicKey: String? = null,
