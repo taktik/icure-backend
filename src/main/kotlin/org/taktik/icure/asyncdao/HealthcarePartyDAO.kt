@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.entities.embed.Identifier
 
 interface HealthcarePartyDAO : GenericDAO<HealthcareParty> {
 	fun listHealthcarePartiesByNihii(nihii: String?): Flow<HealthcareParty>
@@ -48,4 +49,7 @@ interface HealthcarePartyDAO : GenericDAO<HealthcareParty> {
 	fun listHealthcarePartiesByParentId(parentId: String): Flow<HealthcareParty>
 
 	fun findHealthcarePartiesByIds(hcpIds: Flow<String>): Flow<ViewQueryResultEvent>
+	fun listHealthcarePartyIdsByIdentifiers(hcpIdentifiers: List<Identifier>): Flow<String>
+	fun listHealthcarePartyIdsByCode(codeType: String?, codeCode: String?): Flow<String>
+	fun listHealthcarePartyIdsByTag(tagType: String?, tagCode: String?): Flow<String>
 }
