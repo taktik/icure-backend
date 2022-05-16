@@ -789,10 +789,10 @@ class SoftwareMedicalFileExport(
 			}
 			isIsrelevant = true
 			getCompoundValueContent("StartDate")?.instantValue?.let {
-				beginmoment = makeMomentType(it)
+				beginmoment = makeMomentType(it, precision = ChronoUnit.DAYS)
 			}
 			getCompoundValueContent("EndDate")?.instantValue?.let {
-				endmoment = makeMomentType(it)
+				endmoment = makeMomentType(it, precision = ChronoUnit.DAYS)
 			}
 			service.modified?.let {
 				recorddatetime = Utils.makeXGC(it, true)
