@@ -107,7 +107,6 @@ data class PatientDto(
 	override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
 	override val aesExchangeKeys: Map<String, Map<String, Array<String>>> = emptyMap(),
 	override val transferKeys: Map<String, Map<String, String>> = emptyMap(),
-	override val lostHcPartyKeys: Set<String> = emptySet(),
 	override val privateKeyShamirPartitions: Map<String, String> = emptyMap(),
 	override val publicKey: String? = null,
 
