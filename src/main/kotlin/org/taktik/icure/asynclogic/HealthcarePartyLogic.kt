@@ -26,6 +26,7 @@ import org.taktik.icure.asyncdao.HealthcarePartyDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.entities.embed.Identifier
 
 interface HealthcarePartyLogic : EntityPersister<HealthcareParty, String> {
 	fun getGenericDAO(): HealthcarePartyDAO
@@ -56,8 +57,9 @@ interface HealthcarePartyLogic : EntityPersister<HealthcareParty, String> {
 	fun findHealthcarePartiesBySsinOrNihii(searchValue: String, paginationOffset: PaginationOffset<String>, desc: Boolean): Flow<ViewQueryResultEvent>
 	fun getHealthcarePartiesByParentId(parentId: String): Flow<HealthcareParty>
 	suspend fun getHcpHierarchyIds(sender: HealthcareParty): HashSet<String>
-
 	suspend fun createHealthcarePartyOnUserDb(healthcareParty: HealthcareParty, HealthcareParty: URI): HealthcareParty?
-
 	fun filterHealthcareParties(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<HealthcareParty>): Flow<ViewQueryResultEvent>
+	fun listHealthcarePartyIdsByIdentifiers(hcpIdentifiers: List<Identifier>): Flow<String>
+	fun listHealthcarePartyIdsByCode(codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
+	fun listHealthcarePartyIdsByTag(tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
 }
