@@ -198,25 +198,21 @@ class HealthcarePartyLogicImpl(
 		emitAll(healthcarePartyDAO.listHealthcarePartyIdsByIdentifiers(hcpIdentifiers = hcpIdentifiers))
 	}
 
-	override fun listHealthcarePartyIdsByCode(codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> =
+	override fun listHealthcarePartyIdsByCode(codeType: String?, codeCode: String?): Flow<String> =
 		flow {
 			emitAll(
 				healthcarePartyDAO.listHealthcarePartyIdsByCode(
 					codeType = codeType,
-					codeCode = codeCode,
-					startValueDate = startValueDate,
-					endValueDate = endValueDate
+					codeCode = codeCode
 				)
 			)
 		}
 
-	override fun listHealthcarePartyIdsByTag(tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
+	override fun listHealthcarePartyIdsByTag(tagType: String?, tagCode: String?): Flow<String> = flow {
 		emitAll(
 			healthcarePartyDAO.listHealthcarePartyIdsByTag(
 				tagType = tagType,
-				tagCode = tagCode,
-				startValueDate = startValueDate,
-				endValueDate = endValueDate
+				tagCode = tagCode
 			)
 		)
 	}
