@@ -36,27 +36,34 @@ class HealthcarePartyByTagCodeFilter(
 
 	override fun resolve(filter: org.taktik.icure.domain.filter.hcparty.HealthcarePartyByTagCodeFilter, context: Filters): Flow<String> = flow {
 		try {
-			var ids: HashSet<String>? = null
-			if (filter.tagType != null && filter.tagCode != null) {
-				ids = HashSet(
-					healthcarePartyLogic.listHealthcarePartyIdsByTag(
-						filter.tagType!!,
-						filter.tagCode!!
-					).toSet()
-				)
+			val idsByTag = if (filter.tagType != null && filter.tagCode != null) {
+				healthcarePartyLogic.listHealthcarePartyIdsByTag(
+					filter.tagType!!,
+					filter.tagCode!!
+				).toSet()
 			}
-			if (filter.codeType != null && filter.codeCode != null) {
-				val byCode = healthcarePartyLogic.listHealthcarePartyIdsByCode(
+			else {
+				null
+			}
+
+			val idsByCode = if (filter.codeType != null && filter.codeCode != null) {
+				healthcarePartyLogic.listHealthcarePartyIdsByCode(
 					filter.codeType!!,
 					filter.codeCode!!
 				).toSet()
-				if (ids == null) {
-					ids = HashSet(byCode)
-				} else {
-					ids.retainAll(byCode)
-				}
 			}
-			emitAll(ids?.asFlow() ?: healthcarePartyLogic.getEntityIds())
+			else {
+				null
+			}
+
+			val ids = when {
+				idsByTag != null && idsByCode != null -> idsByTag.intersect(idsByCode).asFlow()
+				idsByTag != null -> idsByTag.asFlow()
+				idsByCode != null -> idsByCode.asFlow()
+				else -> healthcarePartyLogic.getEntityIds()
+			}
+
+			emitAll(ids)
 		} catch (e: LoginException) {
 			throw IllegalArgumentException(e)
 		}
