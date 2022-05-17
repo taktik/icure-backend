@@ -97,7 +97,7 @@ import org.taktik.icure.validation.ValidCode
  * @property descr A description of the HCP, meant for the public and in multiple languages
  * @property identifier The healthcareparty's identifiers.
  * @property tags Tags that qualify the healthcareparty as being member of a certain class.
- * @property codes Codes that identify or qualify this particular healthcareparty. *
+ * @property codes Codes that identify or qualify this particular healthcareparty.
  */
 
 data class HealthcareParty(
