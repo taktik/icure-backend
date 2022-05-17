@@ -21,6 +21,7 @@ import javax.security.auth.login.LoginException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toSet
 import org.springframework.stereotype.Service
@@ -36,23 +37,21 @@ class HealthcarePartyByTagCodeFilter(
 
 	override fun resolve(filter: org.taktik.icure.domain.filter.hcparty.HealthcarePartyByTagCodeFilter, context: Filters): Flow<String> = flow {
 		try {
-			val idsByTag = if (filter.tagType != null && filter.tagCode != null) {
+			val idsByTag = if (filter.tagType != null) {
 				healthcarePartyLogic.listHealthcarePartyIdsByTag(
 					filter.tagType!!,
-					filter.tagCode!!
+					filter.tagCode
 				).toSet()
-			}
-			else {
+			} else {
 				null
 			}
 
-			val idsByCode = if (filter.codeType != null && filter.codeCode != null) {
+			val idsByCode = if (filter.codeType != null) {
 				healthcarePartyLogic.listHealthcarePartyIdsByCode(
 					filter.codeType!!,
-					filter.codeCode!!
+					filter.codeCode
 				).toSet()
-			}
-			else {
+			} else {
 				null
 			}
 
@@ -60,7 +59,7 @@ class HealthcarePartyByTagCodeFilter(
 				idsByTag != null && idsByCode != null -> idsByTag.intersect(idsByCode).asFlow()
 				idsByTag != null -> idsByTag.asFlow()
 				idsByCode != null -> idsByCode.asFlow()
-				else -> healthcarePartyLogic.getEntityIds()
+				else -> emptyFlow()
 			}
 
 			emitAll(ids)
