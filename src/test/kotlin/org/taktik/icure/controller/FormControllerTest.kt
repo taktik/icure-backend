@@ -1,9 +1,8 @@
 package org.taktik.icure.controller
 
-import java.util.UUID
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.SingletonSupport
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -17,6 +16,7 @@ import org.taktik.icure.services.external.rest.v1.dto.FormDto
 import reactor.core.publisher.Mono
 import reactor.netty.ByteBufFlux
 import reactor.netty.http.client.HttpClient
+import java.util.UUID
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("app")
@@ -34,12 +34,12 @@ class FormControllerTest {
 		}
 		val objectMapper = ObjectMapper().registerModule(
 			KotlinModule.Builder()
-				.withReflectionCacheSize(512)
-				.configure(KotlinFeature.NullToEmptyCollection, false)
-				.configure(KotlinFeature.NullToEmptyMap, false)
-				.configure(KotlinFeature.NullIsSameAsDefault, false)
-				.configure(KotlinFeature.SingletonSupport, DISABLED)
-				.configure(KotlinFeature.StrictNullChecks, false)
+				.nullIsSameAsDefault(nullIsSameAsDefault = false)
+				.reflectionCacheSize(reflectionCacheSize = 512)
+				.nullToEmptyMap(nullToEmptyMap = false)
+				.nullToEmptyCollection(nullToEmptyCollection = false)
+				.singletonSupport(singletonSupport = SingletonSupport.DISABLED)
+				.strictNullChecks(strictNullChecks = false)
 				.build()
 		)
 
