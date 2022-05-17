@@ -29,6 +29,6 @@ data class HealthcarePartyByIdentifiersFilter(
 	override val desc: String? = null
 ) : AbstractFilter<HealthcareParty>, HealthcarePartyByIdentifiersFilter {
 	override fun matches(item: HealthcareParty): Boolean {
-		return item.deletionDate == null && identifiers.any { searchIdentifier -> item.identifier.any { it.system == searchIdentifier.system && it.id == searchIdentifier.id } }
+		return item.deletionDate == null && identifiers.any { searchIdentifier -> item.identifier.any { it.system == searchIdentifier.system && it.value == searchIdentifier.value } }
 	}
 }

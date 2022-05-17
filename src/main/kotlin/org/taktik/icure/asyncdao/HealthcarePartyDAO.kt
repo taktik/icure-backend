@@ -50,6 +50,6 @@ interface HealthcarePartyDAO : GenericDAO<HealthcareParty> {
 
 	fun findHealthcarePartiesByIds(hcpIds: Flow<String>): Flow<ViewQueryResultEvent>
 	fun listHealthcarePartyIdsByIdentifiers(hcpIdentifiers: List<Identifier>): Flow<String>
-	fun listHealthcarePartyIdsByCode(codeType: String?, codeCode: String?): Flow<String>
-	fun listHealthcarePartyIdsByTag(tagType: String?, tagCode: String?): Flow<String>
+	fun listHealthcarePartyIdsByCode(codes: List<Pair<String?, String?>>): Flow<String>
+	fun listHealthcarePartyIdsByTag(tags: List<Pair<String?, String?>>): Flow<String>
 }

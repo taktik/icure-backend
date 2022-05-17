@@ -200,7 +200,7 @@ internal class HealthcarePartyDAOImpl(
 		emitAll(
 			client.queryView<ComplexKey, String>(queryView)
 				.mapNotNull {
-					if (it.key != null && it.key!!.components.size >= 3) {
+					if (it.key != null && it.key!!.components.size >= 2) {
 						it.id
 					} else {
 						null
@@ -209,43 +209,27 @@ internal class HealthcarePartyDAOImpl(
 		)
 	}
 
-	@View(name = "by_code", map = "classpath:js/healthcareparty/By_code.js")
-	override fun listHealthcarePartyIdsByCode(codeType: String?, codeCode: String?): Flow<String> = flow {
+	@View(name = "by_codes", map = "classpath:js/healthcareparty/By_codes.js")
+	override fun listHealthcarePartyIdsByCode(codes: List<Pair<String?, String?>>): Flow<String> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-		val from = ComplexKey.of(
-			codeType,
-			codeCode
-		)
-		val to = ComplexKey.of(
-			codeType ?: ComplexKey.emptyObject(),
-			codeCode ?: ComplexKey.emptyObject()
-		)
+		val codeKeys = codes.map { (codeType, codeCode) -> ComplexKey.of(codeType, codeCode) }
 
-		val viewQuery = createQuery(client, "by_code")
-			.startKey(from)
-			.endKey(to)
+		val viewQuery = createQuery(client, "by_codes")
+			.keys(codeKeys)
 			.includeDocs(false)
 
 		emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
 	}
 
-	@View(name = "by_tag", map = "classpath:js/healthcareparty/By_tag.js")
-	override fun listHealthcarePartyIdsByTag(tagType: String?, tagCode: String?): Flow<String> = flow {
+	@View(name = "by_tags", map = "classpath:js/healthcareparty/By_tags.js")
+	override fun listHealthcarePartyIdsByTag(tags: List<Pair<String?, String?>>): Flow<String> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-		val from = ComplexKey.of(
-			tagType,
-			tagCode
-		)
-		val to = ComplexKey.of(
-			tagType ?: ComplexKey.emptyObject(),
-			tagCode ?: ComplexKey.emptyObject()
-		)
+		val tagKeys = tags.map { (tagType, tagCode) -> ComplexKey.of(tagType, tagCode) }
 
-		val viewQuery = createQuery(client, "by_tag")
-			.startKey(from)
-			.endKey(to)
+		val viewQuery = createQuery(client, "by_tags")
+			.keys(tagKeys)
 			.includeDocs(false)
 
 		emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })

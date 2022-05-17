@@ -95,7 +95,9 @@ import org.taktik.icure.validation.ValidCode
  * @property bankAccount Bank Account identifier of the healhtcare party, IBAN, deprecated, use financial institutions instead
  * @property bic Bank Identifier Code, the SWIFT Address assigned to the bank, use financial institutions instead
  * @property descr A description of the HCP, meant for the public and in multiple languages
- *
+ * @property identifier The healthcareparty's identifiers.
+ * @property tags Tags that qualify the healthcareparty as being member of a certain class.
+ * @property codes Codes that identify or qualify this particular healthcareparty. *
  */
 
 data class HealthcareParty(

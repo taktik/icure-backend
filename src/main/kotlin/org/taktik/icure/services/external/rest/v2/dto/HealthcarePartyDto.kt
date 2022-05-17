@@ -50,9 +50,9 @@ data class HealthcarePartyDto(
 	@Schema(description = "last modification timestamp of the object.") val modified: Long? = null,
 	@Schema(description = "hard delete (unix epoch in ms) timestamp of the object.") override val deletionDate: Long? = null,
 
-	val identifiers: List<IdentifierDto> = emptyList(),
-	override val tags: Set<CodeStubDto> = emptySet(),
-	override val codes: Set<CodeStubDto> = emptySet(),
+	@Schema(description = "The healthcareparty's identifiers.") val identifiers: List<IdentifierDto> = emptyList(),
+	@Schema(description = "Tags that qualify the healthcareparty as being member of a certain class.") override val tags: Set<CodeStubDto> = emptySet(),
+	@Schema(description = "Codes that identify or qualify this particular healthcareparty.") override val codes: Set<CodeStubDto> = emptySet(),
 
 	@Schema(description = "The full name of the healthcare party, used mainly when the healthcare party is an organization") override val name: String? = null,
 	@Schema(description = "the lastname (surname) of the healthcare party. This is the official lastname that should be used for official administrative purposes.") override val lastName: String? = null,
