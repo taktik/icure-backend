@@ -210,26 +210,42 @@ internal class HealthcarePartyDAOImpl(
 	}
 
 	@View(name = "by_codes", map = "classpath:js/healthcareparty/By_codes.js")
-	override fun listHealthcarePartyIdsByCode(codes: List<Pair<String?, String?>>): Flow<String> = flow {
+	override fun listHealthcarePartyIdsByCode(codeType: String, codeCode: String?): Flow<String> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-		val codeKeys = codes.map { (codeType, codeCode) -> ComplexKey.of(codeType, codeCode) }
+		val from = ComplexKey.of(
+			codeType,
+			codeCode
+		)
+		val to = ComplexKey.of(
+			codeType,
+			codeCode ?: ComplexKey.emptyObject()
+		)
 
-		val viewQuery = createQuery(client, "by_codes")
-			.keys(codeKeys)
+		val viewQuery = createQuery(client, "by_code")
+			.startKey(from)
+			.endKey(to)
 			.includeDocs(false)
 
 		emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
 	}
 
 	@View(name = "by_tags", map = "classpath:js/healthcareparty/By_tags.js")
-	override fun listHealthcarePartyIdsByTag(tags: List<Pair<String?, String?>>): Flow<String> = flow {
+	override fun listHealthcarePartyIdsByTag(tagType: String, tagCode: String?): Flow<String> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-		val tagKeys = tags.map { (tagType, tagCode) -> ComplexKey.of(tagType, tagCode) }
+		val from = ComplexKey.of(
+			tagType,
+			tagCode
+		)
+		val to = ComplexKey.of(
+			tagType,
+			tagCode ?: ComplexKey.emptyObject()
+		)
 
-		val viewQuery = createQuery(client, "by_tags")
-			.keys(tagKeys)
+		val viewQuery = createQuery(client, "by_code")
+			.startKey(from)
+			.endKey(to)
 			.includeDocs(false)
 
 		emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
