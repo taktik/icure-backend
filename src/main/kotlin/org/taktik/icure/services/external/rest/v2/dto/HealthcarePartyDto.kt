@@ -50,7 +50,7 @@ data class HealthcarePartyDto(
 	@Schema(description = "last modification timestamp of the object.") val modified: Long? = null,
 	@Schema(description = "hard delete (unix epoch in ms) timestamp of the object.") override val deletionDate: Long? = null,
 
-	@Schema(description = "The healthcareparty's identifiers.") val identifiers: List<IdentifierDto> = emptyList(),
+	@Schema(description = "The healthcareparty's identifiers, used by the client to identify uniquely and unambiguously the HCP. However, iCure may not guarantee this uniqueness by itself : This should be done at the client side.") val identifiers: List<IdentifierDto> = emptyList(),
 	@Schema(description = "Tags that qualify the healthcareparty as being member of a certain class.") override val tags: Set<CodeStubDto> = emptySet(),
 	@Schema(description = "Codes that identify or qualify this particular healthcareparty.") override val codes: Set<CodeStubDto> = emptySet(),
 

@@ -60,6 +60,6 @@ interface HealthcarePartyLogic : EntityPersister<HealthcareParty, String> {
 	suspend fun createHealthcarePartyOnUserDb(healthcareParty: HealthcareParty, HealthcareParty: URI): HealthcareParty?
 	fun filterHealthcareParties(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<HealthcareParty>): Flow<ViewQueryResultEvent>
 	fun listHealthcarePartyIdsByIdentifiers(hcpIdentifiers: List<Identifier>): Flow<String>
-	fun listHealthcarePartyIdsByCode(codeType: String?, codeCode: String?): Flow<String>
-	fun listHealthcarePartyIdsByTag(tagType: String?, tagCode: String?): Flow<String>
+	fun listHealthcarePartyIdsByCode(codeType: String, codeCode: String?): Flow<String>
+	fun listHealthcarePartyIdsByTag(tagType: String, tagCode: String?): Flow<String>
 }
