@@ -1,10 +1,10 @@
 map = function(doc) {
 	if (doc.java_type === 'org.taktik.icure.entities.Patient' && !doc.deleted && (doc.hcPartyKeys || doc.aesExchangeKeys)) {
 		if (doc.aesExchangeKeys) {
-			let aesPubKeys = Object.keys(doc.aesExchangeKeys);
+			var aesPubKeys = Object.keys(doc.aesExchangeKeys);
 			Object.values(doc.aesExchangeKeys).forEach(function (ks) {
 				Object.keys(ks).forEach(function (k) {
-					let delegateKeys = ks[k];
+					var delegateKeys = ks[k];
 					Object.entries(delegateKeys).forEach(function ([delPub, delK]) {
 						if (!aesPubKeys[delPub.slice(-12)]) {
 							emit(k, [doc._id, delPub.slice(-12), delK]);

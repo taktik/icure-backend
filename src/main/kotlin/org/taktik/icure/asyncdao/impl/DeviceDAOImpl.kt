@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.mapNotNull
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
@@ -79,14 +80,12 @@ class DeviceDAOImpl(
 				.includeDocs(false)
 		).mapNotNull { it.value }
 
-		val resultMap = HashMap<String, Map<String, String>>()
-		result.collect {
-			resultMap[it[0]] = if (resultMap.containsKey(it[0])) {
-				resultMap[it[0]]!!.plus(it[1] to it[2])
-			} else {
-				mapOf(it[1] to it[2])
-			}
-		}
-		return resultMap
+		return result.fold(emptyList<Pair<String, Map<String, String>>>()) { acc, value ->
+			acc.plus(value.first() to mapOf(value[1] to value[2]))
+		}.groupBy {
+			it.first
+		}.map { mapEntry ->
+			mapEntry.key to mapEntry.value.flatMap { (_,v) -> v.entries.map { it.key to it.value } }.toMap()
+		}.toMap()
 	}
 }
