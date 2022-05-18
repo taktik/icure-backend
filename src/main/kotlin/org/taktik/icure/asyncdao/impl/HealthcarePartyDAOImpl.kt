@@ -222,7 +222,7 @@ internal class HealthcarePartyDAOImpl(
 			codeCode ?: ComplexKey.emptyObject()
 		)
 
-		val viewQuery = createQuery(client, "by_code")
+		val viewQuery = createQuery(client, "by_codes")
 			.startKey(from)
 			.endKey(to)
 			.includeDocs(false)
@@ -243,7 +243,7 @@ internal class HealthcarePartyDAOImpl(
 			tagCode ?: ComplexKey.emptyObject()
 		)
 
-		val viewQuery = createQuery(client, "by_code")
+		val viewQuery = createQuery(client, "by_tags")
 			.startKey(from)
 			.endKey(to)
 			.includeDocs(false)
