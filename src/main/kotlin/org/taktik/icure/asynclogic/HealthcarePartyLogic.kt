@@ -37,7 +37,7 @@ interface HealthcarePartyLogic : EntityPersister<HealthcareParty, String> {
 	@Deprecated(message = "A HCP may now have multiple AES Keys. Use getAesExchangeKeysForDelegate instead")
 	suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String>
 
-	suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, List<String>>
+	suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, String>>
 
 	suspend fun modifyHealthcareParty(healthcareParty: HealthcareParty): HealthcareParty?
 	fun deleteHealthcareParties(healthcarePartyIds: List<String>): Flow<DocIdentifier>

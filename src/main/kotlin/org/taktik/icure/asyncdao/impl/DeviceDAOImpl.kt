@@ -69,7 +69,7 @@ class DeviceDAOImpl(
 	}
 
 	@View(name = "by_delegate_aes_exchange_keys", map = "classpath:js/device/By_delegate_aes_exchange_keys_map.js")
-	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, List<String>> {
+	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, String>> {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
 		//Not transactional aware
@@ -79,9 +79,13 @@ class DeviceDAOImpl(
 				.includeDocs(false)
 		).mapNotNull { it.value }
 
-		val resultMap = HashMap<String, List<String>>()
+		val resultMap = HashMap<String, Map<String, String>>()
 		result.collect {
-			resultMap[it[0]] = it.subList(1, it.size)
+			resultMap[it[0]] = if (resultMap.containsKey(it[0])) {
+				resultMap[it[0]]!!.plus(it[1] to it[2])
+			} else {
+				mapOf(it[1] to it[2])
+			}
 		}
 		return resultMap
 	}

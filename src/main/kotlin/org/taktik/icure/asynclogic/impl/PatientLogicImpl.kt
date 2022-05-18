@@ -470,7 +470,7 @@ class PatientLogicImpl(
 		return patientDAO.getHcPartyKeysForDelegate(healthcarePartyId)
 	}
 
-	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, List<String>> {
+	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, String>> {
 		return patientDAO.getAesExchangeKeysForDelegate(healthcarePartyId)
 	}
 
