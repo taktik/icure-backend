@@ -7,7 +7,7 @@ map = function(doc) {
 					let delegateKeys = ks[k];
 					Object.entries(delegateKeys).forEach(function ([delPub, delK]) {
 						if (!aesPubKeys[delPub.slice(-12)]) {
-							emit(k, [doc._id, delPub, delK]);
+							emit(k, [doc._id, delPub.slice(-12), delK]);
 						}
 					})
 				});
@@ -16,7 +16,7 @@ map = function(doc) {
 
 		if (!doc.aesExchangeKeys || !Object.keys(doc.aesExchangeKeys).includes(doc.publicKey)) {
 			Object.keys(doc.hcPartyKeys).forEach(function (k) {
-				emit(k, [doc._id, doc.publicKey, doc.hcPartyKeys[k][1]]);
+				emit(k, [doc._id, doc.publicKey.slice(-12), doc.hcPartyKeys[k][1]]);
 			});
 		}
 	}
