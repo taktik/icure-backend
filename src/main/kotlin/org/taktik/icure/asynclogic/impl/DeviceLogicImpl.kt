@@ -76,7 +76,7 @@ class DeviceLogicImpl(
 		return deviceDAO.getHcPartyKeysForDelegate(deviceId)
 	}
 
-	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, List<String>> {
+	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, String>> {
 		return deviceDAO.getAesExchangeKeysForDelegate(healthcarePartyId)
 	}
 

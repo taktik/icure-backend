@@ -35,8 +35,8 @@ interface CryptoActor {
 	val hcPartyKeys: Map<String, Array<String>>
 
 	// Extra AES exchange keys, usually the ones we lost access to at some point
-	// The structure is { publicKey: { delegateId: [aesExKey_for_this, aesExKey_for_delegate] } }
-	val aesExchangeKeys: Map<String, Map<String, Array<String>>>
+	// The structure is { publicKey: { delegateId: { myPubKey1: aesExKey_for_this, delegatePubKey1: aesExKey_for_delegate } } }
+	val aesExchangeKeys: Map<String, Map<String, Map<String, String>>>
 
 	// Our private keys encrypted with our public keys
 	// The structure is { publicKey1: { publicKey2: privateKey2_encrypted_with_publicKey1, publicKey3: privateKey3_encrypted_with_publicKey1 } }

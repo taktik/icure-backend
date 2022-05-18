@@ -24,8 +24,8 @@ interface CryptoActorDto {
 	@get:Schema(description = "For each couple of HcParties (delegator and delegate), this map contains the exchange AES key. The delegator is always this hcp, the key of the map is the id of the delegate. The AES exchange key is encrypted using RSA twice : once using this hcp public key (index 0 in the Array) and once using the other hcp public key (index 1 in the Array). For a pair of HcParties. Each HcParty always has one AES exchange key for himself.")
 	val hcPartyKeys: Map<String, Array<String>>
 
-	@get:Schema(description = "Extra AES exchange keys, usually the ones we lost access to at some point. The structure is { publicKey: { delegateId: [aesExKey_for_this, aesExKey_for_delegate] } }")
-	val aesExchangeKeys: Map<String, Map<String, Array<String>>>
+	@get:Schema(description = "Extra AES exchange keys, usually the ones we lost access to at some point. The structure is { publicKey: { delegateId: { myPubKey1: aesExKey_for_this, delegatePubKey1: aesExKey_for_delegate } } }")
+	val aesExchangeKeys: Map<String, Map<String, Map<String, String>>>
 
 	@get:Schema(description = "Our private keys encrypted with our public keys. The structure is { publicKey1: { publicKey2: privateKey2_encrypted_with_publicKey1, publicKey3: privateKey3_encrypted_with_publicKey1 } }")
 	val transferKeys: Map<String, Map<String, String>>
