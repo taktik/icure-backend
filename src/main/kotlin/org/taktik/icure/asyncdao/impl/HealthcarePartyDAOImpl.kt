@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.withIndex
@@ -157,7 +158,7 @@ internal class HealthcarePartyDAOImpl(
 	}
 
 	@View(name = "by_delegate_aes_exchange_keys", map = "classpath:js/healthcareparty/By_delegate_aes_exchange_keys_map.js")
-	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, List<String>> {
+	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, String>> {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
 		//Not transactional aware
@@ -167,11 +168,13 @@ internal class HealthcarePartyDAOImpl(
 				.includeDocs(false)
 		).mapNotNull { it.value }
 
-		val resultMap = HashMap<String, List<String>>()
-		result.collect {
-			resultMap[it[0]] = it.subList(1, it.size)
-		}
-		return resultMap
+		return result.fold(emptyList<Pair<String, Map<String, String>>>()) { acc, value ->
+			acc.plus(value.first() to mapOf(value[1] to value[2]))
+		}.groupBy {
+			it.first
+		}.map { mapEntry ->
+			mapEntry.key to mapEntry.value.flatMap { (_,v) -> v.entries.map { it.key to it.value } }.toMap()
+		}.toMap()
 	}
 
 	@View(name = "by_parent", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthcareParty' && !doc.deleted && doc.parentId) emit(doc.parentId, doc._id)}")

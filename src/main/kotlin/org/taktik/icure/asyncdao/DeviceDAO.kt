@@ -16,5 +16,5 @@ interface DeviceDAO : GenericDAO<Device> {
 
 	suspend fun getHcPartyKeysForDelegate(deviceId: String): Map<String, String>
 
-	suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, List<String>>
+	suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, String>>
 }

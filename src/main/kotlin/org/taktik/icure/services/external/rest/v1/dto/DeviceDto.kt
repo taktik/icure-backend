@@ -62,7 +62,7 @@ data class DeviceDto(
 
 	override val properties: Set<PropertyStubDto> = emptySet(),
 	override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
-	override val aesExchangeKeys: Map<String, Map<String, Array<String>>> = emptyMap(),
+	override val aesExchangeKeys: Map<String, Map<String, Map<String, String>>> = emptyMap(),
 	override val transferKeys: Map<String, Map<String, String>> = emptyMap(),
 	override val privateKeyShamirPartitions: Map<String, String> = emptyMap(), //Format is hcpId of key that has been partitioned : "threshold|partition in hex"
 	override val publicKey: String? = null,
