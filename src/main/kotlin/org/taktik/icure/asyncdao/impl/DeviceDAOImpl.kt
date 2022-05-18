@@ -73,9 +73,10 @@ class DeviceDAOImpl(
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
 		//Not transactional aware
-		val result = client.queryView<String, List<String>>(createQuery(client, "by_delegate_aes_exchange_keys")
-			.key(healthcarePartyId)
-			.includeDocs(false)
+		val result = client.queryView<String, List<String>>(
+			createQuery(client, "by_delegate_aes_exchange_keys")
+				.key(healthcarePartyId)
+				.includeDocs(false)
 		).mapNotNull { it.value }
 
 		val resultMap = HashMap<String, List<String>>()

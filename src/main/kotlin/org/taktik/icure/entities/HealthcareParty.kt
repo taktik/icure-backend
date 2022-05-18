@@ -25,6 +25,8 @@ import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.CryptoActor
 import org.taktik.icure.entities.base.DataOwner
+import org.taktik.icure.entities.base.HasCodes
+import org.taktik.icure.entities.base.HasTags
 import org.taktik.icure.entities.base.Named
 import org.taktik.icure.entities.base.Person
 import org.taktik.icure.entities.base.PropertyStub
@@ -35,6 +37,7 @@ import org.taktik.icure.entities.embed.FlatRateTarification
 import org.taktik.icure.entities.embed.Gender
 import org.taktik.icure.entities.embed.HealthcarePartyHistoryStatus
 import org.taktik.icure.entities.embed.HealthcarePartyStatus
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.PersonName
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.embed.TelecomType
@@ -92,7 +95,9 @@ import org.taktik.icure.validation.ValidCode
  * @property bankAccount Bank Account identifier of the healhtcare party, IBAN, deprecated, use financial institutions instead
  * @property bic Bank Identifier Code, the SWIFT Address assigned to the bank, use financial institutions instead
  * @property descr A description of the HCP, meant for the public and in multiple languages
- *
+ * @property identifier The healthcareparty's identifiers, used by the client to identify uniquely and unambiguously the HCP. However, iCure may not guarantee this uniqueness by itself : This should be done at the client side.
+ * @property tags Tags that qualify the healthcareparty as being member of a certain class.
+ * @property codes Codes that identify or qualify this particular healthcareparty.
  */
 
 data class HealthcareParty(
@@ -101,6 +106,10 @@ data class HealthcareParty(
 	@JsonProperty("deleted") override val deletionDate: Long? = null,
 	@field:NotNull(autoFix = AutoFix.NOW) val created: Long? = null,
 	@field:NotNull(autoFix = AutoFix.NOW) val modified: Long? = null,
+
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
+	val identifier: List<Identifier> = emptyList(),
 
 	override val name: String? = null,
 	override val lastName: String? = null,
@@ -169,7 +178,7 @@ data class HealthcareParty(
 	@JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
 	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
-) : StoredDocument, Named, Person, CryptoActor, DataOwner {
+) : StoredDocument, Named, Person, CryptoActor, DataOwner, HasTags, HasCodes {
 	companion object : DynamicInitializer<HealthcareParty>
 
 	fun merge(other: HealthcareParty) = HealthcareParty(args = this.solveConflictsWith(other))
@@ -207,7 +216,11 @@ data class HealthcareParty(
 			{ a, b -> a.flatRateType?.equals(b.flatRateType) ?: false }
 		),
 		"importedData" to (other.importedData + this.importedData),
-		"options" to (other.options + this.options)
+		"options" to (other.options + this.options),
+		"identifier" to mergeListsDistinct(
+			this.identifier, other.identifier,
+			{ a, b -> a.system == b.system && a.value == b.value },
+		),
 	)
 
 	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)

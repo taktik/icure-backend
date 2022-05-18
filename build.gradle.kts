@@ -138,7 +138,6 @@ dependencies {
     //Jackson
 	implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.12.6")
 	implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = "2.12.6")
-	implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = "2.12.6")
     implementation(group = "com.fasterxml.jackson.datatype", name="jackson-datatype-jsr310", version = "2.12.6")
     implementation(group = "org.mapstruct", name = "mapstruct", version = "1.3.1.Final")
 

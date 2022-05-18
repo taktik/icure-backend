@@ -24,6 +24,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.services.external.rest.v2.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v2.dto.base.CryptoActorDto
 import org.taktik.icure.services.external.rest.v2.dto.base.DataOwnerDto
+import org.taktik.icure.services.external.rest.v2.dto.base.HasCodesDto
+import org.taktik.icure.services.external.rest.v2.dto.base.HasTagsDto
+import org.taktik.icure.services.external.rest.v2.dto.base.IdentifierDto
 import org.taktik.icure.services.external.rest.v2.dto.base.NamedDto
 import org.taktik.icure.services.external.rest.v2.dto.base.PersonDto
 import org.taktik.icure.services.external.rest.v2.dto.base.StoredDocumentDto
@@ -46,6 +49,10 @@ data class HealthcarePartyDto(
 	@Schema(description = "creation timestamp of the object.") val created: Long? = null,
 	@Schema(description = "last modification timestamp of the object.") val modified: Long? = null,
 	@Schema(description = "hard delete (unix epoch in ms) timestamp of the object.") override val deletionDate: Long? = null,
+
+	@Schema(description = "The healthcareparty's identifiers, used by the client to identify uniquely and unambiguously the HCP. However, iCure may not guarantee this uniqueness by itself : This should be done at the client side.") val identifier: List<IdentifierDto> = emptyList(),
+	@Schema(description = "Tags that qualify the healthcareparty as being member of a certain class.") override val tags: Set<CodeStubDto> = emptySet(),
+	@Schema(description = "Codes that identify or qualify this particular healthcareparty.") override val codes: Set<CodeStubDto> = emptySet(),
 
 	@Schema(description = "The full name of the healthcare party, used mainly when the healthcare party is an organization") override val name: String? = null,
 	@Schema(description = "the lastname (surname) of the healthcare party. This is the official lastname that should be used for official administrative purposes.") override val lastName: String? = null,
@@ -99,7 +106,7 @@ data class HealthcarePartyDto(
 	override val transferKeys: Map<String, Map<String, String>> = emptyMap(),
 	override val privateKeyShamirPartitions: Map<String, String> = emptyMap(), //Format is hcpId of key that has been partitionned : "threshold⎮partition in hex"
 	override val publicKey: String? = null
-) : StoredDocumentDto, NamedDto, PersonDto, CryptoActorDto, DataOwnerDto {
+) : StoredDocumentDto, NamedDto, PersonDto, CryptoActorDto, DataOwnerDto, HasCodesDto, HasTagsDto {
 	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

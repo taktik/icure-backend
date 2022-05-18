@@ -39,6 +39,7 @@ import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.exceptions.DocumentNotFoundException
 import org.taktik.icure.exceptions.MissingRequirementsException
@@ -191,6 +192,29 @@ class HealthcarePartyLogicImpl(
 
 		val selectedIds = sortedIds.take(paginationOffset.limit + 1) // Fetching one more healthcare parties for the start key of the next page
 		emitAll(healthcarePartyDAO.findHealthcarePartiesByIds(selectedIds))
+	}
+
+	override fun listHealthcarePartyIdsByIdentifiers(hcpIdentifiers: List<Identifier>): Flow<String> = flow {
+		emitAll(healthcarePartyDAO.listHealthcarePartyIdsByIdentifiers(hcpIdentifiers = hcpIdentifiers))
+	}
+
+	override fun listHealthcarePartyIdsByCode(codeType: String, codeCode: String?): Flow<String> =
+		flow {
+			emitAll(
+				healthcarePartyDAO.listHealthcarePartyIdsByCode(
+					codeType = codeType,
+					codeCode = codeCode
+				)
+			)
+		}
+
+	override fun listHealthcarePartyIdsByTag(tagType: String, tagCode: String?): Flow<String> = flow {
+		emitAll(
+			healthcarePartyDAO.listHealthcarePartyIdsByTag(
+				tagType = tagType,
+				tagCode = tagCode
+			)
+		)
 	}
 
 	companion object {

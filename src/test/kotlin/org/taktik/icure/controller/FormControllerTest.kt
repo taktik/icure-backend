@@ -2,8 +2,8 @@ package org.taktik.icure.controller
 
 import java.util.UUID
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.SingletonSupport
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -34,12 +34,12 @@ class FormControllerTest {
 		}
 		val objectMapper = ObjectMapper().registerModule(
 			KotlinModule.Builder()
-				.withReflectionCacheSize(512)
-				.configure(KotlinFeature.NullToEmptyCollection, false)
-				.configure(KotlinFeature.NullToEmptyMap, false)
-				.configure(KotlinFeature.NullIsSameAsDefault, false)
-				.configure(KotlinFeature.SingletonSupport, DISABLED)
-				.configure(KotlinFeature.StrictNullChecks, false)
+				.nullIsSameAsDefault(nullIsSameAsDefault = false)
+				.reflectionCacheSize(reflectionCacheSize = 512)
+				.nullToEmptyMap(nullToEmptyMap = false)
+				.nullToEmptyCollection(nullToEmptyCollection = false)
+				.singletonSupport(singletonSupport = SingletonSupport.DISABLED)
+				.strictNullChecks(strictNullChecks = false)
 				.build()
 		)
 
