@@ -321,7 +321,7 @@ class SoftwareMedicalFileExport(
 							time = makeXGC(0L)
 						}
 						(contact.responsible ?: healthcareParty.id).let {
-							author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic.getHealthcareParty(it)!!, emptyList())) }
+							author = AuthorType().apply { hcparties.add(healthcarePartyLogic.getHealthcareParty(it)?.let { hcp -> createParty(hcp, emptyList()) }) }
 						}
 						isIscomplete = true
 						isIsvalidated = true
@@ -490,7 +490,7 @@ class SoftwareMedicalFileExport(
 						time = makeXGC(0L)
 					}
 					(svc.responsible ?: healthcareParty.id).let {
-						author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic.getHealthcareParty(it)!!, emptyList())) }
+						author = AuthorType().apply { hcparties.add(healthcarePartyLogic.getHealthcareParty(it)?.let { hcp -> createParty(hcp, emptyList()) }) }
 					}
 					isIscomplete = true
 					isIsvalidated = true
@@ -565,7 +565,7 @@ class SoftwareMedicalFileExport(
 							time = makeXGC(0L)
 						}
 						(svc.responsible ?: healthcareParty.id).let {
-							author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic.getHealthcareParty(it)!!, emptyList())) }
+							author = AuthorType().apply { hcparties.add(healthcarePartyLogic.getHealthcareParty(it)?.let { hcp -> createParty(hcp, emptyList()) }) }
 						}
 						isIscomplete = true
 						isIsvalidated = true
@@ -696,7 +696,7 @@ class SoftwareMedicalFileExport(
 				time = makeXGC(it)
 			}
 			service.responsible?.let {
-				author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic.getHealthcareParty(it)!!, emptyList())) }
+				author = AuthorType().apply { hcparties.add(healthcarePartyLogic.getHealthcareParty(it)?.let { hcp -> createParty(hcp, emptyList()) }) }
 			}
 			service.created?.let {
 				recorddatetime = Utils.makeXGC(it)
@@ -823,7 +823,7 @@ class SoftwareMedicalFileExport(
 				time = makeXGC(it)
 			}
 			service.responsible?.let {
-				author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic.getHealthcareParty(it)!!, emptyList())) }
+				author = AuthorType().apply { hcparties.add(healthcarePartyLogic.getHealthcareParty(it)?.let { hcp -> createParty(hcp, emptyList()) }) }
 			}
 			service.created?.let {
 				recorddatetime = Utils.makeXGC(it)
@@ -851,7 +851,7 @@ class SoftwareMedicalFileExport(
 							time = makeXGC(0L)
 						}
 					(service.responsible ?: healthcareParty.id).let {
-						author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic.getHealthcareParty(it)!!, emptyList())) }
+						author = AuthorType().apply { hcparties.add(healthcarePartyLogic.getHealthcareParty(it)?.let { hcp -> createParty(hcp, emptyList()) }) }
 					}
 					isIscomplete = true
 					isIsvalidated = true
