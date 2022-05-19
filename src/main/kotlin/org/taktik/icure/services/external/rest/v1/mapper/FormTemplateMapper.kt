@@ -57,9 +57,6 @@ abstract class FormTemplateMapper {
 	)
 	abstract fun map(formTemplateDto: FormTemplateDto): FormTemplate
 
-	@Mappings(
-		Mapping(target = "templateLayout", source = "layout")
-	)
 	abstract fun map(formTemplate: FormTemplate): FormTemplateDto
 
 	fun mapLayout(formLayout: ByteArray?): FormLayout? = formLayout?.let {
@@ -71,7 +68,7 @@ abstract class FormTemplateMapper {
 		}
 	}
 
-	fun mapTemplateLayout(formLayout: ByteArray?): FormTemplateLayout? = formLayout?.let {
+	fun mapTemplateLayout(formTemplateLayout: ByteArray?): FormTemplateLayout? = formTemplateLayout?.let {
 		try {
 			if (it[0] == 123.toByte()) json.readValue(it, FormTemplateLayout::class.java) else
 				yaml.readValue(it, FormTemplateLayout::class.java)
@@ -79,7 +76,4 @@ abstract class FormTemplateMapper {
 			null
 		}
 	}
-
-
-	fun mapLayout(formTemplateDto: FormTemplateDto): ByteArray? = formTemplateDto.templateLayout?.let { json.writeValueAsBytes(it) } ?: formTemplateDto.layout?.let { json.writeValueAsBytes(it) }
 }
