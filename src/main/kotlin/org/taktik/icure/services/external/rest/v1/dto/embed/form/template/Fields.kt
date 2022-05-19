@@ -17,7 +17,6 @@ interface StructureElement
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonDiscriminated("textfield")
-@KotlinBuilder
 class TextField(
 	field: String,
 	shortLabel: String? = null,
@@ -34,7 +33,6 @@ class TextField(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonDiscriminated("measure-field")
-@KotlinBuilder
 class MeasureField(
 	field: String,
 	shortLabel: String? = null,
@@ -48,7 +46,6 @@ class MeasureField(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonDiscriminated("number-field")
-@KotlinBuilder
 class NumberField(
 	field: String,
 	shortLabel: String? = null,
@@ -62,7 +59,6 @@ class NumberField(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonDiscriminated("date-picker")
-@KotlinBuilder
 class DatePicker(
 	field: String,
 	shortLabel: String? = null,
@@ -76,7 +72,6 @@ class DatePicker(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonDiscriminated("time-picker")
-@KotlinBuilder
 class TimePicker(
 	field: String,
 	shortLabel: String? = null,
@@ -90,7 +85,6 @@ class TimePicker(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonDiscriminated("date-time-picker")
-@KotlinBuilder
 class DateTimePicker(
 	field: String,
 	shortLabel: String? = null,
@@ -104,7 +98,6 @@ class DateTimePicker(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonDiscriminated("multiple-choice")
-@KotlinBuilder
 class MultipleChoice(
 	field: String,
 	shortLabel: String? = null,
