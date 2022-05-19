@@ -38,12 +38,16 @@ abstract class FormTemplateV2Mapper {
 	val json: ObjectMapper = ObjectMapper().registerModule(
 		KotlinModule.Builder()
 			.nullIsSameAsDefault(true)
+			.nullToEmptyCollection(true)
+			.nullToEmptyMap(true)
 			.build()
 	).apply { setSerializationInclusion(JsonInclude.Include.NON_NULL) }
 
 	val yaml: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
 		KotlinModule.Builder()
 			.nullIsSameAsDefault(true)
+			.nullToEmptyCollection(true)
+			.nullToEmptyMap(true)
 			.build()
 	).apply { setSerializationInclusion(JsonInclude.Include.NON_NULL) }
 

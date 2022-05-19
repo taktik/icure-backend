@@ -38,12 +38,16 @@ abstract class FormTemplateMapper {
 	val json: ObjectMapper = ObjectMapper().registerModule(
 		KotlinModule.Builder()
 			.nullIsSameAsDefault(true)
+			.nullToEmptyCollection(true)
+			.nullToEmptyMap(true)
 			.build()
 	).apply { setSerializationInclusion(JsonInclude.Include.NON_NULL) }
 
 	val yaml: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
 		KotlinModule.Builder()
 			.nullIsSameAsDefault(true)
+			.nullToEmptyCollection(true)
+			.nullToEmptyMap(true)
 			.build()
 	).apply { setSerializationInclusion(JsonInclude.Include.NON_NULL) }
 
@@ -74,7 +78,11 @@ abstract class FormTemplateMapper {
 			if (it[0] == 123.toByte()) json.readValue(it, FormTemplateLayout::class.java) else
 				yaml.readValue(it, FormTemplateLayout::class.java)
 		} catch (e: Exception) {
-			null
+			try {
+				yaml.readValue(it, FormTemplateLayout::class.java)
+			} catch (e: Exception) {
+				null
+			}
 		}
 	}
 
