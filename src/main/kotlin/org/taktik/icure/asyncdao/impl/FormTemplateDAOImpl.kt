@@ -118,14 +118,14 @@ internal class FormTemplateDAOImpl(
 
 	override suspend fun beforeSave(entity: FormTemplate) =
 		super.beforeSave(entity).let { formTemplate ->
-			if (formTemplate.layout != null) {
-				val newAttachmentId = DigestUtils.sha256Hex(formTemplate.layout)
+			if (formTemplate.templateLayout != null) {
+				val newAttachmentId = DigestUtils.sha256Hex(formTemplate.templateLayout)
 
-				if (newAttachmentId != formTemplate.layoutAttachmentId && formTemplate.rev != null && formTemplate.layoutAttachmentId != null) {
-					formTemplate.attachments?.containsKey(formTemplate.layoutAttachmentId)?.takeIf { it }?.let {
+				if (newAttachmentId != formTemplate.templateLayoutAttachmentId && formTemplate.rev != null && formTemplate.templateLayoutAttachmentId != null) {
+					formTemplate.attachments?.containsKey(formTemplate.templateLayoutAttachmentId)?.takeIf { it }?.let {
 						formTemplate.copy(
-							rev = deleteAttachment(formTemplate.id, formTemplate.rev, formTemplate.layoutAttachmentId),
-							attachments = formTemplate.attachments - formTemplate.layoutAttachmentId,
+							rev = deleteAttachment(formTemplate.id, formTemplate.rev, formTemplate.templateLayoutAttachmentId),
+							attachments = formTemplate.attachments - formTemplate.templateLayoutAttachmentId,
 							layoutAttachmentId = newAttachmentId,
 							isAttachmentDirty = true
 						)
@@ -136,9 +136,9 @@ internal class FormTemplateDAOImpl(
 				} else
 					formTemplate
 			} else {
-				if (formTemplate.layoutAttachmentId != null && formTemplate.rev != null) {
+				if (formTemplate.templateLayoutAttachmentId != null && formTemplate.rev != null) {
 					formTemplate.copy(
-						rev = deleteAttachment(formTemplate.id, formTemplate.rev, formTemplate.layoutAttachmentId),
+						rev = deleteAttachment(formTemplate.id, formTemplate.rev, formTemplate.templateLayoutAttachmentId),
 						layoutAttachmentId = null,
 						isAttachmentDirty = false
 					)
@@ -148,8 +148,8 @@ internal class FormTemplateDAOImpl(
 
 	override suspend fun afterSave(entity: FormTemplate) =
 		super.afterSave(entity).let { formTemplate ->
-			if (formTemplate.isAttachmentDirty && formTemplate.layoutAttachmentId != null && formTemplate.rev != null && formTemplate.layout != null) {
-				createAttachment(formTemplate.id, formTemplate.layoutAttachmentId, formTemplate.rev, "application/json", flowOf(ByteBuffer.wrap(formTemplate.layout))).let {
+			if (formTemplate.isAttachmentDirty && formTemplate.templateLayoutAttachmentId != null && formTemplate.rev != null && formTemplate.templateLayout != null) {
+				createAttachment(formTemplate.id, formTemplate.templateLayoutAttachmentId, formTemplate.rev, "application/json", flowOf(ByteBuffer.wrap(formTemplate.templateLayout))).let {
 					formTemplate.copy(
 						rev = it,
 						isAttachmentDirty = false
