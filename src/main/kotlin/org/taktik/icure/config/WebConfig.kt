@@ -88,6 +88,8 @@ class WebConfig : WebFluxConfigurer {
 		KotlinModule.Builder()
 			.reflectionCacheSize(512)
 			.nullIsSameAsDefault(true)
+			.nullToEmptyCollection(true)
+			.nullToEmptyMap(true)
 			.build()
 	).apply {
 		setSerializationInclusion(JsonInclude.Include.NON_NULL)
