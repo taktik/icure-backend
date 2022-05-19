@@ -49,7 +49,8 @@ abstract class FormTemplateMapper {
 
 	@Mappings(
 		Mapping(target = "isAttachmentDirty", ignore = true),
-		Mapping(target = "layout", source = "formTemplateDto"),
+		Mapping(target = "layout", ignore = true),
+		Mapping(target = "templateLayout", source = "formTemplateDto"),
 		Mapping(target = "attachments", ignore = true),
 		Mapping(target = "revHistory", ignore = true),
 		Mapping(target = "conflicts", ignore = true),
@@ -74,6 +75,12 @@ abstract class FormTemplateMapper {
 				yaml.readValue(it, FormTemplateLayout::class.java)
 		} catch (e: Exception) {
 			null
+		}
+	}
+
+	fun mapLayout(formTemplateDto: FormTemplateDto): ByteArray? {
+		return formTemplateDto.templateLayout?.let {
+			json.writeValueAsBytes(it)
 		}
 	}
 }

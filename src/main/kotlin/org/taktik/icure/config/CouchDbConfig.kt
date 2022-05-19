@@ -87,7 +87,9 @@ class CouchDbConfig(val couchDbProperties: CouchDbProperties) {
 	fun asyncCacheManager() = AsyncMapCacheManager()
 
 	@Bean
-	fun patientCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, couchDbProperties.prefix, "patient", couchDbProperties.username!!, couchDbProperties.password!!, 1)
+	fun patientCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper): CouchDbDispatcher {
+		return CouchDbDispatcher(httpClient, objectMapper, couchDbProperties.prefix, "patient", couchDbProperties.username!!, couchDbProperties.password!!, 1)
+	}
 
 	@Bean
 	fun healthdataCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, couchDbProperties.prefix, "healthdata", couchDbProperties.username!!, couchDbProperties.password!!, 1)
