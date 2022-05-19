@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -253,7 +254,7 @@ class HealthcarePartyController(
 
 	@Operation(summary = "Get ids of healthcare party matching the provided filter for the current user (HcParty) ")
 	@PostMapping("/match")
-	fun matchHealthcarePartiesBy(@RequestBody filter: AbstractFilterDto<HealthcareParty>) = filters.resolve(filter).injectReactorContext()
+	fun matchHealthcarePartiesBy(@RequestBody filter: AbstractFilterDto<HealthcareParty>) = mono { filters.resolve(filter).toList() }
 
 	@Operation(summary = "Filter healthcare parties for the current user (HcParty)", description = "Returns a list of healthcare party along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
 	@PostMapping("/filter")
