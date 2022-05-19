@@ -470,6 +470,10 @@ class PatientLogicImpl(
 		return patientDAO.getHcPartyKeysForDelegate(healthcarePartyId)
 	}
 
+	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, String>> {
+		return patientDAO.getAesExchangeKeysForDelegate(healthcarePartyId)
+	}
+
 	override fun listOfPatientsModifiedAfter(date: Long, startKey: Long?, startDocumentId: String?, limit: Int?) = flow<ViewQueryResultEvent> {
 		emitAll(
 			patientDAO.findPatientsModifiedAfter(

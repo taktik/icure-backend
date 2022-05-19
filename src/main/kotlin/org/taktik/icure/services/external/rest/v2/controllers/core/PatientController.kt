@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.Splitter
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.count
@@ -148,27 +147,12 @@ class PatientController(
 	}
 
 	@Operation(
-		summary = "Get the patient (identified by patientId) hcparty keys. Those keys are AES keys (encrypted) used to share information between HCPs and a patient.",
-		description = """This endpoint is used to recover all keys that have already been created and that can be used to share information with this patient. It returns a map with the following structure: ID of the owner of the encrypted AES key -> encrypted AES key. The returned encrypted AES keys will have to be decrypted using the patient's private key.
-
-                {
-                    "hcparty 1 delegator ID": "AES hcparty key (encrypted using patient public RSA key)"
-                    "hcparty 2 delegator ID": "other AES hcparty key (encrypted using patient public RSA key)"
-                }
-                """,
-		responses = [
-			ApiResponse(responseCode = "200", description = "Successful operation"),
-			ApiResponse(
-				responseCode = "401",
-				description = "Unauthorized operation: the provided credentials are invalid",
-				content = []
-			)
-		]
+		summary = "Get the HcParty encrypted AES keys indexed by owner.",
+		description = "(key, value) of the map is as follows: (ID of the owner of the encrypted AES key, encrypted AES keys)"
 	)
-	@GetMapping("/{patientId}/keys")
-	//@ApiResponse(content = { @Content(examples = { @ExampleObject(value="{ hcpartyId : aes key }") }) } )
-	fun getPatientHcPartyKeysForDelegate(@Parameter(description = "The patient Id for which information is shared") @PathVariable patientId: String) = mono {
-		patientLogic.getHcPartyKeysForDelegate(patientId)
+	@GetMapping("/{patientId}/aesExchangeKeys")
+	fun getPatientAesExchangeKeysForDelegate(@PathVariable patientId: String) = mono {
+		patientLogic.getAesExchangeKeysForDelegate(patientId)
 	}
 
 	@Operation(summary = "Get count of patients for a specific HcParty or for the current HcParty ", description = "Returns the count of patients")

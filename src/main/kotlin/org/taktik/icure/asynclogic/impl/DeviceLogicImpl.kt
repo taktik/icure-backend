@@ -76,6 +76,10 @@ class DeviceLogicImpl(
 		return deviceDAO.getHcPartyKeysForDelegate(deviceId)
 	}
 
+	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, String>> {
+		return deviceDAO.getAesExchangeKeysForDelegate(healthcarePartyId)
+	}
+
 	override fun deleteDevices(ids: Collection<String>): Flow<DocIdentifier> = flow {
 		emitAll(deleteEntities(ids))
 	}

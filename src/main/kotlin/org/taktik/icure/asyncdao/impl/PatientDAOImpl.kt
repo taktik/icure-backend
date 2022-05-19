@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.toList
@@ -477,6 +478,26 @@ class PatientDAOImpl(
 		}
 
 		return resultMap
+	}
+
+	@View(name = "by_delegate_aes_exchange_keys", map = "classpath:js/patient/By_delegate_aes_exchange_keys_map.js")
+	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, String>> {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+		//Not transactional aware
+		val result = client.queryView<String, List<String>>(
+			createQuery(client, "by_delegate_aes_exchange_keys")
+				.key(healthcarePartyId)
+				.includeDocs(false)
+		).mapNotNull { it.value }
+
+		return result.fold(emptyList<Pair<String, Map<String, String>>>()) { acc, value ->
+			acc.plus(value.first() to mapOf(value[1] to value[2]))
+		}.groupBy {
+			it.first
+		}.map { mapEntry ->
+			mapEntry.key to mapEntry.value.flatMap { (_,v) -> v.entries.map { it.key to it.value } }.toMap()
+		}.toMap()
 	}
 
 	override fun listPatientsByHcPartyAndIdentifier(healthcarePartyId: String, system: String, id: String) = flow {
