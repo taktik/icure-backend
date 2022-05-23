@@ -175,15 +175,34 @@ class IncapacityExport(
 		foreignStayBegin: Long,
 		foreignStayEnd: Long
 	): FolderType {
-		//creation of Patient
+		//TODO remove some data when no diagnosis are presenr:
+		// Patient: A telecom is only allowed when a diagnosis is present.
+		// Patient: A telecom is only allowed when a diagnosis is present.
+		// Patient: A telecom is only allowed when a diagnosis is present.
+		// Patient: A profession is only allowed when a diagnosis is present.
+
 		val folder = FolderType().apply {
 			ids.add(idKmehr(patientIndex))
 			this.patient = makePatient(patient, config)
 			if (recoveryAddress != null) {
 				this.patient.addresses.addAll(makeAddresses(listOf(recoveryAddress)))
 			}
-			if (listOf("civilservant", "employed", "selfemployed").contains(jobstatus)) {
+			if (listOf("civilservant", "employed", "selfemployed").contains(jobstatus) && !diagnoseServices.isEmpty()) {
 				this.patient.profession.cds.add(CDEMPLOYMENTSITUATION().apply { value = CDEMPLOYMENTSITUATIONvalues.fromValue(jobstatus) })
+			}
+			if(dataset == "c" || diagnoseServices.isEmpty()){
+				this.patient.profession = null;
+				this.patient.telecoms.clear();
+			} else {
+				this.patient.profession.text = TextType().apply {
+					this.l = language
+					this.value = job;
+				}
+			}
+			this.patient.birthlocation = null;
+			this.patient.deathlocation = null;
+			if(diagnoseServices.isEmpty()){
+				this.patient.telecoms.clear();
 			}
 		}
 
@@ -291,11 +310,18 @@ class IncapacityExport(
 								}
 
 								//svc.codes has all the content
+								//remove BE-THESAURUS
+								var codes = svc.codes.filter { cd ->  cd.type != "BE-THESAURUS"}
+								//remove ICD/ICPC if SNOMED present
+								if(svc.codes.any{cd -> cd.type == "SNOMED"}){
+									codes = listOf(svc.codes.filter { cd ->  cd.type == "SNOMED"}.first()) //avoid multiple snomed codes
+								}
+
 								contents.add(
 									ContentType().apply {
 										cds.addAll(
-											svc.codes.map { cd ->
-												CDCONTENT().apply { s(if (cd.type == "ICD") CDCONTENTschemes.ICD else (if (cd.type == "ICPC") CDCONTENTschemes.ICPC else CDCONTENTschemes.CD_CLINICAL)); value = cd.code }
+											codes.map { cd ->
+												CDCONTENT().apply { s(if (cd.type == "ICD") CDCONTENTschemes.ICD else (if (cd.type == "ICPC") CDCONTENTschemes.ICPC else CDCONTENTschemes.CD_SNOMED)); value = cd.code }
 											}
 										)
 										val descr_fr = svc.content?.get("descr_fr")?.stringValue
@@ -312,7 +338,7 @@ class IncapacityExport(
 							}
 						}
 					)
-					if (!hospital?.id.isNullOrBlank() || hospitalisationEnd > 0 || hospitalisationBegin > 0) {
+					if ((!hospital?.id.isNullOrBlank() || hospitalisationEnd > 0 || hospitalisationBegin > 0) && !diagnoseServices.isEmpty()) {
 						headingsAndItemsAndTexts.add(
 							ItemType().apply {
 								ids.add(idKmehr(itemsIdx++))
@@ -366,7 +392,7 @@ class IncapacityExport(
 							)
 						}
 					}
-					if (!contactPersonTel.isNullOrEmpty()) {
+					if (!contactPersonTel.isNullOrEmpty() && !diagnoseServices.isEmpty()) {
 						headingsAndItemsAndTexts.add(
 							ItemType().apply {
 								ids.add(idKmehr(itemsIdx++))
