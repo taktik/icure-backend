@@ -481,23 +481,23 @@ class PatientDAOImpl(
 	}
 
 	@View(name = "by_delegate_aes_exchange_keys", map = "classpath:js/patient/By_delegate_aes_exchange_keys_map.js")
-	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, String>> {
+	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Collection<Map<String, String>>> {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
-
-		//Not transactional aware
 		val result = client.queryView<String, List<String>>(
 			createQuery(client, "by_delegate_aes_exchange_keys")
 				.key(healthcarePartyId)
 				.includeDocs(false)
-		).mapNotNull { it.value }
+		).map { it.key to it.value }
 
-		return result.fold(emptyList<Pair<String, Map<String, String>>>()) { acc, value ->
-			acc.plus(value.first() to mapOf(value[1] to value[2]))
-		}.groupBy {
-			it.first
-		}.map { mapEntry ->
-			mapEntry.key to mapEntry.value.flatMap { (_,v) -> v.entries.map { it.key to it.value } }.toMap()
-		}.toMap()
+		return result.fold(emptyMap<String, Map<String, Map<String, String>>>()) { acc, (key, value) ->
+			if (key != null && value != null) {
+				acc + (value[0] to (acc[value[0]] ?: emptyMap()).let {
+					it + (value[1] to (it[value[1]] ?: emptyMap()).let {dels ->
+						dels + (value[2] to value[3])
+					})
+				})
+			} else acc
+		}.mapValues { (_, byPk) -> byPk.values }
 	}
 
 	override fun listPatientsByHcPartyAndIdentifier(healthcarePartyId: String, system: String, id: String) = flow {
