@@ -88,7 +88,7 @@ interface PatientLogic {
 	@Deprecated(message = "A DataOwner may now have multiple AES Keys. Use getAesExchangeKeysForDelegate instead")
 	suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String>
 
-	suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, String>>
+	suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Collection<Map<String, String>>>
 
 	fun listOfPatientsModifiedAfter(date: Long, startKey: Long?, startDocumentId: String?, limit: Int?): Flow<ViewQueryResultEvent>
 	fun getDuplicatePatientsBySsin(healthcarePartyId: String, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>

@@ -74,7 +74,7 @@ class HealthcarePartyLogicImpl(
 		return healthcarePartyDAO.getHcPartyKeysForDelegate(healthcarePartyId)
 	}
 
-	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, String>> {
+	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Collection<Map<String, String>>> {
 		return healthcarePartyDAO.getAesExchangeKeysForDelegate(healthcarePartyId)
 	}
 

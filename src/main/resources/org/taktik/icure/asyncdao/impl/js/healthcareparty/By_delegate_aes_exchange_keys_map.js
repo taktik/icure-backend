@@ -1,22 +1,20 @@
 map = function(doc) {
-	if (doc.java_type === 'org.taktik.icure.entities.HealthcareParty' && !doc.deleted && (doc.hcPartyKeys || doc.aesExchangeKeys)) {
-		if (doc.aesExchangeKeys) {
-			var aesPubKeys = Object.keys(doc.aesExchangeKeys);
-			Object.values(doc.aesExchangeKeys).forEach(function (ks) {
-				Object.keys(ks).forEach(function (k) {
-					var delegateKeys = ks[k];
-					Object.entries(delegateKeys).forEach(function ([delPub, delK]) {
-						if (!aesPubKeys[delPub.slice(-12)]) {
-							emit(k, [doc._id, delPub.slice(-12), delK]);
-						}
-					})
-				});
+	if (doc.java_type === 'org.taktik.icure.entities.HealthcareParty' && !doc.deleted && doc.publicKey && (doc.hcPartyKeys || doc.aesExchangeKeys)) {
+		var aesPubKeys = Object.keys(doc.aesExchangeKeys || {});
+		aesPubKeys.forEach(function (pk) {
+			var ks = doc.aesExchangeKeys[pk]
+			Object.keys(ks).forEach(function (hcpId) {
+				var delegateKeys = ks[hcpId];
+				Object.keys(delegateKeys).forEach(function (delPub) {
+					var delK = delegateKeys[delPub]
+					emit(hcpId, [doc._id, pk.slice(-12), delPub.slice(-12), delK]);
+				})
 			});
-		}
+		});
 
-		if (!doc.aesExchangeKeys || !Object.keys(doc.aesExchangeKeys).includes(doc.publicKey)) {
+		if (!doc.aesExchangeKeys[doc.publicKey]) {
 			Object.keys(doc.hcPartyKeys).forEach(function (k) {
-				emit(k, [doc._id, doc.publicKey.slice(-12), doc.hcPartyKeys[k][1]]);
+				emit(k, [doc._id, doc.publicKey.slice(-12), null, doc.hcPartyKeys[k][1]]);
 			});
 		}
 	}
