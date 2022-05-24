@@ -19,7 +19,7 @@ interface DeviceLogic {
 	@Deprecated(message = "A DataOwner may now have multiple AES Keys. Use getAesExchangeKeysForDelegate instead")
 	suspend fun getHcPartyKeysForDelegate(deviceId: String): Map<String, String>
 
-	suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Collection<Map<String, String>>>
+	suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, Map<String, String>>>
 
 	suspend fun deleteDevice(id: String): DocIdentifier?
 	fun deleteDevices(ids: Collection<String>): Flow<DocIdentifier>
