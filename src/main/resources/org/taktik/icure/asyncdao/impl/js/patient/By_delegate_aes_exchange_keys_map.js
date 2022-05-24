@@ -12,9 +12,9 @@ map = function(doc) {
 			});
 		});
 
-		if (!doc.aesExchangeKeys[doc.publicKey]) {
+		if (!doc.aesExchangeKeys || !doc.aesExchangeKeys[doc.publicKey]) {
 			Object.keys(doc.hcPartyKeys).forEach(function (k) {
-				emit(k, [doc._id, doc.publicKey.slice(-12), null, doc.hcPartyKeys[k][1]]);
+				emit(k, [doc._id, doc.publicKey.slice(-12), '', doc.hcPartyKeys[k][1]]);
 			});
 		}
 	}
