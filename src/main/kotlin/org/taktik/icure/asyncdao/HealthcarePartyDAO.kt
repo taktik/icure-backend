@@ -44,7 +44,7 @@ interface HealthcarePartyDAO : GenericDAO<HealthcareParty> {
 	@Deprecated(message = "A HCP may now have multiple AES Keys. Use getAesExchangeKeysForDelegate instead")
 	suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String>
 
-	suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Collection<Map<String, String>>>
+	suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, Map<String, String>>>
 
 	fun listHealthcarePartiesByParentId(parentId: String): Flow<HealthcareParty>
 
