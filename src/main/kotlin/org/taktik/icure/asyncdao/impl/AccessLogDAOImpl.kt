@@ -76,8 +76,8 @@ class AccessLogDAOImpl(
 			Array<Any>::class.java,
 			String::class.java,
 			AccessLog::class.java
-		).toList()
-		emitAll(items.asFlow())
+		)
+		emitAll(items)
 	}
 
 	@View(name = "by_hcparty_patient", map = "classpath:js/accesslog/By_hcparty_patient_map.js")
