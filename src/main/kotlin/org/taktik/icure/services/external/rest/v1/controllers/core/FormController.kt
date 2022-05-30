@@ -46,7 +46,6 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FormLogic
 import org.taktik.icure.asynclogic.FormTemplateLogic
-import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.services.external.rest.v1.dto.FormDto
 import org.taktik.icure.services.external.rest.v1.dto.FormTemplateDto

@@ -48,7 +48,6 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DocumentLogic
-import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.DocumentType
 import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.security.CryptoUtils.isValidAesKey
