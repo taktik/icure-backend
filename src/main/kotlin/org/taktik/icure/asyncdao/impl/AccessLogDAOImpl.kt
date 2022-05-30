@@ -63,12 +63,12 @@ class AccessLogDAOImpl(
 		val startKey = ComplexKey.of(
 			userId,
 			accessType ?: ComplexKey.emptyObject().takeIf { descending },
-			startDate ?: Long.MAX_VALUE.takeIf { descending } ?: 0
+			startDate?.takeUnless { descending } ?: Long.MAX_VALUE.takeIf { descending }
 		)
 		val endKey = ComplexKey.of(
 			userId,
 			accessType ?: ComplexKey.emptyObject().takeIf { !descending },
-			Long.MAX_VALUE.takeIf { !descending } ?: 0
+			startDate?.takeIf { descending } ?: Long.MAX_VALUE.takeUnless { descending }
 		)
 
 		val items = client.queryView(
