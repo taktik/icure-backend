@@ -39,6 +39,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.LifecycleType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.ProfessionType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.RecipientType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.TelecomType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
@@ -207,6 +208,9 @@ class IncapacityExport(
 				this.patient.addresses.addAll(makeAddresses(listOf(recoveryAddress)))
 			}
 			if (listOf("civilservant", "employed", "selfemployed").contains(jobstatus) && !diagnoseServices.isEmpty()) {
+				if(this.patient.profession == null){
+					this.patient.profession = ProfessionType()
+				}
 				this.patient.profession.cds.add(CDEMPLOYMENTSITUATION().apply { value = CDEMPLOYMENTSITUATIONvalues.fromValue(jobstatus) })
 			}
 			if(dataset == "c" || diagnoseServices.isEmpty()){
