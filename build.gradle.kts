@@ -284,10 +284,14 @@ val ktlintFormat by tasks.creating(JavaExec::class) {
 }
 
 val setupKtlintPreCommitHook by tasks.creating(Exec::class) {
-    exec {
-        workingDir = File("${rootProject.projectDir}")
-        commandLine = listOf("sh", "-c", "git config --local include.path ./.gitconfig > /dev/null 2>&1 || true")
-    }
+	try {
+		exec {
+			workingDir = File("${rootProject.projectDir}")
+			commandLine = listOf("sh", "-c", "git config --local include.path ./.gitconfig > /dev/null 2>&1 || true")
+		}
+	} catch (e: Throwable) {
+		println("Cannot install KtLint pre-commit hook, please execute ktlint format by hand before committing")
+	}
 }
 
 publishing {
