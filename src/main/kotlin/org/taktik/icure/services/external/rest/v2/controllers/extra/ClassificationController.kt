@@ -39,7 +39,6 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.ClassificationLogic
-import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.services.external.rest.v2.dto.ClassificationDto
 import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto

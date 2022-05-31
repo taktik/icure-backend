@@ -53,7 +53,6 @@ import org.taktik.icure.asynclogic.InvoiceLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Invoice
-import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.InvoiceType
 import org.taktik.icure.entities.embed.MediumType
 import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto

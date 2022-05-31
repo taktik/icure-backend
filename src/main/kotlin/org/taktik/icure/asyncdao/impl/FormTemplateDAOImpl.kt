@@ -160,7 +160,7 @@ internal class FormTemplateDAOImpl(
 
 	override suspend fun postLoad(entity: FormTemplate) =
 		super.postLoad(entity).let { formTemplate ->
-			val formTemplateLayout = formTemplate.templateLayoutAttachmentId?.let {laId ->
+			val formTemplateLayout = formTemplate.templateLayoutAttachmentId?.let { laId ->
 				val attachmentFlow = getAttachment(formTemplate.id, laId, formTemplate.rev)
 				ByteArrayOutputStream().use {
 					attachmentFlow.writeTo(it)
@@ -168,7 +168,7 @@ internal class FormTemplateDAOImpl(
 				}
 			}
 
-			val formLayout = formTemplate.layoutAttachmentId?.takeIf { formTemplateLayout == null }?.let {laId ->
+			val formLayout = formTemplate.layoutAttachmentId?.takeIf { formTemplateLayout == null }?.let { laId ->
 				val attachmentFlow = getAttachment(formTemplate.id, laId, formTemplate.rev)
 				ByteArrayOutputStream().use {
 					attachmentFlow.writeTo(it)

@@ -63,12 +63,18 @@ class AccessLogDAOImpl(
 		val startKey = ComplexKey.of(
 			userId,
 			accessType ?: ComplexKey.emptyObject().takeIf { descending },
-			startDate ?: Long.MAX_VALUE.takeIf { descending } ?: 0
+			when(descending) {
+				true -> ComplexKey.emptyObject()
+				false -> startDate
+			}
 		)
 		val endKey = ComplexKey.of(
 			userId,
 			accessType ?: ComplexKey.emptyObject().takeIf { !descending },
-			Long.MAX_VALUE.takeIf { !descending } ?: 0
+			when(descending){
+				true -> startDate
+				false -> ComplexKey.emptyObject()
+			}
 		)
 
 		val items = client.queryView(
@@ -76,8 +82,8 @@ class AccessLogDAOImpl(
 			Array<Any>::class.java,
 			String::class.java,
 			AccessLog::class.java
-		).toList()
-		emitAll(items.asFlow())
+		)
+		emitAll(items)
 	}
 
 	@View(name = "by_hcparty_patient", map = "classpath:js/accesslog/By_hcparty_patient_map.js")
