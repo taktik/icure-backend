@@ -18,11 +18,20 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import java.util.*
 import kotlin.collections.set
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.toList
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
@@ -292,7 +301,7 @@ class PatientDAOImpl(
 		} else {
 			name = StringUtils.sanitizeString(name)
 			startKey = ComplexKey.of(healthcarePartyId, name!! + startKeyNameKeySuffix)
-			endKey = ComplexKey.of(healthcarePartyId, name!! + endKeyNameKeySuffix)
+			endKey = ComplexKey.of(healthcarePartyId, name + endKeyNameKeySuffix)
 		}
 
 		val viewQuery = pagedViewQuery<Patient, ComplexKey>(client, viewName, startKey, endKey, pagination, descending)
@@ -469,6 +478,26 @@ class PatientDAOImpl(
 		}
 
 		return resultMap
+	}
+
+	@View(name = "by_delegate_aes_exchange_keys", map = "classpath:js/patient/By_delegate_aes_exchange_keys_map.js")
+	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, Map<String, String>>> {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val result = client.queryView<String, List<String>>(
+			createQuery(client, "by_delegate_aes_exchange_keys")
+				.key(healthcarePartyId)
+				.includeDocs(false)
+		).map { it.key to it.value }
+
+		return result.fold(emptyMap<String, Map<String, Map<String, String>>>()) { acc, (key, value) ->
+			if (key != null && value != null) {
+				acc + (value[0] to (acc[value[0]] ?: emptyMap()).let {
+					it + (value[1].let { it.substring((it.length - 12).coerceAtLeast(0)) } to (it[value[1]] ?: emptyMap()).let {dels ->
+						dels + (value[2] to value[3])
+					})
+				})
+			} else acc
+		}
 	}
 
 	override fun listPatientsByHcPartyAndIdentifier(healthcarePartyId: String, system: String, id: String) = flow {

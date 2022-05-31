@@ -31,7 +31,7 @@ data class Quantity(val value: BigDecimal? = null, val unit: String? = null) {
 		if (this === other) return true
 		if (other !is Quantity) return false
 
-		other as Quantity
+		other
 
 		if (value != null && other.value == null || value == null && other.value != null || (value?.compareTo(other.value) != 0 && value != other.value)) return false
 		if (unit != other.unit) return false

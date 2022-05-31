@@ -114,7 +114,8 @@ class SwaggerConfig {
 						}
 					)
 				}
-			} catch (e: IllegalStateException) {}
+			} catch (e: IllegalStateException) {
+			}
 		}
 	}
 }

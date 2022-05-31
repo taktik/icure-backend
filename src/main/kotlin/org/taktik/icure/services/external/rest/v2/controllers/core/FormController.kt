@@ -246,9 +246,12 @@ class FormController(
 		val forms = formLogic.getForms(stubs.map { it.id }).map { form ->
 			stubs.find { s -> s.id == form.id }?.let { stub ->
 				form.copy(
-					delegations = form.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels },
-					encryptionKeys = form.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels },
-					cryptedForeignKeys = form.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels }
+					delegations = form.delegations.mapValues { (s, dels) -> stub.delegations[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels } +
+						stub.delegations.filterKeys { k -> !form.delegations.containsKey(k) }.mapValues { (_, value) -> value.map { delegationV2Mapper.map(it) }.toSet() },
+					encryptionKeys = form.encryptionKeys.mapValues { (s, dels) -> stub.encryptionKeys[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels } +
+						stub.encryptionKeys.filterKeys { k -> !form.encryptionKeys.containsKey(k) }.mapValues { (_, value) -> value.map { delegationV2Mapper.map(it) }.toSet() },
+					cryptedForeignKeys = form.cryptedForeignKeys.mapValues { (s, dels) -> stub.cryptedForeignKeys[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels } +
+						stub.cryptedForeignKeys.filterKeys { k -> !form.cryptedForeignKeys.containsKey(k) }.mapValues { (_, value) -> value.map { delegationV2Mapper.map(it) }.toSet() },
 				)
 			} ?: form
 		}

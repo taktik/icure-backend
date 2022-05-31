@@ -18,13 +18,15 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.be.efact
 
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 import io.swagger.v3.oas.annotations.media.Schema
 
 class EIDItem {
 	var deviceType: String? = null
 	var readDate: Long? = null
-	@Schema(defaultValue = "0") var readHour: Int = 0
+	@Schema(defaultValue = "0")
+	var readHour: Int = 0
 	var readType: String? = null
 	var readvalue: String? = null
 

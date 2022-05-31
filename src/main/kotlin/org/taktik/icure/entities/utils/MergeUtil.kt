@@ -19,8 +19,6 @@
 
 package org.taktik.icure.entities.utils
 
-import java.util.*
-
 /**
  * Created by aduchate on 07/06/2017.
  */

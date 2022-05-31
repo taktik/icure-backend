@@ -15,8 +15,14 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.be.mikrono.dto
+package org.taktik.icure.domain.filter.hcparty
 
-import java.io.Serializable
+import org.taktik.icure.domain.filter.Filter
+import org.taktik.icure.entities.HealthcareParty
 
-class ChangeExternalIDReplyDto(var errors: List<String>? = null) : Serializable
+interface HealthcarePartyByTagCodeFilter : Filter<String, HealthcareParty> {
+	val tagType: String?
+	val tagCode: String?
+	val codeType: String?
+	val codeCode: String?
+}

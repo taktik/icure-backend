@@ -22,8 +22,14 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.entity.Attachment
-import org.taktik.icure.entities.base.*
-import org.taktik.icure.entities.embed.*
+import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.CryptoActor
+import org.taktik.icure.entities.base.DataOwner
+import org.taktik.icure.entities.base.Named
+import org.taktik.icure.entities.base.PropertyStub
+import org.taktik.icure.entities.base.StoredICureDocument
+import org.taktik.icure.entities.embed.Identifier
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
@@ -109,13 +115,12 @@ data class Device(
 	// the key encrypted using delegate's public key.
 	override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
 	// Extra AES exchange keys, usually the ones we lost access to at some point
-	// The structure is { publicKey: { delegateId: [aesExKey_for_this, aesExKey_for_delegate] } }
-	override val aesExchangeKeys: Map<String, Map<String, Array<String>>> = emptyMap(),
+	// The structure is { publicKey: { delegateId: { myPubKey1: aesExKey_for_this, delegatePubKey1: aesExKey_for_delegate } } }
+	override val aesExchangeKeys: Map<String, Map<String, Map<String, String>>> = emptyMap(),
 	// Our private keys encrypted with our public keys
 	// The structure is { publicKey1: { publicKey2: privateKey2_encrypted_with_publicKey1, publicKey3: privateKey3_encrypted_with_publicKey1 } }
 	override val transferKeys: Map<String, Map<String, String>> = emptyMap(),
-	// The hcparty keys (first of the pair) for which we are asking a re-encryption by the delegate using our new publicKey
-	override val lostHcPartyKeys: Set<String> = emptySet(),
+
 	override val privateKeyShamirPartitions: Map<String, String> = emptyMap(), //Format is hcpId of key that has been partitioned : "threshold|partition in hex"
 	override val publicKey: String? = null,
 

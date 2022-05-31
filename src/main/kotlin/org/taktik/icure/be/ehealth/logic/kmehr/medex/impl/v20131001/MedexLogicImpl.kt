@@ -84,7 +84,7 @@ class MedexLogicImpl(
 	filters: org.taktik.icure.asynclogic.impl.filter.Filters
 ) : MedexLogic, KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 
-	internal override val log = LogFactory.getLog(MedexLogicImpl::class.java)
+	override val log = LogFactory.getLog(MedexLogicImpl::class.java)
 
 	internal val config = Config(
 		_kmehrId = System.currentTimeMillis().toString(),

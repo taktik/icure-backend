@@ -20,7 +20,14 @@ package org.taktik.icure.services.external.rest.v2.mapper
 
 import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
-import org.taktik.icure.entities.*
+import org.taktik.icure.entities.CalendarItem
+import org.taktik.icure.entities.Classification
+import org.taktik.icure.entities.Contact
+import org.taktik.icure.entities.Document
+import org.taktik.icure.entities.Form
+import org.taktik.icure.entities.HealthElement
+import org.taktik.icure.entities.Invoice
+import org.taktik.icure.entities.Message
 import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
 

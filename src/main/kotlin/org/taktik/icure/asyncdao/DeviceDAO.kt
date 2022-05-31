@@ -15,4 +15,6 @@ interface DeviceDAO : GenericDAO<Device> {
 	fun getDevices(deviceIds: Collection<String>): Flow<Device>
 
 	suspend fun getHcPartyKeysForDelegate(deviceId: String): Map<String, String>
+
+	suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, Map<String, String>>>
 }

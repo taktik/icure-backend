@@ -213,7 +213,6 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
 	}
 
 	private suspend fun currentHealthCarPartyId(): String = sessionLogic.getCurrentHealthcarePartyId()
-		?: throw LoginException("You must be logged to perform this action")
 
 	companion object {
 		private val logger = LoggerFactory.getLogger(MessageLogicImpl::class.java)

@@ -61,12 +61,37 @@ class WebConfig : WebFluxConfigurer {
 	override fun configureHttpMessageCodecs(configurer: ServerCodecConfigurer) {
 		configurer.defaultCodecs().maxInMemorySize(128 * 1024 * 1024)
 
-		configurer.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(ObjectMapper().registerModule(KotlinModule()).apply { setSerializationInclusion(JsonInclude.Include.NON_NULL) }))
-		configurer.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(ObjectMapper().registerModule(KotlinModule())).apply { maxInMemorySize = 128 * 1024 * 1024 })
+		configurer.defaultCodecs().jackson2JsonEncoder(
+			Jackson2JsonEncoder(
+				ObjectMapper().registerModule(
+					KotlinModule.Builder()
+						.reflectionCacheSize(512)
+						.nullIsSameAsDefault(true)
+						.build()
+				).apply { setSerializationInclusion(JsonInclude.Include.NON_NULL) }
+			)
+		)
+		configurer.defaultCodecs().jackson2JsonDecoder(
+			Jackson2JsonDecoder(
+				ObjectMapper().registerModule(
+					KotlinModule.Builder()
+						.reflectionCacheSize(512)
+						.nullIsSameAsDefault(true)
+						.build()
+				)
+			).apply { maxInMemorySize = 128 * 1024 * 1024 }
+		)
 	}
 
 	@Bean
-	fun objectMapper(): ObjectMapper = ObjectMapper().registerModule(KotlinModule()).apply {
+	fun objectMapper(): ObjectMapper = ObjectMapper().registerModule(
+		KotlinModule.Builder()
+			.reflectionCacheSize(512)
+			.nullIsSameAsDefault(true)
+			.nullToEmptyCollection(true)
+			.nullToEmptyMap(true)
+			.build()
+	).apply {
 		setSerializationInclusion(JsonInclude.Include.NON_NULL)
 	}
 

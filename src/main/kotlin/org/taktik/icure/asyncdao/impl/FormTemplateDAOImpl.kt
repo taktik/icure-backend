@@ -20,7 +20,11 @@ package org.taktik.icure.asyncdao.impl
 
 import java.io.IOException
 import java.nio.ByteBuffer
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.slf4j.Logger
@@ -114,14 +118,14 @@ internal class FormTemplateDAOImpl(
 
 	override suspend fun beforeSave(entity: FormTemplate) =
 		super.beforeSave(entity).let { formTemplate ->
-			if (formTemplate.layout != null) {
-				val newAttachmentId = DigestUtils.sha256Hex(formTemplate.layout)
+			if (formTemplate.templateLayout != null) {
+				val newAttachmentId = DigestUtils.sha256Hex(formTemplate.templateLayout)
 
-				if (newAttachmentId != formTemplate.layoutAttachmentId && formTemplate.rev != null && formTemplate.layoutAttachmentId != null) {
-					formTemplate.attachments?.containsKey(formTemplate.layoutAttachmentId)?.takeIf { it }?.let {
+				if (newAttachmentId != formTemplate.templateLayoutAttachmentId && formTemplate.rev != null && formTemplate.templateLayoutAttachmentId != null) {
+					formTemplate.attachments?.containsKey(formTemplate.templateLayoutAttachmentId)?.takeIf { it }?.let {
 						formTemplate.copy(
-							rev = deleteAttachment(formTemplate.id, formTemplate.rev, formTemplate.layoutAttachmentId),
-							attachments = formTemplate.attachments - formTemplate.layoutAttachmentId,
+							rev = deleteAttachment(formTemplate.id, formTemplate.rev, formTemplate.templateLayoutAttachmentId),
+							attachments = formTemplate.attachments - formTemplate.templateLayoutAttachmentId,
 							layoutAttachmentId = newAttachmentId,
 							isAttachmentDirty = true
 						)
@@ -132,9 +136,9 @@ internal class FormTemplateDAOImpl(
 				} else
 					formTemplate
 			} else {
-				if (formTemplate.layoutAttachmentId != null && formTemplate.rev != null) {
+				if (formTemplate.templateLayoutAttachmentId != null && formTemplate.rev != null) {
 					formTemplate.copy(
-						rev = deleteAttachment(formTemplate.id, formTemplate.rev, formTemplate.layoutAttachmentId),
+						rev = deleteAttachment(formTemplate.id, formTemplate.rev, formTemplate.templateLayoutAttachmentId),
 						layoutAttachmentId = null,
 						isAttachmentDirty = false
 					)
@@ -144,8 +148,8 @@ internal class FormTemplateDAOImpl(
 
 	override suspend fun afterSave(entity: FormTemplate) =
 		super.afterSave(entity).let { formTemplate ->
-			if (formTemplate.isAttachmentDirty && formTemplate.layoutAttachmentId != null && formTemplate.rev != null && formTemplate.layout != null) {
-				createAttachment(formTemplate.id, formTemplate.layoutAttachmentId, formTemplate.rev, "application/json", flowOf(ByteBuffer.wrap(formTemplate.layout))).let {
+			if (formTemplate.isAttachmentDirty && formTemplate.templateLayoutAttachmentId != null && formTemplate.rev != null && formTemplate.templateLayout != null) {
+				createAttachment(formTemplate.id, formTemplate.templateLayoutAttachmentId, formTemplate.rev, "application/json", flowOf(ByteBuffer.wrap(formTemplate.templateLayout))).let {
 					formTemplate.copy(
 						rev = it,
 						isAttachmentDirty = false
@@ -156,16 +160,25 @@ internal class FormTemplateDAOImpl(
 
 	override suspend fun postLoad(entity: FormTemplate) =
 		super.postLoad(entity).let { formTemplate ->
-			if (formTemplate.layoutAttachmentId != null) {
+			val formTemplateLayout = formTemplate.templateLayoutAttachmentId?.let {laId ->
+				val attachmentFlow = getAttachment(formTemplate.id, laId, formTemplate.rev)
+				ByteArrayOutputStream().use {
+					attachmentFlow.writeTo(it)
+					it.toByteArray()
+				}
+			}
+
+			val formLayout = formTemplate.layoutAttachmentId?.takeIf { formTemplateLayout == null }?.let {laId ->
+				val attachmentFlow = getAttachment(formTemplate.id, laId, formTemplate.rev)
+				ByteArrayOutputStream().use {
+					attachmentFlow.writeTo(it)
+					it.toByteArray()
+				}
+			}
+
+			if (formTemplateLayout != null || formLayout != null) {
 				try {
-					val attachmentFlow = getAttachment(formTemplate.id, formTemplate.layoutAttachmentId, formTemplate.rev)
-					val copy = formTemplate.copy(
-						layout = ByteArrayOutputStream().use {
-							attachmentFlow.writeTo(it)
-							it.toByteArray()
-						}
-					)
-					copy
+					formTemplate.copy(templateLayout = formTemplateLayout, layout = formLayout)
 				} catch (e: IOException) {
 					formTemplate //Could not load
 				}

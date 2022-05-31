@@ -19,7 +19,7 @@ package org.taktik.icure.services.external.rest.v2.dto.embed
 
 import java.io.Serializable
 import java.time.Instant
-import java.util.*
+import java.util.Date
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude

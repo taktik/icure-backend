@@ -17,9 +17,22 @@
  */
 package org.taktik.icure.asynclogic.impl
 
-import java.util.*
+import java.util.TreeSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.toSet
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
@@ -196,6 +209,7 @@ class ContactLogicImpl(
 			responsible = c.responsible
 		)
 	}
+
 	override fun listServiceIdsByHcParty(hcPartyId: String) = flow {
 		emitAll(contactDAO.listServiceIdsByHcParty(hcPartyId))
 	}
@@ -216,6 +230,10 @@ class ContactLogicImpl(
 
 	override fun listServiceIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
 		emitAll(contactDAO.listServiceIdsByHcPartyAndIdentifiers(hcPartyId, identifiers))
+	}
+
+	override fun listContactIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String> = flow {
+		emitAll(contactDAO.listContactIdsByHcPartyAndIdentifiers(hcPartyId = hcPartyId, identifiers = identifiers))
 	}
 
 	override fun listServicesByHcPartyAndHealthElementIds(hcPartyId: String, healthElementIds: List<String>) = flow {
@@ -319,7 +337,7 @@ private fun <T> Flow<T>.bufferedChunksAtTransition(min: Int, max: Int, transitio
 		buffer += it
 		if (buffer.size >= max) {
 			var idx = buffer.size - 2
-			while (idx >= 0 && !transition(buffer[idx], buffer[idx+1])) {
+			while (idx >= 0 && !transition(buffer[idx], buffer[idx + 1])) {
 				idx--
 			}
 			if (idx >= 0) {

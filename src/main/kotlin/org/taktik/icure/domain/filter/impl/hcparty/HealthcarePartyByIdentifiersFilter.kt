@@ -15,10 +15,20 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.be.mikrono.dto
+package org.taktik.icure.domain.filter.impl.hcparty
 
-import java.io.Serializable
+import com.github.pozo.KotlinBuilder
+import org.taktik.icure.domain.filter.AbstractFilter
+import org.taktik.icure.domain.filter.hcparty.HealthcarePartyByIdentifiersFilter
+import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.entities.embed.Identifier
 
-class ListPatientsDto : Serializable {
-	var patients: List<String>? = null
+@KotlinBuilder
+data class HealthcarePartyByIdentifiersFilter(
+	override val identifiers: List<Identifier>,
+	override val desc: String? = null
+) : AbstractFilter<HealthcareParty>, HealthcarePartyByIdentifiersFilter {
+	override fun matches(item: HealthcareParty): Boolean {
+		return item.deletionDate == null && identifiers.any { searchIdentifier -> item.identifier.any { it.system == searchIdentifier.system && it.value == searchIdentifier.value } }
+	}
 }

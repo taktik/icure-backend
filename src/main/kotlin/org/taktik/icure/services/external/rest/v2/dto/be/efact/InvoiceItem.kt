@@ -29,18 +29,23 @@ import io.swagger.v3.oas.annotations.media.Schema
  */
 class InvoiceItem {
 	var dateCode: Long? = null
-	@Schema(defaultValue = "0") var codeNomenclature: Long = 0
+	@Schema(defaultValue = "0")
+	var codeNomenclature: Long = 0
 	var relatedCode: Long? = null
 
 	var eidItem: EIDItem? = null
 	var insuranceRef: String? = null
 	var insuranceRefDate: Long? = null
 
-	@Schema(defaultValue = "0") var units: Int = 0
+	@Schema(defaultValue = "0")
+	var units: Int = 0
 
-	@Schema(defaultValue = "0") var reimbursedAmount: Long = 0
-	@Schema(defaultValue = "0") var patientFee: Long = 0
-	@Schema(defaultValue = "0") var doctorSupplement: Long = 0
+	@Schema(defaultValue = "0")
+	var reimbursedAmount: Long = 0
+	@Schema(defaultValue = "0")
+	var patientFee: Long = 0
+	@Schema(defaultValue = "0")
+	var doctorSupplement: Long = 0
 
 	var sideCode: InvoicingSideCode? = null
 	var timeOfDay: InvoicingTimeOfDay? = null

@@ -20,5 +20,5 @@ package org.taktik.icure.services.external.http.websocket
 import java.io.Serializable
 
 interface Operation {
-	fun <K : Serializable>handle(message: String?)
+	fun <K : Serializable> handle(message: String?)
 }

@@ -22,6 +22,7 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.Vtm
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.VtmDto
+
 @Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface VtmV2Mapper {
 	fun map(vtmDto: VtmDto): Vtm

@@ -27,6 +27,7 @@ import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.Encryptable
 import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.entities.embed.SubContact
@@ -60,6 +61,7 @@ import org.taktik.icure.validation.ValidCode
  * @property medicalLocationId The id of the medical location where the contact was recorded.
  * @property tags Tags that qualify the contact as being member of a certain class.
  * @property codes Codes that identify or qualify this particular contact.
+ * @property identifier The identifiers of the Contact.
  * @property endOfLife Soft delete (unix epoch in ms) timestamp of the object.
  * @property deletionDate Hard delete (unix epoch in ms) timestamp of the object.
  * @property groupId Separate contacts can merged in one logical contact if they share the same groupId. When a contact must be split to selectively assign rights to healthcare parties, the split contacts all share the same groupId
@@ -89,6 +91,7 @@ data class Contact(
 	override val medicalLocationId: String? = null,
 	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
 	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
+	val identifier: List<Identifier> = emptyList(),
 	override val endOfLife: Long? = null,
 	@field:JsonProperty("deleted") override val deletionDate: Long? = null,
 

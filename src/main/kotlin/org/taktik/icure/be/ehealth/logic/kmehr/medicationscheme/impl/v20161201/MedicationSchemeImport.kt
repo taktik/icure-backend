@@ -140,7 +140,9 @@ class MedicationSchemeImport(
 							"treatmentsuspension" -> parseTreatmentSuspension(trn, author, res, language, mymappings, saveToDatabase, state)
 							else -> parseGenericTransaction(trn, author, res, language, mymappings, saveToDatabase, state)
 						}.also { con ->
-							if (saveToDatabase) { contactLogic.createContact(con) }
+							if (saveToDatabase) {
+								contactLogic.createContact(con)
+							}
 							getTransactionMFID(trn)?.let {
 								state.contactsByMFID[it] = con
 							}
@@ -148,23 +150,23 @@ class MedicationSchemeImport(
 					}
 				)
 
-                /* TODO convert links ISASERVICEFOR to subcontacts
-                state.subcontactLinks.groupBy{ it["contact"] as Contact }.forEach{
-                    val contact = it.key
-                    it.value.groupBy{ it["heMFID"] as String }.forEach { subentry ->
-                        val heid = state.hesByMFID[subentry.key]?.id
-                        heid?.let {
-                            contact.subContacts.add(
-                                    SubContact().apply {
-                                        healthElementId = heid
-                                        services = subentry.value.map {
-                                            ServiceLink( (it["service"] as Service).id )
-                                        }
-                                    }
-                            )
-                        }
-                    }
-                }*/
+				/* TODO convert links ISASERVICEFOR to subcontacts
+				state.subcontactLinks.groupBy{ it["contact"] as Contact }.forEach{
+					val contact = it.key
+					it.value.groupBy{ it["heMFID"] as String }.forEach { subentry ->
+						val heid = state.hesByMFID[subentry.key]?.id
+						heid?.let {
+							contact.subContacts.add(
+									SubContact().apply {
+										healthElementId = heid
+										services = subentry.value.map {
+											ServiceLink( (it["service"] as Service).id )
+										}
+									}
+							)
+						}
+					}
+				}*/
 
 				// make sure all He versions have the same healthElementId
 				state.versionLinksByMFID = state.versionLinks.groupBy { it.mfId } // speed up lookup
@@ -305,7 +307,7 @@ class MedicationSchemeImport(
 					"healthcareelement" -> {
 						val he = parseHealthcareElement(mapping?.tags?.find { it.type == "CD-ITEM" }?.code ?: cdItem, label, item, author, language, v, contactId)
 						he?.let { notNullHe ->
-							v.hes.add(if (saveToDatabase) healthElementLogic.createHealthElement(he) ?: throw(IllegalStateException("Cannot save to database")) else he)
+							v.hes.add(if (saveToDatabase) healthElementLogic.createHealthElement(he) ?: throw (IllegalStateException("Cannot save to database")) else he)
 							// register new version links
 							getItemMFID(item)?.let { mfId ->
 								state.versionLinks.add(
@@ -363,7 +365,9 @@ class MedicationSchemeImport(
 		return HealthElement(
 			id = idGenerator.newGUID().toString(),
 			healthElementId = idGenerator.newGUID().toString(),
-			descr = if (item.texts.isNotEmpty()) { "$label, ${ item.texts.map{ it.value }.joinToString(" ")}" } else label,
+			descr = if (item.texts.isNotEmpty()) {
+				"$label, ${item.texts.map { it.value }.joinToString(" ")}"
+			} else label,
 			tags = setOf(CodeStub.from("CD-ITEM", cdItem, "1")) +
 				extractTags(item) +
 				(item.lifecycle?.let { setOf(CodeStub.from("CD-LIFECYCLE", it.cd.value.value(), "1")) } ?: setOf()),
@@ -504,7 +508,11 @@ class MedicationSchemeImport(
 					)
 				}
 				(item.contents.any { it.decimal != null }) -> item.contents.firstOrNull { it.decimal != null }?.let {
-					if (it.unit != null) { Content(measureValue = Measure(value = it.decimal.toDouble(), unit = it.unit?.cd?.value)) } else { Content(numberValue = it.decimal.toDouble()) }
+					if (it.unit != null) {
+						Content(measureValue = Measure(value = it.decimal.toDouble(), unit = it.unit?.cd?.value))
+					} else {
+						Content(numberValue = it.decimal.toDouble())
+					}
 				}
 				(item.contents.any { it.texts.any { it.value?.isNotBlank() ?: false } }) -> {
 					val textValue = item.contents.filter { it.texts?.size ?: 0 > 0 }.flatMap { it.texts.map { it.value } }.joinToString(", ").let { if (it.isNotBlank()) it else null }
@@ -523,7 +531,9 @@ class MedicationSchemeImport(
 												unit = unit
 											)
 										}
-									} catch (ignored: NumberFormatException) { null }
+									} catch (ignored: NumberFormatException) {
+										null
+									}
 								}
 							}
 						}.filterNotNull().firstOrNull()
@@ -557,7 +567,9 @@ class MedicationSchemeImport(
 				copyFromHcpToHcp(p, HealthcareParty(id = idGenerator.newGUID().toString(), nihii = nihii, ssin = niss)).also {
 					if (saveToDatabase) healthcarePartyLogic.createHealthcareParty(it)
 				}
-			} catch (e: MissingRequirementsException) { null }
+			} catch (e: MissingRequirementsException) {
+				null
+			}
 	}
 
 	protected fun copyFromHcpToHcp(p: HcpartyType, hcp: HealthcareParty): HealthcareParty {
@@ -581,7 +593,7 @@ class MedicationSchemeImport(
 							postalCode = it.zip,
 							country = it.country?.cd?.value,
 							telecoms = p.telecoms.filter { t -> t.cds.find { it.s == CDTELECOMschemes.CD_ADDRESS }?.let { AddressType.valueOf(it.value) } == addressType }.mapNotNull {
-								it.cds.find { it.s == CDTELECOMschemes.CD_TELECOM }?.let { TelecomType.valueOf(it.value) }?. let { telecomType ->
+								it.cds.find { it.s == CDTELECOMschemes.CD_TELECOM }?.let { TelecomType.valueOf(it.value) }?.let { telecomType ->
 									Telecom(telecomType = telecomType, telecomNumber = it.telecomnumber)
 								}
 							}
@@ -598,7 +610,9 @@ class MedicationSchemeImport(
 		v: ImportResult,
 		dest: Patient? = null
 	): Patient? {
-		if (author.healthcarePartyId == null) { return null }
+		if (author.healthcarePartyId == null) {
+			return null
+		}
 
 		val niss = validSsinOrNull(p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value) // searching empty niss return all patients
 		v.notNull(niss, "Niss shouldn't be null for patient $p")
@@ -629,7 +643,9 @@ class MedicationSchemeImport(
 		saveToDatabase: Boolean,
 		dest: Patient? = null
 	): Patient? {
-		if (author.healthcarePartyId == null) { return null }
+		if (author.healthcarePartyId == null) {
+			return null
+		}
 		return getExistingPatient(p, author, v, dest)
 			?: copyFromPersonToPatient(p, Patient(id = idGenerator.newGUID().toString(), delegations = mapOf(author.healthcarePartyId to setOf())), true).let { if (saveToDatabase) patientLogic.createPatient(it) else it }
 	}
@@ -670,7 +686,7 @@ class MedicationSchemeImport(
 							postalCode = it.zip,
 							country = it.country?.cd?.value,
 							telecoms = p.telecoms.filter { t -> t.cds.find { it.s == CDTELECOMschemes.CD_ADDRESS }?.let { AddressType.valueOf(it.value) } == addressType }.mapNotNull {
-								it.cds.find { it.s == CDTELECOMschemes.CD_TELECOM }?.let { TelecomType.valueOf(it.value) }?. let { telecomType ->
+								it.cds.find { it.s == CDTELECOMschemes.CD_TELECOM }?.let { TelecomType.valueOf(it.value) }?.let { telecomType ->
 									Telecom(telecomType = telecomType, telecomNumber = it.telecomnumber)
 								}
 							}

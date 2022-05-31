@@ -40,28 +40,17 @@ data class ContactByHcPartyPatientTagCodeDateFilter(
 		return Objects.hashCode(healthcarePartyId, tagType, tagCode, codeType, codeCode, startOfContactOpeningDate, endOfContactOpeningDate)
 	}
 
-	override fun equals(other: Any?): Boolean {
-		if (this === other) {
-			return true
-		}
-		if (other == null || javaClass != other.javaClass) {
-			return false
-		}
-		val filter = other as ContactByHcPartyPatientTagCodeDateFilter
-		return Objects.equal(healthcarePartyId, filter.healthcarePartyId) && Objects.equal(patientSecretForeignKeys, filter.patientSecretForeignKeys) && Objects.equal(tagType, filter.tagType) && Objects.equal(tagCode, filter.tagCode) && Objects.equal(codeType, filter.codeType) && Objects.equal(codeCode, filter.codeCode) && Objects.equal(startOfContactOpeningDate, filter.startOfContactOpeningDate) && Objects.equal(endOfContactOpeningDate, filter.endOfContactOpeningDate)
-	}
-
 	override fun matches(item: Contact): Boolean {
 		return (
-			(healthcarePartyId == null || item.delegations.keys.contains(healthcarePartyId!!)) &&
-				(patientSecretForeignKeys == null || item.secretForeignKeys.any { o: String? -> patientSecretForeignKeys!!.contains(o) }) &&
+			(healthcarePartyId == null || item.delegations.keys.contains(healthcarePartyId)) &&
+				(patientSecretForeignKeys == null || item.secretForeignKeys.any { o: String? -> patientSecretForeignKeys.contains(o) }) &&
 				(
 					tagType == null || item.services.any { svc ->
 						(
 							svc.tags.any { t -> tagType == t.type && (tagCode == null || tagCode == t.code) } &&
 								(codeType == null || svc.codes.any { cs -> codeType == cs.type && (codeCode == null || codeCode == cs.code) }) &&
-								(startOfContactOpeningDate == null || svc.valueDate != null && svc.valueDate > startOfContactOpeningDate!! || svc.openingDate != null && svc.openingDate > startOfContactOpeningDate!!) &&
-								(endOfContactOpeningDate == null || svc.valueDate != null && svc.valueDate < endOfContactOpeningDate!! || svc.openingDate != null && svc.openingDate < endOfContactOpeningDate!!)
+								(startOfContactOpeningDate == null || svc.valueDate != null && svc.valueDate > startOfContactOpeningDate || svc.openingDate != null && svc.openingDate > startOfContactOpeningDate) &&
+								(endOfContactOpeningDate == null || svc.valueDate != null && svc.valueDate < endOfContactOpeningDate || svc.openingDate != null && svc.openingDate < endOfContactOpeningDate)
 							)
 					}
 					)

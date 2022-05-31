@@ -18,8 +18,16 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import java.util.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.withIndex
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
@@ -32,6 +40,7 @@ import org.taktik.icure.asyncdao.HealthcarePartyDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
 
@@ -148,6 +157,26 @@ internal class HealthcarePartyDAOImpl(
 		return resultMap
 	}
 
+	@View(name = "by_delegate_aes_exchange_keys", map = "classpath:js/healthcareparty/By_delegate_aes_exchange_keys_map.js")
+	override suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, Map<String, String>>> {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val result = client.queryView<String, List<String>>(
+			createQuery(client, "by_delegate_aes_exchange_keys")
+				.key(healthcarePartyId)
+				.includeDocs(false)
+		).map { it.key to it.value }
+
+		return result.fold(emptyMap<String, Map<String, Map<String, String>>>()) { acc, (key, value) ->
+			if (key != null && value != null) {
+				acc + (value[0] to (acc[value[0]] ?: emptyMap()).let {
+					it + (value[1].let { it.substring((it.length - 12).coerceAtLeast(0)) } to (it[value[1]] ?: emptyMap()).let {dels ->
+						dels + (value[2] to value[3])
+					})
+				})
+			} else acc
+		}
+	}
+
 	@View(name = "by_parent", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthcareParty' && !doc.deleted && doc.parentId) emit(doc.parentId, doc._id)}")
 	override fun listHealthcarePartiesByParentId(parentId: String): Flow<HealthcareParty> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
@@ -158,5 +187,70 @@ internal class HealthcarePartyDAOImpl(
 	override fun findHealthcarePartiesByIds(hcpIds: Flow<String>): Flow<ViewQueryResultEvent> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 		emitAll(client.getForPagination(hcpIds, HealthcareParty::class.java))
+	}
+
+	@View(name = "by_identifiers", map = "classpath:js/healthcareparty/By_identifier.js")
+	override fun listHealthcarePartyIdsByIdentifiers(hcpIdentifiers: List<Identifier>): Flow<String> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+		val queryView = createQuery(client, "by_identifiers")
+			.keys(
+				hcpIdentifiers.map {
+					ComplexKey.of(it.system, it.value)
+				}
+			)
+
+		emitAll(
+			client.queryView<ComplexKey, String>(queryView)
+				.mapNotNull {
+					if (it.key != null && it.key!!.components.size >= 2) {
+						it.id
+					} else {
+						null
+					}
+				}
+		)
+	}
+
+	@View(name = "by_codes", map = "classpath:js/healthcareparty/By_codes.js")
+	override fun listHealthcarePartyIdsByCode(codeType: String, codeCode: String?): Flow<String> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+		val from = ComplexKey.of(
+			codeType,
+			codeCode
+		)
+		val to = ComplexKey.of(
+			codeType,
+			codeCode ?: ComplexKey.emptyObject()
+		)
+
+		val viewQuery = createQuery(client, "by_codes")
+			.startKey(from)
+			.endKey(to)
+			.includeDocs(false)
+
+		emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
+	}
+
+	@View(name = "by_tags", map = "classpath:js/healthcareparty/By_tags.js")
+	override fun listHealthcarePartyIdsByTag(tagType: String, tagCode: String?): Flow<String> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+		val from = ComplexKey.of(
+			tagType,
+			tagCode
+		)
+		val to = ComplexKey.of(
+			tagType,
+			tagCode ?: ComplexKey.emptyObject()
+		)
+
+		val viewQuery = createQuery(client, "by_tags")
+			.startKey(from)
+			.endKey(to)
+			.includeDocs(false)
+
+		emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
 	}
 }

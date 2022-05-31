@@ -61,7 +61,7 @@ data class Keyword(
 	companion object : DynamicInitializer<Keyword>
 
 	fun merge(other: Keyword) = Keyword(args = this.solveConflictsWith(other))
-	fun solveConflictsWith(other: Keyword) = super<StoredICureDocument>.solveConflictsWith(other) + mapOf(
+	fun solveConflictsWith(other: Keyword) = super.solveConflictsWith(other) + mapOf(
 		"value" to (this.value ?: other.value),
 		"subWords" to (other.subWords + this.subWords),
 		"userId" to (this.userId ?: other.userId)

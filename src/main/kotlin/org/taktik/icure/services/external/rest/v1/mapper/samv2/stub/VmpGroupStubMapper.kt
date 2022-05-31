@@ -27,6 +27,7 @@ import org.taktik.icure.services.external.rest.v1.dto.samv2.stub.VmpGroupStubDto
 @Mapper(componentModel = "spring")
 interface VmpGroupStubMapper {
 	fun map(vmpGroupStubDto: VmpGroupStubDto): VmpGroupStub
+
 	@Mappings(
 		Mapping(target = "productId", ignore = true)
 	)

@@ -18,7 +18,6 @@
 package org.taktik.icure.domain.filter.impl.service
 
 import com.github.pozo.KotlinBuilder
-import com.google.common.base.Objects
 import org.taktik.icure.domain.filter.AbstractFilter
 import org.taktik.icure.entities.embed.Service
 
@@ -34,20 +33,6 @@ data class ServiceByHcPartyTagCodeDateFilter(
 	override val startValueDate: Long? = null,
 	override val endValueDate: Long? = null
 ) : AbstractFilter<Service>, org.taktik.icure.domain.filter.service.ServiceByHcPartyTagCodeDateFilter {
-	override fun hashCode(): Int {
-		return Objects.hashCode(healthcarePartyId, tagType, tagCode, codeType, codeCode, startValueDate, endValueDate)
-	}
-
-	override fun equals(other: Any?): Boolean {
-		if (this === other) {
-			return true
-		}
-		if (other == null || javaClass != other.javaClass) {
-			return false
-		}
-		val filter = other as ServiceByHcPartyTagCodeDateFilter
-		return Objects.equal(healthcarePartyId, filter.healthcarePartyId) && Objects.equal(patientSecretForeignKey, filter.patientSecretForeignKey) && Objects.equal(tagType, filter.tagType) && Objects.equal(tagCode, filter.tagCode) && Objects.equal(codeType, filter.codeType) && Objects.equal(codeCode, filter.codeCode) && Objects.equal(startValueDate, filter.startValueDate) && Objects.equal(endValueDate, filter.endValueDate)
-	}
 
 	override fun matches(item: Service): Boolean {
 		return (

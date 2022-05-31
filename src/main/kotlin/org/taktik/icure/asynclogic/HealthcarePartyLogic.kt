@@ -26,6 +26,7 @@ import org.taktik.icure.asyncdao.HealthcarePartyDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.entities.embed.Identifier
 
 interface HealthcarePartyLogic : EntityPersister<HealthcareParty, String> {
 	fun getGenericDAO(): HealthcarePartyDAO
@@ -33,7 +34,10 @@ interface HealthcarePartyLogic : EntityPersister<HealthcareParty, String> {
 	suspend fun getHealthcareParty(id: String): HealthcareParty?
 	fun listHealthcarePartiesBy(searchString: String, offset: Int, limit: Int): Flow<HealthcareParty>
 
+	@Deprecated(message = "A HCP may now have multiple AES Keys. Use getAesExchangeKeysForDelegate instead")
 	suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String>
+
+	suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, Map<String, String>>>
 
 	suspend fun modifyHealthcareParty(healthcareParty: HealthcareParty): HealthcareParty?
 	fun deleteHealthcareParties(healthcarePartyIds: List<String>): Flow<DocIdentifier>
@@ -53,8 +57,9 @@ interface HealthcarePartyLogic : EntityPersister<HealthcareParty, String> {
 	fun findHealthcarePartiesBySsinOrNihii(searchValue: String, paginationOffset: PaginationOffset<String>, desc: Boolean): Flow<ViewQueryResultEvent>
 	fun getHealthcarePartiesByParentId(parentId: String): Flow<HealthcareParty>
 	suspend fun getHcpHierarchyIds(sender: HealthcareParty): HashSet<String>
-
 	suspend fun createHealthcarePartyOnUserDb(healthcareParty: HealthcareParty, HealthcareParty: URI): HealthcareParty?
-
 	fun filterHealthcareParties(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<HealthcareParty>): Flow<ViewQueryResultEvent>
+	fun listHealthcarePartyIdsByIdentifiers(hcpIdentifiers: List<Identifier>): Flow<String>
+	fun listHealthcarePartyIdsByCode(codeType: String, codeCode: String?): Flow<String>
+	fun listHealthcarePartyIdsByTag(tagType: String, tagCode: String?): Flow<String>
 }

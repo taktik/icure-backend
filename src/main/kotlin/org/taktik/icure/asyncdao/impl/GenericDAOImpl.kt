@@ -22,18 +22,33 @@ import java.net.URI
 import java.nio.ByteBuffer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import org.apache.commons.lang3.ArrayUtils
 import org.slf4j.LoggerFactory
-import org.taktik.couchdb.*
+import org.taktik.couchdb.Client
+import org.taktik.couchdb.DocIdentifier
+import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.dao.designDocName
 import org.taktik.couchdb.entity.DesignDocument
 import org.taktik.couchdb.entity.Option
 import org.taktik.couchdb.entity.View
 import org.taktik.couchdb.exception.DocumentNotFoundException
 import org.taktik.couchdb.exception.UpdateConflictException
+import org.taktik.couchdb.get
 import org.taktik.couchdb.id.IDGenerator
+import org.taktik.couchdb.queryView
 import org.taktik.couchdb.support.StdDesignDocumentFactory
+import org.taktik.couchdb.update
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.VersionedDesignDocumentQueries
 import org.taktik.icure.entities.base.StoredDocument
@@ -45,7 +60,7 @@ import org.taktik.icure.properties.CouchDbProperties
 @ExperimentalCoroutinesApi
 abstract class GenericDAOImpl<T : StoredDocument>(
 	couchDbProperties: CouchDbProperties,
-	protected override val entityClass: Class<T>,
+	override val entityClass: Class<T>,
 	protected val couchDbDispatcher: CouchDbDispatcher,
 	protected val idGenerator: IDGenerator
 ) : GenericDAO<T>, VersionedDesignDocumentQueries<T>(entityClass, couchDbProperties) {

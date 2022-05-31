@@ -42,6 +42,9 @@ data class FormTemplate(
 	@JsonProperty("_rev") override val rev: String? = null,
 	@JsonProperty("deleted") override val deletionDate: Long? = null,
 
+	@JsonIgnore val templateLayout: ByteArray? = null,
+
+	@Deprecated("Use templateLayout")
 	@JsonIgnore val layout: ByteArray? = null,
 	@JsonIgnore var isAttachmentDirty: Boolean = false,
 	val name: String? = null,
@@ -62,6 +65,10 @@ data class FormTemplate(
 	val mediumReport: String? = null,
 	val longReport: String? = null,
 	val reports: Set<String> = emptySet(),
+	
+	val templateLayoutAttachmentId: String? = null,
+
+	@Deprecated("Use templateLayoutAttachmentId")
 	val layoutAttachmentId: String? = null,
 	override val tags: Set<CodeStub> = emptySet(),
 

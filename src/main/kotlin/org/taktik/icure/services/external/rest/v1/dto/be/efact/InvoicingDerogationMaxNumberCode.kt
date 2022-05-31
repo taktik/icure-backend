@@ -26,13 +26,13 @@ package org.taktik.icure.services.external.rest.v1.dto.be.efact
  * To change this template use File | Settings | File Templates.
  */
 enum class InvoicingDerogationMaxNumberCode(val code: Int) {
-    /*
-     01 Dérogation au nombre maximal.
-     02 Autre séance/prescription.
-     03 2e prestation identique de la journée.
-     04 3e ou suivante prestation identique de la journée.
-     00 Dans les autres cas.
-    */
+	/*
+	 01 Dérogation au nombre maximal.
+	 02 Autre séance/prescription.
+	 03 2e prestation identique de la journée.
+	 04 3e ou suivante prestation identique de la journée.
+	 00 Dans les autres cas.
+	*/
 
 	Other(0),
 	DerogationMaxNumber(1),

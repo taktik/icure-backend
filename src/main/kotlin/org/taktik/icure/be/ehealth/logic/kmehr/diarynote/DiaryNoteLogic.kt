@@ -30,6 +30,7 @@ import org.taktik.icure.services.external.api.AsyncDecrypt
 
 interface DiaryNoteLogic {
 	fun createDiaryNote(pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, note: String?, tags: List<String>, contexts: List<String>, isPsy: Boolean, documentId: String?, attachmentId: String?, decryptor: AsyncDecrypt?): Flow<DataBuffer>
+
 	//fun getDiaryNoteMd5(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>): String
 	fun importDiaryNote(inputStream: InputStream, author: User, language: String, dest: Patient? = null, mappings: Map<String, List<ImportMapping>> = HashMap()): List<ImportResult>
 }

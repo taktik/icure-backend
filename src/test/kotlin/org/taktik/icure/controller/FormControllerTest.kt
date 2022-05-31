@@ -1,8 +1,9 @@
 package org.taktik.icure.controller
 
-import java.util.*
+import java.util.UUID
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.SingletonSupport
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -21,6 +22,7 @@ import reactor.netty.http.client.HttpClient
 @ActiveProfiles("app")
 class FormControllerTest {
 	private val log = LoggerFactory.getLogger(this.javaClass)
+
 	@LocalServerPort
 	var port = 0
 
@@ -30,7 +32,16 @@ class FormControllerTest {
 			h.set("Authorization", "Basic YW5vdWtAaWN1cmUuY2xvdWQ6a25hbG91")
 			h.set("Content-type", "application/json")
 		}
-		val objectMapper = ObjectMapper().registerModule(KotlinModule())
+		val objectMapper = ObjectMapper().registerModule(
+			KotlinModule.Builder()
+				.nullIsSameAsDefault(nullIsSameAsDefault = false)
+				.reflectionCacheSize(reflectionCacheSize = 512)
+				.nullToEmptyMap(nullToEmptyMap = false)
+				.nullToEmptyCollection(nullToEmptyCollection = false)
+				.singletonSupport(singletonSupport = SingletonSupport.DISABLED)
+				.strictNullChecks(strictNullChecks = false)
+				.build()
+		)
 
 		runBlocking {
 			val res = client.delete()
@@ -41,11 +52,13 @@ class FormControllerTest {
 							UUID.randomUUID().toString().also {
 								val form = objectMapper.writeValueAsString(FormDto(id = it))
 								log.info(
-									"${client.post()
+									"${
+									client.post()
 										.uri("http://127.0.0.1:$port/rest/v1/form")
 										.send(ByteBufFlux.fromString(Mono.just(form)))
 										.response()
-										.awaitFirstOrNull()?.status() ?: "000"}"
+										.awaitFirstOrNull()?.status() ?: "000"
+									}"
 								)
 								emit(it)
 							}

@@ -15,20 +15,25 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.be.mikrono.dto
 
-import java.io.Serializable
-import org.taktik.icure.be.mikrono.dto.kmehr.Person
+package org.taktik.icure.spring.asynccache
 
-/**
- * Created by aduchate on 16/12/11, 13:57
- */
-class PatientDTO : Serializable {
-	var doctorId: Long? = null
-	var patient: Person? = null
-	var externalId: String? = null
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 
-	companion object {
-		private const val serialVersionUID = 1L
+class AsyncMapCacheManager : AsyncCacheManager {
+
+	private val caches: ConcurrentMap<String, Cache<Any, Any>> = ConcurrentHashMap()
+
+	override fun <K, V> getCache(name: String): Cache<K, V> {
+		var cache = caches[name] as Cache<K, V>?
+		if (cache == null) {
+			cache = MapCache(name, HashMap<K, V>())
+			val currentCache = caches.putIfAbsent(name, (cache as Cache<Any, Any>))
+			if (currentCache != null) {
+				cache = currentCache as Cache<K, V>
+			}
+		}
+		return cache
 	}
 }

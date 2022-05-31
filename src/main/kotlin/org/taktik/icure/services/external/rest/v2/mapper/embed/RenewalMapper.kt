@@ -22,6 +22,7 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Renewal
 import org.taktik.icure.services.external.rest.v2.dto.embed.RenewalDto
+
 @Mapper(componentModel = "spring", uses = [DurationV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface RenewalV2Mapper {
 	fun map(renewalDto: RenewalDto): Renewal

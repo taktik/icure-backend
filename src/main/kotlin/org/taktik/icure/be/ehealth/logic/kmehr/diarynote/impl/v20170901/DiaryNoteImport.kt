@@ -19,7 +19,7 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.diarynote.impl.v20170901
 
 import java.io.InputStream
-import java.util.*
+import java.util.LinkedList
 import javax.xml.bind.JAXBContext
 import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asynclogic.ContactLogic

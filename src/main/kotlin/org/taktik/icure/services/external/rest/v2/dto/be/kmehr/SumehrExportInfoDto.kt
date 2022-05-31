@@ -29,7 +29,8 @@ class SumehrExportInfoDto : Serializable {
 	var recipient: HealthcarePartyDto? = null
 	var softwareName: String? = null
 	var softwareVersion: String? = null
-	@Schema(defaultValue = "\"\"") var comment: String = ""
+	@Schema(defaultValue = "\"\"")
+	var comment: String = ""
 	var includeIrrelevantInformation: Boolean? = null
 	var services: List<ServiceDto>? = null
 	var healthElements: List<HealthElementDto>? = null

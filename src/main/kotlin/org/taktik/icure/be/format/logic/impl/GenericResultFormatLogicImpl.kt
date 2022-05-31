@@ -22,13 +22,11 @@ import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.StringReader
 import java.nio.ByteBuffer
-import java.nio.charset.CharacterCodingException
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.LocalDateTime
-import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
 import kotlinx.coroutines.flow.Flow
@@ -110,7 +108,7 @@ abstract class GenericResultFormatLogicImpl(val healthcarePartyLogic: Healthcare
 
 	@Throws(IOException::class)
 	protected fun getBufferedReader(doc: Document, enckeys: List<String?>?): BufferedReader? {
-		return decodeRawData(doc.decryptAttachment(enckeys))?. let { BufferedReader(StringReader(it)) }
+		return decodeRawData(doc.decryptAttachment(enckeys))?.let { BufferedReader(StringReader(it)) }
 	}
 
 	class LaboLine {

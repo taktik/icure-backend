@@ -23,7 +23,11 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.ApplicationSettingsLogic
 import org.taktik.icure.services.external.rest.v2.dto.ApplicationSettingsDto

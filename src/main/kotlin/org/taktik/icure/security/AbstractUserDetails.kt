@@ -21,7 +21,7 @@ abstract class AbstractUserDetails(
 	override var locale: String? = null
 	override var logoutURL: String? = null
 	override fun getUsername(): String {
-		return permissionSetIdentifier!!.principalClass.name + ":" + permissionSetIdentifier!!.principalId
+		return permissionSetIdentifier.principalClass.name + ":" + permissionSetIdentifier.principalId
 	}
 
 	override fun getPassword(): String? {

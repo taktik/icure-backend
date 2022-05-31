@@ -237,7 +237,7 @@ class SumehrImport(
 					he?.let {
 						v.hes.add(
 							if (saveToDatabase) healthElementLogic.createHealthElement(it)
-								?: throw(IllegalStateException("Cannot save to database")) else it
+								?: throw (IllegalStateException("Cannot save to database")) else it
 						)
 					}
 					Triple(hes, svcs, sctcs)
@@ -249,7 +249,7 @@ class SumehrImport(
 				}
 			}
 		}
-		v.hes.addAll(if (saveToDatabase) hes.map { healthElementLogic.createHealthElement(it) ?: throw(IllegalStateException("Cannot save to database")) } else hes)
+		v.hes.addAll(if (saveToDatabase) hes.map { healthElementLogic.createHealthElement(it) ?: throw (IllegalStateException("Cannot save to database")) } else hes)
 
 		return Contact(
 			id = contactId,
@@ -257,7 +257,7 @@ class SumehrImport(
 			responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull { createOrProcessHcp(it, saveToDatabase) }?.firstOrNull()?.id
 				?: author.healthcarePartyId,
 			openingDate = contactDate,
-			closingDate = trn.isIscomplete?.let { if (it) contactDate else null },
+			closingDate = trn.isIscomplete.let { if (it) contactDate else null },
 			location =
 			trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterlocation" } }
 				?.let {
@@ -418,7 +418,7 @@ class SumehrImport(
 								val value = it.replace(Regex("([0-9.,]) *.*"), "$1")
 
 								try {
-									value?.toDouble()?.let {
+									value.toDouble().let {
 										Measure(
 											value = value.toDouble(),
 											unit = unit
@@ -541,7 +541,7 @@ class SumehrImport(
 		val parentAuthor: User?
 		var parentPatient: Patient? = null
 		if (hcp != null && hcp.parentId != null) {
-			parentAuthorId = userLogic.findByHcpartyId(hcp.parentId)?.let { it.firstOrNull() }
+			parentAuthorId = userLogic.findByHcpartyId(hcp.parentId).let { it.firstOrNull() }
 			if (parentAuthorId != null) {
 				parentAuthor = userLogic.getUser(parentAuthorId)
 				if (parentAuthor != null) {

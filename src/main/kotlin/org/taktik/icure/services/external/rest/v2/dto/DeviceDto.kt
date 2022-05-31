@@ -21,7 +21,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import io.swagger.v3.oas.annotations.media.Schema
-import org.taktik.icure.services.external.rest.v2.dto.base.*
+import org.taktik.icure.services.external.rest.v2.dto.base.CodeStubDto
+import org.taktik.icure.services.external.rest.v2.dto.base.CryptoActorDto
+import org.taktik.icure.services.external.rest.v2.dto.base.DataOwnerDto
+import org.taktik.icure.services.external.rest.v2.dto.base.ICureDocumentDto
+import org.taktik.icure.services.external.rest.v2.dto.base.IdentifierDto
+import org.taktik.icure.services.external.rest.v2.dto.base.NamedDto
+import org.taktik.icure.services.external.rest.v2.dto.base.StoredDocumentDto
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -57,9 +63,8 @@ data class DeviceDto(
 	override val properties: Set<PropertyStubDto> = emptySet(),
 
 	override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
-	override val aesExchangeKeys: Map<String, Map<String, Array<String>>> = emptyMap(),
+	override val aesExchangeKeys: Map<String, Map<String, Map<String, String>>> = emptyMap(),
 	override val transferKeys: Map<String, Map<String, String>> = emptyMap(),
-	override val lostHcPartyKeys: Set<String> = emptySet(),
 	override val privateKeyShamirPartitions: Map<String, String> = emptyMap(), //Format is hcpId of key that has been partitioned : "threshold|partition in hex"
 	override val publicKey: String? = null,
 ) : StoredDocumentDto, ICureDocumentDto<String>, NamedDto, CryptoActorDto, DataOwnerDto {

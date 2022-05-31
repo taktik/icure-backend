@@ -77,6 +77,7 @@ data class SubContact(
 		"classificationId" to (this.classificationId ?: other.classificationId),
 		"services" to MergeUtil.mergeListsDistinct(this.services, other.services, { a, b -> a.serviceId == b.serviceId })
 	)
+
 	override fun withTimestamps(created: Long?, modified: Long?) =
 		when {
 			created != null && modified != null -> this.copy(created = created, modified = modified)

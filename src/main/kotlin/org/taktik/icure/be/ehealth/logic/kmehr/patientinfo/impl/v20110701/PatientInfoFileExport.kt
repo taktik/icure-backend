@@ -20,13 +20,24 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.patientinfo.impl.v20110701
 
 import java.time.Instant
-import java.util.*
+import java.util.Date
+import java.util.GregorianCalendar
 import javax.xml.datatype.DatatypeConstants
 import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
-import org.taktik.icure.asynclogic.*
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.CodeLogic
+import org.taktik.icure.asynclogic.ContactLogic
+import org.taktik.icure.asynclogic.DocumentLogic
+import org.taktik.icure.asynclogic.FormLogic
+import org.taktik.icure.asynclogic.FormTemplateLogic
+import org.taktik.icure.asynclogic.HealthElementLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.InsuranceLogic
+import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTION
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.AuthorType

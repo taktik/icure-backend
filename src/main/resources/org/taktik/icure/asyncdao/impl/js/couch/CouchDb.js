@@ -37,7 +37,9 @@ var Invoice = {
 };
 
 var HealthcareParty = {
-  hcPartyKeys: {"123": ["key1", "Key2"]}  //Destination (delegate) the key encrypted for me, the key encrypted for him
+	hcPartyKeys: {"123": ["key1", "Key2"]},  //Destination (delegate) the key encrypted for me, the key encrypted for him
+	publicKey: "pub1",
+	aesExchangeKeys: {"pub1": {"123": ["key1", "Key2"]}}
 };
 
 var Service = {

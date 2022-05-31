@@ -24,7 +24,9 @@ import java.math.BigInteger
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.*
+import java.util.Arrays
+import java.util.Date
+import java.util.GregorianCalendar
 import javax.swing.text.rtf.RTFEditorKit
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
@@ -35,17 +37,106 @@ import kotlinx.coroutines.flow.collect
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Value
 import org.taktik.commons.uti.UTI
-import org.taktik.icure.asynclogic.*
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.CodeLogic
+import org.taktik.icure.asynclogic.ContactLogic
+import org.taktik.icure.asynclogic.DocumentLogic
+import org.taktik.icure.asynclogic.HealthElementLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.Utils
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDADDRESS
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDADDRESSschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDADMINISTRATIONUNIT
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDCERTAINTY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDCERTAINTYvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENT
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDCOUNTRY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDCOUNTRYschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDDRUGCNK
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDDRUGCNKschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDDRUGROUTE
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDINNCLUSTER
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDINNCLUSTERschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEM
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDLIFECYCLE
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDLIFECYCLEvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDLNKvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDMEDIATYPEvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDMESSAGE
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDMESSAGEvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDPATIENTWILLvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDSEVERITY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDSEVERITYschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDSEX
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDSEXvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDSTANDARD
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDTELECOM
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDTELECOMschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDTEMPORALITY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDTEMPORALITYvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDTIMEUNIT
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDTIMEUNITschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTION
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDUNIT
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDUNITschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDWEEKDAY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDWEEKDAYvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.LnkType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.id.v1.*
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENT
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.AddressType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.AdministrationquantityType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.AdministrationunitType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.AuthorType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.CertaintyType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.CompoundprescriptionType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.ContentType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.CountryType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.DurationType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.FolderType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.HeaderType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.LifecycleType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.MedicinalProductType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.ProfessionType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.RecipientType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.RenewalType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.RouteType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.SenderType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.SeverityType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.SexType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.StandardType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.TelecomType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.TemporalityType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.TimeunitType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.UnitType
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.constants.ServiceStatus
-import org.taktik.icure.entities.*
+import org.taktik.icure.entities.Document
+import org.taktik.icure.entities.Form
+import org.taktik.icure.entities.HealthElement
+import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.Address
@@ -68,6 +159,7 @@ open class KmehrExport(
 	val unitCodes = HashMap<String, Code>()
 
 	internal val STANDARD = "20170601"
+
 	@Value("\${icure.version}")
 	internal val ICUREVERSION: String = "4.0.0"
 
@@ -80,14 +172,14 @@ open class KmehrExport(
 	suspend fun createParty(m: HealthcareParty, cds: List<CDHCPARTY>? = listOf()): HcpartyType {
 		return HcpartyType().apply {
 			if (!m.nihii.isNullOrBlank()) {
-				m.nihii?.let { nihii -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; sv = "1.0"; value = nihii }) }
+				m.nihii.let { nihii -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; sv = "1.0"; value = nihii }) }
 			}
 			if (!m.ssin.isNullOrBlank()) {
-				m.ssin?.let { ssin -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.INSS; sv = "1.0"; value = ssin }) }
+				m.ssin.let { ssin -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.INSS; sv = "1.0"; value = ssin }) }
 			}
 			cds?.let { this.cds.addAll(it) }
 			this.cds.addAll(
-				if (m.specialityCodes?.size ?: 0 > 0) {
+				if (m.specialityCodes.size > 0) {
 					m.specialityCodes.map { CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = it.code } }
 				} else if (m.speciality ?: "" != "") {
 					listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = m.speciality })
@@ -137,7 +229,7 @@ open class KmehrExport(
 			addresses.addAll(makeAddresses(p.addresses))
 			telecoms.addAll(makeTelecoms(p.addresses))
 			if (!p.nationality.isNullOrBlank()) {
-				p.nationality?.let { nat -> nationality = PersonType.Nationality().apply { cd = CDCOUNTRY().apply { s(CDCOUNTRYschemes.CD_COUNTRY); value = nat } } }
+				p.nationality.let { nat -> nationality = PersonType.Nationality().apply { cd = CDCOUNTRY().apply { s(CDCOUNTRYschemes.CD_COUNTRY); value = nat } } }
 			}
 		}
 	}
@@ -147,7 +239,7 @@ open class KmehrExport(
 
 		return PersonType().apply {
 			ssin?.let { ssin -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.ID_PATIENT; sv = "1.0"; value = ssin }) }
-			p.id?.let { id -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.LOCAL; sv = config.soft?.version; sl = "${config.soft?.name}-Person-Id"; value = id }) }
+			p.id.let { id -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.LOCAL; sv = config.soft?.version; sl = "${config.soft?.name}-Person-Id"; value = id }) }
 			firstnames.add(p.firstName)
 			familyname = p.lastName
 			sex = SexType().apply { cd = CDSEX().apply { s = "CD-SEX"; sv = "1.0"; value = p.gender?.let { CDSEXvalues.fromValue(it.name) } ?: CDSEXvalues.UNKNOWN } }
@@ -305,13 +397,13 @@ open class KmehrExport(
 
 	fun makeTelecoms(addresses: Collection<Address>?): List<TelecomType> {
 		return addresses?.filter { it.addressType != null }?.flatMapTo(ArrayList<TelecomType>()) { a ->
-			a.telecoms?.filter { it.telecomNumber?.length ?: 0 > 0 }?.map {
+			a.telecoms.filter { it.telecomNumber?.length ?: 0 > 0 }.map {
 				TelecomType().apply {
 					cds.add(CDTELECOM().apply { s(CDTELECOMschemes.CD_ADDRESS); value = a.addressType?.name ?: "home" })
 					cds.add(CDTELECOM().apply { s(CDTELECOMschemes.CD_TELECOM); value = it.telecomType?.name ?: "phone" })
 					telecomnumber = it.telecomNumber
 				}
-			} ?: emptyList()
+			}
 		} ?: emptyList()
 	}
 
@@ -334,8 +426,12 @@ open class KmehrExport(
 				country = if (a.country?.length ?: 0 > 0) mapToCountryCode(a.country!!)?.let { natCode -> CountryType().apply { cd = CDCOUNTRY().apply { s(CDCOUNTRYschemes.CD_FED_COUNTRY); value = natCode } } } else CountryType().apply { cd = CDCOUNTRY().apply { s(CDCOUNTRYschemes.CD_FED_COUNTRY); value = "be" } }
 				zip = a.postalCode ?: "0000"
 				street = a.street ?: "unknown"
-				if (!a.houseNumber.isNullOrBlank()) { a.houseNumber?.let { housenumber = a.houseNumber } }
-				if (!a.postboxNumber.isNullOrBlank()) { a.postboxNumber?.let { postboxnumber = a.postboxNumber } }
+				if (!a.houseNumber.isNullOrBlank()) {
+					a.houseNumber.let { housenumber = a.houseNumber }
+				}
+				if (!a.postboxNumber.isNullOrBlank()) {
+					a.postboxNumber.let { postboxnumber = a.postboxNumber }
+				}
 				city = a.city ?: "unknown"
 			}
 		} ?: emptyList()
@@ -388,18 +484,18 @@ open class KmehrExport(
 				}
 				content.medicationValue?.medicinalProduct?.let {
 					medicinalproduct = MedicinalProductType().apply {
-						intendedname = content.medicationValue?.medicinalProduct?.intendedname
-						intendedcds.add(CDDRUGCNK().apply { s(CDDRUGCNKschemes.CD_DRUG_CNK); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.medicinalProduct?.intendedcds?.find { it.type == "CD-DRUG-CNK" }?.code })
+						intendedname = content.medicationValue.medicinalProduct.intendedname
+						intendedcds.add(CDDRUGCNK().apply { s(CDDRUGCNKschemes.CD_DRUG_CNK); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue.medicinalProduct.intendedcds.find { it.type == "CD-DRUG-CNK" }?.code })
 					}
 				}
 				content.medicationValue?.substanceProduct?.let {
 					substanceproduct = ContentType.Substanceproduct().apply {
-						intendedname = content.medicationValue?.substanceProduct?.intendedname
-						intendedcd = CDINNCLUSTER().apply { s(CDINNCLUSTERschemes.CD_INNCLUSTER); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.substanceProduct?.intendedcds?.find { it.type == "CD-INNCLUSTER" }?.code }
+						intendedname = content.medicationValue.substanceProduct.intendedname
+						intendedcd = CDINNCLUSTER().apply { s(CDINNCLUSTERschemes.CD_INNCLUSTER); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue.substanceProduct.intendedcds.find { it.type == "CD-INNCLUSTER" }?.code }
 					}
 				}
 				content.medicationValue?.compoundPrescription?.let {
-					compoundprescription = CompoundprescriptionType().apply { this.content.add(ObjectFactory().createCompoundprescriptionTypeMagistraltext(TextType().apply { l = language; value = content.medicationValue?.compoundPrescription })) }
+					compoundprescription = CompoundprescriptionType().apply { this.content.add(ObjectFactory().createCompoundprescriptionTypeMagistraltext(TextType().apply { l = language; value = content.medicationValue.compoundPrescription })) }
 				}
 				content.binaryValue?.let {
 					if (Arrays.equals(content.binaryValue.slice(0..4).toByteArray(), "{\\rtf".toByteArray())) {
@@ -554,7 +650,7 @@ open class KmehrExport(
 					cds.add(CDTRANSACTION().apply { s(transactionType); value = cdTransaction })
 					author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
 					ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = "1" })
-					ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "iCure-Item"; sv = config.soft?.version ?: "1.0"; value = ssc.id ?: dem.id ?: patient.id })
+					ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "iCure-Item"; sv = config.soft?.version ?: "1.0"; value = ssc.id ?: patient.id })
 					recorddatetime = makeXGC(ssc.created ?: ((dem.openingDate ?: dem.valueDate)?.let { FuzzyValues.getDateTime(it) } ?: LocalDateTime.now()).atZone(ZoneId.systemDefault()).toEpochSecond() * 1000)
 					isIscomplete = true
 					isIsvalidated = true
@@ -611,7 +707,9 @@ open class KmehrExport(
 	}
 
 	private suspend fun mapToCountryCode(country: String?): String? {
-		if (country == null) { return null }
+		if (country == null) {
+			return null
+		}
 		return if (codeLogic.isValid(CodeStub.from("CD-FED-COUNTRY", country.toLowerCase(), "1"))) {
 			country.toLowerCase()
 		} else {

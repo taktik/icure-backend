@@ -18,7 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.mapper.embed
 
-import java.util.*
+import java.util.Date
 import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.constants.TypedValuesType
@@ -52,6 +52,7 @@ abstract class TypedValueMapper {
 			dateValue = typedValueDto.dateValue
 		)
 	}
+
 	fun map(typedValue: TypedValue<*>?): TypedValueDto<*>? {
 		return if (typedValue == null) null else when (typedValue.type) {
 			TypedValuesType.STRING -> TypedValueDto.withTypeAndValue(typedValue.type, typedValue.getValue<String>())

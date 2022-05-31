@@ -19,7 +19,6 @@ package org.taktik.icure.be.format.logic.impl
 
 import java.io.IOException
 import java.time.LocalDateTime
-import java.util.*
 import java.util.stream.Collectors
 import java.util.stream.Stream
 import java.util.stream.StreamSupport
@@ -51,7 +50,7 @@ class KetLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: FormLo
 	@Throws(IOException::class)
 	override fun canHandle(doc: Document, enckeys: List<String>): Boolean {
 		return try {
-			val xml = getXmlDocument(doc!!, enckeys)
+			val xml = getXmlDocument(doc, enckeys)
 			val xPathfactory = XPathFactory.newInstance()
 			val xpath = xPathfactory.newXPath()
 			val expr = xpath.compile("/Record/Header/LaboFileFormatVersion")
@@ -68,7 +67,7 @@ class KetLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: FormLo
 	@Throws(IOException::class)
 	override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: List<String>): List<ResultInfo> {
 		return try {
-			val xml = getXmlDocument(doc!!, enckeys)
+			val xml = getXmlDocument(doc, enckeys)
 			val xPathfactory = XPathFactory.newInstance()
 			val xpath = xPathfactory.newXPath()
 			val expr = xpath.compile("/Record/Body/Patient/Person")

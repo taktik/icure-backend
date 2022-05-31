@@ -191,7 +191,7 @@ data class Invoice(
 		"options" to (other.options + this.options),
 		"locationNihii" to (this.locationNihii ?: other.locationNihii),
 		"locationService" to (this.locationService ?: other.locationService),
-		"admissionDate" to(this.admissionDate ?: other.admissionDate)
+		"admissionDate" to (this.admissionDate ?: other.admissionDate)
 	)
 
 	fun reassign(invoicingCodes: List<InvoicingCode>, uuidGenerator: UUIDGenerator) = this.copy(

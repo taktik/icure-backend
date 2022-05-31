@@ -21,7 +21,7 @@ package org.taktik.icure.be.ehealth.logic.kmehr.note.impl.v20161201
 import java.io.ByteArrayOutputStream
 import java.io.OutputStreamWriter
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 import kotlin.text.Charsets.UTF_8
@@ -134,7 +134,7 @@ class KmehrNoteLogicImpl(
 				)
 				this.recipients.add(
 					RecipientType().apply {
-						hcparties.add(recipient?.let { createParty(it, emptyList()) })
+						hcparties.add(recipient.let { createParty(it, emptyList()) })
 					}
 				)
 			}

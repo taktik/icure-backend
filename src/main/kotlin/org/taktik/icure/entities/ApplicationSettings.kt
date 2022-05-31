@@ -57,7 +57,7 @@ data class ApplicationSettings(
 	companion object : DynamicInitializer<ApplicationSettings>
 
 	fun merge(other: ApplicationSettings) = ApplicationSettings(args = this.solveConflictsWith(other))
-	fun solveConflictsWith(other: ApplicationSettings) = super<StoredICureDocument>.solveConflictsWith(other) + mapOf(
+	fun solveConflictsWith(other: ApplicationSettings) = super.solveConflictsWith(other) + mapOf(
 		"settings" to (other.settings + this.settings)
 	)
 

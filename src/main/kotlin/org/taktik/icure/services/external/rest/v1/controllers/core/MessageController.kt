@@ -115,7 +115,7 @@ class MessageController(
 	@Operation(summary = "Deletes multiple messages")
 	@PostMapping("/delete/byIds")
 	fun deleteMessagesBatch(@RequestBody messagesIds: ListOfIdsDto): Flux<DocIdentifier>? {
-		return messagesIds.ids?.takeIf { it.isNotEmpty() }
+		return messagesIds.ids.takeIf { it.isNotEmpty() }
 			?.let {
 				try {
 					messageLogic.deleteEntities(it).injectReactorContext()
