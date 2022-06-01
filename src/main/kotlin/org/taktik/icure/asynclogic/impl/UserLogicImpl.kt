@@ -105,6 +105,10 @@ class UserLogicImpl(
 		emitAll(userDAO.listUsersByHcpId(hcpartyId).mapNotNull { v: User -> v.id })
 	}
 
+	override fun findByPatientId(patientId: String): Flow<String> = flow {
+		emitAll(userDAO.listUsersByPatientId(patientId).mapNotNull { v: User -> v.id })
+	}
+
 	override fun listUserIdsByNameEmailPhone(searchString: String) =
 		userDAO.listUserIdsByNameEmailPhone(searchString)
 

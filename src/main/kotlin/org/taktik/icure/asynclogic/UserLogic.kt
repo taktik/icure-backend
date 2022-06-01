@@ -34,6 +34,7 @@ interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
 	fun buildStandardUser(userName: String, password: String): User
 	fun encodePassword(password: String): String
 	fun findByHcpartyId(hcpartyId: String): Flow<String>
+	fun findByPatientId(patientId: String): Flow<String>
 	fun findByNameEmailPhone(searchString: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
 	fun getExpiredUsers(fromExpirationDate: Instant, toExpirationDate: Instant): Flow<User>
 	fun getProperties(userId: String): Flow<PropertyStub>
