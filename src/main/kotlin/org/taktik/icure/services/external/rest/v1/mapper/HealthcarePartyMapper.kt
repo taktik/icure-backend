@@ -25,16 +25,15 @@ import org.mapstruct.Mappings
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v1.mapper.base.IdentifierMapper
 import org.taktik.icure.services.external.rest.v1.mapper.base.PropertyStubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.AddressMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.FinancialInstitutionInformationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.FlatRateTarificationMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.GenderMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.HealthcarePartyStatusMapper
+import org.taktik.icure.services.external.rest.v1.mapper.embed.HealthcarePartyHistoryStatusMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.PersonNameMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.TelecomTypeMapper
 
-@Mapper(componentModel = "spring", uses = [HealthcarePartyHistoryStatusMapper::class, FinancialInstitutionInformationMapper::class, AddressMapper::class, CodeStubMapper::class, FlatRateTarificationMapper::class, PersonNameMapper::class, PropertyStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [IdentifierMapper::class, HealthcarePartyHistoryStatusMapper::class, FinancialInstitutionInformationMapper::class, AddressMapper::class, CodeStubMapper::class, FlatRateTarificationMapper::class, PersonNameMapper::class, PropertyStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface HealthcarePartyMapper {
 	@Mappings(
 		Mapping(target = "attachments", ignore = true),
