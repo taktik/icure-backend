@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onCompletion
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
-import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.TotalCount
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.ViewRowWithDoc

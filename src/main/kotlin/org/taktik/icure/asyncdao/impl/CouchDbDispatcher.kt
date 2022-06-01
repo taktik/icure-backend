@@ -50,7 +50,6 @@ class CouchDbDispatcher(
 		)
 	)
 
-
 	private suspend fun attemptConnection(dbInstanceUrl: URI, trials: Int): Client = try {
 		connectors.get(
 			CouchDbConnectorReference(dbInstanceUrl.toString()),
@@ -69,7 +68,6 @@ class CouchDbDispatcher(
 	} catch (e: Exception) {
 		if (trials > 1) attemptConnection(dbInstanceUrl, trials - 1) else throw e
 	}
-
 
 	suspend fun getClient(dbInstanceUrl: URI, retry: Int = 5) = attemptConnection(dbInstanceUrl, retry)
 

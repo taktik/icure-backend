@@ -180,7 +180,6 @@ class ContactDAOImpl(
 		emitAll(relink(result))
 	}
 
-
 	@View(name = "service_by_linked_id", map = "classpath:js/contact/Service_by_linked_id.js")
 	override fun findServiceIdsByIdQualifiedLink(ids: List<String>, linkType: String?): Flow<String> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)

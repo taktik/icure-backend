@@ -32,7 +32,7 @@ class ResultInfo : Serializable {
 	var complete: Boolean? = null
 	var demandDate: Long? = null
 
-var labo: String? = null
+	var labo: String? = null
 	var engine: String? = null
 	var codes: List<CodeStub> = ArrayList()
 	var services: List<Service>? = null

@@ -24,7 +24,7 @@ import java.io.Serializable
  */
 class FormPlanning : Serializable {
 
-var planninfForAnyDoctor: Boolean? = null
+	var planninfForAnyDoctor: Boolean? = null
 	var planningForDelegate: Boolean? = null
 	var planningForPatientDoctor: Boolean? = null
 	var planningForMe: Boolean? = null

@@ -24,7 +24,7 @@ import java.io.Serializable
  */
 class FormPlanning(
 
-val planninfForAnyDoctor: Boolean? = null,
+	val planninfForAnyDoctor: Boolean? = null,
 	val planningForDelegate: Boolean? = null,
 	val planningForPatientDoctor: Boolean? = null,
 	val planningForMe: Boolean? = null,

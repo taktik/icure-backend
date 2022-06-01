@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
-import javax.validation.Valid
 import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.Encryptable

@@ -19,20 +19,6 @@ package org.taktik.icure.asynclogic.impl
 
 import java.util.TreeSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.fold
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.channels.onClosed
 import kotlinx.coroutines.flow.Flow

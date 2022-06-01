@@ -283,7 +283,6 @@ class SamV2LogicImpl(
 			.map { it.doc }
 	}
 
-
 	override fun getVtmNamesForParagraph(chapterName: String, paragraphName: String, language: String): Flow<String> {
 		return getAmpsForParagraph(chapterName, paragraphName).bufferedChunks(100, 200).flatMapConcat {
 			vmpDAO.getEntities(it.mapNotNull { it.vmp?.id }).mapNotNull {

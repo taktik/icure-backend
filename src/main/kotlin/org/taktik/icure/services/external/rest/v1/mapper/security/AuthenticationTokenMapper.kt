@@ -5,7 +5,6 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.security.AuthenticationToken
 import org.taktik.icure.services.external.rest.v1.dto.security.AuthenticationTokenDto
-import org.taktik.icure.services.external.rest.v1.mapper.utils.InstantMapper
 
 @Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 abstract class AuthenticationTokenMapper {

@@ -20,13 +20,12 @@ package org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive
 import java.io.Serializable
 import java.util.*
 import org.taktik.icure.services.external.rest.v1.dto.gui.type.Data
-import org.taktik.icure.be.mikrono.dto.kmehr.Person
 
 /**
  * Created by aduchate on 19/11/13, 10:14
  */
 class PrimitiveDate(val value: Date? = null) : Data(), Primitive {
 	override fun getPrimitiveValue(): Serializable? {
-	return value
+		return value
 	}
 }

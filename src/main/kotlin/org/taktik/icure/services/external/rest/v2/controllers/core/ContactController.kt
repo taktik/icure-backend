@@ -21,9 +21,6 @@ package org.taktik.icure.services.external.rest.v2.controllers.core
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.Collections
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
-import java.util.Collections
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -74,9 +71,6 @@ import org.taktik.icure.services.external.rest.v2.utils.paginatedList
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
-import java.util.Collections
 
 @ExperimentalStdlibApi
 @ExperimentalCoroutinesApi

@@ -28,5 +28,4 @@ interface AddressV2Mapper {
 	fun map(addressDto: AddressDto): Address
 
 	fun map(address: Address): AddressDto
-
 }

@@ -33,4 +33,4 @@ class AppointmentDto(
 	val amount: Double? = null,
 	val startTime: Long? = null,
 	val endTime: Long? = null
-) : Serializable 
+) : Serializable

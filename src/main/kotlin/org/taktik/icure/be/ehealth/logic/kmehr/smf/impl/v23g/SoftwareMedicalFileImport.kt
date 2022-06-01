@@ -361,9 +361,10 @@ class SoftwareMedicalFileImport(
 				v.attachments.put(
 					documentId,
 					MimeAttachment().copy(
-						data = lnk.value))
-					}
-				
+						data = lnk.value
+					)
+				)
+			}
 
 			val (mainUti, otherUtis) = extractUtis(lnk)
 			val valueDate = extractTransactionDateTime(trn)
