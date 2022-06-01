@@ -23,6 +23,6 @@ import java.io.Serializable
  * Created by aduchate on 03/12/13, 20:57
  */
 class GuiCode(
-        val type: String? = null,
-        val code: String? = null
+	val type: String? = null,
+	val code: String? = null
 ) : Serializable

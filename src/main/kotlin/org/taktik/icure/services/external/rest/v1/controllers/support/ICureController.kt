@@ -27,7 +27,6 @@ import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.asynclogic.impl.ICureLogicImpl
-import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.services.external.rest.v1.dto.*
 import org.taktik.icure.services.external.rest.v1.mapper.*
 import org.taktik.icure.utils.injectReactorContext
@@ -37,89 +36,89 @@ import reactor.core.publisher.Flux
 @RestController
 @RequestMapping("/rest/v1/icure")
 @Tag(name = "icure")
-class ICureController(private val iCureLogic: ICureLogicImpl,
-                      private val patientLogic: PatientLogic,
-                      private val userLogic: UserLogic,
-                      private val contactLogic: ContactLogic,
-                      private val messageLogic: MessageLogic,
-                      private val invoiceLogic: InvoiceLogic,
-                      private val documentLogic: DocumentLogic,
-                      private val healthElementLogic: HealthElementLogic,
-                      private val formLogic: FormLogic,
-                      private val sessionLogic: AsyncSessionLogic,
-                      private val userMapper: UserMapper,
-                      private val patientMapper: PatientMapper,
-                      private val contactMapper: ContactMapper,
-                      private val healthElementMapper: HealthElementMapper,
-                      private val formMapper: FormMapper,
-                      private val invoiceMapper: InvoiceMapper,
-                      private val messageMapper: MessageMapper,
-                      private val documentMapper: DocumentMapper,
+class ICureController(
+	private val iCureLogic: ICureLogicImpl,
+	private val patientLogic: PatientLogic,
+	private val userLogic: UserLogic,
+	private val contactLogic: ContactLogic,
+	private val messageLogic: MessageLogic,
+	private val invoiceLogic: InvoiceLogic,
+	private val documentLogic: DocumentLogic,
+	private val healthElementLogic: HealthElementLogic,
+	private val formLogic: FormLogic,
+	private val sessionLogic: AsyncSessionLogic,
+	private val userMapper: UserMapper,
+	private val patientMapper: PatientMapper,
+	private val contactMapper: ContactMapper,
+	private val healthElementMapper: HealthElementMapper,
+	private val formMapper: FormMapper,
+	private val invoiceMapper: InvoiceMapper,
+	private val messageMapper: MessageMapper,
+	private val documentMapper: DocumentMapper,
 ) {
 
-    @Operation(summary = "Get version")
-    @GetMapping("/v", produces = [MediaType.TEXT_PLAIN_VALUE])
-    fun getVersion(): String = iCureLogic.getVersion()
+	@Operation(summary = "Get version")
+	@GetMapping("/v", produces = [MediaType.TEXT_PLAIN_VALUE])
+	fun getVersion(): String = iCureLogic.getVersion()
 
-    @Operation(summary = "Check if a user exists")
-    @GetMapping("/ok", produces = [MediaType.TEXT_PLAIN_VALUE])
-    fun isReady() = "true"
+	@Operation(summary = "Check if a user exists")
+	@GetMapping("/ok", produces = [MediaType.TEXT_PLAIN_VALUE])
+	fun isReady() = "true"
 
-    @Operation(summary = "Get process info")
-    @GetMapping("/p", produces = [MediaType.TEXT_PLAIN_VALUE])
-    fun getProcessInfo(): String = java.lang.management.ManagementFactory.getRuntimeMXBean().name
+	@Operation(summary = "Get process info")
+	@GetMapping("/p", produces = [MediaType.TEXT_PLAIN_VALUE])
+	fun getProcessInfo(): String = java.lang.management.ManagementFactory.getRuntimeMXBean().name
 
-    @Operation(summary = "Get index info")
-    @GetMapping("/i")
-    fun getIndexingInfo() = mono {
-        IndexingInfoDto(iCureLogic.getIndexingStatus())
-    }
+	@Operation(summary = "Get index info")
+	@GetMapping("/i")
+	fun getIndexingInfo() = mono {
+		IndexingInfoDto(iCureLogic.getIndexingStatus())
+	}
 
-    @Operation(summary = "Get replication info")
-    @GetMapping("/r")
-    fun getReplicationInfo() = mono {
-        iCureLogic.getReplicationInfo()
-    }
+	@Operation(summary = "Get replication info")
+	@GetMapping("/r")
+	fun getReplicationInfo() = mono {
+		iCureLogic.getReplicationInfo()
+	}
 
-    @Operation(summary = "Force update design doc")
-    @PostMapping("/dd/{entityName}")
-    fun updateDesignDoc(@PathVariable entityName: String, @RequestParam(required = false) warmup: Boolean? = null) = mono {
-        iCureLogic.modifyDesignDoc(entityName, warmup ?: false)
-        true
-    }
+	@Operation(summary = "Force update design doc")
+	@PostMapping("/dd/{entityName}")
+	fun updateDesignDoc(@PathVariable entityName: String, @RequestParam(required = false) warmup: Boolean? = null) = mono {
+		iCureLogic.modifyDesignDoc(entityName, warmup ?: false)
+		true
+	}
 
-    @Operation(summary = "Resolve patients conflicts")
-    @PostMapping("/conflicts/patient")
-    fun resolvePatientsConflicts(): Flux<PatientDto> = patientLogic.solveConflicts().map { patientMapper.map(it) }.injectReactorContext()
+	@Operation(summary = "Resolve patients conflicts")
+	@PostMapping("/conflicts/patient")
+	fun resolvePatientsConflicts(): Flux<PatientDto> = patientLogic.solveConflicts().map { patientMapper.map(it) }.injectReactorContext()
 
-    @Operation(summary = "Resolve contacts conflicts")
-    @PostMapping("/conflicts/contact")
-    fun resolveContactsConflicts(): Flux<ContactDto> = contactLogic.solveConflicts().map { contactMapper.map(it) }.injectReactorContext()
+	@Operation(summary = "Resolve contacts conflicts")
+	@PostMapping("/conflicts/contact")
+	fun resolveContactsConflicts(): Flux<ContactDto> = contactLogic.solveConflicts().map { contactMapper.map(it) }.injectReactorContext()
 
-    @Operation(summary = "resolve forms conflicts")
-    @PostMapping("/conflicts/form")
-    fun resolveFormsConflicts(): Flux<FormDto> = formLogic.solveConflicts().map { formMapper.map(it) }.injectReactorContext()
+	@Operation(summary = "resolve forms conflicts")
+	@PostMapping("/conflicts/form")
+	fun resolveFormsConflicts(): Flux<FormDto> = formLogic.solveConflicts().map { formMapper.map(it) }.injectReactorContext()
 
-    @Operation(summary = "resolve healthcare elements conflicts")
-    @PostMapping("/conflicts/healthelement")
-    fun resolveHealthElementsConflicts(): Flux<HealthElementDto> = healthElementLogic.solveConflicts().map { healthElementMapper.map(it) }.injectReactorContext()
+	@Operation(summary = "resolve healthcare elements conflicts")
+	@PostMapping("/conflicts/healthelement")
+	fun resolveHealthElementsConflicts(): Flux<HealthElementDto> = healthElementLogic.solveConflicts().map { healthElementMapper.map(it) }.injectReactorContext()
 
-    @Operation(summary = "resolve invoices conflicts")
-    @PostMapping("/conflicts/invoice")
-    fun resolveInvoicesConflicts(): Flux<InvoiceDto> = invoiceLogic.solveConflicts().map { invoiceMapper.map(it) }.injectReactorContext()
+	@Operation(summary = "resolve invoices conflicts")
+	@PostMapping("/conflicts/invoice")
+	fun resolveInvoicesConflicts(): Flux<InvoiceDto> = invoiceLogic.solveConflicts().map { invoiceMapper.map(it) }.injectReactorContext()
 
-    @Operation(summary = "resolve messages conflicts")
-    @PostMapping("/conflicts/message")
-    fun resolveMessagesConflicts(): Flux<MessageDto> = messageLogic.solveConflicts().map { messageMapper.map(it) }.injectReactorContext()
+	@Operation(summary = "resolve messages conflicts")
+	@PostMapping("/conflicts/message")
+	fun resolveMessagesConflicts(): Flux<MessageDto> = messageLogic.solveConflicts().map { messageMapper.map(it) }.injectReactorContext()
 
-    @Operation(summary = "resolve documents conflicts")
-    @PostMapping("/conflicts/document")
-    fun resolveDocumentsConflicts(@RequestParam(required = false) ids: String?): Flux<DocumentDto> = documentLogic.solveConflicts(ids?.split(",")).map { documentMapper.map(it) }.injectReactorContext()
+	@Operation(summary = "resolve documents conflicts")
+	@PostMapping("/conflicts/document")
+	fun resolveDocumentsConflicts(@RequestParam(required = false) ids: String?): Flux<DocumentDto> = documentLogic.solveConflicts(ids?.split(",")).map { documentMapper.map(it) }.injectReactorContext()
 
-    @PostMapping("/loglevel/{loglevel}", produces = [MediaType.TEXT_PLAIN_VALUE])
-    @Throws(Exception::class)
-    fun loglevel(@PathVariable("loglevel") logLevel: String, @RequestParam(value = "package") packageName: String) = mono {
-        iCureLogic.setLogLevel(logLevel, packageName)
-    }
-
+	@PostMapping("/loglevel/{loglevel}", produces = [MediaType.TEXT_PLAIN_VALUE])
+	@Throws(Exception::class)
+	fun loglevel(@PathVariable("loglevel") logLevel: String, @RequestParam(value = "package") packageName: String) = mono {
+		iCureLogic.setLogLevel(logLevel, packageName)
+	}
 }

@@ -18,12 +18,11 @@
 package org.taktik.icure.services.external.rest.v1.dto
 
 class IdWithRevDto {
-    var id: String? = null
-    var rev: String? = null
+	var id: String? = null
+	var rev: String? = null
 
-    constructor(id: String?, rev: String?) {
-        this.id = id
-        this.rev = rev
-    }
-
+	constructor(id: String?, rev: String?) {
+		this.id = id
+		this.rev = rev
+	}
 }

@@ -21,5 +21,5 @@ package org.taktik.icure.services.external.rest.v2.dto.gui.editor
  * Created by aduchate on 19/11/13, 15:24
  */
 interface ValueDateEditor {
-    val displayValueDate: Boolean
+	val displayValueDate: Boolean
 }

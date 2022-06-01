@@ -18,12 +18,12 @@
 package org.taktik.icure.constants
 
 abstract class StorageUnitTypes {
-    interface Identifier {
-        companion object {
-            const val CASSANDRA = "org.taktik.storagetype.cassandra"
-            const val DISK = "org.taktik.storagetype.simplediskstorage"
-            const val JCLOUDS_BLOB_STORAGE = "org.taktik.storagetype.jcloudsblobstorage"
-            const val IN_PLACE = "org.taktik.storagetype.inplacestorage"
-        }
-    }
+	interface Identifier {
+		companion object {
+			const val CASSANDRA = "org.taktik.storagetype.cassandra"
+			const val DISK = "org.taktik.storagetype.simplediskstorage"
+			const val JCLOUDS_BLOB_STORAGE = "org.taktik.storagetype.jcloudsblobstorage"
+			const val IN_PLACE = "org.taktik.storagetype.inplacestorage"
+		}
+	}
 }

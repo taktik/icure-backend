@@ -18,12 +18,12 @@
 
 package org.taktik.icure.services.external.rest.v2.mapper.embed
 
+import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Right
 import org.taktik.icure.services.external.rest.v2.dto.embed.RightDto
-import org.mapstruct.InjectionStrategy
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface RightV2Mapper {
-	fun map(rightDto: RightDto):Right
-	fun map(right: Right):RightDto
+	fun map(rightDto: RightDto): Right
+	fun map(right: Right): RightDto
 }

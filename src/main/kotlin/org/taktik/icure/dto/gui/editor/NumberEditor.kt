@@ -29,7 +29,7 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class NumberEditor : Editor(), ValueDateEditor {
-    //To change body of implemented methods use File | Settings | File Templates.
-    override var displayValueDate = false
-    var precision = 0
+	//To change body of implemented methods use File | Settings | File Templates.
+	override var displayValueDate = false
+	var precision = 0
 }

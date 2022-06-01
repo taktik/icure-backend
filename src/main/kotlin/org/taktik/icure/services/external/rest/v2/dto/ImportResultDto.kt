@@ -27,13 +27,13 @@ import org.taktik.icure.services.external.rest.v2.dto.base.MimeAttachmentDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class ImportResultDto(
-        val patient: PatientDto? = null,
-        val hes: List<HealthElementDto> = listOf(),
-        val ctcs: List<ContactDto> = listOf(),
-        val warnings: List<String> = listOf(),
-        val errors: List<String> = listOf(),
-        val forms: List<FormDto> = listOf(),
-        val hcps: List<HealthcarePartyDto> = listOf(),
-        val documents: List<DocumentDto> = listOf(),
-        val attachments: Map<String, MimeAttachmentDto> = mapOf()
+	val patient: PatientDto? = null,
+	val hes: List<HealthElementDto> = listOf(),
+	val ctcs: List<ContactDto> = listOf(),
+	val warnings: List<String> = listOf(),
+	val errors: List<String> = listOf(),
+	val forms: List<FormDto> = listOf(),
+	val hcps: List<HealthcarePartyDto> = listOf(),
+	val documents: List<DocumentDto> = listOf(),
+	val attachments: Map<String, MimeAttachmentDto> = mapOf()
 )

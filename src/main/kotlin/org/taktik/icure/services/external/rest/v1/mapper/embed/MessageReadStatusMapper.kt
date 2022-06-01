@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.MessageReadStatusDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface MessageReadStatusMapper {
-	fun map(messageReadStatusDto: MessageReadStatusDto):MessageReadStatus
-	fun map(messageReadStatus: MessageReadStatus):MessageReadStatusDto
+	fun map(messageReadStatusDto: MessageReadStatusDto): MessageReadStatus
+	fun map(messageReadStatus: MessageReadStatus): MessageReadStatusDto
 }

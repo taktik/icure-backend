@@ -18,9 +18,9 @@
 
 package org.taktik.icure.asynclogic.impl
 
+import java.io.Serializable
 import javax.servlet.http.HttpSession
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.slf4j.LoggerFactory
 import org.springframework.http.server.reactive.ServerHttpRequest
@@ -39,109 +39,110 @@ import org.taktik.icure.entities.User
 import org.taktik.icure.security.PermissionSetIdentifier
 import org.taktik.icure.security.UserDetails
 import org.taktik.icure.security.loadSecurityContext
-import java.io.Serializable
 
 @ExperimentalCoroutinesApi
 @Service
-class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthenticationManager,
-                            private val userDAO: UserDAO) : AsyncSessionLogic {
-    /* Generic */
+class AsyncSessionLogicImpl(
+	private val authenticationManager: ReactiveAuthenticationManager,
+	private val userDAO: UserDAO
+) : AsyncSessionLogic {
+	/* Generic */
 
-    val log = LoggerFactory.getLogger(this::class.java)
+	val log = LoggerFactory.getLogger(this::class.java)
 
-    override fun getOrCreateSession(): HttpSession? {
-        val requestAttributes = RequestContextHolder.getRequestAttributes()
-        if (requestAttributes is ServletRequestAttributes) {
-            val httpRequest = requestAttributes.request
-            return httpRequest.getSession(true)
-        }
-        return null
-    }
+	override fun getOrCreateSession(): HttpSession? {
+		val requestAttributes = RequestContextHolder.getRequestAttributes()
+		if (requestAttributes is ServletRequestAttributes) {
+			val httpRequest = requestAttributes.request
+			return httpRequest.getSession(true)
+		}
+		return null
+	}
 
-    override suspend fun login(username: String, password: String, request : ServerHttpRequest, session: WebSession): Authentication? {
-        try {
-            val token = UsernamePasswordAuthenticationToken(username, password)
-            val authentication = authenticationManager.authenticate(token).awaitFirstOrNull()
-            session.attributes[SESSION_LOCALE_ATTRIBUTE] = "fr" // TODO MB : add locale support
-            return authentication
-        } catch (e: AuthenticationException) {
-            // Ignore
-        }
+	override suspend fun login(username: String, password: String, request: ServerHttpRequest, session: WebSession): Authentication? {
+		try {
+			val token = UsernamePasswordAuthenticationToken(username, password)
+			val authentication = authenticationManager.authenticate(token).awaitFirstOrNull()
+			session.attributes[SESSION_LOCALE_ATTRIBUTE] = "fr" // TODO MB : add locale support
+			return authentication
+		} catch (e: AuthenticationException) {
+			// Ignore
+		}
 
-        return null
-    }
+		return null
+	}
 
-    override suspend fun logout() {
-        invalidateCurrentAuthentication()
-    }
+	override suspend fun logout() {
+		invalidateCurrentAuthentication()
+	}
 
-    override fun getSessionContext(authentication: Authentication?): AsyncSessionLogic.AsyncSessionContext? {
-        return authentication?.let { SessionContextImpl(it) }
-    }
+	override fun getSessionContext(authentication: Authentication?): AsyncSessionLogic.AsyncSessionContext? {
+		return authentication?.let { SessionContextImpl(it) }
+	}
 
-    override suspend fun getCurrentSessionContext(): AsyncSessionLogic.AsyncSessionContext =
-        getCurrentAuthentication()?.let { SessionContextImpl(it) }
-            ?: throw AuthenticationServiceException("getCurrentAuthentication() returned null, no SecurityContext in the coroutine context?")
+	override suspend fun getCurrentSessionContext(): AsyncSessionLogic.AsyncSessionContext =
+		getCurrentAuthentication()?.let { SessionContextImpl(it) }
+			?: throw AuthenticationServiceException("getCurrentAuthentication() returned null, no SecurityContext in the coroutine context?")
 
-    override suspend fun getCurrentUserId(): String {
-        return getCurrentSessionContext().getUser().id
-    }
+	override suspend fun getCurrentUserId(): String {
+		return getCurrentSessionContext().getUser().id
+	}
 
-    override suspend fun getCurrentHealthcarePartyId(): String {
-        return getCurrentSessionContext().getUser().healthcarePartyId
-            ?: throw AuthenticationServiceException("Failed to extract current healthCareParty id")
-    }
+	override suspend fun getCurrentHealthcarePartyId(): String {
+		return getCurrentSessionContext().getUser().healthcarePartyId
+			?: throw AuthenticationServiceException("Failed to extract current healthCareParty id")
+	}
 
-    override suspend fun getCurrentDataOwnerId(): String {
-        return getCurrentSessionContext().getUser().let {
-            it.healthcarePartyId ?: it.patientId ?: it.deviceId
-        } ?: throw AuthenticationServiceException("Failed to extract current data owner id")
-    }
+	override suspend fun getCurrentDataOwnerId(): String {
+		return getCurrentSessionContext().getUser().let {
+			it.healthcarePartyId ?: it.patientId ?: it.deviceId
+		} ?: throw AuthenticationServiceException("Failed to extract current data owner id")
+	}
 
-    override suspend fun getCurrentPatientId(): String? {
-        return getCurrentSessionContext().getUser().patientId
-    }
+	override suspend fun getCurrentPatientId(): String? {
+		return getCurrentSessionContext().getUser().patientId
+	}
 
-    private inner class SessionContextImpl(private val authentication: Authentication) :
-        AsyncSessionLogic.AsyncSessionContext, Serializable {
-        private var userDetails: UserDetails = extractUserDetails(authentication)
-        private var permissionSetIdentifier: PermissionSetIdentifier
+	private inner class SessionContextImpl(private val authentication: Authentication) :
+		AsyncSessionLogic.AsyncSessionContext, Serializable {
+		private var userDetails: UserDetails = extractUserDetails(authentication)
+		private var permissionSetIdentifier: PermissionSetIdentifier
 
-        init {
-            this.permissionSetIdentifier = userDetails.permissionSetIdentifier
-        }
+		init {
+			this.permissionSetIdentifier = userDetails.permissionSetIdentifier
+		}
 
-        fun getUserId(): String? = permissionSetIdentifier.getPrincipalIdOfClass(User::class.java)
+		fun getUserId(): String? = permissionSetIdentifier.getPrincipalIdOfClass(User::class.java)
 
-        override fun getAuthentication(): Authentication = authentication
+		override fun getAuthentication(): Authentication = authentication
 
-        override fun getUserDetails(): UserDetails = userDetails
+		override fun getUserDetails(): UserDetails = userDetails
 
-        override fun isAuthenticated(): Boolean = authentication.isAuthenticated
+		override fun isAuthenticated(): Boolean = authentication.isAuthenticated
 
-        override fun isAnonymous(): Boolean = false
+		override fun isAnonymous(): Boolean = false
 
-        override suspend fun getUser(): User {
-            val userId = getUserId()
-            return userId?.let { userDAO.getUserOnUserDb(userId, false) }
-                    ?: throw AuthenticationServiceException("Failed getting the user from session context : userId=$userId")
-        }
-    }
+		override suspend fun getUser(): User {
+			val userId = getUserId()
+			return userId?.let { userDAO.getUserOnUserDb(userId, false) }
+				?: throw AuthenticationServiceException("Failed getting the user from session context : userId=$userId")
+		}
+	}
 
-    companion object {
-        const val SESSION_LOCALE_ATTRIBUTE = "locale";
+	companion object {
+		const val SESSION_LOCALE_ATTRIBUTE = "locale"
 
-        private suspend fun getCurrentAuthentication() =
-                loadSecurityContext()?.map { it.authentication }?.awaitFirstOrNull()
+		private suspend fun getCurrentAuthentication() =
+			loadSecurityContext()?.map { it.authentication }?.awaitFirstOrNull()
 
-        private suspend fun invalidateCurrentAuthentication() {
-                loadSecurityContext()?.map { it.authentication.isAuthenticated = false }?.awaitFirstOrNull()
-                        ?: throw AuthenticationServiceException("Could not find authentication object in ReactorContext")
-        }
+		private suspend fun invalidateCurrentAuthentication() {
+			loadSecurityContext()?.map { it.authentication.isAuthenticated = false }?.awaitFirstOrNull()
+				?: throw AuthenticationServiceException("Could not find authentication object in ReactorContext")
+		}
 
-        private fun extractUserDetails(authentication: Authentication): UserDetails {
-            return authentication.principal?.let { it as? UserDetails }
-                    ?: throw AuthenticationServiceException("Failed extracting user details: ${authentication.principal}")
-        }
-    }
+		private fun extractUserDetails(authentication: Authentication): UserDetails {
+			return authentication.principal?.let { it as? UserDetails }
+				?: throw AuthenticationServiceException("Failed extracting user details: ${authentication.principal}")
+		}
+	}
 }

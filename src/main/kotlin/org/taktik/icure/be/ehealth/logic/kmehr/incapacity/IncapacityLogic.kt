@@ -20,7 +20,6 @@ package org.taktik.icure.be.ehealth.logic.kmehr.incapacity
 
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
-
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Address
@@ -29,42 +28,42 @@ import org.taktik.icure.services.external.http.websocket.AsyncProgress
 
 interface IncapacityLogic {
 
-    fun createIncapacityExport(
-            patient: Patient,
-            sender: HealthcareParty,
-            language: String,
-            recipient: HealthcareParty?,
-            comment: String?,
-            incapacityId: String,
-            notificationDate: Long,
-            retraction: Boolean,
-            dataset: String,
-            transactionType: String,
-            incapacityreason: String,
-            beginmoment: Long,
-            endmoment: Long,
-            outofhomeallowed: Boolean,
-            incapWork: Boolean,
-            incapSchool: Boolean,
-            incapSwim: Boolean,
-            incapSchoolsports: Boolean,
-            incapHeavyphysicalactivity: Boolean,
-            diagnoseServices: List<Service>,
-            jobstatus: String,
-            job: String,
-            occupationalDiseaseDeclDate: Long,
-            accidentDate: Long,
-            expectedbirthgivingDate: Long,
-            maternityleaveBegin: Long,
-            maternityleaveEnd: Long,
-            hospitalisationBegin: Long,
-            hospitalisationEnd: Long,
-            hospital: HealthcareParty?,
-            contactPersonTel: String,
-            recoveryAddress: Address?,
-            foreignStayBegin: Long,
-            foreignStayEnd: Long,
-            timeZone: String?,
-            progressor: AsyncProgress?
-    ): Flow<DataBuffer>
+	fun createIncapacityExport(
+		patient: Patient,
+		sender: HealthcareParty,
+		language: String,
+		recipient: HealthcareParty?,
+		comment: String?,
+		incapacityId: String,
+		notificationDate: Long,
+		retraction: Boolean,
+		dataset: String,
+		transactionType: String,
+		incapacityreason: String,
+		beginmoment: Long,
+		endmoment: Long,
+		outofhomeallowed: Boolean,
+		incapWork: Boolean,
+		incapSchool: Boolean,
+		incapSwim: Boolean,
+		incapSchoolsports: Boolean,
+		incapHeavyphysicalactivity: Boolean,
+		diagnoseServices: List<Service>,
+		jobstatus: String,
+		job: String,
+		occupationalDiseaseDeclDate: Long,
+		accidentDate: Long,
+		expectedbirthgivingDate: Long,
+		maternityleaveBegin: Long,
+		maternityleaveEnd: Long,
+		hospitalisationBegin: Long,
+		hospitalisationEnd: Long,
+		hospital: HealthcareParty?,
+		contactPersonTel: String,
+		recoveryAddress: Address?,
+		foreignStayBegin: Long,
+		foreignStayEnd: Long,
+		timeZone: String?,
+		progressor: AsyncProgress?
+	): Flow<DataBuffer>
 }

@@ -32,51 +32,52 @@ import org.taktik.icure.exceptions.DeletionException
 
 @ExperimentalCoroutinesApi
 @Service
-class CalendarItemLogicImpl(private val calendarItemDAO: CalendarItemDAO,
-                            sessionLogic: AsyncSessionLogic) : GenericLogicImpl<CalendarItem, CalendarItemDAO>(sessionLogic), CalendarItemLogic {
+class CalendarItemLogicImpl(
+	private val calendarItemDAO: CalendarItemDAO,
+	sessionLogic: AsyncSessionLogic
+) : GenericLogicImpl<CalendarItem, CalendarItemDAO>(sessionLogic), CalendarItemLogic {
 
-    override suspend fun createCalendarItem(calendarItem: CalendarItem) = fix(calendarItem) { calendarItem ->
-        calendarItemDAO.create(calendarItem)
-    }
+	override suspend fun createCalendarItem(calendarItem: CalendarItem) = fix(calendarItem) { calendarItem ->
+		calendarItemDAO.create(calendarItem)
+	}
 
-    override fun deleteCalendarItems(ids: List<String>): Flow<DocIdentifier> {
-        try {
-            return deleteEntities(ids)
-        } catch (e: Exception) {
-            throw DeletionException(e.message, e)
-        }
-    }
+	override fun deleteCalendarItems(ids: List<String>): Flow<DocIdentifier> {
+		try {
+			return deleteEntities(ids)
+		} catch (e: Exception) {
+			throw DeletionException(e.message, e)
+		}
+	}
 
-    override suspend fun getCalendarItem(calendarItemId: String): CalendarItem? {
-        return calendarItemDAO.get(calendarItemId)
-    }
+	override suspend fun getCalendarItem(calendarItemId: String): CalendarItem? {
+		return calendarItemDAO.get(calendarItemId)
+	}
 
-    override fun getCalendarItemByPeriodAndHcPartyId(startDate: Long, endDate: Long, hcPartyId: String): Flow<CalendarItem> = flow {
-        emitAll(calendarItemDAO.listCalendarItemByPeriodAndHcPartyId(startDate, endDate, hcPartyId))
-    }
+	override fun getCalendarItemByPeriodAndHcPartyId(startDate: Long, endDate: Long, hcPartyId: String): Flow<CalendarItem> = flow {
+		emitAll(calendarItemDAO.listCalendarItemByPeriodAndHcPartyId(startDate, endDate, hcPartyId))
+	}
 
-    override fun getCalendarItemByPeriodAndAgendaId(startDate: Long, endDate: Long, agendaId: String): Flow<CalendarItem> = flow {
-        emitAll(calendarItemDAO.listCalendarItemByPeriodAndAgendaId(startDate, endDate, agendaId))
-    }
+	override fun getCalendarItemByPeriodAndAgendaId(startDate: Long, endDate: Long, agendaId: String): Flow<CalendarItem> = flow {
+		emitAll(calendarItemDAO.listCalendarItemByPeriodAndAgendaId(startDate, endDate, agendaId))
+	}
 
-    override fun getCalendarItemsByRecurrenceId(recurrenceId: String): Flow<CalendarItem> = flow {
-        emitAll(calendarItemDAO.listCalendarItemsByRecurrenceId(recurrenceId))
-    }
+	override fun getCalendarItemsByRecurrenceId(recurrenceId: String): Flow<CalendarItem> = flow {
+		emitAll(calendarItemDAO.listCalendarItemsByRecurrenceId(recurrenceId))
+	}
 
-    override fun listCalendarItemsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>) = flow {
-            emitAll(calendarItemDAO.listAccessLogsByHcPartyAndPatient(hcPartyId, secretPatientKeys))
-    }
+	override fun listCalendarItemsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>) = flow {
+		emitAll(calendarItemDAO.listAccessLogsByHcPartyAndPatient(hcPartyId, secretPatientKeys))
+	}
 
-    override fun getCalendarItems(ids: List<String>): Flow<CalendarItem> = flow {
-        calendarItemDAO.getEntities(ids).collect { emit(it) }
-    }
+	override fun getCalendarItems(ids: List<String>): Flow<CalendarItem> = flow {
+		calendarItemDAO.getEntities(ids).collect { emit(it) }
+	}
 
+	override suspend fun modifyCalendarItem(calendarItem: CalendarItem) = fix(calendarItem) { calendarItem ->
+		calendarItemDAO.save(calendarItem)
+	}
 
-    override suspend fun modifyCalendarItem(calendarItem: CalendarItem) = fix(calendarItem) { calendarItem ->
-        calendarItemDAO.save(calendarItem)
-    }
-
-    override fun getGenericDAO(): CalendarItemDAO {
-        return calendarItemDAO
-    }
+	override fun getGenericDAO(): CalendarItemDAO {
+		return calendarItemDAO
+	}
 }

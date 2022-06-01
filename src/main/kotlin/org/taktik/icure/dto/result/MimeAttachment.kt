@@ -23,7 +23,7 @@ import java.io.Serializable
  * Created by aduchate on 12/07/2017.
  */
 data class MimeAttachment(
-        val data: ByteArray? = null,
-        val fileName: String? = null,
-        val mimeType: String? = null,
+	val data: ByteArray? = null,
+	val fileName: String? = null,
+	val mimeType: String? = null,
 ) : Serializable

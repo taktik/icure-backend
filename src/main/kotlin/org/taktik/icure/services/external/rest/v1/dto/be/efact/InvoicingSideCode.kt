@@ -26,21 +26,19 @@ package org.taktik.icure.services.external.rest.v1.dto.be.efact
  * To change this template use File | Settings | File Templates.
  */
 enum class InvoicingSideCode(val code: Int) {
-    None(0),
-    Left(1),
-    Right(2);
+	None(0),
+	Left(1),
+	Right(2);
 
+	companion object {
 
-    companion object {
-
-        fun withSide(side: Int): InvoicingSideCode? {
-            for (s in InvoicingSideCode.values()) {
-                if (s.code == side) {
-                    return s
-                }
-            }
-            return null
-
-        }
-    }
+		fun withSide(side: Int): InvoicingSideCode? {
+			for (s in InvoicingSideCode.values()) {
+				if (s.code == side) {
+					return s
+				}
+			}
+			return null
+		}
+	}
 }

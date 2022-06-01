@@ -26,6 +26,6 @@ import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
 @Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface SchoolingInfoV2Mapper {
-	fun map(schoolingInfoDto: SchoolingInfoDto):SchoolingInfo
-	fun map(schoolingInfo: SchoolingInfo):SchoolingInfoDto
+	fun map(schoolingInfoDto: SchoolingInfoDto): SchoolingInfo
+	fun map(schoolingInfo: SchoolingInfo): SchoolingInfoDto
 }

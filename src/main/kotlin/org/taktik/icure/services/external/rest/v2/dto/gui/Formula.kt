@@ -17,13 +17,13 @@
  */
 package org.taktik.icure.services.external.rest.v2.dto.gui
 
-import org.taktik.icure.dto.gui.FormLifecycle
 import java.io.Serializable
+import org.taktik.icure.dto.gui.FormLifecycle
 
 /**
  * Created by aduchate on 03/12/13, 17:22
  */
 class Formula(
-        val value: String? = null,
-        val lifecycle: FormLifecycle? = null,
-        ) : Serializable
+	val value: String? = null,
+	val lifecycle: FormLifecycle? = null,
+) : Serializable

@@ -32,12 +32,12 @@ import org.taktik.icure.services.external.rest.v1.mapper.samv2.embed.SamTextMapp
 
 @Mapper(componentModel = "spring", uses = [CompanyMapper::class, SamTextMapper::class, VmpStubMapper::class, AmpComponentMapper::class, EntityReferenceMapper::class, AmppMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface AmpMapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(ampDto: AmpDto):Amp
-	fun map(amp: Amp):AmpDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(ampDto: AmpDto): Amp
+	fun map(amp: Amp): AmpDto
 }

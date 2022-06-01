@@ -24,6 +24,6 @@ import org.taktik.icure.entities.samv2.embed.AmppComponent
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.AmppComponentDto
 @Mapper(componentModel = "spring", uses = [PackagingTypeV2Mapper::class, DeviceTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface AmppComponentV2Mapper {
-	fun map(amppComponentDto: AmppComponentDto):AmppComponent
-	fun map(amppComponent: AmppComponent):AmppComponentDto
+	fun map(amppComponentDto: AmppComponentDto): AmppComponent
+	fun map(amppComponent: AmppComponent): AmppComponentDto
 }

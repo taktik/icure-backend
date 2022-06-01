@@ -34,21 +34,21 @@ enum class InvoicingDerogationMaxNumberCode(val code: Int) {
      00 Dans les autres cas.
     */
 
-    Other(0),
-    DerogationMaxNumber(1),
-    OtherPrescription(2),
-    SecondPrestationOfDay(3),
-    ThirdAndNextPrestationOfDay(4);
+	Other(0),
+	DerogationMaxNumber(1),
+	OtherPrescription(2),
+	SecondPrestationOfDay(3),
+	ThirdAndNextPrestationOfDay(4);
 
-    companion object {
+	companion object {
 
-        fun withCode(derogationMaxNumberCode: Int): InvoicingDerogationMaxNumberCode? {
-            for (idc in InvoicingDerogationMaxNumberCode.values()) {
-                if (idc.code == derogationMaxNumberCode) {
-                    return idc
-                }
-            }
-            return null
-        }
-    }
+		fun withCode(derogationMaxNumberCode: Int): InvoicingDerogationMaxNumberCode? {
+			for (idc in InvoicingDerogationMaxNumberCode.values()) {
+				if (idc.code == derogationMaxNumberCode) {
+					return idc
+				}
+			}
+			return null
+		}
+	}
 }

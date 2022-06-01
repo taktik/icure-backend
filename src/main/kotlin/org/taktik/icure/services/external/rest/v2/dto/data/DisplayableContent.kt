@@ -20,8 +20,8 @@ package org.taktik.icure.services.external.rest.v2.dto.data
 import java.io.Serializable
 
 interface DisplayableContent : Serializable {
-    val id: String?
-    val label: String?
-    val entityClass: String?
-    val entityId: String?
+	val id: String?
+	val label: String?
+	val entityClass: String?
+	val entityId: String?
 }

@@ -31,12 +31,12 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.*
 
 @Mapper(componentModel = "spring", uses = [IdentifierMapper::class, FinancialInstitutionInformationMapper::class, SchoolingInfoMapper::class, AddressMapper::class, EmploymentInfoMapper::class, MedicalHouseContractMapper::class, PatientHealthCarePartyMapper::class, PropertyStubMapper::class, CodeStubMapper::class, DelegationMapper::class, InsurabilityMapper::class, PartnershipMapper::class, PersonNameMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface PatientMapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(patientDto: PatientDto):Patient
-	fun map(patient: Patient):PatientDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(patientDto: PatientDto): Patient
+	fun map(patient: Patient): PatientDto
 }

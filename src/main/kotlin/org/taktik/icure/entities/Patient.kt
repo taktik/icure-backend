@@ -106,175 +106,178 @@ import org.taktik.icure.validation.ValidCode
  *
  */
 data class Patient(
-        @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String? = null,
-        val identifier: List<Identifier> = listOf(),
-        @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
-        @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
-        @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
-        override val endOfLife: Long? = null,
-        @JsonProperty("deleted") override val deletionDate: Long? = null,
-        override val firstName: String? = null,
-        override val lastName: String? = null, //Is usually either maidenName or spouseName,
-        override val companyName: String? = null,
-        override val languages: List<String> = emptyList(), //alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html,
-        override val addresses: List<Address> = emptyList(),
-        override val civility: String? = null,
-        override val gender: Gender? = Gender.unknown,
-        override val names: List<PersonName> = emptyList(),
-        val birthSex: Gender? = Gender.unknown,
-        val mergeToPatientId: String? = null,
-        val mergedIds: Set<String> = emptySet(),
-        val alias: String? = null,
-        val active: Boolean = true,
-        val deactivationReason: DeactivationReason = DeactivationReason.none,
-        val ssin: String? = null,
-        val maidenName: String? = null,// Never changes (nom de jeune fille),
-        val spouseName: String? = null, // Name of the spouse after marriage,
-        val partnerName: String? = null, // Name of the partner, sometimes equal to spouseName,
-        val personalStatus: PersonalStatus? = PersonalStatus.unknown,
-        val dateOfBirth: Int? = null, // YYYYMMDD if unknown, 00, ex:20010000 or,
-        val deceased: Boolean? = null,
-        val dateOfDeath: Int? = null, // YYYYMMDD if unknown, 00, ex:20010000 or,
-        val timestampOfLatestEidReading: Long? = null,
-        val placeOfBirth: String? = null,
-        val placeOfDeath: String? = null,
-        val education: String? = null,
-        val profession: String? = null,
-        val note: String? = null,
-        val administrativeNote: String? = null,
-        val race: String? = null,
-        val ethnicity: String? = null,
-        val nationality: String? = null,
-        val preferredUserId: String? = null,
-        @JsonDeserialize(using = JacksonBase64LenientDeserializer::class) val picture: ByteArray? = null,
-        val externalId: String? = null, //No guarantee of unicity
-        val insurabilities: List<Insurability> = emptyList(),
-        val partnerships: List<Partnership> = emptyList(),
-        val patientHealthCareParties: List<PatientHealthCareParty> = emptyList(),
-        val financialInstitutionInformation: List<FinancialInstitutionInformation> = emptyList(),
-        val medicalHouseContracts: List<MedicalHouseContract> = emptyList(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) val patientProfessions: List<CodeStub> = emptyList(),
-        val parameters: Map<String, List<String>> = emptyMap(),
-        @Deprecated("Do not use") val nonDuplicateIds: Set<String> = emptySet(),
-        @Deprecated("Do not use") val encryptedAdministrativesDocuments: Set<String> = emptySet(),
-        @Deprecated("Use note or administrativeNote") val comment: String? = null,
-        @Deprecated("Use note or administrativeNote") val warning: String? = null,
-        @Deprecated("Use properties instead") val fatherBirthCountry: CodeStub? = null,
-        @Deprecated("Use properties instead") val birthCountry: CodeStub? = null,
-        @Deprecated("Use properties instead") val nativeCountry: CodeStub? = null,
-        @Deprecated("Use properties instead") val socialStatus: CodeStub? = null,
-        @Deprecated("Use properties instead") val mainSourceOfIncome: CodeStub? = null,
-        @Deprecated("Use properties instead") val schoolingInfos: List<SchoolingInfo> = emptyList(),
-        @Deprecated("Use properties instead") val employementInfos: List<EmploymentInfo> = emptyList(),
-        override val properties: Set<PropertyStub> = emptySet(),
+	@JsonProperty("_id") override val id: String,
+	@JsonProperty("_rev") override val rev: String? = null,
+	val identifier: List<Identifier> = listOf(),
+	@field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+	@field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+	@field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+	@field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
+	override val endOfLife: Long? = null,
+	@JsonProperty("deleted") override val deletionDate: Long? = null,
+	override val firstName: String? = null,
+	override val lastName: String? = null, //Is usually either maidenName or spouseName,
+	override val companyName: String? = null,
+	override val languages: List<String> = emptyList(), //alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html,
+	override val addresses: List<Address> = emptyList(),
+	override val civility: String? = null,
+	override val gender: Gender? = Gender.unknown,
+	override val names: List<PersonName> = emptyList(),
+	val birthSex: Gender? = Gender.unknown,
+	val mergeToPatientId: String? = null,
+	val mergedIds: Set<String> = emptySet(),
+	val alias: String? = null,
+	val active: Boolean = true,
+	val deactivationReason: DeactivationReason = DeactivationReason.none,
+	val ssin: String? = null,
+	val maidenName: String? = null, // Never changes (nom de jeune fille),
+	val spouseName: String? = null, // Name of the spouse after marriage,
+	val partnerName: String? = null, // Name of the partner, sometimes equal to spouseName,
+	val personalStatus: PersonalStatus? = PersonalStatus.unknown,
+	val dateOfBirth: Int? = null, // YYYYMMDD if unknown, 00, ex:20010000 or,
+	val deceased: Boolean? = null,
+	val dateOfDeath: Int? = null, // YYYYMMDD if unknown, 00, ex:20010000 or,
+	val timestampOfLatestEidReading: Long? = null,
+	val placeOfBirth: String? = null,
+	val placeOfDeath: String? = null,
+	val education: String? = null,
+	val profession: String? = null,
+	val note: String? = null,
+	val administrativeNote: String? = null,
+	val race: String? = null,
+	val ethnicity: String? = null,
+	val nationality: String? = null,
+	val preferredUserId: String? = null,
+	@JsonDeserialize(using = JacksonBase64LenientDeserializer::class) val picture: ByteArray? = null,
+	val externalId: String? = null, //No guarantee of unicity
+	val insurabilities: List<Insurability> = emptyList(),
+	val partnerships: List<Partnership> = emptyList(),
+	val patientHealthCareParties: List<PatientHealthCareParty> = emptyList(),
+	val financialInstitutionInformation: List<FinancialInstitutionInformation> = emptyList(),
+	val medicalHouseContracts: List<MedicalHouseContract> = emptyList(),
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) val patientProfessions: List<CodeStub> = emptyList(),
+	val parameters: Map<String, List<String>> = emptyMap(),
+	@Deprecated("Do not use") val nonDuplicateIds: Set<String> = emptySet(),
+	@Deprecated("Do not use") val encryptedAdministrativesDocuments: Set<String> = emptySet(),
+	@Deprecated("Use note or administrativeNote") val comment: String? = null,
+	@Deprecated("Use note or administrativeNote") val warning: String? = null,
+	@Deprecated("Use properties instead") val fatherBirthCountry: CodeStub? = null,
+	@Deprecated("Use properties instead") val birthCountry: CodeStub? = null,
+	@Deprecated("Use properties instead") val nativeCountry: CodeStub? = null,
+	@Deprecated("Use properties instead") val socialStatus: CodeStub? = null,
+	@Deprecated("Use properties instead") val mainSourceOfIncome: CodeStub? = null,
+	@Deprecated("Use properties instead") val schoolingInfos: List<SchoolingInfo> = emptyList(),
+	@Deprecated("Use properties instead") val employementInfos: List<EmploymentInfo> = emptyList(),
+	override val properties: Set<PropertyStub> = emptySet(),
 
-        // One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
-        // For a pair of HcParties, this key is called the AES exchange key
-        // Each HcParty always has one AES exchange key for himself
-        // The map's keys are the delegate id.
-        // In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
-        // the key encrypted using delegate's public key.
-        override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
-        // Extra AES exchange keys, usually the ones we lost access to at some point
-        // The structure is { publicKey: { delegateId: [aesExKey_for_this, aesExKey_for_delegate] } }
-        override val aesExchangeKeys: Map<String, Map<String, Array<String>>> = emptyMap(),
-        // Our private keys encrypted with our public keys
-        // The structure is { publicKey1: { publicKey2: privateKey2_encrypted_with_publicKey1, publicKey3: privateKey3_encrypted_with_publicKey1 } }
-        override val transferKeys: Map<String, Map<String, String>> = emptyMap(),
-        // The hcparty keys (first of the pair) for which we are asking a re-encryption by the delegate using our new publicKey
-        override val lostHcPartyKeys: Set<String> = emptySet(),
+	// One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
+	// For a pair of HcParties, this key is called the AES exchange key
+	// Each HcParty always has one AES exchange key for himself
+	// The map's keys are the delegate id.
+	// In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
+	// the key encrypted using delegate's public key.
+	override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
+	// Extra AES exchange keys, usually the ones we lost access to at some point
+	// The structure is { publicKey: { delegateId: [aesExKey_for_this, aesExKey_for_delegate] } }
+	override val aesExchangeKeys: Map<String, Map<String, Array<String>>> = emptyMap(),
+	// Our private keys encrypted with our public keys
+	// The structure is { publicKey1: { publicKey2: privateKey2_encrypted_with_publicKey1, publicKey3: privateKey3_encrypted_with_publicKey1 } }
+	override val transferKeys: Map<String, Map<String, String>> = emptyMap(),
+	// The hcparty keys (first of the pair) for which we are asking a re-encryption by the delegate using our new publicKey
+	override val lostHcPartyKeys: Set<String> = emptySet(),
 
-        override val privateKeyShamirPartitions: Map<String, String> = emptyMap(),
-        override val publicKey: String? = null,
+	override val privateKeyShamirPartitions: Map<String, String> = emptyMap(),
+	override val publicKey: String? = null,
 
-        override val secretForeignKeys: Set<String> = emptySet(),
-        override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
-        override val delegations: Map<String, Set<Delegation>> = emptyMap(),
-        override val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(),
-        override val encryptedSelf: String? = null,
+	override val secretForeignKeys: Set<String> = emptySet(),
+	override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
+	override val delegations: Map<String, Set<Delegation>> = emptyMap(),
+	override val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(),
+	override val encryptedSelf: String? = null,
 
-        override val medicalLocationId: String? = null,
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null
+	override val medicalLocationId: String? = null,
+	@JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
+	@JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
+	@JsonProperty("_conflicts") override val conflicts: List<String>? = null,
+	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = null
 ) : StoredICureDocument, Person, Encryptable, CryptoActor, DataOwner {
-    companion object : DynamicInitializer<Patient>
+	companion object : DynamicInitializer<Patient>
 
-    fun merge(other: Patient) = Patient(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Patient) =
-            super<StoredICureDocument>.solveConflictsWith(other) +
-                    super<Person>.solveConflictsWith(other) +
-                    super<Encryptable>.solveConflictsWith(other) +
-                    super<CryptoActor>.solveConflictsWith(other) +
-                    super<DataOwner>.solveConflictsWith(other) + mapOf(
-                    "encryptionKeys" to this.encryptionKeys, // Only keep this ones
-                    "identifier" to mergeListsDistinct(this.identifier, other.identifier,
-                            { a, b -> a.system == b.system && a.value == b.value },
-                    ),
-                    "birthSex" to (this.birthSex ?: other.birthSex),
-                    "mergeToPatientId" to (this.mergeToPatientId ?: other.mergeToPatientId),
-                    "mergedIds" to (other.mergedIds + this.mergedIds),
-                    "nonDuplicateIds" to (other.nonDuplicateIds + this.nonDuplicateIds),
-                    "encryptedAdministrativesDocuments" to (other.encryptedAdministrativesDocuments + this.encryptedAdministrativesDocuments),
-                    "alias" to (this.alias ?: other.alias),
-                    "active" to (this.active),
-                    "deactivationReason" to (this.deactivationReason),
-                    "ssin" to (this.ssin ?: other.ssin),
-                    "maidenName" to (this.maidenName ?: other.maidenName),
-                    "spouseName" to (this.spouseName ?: other.spouseName),
-                    "partnerName" to (this.partnerName ?: other.partnerName),
-                    "personalStatus" to (this.personalStatus ?: other.personalStatus),
-                    "dateOfBirth" to (this.dateOfBirth ?: other.dateOfBirth),
-                    "deceased" to (this.deceased ?: other.deceased),
-                    "dateOfDeath" to (this.dateOfDeath ?: other.dateOfDeath),
-                    "placeOfBirth" to (this.placeOfBirth ?: other.placeOfBirth),
-                    "placeOfDeath" to (this.placeOfDeath ?: other.placeOfDeath),
-                    "education" to (this.education ?: other.education),
-                    "profession" to (this.profession ?: other.profession),
-                    "note" to (this.note ?: other.note),
-                    "administrativeNote" to (this.administrativeNote ?: other.administrativeNote),
-                    "comment" to (this.comment ?: other.comment),
-                    "warning" to (this.warning ?: other.warning),
-                    "race" to (this.race ?: other.race),
-                    "ethnicity" to (this.ethnicity ?: other.ethnicity),
-                    "nationality" to (this.nationality ?: other.nationality),
-                    "preferredUserId" to (this.preferredUserId ?: other.preferredUserId),
-                    "picture" to (this.picture ?: other.picture),
-                    "externalId" to (this.externalId ?: other.externalId),
-                    "partnerships" to mergeListsDistinct(partnerships, other.partnerships),
-                    "financialInstitutionInformation" to mergeListsDistinct(financialInstitutionInformation, other.financialInstitutionInformation),
-                    "medicalHouseContracts" to mergeListsDistinct(medicalHouseContracts, other.medicalHouseContracts),
-                    "parameters" to (other.parameters + this.parameters),
-                    "patientProfessions" to mergeListsDistinct(patientProfessions, other.patientProfessions),
-                    "fatherBirthCountry" to (this.fatherBirthCountry ?: other.fatherBirthCountry),
-                    "birthCountry" to (this.birthCountry ?: other.birthCountry),
-                    "nativeCountry" to (this.nativeCountry ?: other.nativeCountry),
-                    "socialStatus" to (this.socialStatus ?: other.socialStatus),
-                    "mainSourceOfIncome" to (this.mainSourceOfIncome ?: other.mainSourceOfIncome),
-                    "schoolingInfos" to mergeListsDistinct(schoolingInfos, other.schoolingInfos),
-                    "employementInfos" to mergeListsDistinct(employementInfos, other.employementInfos),
-                    "insurabilities" to mergeListsDistinct(insurabilities, other.insurabilities,
-                            { a, b -> a.insuranceId == b.insuranceId && a.startDate == b.startDate },
-                            { a, b -> if (a.endDate != null) a else b }
-                    ),
-                    "patientHealthCareParties" to mergeListsDistinct(patientHealthCareParties, other.patientHealthCareParties,
-                            { a, b -> a.healthcarePartyId == b.healthcarePartyId && a.type == b.type },
-                            { a, b -> a.merge(b) }
-                    )
-            )
+	fun merge(other: Patient) = Patient(args = this.solveConflictsWith(other))
+	fun solveConflictsWith(other: Patient) =
+		super<StoredICureDocument>.solveConflictsWith(other) +
+			super<Person>.solveConflictsWith(other) +
+			super<Encryptable>.solveConflictsWith(other) +
+			super<CryptoActor>.solveConflictsWith(other) +
+			super<DataOwner>.solveConflictsWith(other) + mapOf(
+			"encryptionKeys" to this.encryptionKeys, // Only keep this ones
+			"identifier" to mergeListsDistinct(
+				this.identifier, other.identifier,
+				{ a, b -> a.system == b.system && a.value == b.value },
+			),
+			"birthSex" to (this.birthSex ?: other.birthSex),
+			"mergeToPatientId" to (this.mergeToPatientId ?: other.mergeToPatientId),
+			"mergedIds" to (other.mergedIds + this.mergedIds),
+			"nonDuplicateIds" to (other.nonDuplicateIds + this.nonDuplicateIds),
+			"encryptedAdministrativesDocuments" to (other.encryptedAdministrativesDocuments + this.encryptedAdministrativesDocuments),
+			"alias" to (this.alias ?: other.alias),
+			"active" to (this.active),
+			"deactivationReason" to (this.deactivationReason),
+			"ssin" to (this.ssin ?: other.ssin),
+			"maidenName" to (this.maidenName ?: other.maidenName),
+			"spouseName" to (this.spouseName ?: other.spouseName),
+			"partnerName" to (this.partnerName ?: other.partnerName),
+			"personalStatus" to (this.personalStatus ?: other.personalStatus),
+			"dateOfBirth" to (this.dateOfBirth ?: other.dateOfBirth),
+			"deceased" to (this.deceased ?: other.deceased),
+			"dateOfDeath" to (this.dateOfDeath ?: other.dateOfDeath),
+			"placeOfBirth" to (this.placeOfBirth ?: other.placeOfBirth),
+			"placeOfDeath" to (this.placeOfDeath ?: other.placeOfDeath),
+			"education" to (this.education ?: other.education),
+			"profession" to (this.profession ?: other.profession),
+			"note" to (this.note ?: other.note),
+			"administrativeNote" to (this.administrativeNote ?: other.administrativeNote),
+			"comment" to (this.comment ?: other.comment),
+			"warning" to (this.warning ?: other.warning),
+			"race" to (this.race ?: other.race),
+			"ethnicity" to (this.ethnicity ?: other.ethnicity),
+			"nationality" to (this.nationality ?: other.nationality),
+			"preferredUserId" to (this.preferredUserId ?: other.preferredUserId),
+			"picture" to (this.picture ?: other.picture),
+			"externalId" to (this.externalId ?: other.externalId),
+			"partnerships" to mergeListsDistinct(partnerships, other.partnerships),
+			"financialInstitutionInformation" to mergeListsDistinct(financialInstitutionInformation, other.financialInstitutionInformation),
+			"medicalHouseContracts" to mergeListsDistinct(medicalHouseContracts, other.medicalHouseContracts),
+			"parameters" to (other.parameters + this.parameters),
+			"patientProfessions" to mergeListsDistinct(patientProfessions, other.patientProfessions),
+			"fatherBirthCountry" to (this.fatherBirthCountry ?: other.fatherBirthCountry),
+			"birthCountry" to (this.birthCountry ?: other.birthCountry),
+			"nativeCountry" to (this.nativeCountry ?: other.nativeCountry),
+			"socialStatus" to (this.socialStatus ?: other.socialStatus),
+			"mainSourceOfIncome" to (this.mainSourceOfIncome ?: other.mainSourceOfIncome),
+			"schoolingInfos" to mergeListsDistinct(schoolingInfos, other.schoolingInfos),
+			"employementInfos" to mergeListsDistinct(employementInfos, other.employementInfos),
+			"insurabilities" to mergeListsDistinct(
+				insurabilities, other.insurabilities,
+				{ a, b -> a.insuranceId == b.insuranceId && a.startDate == b.startDate },
+				{ a, b -> if (a.endDate != null) a else b }
+			),
+			"patientHealthCareParties" to mergeListsDistinct(
+				patientHealthCareParties, other.patientHealthCareParties,
+				{ a, b -> a.healthcarePartyId == b.healthcarePartyId && a.type == b.type },
+				{ a, b -> a.merge(b) }
+			)
+		)
 
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
-    override fun withTimestamps(created: Long?, modified: Long?) =
-            when {
-                created != null && modified != null -> this.copy(created = created, modified = modified)
-                created != null -> this.copy(created = created)
-                modified != null -> this.copy(modified = modified)
-                else -> this
-            }
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withTimestamps(created: Long?, modified: Long?) =
+		when {
+			created != null && modified != null -> this.copy(created = created, modified = modified)
+			created != null -> this.copy(created = created)
+			modified != null -> this.copy(modified = modified)
+			else -> this
+		}
 }

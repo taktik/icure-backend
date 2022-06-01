@@ -27,9 +27,9 @@ import org.taktik.icure.services.external.rest.v1.dto.samv2.embed.DmppDto
 
 @Mapper(componentModel = "spring", uses = [ReimbursementMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DmppMapper {
-    fun map(dmppDto: DmppDto):Dmpp
-    @Mappings(
-            Mapping(target = "productId", ignore = true),
-    )
-    fun map(dmpp: Dmpp):DmppDto
+	fun map(dmppDto: DmppDto): Dmpp
+	@Mappings(
+		Mapping(target = "productId", ignore = true),
+	)
+	fun map(dmpp: Dmpp): DmppDto
 }

@@ -26,9 +26,9 @@ package org.taktik.icure.services.external.rest.v2.dto.be.efact
  * To change this template use File | Settings | File Templates.
  */
 enum class InvoicingTreatmentReasonCode(val code: Int) {
-    Chimiotherapy(50),
-    ProfessionalDisease(60),
-    WorkAccident(70),
-    Accident(80),
-    Other(0)
+	Chimiotherapy(50),
+	ProfessionalDisease(60),
+	WorkAccident(70),
+	Accident(80),
+	Other(0)
 }

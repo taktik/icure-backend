@@ -29,6 +29,6 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class TokenFieldEditor : Editor() {
-    var preventautopanel: Boolean? = null
-    var preventvaluedate: Boolean? = null
+	var preventautopanel: Boolean? = null
+	var preventvaluedate: Boolean? = null
 }

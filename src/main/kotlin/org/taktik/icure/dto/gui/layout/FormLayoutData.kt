@@ -17,11 +17,11 @@
  */
 package org.taktik.icure.dto.gui.layout
 
+import java.io.Serializable
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.dto.gui.*
 import org.taktik.icure.entities.embed.Content
-import java.io.Serializable
 
 /**
  * Created by aduchate on 19/11/13, 10:50
@@ -29,32 +29,32 @@ import java.io.Serializable
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 open class FormLayoutData : Serializable {
-    var isSubForm: Boolean? = null
-    var isIrrelevant: Boolean? = null
-    var isDeterminesSscontactName: Boolean? = null
-    var type: String? = null
-    var name: String? = null
-    var sortOrder: Double? = null
-    var options: Map<String, FormDataOption>? = null
-    var descr: String? = null
-    var label: String? = null
-    var editor: Editor? = null
-    var defaultValue: List<Content>? = null
-    var defaultStatus: Int? = null
+	var isSubForm: Boolean? = null
+	var isIrrelevant: Boolean? = null
+	var isDeterminesSscontactName: Boolean? = null
+	var type: String? = null
+	var name: String? = null
+	var sortOrder: Double? = null
+	var options: Map<String, FormDataOption>? = null
+	var descr: String? = null
+	var label: String? = null
+	var editor: Editor? = null
+	var defaultValue: List<Content>? = null
+	var defaultStatus: Int? = null
 
-    //Suggestions
-    var codeTypes: List<CodeType>? = null
+	//Suggestions
+	var codeTypes: List<CodeType>? = null
 
-    //More versatile way
-    //<Suggest class="org.taktik.icure.domain.base.Code" filterKey="type" filterValue="CD-ITEM"/>
-    //<Suggest class="org.taktik.icure.domain.HealthcareParty" filterKey="speciality" filterValue="gp"/>
-    var suggest: List<Suggest>? = null
-    var plannings: List<FormPlanning>? = null
-    var tags: List<Code>? = null
-    var codes: List<Code>? = null
-    var formulas: List<Formula>? = null
+	//More versatile way
+	//<Suggest class="org.taktik.icure.domain.base.Code" filterKey="type" filterValue="CD-ITEM"/>
+	//<Suggest class="org.taktik.icure.domain.HealthcareParty" filterKey="speciality" filterValue="gp"/>
+	var suggest: List<Suggest>? = null
+	var plannings: List<FormPlanning>? = null
+	var tags: List<Code>? = null
+	var codes: List<Code>? = null
+	var formulas: List<Formula>? = null
 
-    companion object {
-        const val OPTION_ALWAYS_INITIALIZED_IN_FORM = "AlwaysInitialized"
-    }
+	companion object {
+		const val OPTION_ALWAYS_INITIALIZED_IN_FORM = "AlwaysInitialized"
+	}
 }

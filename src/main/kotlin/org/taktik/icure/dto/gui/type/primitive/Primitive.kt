@@ -17,9 +17,9 @@
  */
 package org.taktik.icure.dto.gui.type.primitive
 
-import org.taktik.icure.dto.gui.type.Data
 import java.io.Serializable
+import org.taktik.icure.dto.gui.type.Data
 
 interface Primitive : Serializable, Data {
-    fun getPrimitiveValue(): Serializable?
+	fun getPrimitiveValue(): Serializable?
 }

@@ -27,19 +27,19 @@ import org.taktik.icure.entities.samv2.stub.PharmaceuticalFormStub
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class AmpComponent(
-        override val from: Long? = null,
-        override val to: Long? = null,
-        val ingredients: Set<Ingredient>? = null,
-        val pharmaceuticalForms: Set<PharmaceuticalFormStub>? = null,
-        val routeOfAdministrations: Set<RouteOfAdministration>? = null,
-        val dividable: String? = null,
-        val scored: String? = null,
-        val crushable: Crushable? = null,
-        val containsAlcohol: ContainsAlcohol? = null,
-        val sugarFree: Boolean? = null,
-        val modifiedReleaseType: Int? = null,
-        val specificDrugDevice: Int? = null,
-        val dimensions: String? = null,
-        val name: SamText? = null,
-        val note: SamText? = null
+	override val from: Long? = null,
+	override val to: Long? = null,
+	val ingredients: Set<Ingredient>? = null,
+	val pharmaceuticalForms: Set<PharmaceuticalFormStub>? = null,
+	val routeOfAdministrations: Set<RouteOfAdministration>? = null,
+	val dividable: String? = null,
+	val scored: String? = null,
+	val crushable: Crushable? = null,
+	val containsAlcohol: ContainsAlcohol? = null,
+	val sugarFree: Boolean? = null,
+	val modifiedReleaseType: Int? = null,
+	val specificDrugDevice: Int? = null,
+	val dimensions: String? = null,
+	val name: SamText? = null,
+	val note: SamText? = null
 ) : DataPeriod

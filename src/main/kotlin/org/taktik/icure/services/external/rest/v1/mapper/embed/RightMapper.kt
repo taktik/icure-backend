@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.RightDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface RightMapper {
-	fun map(rightDto: RightDto):Right
-	fun map(right: Right):RightDto
+	fun map(rightDto: RightDto): Right
+	fun map(right: Right): RightDto
 }

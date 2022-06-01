@@ -29,49 +29,48 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.EntityPersister
 import org.taktik.icure.validation.aspect.Fixer
 
-
 abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(private val sessionLogic: AsyncSessionLogic) : EntityPersister<E, String> {
-    private val fixer = Fixer<E>(sessionLogic)
-    suspend fun<R> fix(doc: E, next: suspend (doc: E) -> R) : R = next(fixer.fix(doc))
-    suspend fun fix(doc: E) : E = fixer.fix(doc)
+	private val fixer = Fixer<E>(sessionLogic)
+	suspend fun<R> fix(doc: E, next: suspend (doc: E) -> R): R = next(fixer.fix(doc))
+	suspend fun fix(doc: E): E = fixer.fix(doc)
 
-    override fun createEntities(entities: Collection<E>): Flow<E> = flow {
-        emitAll(getGenericDAO().create(entities))
-    }
+	override fun createEntities(entities: Collection<E>): Flow<E> = flow {
+		emitAll(getGenericDAO().create(entities))
+	}
 
-    override fun modifyEntities(entities: Collection<E>): Flow<E> = flow {
-        emitAll(getGenericDAO().save(entities))
-    }
+	override fun modifyEntities(entities: Collection<E>): Flow<E> = flow {
+		emitAll(getGenericDAO().save(entities))
+	}
 
-    override fun deleteEntities(identifiers: Collection<String>): Flow<DocIdentifier> = flow {
-        val entities = getGenericDAO().getEntities(identifiers).toList()
-        emitAll(getGenericDAO().remove(entities))
-    }
+	override fun deleteEntities(identifiers: Collection<String>): Flow<DocIdentifier> = flow {
+		val entities = getGenericDAO().getEntities(identifiers).toList()
+		emitAll(getGenericDAO().remove(entities))
+	}
 
-    override fun undeleteByIds(identifiers: Collection<String>): Flow<DocIdentifier> = flow {
-        val entities = getGenericDAO().getEntities(identifiers).toList()
-        emitAll(getGenericDAO().unRemove(entities))
-    }
+	override fun undeleteByIds(identifiers: Collection<String>): Flow<DocIdentifier> = flow {
+		val entities = getGenericDAO().getEntities(identifiers).toList()
+		emitAll(getGenericDAO().unRemove(entities))
+	}
 
-    override fun getEntities(): Flow<E> = flow {
-        emitAll(getGenericDAO().getEntities())
-    }
+	override fun getEntities(): Flow<E> = flow {
+		emitAll(getGenericDAO().getEntities())
+	}
 
-    override fun getEntityIds(): Flow<String> = flow {
-        emitAll(getGenericDAO().getEntityIds())
-    }
+	override fun getEntityIds(): Flow<String> = flow {
+		emitAll(getGenericDAO().getEntityIds())
+	}
 
-    override suspend fun hasEntities(): Boolean {
-        return getGenericDAO().hasAny()
-    }
+	override suspend fun hasEntities(): Boolean {
+		return getGenericDAO().hasAny()
+	}
 
-    override suspend fun exists(id: String): Boolean {
-        return getGenericDAO().contains(id)
-    }
+	override suspend fun exists(id: String): Boolean {
+		return getGenericDAO().contains(id)
+	}
 
-    override suspend fun getEntity(id: String): E? {
-        return getGenericDAO().get(id)
-    }
+	override suspend fun getEntity(id: String): E? {
+		return getGenericDAO().get(id)
+	}
 
-    protected abstract fun getGenericDAO(): D
+	protected abstract fun getGenericDAO(): D
 }

@@ -24,7 +24,7 @@ import java.util.*
  * Created by aduchate on 19/11/13, 10:14
  */
 class PrimitiveDate(val value: Date? = null) : Primitive {
-    override fun getPrimitiveValue(): Serializable? {
-        return value
-    }
+	override fun getPrimitiveValue(): Serializable? {
+		return value
+	}
 }

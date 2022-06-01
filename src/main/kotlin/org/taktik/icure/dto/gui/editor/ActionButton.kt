@@ -32,5 +32,5 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ActionButton : Editor() {
-    var action: String? = null
+	var action: String? = null
 }

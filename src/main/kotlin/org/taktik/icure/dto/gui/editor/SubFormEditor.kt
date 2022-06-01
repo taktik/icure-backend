@@ -32,9 +32,9 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class SubFormEditor : Editor() {
-    var optionalFormGuids: List<String>? = null
-    var compulsoryFormGuids: List<String>? = null
-    var growsHorizontally: Boolean? = null
-    var collapsed: Boolean? = null
-    var showHeader = true
+	var optionalFormGuids: List<String>? = null
+	var compulsoryFormGuids: List<String>? = null
+	var growsHorizontally: Boolean? = null
+	var collapsed: Boolean? = null
+	var showHeader = true
 }

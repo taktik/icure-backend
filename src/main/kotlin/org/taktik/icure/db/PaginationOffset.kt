@@ -23,28 +23,28 @@ import java.io.Serializable
  * Created by aduchate on 3/11/13, 14:38
  */
 class PaginationOffset<K> : Serializable {
-    val startKey: K?
-    val startDocumentId: String?
-    val offset: Int? // should be scarcely used
-    val limit: Int
+	val startKey: K?
+	val startDocumentId: String?
+	val offset: Int? // should be scarcely used
+	val limit: Int
 
-    constructor(limit: Int): this(null, null, null, limit)
+	constructor(limit: Int) : this(null, null, null, limit)
 
-    constructor(limit: Int, startDocumentId: String?): this(null, startDocumentId, null, limit)
+	constructor(limit: Int, startDocumentId: String?) : this(null, startDocumentId, null, limit)
 
-    constructor(paginatedList: PaginatedList<*>): this(
-            paginatedList.nextKeyPair?.startKey as K?,
-            paginatedList.nextKeyPair?.startKeyDocId,
-            null,
-            paginatedList.pageSize
-    )
+	constructor(paginatedList: PaginatedList<*>) : this(
+		paginatedList.nextKeyPair?.startKey as K?,
+		paginatedList.nextKeyPair?.startKeyDocId,
+		null,
+		paginatedList.pageSize
+	)
 
-    constructor(startKey: K?, startDocumentId: String?, offset: Int?, limit: Int) {
-        this.startKey = startKey
-        this.startDocumentId = startDocumentId
-        this.offset = offset
-        this.limit = limit
-    }
+	constructor(startKey: K?, startDocumentId: String?, offset: Int?, limit: Int) {
+		this.startKey = startKey
+		this.startDocumentId = startDocumentId
+		this.offset = offset
+		this.limit = limit
+	}
 
-    fun <L>toPaginationOffset(startKeyConverter: (k:K) -> L) = PaginationOffset(this.startKey?.let { startKeyConverter(it) }, this.startDocumentId, this.offset, this.limit)
+	fun <L>toPaginationOffset(startKeyConverter: (k: K) -> L) = PaginationOffset(this.startKey?.let { startKeyConverter(it) }, this.startDocumentId, this.offset, this.limit)
 }

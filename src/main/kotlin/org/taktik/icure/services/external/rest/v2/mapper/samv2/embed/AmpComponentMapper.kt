@@ -26,6 +26,6 @@ import org.taktik.icure.services.external.rest.v2.mapper.samv2.stub.Pharmaceutic
 
 @Mapper(componentModel = "spring", uses = [IngredientV2Mapper::class, RouteOfAdministrationV2Mapper::class, PharmaceuticalFormStubV2Mapper::class, SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface AmpComponentV2Mapper {
-	fun map(ampComponentDto: AmpComponentDto):AmpComponent
-	fun map(ampComponent: AmpComponent):AmpComponentDto
+	fun map(ampComponentDto: AmpComponentDto): AmpComponent
+	fun map(ampComponent: AmpComponent): AmpComponentDto
 }

@@ -29,14 +29,14 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class PopupMenuEditor : Editor(), ValueDateEditor {
-    var menuOptions: List<String>? = null
+	var menuOptions: List<String>? = null
 
-    //To change body of implemented methods use File | Settings | File Templates.
-    override var displayValueDate = false
+	//To change body of implemented methods use File | Settings | File Templates.
+	override var displayValueDate = false
 
-    //To change body of implemented methods use File | Settings | File Templates.
-    var displayAllAlways = false
+	//To change body of implemented methods use File | Settings | File Templates.
+	var displayAllAlways = false
 
-    //To change body of implemented methods use File | Settings | File Templates.
-    var isFreeText = false
+	//To change body of implemented methods use File | Settings | File Templates.
+	var isFreeText = false
 }

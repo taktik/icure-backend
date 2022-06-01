@@ -18,13 +18,13 @@
 
 package org.taktik.icure.services.external.rest.v2.mapper.samv2.embed
 
+import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.Commercialization
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.CommercializationDto
-import org.mapstruct.InjectionStrategy
 
 @Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface CommercializationV2Mapper {
-	fun map(commercializationDto: CommercializationDto):Commercialization
-	fun map(commercialization: Commercialization):CommercializationDto
+	fun map(commercializationDto: CommercializationDto): Commercialization
+	fun map(commercialization: Commercialization): CommercializationDto
 }

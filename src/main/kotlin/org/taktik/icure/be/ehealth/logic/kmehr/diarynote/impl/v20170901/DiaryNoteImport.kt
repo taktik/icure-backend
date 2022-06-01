@@ -18,44 +18,48 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.diarynote.impl.v20170901
 
+import java.io.InputStream
+import java.util.*
+import javax.xml.bind.JAXBContext
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
-import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.domain.mapping.ImportMapping
 import org.taktik.icure.domain.result.ImportResult
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.User
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
-import java.io.InputStream
-import java.util.*
-import javax.xml.bind.JAXBContext
 
 @org.springframework.stereotype.Service("diaryNoteImport")
-class DiaryNoteImport(val patientLogic: PatientLogic,
-                   val healthcarePartyLogic: HealthcarePartyLogic,
-                   val healthElementLogic: HealthElementLogic,
-                   val contactLogic: ContactLogic,
-                   val documentLogic: DocumentLogic,
-                   val idGenerator: UUIDGenerator) {
+class DiaryNoteImport(
+	val patientLogic: PatientLogic,
+	val healthcarePartyLogic: HealthcarePartyLogic,
+	val healthElementLogic: HealthElementLogic,
+	val contactLogic: ContactLogic,
+	val documentLogic: DocumentLogic,
+	val idGenerator: UUIDGenerator
+) {
 
-    fun importDiaryNote(inputStream: InputStream,
-                        author: User,
-                        language: String,
-                        mappings: Map<String, List<ImportMapping>>,
-                        dest: Patient? = null): List<ImportResult> {
-        val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
+	fun importDiaryNote(
+		inputStream: InputStream,
+		author: User,
+		language: String,
+		mappings: Map<String, List<ImportMapping>>,
+		dest: Patient? = null
+	): List<ImportResult> {
+		val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
 
-        val unmarshaller = jc.createUnmarshaller()
-        val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
+		val unmarshaller = jc.createUnmarshaller()
+		val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
 
-        var allRes = LinkedList<ImportResult>()
+		var allRes = LinkedList<ImportResult>()
 
-        val standard = kmehrMessage.header.standard.cd.value
+		val standard = kmehrMessage.header.standard.cd.value
 
-        //TODO Might want to have several implementations babsed on standards
+		//TODO Might want to have several implementations babsed on standards
 //        kmehrMessage.header.sender.hcparties?.forEach { createOrProcessHcp(it) }
 //        kmehrMessage.folders.forEach { folder ->
 //            val res = ImportResult().apply { allRes.add(this) }
@@ -71,7 +75,6 @@ class DiaryNoteImport(val patientLogic: PatientLogic,
 //                }
 //            }
 //        }
-        return allRes
-    }
-
+		return allRes
+	}
 }

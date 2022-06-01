@@ -16,6 +16,6 @@ import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class DeviceByHcPartyFilter(
-        override val desc: String? = null,
-        override val responsibleId: String? = null
+	override val desc: String? = null,
+	override val responsibleId: String? = null
 ) : AbstractFilterDto<Device>, DeviceByHcPartyFilter

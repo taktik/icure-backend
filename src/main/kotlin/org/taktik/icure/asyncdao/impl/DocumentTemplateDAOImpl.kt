@@ -18,7 +18,8 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import kotlinx.coroutines.FlowPreview
+import java.io.IOException
+import java.nio.ByteBuffer
 import kotlinx.coroutines.flow.*
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
@@ -33,8 +34,6 @@ import org.taktik.icure.asyncdao.DocumentTemplateDAO
 import org.taktik.icure.entities.DocumentTemplate
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.writeTo
-import java.io.IOException
-import java.nio.ByteBuffer
 
 /**
  * Created by aduchate on 02/02/13, 15:24
@@ -42,128 +41,132 @@ import java.nio.ByteBuffer
 
 @Repository("documentTemplateDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted) emit(doc._id, null )}")
-class DocumentTemplateDAOImpl(couchDbProperties: CouchDbProperties,
-                              @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<DocumentTemplate>(couchDbProperties, DocumentTemplate::class.java, couchDbDispatcher, idGenerator), DocumentTemplateDAO {
+class DocumentTemplateDAOImpl(
+	couchDbProperties: CouchDbProperties,
+	@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
+	idGenerator: IDGenerator
+) : GenericDAOImpl<DocumentTemplate>(couchDbProperties, DocumentTemplate::class.java, couchDbDispatcher, idGenerator), DocumentTemplateDAO {
 
-    @View(name = "by_userId_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.owner) emit([doc.owner,doc.guid], null )}")
-    override fun listDocumentTemplatesByUserGuid(userId: String, guid: String?): Flow<DocumentTemplate> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	@View(name = "by_userId_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.owner) emit([doc.owner,doc.guid], null )}")
+	override fun listDocumentTemplatesByUserGuid(userId: String, guid: String?): Flow<DocumentTemplate> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val from = ComplexKey.of(userId, "")
-        val to = ComplexKey.of(userId, "\ufff0")
-        val viewQuery = createQuery(client, "by_userId_and_guid").startKey(from).endKey(to).includeDocs(true)
-        val documentTemplates = client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
+		val from = ComplexKey.of(userId, "")
+		val to = ComplexKey.of(userId, "\ufff0")
+		val viewQuery = createQuery(client, "by_userId_and_guid").startKey(from).endKey(to).includeDocs(true)
+		val documentTemplates = client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
 
-        // invoke postLoad()
-        emitAll(documentTemplates.map { this@DocumentTemplateDAOImpl.postLoad(it) })
-    }
+		// invoke postLoad()
+		emitAll(documentTemplates.map { this@DocumentTemplateDAOImpl.postLoad(it) })
+	}
 
-    @View(name = "by_specialty_code_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.specialty) emit([doc.specialty.code,doc.guid], null )}")
-    override fun listDocumentTemplatesBySpecialtyAndGuid(healthcarePartyId: String, guid: String?): Flow<DocumentTemplate> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	@View(name = "by_specialty_code_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.specialty) emit([doc.specialty.code,doc.guid], null )}")
+	override fun listDocumentTemplatesBySpecialtyAndGuid(healthcarePartyId: String, guid: String?): Flow<DocumentTemplate> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val documentTemplates = if (guid != null) {
-            val key = ComplexKey.of(healthcarePartyId, guid)
-            val viewQuery = createQuery(client, "by_specialty_code_and_guid").key(key).includeDocs(true)
-            client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
-        } else {
-            val from = ComplexKey.of(healthcarePartyId, "")
-            val to = ComplexKey.of(healthcarePartyId, "\ufff0")
-            val viewQuery = createQuery(client, "by_specialty_code_and_guid").startKey(from).endKey(to).includeDocs(true)
-            client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
-        }
+		val documentTemplates = if (guid != null) {
+			val key = ComplexKey.of(healthcarePartyId, guid)
+			val viewQuery = createQuery(client, "by_specialty_code_and_guid").key(key).includeDocs(true)
+			client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
+		} else {
+			val from = ComplexKey.of(healthcarePartyId, "")
+			val to = ComplexKey.of(healthcarePartyId, "\ufff0")
+			val viewQuery = createQuery(client, "by_specialty_code_and_guid").startKey(from).endKey(to).includeDocs(true)
+			client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
+		}
 
-        // invoke postLoad()
-         emitAll(documentTemplates.map { this@DocumentTemplateDAOImpl.postLoad(it) })
-    }
+		// invoke postLoad()
+		emitAll(documentTemplates.map { this@DocumentTemplateDAOImpl.postLoad(it) })
+	}
 
-    @View(name = "by_document_type_code_and_user_id_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.documentType ) emit([doc.documentType,doc.owner,doc.guid], null )}")
-    override fun listDocumentsByTypeUserGuid(documentTypeCode: String, userId: String?, guid: String?): Flow<DocumentTemplate> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	@View(name = "by_document_type_code_and_user_id_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.documentType ) emit([doc.documentType,doc.owner,doc.guid], null )}")
+	override fun listDocumentsByTypeUserGuid(documentTypeCode: String, userId: String?, guid: String?): Flow<DocumentTemplate> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = if (userId != null && guid != null) {
-            val key = ComplexKey.of(documentTypeCode, userId, guid)
-            createQuery(client, "by_document_type_code_and_user_id_and_guid").key(key).includeDocs(true)
-        } else if (userId != null) {
-            val from = ComplexKey.of(documentTypeCode, userId, "")
-            val to = ComplexKey.of(documentTypeCode, userId, "\ufff0")
-            createQuery(client, "by_document_type_code_and_user_id_and_guid").startKey(from).endKey(to).includeDocs(true)
-        } else {
-            val from = ComplexKey.of(documentTypeCode, "", "")
-            val to = ComplexKey.of(documentTypeCode, "\ufff0", "\ufff0")
-            createQuery(client, "by_document_type_code_and_user_id_and_guid").startKey(from).endKey(to).includeDocs(true)
-        }
-        val documentTemplates = client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
+		val viewQuery = if (userId != null && guid != null) {
+			val key = ComplexKey.of(documentTypeCode, userId, guid)
+			createQuery(client, "by_document_type_code_and_user_id_and_guid").key(key).includeDocs(true)
+		} else if (userId != null) {
+			val from = ComplexKey.of(documentTypeCode, userId, "")
+			val to = ComplexKey.of(documentTypeCode, userId, "\ufff0")
+			createQuery(client, "by_document_type_code_and_user_id_and_guid").startKey(from).endKey(to).includeDocs(true)
+		} else {
+			val from = ComplexKey.of(documentTypeCode, "", "")
+			val to = ComplexKey.of(documentTypeCode, "\ufff0", "\ufff0")
+			createQuery(client, "by_document_type_code_and_user_id_and_guid").startKey(from).endKey(to).includeDocs(true)
+		}
+		val documentTemplates = client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
 
-        // invoke postLoad()
-        emitAll(documentTemplates.map { this@DocumentTemplateDAOImpl.postLoad(it) })
-    }
+		// invoke postLoad()
+		emitAll(documentTemplates.map { this@DocumentTemplateDAOImpl.postLoad(it) })
+	}
 
-    override suspend fun createDocumentTemplate(entity: DocumentTemplate): DocumentTemplate {
-        super.save(true, entity)
-        return entity
-    }
+	override suspend fun createDocumentTemplate(entity: DocumentTemplate): DocumentTemplate {
+		super.save(true, entity)
+		return entity
+	}
 
-    override suspend fun beforeSave(entity: DocumentTemplate) =
-            super.beforeSave(entity).let { documentTemplate ->
-            if (documentTemplate.attachment != null) {
-                val newAttachmentId = DigestUtils.sha256Hex(documentTemplate.attachment)
+	override suspend fun beforeSave(entity: DocumentTemplate) =
+		super.beforeSave(entity).let { documentTemplate ->
+			if (documentTemplate.attachment != null) {
+				val newAttachmentId = DigestUtils.sha256Hex(documentTemplate.attachment)
 
-                if (newAttachmentId != documentTemplate.attachmentId && documentTemplate.rev != null && documentTemplate.attachmentId != null) {
-                    documentTemplate.attachments?.containsKey(documentTemplate.attachmentId)?.takeIf { it }?.let {
-                        documentTemplate.copy(
-                                rev = deleteAttachment(documentTemplate.id, documentTemplate.rev!!, documentTemplate.attachmentId!!),
-                                attachments = documentTemplate.attachments - documentTemplate.attachmentId,
-                                attachmentId = newAttachmentId,
-                                isAttachmentDirty = true
-                        )
-                    } ?: documentTemplate.copy(
-                            attachmentId = newAttachmentId,
-                            isAttachmentDirty = true
-                    )
-                } else
-                    documentTemplate
-            } else {
-                if (documentTemplate.attachmentId != null && documentTemplate.rev != null) {
-                    documentTemplate.copy(
-                            rev = deleteAttachment(documentTemplate.id, documentTemplate.rev, documentTemplate.attachmentId),
-                            attachmentId = null,
-                            isAttachmentDirty = false
-                    )
-                } else documentTemplate
-            }
-        }
+				if (newAttachmentId != documentTemplate.attachmentId && documentTemplate.rev != null && documentTemplate.attachmentId != null) {
+					documentTemplate.attachments?.containsKey(documentTemplate.attachmentId)?.takeIf { it }?.let {
+						documentTemplate.copy(
+							rev = deleteAttachment(documentTemplate.id, documentTemplate.rev!!, documentTemplate.attachmentId!!),
+							attachments = documentTemplate.attachments - documentTemplate.attachmentId,
+							attachmentId = newAttachmentId,
+							isAttachmentDirty = true
+						)
+					} ?: documentTemplate.copy(
+						attachmentId = newAttachmentId,
+						isAttachmentDirty = true
+					)
+				} else
+					documentTemplate
+			} else {
+				if (documentTemplate.attachmentId != null && documentTemplate.rev != null) {
+					documentTemplate.copy(
+						rev = deleteAttachment(documentTemplate.id, documentTemplate.rev, documentTemplate.attachmentId),
+						attachmentId = null,
+						isAttachmentDirty = false
+					)
+				} else documentTemplate
+			}
+		}
 
-    override suspend  fun afterSave(entity: DocumentTemplate) =
-            super.afterSave(entity).let { documentTemplate ->
-                if (documentTemplate.isAttachmentDirty && documentTemplate.attachmentId != null && documentTemplate.rev != null && documentTemplate.attachment != null) {
-                    val uti = UTI.get(documentTemplate.mainUti)
-                    var mimeType = "application/xml"
-                    if (uti != null && uti.mimeTypes != null && uti.mimeTypes.size > 0) {
-                        mimeType = uti.mimeTypes[0]
-                    }
-                    createAttachment(documentTemplate.id, documentTemplate.attachmentId, documentTemplate.rev, mimeType, flowOf(ByteBuffer.wrap(documentTemplate.attachment))).let {
-                        documentTemplate.copy(
-                                rev = it,
-                                isAttachmentDirty = false
-                        )
-                    }
-                } else documentTemplate
-            }
+	override suspend fun afterSave(entity: DocumentTemplate) =
+		super.afterSave(entity).let { documentTemplate ->
+			if (documentTemplate.isAttachmentDirty && documentTemplate.attachmentId != null && documentTemplate.rev != null && documentTemplate.attachment != null) {
+				val uti = UTI.get(documentTemplate.mainUti)
+				var mimeType = "application/xml"
+				if (uti != null && uti.mimeTypes != null && uti.mimeTypes.size > 0) {
+					mimeType = uti.mimeTypes[0]
+				}
+				createAttachment(documentTemplate.id, documentTemplate.attachmentId, documentTemplate.rev, mimeType, flowOf(ByteBuffer.wrap(documentTemplate.attachment))).let {
+					documentTemplate.copy(
+						rev = it,
+						isAttachmentDirty = false
+					)
+				}
+			} else documentTemplate
+		}
 
-
-    override suspend fun postLoad(entity: DocumentTemplate) =
-            super.postLoad(entity).let { documentTemplate ->
-                if (documentTemplate.attachmentId != null) {
-                    try {
-                        val attachmentFlow = getAttachment(documentTemplate.id, documentTemplate.attachmentId, documentTemplate.rev)
-                        documentTemplate.copy(attachment = ByteArrayOutputStream().use {
-                            attachmentFlow.writeTo(it)
-                            it.toByteArray()
-                        })
-                    } catch (e: IOException) {
-                        documentTemplate //Could not load
-                    }
-                } else documentTemplate
-            }
+	override suspend fun postLoad(entity: DocumentTemplate) =
+		super.postLoad(entity).let { documentTemplate ->
+			if (documentTemplate.attachmentId != null) {
+				try {
+					val attachmentFlow = getAttachment(documentTemplate.id, documentTemplate.attachmentId, documentTemplate.rev)
+					documentTemplate.copy(
+						attachment = ByteArrayOutputStream().use {
+							attachmentFlow.writeTo(it)
+							it.toByteArray()
+						}
+					)
+				} catch (e: IOException) {
+					documentTemplate //Could not load
+				}
+			} else documentTemplate
+		}
 }

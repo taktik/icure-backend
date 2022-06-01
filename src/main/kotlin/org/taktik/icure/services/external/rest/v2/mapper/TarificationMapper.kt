@@ -30,12 +30,12 @@ import org.taktik.icure.services.external.rest.v2.mapper.embed.ValorisationV2Map
 
 @Mapper(componentModel = "spring", uses = [LetterValueV2Mapper::class, PeriodicityV2Mapper::class, ValorisationV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface TarificationV2Mapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(tarificationDto: TarificationDto):Tarification
-	fun map(tarification: Tarification):TarificationDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(tarificationDto: TarificationDto): Tarification
+	fun map(tarification: Tarification): TarificationDto
 }

@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v1.dto.samv2.embed.SamTextDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface SamTextMapper {
-	fun map(samTextDto: SamTextDto):SamText
-	fun map(samText: SamText):SamTextDto
+	fun map(samTextDto: SamTextDto): SamText
+	fun map(samText: SamText): SamTextDto
 }

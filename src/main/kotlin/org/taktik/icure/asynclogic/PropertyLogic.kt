@@ -21,33 +21,33 @@ package org.taktik.icure.asynclogic
 import org.taktik.icure.entities.base.PropertyStub
 
 interface PropertyLogic {
-    /**
-     * Return the system properties, those that are not linked to any roles.
-     *
-     * @return
-     */
-    fun getSystemProperties(includeEnvironmentProperties: Boolean): Set<PropertyStub>
+	/**
+	 * Return the system properties, those that are not linked to any roles.
+	 *
+	 * @return
+	 */
+	fun getSystemProperties(includeEnvironmentProperties: Boolean): Set<PropertyStub>
 
-    /**
-     * Return the system property with the given identifier
-     *
-     * @param propertyIdentifier
-     * @return
-     */
-    fun getSystemProperty(propertyIdentifier: String): PropertyStub?
+	/**
+	 * Return the system property with the given identifier
+	 *
+	 * @param propertyIdentifier
+	 * @return
+	 */
+	fun getSystemProperty(propertyIdentifier: String): PropertyStub?
 
-    /**
-     * Return the system property value with the given identifier
-     *
-     * @param propertyIdentifier
-     * @return
-     */
-    fun <T> getSystemPropertyValue(propertyIdentifier: String): T?
+	/**
+	 * Return the system property value with the given identifier
+	 *
+	 * @param propertyIdentifier
+	 * @return
+	 */
+	fun <T> getSystemPropertyValue(propertyIdentifier: String): T?
 
-    /**
-     * Updates the system property value with the given identifier
-     *
-     * @param propertyIdentifier
-     * @return
-     */
+	/**
+	 * Updates the system property value with the given identifier
+	 *
+	 * @param propertyIdentifier
+	 * @return
+	 */
 }

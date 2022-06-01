@@ -26,6 +26,6 @@ import org.taktik.icure.entities.Device
 
 @Service
 class AllDevicesFilter(private val deviceLogic: DeviceLogic) : Filter<String, Device, org.taktik.icure.domain.filter.Filters.AllFilter<String, Device>> {
-    override fun resolve(filter: org.taktik.icure.domain.filter.Filters.AllFilter<String, Device>, context: Filters) =
-            deviceLogic.getEntityIds()
+	override fun resolve(filter: org.taktik.icure.domain.filter.Filters.AllFilter<String, Device>, context: Filters) =
+		deviceLogic.getEntityIds()
 }

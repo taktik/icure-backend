@@ -18,26 +18,25 @@
 
 package org.taktik.icure.asyncdao
 
-import kotlinx.coroutines.flow.Flow
-import org.taktik.couchdb.ViewQueryResultEvent
-import org.taktik.couchdb.annotation.View
-import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.User
 import java.net.URI
 import java.time.Instant
+import kotlinx.coroutines.flow.Flow
+import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.User
 
-interface UserDAO : GenericDAO<User>{
+interface UserDAO : GenericDAO<User> {
 	fun getExpiredUsers(fromExpirationInstant: Instant, toExpirationInstant: Instant): Flow<User>
-    fun listUserIdsByNameEmailPhone(searchString: String): Flow<String>
-    fun listUsersByUsername(searchString: String): Flow<User>
-    fun listUsersByEmail(email: String): Flow<User>
-    fun listUsersByPhone(phone: String): Flow<User>
-    fun findUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
-    fun listUsersByHcpId(hcPartyId: String): Flow<User>
-    suspend fun getUserOnUserDb(userId: String, bypassCache: Boolean): User
-    suspend fun findUserOnUserDb(userId: String, bypassCache: Boolean): User?
-    fun getUsersOnDb(dbInstanceUrl: URI): Flow<User>
-    suspend fun evictFromCache(userIds: Flow<String>)
-    fun findUsersByIds(userIds: Flow<String>): Flow<ViewQueryResultEvent>
-    fun findUsersByNameEmailPhone(searchString: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
+	fun listUserIdsByNameEmailPhone(searchString: String): Flow<String>
+	fun listUsersByUsername(searchString: String): Flow<User>
+	fun listUsersByEmail(email: String): Flow<User>
+	fun listUsersByPhone(phone: String): Flow<User>
+	fun findUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
+	fun listUsersByHcpId(hcPartyId: String): Flow<User>
+	suspend fun getUserOnUserDb(userId: String, bypassCache: Boolean): User
+	suspend fun findUserOnUserDb(userId: String, bypassCache: Boolean): User?
+	fun getUsersOnDb(dbInstanceUrl: URI): Flow<User>
+	suspend fun evictFromCache(userIds: Flow<String>)
+	fun findUsersByIds(userIds: Flow<String>): Flow<ViewQueryResultEvent>
+	fun findUsersByNameEmailPhone(searchString: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
 }

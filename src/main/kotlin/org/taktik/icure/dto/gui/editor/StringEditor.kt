@@ -29,5 +29,5 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class StringEditor : Editor(), ValueDateEditor {
-    override var displayValueDate = false
+	override var displayValueDate = false
 }

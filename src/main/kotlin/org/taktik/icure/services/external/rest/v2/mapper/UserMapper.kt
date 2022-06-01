@@ -30,21 +30,21 @@ import org.taktik.icure.services.external.rest.v2.mapper.security.PermissionV2Ma
 
 @Mapper(componentModel = "spring", uses = [PermissionV2Mapper::class, PropertyStubV2Mapper::class, AuthenticationTokenV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface UserV2Mapper {
-    @Mappings(
-            Mapping(target = "lastLoginDate", ignore = true),
-            Mapping(target = "expirationDate", ignore = true),
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(userDto: UserDto):User
+	@Mappings(
+		Mapping(target = "lastLoginDate", ignore = true),
+		Mapping(target = "expirationDate", ignore = true),
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(userDto: UserDto): User
 
-    @Mappings(
-            Mapping(target = "passwordHash", expression = "kotlin(user.passwordHash?.let { \"*\" })"),
-            Mapping(target = "secret", ignore = true),
-            Mapping(target = "applicationTokens", expression = "kotlin(emptyMap())"),
-            Mapping(target = "authenticationTokens", expression = "kotlin(emptyMap())")
-    )
-	fun map(user: User):UserDto
+	@Mappings(
+		Mapping(target = "passwordHash", expression = "kotlin(user.passwordHash?.let { \"*\" })"),
+		Mapping(target = "secret", ignore = true),
+		Mapping(target = "applicationTokens", expression = "kotlin(emptyMap())"),
+		Mapping(target = "authenticationTokens", expression = "kotlin(emptyMap())")
+	)
+	fun map(user: User): UserDto
 }

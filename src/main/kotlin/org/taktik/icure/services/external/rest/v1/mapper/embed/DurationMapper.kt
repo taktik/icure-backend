@@ -26,6 +26,6 @@ import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
 
 @Mapper(componentModel = "spring", uses = [CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DurationMapper {
-	fun map(durationDto: DurationDto):Duration
-	fun map(duration: Duration):DurationDto
+	fun map(durationDto: DurationDto): Duration
+	fun map(duration: Duration): DurationDto
 }

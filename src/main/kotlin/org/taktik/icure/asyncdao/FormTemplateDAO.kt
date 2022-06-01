@@ -21,12 +21,12 @@ package org.taktik.icure.asyncdao
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.FormTemplate
 
-interface FormTemplateDAO: GenericDAO<FormTemplate> {
-    fun listFormTemplatesByUserGuid(userId: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate>
+interface FormTemplateDAO : GenericDAO<FormTemplate> {
+	fun listFormTemplatesByUserGuid(userId: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate>
 
-    fun listFormsByGuid(guid: String, loadLayout: Boolean): Flow<FormTemplate>
+	fun listFormsByGuid(guid: String, loadLayout: Boolean): Flow<FormTemplate>
 
-    fun listFormsBySpecialtyAndGuid(specialityCode: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate>
+	fun listFormsBySpecialtyAndGuid(specialityCode: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate>
 
-    suspend fun createFormTemplate(entity: FormTemplate): FormTemplate
+	suspend fun createFormTemplate(entity: FormTemplate): FormTemplate
 }

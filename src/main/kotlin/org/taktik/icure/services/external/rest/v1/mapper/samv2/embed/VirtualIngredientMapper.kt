@@ -26,6 +26,6 @@ import org.taktik.icure.services.external.rest.v1.mapper.samv2.stub.SubstanceStu
 
 @Mapper(componentModel = "spring", uses = [StrengthRangeMapper::class, SubstanceStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface VirtualIngredientMapper {
-	fun map(virtualIngredientDto: VirtualIngredientDto):VirtualIngredient
-	fun map(virtualIngredient: VirtualIngredient):VirtualIngredientDto
+	fun map(virtualIngredientDto: VirtualIngredientDto): VirtualIngredient
+	fun map(virtualIngredient: VirtualIngredient): VirtualIngredientDto
 }

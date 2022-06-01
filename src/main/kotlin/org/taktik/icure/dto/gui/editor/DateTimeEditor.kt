@@ -32,8 +32,8 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DateTimeEditor : Editor() {
-    var isDisplayTime = false
-    var isShowPicker = false
-    var isWebAgenda = false
-    var isFullDateMode = false
+	var isDisplayTime = false
+	var isShowPicker = false
+	var isWebAgenda = false
+	var isFullDateMode = false
 }

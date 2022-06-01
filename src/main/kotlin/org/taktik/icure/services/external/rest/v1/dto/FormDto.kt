@@ -35,36 +35,36 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class FormDto(
-        @Schema(description = "the Id of the form. We encourage using either a v4 UUID or a HL7 Id.") override val id: String,
-        @Schema(description = "the revision of the form in the database, used for conflict management / optimistic locking.") override val rev: String? = null,
-        override val created: Long? = null,
-        override val modified: Long? = null,
-        override val author: String? = null,
-        override val responsible: String? = null,
-        override val medicalLocationId: String? = null,
-        override val tags: Set<CodeStubDto> = emptySet(),
-        override val codes: Set<CodeStubDto> = emptySet(),
-        override val endOfLife: Long? = null,
-        override val deletionDate: Long? = null,
+	@Schema(description = "the Id of the form. We encourage using either a v4 UUID or a HL7 Id.") override val id: String,
+	@Schema(description = "the revision of the form in the database, used for conflict management / optimistic locking.") override val rev: String? = null,
+	override val created: Long? = null,
+	override val modified: Long? = null,
+	override val author: String? = null,
+	override val responsible: String? = null,
+	override val medicalLocationId: String? = null,
+	override val tags: Set<CodeStubDto> = emptySet(),
+	override val codes: Set<CodeStubDto> = emptySet(),
+	override val endOfLife: Long? = null,
+	override val deletionDate: Long? = null,
 
-        val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-        val status: String? = null,
-        val version: Int? = null,
-        val logicalUuid: String? = null,
-        @Schema(description = "Name/basic description of the form") val descr: String? = null,
-        @Schema(description = "A unique external id (from another external source).") val uniqueId: String? = null,
-        @Schema(description = "Id of the form template being used to display the form") val formTemplateId: String? = null,
-        @Schema(description = "Id of the contact for which the form is being used.") val contactId: String? = null,
-        @Schema(description = "The healthcare element to which this form is attached.") val healthElementId: String? = null,
-        @Schema(description = "The healthcare approach to which this form is attached.") val planOfActionId: String? = null,
-        @Schema(description = "The parent of this form, used to determine the forms hierarchy") val parent: String? = null,
+	val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+	val status: String? = null,
+	val version: Int? = null,
+	val logicalUuid: String? = null,
+	@Schema(description = "Name/basic description of the form") val descr: String? = null,
+	@Schema(description = "A unique external id (from another external source).") val uniqueId: String? = null,
+	@Schema(description = "Id of the form template being used to display the form") val formTemplateId: String? = null,
+	@Schema(description = "Id of the contact for which the form is being used.") val contactId: String? = null,
+	@Schema(description = "The healthcare element to which this form is attached.") val healthElementId: String? = null,
+	@Schema(description = "The healthcare approach to which this form is attached.") val planOfActionId: String? = null,
+	@Schema(description = "The parent of this form, used to determine the forms hierarchy") val parent: String? = null,
 
-        override val secretForeignKeys: Set<String> = emptySet(),
-        override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = emptyMap(),
-        override val delegations: Map<String, Set<DelegationDto>> = emptyMap(),
-        override val encryptionKeys: Map<String, Set<DelegationDto>> = emptyMap(),
-        override val encryptedSelf: String? = null
+	override val secretForeignKeys: Set<String> = emptySet(),
+	override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = emptyMap(),
+	override val delegations: Map<String, Set<DelegationDto>> = emptyMap(),
+	override val encryptionKeys: Map<String, Set<DelegationDto>> = emptyMap(),
+	override val encryptedSelf: String? = null
 ) : StoredDocumentDto, ICureDocumentDto<String>, EncryptableDto {
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

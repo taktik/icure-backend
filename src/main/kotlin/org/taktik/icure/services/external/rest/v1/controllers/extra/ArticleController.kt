@@ -45,45 +45,45 @@ import reactor.core.publisher.Flux
 @RequestMapping("/rest/v1/article")
 @Tag(name = "article")
 class ArticleController(
-        private val articleLogic: ArticleLogic,
-        private val articleMapper: ArticleMapper
+	private val articleLogic: ArticleLogic,
+	private val articleMapper: ArticleMapper
 ) {
 
-    @Operation(summary = "Creates a article")
-    @PostMapping
-    fun createArticle(@RequestBody articleDto: ArticleDto) = mono {
-        val article = articleLogic.createArticle(articleMapper.map(articleDto))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Article creation failed")
+	@Operation(summary = "Creates a article")
+	@PostMapping
+	fun createArticle(@RequestBody articleDto: ArticleDto) = mono {
+		val article = articleLogic.createArticle(articleMapper.map(articleDto))
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Article creation failed")
 
-        articleMapper.map(article)
-    }
+		articleMapper.map(article)
+	}
 
-    @Operation(summary = "Deletes an article")
-    @DeleteMapping("/{articleIds}")
-    fun deleteArticle(@PathVariable articleIds: String): Flux<DocIdentifier> {
-        return articleLogic.deleteArticles(articleIds.split(',')).injectReactorContext()
-    }
+	@Operation(summary = "Deletes an article")
+	@DeleteMapping("/{articleIds}")
+	fun deleteArticle(@PathVariable articleIds: String): Flux<DocIdentifier> {
+		return articleLogic.deleteArticles(articleIds.split(',')).injectReactorContext()
+	}
 
-    @Operation(summary = "Gets an article")
-    @GetMapping("/{articleId}")
-    fun getArticle(@PathVariable articleId: String) = mono {
-        val article = articleLogic.getArticle(articleId)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Article fetching failed")
+	@Operation(summary = "Gets an article")
+	@GetMapping("/{articleId}")
+	fun getArticle(@PathVariable articleId: String) = mono {
+		val article = articleLogic.getArticle(articleId)
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Article fetching failed")
 
-        articleMapper.map(article)
-    }
+		articleMapper.map(article)
+	}
 
-    @Operation(summary = "Modifies an article")
-    @PutMapping
-    fun modifyArticle(@RequestBody articleDto: ArticleDto) = mono {
-        val article = articleLogic.modifyArticle(articleMapper.map(articleDto))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog modification failed")
-        articleMapper.map(article)
-    }
+	@Operation(summary = "Modifies an article")
+	@PutMapping
+	fun modifyArticle(@RequestBody articleDto: ArticleDto) = mono {
+		val article = articleLogic.modifyArticle(articleMapper.map(articleDto))
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog modification failed")
+		articleMapper.map(article)
+	}
 
-    @Operation(summary = "Gets all articles")
-    @GetMapping
-    fun getArticles(): Flux<ArticleDto> {
-        return articleLogic.getEntities().map { a -> articleMapper.map(a) }.injectReactorContext()
-    }
+	@Operation(summary = "Gets all articles")
+	@GetMapping
+	fun getArticles(): Flux<ArticleDto> {
+		return articleLogic.getEntities().map { a -> articleMapper.map(a) }.injectReactorContext()
+	}
 }

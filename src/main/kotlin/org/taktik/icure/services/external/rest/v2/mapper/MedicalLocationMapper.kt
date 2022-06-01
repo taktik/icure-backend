@@ -28,12 +28,12 @@ import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressV2Mapper
 
 @Mapper(componentModel = "spring", uses = [AddressV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface MedicalLocationV2Mapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(medicalLocationDto: MedicalLocationDto):MedicalLocation
-	fun map(medicalLocation: MedicalLocation):MedicalLocationDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(medicalLocationDto: MedicalLocationDto): MedicalLocation
+	fun map(medicalLocation: MedicalLocation): MedicalLocationDto
 }

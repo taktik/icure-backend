@@ -23,5 +23,5 @@ import java.io.Serializable
  * Created by aduchate on 19/11/13, 10:21
  */
 class Array : Serializable, Data {
-    var value: List<*>? = null
+	var value: List<*>? = null
 }

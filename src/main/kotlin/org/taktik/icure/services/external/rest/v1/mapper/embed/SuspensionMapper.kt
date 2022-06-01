@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.SuspensionDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface SuspensionMapper {
-	fun map(suspensionDto: SuspensionDto):Suspension
-	fun map(suspension: Suspension):SuspensionDto
+	fun map(suspensionDto: SuspensionDto): Suspension
+	fun map(suspension: Suspension): SuspensionDto
 }

@@ -25,6 +25,6 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonPolymorphismRoot(Editor::class)
 @JsonDeserialize(using = JsonDeserializer.None::class)
 class CheckBoxEditor : Editor(), ValueDateEditor {
-    override var displayValueDate = false
-    var groupRadio: String? = null
+	override var displayValueDate = false
+	var groupRadio: String? = null
 }

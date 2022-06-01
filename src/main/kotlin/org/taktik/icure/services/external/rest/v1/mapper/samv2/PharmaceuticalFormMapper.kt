@@ -15,12 +15,12 @@ import org.taktik.icure.services.external.rest.v1.mapper.samv2.embed.SamTextMapp
 
 @Mapper(componentModel = "spring", uses = [SamTextMapper::class, CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface PharmaceuticalFormMapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-    )
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
 	fun map(pharmaceuticalFormDto: PharmaceuticalFormDto): PharmaceuticalForm
 	fun map(pharmaceuticalForm: PharmaceuticalForm): PharmaceuticalFormDto
 }

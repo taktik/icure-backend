@@ -17,16 +17,16 @@
  */
 package org.taktik.icure.services.external.rest.v2.dto.security
 
+import java.io.Serializable
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import io.swagger.v3.oas.annotations.media.Schema
-import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class PermissionDto(
-        @Schema(description = "Granted permissions.") val grants: Set<PermissionItemDto>,
-        @Schema(description = "Revoked permissions.") val revokes: Set<PermissionItemDto>
+	@Schema(description = "Granted permissions.") val grants: Set<PermissionItemDto>,
+	@Schema(description = "Revoked permissions.") val revokes: Set<PermissionItemDto>
 ) : Cloneable, Serializable

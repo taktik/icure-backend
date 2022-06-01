@@ -29,7 +29,7 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class IntegerSliderEditor : Editor() {
-    var maxValue = 0
-    var minValue = 0
-    var increment: Int? = null
+	var maxValue = 0
+	var minValue = 0
+	var increment: Int? = null
 }

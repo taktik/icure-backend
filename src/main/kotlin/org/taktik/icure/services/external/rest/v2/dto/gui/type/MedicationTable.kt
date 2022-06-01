@@ -22,5 +22,4 @@ import java.io.Serializable
 /**
  * Created by aduchate on 19/11/13, 10:33
  */
-class MedicationTable(val value: String = "") : Data(), Serializable {
-}
+class MedicationTable(val value: String = "") : Data(), Serializable

@@ -17,13 +17,13 @@
  */
 package org.taktik.icure.services.external.rest.v2.dto.gui.editor
 
-import org.taktik.icure.services.external.rest.v2.dto.gui.Editor
-import org.taktik.icure.services.external.rest.v2.dto.gui.layout.FormLayoutData
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import org.taktik.icure.handlers.JsonPolymorphismRoot
+import org.taktik.icure.services.external.rest.v2.dto.gui.Editor
+import org.taktik.icure.services.external.rest.v2.dto.gui.layout.FormLayoutData
 
 /**
  * Created by aduchate on 03/12/13, 22:23
@@ -33,5 +33,5 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Label : Editor() {
-    var formData: FormLayoutData? = null
+	var formData: FormLayoutData? = null
 }

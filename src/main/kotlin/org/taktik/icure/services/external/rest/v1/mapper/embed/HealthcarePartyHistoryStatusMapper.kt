@@ -7,6 +7,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.HealthcarePartyHisto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface HealthcarePartyHistoryStatusMapper {
-    fun map(healthcarePartyHistoryStatus:HealthcarePartyHistoryStatus): HealthcarePartyHistoryStatusDto
-    fun map(healthcarePartyHistoryStatus: HealthcarePartyHistoryStatusDto): HealthcarePartyHistoryStatus
+	fun map(healthcarePartyHistoryStatus: HealthcarePartyHistoryStatus): HealthcarePartyHistoryStatusDto
+	fun map(healthcarePartyHistoryStatus: HealthcarePartyHistoryStatusDto): HealthcarePartyHistoryStatus
 }

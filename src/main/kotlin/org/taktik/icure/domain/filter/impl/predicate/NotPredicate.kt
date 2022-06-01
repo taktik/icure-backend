@@ -18,12 +18,12 @@
 package org.taktik.icure.domain.filter.impl.predicate
 
 import com.github.pozo.KotlinBuilder
-import org.taktik.icure.domain.filter.predicate.Predicate
 import org.taktik.couchdb.id.Identifiable
+import org.taktik.icure.domain.filter.predicate.Predicate
 
 @KotlinBuilder
 data class NotPredicate(val predicate: Predicate) : Predicate {
-    override fun apply(input: Identifiable<String>): Boolean {
-        return !predicate.apply(input)
-    }
+	override fun apply(input: Identifiable<String>): Boolean {
+		return !predicate.apply(input)
+	}
 }

@@ -17,22 +17,22 @@
  */
 package org.taktik.icure.dto.result
 
+import java.io.Serializable
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.Service
-import java.io.Serializable
 
 class ResultInfo : Serializable {
-    var ssin: String? = null
-    var lastName: String? = null
-    var firstName: String? = null
-    var dateOfBirth: Long? = null
-    var sex: String? = null
-    var documentId: String? = null
-    var protocol: String? = null
-    var complete: Boolean? = null
-    var demandDate: Long? = null
-    var labo: String? = null
-    var engine: String? = null
-    var codes: List<CodeStub> = ArrayList()
-    var services: List<Service>? = null
+	var ssin: String? = null
+	var lastName: String? = null
+	var firstName: String? = null
+	var dateOfBirth: Long? = null
+	var sex: String? = null
+	var documentId: String? = null
+	var protocol: String? = null
+	var complete: Boolean? = null
+	var demandDate: Long? = null
+	var labo: String? = null
+	var engine: String? = null
+	var codes: List<CodeStub> = ArrayList()
+	var services: List<Service>? = null
 }

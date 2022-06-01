@@ -26,6 +26,6 @@ import org.taktik.icure.entities.User
 
 @Service
 class AllUsersFilter(private val userLogic: UserLogic) : Filter<String, User, org.taktik.icure.domain.filter.Filters.AllFilter<String, User>> {
-    override fun resolve(filter: org.taktik.icure.domain.filter.Filters.AllFilter<String, User>, context: Filters) =
-            userLogic.getEntityIds()
+	override fun resolve(filter: org.taktik.icure.domain.filter.Filters.AllFilter<String, User>, context: Filters) =
+		userLogic.getEntityIds()
 }

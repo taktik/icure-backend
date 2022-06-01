@@ -24,8 +24,8 @@ import org.taktik.icure.entities.embed.Service
 
 @KotlinBuilder
 data class HealthElementByHcPartyFilter(
-        override val hcpId: String,
-        override val desc:String? = null
+	override val hcpId: String,
+	override val desc: String? = null
 ) : AbstractFilter<Service>, Filters.ByHcpartyFilter<String, Service> {
-    override fun matches(item: Service) = item.delegations.keys.contains(hcpId)
+	override fun matches(item: Service) = item.delegations.keys.contains(hcpId)
 }

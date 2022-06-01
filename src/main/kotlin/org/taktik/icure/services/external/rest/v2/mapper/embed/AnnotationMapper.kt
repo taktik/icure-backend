@@ -7,6 +7,6 @@ import org.taktik.icure.services.external.rest.v2.dto.embed.AnnotationDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface AnnotationV2Mapper {
-    fun map(annotationDto: AnnotationDto): Annotation
-    fun map(annotation: Annotation): AnnotationDto
+	fun map(annotationDto: AnnotationDto): Annotation
+	fun map(annotation: Annotation): AnnotationDto
 }

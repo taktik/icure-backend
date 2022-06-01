@@ -22,6 +22,6 @@ import org.taktik.icure.domain.filter.Filter
 import org.taktik.icure.entities.User
 
 interface UserByNameEmailPhoneFilter : Filter<String, User> {
-    val searchString: String
-    val desc: String?
+	val searchString: String
+	val desc: String?
 }

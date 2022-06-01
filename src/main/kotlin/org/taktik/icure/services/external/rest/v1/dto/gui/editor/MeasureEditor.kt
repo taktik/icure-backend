@@ -17,12 +17,12 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.gui.editor
 
-import org.taktik.icure.services.external.rest.v1.dto.gui.Editor
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import org.taktik.icure.handlers.JsonPolymorphismRoot
+import org.taktik.icure.services.external.rest.v1.dto.gui.Editor
 
 /**
  * Created by aduchate on 19/11/13, 15:23

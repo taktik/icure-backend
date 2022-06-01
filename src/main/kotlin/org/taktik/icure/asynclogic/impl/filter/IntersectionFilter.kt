@@ -18,11 +18,11 @@
 
 package org.taktik.icure.asynclogic.impl.filter
 
+import java.io.Serializable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import org.taktik.couchdb.id.Identifiable
-import java.io.Serializable
 
 class IntersectionFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, org.taktik.icure.domain.filter.Filters.IntersectionFilter<T, O>> {
 	override fun resolve(filter: org.taktik.icure.domain.filter.Filters.IntersectionFilter<T, O>, context: Filters): Flow<T> = flow {
@@ -35,6 +35,6 @@ class IntersectionFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, o
 				result.retainAll(context.resolve(filters[i]).toList().toSet())
 			}
 		}
-        result.forEach { emit(it) } // TODO SH MB: not reactive... can be optimized?
+		result.forEach { emit(it) } // TODO SH MB: not reactive... can be optimized?
 	}
 }

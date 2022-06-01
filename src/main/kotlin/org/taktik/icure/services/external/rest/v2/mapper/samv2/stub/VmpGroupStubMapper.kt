@@ -18,20 +18,19 @@
 
 package org.taktik.icure.services.external.rest.v2.mapper.samv2
 
+import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.samv2.stub.VmpGroupStub
 import org.taktik.icure.services.external.rest.v2.dto.samv2.stub.VmpGroupStubDto
-
-import org.mapstruct.InjectionStrategy
 import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.SamTextV2Mapper
 
 @Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface VmpGroupStubV2Mapper {
-    fun map(vmpGroupStubDto: VmpGroupStubDto): VmpGroupStub
-    @Mappings(
-            Mapping(target = "productId", ignore = true)
-    )
-    fun map(vmpGroupStub: VmpGroupStub):VmpGroupStubDto
+	fun map(vmpGroupStubDto: VmpGroupStubDto): VmpGroupStub
+	@Mappings(
+		Mapping(target = "productId", ignore = true)
+	)
+	fun map(vmpGroupStub: VmpGroupStub): VmpGroupStubDto
 }

@@ -32,5 +32,5 @@ import org.taktik.icure.services.external.rest.v1.dto.gui.Editor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ActionButton(
-        val action: String? = null
+	val action: String? = null
 ) : Editor()

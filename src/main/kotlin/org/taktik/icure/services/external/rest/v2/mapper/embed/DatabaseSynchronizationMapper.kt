@@ -18,12 +18,12 @@
 
 package org.taktik.icure.services.external.rest.v2.mapper.embed
 
+import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.DatabaseSynchronization
 import org.taktik.icure.services.external.rest.v2.dto.embed.DatabaseSynchronizationDto
-import org.mapstruct.InjectionStrategy
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DatabaseSynchronizationV2Mapper {
-	fun map(databaseSynchronizationDto: DatabaseSynchronizationDto):DatabaseSynchronization
-	fun map(databaseSynchronization: DatabaseSynchronization):DatabaseSynchronizationDto
+	fun map(databaseSynchronizationDto: DatabaseSynchronizationDto): DatabaseSynchronization
+	fun map(databaseSynchronization: DatabaseSynchronization): DatabaseSynchronizationDto
 }

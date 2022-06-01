@@ -26,6 +26,6 @@ import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
 
 @Mapper(componentModel = "spring", uses = [CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface MedicinalproductMapper {
-	fun map(medicinalproductDto: MedicinalproductDto):Medicinalproduct
-	fun map(medicinalproduct: Medicinalproduct):MedicinalproductDto
+	fun map(medicinalproductDto: MedicinalproductDto): Medicinalproduct
+	fun map(medicinalproduct: Medicinalproduct): MedicinalproductDto
 }

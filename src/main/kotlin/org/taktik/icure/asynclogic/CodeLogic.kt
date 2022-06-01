@@ -18,46 +18,45 @@
 
 package org.taktik.icure.asynclogic
 
+import java.io.InputStream
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.CodeStub
-import java.io.InputStream
-
 
 interface CodeLogic : EntityPersister<Code, String> {
-    fun getTagTypeCandidates(): List<String>
-    fun getRegions(): List<String>
-    suspend fun get(id: String): Code?
+	fun getTagTypeCandidates(): List<String>
+	fun getRegions(): List<String>
+	suspend fun get(id: String): Code?
 
-    suspend fun get(type: String, code: String, version: String): Code?
-    fun getCodes(ids: List<String>): Flow<Code>
-    suspend fun create(code: Code): Code?
+	suspend fun get(type: String, code: String, version: String): Code?
+	fun getCodes(ids: List<String>): Flow<Code>
+	suspend fun create(code: Code): Code?
 
-    @Throws(Exception::class)
-    suspend fun modify(code: Code): Code?
+	@Throws(Exception::class)
+	suspend fun modify(code: Code): Code?
 
-    fun findCodeTypes(type: String?): Flow<String>
-    fun findCodeTypes(region: String?, type: String?): Flow<String>
-    fun findCodesBy(type: String?, code: String?, version: String?): Flow<Code>
-    fun findCodesBy(region: String?, type: String?, code: String?, version: String?): Flow<Code>
-    fun findCodesBy(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
-    fun findCodesByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
-    fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
-    fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): Flow<String>
-    fun findCodesByQualifiedLinkId(region: String?, linkType: String, linkedId: String, pagination: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
-    fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): Flow<String>
-    suspend fun <T : Enum<*>> importCodesFromEnum(e: Class<T>)
+	fun findCodeTypes(type: String?): Flow<String>
+	fun findCodeTypes(region: String?, type: String?): Flow<String>
+	fun findCodesBy(type: String?, code: String?, version: String?): Flow<Code>
+	fun findCodesBy(region: String?, type: String?, code: String?, version: String?): Flow<Code>
+	fun findCodesBy(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
+	fun findCodesByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
+	fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
+	fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): Flow<String>
+	fun findCodesByQualifiedLinkId(region: String?, linkType: String, linkedId: String, pagination: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
+	fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): Flow<String>
+	suspend fun <T : Enum<*>> importCodesFromEnum(e: Class<T>)
 
-    suspend fun importCodesFromXml(md5: String, type: String, stream: InputStream)
-    fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Code>, sort: String?, desc: Boolean?): Flow<ViewQueryResultEvent>
+	suspend fun importCodesFromXml(md5: String, type: String, stream: InputStream)
+	fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Code>, sort: String?, desc: Boolean?): Flow<ViewQueryResultEvent>
 
-    suspend fun getOrCreateCode(type: String, code: String, version: String): Code?
+	suspend fun getOrCreateCode(type: String, code: String, version: String): Code?
 
-    suspend fun isValid(code: Code, ofType: String? = null): Boolean
-    suspend fun isValid(code: CodeStub, ofType: String? = null): Boolean
+	suspend fun isValid(code: Code, ofType: String? = null): Boolean
+	suspend fun isValid(code: CodeStub, ofType: String? = null): Boolean
 
-    suspend fun getCodeByLabel(region: String, label: String, ofType: String, labelLang: List<String> = listOf("fr", "nl")): Code?
+	suspend fun getCodeByLabel(region: String, label: String, ofType: String, labelLang: List<String> = listOf("fr", "nl")): Code?
 }

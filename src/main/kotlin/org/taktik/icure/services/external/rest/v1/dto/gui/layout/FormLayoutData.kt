@@ -17,30 +17,30 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.gui.layout
 
+import java.io.Serializable
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.gui.*
-import java.io.Serializable
 
 /**
  * Created by aduchate on 19/11/13, 10:50
  */
 open class FormLayoutData(
-        val isSubForm: Boolean? = null,
-        val isIrrelevant: Boolean? = null,
-        val isDeterminesSscontactName: Boolean? = null,
-        val type: String? = null,
-        val name: String? = null,
-        val sortOrder: Double? = null,
-        val options: Map<String, FormDataOption>? = null,
-        val descr: String? = null,
-        val label: String? = null,
-        val editor: Editor? = null,
-        val defaultValue: List<ContentDto>? = null,
-        val defaultStatus: Int? = null,
-        val suggest: List<Suggest>? = null,
-        val plannings: List<FormPlanning>? = null,
-        val tags: List<GuiCode>? = null,
-        val codes: List<GuiCode>? = null,
-        val codeTypes: List<GuiCodeType>? = null,
-        val formulas: List<Formula>? = null,
+	val isSubForm: Boolean? = null,
+	val isIrrelevant: Boolean? = null,
+	val isDeterminesSscontactName: Boolean? = null,
+	val type: String? = null,
+	val name: String? = null,
+	val sortOrder: Double? = null,
+	val options: Map<String, FormDataOption>? = null,
+	val descr: String? = null,
+	val label: String? = null,
+	val editor: Editor? = null,
+	val defaultValue: List<ContentDto>? = null,
+	val defaultStatus: Int? = null,
+	val suggest: List<Suggest>? = null,
+	val plannings: List<FormPlanning>? = null,
+	val tags: List<GuiCode>? = null,
+	val codes: List<GuiCode>? = null,
+	val codeTypes: List<GuiCodeType>? = null,
+	val formulas: List<Formula>? = null,
 ) : Serializable

@@ -18,7 +18,7 @@
 package org.taktik.icure.constants
 
 interface Connectors {
-    enum class Type {
-        HTTP, FTP
-    }
+	enum class Type {
+		HTTP, FTP
+	}
 }

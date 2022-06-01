@@ -17,38 +17,38 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive
 
-import org.taktik.icure.services.external.rest.v1.dto.gui.type.Data
 import java.io.Serializable
 import java.io.UnsupportedEncodingException
+import org.taktik.icure.services.external.rest.v1.dto.gui.type.Data
 
 /**
  * Created by aduchate on 19/11/13, 10:41
  */
 class AttributedString(val rtfString: String? = null, val rtfData: ByteArray? = null) : Data(), Primitive {
-    fun length(): Int {
-        return if (rtfString!!.length > 0) rtfString!!.length else rtfData!!.size
-    }
+	fun length(): Int {
+		return if (rtfString!!.length > 0) rtfString!!.length else rtfData!!.size
+	}
 
-    override fun getPrimitiveValue(): Serializable? {
-        return try {
-            String(rtfData!!, Charsets.UTF_8)
-        } catch (e: UnsupportedEncodingException) {
-            throw IllegalStateException(e)
-        }
-    }
+	override fun getPrimitiveValue(): Serializable? {
+		return try {
+			String(rtfData!!, Charsets.UTF_8)
+		} catch (e: UnsupportedEncodingException) {
+			throw IllegalStateException(e)
+		}
+	}
 
-    companion object {
-        fun getRtfUnicodeEscapedString(s: String?): String {
-            val sb = StringBuilder()
-            for (i in 0 until s!!.length) {
-                val c = s[i]
-                if (c.code == 0x0a || c.code == 0x0d) sb.append("\\line\n") else if (c.code <= 0x7f) sb.append(c) else sb.append(
-                    "\\u"
-                ).append(
-                    c.code
-                ).append("?")
-            }
-            return sb.toString()
-        }
-    }
+	companion object {
+		fun getRtfUnicodeEscapedString(s: String?): String {
+			val sb = StringBuilder()
+			for (i in 0 until s!!.length) {
+				val c = s[i]
+				if (c.code == 0x0a || c.code == 0x0d) sb.append("\\line\n") else if (c.code <= 0x7f) sb.append(c) else sb.append(
+					"\\u"
+				).append(
+					c.code
+				).append("?")
+			}
+			return sb.toString()
+		}
+	}
 }

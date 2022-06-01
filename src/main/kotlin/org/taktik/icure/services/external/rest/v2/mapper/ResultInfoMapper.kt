@@ -23,12 +23,11 @@ import org.mapstruct.Mapper
 import org.taktik.icure.dto.result.ResultInfo
 import org.taktik.icure.services.external.rest.v2.dto.ResultInfoDto
 import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
-import org.taktik.icure.services.external.rest.v2.mapper.base.CodeV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.ServiceV2Mapper
 
 @Mapper(componentModel = "spring", uses = [DelegationV2Mapper::class, ServiceV2Mapper::class, CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ResultInfoV2Mapper {
-    fun map(resultInfoDto: ResultInfoDto): ResultInfo
-    fun map(resultInfo: ResultInfo): ResultInfoDto
+	fun map(resultInfoDto: ResultInfoDto): ResultInfo
+	fun map(resultInfo: ResultInfo): ResultInfoDto
 }

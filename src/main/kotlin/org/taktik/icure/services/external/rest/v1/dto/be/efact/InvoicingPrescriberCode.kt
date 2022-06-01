@@ -26,23 +26,21 @@ package org.taktik.icure.services.external.rest.v1.dto.be.efact
  * To change this template use File | Settings | File Templates.
  */
 enum class InvoicingPrescriberCode(val code: Int) {
-    None(0),
-    OnePrescriber(1),
-    SelfPrescriber(3),
-    AddedCode(4),
-    ManyPrescribers(9);
+	None(0),
+	OnePrescriber(1),
+	SelfPrescriber(3),
+	AddedCode(4),
+	ManyPrescribers(9);
 
+	companion object {
 
-    companion object {
-
-        fun withCode(prescriberCode: Int): InvoicingPrescriberCode? {
-            for (ipc in InvoicingPrescriberCode.values()) {
-                if (ipc.code == prescriberCode) {
-                    return ipc
-                }
-            }
-            return null
-
-        }
-    }
+		fun withCode(prescriberCode: Int): InvoicingPrescriberCode? {
+			for (ipc in InvoicingPrescriberCode.values()) {
+				if (ipc.code == prescriberCode) {
+					return ipc
+				}
+			}
+			return null
+		}
+	}
 }

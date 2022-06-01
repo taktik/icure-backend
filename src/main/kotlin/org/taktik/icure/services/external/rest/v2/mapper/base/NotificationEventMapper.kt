@@ -18,12 +18,12 @@
 
 package org.taktik.icure.services.external.rest.v2.mapper.base
 
+import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.base.NotificationEvent
 import org.taktik.icure.services.external.rest.v2.dto.base.NotificationEventDto
-import org.mapstruct.InjectionStrategy
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface NotificationEventV2Mapper {
-	fun map(notificationEventDto: NotificationEventDto):NotificationEvent
-	fun map(notificationEvent: NotificationEvent):NotificationEventDto
+	fun map(notificationEventDto: NotificationEventDto): NotificationEvent
+	fun map(notificationEvent: NotificationEvent): NotificationEventDto
 }

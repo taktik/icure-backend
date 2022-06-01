@@ -23,17 +23,19 @@ import org.taktik.icure.entities.embed.Service
 
 @KotlinBuilder
 data class ServiceByContactsAndSubcontactsFilter(
-        override val desc: String? = null,
-        override val healthcarePartyId: String? = null,
-        override val contacts: Set<String>,
-        override val subContacts: Set<String>? = null,
-        override val startValueDate: Long? = null,
-        override val endValueDate: Long? = null
+	override val desc: String? = null,
+	override val healthcarePartyId: String? = null,
+	override val contacts: Set<String>,
+	override val subContacts: Set<String>? = null,
+	override val startValueDate: Long? = null,
+	override val endValueDate: Long? = null
 ) : AbstractFilter<Service>, org.taktik.icure.domain.filter.service.ServiceByContactsAndSubcontactsFilter {
 
-    override fun matches(item: Service): Boolean {
-        return ((healthcarePartyId == null || item.delegations.keys.contains(healthcarePartyId))
-                && contacts!!.contains(item.contactId)
-                && (subContacts == null || subContacts.intersect(item.subContactIds ?: setOf()).isNotEmpty()))
-    }
+	override fun matches(item: Service): Boolean {
+		return (
+			(healthcarePartyId == null || item.delegations.keys.contains(healthcarePartyId)) &&
+				contacts!!.contains(item.contactId) &&
+				(subContacts == null || subContacts.intersect(item.subContactIds ?: setOf()).isNotEmpty())
+			)
+	}
 }

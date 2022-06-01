@@ -25,14 +25,13 @@ import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 
-
 @Component
 class RequestTimingFilter : WebFilter {
-    private val log = LoggerFactory.getLogger(javaClass.name)
+	private val log = LoggerFactory.getLogger(javaClass.name)
 
-    override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
-        val startMillis = System.currentTimeMillis()
-        return chain.filter(exchange)
-                .doOnSuccess { log.info("Elapsed Time: {} {}ms", exchange.request.path, System.currentTimeMillis() - startMillis) }
-    }
+	override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
+		val startMillis = System.currentTimeMillis()
+		return chain.filter(exchange)
+			.doOnSuccess { log.info("Elapsed Time: {} {}ms", exchange.request.path, System.currentTimeMillis() - startMillis) }
+	}
 }

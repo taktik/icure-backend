@@ -17,11 +17,11 @@
  */
 package org.taktik.icure.dto.gui
 
+import java.io.Serializable
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import org.taktik.icure.dto.gui.type.Data
 import org.taktik.icure.handlers.JacksonEditorDeserializer
 import org.taktik.icure.handlers.JsonDiscriminator
-import java.io.Serializable
 
 /**
  * Created by aduchate on 19/11/13, 15:28
@@ -29,12 +29,12 @@ import java.io.Serializable
 @JsonDeserialize(using = JacksonEditorDeserializer::class)
 @JsonDiscriminator("key")
 abstract class Editor : Serializable {
-    var left: Double? = null
-    var top: Double? = null
-    var width: Double? = null
-    var height: Double? = null
-    var isMultiline = false
-    var labelPosition: LabelPosition? = null
-    var isReadOnly = false
-    var defaultValue: Data? = null
+	var left: Double? = null
+	var top: Double? = null
+	var width: Double? = null
+	var height: Double? = null
+	var isMultiline = false
+	var labelPosition: LabelPosition? = null
+	var isReadOnly = false
+	var defaultValue: Data? = null
 }

@@ -37,47 +37,47 @@ import org.taktik.icure.validation.ValidCode
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class ClassificationTemplate(
-        @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
-        @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
-        @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
-        override val medicalLocationId: String? = null,
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
-        override val endOfLife: Long? = null,
-        @JsonProperty("deleted") override val deletionDate: Long? = null,
+	@JsonProperty("_id") override val id: String,
+	@JsonProperty("_rev") override val rev: String? = null,
+	@field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+	@field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+	@field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+	@field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+	override val medicalLocationId: String? = null,
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
+	override val endOfLife: Long? = null,
+	@JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        val parentId: String?,
-        val label: String = "",
+	val parentId: String?,
+	val label: String = "",
 
-        override val secretForeignKeys: Set<String> = emptySet(),
-        override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
-        override val delegations: Map<String, Set<Delegation>> = emptyMap(),
-        override val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(),
-        override val encryptedSelf: String? = null,
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
+	override val secretForeignKeys: Set<String> = emptySet(),
+	override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
+	override val delegations: Map<String, Set<Delegation>> = emptyMap(),
+	override val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(),
+	override val encryptedSelf: String? = null,
+	@JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+	@JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+	@JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredICureDocument, Encryptable {
-    companion object : DynamicInitializer<ClassificationTemplate>
+	companion object : DynamicInitializer<ClassificationTemplate>
 
-    fun merge(other: ClassificationTemplate) = ClassificationTemplate(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: ClassificationTemplate) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
-            "parentId" to (this.parentId ?: other.parentId),
-            "label" to if (this.label.isBlank()) other.label else this.label
-    )
+	fun merge(other: ClassificationTemplate) = ClassificationTemplate(args = this.solveConflictsWith(other))
+	fun solveConflictsWith(other: ClassificationTemplate) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+		"parentId" to (this.parentId ?: other.parentId),
+		"label" to if (this.label.isBlank()) other.label else this.label
+	)
 
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
-    override fun withTimestamps(created: Long?, modified: Long?) =
-            when {
-                created != null && modified != null -> this.copy(created = created, modified = modified)
-                created != null -> this.copy(created = created)
-                modified != null -> this.copy(modified = modified)
-                else -> this
-            }
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withTimestamps(created: Long?, modified: Long?) =
+		when {
+			created != null && modified != null -> this.copy(created = created, modified = modified)
+			created != null -> this.copy(created = created)
+			modified != null -> this.copy(modified = modified)
+			else -> this
+		}
 }

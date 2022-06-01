@@ -20,5 +20,5 @@ package org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive
 import java.io.Serializable
 
 interface Primitive : Serializable {
-    fun getPrimitiveValue(): Serializable?
+	fun getPrimitiveValue(): Serializable?
 }

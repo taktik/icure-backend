@@ -32,8 +32,8 @@ import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class PatientByHcPartyDateOfBirthBetweenFilter(
-        override val desc: String? = null,
-        override val minDateOfBirth: Int? = null,
-        override val maxDateOfBirth: Int? = null,
-        override val healthcarePartyId: String? = null
+	override val desc: String? = null,
+	override val minDateOfBirth: Int? = null,
+	override val maxDateOfBirth: Int? = null,
+	override val healthcarePartyId: String? = null
 ) : AbstractFilterDto<Patient>, org.taktik.icure.domain.filter.patient.PatientByHcPartyDateOfBirthBetweenFilter

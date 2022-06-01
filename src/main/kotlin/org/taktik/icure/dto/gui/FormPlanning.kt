@@ -23,12 +23,12 @@ import java.io.Serializable
  * Created by aduchate on 03/12/13, 16:27
  */
 class FormPlanning : Serializable {
-    var planninfForAnyDoctor: Boolean? = null
-    var planningForDelegate: Boolean? = null
-    var planningForPatientDoctor: Boolean? = null
-    var planningForMe: Boolean? = null
-    var codedDelayInDays: Int? = null
-    var repetitions: Int? = null
-    var repetitionsUnit: Int? = null
-    var descr: String? = null
+	var planninfForAnyDoctor: Boolean? = null
+	var planningForDelegate: Boolean? = null
+	var planningForPatientDoctor: Boolean? = null
+	var planningForMe: Boolean? = null
+	var codedDelayInDays: Int? = null
+	var repetitions: Int? = null
+	var repetitionsUnit: Int? = null
+	var descr: String? = null
 }

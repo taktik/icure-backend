@@ -17,7 +17,6 @@
  */
 package org.taktik.icure.services.external.rest.v2.dto.filter.code
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonDeserializer
@@ -34,6 +33,6 @@ import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class CodeByIdsFilter(
-        override val ids: Set<String>,
-        override val desc: String? = null
+	override val ids: Set<String>,
+	override val desc: String? = null
 ) : AbstractFilterDto<Code>, Filters.IdsFilter<String, Code>

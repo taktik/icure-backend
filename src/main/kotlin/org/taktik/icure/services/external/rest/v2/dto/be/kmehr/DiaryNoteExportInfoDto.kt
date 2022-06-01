@@ -18,19 +18,19 @@
 
 package org.taktik.icure.services.external.rest.v2.dto.be.kmehr
 
-import org.taktik.icure.services.external.rest.v2.dto.HealthcarePartyDto
 import java.io.Serializable
+import org.taktik.icure.services.external.rest.v2.dto.HealthcarePartyDto
 
 class DiaryNoteExportInfoDto : Serializable {
-    var secretForeignKeys: List<String> = emptyList()
-    var excludedIds: List<String> = emptyList()
-    var recipient: HealthcarePartyDto? = null
-    var softwareName: String? = null
-    var softwareVersion: String? = null
-    var tags: List<String> = emptyList()
-    var contexts: List<String> = emptyList()
-    var psy: Boolean? = null
-    var documentId: String? = null
-    var attachmentId: String? = null
-    var note: String? = null
+	var secretForeignKeys: List<String> = emptyList()
+	var excludedIds: List<String> = emptyList()
+	var recipient: HealthcarePartyDto? = null
+	var softwareName: String? = null
+	var softwareVersion: String? = null
+	var tags: List<String> = emptyList()
+	var contexts: List<String> = emptyList()
+	var psy: Boolean? = null
+	var documentId: String? = null
+	var attachmentId: String? = null
+	var note: String? = null
 }

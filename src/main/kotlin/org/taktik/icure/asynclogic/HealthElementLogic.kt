@@ -29,34 +29,34 @@ import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Identifier
 
 interface HealthElementLogic : EntityPersister<HealthElement, String> {
-    fun getGenericDAO(): HealthElementDAO
+	fun getGenericDAO(): HealthElementDAO
 
-    suspend fun createHealthElement(healthElement: HealthElement): HealthElement?
+	suspend fun createHealthElement(healthElement: HealthElement): HealthElement?
 
-    suspend fun getHealthElement(healthElementId: String): HealthElement?
-    fun getHealthElements(healthElementIds: List<String>): Flow<HealthElement>
+	suspend fun getHealthElement(healthElementId: String): HealthElement?
+	fun getHealthElements(healthElementIds: List<String>): Flow<HealthElement>
 
-    fun listHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<HealthElement>
-    fun listHealthElementIdsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatinetKeys: List<String>): Flow<String>
+	fun listHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<HealthElement>
+	fun listHealthElementIdsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatinetKeys: List<String>): Flow<String>
 
-    fun listHealthElementIdsByHcParty(hcpId: String): Flow<String>
-    suspend fun listLatestHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): List<HealthElement>
-    fun listHealthElementIdsByHcPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String): Flow<String>
-    fun listHealthElementIdsByHcPartyAndTags(hcPartyId: String, tagType: String, tagCode: String): Flow<String>
-    fun listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String>
-    fun listHealthElementIdsByHcPartyAndStatus(hcPartyId: String, status: Int): Flow<String>
-    fun deleteHealthElements(ids: Set<String>): Flow<DocIdentifier>
+	fun listHealthElementIdsByHcParty(hcpId: String): Flow<String>
+	suspend fun listLatestHealthElementsByHcPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): List<HealthElement>
+	fun listHealthElementIdsByHcPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String): Flow<String>
+	fun listHealthElementIdsByHcPartyAndTags(hcPartyId: String, tagType: String, tagCode: String): Flow<String>
+	fun listHealthElementsIdsByHcPartyAndIdentifiers(hcPartyId: String, identifiers: List<Identifier>): Flow<String>
+	fun listHealthElementIdsByHcPartyAndStatus(hcPartyId: String, status: Int): Flow<String>
+	fun deleteHealthElements(ids: Set<String>): Flow<DocIdentifier>
 
-    suspend fun modifyHealthElement(healthElement: HealthElement): HealthElement?
+	suspend fun modifyHealthElement(healthElement: HealthElement): HealthElement?
 
-    suspend fun addDelegation(healthElementId: String, delegation: Delegation): HealthElement?
+	suspend fun addDelegation(healthElementId: String, delegation: Delegation): HealthElement?
 
-    suspend fun addDelegations(healthElementId: String, delegations: List<Delegation>): HealthElement?
+	suspend fun addDelegations(healthElementId: String, delegations: List<Delegation>): HealthElement?
 
-    fun solveConflicts(): Flow<HealthElement>
+	fun solveConflicts(): Flow<HealthElement>
 
-    fun filter(
-        paginationOffset: PaginationOffset<Nothing>,
-        filter: FilterChain<HealthElement>
-    ): Flow<ViewQueryResultEvent>
+	fun filter(
+		paginationOffset: PaginationOffset<Nothing>,
+		filter: FilterChain<HealthElement>
+	): Flow<ViewQueryResultEvent>
 }

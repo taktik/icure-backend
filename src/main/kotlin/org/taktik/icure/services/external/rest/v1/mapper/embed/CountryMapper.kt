@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.CountryDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface CountryMapper {
-	fun map(countryDto: CountryDto):Country
-	fun map(country: Country):CountryDto
+	fun map(countryDto: CountryDto): Country
+	fun map(country: Country): CountryDto
 }

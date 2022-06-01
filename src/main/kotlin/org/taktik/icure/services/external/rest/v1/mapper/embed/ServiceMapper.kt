@@ -29,8 +29,8 @@ import org.taktik.icure.services.external.rest.v1.mapper.base.IdentifierMapper
 
 @Mapper(componentModel = "spring", uses = [IdentifierMapper::class, CodeStubMapper::class, DelegationMapper::class, MedicationMapper::class, MeasureMapper::class, AnnotationMapper::class, TimeSeriesMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ServiceMapper {
-	fun map(serviceDto: ServiceDto):Service
-	fun map(service: Service):ServiceDto
-    fun map(contentDto: ContentDto): Content
-    fun map(content: Content): ContentDto
+	fun map(serviceDto: ServiceDto): Service
+	fun map(service: Service): ServiceDto
+	fun map(contentDto: ContentDto): Content
+	fun map(content: Content): ContentDto
 }

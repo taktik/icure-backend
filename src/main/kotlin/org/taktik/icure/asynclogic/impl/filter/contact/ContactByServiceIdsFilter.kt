@@ -29,7 +29,7 @@ import org.taktik.icure.entities.Contact
 @Service
 class ContactByServiceIdsFilter(private val contactLogic: ContactLogic) : Filter<String, Contact, ContactByServiceIdsFilter> {
 
-    override fun resolve(filter: ContactByServiceIdsFilter, context: Filters): Flow<String> {
-        return filter.ids?.let { contactLogic.listIdsByServices(it) } ?: flowOf()
-    }
+	override fun resolve(filter: ContactByServiceIdsFilter, context: Filters): Flow<String> {
+		return filter.ids?.let { contactLogic.listIdsByServices(it) } ?: flowOf()
+	}
 }

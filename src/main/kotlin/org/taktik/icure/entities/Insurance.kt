@@ -32,39 +32,39 @@ import org.taktik.icure.utils.invoke
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class Insurance(
-        @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String? = null,
-        @JsonProperty("deleted") override val deletionDate: Long? = null,
+	@JsonProperty("_id") override val id: String,
+	@JsonProperty("_rev") override val rev: String? = null,
+	@JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        val name: Map<String, String> = emptyMap(),
-        val privateInsurance: Boolean = false,
-        val hospitalisationInsurance: Boolean = false,
-        val ambulatoryInsurance: Boolean = false,
-        val code: String? = null,
-        val agreementNumber: String? = null,
-        val parent: String? = null, //ID of the parent
-        val address: Address = Address(),
+	val name: Map<String, String> = emptyMap(),
+	val privateInsurance: Boolean = false,
+	val hospitalisationInsurance: Boolean = false,
+	val ambulatoryInsurance: Boolean = false,
+	val code: String? = null,
+	val agreementNumber: String? = null,
+	val parent: String? = null, //ID of the parent
+	val address: Address = Address(),
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
+	@JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+	@JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+	@JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredDocument {
-    companion object : DynamicInitializer<Insurance>
+	companion object : DynamicInitializer<Insurance>
 
-    fun merge(other: Insurance) = Insurance(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Insurance) = super.solveConflictsWith(other) + mapOf(
-            "privateInsurance" to (this.privateInsurance),
-            "hospitalisationInsurance" to (this.hospitalisationInsurance),
-            "ambulatoryInsurance" to (this.ambulatoryInsurance),
-            "code" to (this.code ?: other.code),
-            "agreementNumber" to (this.agreementNumber ?: other.agreementNumber),
-            "parent" to (this.parent ?: other.parent),
-            "address" to (this.address.merge(other.address)),
-            "name" to (other.name + this.name)
-    )
+	fun merge(other: Insurance) = Insurance(args = this.solveConflictsWith(other))
+	fun solveConflictsWith(other: Insurance) = super.solveConflictsWith(other) + mapOf(
+		"privateInsurance" to (this.privateInsurance),
+		"hospitalisationInsurance" to (this.hospitalisationInsurance),
+		"ambulatoryInsurance" to (this.ambulatoryInsurance),
+		"code" to (this.code ?: other.code),
+		"agreementNumber" to (this.agreementNumber ?: other.agreementNumber),
+		"parent" to (this.parent ?: other.parent),
+		"address" to (this.address.merge(other.address)),
+		"name" to (other.name + this.name)
+	)
 
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

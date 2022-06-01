@@ -18,10 +18,10 @@
 package org.taktik.icure.constants
 
 interface Templates {
-    companion object {
-        const val MAILING_USER_LOST_PASSWORD = "lostPasswordMailing"
-        const val MAILING_USER_REGISTRATION_SUCCESSFUL = "registrationSuccessfulMailing"
-        const val MAILING_USER_REGISTRATION_APPROVED = "registrationApprovedMailing"
-        const val MAILING_PUBLICATION = "publicationMailing"
-    }
+	companion object {
+		const val MAILING_USER_LOST_PASSWORD = "lostPasswordMailing"
+		const val MAILING_USER_REGISTRATION_SUCCESSFUL = "registrationSuccessfulMailing"
+		const val MAILING_USER_REGISTRATION_APPROVED = "registrationApprovedMailing"
+		const val MAILING_PUBLICATION = "publicationMailing"
+	}
 }

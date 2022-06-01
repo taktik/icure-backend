@@ -18,12 +18,12 @@
 
 package org.taktik.icure.asynclogic.impl.filter
 
+import java.io.Serializable
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flatMapConcat
 import org.taktik.couchdb.id.Identifiable
-import java.io.Serializable
 
 @FlowPreview
 class UnionFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, org.taktik.icure.domain.filter.Filters.UnionFilter<T, O>> {

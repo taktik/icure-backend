@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.RevisionInfoDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface RevisionInfoMapper {
-	fun map(revisionInfoDto: RevisionInfoDto):RevisionInfo
-	fun map(revisionInfo: RevisionInfo):RevisionInfoDto
+	fun map(revisionInfoDto: RevisionInfoDto): RevisionInfo
+	fun map(revisionInfo: RevisionInfo): RevisionInfoDto
 }

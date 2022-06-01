@@ -23,6 +23,6 @@ import java.io.Serializable
  * Created by aduchate on 03/12/13, 17:22
  */
 class Formula : Serializable {
-    var value: String? = null
-    var lifecycle: FormLifecycle? = null
+	var value: String? = null
+	var lifecycle: FormLifecycle? = null
 }

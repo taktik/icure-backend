@@ -23,6 +23,6 @@ import java.io.Serializable
  * Created by aduchate on 03/12/13, 20:57
  */
 class Code : Serializable {
-    var type: String? = null
-    var code: String? = null
+	var type: String? = null
+	var code: String? = null
 }

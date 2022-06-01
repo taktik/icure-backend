@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.FlowItemDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface FlowItemMapper {
-	fun map(flowItemDto: FlowItemDto):FlowItem
-	fun map(flowItem: FlowItem):FlowItemDto
+	fun map(flowItemDto: FlowItemDto): FlowItem
+	fun map(flowItem: FlowItem): FlowItemDto
 }

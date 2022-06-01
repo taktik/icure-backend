@@ -17,9 +17,9 @@
  */
 package org.taktik.icure.dto.gui.layout
 
+import java.io.Serializable
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import java.io.Serializable
 
 /**
  * Created by aduchate on 07/02/13, 17:10
@@ -28,15 +28,15 @@ import java.io.Serializable
 @JsonIgnoreProperties(ignoreUnknown = true)
 class FormColumn(val formDataList: MutableList<FormLayoutData> = ArrayList()) : Serializable {
 
-    /**
-     * Determines the columns span of the object
-     *
-     * @param columns: 1=column 1, 1-2=column 1 and 2. Null means all columns.
-     */
-    var columns: String? = null
-    var shouldDisplay: Boolean? = null
+	/**
+	 * Determines the columns span of the object
+	 *
+	 * @param columns: 1=column 1, 1-2=column 1 and 2. Null means all columns.
+	 */
+	var columns: String? = null
+	var shouldDisplay: Boolean? = null
 
-    fun addFormData(fd: FormLayoutData) {
-        formDataList.add(fd)
-    }
+	fun addFormData(fd: FormLayoutData) {
+		formDataList.add(fd)
+	}
 }

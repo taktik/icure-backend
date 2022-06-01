@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.AgreementAppendixDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface AgreementAppendixMapper {
-	fun map(agreementAppendixDto: AgreementAppendixDto):AgreementAppendix
-	fun map(agreementAppendix: AgreementAppendix):AgreementAppendixDto
+	fun map(agreementAppendixDto: AgreementAppendixDto): AgreementAppendix
+	fun map(agreementAppendix: AgreementAppendix): AgreementAppendixDto
 }

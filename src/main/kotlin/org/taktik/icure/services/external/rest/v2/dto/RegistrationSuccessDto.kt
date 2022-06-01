@@ -8,7 +8,7 @@ import com.github.pozo.KotlinBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class RegistrationSuccessDto(
-        val groupId: String,
-        val userId: String,
-        val token: String
+	val groupId: String,
+	val userId: String,
+	val token: String
 )

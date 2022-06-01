@@ -23,5 +23,5 @@ import java.io.Serializable
  * Created by aduchate on 19/11/13, 15:30
  */
 enum class LabelPosition : Serializable {
-    Up, Down, Left, Right
+	Up, Down, Left, Right
 }

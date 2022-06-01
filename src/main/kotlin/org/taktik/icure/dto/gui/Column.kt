@@ -23,6 +23,6 @@ import java.io.Serializable
  * Created by aduchate on 03/12/13, 22:23
  */
 class Column : Serializable {
-    var label: String? = null
-    var width: Double? = null
+	var label: String? = null
+	var width: Double? = null
 }

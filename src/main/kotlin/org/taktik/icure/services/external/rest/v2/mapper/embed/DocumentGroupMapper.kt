@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v2.dto.embed.DocumentGroupDto
 
 @Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DocumentGroupV2Mapper {
-	fun map(documentGroupDto: DocumentGroupDto):DocumentGroup
-	fun map(documentGroup: DocumentGroup):DocumentGroupDto
+	fun map(documentGroupDto: DocumentGroupDto): DocumentGroup
+	fun map(documentGroup: DocumentGroup): DocumentGroupDto
 }

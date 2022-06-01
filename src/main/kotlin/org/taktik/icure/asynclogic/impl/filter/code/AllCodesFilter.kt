@@ -26,6 +26,6 @@ import org.taktik.icure.entities.base.Code
 
 @Service
 class AllCodesFilter(private val codeLogic: CodeLogic) : Filter<String, Code, org.taktik.icure.domain.filter.Filters.AllFilter<String, Code>> {
-    override fun resolve(filter: org.taktik.icure.domain.filter.Filters.AllFilter<String, Code>, context: Filters) =
-            codeLogic.getEntityIds()
+	override fun resolve(filter: org.taktik.icure.domain.filter.Filters.AllFilter<String, Code>, context: Filters) =
+		codeLogic.getEntityIds()
 }

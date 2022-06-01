@@ -18,25 +18,25 @@
 
 package org.taktik.icure.asynclogic
 
+import java.nio.ByteBuffer
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.entities.Document
-import java.nio.ByteBuffer
 
 interface DocumentLogic : EntityPersister<Document, String> {
-    suspend fun createDocument(document: Document, ownerHealthcarePartyId: String): Document?
+	suspend fun createDocument(document: Document, ownerHealthcarePartyId: String): Document?
 
-    suspend fun getDocument(documentId: String): Document?
-    fun getAttachment(documentId: String, attachmentId: String): Flow<ByteBuffer>
+	suspend fun getDocument(documentId: String): Document?
+	fun getAttachment(documentId: String, attachmentId: String): Flow<ByteBuffer>
 
-    suspend fun modifyDocument(document: Document): Document?
-    fun listDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>
-    fun listDocumentsByHCPartySecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>
-    fun listDocumentsWithoutDelegation(limit: Int): Flow<Document>
-    fun getDocuments(documentIds: List<String>): Flow<Document>
-    fun modifyDocuments(documents: List<Document>): Flow<Document>
+	suspend fun modifyDocument(document: Document): Document?
+	fun listDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>
+	fun listDocumentsByHCPartySecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>
+	fun listDocumentsWithoutDelegation(limit: Int): Flow<Document>
+	fun getDocuments(documentIds: List<String>): Flow<Document>
+	fun modifyDocuments(documents: List<Document>): Flow<Document>
 
-    fun solveConflicts(ids: List<String>?): Flow<Document>
-    fun getGenericDAO(): DocumentDAO
-    suspend fun getDocumentsByExternalUuid(documentId: String): List<Document>
+	fun solveConflicts(ids: List<String>?): Flow<Document>
+	fun getGenericDAO(): DocumentDAO
+	suspend fun getDocumentsByExternalUuid(documentId: String): List<Document>
 }

@@ -33,5 +33,5 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Label : Editor() {
-    var formData: FormLayoutData? = null
+	var formData: FormLayoutData? = null
 }

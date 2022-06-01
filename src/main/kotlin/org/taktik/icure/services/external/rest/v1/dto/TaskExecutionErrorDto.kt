@@ -21,10 +21,10 @@ import java.io.Serializable
 import java.util.*
 
 class TaskExecutionErrorDto : Serializable {
-    var date: Date? = null
-    var error: String? = null
+	var date: Date? = null
+	var error: String? = null
 
-    companion object {
-        private const val serialVersionUID = 1L
-    }
+	companion object {
+		private const val serialVersionUID = 1L
+	}
 }

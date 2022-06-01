@@ -26,5 +26,5 @@ import org.taktik.icure.entities.HealthElement
 
 @Service
 class HealthElementByHcPartyFilter(private val healthElementLogic: HealthElementLogic) : Filter<String, HealthElement, org.taktik.icure.domain.filter.Filters.ByHcpartyFilter<String, HealthElement>> {
-    override fun resolve(filter: org.taktik.icure.domain.filter.Filters.ByHcpartyFilter<String, HealthElement>, context: Filters) = healthElementLogic.listHealthElementIdsByHcParty(filter.hcpId)
+	override fun resolve(filter: org.taktik.icure.domain.filter.Filters.ByHcpartyFilter<String, HealthElement>, context: Filters) = healthElementLogic.listHealthElementIdsByHcParty(filter.hcpId)
 }

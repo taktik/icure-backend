@@ -39,58 +39,57 @@ import org.taktik.icure.validation.ValidCode
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class Receipt(
-        @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
-        @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
-        @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
-        override val medicalLocationId: String? = null,
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
-        override val endOfLife: Long? = null,
-        @JsonProperty("deleted") override val deletionDate: Long? = null,
+	@JsonProperty("_id") override val id: String,
+	@JsonProperty("_rev") override val rev: String? = null,
+	@field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+	@field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+	@field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+	@field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+	override val medicalLocationId: String? = null,
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
+	override val endOfLife: Long? = null,
+	@JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        val attachmentIds: Map<ReceiptBlobType, String> = emptyMap(),
-        val references: List<String> = emptyList(), //nipReference:027263GFF152, errorCode:186, errorPath:/request/transaction, org.taktik.icure.entities;tarification:id, org.taktik.entities.Invoice:UUID
+	val attachmentIds: Map<ReceiptBlobType, String> = emptyMap(),
+	val references: List<String> = emptyList(), //nipReference:027263GFF152, errorCode:186, errorPath:/request/transaction, org.taktik.icure.entities;tarification:id, org.taktik.entities.Invoice:UUID
 
-        //The ICureDocument (Invoice, Contact, ...) this document is linked to
-        val documentId: String? = null,
-        val category: String? = null,
-        val subCategory: String? = null,
+	//The ICureDocument (Invoice, Contact, ...) this document is linked to
+	val documentId: String? = null,
+	val category: String? = null,
+	val subCategory: String? = null,
 
-        override val secretForeignKeys: Set<String> = emptySet(),
-        override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
-        override val delegations: Map<String, Set<Delegation>> = emptyMap(),
-        override val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(),
-        override val encryptedSelf: String? = null,
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
+	override val secretForeignKeys: Set<String> = emptySet(),
+	override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
+	override val delegations: Map<String, Set<Delegation>> = emptyMap(),
+	override val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(),
+	override val encryptedSelf: String? = null,
+	@JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+	@JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+	@JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredICureDocument, Encryptable {
-    companion object : DynamicInitializer<Receipt>
+	companion object : DynamicInitializer<Receipt>
 
-    fun merge(other: Receipt) = Receipt(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Receipt) =
-            super<StoredICureDocument>.solveConflictsWith(other) +
-                    super<Encryptable>.solveConflictsWith(other) + mapOf(
-                    "attachmentIds" to (other.attachmentIds + this.attachmentIds),
-                    "references" to mergeListsDistinct(this.references, other.references),
-                    "documentId" to (this.documentId ?: other.documentId),
-                    "category" to (this.category ?: other.category),
-                    "subCategory" to (this.subCategory ?: other.subCategory)
-            )
+	fun merge(other: Receipt) = Receipt(args = this.solveConflictsWith(other))
+	fun solveConflictsWith(other: Receipt) =
+		super<StoredICureDocument>.solveConflictsWith(other) +
+			super<Encryptable>.solveConflictsWith(other) + mapOf(
+			"attachmentIds" to (other.attachmentIds + this.attachmentIds),
+			"references" to mergeListsDistinct(this.references, other.references),
+			"documentId" to (this.documentId ?: other.documentId),
+			"category" to (this.category ?: other.category),
+			"subCategory" to (this.subCategory ?: other.subCategory)
+		)
 
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
-    override fun withTimestamps(created: Long?, modified: Long?) =
-            when {
-                created != null && modified != null -> this.copy(created = created, modified = modified)
-                created != null -> this.copy(created = created)
-                modified != null -> this.copy(modified = modified)
-                else -> this
-            }
-
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withTimestamps(created: Long?, modified: Long?) =
+		when {
+			created != null && modified != null -> this.copy(created = created, modified = modified)
+			created != null -> this.copy(created = created)
+			modified != null -> this.copy(modified = modified)
+			else -> this
+		}
 }

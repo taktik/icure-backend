@@ -18,11 +18,11 @@
 package org.taktik.icure.constants
 
 enum class PropertyTypeScope {
-    SYSTEM, NODE, ROLE, USER, EVENT;
+	SYSTEM, NODE, ROLE, USER, EVENT;
 
-    companion object {
-        fun fromInt(value: Int): PropertyTypeScope {
-            return PropertyTypeScope::class.java.enumConstants[value]
-        }
-    }
+	companion object {
+		fun fromInt(value: Int): PropertyTypeScope {
+			return PropertyTypeScope::class.java.enumConstants[value]
+		}
+	}
 }

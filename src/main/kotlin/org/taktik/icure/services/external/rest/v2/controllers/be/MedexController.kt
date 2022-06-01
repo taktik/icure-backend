@@ -35,28 +35,28 @@ import org.taktik.icure.services.external.rest.v2.mapper.PatientV2Mapper
 @RequestMapping("/rest/v2/medex")
 @Tag(name = "medex")
 class MedexController(
-        private val medexLogic: MedexLogic,
-        private val healthcarePartyV2Mapper: HealthcarePartyV2Mapper,
-        private val patientV2Mapper: PatientV2Mapper
+	private val medexLogic: MedexLogic,
+	private val healthcarePartyV2Mapper: HealthcarePartyV2Mapper,
+	private val patientV2Mapper: PatientV2Mapper
 ) {
 
-    @Operation(summary = "Generate a Medex XML String")
-    @PostMapping("/generate", produces = [MediaType.APPLICATION_XML_VALUE])
-    fun generateMedex(@RequestBody infos: MedexInfoDto) = mono {
-        medexLogic.createMedex(
-                healthcarePartyV2Mapper.map(infos.author!!),
-                patientV2Mapper.map(infos.patient!!),
-                infos.patientLanguage,
-                infos.incapacityType,
-                infos.incapacityReason,
-                infos.outOfHomeAllowed,
-                infos.certificateDate,
-                infos.contentDate,
-                infos.beginDate,
-                infos.endDate,
-                infos.diagnosisICD,
-                infos.diagnosisICPC,
-                infos.diagnosisDescr
-        )
-    }
+	@Operation(summary = "Generate a Medex XML String")
+	@PostMapping("/generate", produces = [MediaType.APPLICATION_XML_VALUE])
+	fun generateMedex(@RequestBody infos: MedexInfoDto) = mono {
+		medexLogic.createMedex(
+			healthcarePartyV2Mapper.map(infos.author!!),
+			patientV2Mapper.map(infos.patient!!),
+			infos.patientLanguage,
+			infos.incapacityType,
+			infos.incapacityReason,
+			infos.outOfHomeAllowed,
+			infos.certificateDate,
+			infos.contentDate,
+			infos.beginDate,
+			infos.endDate,
+			infos.diagnosisICD,
+			infos.diagnosisICPC,
+			infos.diagnosisDescr
+		)
+	}
 }

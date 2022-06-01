@@ -21,5 +21,5 @@ import org.taktik.icure.services.external.rest.v1.dto.base.EnumVersionDto
 
 @EnumVersionDto(1L)
 enum class HealthcarePartyStatusDto {
-    trainee, withconvention, accreditated
+	trainee, withconvention, accreditated
 }

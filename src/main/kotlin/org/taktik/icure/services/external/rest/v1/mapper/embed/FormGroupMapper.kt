@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.FormGroupDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface FormGroupMapper {
-	fun map(formGroupDto: FormGroupDto):FormGroup
-	fun map(formGroup: FormGroup):FormGroupDto
+	fun map(formGroupDto: FormGroupDto): FormGroup
+	fun map(formGroup: FormGroup): FormGroupDto
 }

@@ -23,16 +23,16 @@ import java.io.Serializable
  * Created by aduchate on 03/12/13, 20:57
  */
 class Suggest : Serializable {
-    var filterKey: String? = null
-    var filterValue: String? = null
-    var entityClass: String? = null
-    var fieldValue: String? = null
-    var fieldDisplay: String? = null
+	var filterKey: String? = null
+	var filterValue: String? = null
+	var entityClass: String? = null
+	var fieldValue: String? = null
+	var fieldDisplay: String? = null
 
-    companion object {
-        /**
-         *
-         */
-        private const val serialVersionUID = 1L
-    }
+	companion object {
+		/**
+		 *
+		 */
+		private const val serialVersionUID = 1L
+	}
 }

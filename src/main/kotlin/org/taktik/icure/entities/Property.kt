@@ -34,32 +34,32 @@ import org.taktik.icure.utils.invoke
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class Property(
-        @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String? = null,
-        @JsonProperty("deleted") override val deletionDate: Long? = null,
+	@JsonProperty("_id") override val id: String,
+	@JsonProperty("_rev") override val rev: String? = null,
+	@JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        val type: PropertyType? = null,
-        val typedValue: TypedValue<*>? = null,
-        override val encryptedSelf: String? = null,
+	val type: PropertyType? = null,
+	val typedValue: TypedValue<*>? = null,
+	override val encryptedSelf: String? = null,
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
+	@JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+	@JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+	@JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 ) : StoredDocument, Encrypted {
-    companion object : DynamicInitializer<Property>
+	companion object : DynamicInitializer<Property>
 
-    fun merge(other: Property) = Property(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Property) = super<StoredDocument>.solveConflictsWith(other) + super<Encrypted>.solveConflictsWith(other) + mapOf(
-            "type" to (this.type ?: other.type),
-            "typedValue" to (this.typedValue ?: other.typedValue)
-    )
+	fun merge(other: Property) = Property(args = this.solveConflictsWith(other))
+	fun solveConflictsWith(other: Property) = super<StoredDocument>.solveConflictsWith(other) + super<Encrypted>.solveConflictsWith(other) + mapOf(
+		"type" to (this.type ?: other.type),
+		"typedValue" to (this.typedValue ?: other.typedValue)
+	)
 
-    @JsonIgnore
-    fun <T> getValue(): T? {
-        return (typedValue?.getValue<Any>()?.let { it as? T })
-    }
+	@JsonIgnore
+	fun <T> getValue(): T? {
+		return (typedValue?.getValue<Any>()?.let { it as? T })
+	}
 
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

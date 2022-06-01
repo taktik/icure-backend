@@ -23,8 +23,8 @@ import java.io.Serializable
  * Created by aduchate on 07/02/13, 17:10
  */
 class FormSection : Serializable {
-    var icon: String? = null
-    var title: String? = null
-    var columns: Int? = null
-    var formColumns: List<FormColumn> = ArrayList()
+	var icon: String? = null
+	var title: String? = null
+	var columns: Int? = null
+	var formColumns: List<FormColumn> = ArrayList()
 }

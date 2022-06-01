@@ -27,8 +27,7 @@ import org.taktik.icure.services.external.rest.v2.dto.embed.form.template.Field
 import org.taktik.icure.services.external.rest.v2.dto.embed.form.template.Group
 import org.taktik.icure.services.external.rest.v2.dto.embed.form.template.StructureElement
 
-
 class JacksonStructureElementDeserializer : JsonObjectDeserializer<StructureElement>() {
-    override fun deserializeObject(jsonParser: JsonParser?, context: DeserializationContext?, codec: ObjectCodec, tree: JsonNode): StructureElement =
-            if (tree["field"] != null) codec.treeToValue(tree, Field::class.java) else codec.treeToValue(tree, Group::class.java)
+	override fun deserializeObject(jsonParser: JsonParser?, context: DeserializationContext?, codec: ObjectCodec, tree: JsonNode): StructureElement =
+		if (tree["field"] != null) codec.treeToValue(tree, Field::class.java) else codec.treeToValue(tree, Group::class.java)
 }

@@ -25,33 +25,35 @@ import kotlinx.coroutines.flow.toList
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 
 suspend fun getLoggedHealthCarePartyId(sessionLogic: AsyncSessionLogic): String {
-    val user = sessionLogic.getCurrentSessionContext().getUser()
-    if (user.healthcarePartyId == null) {
-        throw LoginException("You must be logged to perform this action. ")
-    }
-    return user.healthcarePartyId!!
+	val user = sessionLogic.getCurrentSessionContext().getUser()
+	if (user.healthcarePartyId == null) {
+		throw LoginException("You must be logged to perform this action. ")
+	}
+	return user.healthcarePartyId!!
 }
 
 tailrec suspend fun <T> aggregateResults(
-    ids: Collection<String>,
-    limit: Int,
-    supplier: suspend (Collection<String>) -> Flow<T>,
-    filter: suspend (T) -> Boolean = { true },
-    entities: List<T> = emptyList(),
-    startDocumentId: String? = null,
-    heuristic: Int = 2,
+	ids: Collection<String>,
+	limit: Int,
+	supplier: suspend (Collection<String>) -> Flow<T>,
+	filter: suspend (T) -> Boolean = { true },
+	entities: List<T> = emptyList(),
+	startDocumentId: String? = null,
+	heuristic: Int = 2,
 ): List<T> {
-    val heuristicLimit = limit * heuristic
+	val heuristicLimit = limit * heuristic
 
-    val sortedIds = (startDocumentId?.let {
-        ids.dropWhile { id -> it != id }
-    } ?: ids)
+	val sortedIds = (
+		startDocumentId?.let {
+			ids.dropWhile { id -> it != id }
+		} ?: ids
+		)
 
-    val filteredEntities = entities + supplier(sortedIds.take(heuristicLimit)).filter { filter(it) }.toList()
-    val remainingIds = sortedIds.drop(heuristicLimit)
+	val filteredEntities = entities + supplier(sortedIds.take(heuristicLimit)).filter { filter(it) }.toList()
+	val remainingIds = sortedIds.drop(heuristicLimit)
 
-    if (remainingIds.isEmpty() || filteredEntities.count() >= limit) {
-        return filteredEntities.take(limit)
-    }
-    return aggregateResults(remainingIds, limit, supplier, filter, filteredEntities)
+	if (remainingIds.isEmpty() || filteredEntities.count() >= limit) {
+		return filteredEntities.take(limit)
+	}
+	return aggregateResults(remainingIds, limit, supplier, filter, filteredEntities)
 }

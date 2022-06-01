@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v1.dto.base.NotificationEventDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface NotificationEventMapper {
-	fun map(notificationEventDto: NotificationEventDto):NotificationEvent
-	fun map(notificationEvent: NotificationEvent):NotificationEventDto
+	fun map(notificationEventDto: NotificationEventDto): NotificationEvent
+	fun map(notificationEvent: NotificationEvent): NotificationEventDto
 }

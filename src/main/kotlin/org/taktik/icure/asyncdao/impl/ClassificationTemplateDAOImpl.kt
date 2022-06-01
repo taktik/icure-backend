@@ -18,7 +18,6 @@
 
 package org.taktik.icure.asyncdao.impl
 
-
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
@@ -41,25 +40,28 @@ import org.taktik.icure.utils.subsequentDistinctById
  */
 @Repository("classificationTemplateDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.ClassificationTemplate' && !doc.deleted) emit( doc.label, doc._id )}")
-internal class ClassificationTemplateDAOImpl(couchDbProperties: CouchDbProperties,
-                                             @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<ClassificationTemplate>(ClassificationTemplate::class.java, couchDbProperties, couchDbDispatcher, idGenerator), ClassificationTemplateDAO {
+internal class ClassificationTemplateDAOImpl(
+	couchDbProperties: CouchDbProperties,
+	@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
+	idGenerator: IDGenerator
+) : GenericIcureDAOImpl<ClassificationTemplate>(ClassificationTemplate::class.java, couchDbProperties, couchDbDispatcher, idGenerator), ClassificationTemplateDAO {
 
-    override suspend fun getClassificationTemplate(classificationTemplateId: String): ClassificationTemplate? {
-        return get(classificationTemplateId)
-    }
+	override suspend fun getClassificationTemplate(classificationTemplateId: String): ClassificationTemplate? {
+		return get(classificationTemplateId)
+	}
 
-    @View(name = "by_hcparty_patient", map = "classpath:js/classificationtemplate/By_hcparty_patient_map.js")
-    override fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val keys = secretPatientKeys.map { ComplexKey.of(hcPartyId, it) }
+	@View(name = "by_hcparty_patient", map = "classpath:js/classificationtemplate/By_hcparty_patient_map.js")
+	override fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val keys = secretPatientKeys.map { ComplexKey.of(hcPartyId, it) }
 
-        val viewQuery = createQuery(client, "by_hcparty_patient").includeDocs(true).keys(keys)
-        emitAll(client.queryViewIncludeDocs<ComplexKey, String, ClassificationTemplate>(viewQuery).map { it.doc }.subsequentDistinctById())
-    }
+		val viewQuery = createQuery(client, "by_hcparty_patient").includeDocs(true).keys(keys)
+		emitAll(client.queryViewIncludeDocs<ComplexKey, String, ClassificationTemplate>(viewQuery).map { it.doc }.subsequentDistinctById())
+	}
 
-    override fun findClassificationTemplates(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow{
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = pagedViewQuery<ClassificationTemplate,String>(client, "all", null, "\ufff0", paginationOffset, false)
-        emitAll(client.queryView(viewQuery, String::class.java, String::class.java, ClassificationTemplate::class.java))
-    }
+	override fun findClassificationTemplates(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val viewQuery = pagedViewQuery<ClassificationTemplate, String>(client, "all", null, "\ufff0", paginationOffset, false)
+		emitAll(client.queryView(viewQuery, String::class.java, String::class.java, ClassificationTemplate::class.java))
+	}
 }

@@ -23,12 +23,12 @@ import java.io.Serializable
  * Created by aduchate on 03/12/13, 12:47
  */
 class FormDataOption : Serializable {
-    var key: String? = null
-    var value: String? = null
+	var key: String? = null
+	var value: String? = null
 
-    constructor() {}
-    constructor(key: String?, value: String?) {
-        this.key = key
-        this.value = value
-    }
+	constructor() {}
+	constructor(key: String?, value: String?) {
+		this.key = key
+		this.value = value
+	}
 }

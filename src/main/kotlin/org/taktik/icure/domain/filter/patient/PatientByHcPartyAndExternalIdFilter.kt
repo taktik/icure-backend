@@ -21,6 +21,6 @@ import org.taktik.icure.domain.filter.Filter
 import org.taktik.icure.entities.Patient
 
 interface PatientByHcPartyAndExternalIdFilter : Filter<String, Patient> {
-    val externalId: String?
-    val healthcarePartyId: String?
+	val externalId: String?
+	val healthcarePartyId: String?
 }

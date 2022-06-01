@@ -21,5 +21,5 @@ package org.taktik.icure.dto.gui.editor
  * Created by aduchate on 19/11/13, 15:24
  */
 interface ValueDateEditor {
-    var displayValueDate: Boolean
+	var displayValueDate: Boolean
 }

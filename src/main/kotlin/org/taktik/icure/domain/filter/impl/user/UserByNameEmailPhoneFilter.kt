@@ -17,24 +17,23 @@
  */
 package org.taktik.icure.domain.filter.impl.user
 
-
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.AbstractFilter
-import org.taktik.icure.domain.filter.Filters
 import org.taktik.icure.entities.User
-import java.util.Locale
 
 @ExperimentalStdlibApi
 @KotlinBuilder
 data class UserByNameEmailPhoneFilter(
-        override val searchString: String,
-        override val desc: String? = null
+	override val searchString: String,
+	override val desc: String? = null
 ) : AbstractFilter<User>, org.taktik.icure.domain.filter.user.UserByNameEmailPhoneFilter {
-    override fun matches(item: User) = searchString.lowercase().let { ss ->
-        listOfNotNull(item.name?.lowercase(),
-                item.login?.lowercase(),
-                item.email?.lowercase(),
-                item.mobilePhone?.lowercase(),
-                item.status?.toString()?.lowercase()).any { it.startsWith(ss) }
-    }
+	override fun matches(item: User) = searchString.lowercase().let { ss ->
+		listOfNotNull(
+			item.name?.lowercase(),
+			item.login?.lowercase(),
+			item.email?.lowercase(),
+			item.mobilePhone?.lowercase(),
+			item.status?.toString()?.lowercase()
+		).any { it.startsWith(ss) }
+	}
 }

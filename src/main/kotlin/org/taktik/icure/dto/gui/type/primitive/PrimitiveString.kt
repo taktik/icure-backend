@@ -21,7 +21,7 @@ import java.io.Serializable
 
 //
 open class PrimitiveString(var value: String? = null) : Primitive {
-    override fun getPrimitiveValue(): Serializable? {
-        return value
-    }
+	override fun getPrimitiveValue(): Serializable? {
+		return value
+	}
 }

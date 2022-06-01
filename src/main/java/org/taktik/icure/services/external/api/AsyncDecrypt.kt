@@ -19,9 +19,8 @@ package org.taktik.icure.services.external.api
 
 import java.io.IOException
 import java.io.Serializable
-import java.util.concurrent.CompletionStage
 
 interface AsyncDecrypt {
-    @Throws(IOException::class)
-    suspend fun <K : Serializable?> decrypt(encrypted: List<K>, clazz: Class<K>): List<K>
+	@Throws(IOException::class)
+	suspend fun <K : Serializable?> decrypt(encrypted: List<K>, clazz: Class<K>): List<K>
 }

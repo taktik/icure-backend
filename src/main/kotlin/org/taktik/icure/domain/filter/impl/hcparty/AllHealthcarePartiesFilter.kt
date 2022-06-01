@@ -25,7 +25,7 @@ import org.taktik.icure.entities.HealthcareParty
 
 @KotlinBuilder
 data class AllHealthcarePartiesFilter(
-        override val desc:String? = null,
+	override val desc: String? = null,
 ) : AbstractFilter<HealthcareParty>, Filters.AllFilter<String, HealthcareParty> {
-    override fun matches(item: HealthcareParty) = true
+	override fun matches(item: HealthcareParty) = true
 }

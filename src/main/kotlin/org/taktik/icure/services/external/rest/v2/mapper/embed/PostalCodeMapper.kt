@@ -18,12 +18,12 @@
 
 package org.taktik.icure.services.external.rest.v2.mapper.embed
 
+import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.PostalCode
 import org.taktik.icure.services.external.rest.v2.dto.embed.PostalCodeDto
-import org.mapstruct.InjectionStrategy
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface PostalCodeV2Mapper {
-	fun map(postalCodeDto: PostalCodeDto):PostalCode
-	fun map(postalCode: PostalCode):PostalCodeDto
+	fun map(postalCodeDto: PostalCodeDto): PostalCode
+	fun map(postalCode: PostalCode): PostalCodeDto
 }

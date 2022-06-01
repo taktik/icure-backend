@@ -23,5 +23,5 @@ import java.io.Serializable
  * Created by aduchate on 19/11/13, 10:29
  */
 class Dictionary : Serializable, Data {
-    var value: Map<String, Serializable>? = null
+	var value: Map<String, Serializable>? = null
 }

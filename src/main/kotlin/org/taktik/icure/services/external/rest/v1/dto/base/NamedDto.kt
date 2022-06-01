@@ -18,5 +18,5 @@
 package org.taktik.icure.services.external.rest.v1.dto.base
 
 interface NamedDto {
-    val name: String?
+	val name: String?
 }

@@ -17,11 +17,11 @@
  */
 package org.taktik.icure.entities.embed
 
+import java.io.Serializable
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
-import java.io.Serializable
 
 /**
  * Created by aduchate on 01/02/13, 20:10
@@ -30,6 +30,6 @@ import java.io.Serializable
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class ServiceLink(
-        val serviceId: String? = null,
-        @get:JsonIgnore @set:JsonIgnore @JsonIgnore @Transient var service: Service? = null
+	val serviceId: String? = null,
+	@get:JsonIgnore @set:JsonIgnore @JsonIgnore @Transient var service: Service? = null
 ) : Serializable

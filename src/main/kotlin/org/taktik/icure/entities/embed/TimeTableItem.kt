@@ -17,24 +17,24 @@
  */
 package org.taktik.icure.entities.embed
 
+import java.io.Serializable
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
-import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class TimeTableItem(
-        val days: List<String> = emptyList(),
-        val hours: List<TimeTableHour> = emptyList(),
-        val recurrenceTypes: List<String> = emptyList(),
-        val calendarItemTypeId: String? = null,
+	val days: List<String> = emptyList(),
+	val hours: List<TimeTableHour> = emptyList(),
+	val recurrenceTypes: List<String> = emptyList(),
+	val calendarItemTypeId: String? = null,
 
-        @JsonProperty("isHomeVisit") val homeVisit: Boolean = false,
-        val placeId: String? = null,
-        val publicTimeTableItem: Boolean = false,
-        val acceptsNewPatient: Boolean = true,
-        @JsonProperty("isUnavailable") val unavailable: Boolean = false
+	@JsonProperty("isHomeVisit") val homeVisit: Boolean = false,
+	val placeId: String? = null,
+	val publicTimeTableItem: Boolean = false,
+	val acceptsNewPatient: Boolean = true,
+	@JsonProperty("isUnavailable") val unavailable: Boolean = false
 ) : Serializable

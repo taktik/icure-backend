@@ -32,5 +32,5 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DashboardEditor : Editor() {
-    var guid: String? = null
+	var guid: String? = null
 }

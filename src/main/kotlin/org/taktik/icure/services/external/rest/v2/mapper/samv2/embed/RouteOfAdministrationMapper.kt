@@ -26,6 +26,6 @@ import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
 @Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class, CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface RouteOfAdministrationV2Mapper {
-	fun map(routeOfAdministrationDto: RouteOfAdministrationDto):RouteOfAdministration
-	fun map(routeOfAdministration: RouteOfAdministration):RouteOfAdministrationDto
+	fun map(routeOfAdministrationDto: RouteOfAdministrationDto): RouteOfAdministration
+	fun map(routeOfAdministration: RouteOfAdministration): RouteOfAdministrationDto
 }

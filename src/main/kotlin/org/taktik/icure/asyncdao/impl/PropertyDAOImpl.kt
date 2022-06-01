@@ -32,33 +32,37 @@ import org.taktik.icure.spring.asynccache.AsyncCacheManager
 
 @Repository("propertyDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Property' && !doc.deleted) emit(null, doc._id )}")
-class PropertyDAOImpl(couchDbProperties: CouchDbProperties,
-                      @Qualifier("configCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager) : CachedDAOImpl<Property>(Property::class.java, couchDbProperties, couchDbDispatcher, idGenerator, asyncCacheManager), PropertyDAO {
+class PropertyDAOImpl(
+	couchDbProperties: CouchDbProperties,
+	@Qualifier("configCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
+	idGenerator: IDGenerator,
+	@Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager
+) : CachedDAOImpl<Property>(Property::class.java, couchDbProperties, couchDbDispatcher, idGenerator, asyncCacheManager), PropertyDAO {
 
-    @View(name = "by_identifier", map = "classpath:js/property/By_identifier_Map.js")
-    override suspend fun getByIdentifier(propertyIdentifier: String): Property? {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	@View(name = "by_identifier", map = "classpath:js/property/By_identifier_Map.js")
+	override suspend fun getByIdentifier(propertyIdentifier: String): Property? {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val wrappedValue = getWrapperFromCache("PID:$propertyIdentifier")
-        if (wrappedValue == null) {
-            val result = client.queryViewIncludeDocs<String, String, Property>(createQuery(client, "by_identifier").includeDocs(true).key(propertyIdentifier)).map { it.doc }.firstOrNull()
-            if (result?.id != null) {
-                putInCache(result.id, result)
-            }
-            return result
-        }
-        return wrappedValue.get() as Property
-    }
+		val wrappedValue = getWrapperFromCache("PID:$propertyIdentifier")
+		if (wrappedValue == null) {
+			val result = client.queryViewIncludeDocs<String, String, Property>(createQuery(client, "by_identifier").includeDocs(true).key(propertyIdentifier)).map { it.doc }.firstOrNull()
+			if (result?.id != null) {
+				putInCache(result.id, result)
+			}
+			return result
+		}
+		return wrappedValue.get() as Property
+	}
 
-    override suspend fun evictFromCache(entity: Property) {
-        super.evictFromCache(entity)
-    }
+	override suspend fun evictFromCache(entity: Property) {
+		super.evictFromCache(entity)
+	}
 
-    override suspend fun putInCache(key: String, entity: Property) {
-        super.putInCache(key, entity)
-    }
+	override suspend fun putInCache(key: String, entity: Property) {
+		super.putInCache(key, entity)
+	}
 
-    companion object {
-        private val IDENTIFIER = "type.identifier"
-    }
+	companion object {
+		private val IDENTIFIER = "type.identifier"
+	}
 }

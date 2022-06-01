@@ -18,50 +18,57 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import java.lang.IllegalStateException
+import java.net.URI
+import java.util.concurrent.TimeUnit
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.icure.asyncjacksonhttpclient.net.web.WebClient
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.apache.http.client.utils.URIBuilder
 import org.springframework.cache.caffeine.CaffeineCache
 import org.taktik.couchdb.Client
 import org.taktik.couchdb.ClientImpl
 import org.taktik.icure.asynccache.AsyncSafeCache
-import java.lang.IllegalStateException
-import java.net.URI
-import java.util.concurrent.TimeUnit
 
 class CouchDbDispatcher(
-        private val httpClient: WebClient,
-        private val objectMapper: ObjectMapper,
-        private val prefix: String,
-        private val dbFamily: String,
-        private val username: String,
-        private val password: String,
-        private val createdReplicasIfNotExists: Int? = null
+	private val httpClient: WebClient,
+	private val objectMapper: ObjectMapper,
+	private val prefix: String,
+	private val dbFamily: String,
+	private val username: String,
+	private val password: String,
+	private val createdReplicasIfNotExists: Int? = null
 ) {
-    private val connectors = AsyncSafeCache<CouchDbConnectorReference, Client>(CaffeineCache("Connectors", Caffeine.newBuilder()
-            .maximumSize(10000)
-            .expireAfterAccess(240, TimeUnit.MINUTES)
-            .build()))
+	private val connectors = AsyncSafeCache<CouchDbConnectorReference, Client>(
+		CaffeineCache(
+			"Connectors",
+			Caffeine.newBuilder()
+				.maximumSize(10000)
+				.expireAfterAccess(240, TimeUnit.MINUTES)
+				.build()
+		)
+	)
 
-    private suspend fun attemptConnection(dbInstanceUrl: URI, trials: Int): Client = try {
-        connectors.get(CouchDbConnectorReference(dbInstanceUrl.toString()), object : AsyncSafeCache.AsyncValueProvider<CouchDbConnectorReference, Client> {
-            override suspend fun getValue(key: CouchDbConnectorReference): Client {
-                return ClientImpl(httpClient, URIBuilder(key.dbInstanceUrl).setPath("$prefix-$dbFamily").build(), username, password, objectMapper).also {
-                    if (createdReplicasIfNotExists != null) {
-                        if (!it.exists()) {
-                            it.create(3, createdReplicasIfNotExists)
-                        }
-                    }
-                }
-            }
-        }) ?: if (trials > 1) attemptConnection(dbInstanceUrl, trials - 1) else throw IllegalStateException("Cannot instantiate client")
-    } catch (e: Exception) {
-        if (trials > 1) attemptConnection(dbInstanceUrl, trials - 1) else throw e
-    }
+	private suspend fun attemptConnection(dbInstanceUrl: URI, trials: Int): Client = try {
+		connectors.get(
+			CouchDbConnectorReference(dbInstanceUrl.toString()),
+			object : AsyncSafeCache.AsyncValueProvider<CouchDbConnectorReference, Client> {
+				override suspend fun getValue(key: CouchDbConnectorReference): Client {
+					return ClientImpl(httpClient, URIBuilder(key.dbInstanceUrl).setPath("$prefix-$dbFamily").build(), username, password, objectMapper).also {
+						if (createdReplicasIfNotExists != null) {
+							if (!it.exists()) {
+								it.create(3, createdReplicasIfNotExists)
+							}
+						}
+					}
+				}
+			}
+		) ?: if (trials > 1) attemptConnection(dbInstanceUrl, trials - 1) else throw IllegalStateException("Cannot instantiate client")
+	} catch (e: Exception) {
+		if (trials > 1) attemptConnection(dbInstanceUrl, trials - 1) else throw e
+	}
 
-    suspend fun getClient(dbInstanceUrl: URI, retry: Int = 5) = attemptConnection(dbInstanceUrl, retry)
+	suspend fun getClient(dbInstanceUrl: URI, retry: Int = 5) = attemptConnection(dbInstanceUrl, retry)
 
-    private data class CouchDbConnectorReference(val dbInstanceUrl: String)
+	private data class CouchDbConnectorReference(val dbInstanceUrl: String)
 }

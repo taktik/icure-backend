@@ -18,17 +18,17 @@
 package org.taktik.icure.constants
 
 interface Users {
-    enum class Type {
-        database, ldap, token
-    }
+	enum class Type {
+		database, ldap, token
+	}
 
-    enum class Status {
-        ACTIVE, DISABLED, REGISTERING;
+	enum class Status {
+		ACTIVE, DISABLED, REGISTERING;
 
-        companion object {
-            fun fromInt(value: Int): Status {
-                return Status::class.java.enumConstants[value]
-            }
-        }
-    }
+		companion object {
+			fun fromInt(value: Int): Status {
+				return Status::class.java.enumConstants[value]
+			}
+		}
+	}
 }

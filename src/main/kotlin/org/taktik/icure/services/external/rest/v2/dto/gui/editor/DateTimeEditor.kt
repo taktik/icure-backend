@@ -17,12 +17,12 @@
  */
 package org.taktik.icure.services.external.rest.v2.dto.gui.editor
 
-import org.taktik.icure.services.external.rest.v2.dto.gui.Editor
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import org.taktik.icure.handlers.JsonPolymorphismRoot
+import org.taktik.icure.services.external.rest.v2.dto.gui.Editor
 
 /**
  * Created by aduchate on 19/11/13, 15:28
@@ -32,8 +32,8 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DateTimeEditor(
-        val isDisplayTime: Boolean = false,
-        val isShowPicker: Boolean = false,
-        val isWebAgenda: Boolean = false,
-        val isFullDateMode: Boolean = false,
+	val isDisplayTime: Boolean = false,
+	val isShowPicker: Boolean = false,
+	val isWebAgenda: Boolean = false,
+	val isFullDateMode: Boolean = false,
 ) : Editor()

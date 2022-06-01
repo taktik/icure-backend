@@ -20,6 +20,5 @@ package org.taktik.icure.services.external.rest.v1.dto.be.kmehr
 import java.io.Serializable
 
 class SumehrTransactionBodyDto : Serializable {
-    var body: String? = null
-
+	var body: String? = null
 }

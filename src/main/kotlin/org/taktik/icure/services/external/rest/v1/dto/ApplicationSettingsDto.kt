@@ -29,19 +29,19 @@ import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class ApplicationSettingsDto(
-        override val id: String,
-        override val rev: String? = null,
-        override val created: Long? = null,
-        override val modified: Long? = null,
-        override val author: String? = null,
-        override val responsible: String? = null,
-        override val medicalLocationId: String? = null,
-        override val tags: Set<CodeStubDto> = emptySet(),
-        override val codes: Set<CodeStubDto> = emptySet(),
-        override val endOfLife: Long? = null,
-        override val deletionDate: Long? = null,
-        val settings: Map<String, String> = emptyMap()
+	override val id: String,
+	override val rev: String? = null,
+	override val created: Long? = null,
+	override val modified: Long? = null,
+	override val author: String? = null,
+	override val responsible: String? = null,
+	override val medicalLocationId: String? = null,
+	override val tags: Set<CodeStubDto> = emptySet(),
+	override val codes: Set<CodeStubDto> = emptySet(),
+	override val endOfLife: Long? = null,
+	override val deletionDate: Long? = null,
+	val settings: Map<String, String> = emptyMap()
 ) : StoredDocumentDto, ICureDocumentDto<String> {
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

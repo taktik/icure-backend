@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v1.dto.samv2.embed.QuantityDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface QuantityMapper {
-	fun map(quantityDto: QuantityDto):Quantity
-	fun map(quantity: Quantity):QuantityDto
+	fun map(quantityDto: QuantityDto): Quantity
+	fun map(quantity: Quantity): QuantityDto
 }

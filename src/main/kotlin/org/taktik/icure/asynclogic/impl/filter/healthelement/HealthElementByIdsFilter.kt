@@ -26,7 +26,7 @@ import org.taktik.icure.entities.HealthElement
 
 @Service
 class HealthElementByIdsFilter : Filter<String, HealthElement, org.taktik.icure.domain.filter.Filters.IdsFilter<String, HealthElement>> {
-    override fun resolve(filter: org.taktik.icure.domain.filter.Filters.IdsFilter<String,HealthElement>, context: Filters): Flow<String> {
-        return filter.ids.asFlow()
-    }
+	override fun resolve(filter: org.taktik.icure.domain.filter.Filters.IdsFilter<String, HealthElement>, context: Filters): Flow<String> {
+		return filter.ids.asFlow()
+	}
 }

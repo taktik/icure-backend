@@ -18,5 +18,5 @@
 package org.taktik.icure.dto.gui
 
 enum class FormLifecycle {
-    OnCreate, OnLoad, OnChange, OnSave, OnDestroy, OnLoadPropertiesEditor
+	OnCreate, OnLoad, OnChange, OnSave, OnDestroy, OnLoadPropertiesEditor
 }

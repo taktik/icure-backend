@@ -18,12 +18,12 @@
 
 package org.taktik.icure.services.external.rest.v2.mapper.embed
 
+import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.services.external.rest.v2.dto.embed.RevisionInfoDto
-import org.mapstruct.InjectionStrategy
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface RevisionInfoV2Mapper {
-	fun map(revisionInfoDto: RevisionInfoDto):RevisionInfo
-	fun map(revisionInfo: RevisionInfo):RevisionInfoDto
+	fun map(revisionInfoDto: RevisionInfoDto): RevisionInfo
+	fun map(revisionInfo: RevisionInfo): RevisionInfoDto
 }

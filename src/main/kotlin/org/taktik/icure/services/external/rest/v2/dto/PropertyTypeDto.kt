@@ -17,7 +17,6 @@
  */
 package org.taktik.icure.services.external.rest.v2.dto
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
@@ -29,17 +28,17 @@ import org.taktik.icure.services.external.rest.v2.dto.base.StoredDocumentDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class PropertyTypeDto(
-        override val id: String,
-        override val rev: String? = null,
-        override val deletionDate: Long? = null,
+	override val id: String,
+	override val rev: String? = null,
+	override val deletionDate: Long? = null,
 
-        val identifier: String,
-        val type: TypedValuesType? = null,
-        val scope: PropertyTypeScope? = null,
-        val unique: Boolean = false,
-        val editor: String? = null,
-        val localized: Boolean = false
+	val identifier: String,
+	val type: TypedValuesType? = null,
+	val scope: PropertyTypeScope? = null,
+	val unique: Boolean = false,
+	val editor: String? = null,
+	val localized: Boolean = false
 ) : StoredDocumentDto {
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

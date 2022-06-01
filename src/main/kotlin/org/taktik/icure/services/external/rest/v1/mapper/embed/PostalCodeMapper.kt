@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.PostalCodeDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface PostalCodeMapper {
-	fun map(postalCodeDto: PostalCodeDto):PostalCode
-	fun map(postalCode: PostalCode):PostalCodeDto
+	fun map(postalCodeDto: PostalCodeDto): PostalCode
+	fun map(postalCode: PostalCode): PostalCodeDto
 }

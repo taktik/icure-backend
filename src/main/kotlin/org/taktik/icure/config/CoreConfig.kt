@@ -21,13 +21,12 @@ package org.taktik.icure.config
 import org.springframework.cache.concurrent.ConcurrentMapCache
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.couchdb.id.UUIDGenerator
-
+import org.taktik.icure.asynclogic.impl.filter.Filters
 
 @Configuration
 class CoreConfig {
-    @Bean fun uuidGenerator() = UUIDGenerator()
-    @Bean fun filters() = Filters()
-    @Bean fun permissionSetCache() = ConcurrentMapCache("permissionSetCache")
+	@Bean fun uuidGenerator() = UUIDGenerator()
+	@Bean fun filters() = Filters()
+	@Bean fun permissionSetCache() = ConcurrentMapCache("permissionSetCache")
 }

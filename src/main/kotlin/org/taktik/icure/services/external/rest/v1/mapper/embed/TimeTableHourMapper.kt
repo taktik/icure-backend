@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.TimeTableHourDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface TimeTableHourMapper {
-	fun map(timeTableHourDto: TimeTableHourDto):TimeTableHour
-	fun map(timeTableHour: TimeTableHour):TimeTableHourDto
+	fun map(timeTableHourDto: TimeTableHourDto): TimeTableHour
+	fun map(timeTableHour: TimeTableHour): TimeTableHourDto
 }

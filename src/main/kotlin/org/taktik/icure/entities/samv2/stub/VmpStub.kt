@@ -28,8 +28,8 @@ import org.taktik.icure.entities.samv2.embed.SamText
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class VmpStub(
-        override val id: String,
-        val code: String? = null,
-        val vmpGroup: VmpGroupStub? = null,
-        val name: SamText? = null
+	override val id: String,
+	val code: String? = null,
+	val vmpGroup: VmpGroupStub? = null,
+	val name: SamText? = null
 ) : Identifiable<String>

@@ -18,22 +18,22 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.be.efact
 
-import org.taktik.icure.services.external.rest.v1.dto.PatientDto
 import java.util.*
+import org.taktik.icure.services.external.rest.v1.dto.PatientDto
 
 class EfactInvoice {
-    var patient: PatientDto? = null
-    var ioCode: String? = null
-    var items: MutableList<InvoiceItem> = LinkedList()
-    var reason: InvoicingTreatmentReasonCode? = null
-    var invoiceRef: String? = null
-    var invoiceNumber: Long? = null
-    var ignorePrescriptionDate: Boolean = false
-    var hospitalisedPatient: Boolean = false
-    var creditNote: Boolean = false
+	var patient: PatientDto? = null
+	var ioCode: String? = null
+	var items: MutableList<InvoiceItem> = LinkedList()
+	var reason: InvoicingTreatmentReasonCode? = null
+	var invoiceRef: String? = null
+	var invoiceNumber: Long? = null
+	var ignorePrescriptionDate: Boolean = false
+	var hospitalisedPatient: Boolean = false
+	var creditNote: Boolean = false
 
-    var relatedInvoiceIoCode: String? = null
-    var relatedInvoiceNumber: Long? = null
-    var relatedBatchSendNumber: Long? = null
-    var relatedBatchYearMonth: Long? = null
+	var relatedInvoiceIoCode: String? = null
+	var relatedInvoiceNumber: Long? = null
+	var relatedBatchSendNumber: Long? = null
+	var relatedBatchYearMonth: Long? = null
 }

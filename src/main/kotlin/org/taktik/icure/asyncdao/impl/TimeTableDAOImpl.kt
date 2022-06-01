@@ -19,78 +19,76 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.*
-import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
+import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
-import org.taktik.couchdb.queryViewIncludeDocs
-import org.taktik.icure.asyncdao.TimeTableDAO
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
+import org.taktik.icure.asyncdao.TimeTableDAO
 import org.taktik.icure.entities.TimeTable
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.utils.FuzzyValues
-
-import org.taktik.icure.utils.distinctById
-import java.time.temporal.ChronoUnit
 
 @Repository("timeTableDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.TimeTable' && !doc.deleted) emit( null, doc._id )}")
-class TimeTableDAOImpl (couchDbProperties: CouchDbProperties,
-                        @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<TimeTable>(couchDbProperties, TimeTable::class.java, couchDbDispatcher, idGenerator), TimeTableDAO {
+class TimeTableDAOImpl(
+	couchDbProperties: CouchDbProperties,
+	@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
+	idGenerator: IDGenerator
+) : GenericDAOImpl<TimeTable>(couchDbProperties, TimeTable::class.java, couchDbDispatcher, idGenerator), TimeTableDAO {
 
 	@View(name = "by_agenda", map = "classpath:js/timeTable/by_agenda.js")
 	override fun listTimeTableByAgendaId(agendaId: String): Flow<TimeTable> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery(client, "by_agenda")
-				.startKey(agendaId)
-				.endKey(agendaId)
-				.includeDocs(true)
-        emitAll(client.queryViewIncludeDocsNoValue<String, TimeTable>(viewQuery).map{it.doc})
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val viewQuery = createQuery(client, "by_agenda")
+			.startKey(agendaId)
+			.endKey(agendaId)
+			.includeDocs(true)
+		emitAll(client.queryViewIncludeDocsNoValue<String, TimeTable>(viewQuery).map { it.doc })
 	}
 
 	@View(name = "by_agenda_and_startdate", map = "classpath:js/timeTable/by_agenda_and_startdate.js")
 	override fun listTimeTableByStartDateAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val from = ComplexKey.of(
-				agendaId,
-				startDate
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val from = ComplexKey.of(
+			agendaId,
+			startDate
 		)
 		val to = ComplexKey.of(
-				agendaId,
-				endDate ?: ComplexKey.emptyObject()
+			agendaId,
+			endDate ?: ComplexKey.emptyObject()
 		)
 		val viewQuery = createQuery(client, "by_agenda_and_startdate")
-				.startKey(from)
-				.endKey(to)
-				.includeDocs(true)
-        emitAll(client.queryViewIncludeDocsNoValue<Array<String>, TimeTable>(viewQuery).map{it.doc})
+			.startKey(from)
+			.endKey(to)
+			.includeDocs(true)
+		emitAll(client.queryViewIncludeDocsNoValue<Array<String>, TimeTable>(viewQuery).map { it.doc })
 	}
 
 	@View(name = "by_agenda_and_enddate", map = "classpath:js/timeTable/by_agenda_and_enddate.js")
 	override fun listTimeTableByEndDateAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val from = ComplexKey.of(
-				agendaId,
-				startDate
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val from = ComplexKey.of(
+			agendaId,
+			startDate
 		)
 		val to = ComplexKey.of(
-				agendaId,
-				endDate ?: ComplexKey.emptyObject()
+			agendaId,
+			endDate ?: ComplexKey.emptyObject()
 		)
 		val viewQuery = createQuery(client, "by_agenda_and_enddate")
-				.startKey(from)
-				.endKey(to)
-				.includeDocs(true)
-        emitAll(client.queryViewIncludeDocsNoValue<Array<String>, TimeTable>(viewQuery).map{it.doc})
+			.startKey(from)
+			.endKey(to)
+			.includeDocs(true)
+		emitAll(client.queryViewIncludeDocsNoValue<Array<String>, TimeTable>(viewQuery).map { it.doc })
 	}
 
 	override fun listTimeTableByPeriodAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable> =
-	        listTimeTableByStartDateAndAgendaId(
-                    null,
-                    null,
-                    agendaId
-            ).filter {
-                (it.endTime?.let { et -> et > (startDate ?: 0) } ?: true) && (it.startTime?.let { st -> st < (endDate ?: 999999999999L) } ?: true)
-            }
+		listTimeTableByStartDateAndAgendaId(
+			null,
+			null,
+			agendaId
+		).filter {
+			(it.endTime?.let { et -> et > (startDate ?: 0) } ?: true) && (it.startTime?.let { st -> st < (endDate ?: 999999999999L) } ?: true)
+		}
 }

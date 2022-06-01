@@ -17,16 +17,16 @@
  */
 package org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive
 
-import org.taktik.icure.services.external.rest.v2.dto.gui.type.Data
 import java.io.Serializable
 import java.util.*
+import org.taktik.icure.services.external.rest.v2.dto.gui.type.Data
 
 class PrimitiveBoolean(val value: Boolean? = null) : Data(), Primitive {
-    override fun getPrimitiveValue(): Serializable? {
-        return value
-    }
+	override fun getPrimitiveValue(): Serializable? {
+		return value
+	}
 
-    companion object {
-        val positiveValues = listOf("yes", "ja", "oui", "si", "yo", "ok")
-    }
+	companion object {
+		val positiveValues = listOf("yes", "ja", "oui", "si", "yo", "ok")
+	}
 }

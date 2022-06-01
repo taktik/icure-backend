@@ -25,7 +25,7 @@ import org.taktik.icure.entities.base.Code
 
 @KotlinBuilder
 data class AllCodesFilter(
-        override val desc:String? = null,
+	override val desc: String? = null,
 ) : AbstractFilter<Code>, Filters.AllFilter<String, Code> {
-    override fun matches(item: Code) = true
+	override fun matches(item: Code) = true
 }

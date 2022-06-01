@@ -21,14 +21,17 @@ package org.taktik.icure.asyncdao
 import org.taktik.couchdb.annotation.View
 import org.taktik.icure.entities.PropertyType
 
-interface PropertyTypeDAO: GenericDAO<PropertyType> {
-    @View(name = "by_identifier", map = "function(doc) {\n" +
-            "            if (doc.java_type == 'org.taktik.icure.entities.PropertyType' && !doc.deleted && doc.identifier) {\n" +
-            "            emit(doc.identifier,doc._id);\n" +
-            "}\n" +
-            "}")
-    suspend fun getPropertyByIdentifier(propertyTypeIdentifier: String): PropertyType?
+interface PropertyTypeDAO : GenericDAO<PropertyType> {
+	@View(
+		name = "by_identifier",
+		map = "function(doc) {\n" +
+			"            if (doc.java_type == 'org.taktik.icure.entities.PropertyType' && !doc.deleted && doc.identifier) {\n" +
+			"            emit(doc.identifier,doc._id);\n" +
+			"}\n" +
+			"}"
+	)
+	suspend fun getPropertyByIdentifier(propertyTypeIdentifier: String): PropertyType?
 
-    suspend fun evictFromCache(entity: PropertyType)
-    suspend fun putInCache(key: String, entity: PropertyType)
+	suspend fun evictFromCache(entity: PropertyType)
+	suspend fun putInCache(key: String, entity: PropertyType)
 }

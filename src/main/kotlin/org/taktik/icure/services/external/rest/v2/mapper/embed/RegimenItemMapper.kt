@@ -28,10 +28,10 @@ import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
 @Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface RegimenItemV2Mapper {
-	fun map(regimenItemDto: RegimenItemDto):RegimenItem
-	fun map(regimenItem: RegimenItem):RegimenItemDto
-    fun map(weekday: Weekday):org.taktik.icure.services.external.rest.v2.dto.embed.Weekday
-    fun map(weekday: org.taktik.icure.services.external.rest.v2.dto.embed.Weekday): Weekday
-    fun map(administrationQuantity: AdministrationQuantity):org.taktik.icure.services.external.rest.v2.dto.embed.AdministrationQuantity
-    fun map(administrationQuantity: org.taktik.icure.services.external.rest.v2.dto.embed.AdministrationQuantity): AdministrationQuantity
+	fun map(regimenItemDto: RegimenItemDto): RegimenItem
+	fun map(regimenItem: RegimenItem): RegimenItemDto
+	fun map(weekday: Weekday): org.taktik.icure.services.external.rest.v2.dto.embed.Weekday
+	fun map(weekday: org.taktik.icure.services.external.rest.v2.dto.embed.Weekday): Weekday
+	fun map(administrationQuantity: AdministrationQuantity): org.taktik.icure.services.external.rest.v2.dto.embed.AdministrationQuantity
+	fun map(administrationQuantity: org.taktik.icure.services.external.rest.v2.dto.embed.AdministrationQuantity): AdministrationQuantity
 }

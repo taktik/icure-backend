@@ -29,19 +29,19 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 
 @Mapper(componentModel = "spring", uses = [CodeStubMapper::class, DelegationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DocumentMapper {
-    @Mappings(
-            Mapping(target = "attachment", ignore = true),
-            Mapping(target = "isAttachmentDirty", ignore = true),
+	@Mappings(
+		Mapping(target = "attachment", ignore = true),
+		Mapping(target = "isAttachmentDirty", ignore = true),
 
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(documentDto: DocumentDto):Document
-    @Mappings(
-            Mapping(target = "encryptedAttachment", ignore = true),
-            Mapping(target = "decryptedAttachment", ignore = true)
-    )
-	fun map(document: Document):DocumentDto
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(documentDto: DocumentDto): Document
+	@Mappings(
+		Mapping(target = "encryptedAttachment", ignore = true),
+		Mapping(target = "decryptedAttachment", ignore = true)
+	)
+	fun map(document: Document): DocumentDto
 }

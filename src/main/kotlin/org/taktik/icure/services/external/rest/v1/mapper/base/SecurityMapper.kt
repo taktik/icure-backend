@@ -25,8 +25,8 @@ import org.taktik.icure.services.external.rest.v1.dto.base.SecurityDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface SecurityMapper {
-	fun map(securityDto: SecurityDto):Security
-	fun map(security: Security):SecurityDto
-    fun map(securityDto: SecurityDto.RightDto):Security.Right
-    fun map(security: Security.Right): SecurityDto.RightDto
+	fun map(securityDto: SecurityDto): Security
+	fun map(security: Security): SecurityDto
+	fun map(securityDto: SecurityDto.RightDto): Security.Right
+	fun map(security: Security.Right): SecurityDto.RightDto
 }

@@ -17,10 +17,10 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto
 
+import java.io.Serializable
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
-import java.io.Serializable
 
 /**
  * Created by emad7105 on 11/07/2014.

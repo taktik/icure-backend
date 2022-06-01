@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.FinancialInstitution
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface FinancialInstitutionInformationMapper {
-	fun map(financialInstitutionInformationDto: FinancialInstitutionInformationDto):FinancialInstitutionInformation
-	fun map(financialInstitutionInformation: FinancialInstitutionInformation):FinancialInstitutionInformationDto
+	fun map(financialInstitutionInformationDto: FinancialInstitutionInformationDto): FinancialInstitutionInformation
+	fun map(financialInstitutionInformation: FinancialInstitutionInformation): FinancialInstitutionInformationDto
 }

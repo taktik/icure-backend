@@ -17,15 +17,15 @@
  */
 package org.taktik.icure.services.external.rest.v2.dto.gui.type.primitive
 
-import org.taktik.icure.services.external.rest.v2.dto.gui.type.Data
 import java.io.Serializable
 import java.util.*
+import org.taktik.icure.services.external.rest.v2.dto.gui.type.Data
 
 /**
  * Created by aduchate on 19/11/13, 10:14
  */
 class PrimitiveDate(val value: Date? = null) : Data(), Primitive {
-    override fun getPrimitiveValue(): Serializable? {
-        return value
-    }
+	override fun getPrimitiveValue(): Serializable? {
+		return value
+	}
 }

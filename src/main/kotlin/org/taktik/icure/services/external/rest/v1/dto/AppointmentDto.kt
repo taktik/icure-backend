@@ -20,17 +20,17 @@ package org.taktik.icure.services.external.rest.v1.dto
 import java.io.Serializable
 
 class AppointmentDto(
-        val zoneId: String? = null,
-        val patientId: String? = null,
-        val userId: String? = null,
-        val prescriptorComment: String? = null,
-        val patientComment: String? = null,
-        val comment: String? = null,
-        val type: String? = null,
-        val location: String? = null,
-        val status: String? = null,
-        val paid: Boolean? = null,
-        val amount: Double? = null,
-        val startTime: Long? = null,
-        val endTime: Long? = null
+	val zoneId: String? = null,
+	val patientId: String? = null,
+	val userId: String? = null,
+	val prescriptorComment: String? = null,
+	val patientComment: String? = null,
+	val comment: String? = null,
+	val type: String? = null,
+	val location: String? = null,
+	val status: String? = null,
+	val paid: Boolean? = null,
+	val amount: Double? = null,
+	val startTime: Long? = null,
+	val endTime: Long? = null
 ) : Serializable

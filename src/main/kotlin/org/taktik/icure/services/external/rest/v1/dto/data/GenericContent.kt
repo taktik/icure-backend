@@ -21,8 +21,8 @@ package org.taktik.icure.services.external.rest.v1.dto.data
  * Created by aduchate on 31/07/13, 20:13
  */
 class GenericContent(
-        override val entityId: String? = null,
-        override val entityClass: String? = null,
-        override val id: String? = null,
-        override val label: String? = null
+	override val entityId: String? = null,
+	override val entityClass: String? = null,
+	override val id: String? = null,
+	override val label: String? = null
 ) : DisplayableContent

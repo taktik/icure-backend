@@ -25,6 +25,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ValorisationDto
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ValorisationMapper {
-	fun map(valorisationDto: ValorisationDto):Valorisation
-	fun map(valorisation: Valorisation):ValorisationDto
+	fun map(valorisationDto: ValorisationDto): Valorisation
+	fun map(valorisation: Valorisation): ValorisationDto
 }

@@ -34,50 +34,52 @@ import org.taktik.icure.entities.Keyword
 
 @ExperimentalCoroutinesApi
 @Service
-class KeywordLogicImpl(private val keywordDAO: KeywordDAO,
-                       private val uuidGenerator: UUIDGenerator,
-                       private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Keyword, KeywordDAO>(sessionLogic), KeywordLogic {
+class KeywordLogicImpl(
+	private val keywordDAO: KeywordDAO,
+	private val uuidGenerator: UUIDGenerator,
+	private val sessionLogic: AsyncSessionLogic
+) : GenericLogicImpl<Keyword, KeywordDAO>(sessionLogic), KeywordLogic {
 
-    override fun getGenericDAO(): KeywordDAO {
-        return keywordDAO
-    }
+	override fun getGenericDAO(): KeywordDAO {
+		return keywordDAO
+	}
 
-    override suspend fun createKeyword(keyword: Keyword) = fix(keyword) { keyword ->
-        val createdKeywords = try { // Setting Keyword attributes
-            createEntities(setOf(keyword))
-        } catch (e: Exception) {
-            log.error("createKeyword: " + e.message)
-            throw IllegalArgumentException("Invalid Keyword", e)
-        }
-        createdKeywords.firstOrNull()
-    }
+	override suspend fun createKeyword(keyword: Keyword) = fix(keyword) { keyword ->
+		val createdKeywords = try { // Setting Keyword attributes
+			createEntities(setOf(keyword))
+		} catch (e: Exception) {
+			log.error("createKeyword: " + e.message)
+			throw IllegalArgumentException("Invalid Keyword", e)
+		}
+		createdKeywords.firstOrNull()
+	}
 
-    override suspend fun getKeyword(keywordId: String): Keyword? {
-        return keywordDAO.getKeyword(keywordId)
-    }
+	override suspend fun getKeyword(keywordId: String): Keyword? {
+		return keywordDAO.getKeyword(keywordId)
+	}
 
-    override fun deleteKeywords(ids: Set<String>): Flow<DocIdentifier> {
-        return try {
-            deleteEntities(ids)
-        } catch (e: Exception) {
-            log.error(e.message, e)
-            flowOf()
-        }
-    }
+	override fun deleteKeywords(ids: Set<String>): Flow<DocIdentifier> {
+		return try {
+			deleteEntities(ids)
+		} catch (e: Exception) {
+			log.error(e.message, e)
+			flowOf()
+		}
+	}
 
-    override suspend fun modifyKeyword(keyword: Keyword): Keyword? {
-        return try {
-            modifyEntities(setOf(keyword)).firstOrNull()
-        } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid Keyword", e)
-        }
-    }
+	override suspend fun modifyKeyword(keyword: Keyword): Keyword? {
+		return try {
+			modifyEntities(setOf(keyword)).firstOrNull()
+		} catch (e: Exception) {
+			throw IllegalArgumentException("Invalid Keyword", e)
+		}
+	}
 
-    override fun getKeywordsByUser(userId: String): Flow<Keyword> = flow {
-        emitAll(keywordDAO.getKeywordsByUserId(userId))
-    }
+	override fun getKeywordsByUser(userId: String): Flow<Keyword> = flow {
+		emitAll(keywordDAO.getKeywordsByUserId(userId))
+	}
 
-    companion object {
-        private val log = LoggerFactory.getLogger(KeywordLogicImpl::class.java)
-    }
+	companion object {
+		private val log = LoggerFactory.getLogger(KeywordLogicImpl::class.java)
+	}
 }

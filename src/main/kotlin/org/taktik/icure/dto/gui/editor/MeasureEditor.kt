@@ -32,6 +32,6 @@ import org.taktik.icure.handlers.JsonPolymorphismRoot
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class MeasureEditor : Editor(), ValueDateEditor {
-    //To change body of implemented methods use File | Settings | File Templates.
-    override var displayValueDate = false
+	//To change body of implemented methods use File | Settings | File Templates.
+	override var displayValueDate = false
 }

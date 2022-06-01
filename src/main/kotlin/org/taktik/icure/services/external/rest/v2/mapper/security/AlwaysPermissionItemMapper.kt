@@ -7,6 +7,6 @@ import org.taktik.icure.services.external.rest.v2.dto.security.AlwaysPermissionI
 
 @Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface AlwaysPermissionItemV2Mapper {
-    fun map(alwaysPermissionItemDto: AlwaysPermissionItemDto): AlwaysPermissionItem
-    fun map(alwaysPermissionItem: AlwaysPermissionItem): AlwaysPermissionItemDto
+	fun map(alwaysPermissionItemDto: AlwaysPermissionItemDto): AlwaysPermissionItem
+	fun map(alwaysPermissionItem: AlwaysPermissionItem): AlwaysPermissionItemDto
 }

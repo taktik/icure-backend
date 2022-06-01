@@ -31,19 +31,20 @@ import org.taktik.icure.asyncdao.CalendarItemTypeDAO
 import org.taktik.icure.entities.CalendarItemType
 import org.taktik.icure.properties.CouchDbProperties
 
-
 @Repository("calendarItemTypeDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItemType' && !doc.deleted) emit( null, doc._id )}")
-class CalendarItemTypeDAOImpl(couchDbProperties: CouchDbProperties,
-                              @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator
+class CalendarItemTypeDAOImpl(
+	couchDbProperties: CouchDbProperties,
+	@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
+	idGenerator: IDGenerator
 ) : GenericDAOImpl<CalendarItemType>(couchDbProperties, CalendarItemType::class.java, couchDbDispatcher, idGenerator), CalendarItemTypeDAO {
 
-    @View(name = "all_and_deleted", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItemType') emit( doc._id , null )}")
-    override fun getCalendarItemsWithDeleted(): Flow<CalendarItemType> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery(client, "all_and_deleted").includeDocs(true)
+	@View(name = "all_and_deleted", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItemType') emit( doc._id , null )}")
+	override fun getCalendarItemsWithDeleted(): Flow<CalendarItemType> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val viewQuery = createQuery(client, "all_and_deleted").includeDocs(true)
 
-        val result = client.queryViewIncludeDocsNoValue<String, CalendarItemType>(viewQuery).map { it.doc }
-        emitAll(result.map { this@CalendarItemTypeDAOImpl.postLoad(it) })
-    }
+		val result = client.queryViewIncludeDocsNoValue<String, CalendarItemType>(viewQuery).map { it.doc }
+		emitAll(result.map { this@CalendarItemTypeDAOImpl.postLoad(it) })
+	}
 }
