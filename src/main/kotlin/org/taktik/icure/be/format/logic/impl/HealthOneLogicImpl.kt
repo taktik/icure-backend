@@ -195,7 +195,8 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 
 	protected fun addLaboResult(lrl: LaboResultLine, language: String, position: Long, ril: ResultsInfosLine, comment: String?): MutableList<org.taktik.icure.entities.embed.Service> {
 		val result: MutableList<org.taktik.icure.entities.embed.Service> = ArrayList()
-		val d = tryToGetValueAsNumber(lrl.value)
+		val laboResultLineValue = lrl.value!!.replace("<".toRegex(), "").replace(">".toRegex(), "")
+		val d = tryToGetValueAsNumber(laboResultLineValue)
 		if (d != null) { //We import as a Measure
 			result.add(importNumericLaboResult(language, d, lrl, position, ril, comment))
 		} else {
