@@ -86,22 +86,22 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 	@Throws(IOException::class)
 	fun parseReportsAndLabs(language: String, protocols: List<String?>, r: Reader): List<LaboLine> {
 		val result: MutableList<LaboLine> = LinkedList()
-		var line: String
+		var line: String? = null
 		val reader = BufferedReader(r)
 		var ll: LaboLine? = null
 		var position: Long = 0
-		while (reader.readLine().also { line = it } != null && position < 10000000L /* ultimate safeguard */) {
+		while ((reader.readLine()?.also { line = it }) != null && position < 10000000L /* ultimate safeguard */) {
 			position++
-			if (isLaboLine(line)) {
+			if (isLaboLine(line!!)) {
 				ll?.let { createServices(it, language, position) }
-				ll = getLaboLine(line)
+				ll = getLaboLine(line!!)
 				if (protocols.contains(ll.resultReference) || protocols.size == 1 && protocols[0] != null && protocols[0]!!.startsWith("***")) {
 					result.add(ll)
 				} else {
 					ll = null
 				}
-			} else if (ll != null && isLaboResultLine(line)) {
-				val lrl = getLaboResultLine(line, ll)
+			} else if (ll != null && isLaboResultLine(line!!)) {
+				val lrl = getLaboResultLine(line!!, ll)
 				if (lrl != null) {
 					ll.isResultLabResult = true
 					if (ll.labosList.size > 0 && !(lrl.analysisCode == ll.labosList[0]!!.analysisCode && lrl.analysisType == ll.labosList[0]!!.analysisType)) {
@@ -109,8 +109,8 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 					}
 					ll.labosList.add(lrl)
 				}
-			} else if (ll != null && isProtocolLine(line)) {
-				val pl = getProtocolLine(line)
+			} else if (ll != null && isProtocolLine(line!!)) {
+				val pl = getProtocolLine(line!!)
 				if (pl != null) { // Less than 20 lines ... If the codes are different,
 // We probably have a bad header... Just concatenate
 					if (ll.protoList.size > 20 && pl.code != ll.protoList[ll.protoList.size - 1]!!.code) {
@@ -118,10 +118,10 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 					}
 					ll.protoList.add(pl)
 				}
-			} else if (ll != null && isResultsInfosLine(line)) {
-				ll.ril = getResultsInfosLine(line)
-			} else if (ll != null && isPatientAddressLine(line)) {
-				ll.pal = getPatientAddressLine(line)
+			} else if (ll != null && isResultsInfosLine(line!!)) {
+				ll.ril = getResultsInfosLine(line!!)
+			} else if (ll != null && isPatientAddressLine(line!!)) {
+				ll.pal = getPatientAddressLine(line!!)
 			}
 		}
 		ll?.let { createServices(it, language, position) }
