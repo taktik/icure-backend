@@ -20,10 +20,10 @@ package org.taktik.icure.asynclogic.listeners
 import org.taktik.icure.entities.User
 
 interface UserLogicListener {
-    fun userRegistered(user: User?)
-    fun userApproved(user: User?)
-    fun userLogged(user: User?)
-    fun userExpired(user: User?)
-    fun userResetPassword(user: User?)
-    fun userActivated(user: User?)
+	fun userRegistered(user: User?)
+	fun userApproved(user: User?)
+	fun userLogged(user: User?)
+	fun userExpired(user: User?)
+	fun userResetPassword(user: User?)
+	fun userActivated(user: User?)
 }

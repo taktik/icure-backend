@@ -23,5 +23,5 @@ import java.io.Serializable
  * Created by aduchate on 21/01/13, 14:53
  */
 enum class AddressTypeDto : Serializable {
-    home, work, vacation, hospital, clinic, hq, other, temporary, postal, diplomatic, reference
+	home, work, vacation, hospital, clinic, hq, other, temporary, postal, diplomatic, reference, careaddress
 }

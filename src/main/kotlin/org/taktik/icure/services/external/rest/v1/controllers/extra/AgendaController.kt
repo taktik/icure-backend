@@ -46,60 +46,61 @@ import reactor.core.publisher.Flux
 @RestController
 @RequestMapping("/rest/v1/agenda")
 @Tag(name = "agenda")
-class AgendaController(private val agendaLogic: AgendaLogic,
-                       private val agendaMapper: AgendaMapper) {
+class AgendaController(
+	private val agendaLogic: AgendaLogic,
+	private val agendaMapper: AgendaMapper
+) {
 
-    @Operation(summary = "Gets all agendas")
-    @GetMapping
-    fun getAgendas(): Flux<AgendaDto> {
-        val agendas = agendaLogic.getEntities()
-        return agendas.map { agendaMapper.map(it) }.injectReactorContext()
-    }
+	@Operation(summary = "Gets all agendas")
+	@GetMapping
+	fun getAgendas(): Flux<AgendaDto> {
+		val agendas = agendaLogic.getEntities()
+		return agendas.map { agendaMapper.map(it) }.injectReactorContext()
+	}
 
-    @Operation(summary = "Creates a agenda")
-    @PostMapping
-    fun createAgenda(@RequestBody agendaDto: AgendaDto) = mono {
-        val agenda = agendaLogic.createAgenda(agendaMapper.map(agendaDto))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Agenda creation failed")
+	@Operation(summary = "Creates a agenda")
+	@PostMapping
+	fun createAgenda(@RequestBody agendaDto: AgendaDto) = mono {
+		val agenda = agendaLogic.createAgenda(agendaMapper.map(agendaDto))
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Agenda creation failed")
 
-        agendaMapper.map(agenda)
-    }
+		agendaMapper.map(agenda)
+	}
 
-    @Operation(summary = "Delete agendas by id")
-    @DeleteMapping("/{agendaIds}")
-    fun deleteAgenda(@PathVariable agendaIds: String): Flux<DocIdentifier> {
-        return agendaLogic.deleteAgendas(agendaIds.split(',')).injectReactorContext()
-    }
+	@Operation(summary = "Delete agendas by id")
+	@DeleteMapping("/{agendaIds}")
+	fun deleteAgenda(@PathVariable agendaIds: String): Flux<DocIdentifier> {
+		return agendaLogic.deleteAgendas(agendaIds.split(',')).injectReactorContext()
+	}
 
-    @Operation(summary = "Gets an agenda")
-    @GetMapping("/{agendaId}")
-    fun getAgenda(@PathVariable agendaId: String) = mono {
-        val agenda = agendaLogic.getAgenda(agendaId)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Agenda fetching failed")
-        agendaMapper.map(agenda)
-    }
+	@Operation(summary = "Gets an agenda")
+	@GetMapping("/{agendaId}")
+	fun getAgenda(@PathVariable agendaId: String) = mono {
+		val agenda = agendaLogic.getAgenda(agendaId)
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Agenda fetching failed")
+		agendaMapper.map(agenda)
+	}
 
-    @Operation(summary = "Gets all agendas for user")
-    @GetMapping("/byUser")
-    fun getAgendasForUser(@RequestParam userId: String) = mono {
-        agendaLogic.getAgendasByUser(userId).firstOrNull()?.let { agendaMapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Agendas fetching failed")
-    }
+	@Operation(summary = "Gets all agendas for user")
+	@GetMapping("/byUser")
+	fun getAgendasForUser(@RequestParam userId: String) = mono {
+		agendaLogic.getAgendasByUser(userId).firstOrNull()?.let { agendaMapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Agendas fetching failed")
+	}
 
-    @Operation(summary = "Gets readable agendas for user")
-    @GetMapping("/readableForUser")
-    fun getReadableAgendasForUser(@RequestParam userId: String): Flux<AgendaDto> {
-        val agendas = agendaLogic.getReadableAgendaForUser(userId)
-        return agendas.map { agendaMapper.map(it) }.injectReactorContext()
-    }
+	@Operation(summary = "Gets readable agendas for user")
+	@GetMapping("/readableForUser")
+	fun getReadableAgendasForUser(@RequestParam userId: String): Flux<AgendaDto> {
+		val agendas = agendaLogic.getReadableAgendaForUser(userId)
+		return agendas.map { agendaMapper.map(it) }.injectReactorContext()
+	}
 
+	@Operation(summary = "Modifies an agenda")
+	@PutMapping
+	fun modifyAgenda(@RequestBody agendaDto: AgendaDto) = mono {
+		val agenda = agendaLogic.modifyAgenda(agendaMapper.map(agendaDto))
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Agenda modification failed")
 
-    @Operation(summary = "Modifies an agenda")
-    @PutMapping
-    fun modifyAgenda(@RequestBody agendaDto: AgendaDto) = mono {
-        val agenda = agendaLogic.modifyAgenda(agendaMapper.map(agendaDto))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Agenda modification failed")
-
-        agendaMapper.map(agenda)
-    }
+		agendaMapper.map(agenda)
+	}
 }

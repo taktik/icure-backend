@@ -18,11 +18,11 @@
 
 package org.taktik.icure.config
 
+import java.time.Duration
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.icure.asyncjacksonhttpclient.net.web.WebClient
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
@@ -35,67 +35,74 @@ import org.taktik.icure.spring.asynccache.AsyncMapCacheManager
 import reactor.core.publisher.Mono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.resources.ConnectionProvider
-import java.time.Duration
 
 @Configuration
 class CouchDbConfig(val couchDbProperties: CouchDbProperties) {
-    @Value("\${icure.couchdb.prefix}")
-    private val couchDbPrefix: String? = null
+	val webClientWithTimeoutLogger: Log = LogFactory.getLog("org.taktik.icure.config.WebClientWithTimeout")
+	val webClientLogger: Log = LogFactory.getLog("org.taktik.icure.config.WebClient")
 
-    val webClientWithTimeoutLogger: Log = LogFactory.getLog("org.taktik.icure.config.WebClientWithTimeout")
-    val webClientLogger: Log = LogFactory.getLog("org.taktik.icure.config.WebClient")
+	@Bean
+	fun connectionProvider(): ConnectionProvider {
+		return ConnectionProvider.builder("LARGE_POOL")
+			.maxConnections(5000)
+			.maxIdleTime(Duration.ofSeconds(120))
+			.pendingAcquireMaxCount(-1).build()
+	}
 
+	@Bean
+	fun httpClientWithTimeout(connectionProvider: ConnectionProvider) = SpringWebfluxWebClient(
+		ReactorClientHttpConnector(HttpClient.create(connectionProvider).compress(true).responseTimeout(Duration.ofSeconds(2)))
+	) { xff ->
+		xff.add(
+			ExchangeFilterFunction.ofRequestProcessor { req ->
+				if (webClientWithTimeoutLogger.isDebugEnabled) {
+					webClientWithTimeoutLogger.debug("-> ${req.method().name} ${req.url()}")
+				}
+				Mono.just(req)
+			}
+		)
+	}
 
-    @Bean
-    fun connectionProvider(): ConnectionProvider {
-        return ConnectionProvider.builder("LARGE_POOL")
-                .maxConnections(5000)
-                .maxIdleTime(Duration.ofSeconds(120))
-                .pendingAcquireMaxCount(-1).build()
-    }
+	@Bean
+	fun httpClient(connectionProvider: ConnectionProvider) = SpringWebfluxWebClient(
+		ReactorClientHttpConnector(HttpClient.create(connectionProvider).compress(true))
+	) { xff ->
+		xff.add(
+			ExchangeFilterFunction.ofRequestProcessor { req ->
+				if (webClientLogger.isDebugEnabled) {
+					webClientLogger.debug("-> ${req.method().name} ${req.url()}")
+				}
+				Mono.just(req)
+			}
+		)
+	}
 
-    @Bean
-    fun httpClientWithTimeout(connectionProvider: ConnectionProvider) = SpringWebfluxWebClient(
-            ReactorClientHttpConnector(HttpClient.create(connectionProvider).compress(true).responseTimeout(Duration.ofSeconds(2)))
-    ) { xff ->
-        xff.add(ExchangeFilterFunction.ofRequestProcessor { req ->
-            if (webClientWithTimeoutLogger.isDebugEnabled) {
-                webClientWithTimeoutLogger.debug("-> ${req.method().name} ${req.url()}")
-            }
-            Mono.just(req)
-        })
-    }
+	@Bean
+	fun reactorClientResourceFactory(connectionProvider: ConnectionProvider) = ReactorResourceFactory().apply {
+		isUseGlobalResources = false
+		this.connectionProvider = connectionProvider
+	}
 
-    @Bean
-    fun httpClient(connectionProvider: ConnectionProvider) = SpringWebfluxWebClient(
-            ReactorClientHttpConnector(HttpClient.create(connectionProvider).compress(true))
-    ) { xff ->
-        xff.add(ExchangeFilterFunction.ofRequestProcessor { req ->
-            if (webClientLogger.isDebugEnabled) {
-                webClientLogger.debug("-> ${req.method().name} ${req.url()}")
-            }
-            Mono.just(req)
-        })
-    }
+	@Bean
+	fun asyncCacheManager() = AsyncMapCacheManager()
 
-    @Bean
-    fun reactorClientResourceFactory(connectionProvider: ConnectionProvider) = ReactorResourceFactory().apply {
-        isUseGlobalResources = false
-        this.connectionProvider = connectionProvider
-    }
+	@Bean
+	fun patientCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper): CouchDbDispatcher {
+		return CouchDbDispatcher(httpClient, objectMapper, couchDbProperties.prefix, "patient", couchDbProperties.username!!, couchDbProperties.password!!, 1)
+	}
 
-    @Bean
-    fun asyncCacheManager() = AsyncMapCacheManager()
-    @Bean
-    fun patientCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, "icure", "patient", couchDbProperties.username!!, couchDbProperties.password!!, 1)
-    @Bean
-    fun healthdataCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, "icure", "healthdata", couchDbProperties.username!!, couchDbProperties.password!!, 1)
-    @Bean
-    fun baseCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, "icure", "base", couchDbProperties.username!!, couchDbProperties.password!!, 1)
-    @Bean
-    fun configCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, "icure", "config", couchDbProperties.username!!, couchDbProperties.password!!, 1)
-    @Bean
-    fun drugCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, "icure", "drugs", couchDbProperties.username!!, couchDbProperties.password!!, 1)
-    @Bean
-    fun chapIVCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, "icure", "chapiv", couchDbProperties.username!!, couchDbProperties.password!!, 1)
+	@Bean
+	fun healthdataCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, couchDbProperties.prefix, "healthdata", couchDbProperties.username!!, couchDbProperties.password!!, 1)
+
+	@Bean
+	fun baseCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, couchDbProperties.prefix, "base", couchDbProperties.username!!, couchDbProperties.password!!, 1)
+
+	@Bean
+	fun configCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, "icure", "config", couchDbProperties.username!!, couchDbProperties.password!!, 1)
+
+	@Bean
+	fun drugCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, "icure", "drugs", couchDbProperties.username!!, couchDbProperties.password!!, 1)
+
+	@Bean
+	fun chapIVCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, "icure", "chapiv", couchDbProperties.username!!, couchDbProperties.password!!, 1)
 }

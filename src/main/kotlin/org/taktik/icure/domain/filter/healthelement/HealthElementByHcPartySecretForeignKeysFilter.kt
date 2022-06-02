@@ -20,9 +20,8 @@ package org.taktik.icure.domain.filter.healthelement
 
 import org.taktik.icure.domain.filter.Filter
 import org.taktik.icure.entities.HealthElement
-import org.taktik.icure.entities.embed.Identifier
 
 interface HealthElementByHcPartySecretForeignKeysFilter : Filter<String, HealthElement> {
-    val healthcarePartyId: String?
-    val patientSecretForeignKeys: Set<String>
+	val healthcarePartyId: String?
+	val patientSecretForeignKeys: Set<String>
 }

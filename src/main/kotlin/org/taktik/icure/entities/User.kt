@@ -17,6 +17,8 @@
  */
 package org.taktik.icure.entities
 
+import java.io.Serializable
+import java.time.Instant
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
@@ -40,8 +42,6 @@ import org.taktik.icure.utils.InstantSerializer
 import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
-import java.io.Serializable
-import java.time.Instant
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -81,90 +81,90 @@ import java.time.Instant
  */
 
 data class User(
-        @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String? = null,
-        @JsonProperty("deleted") override val deletionDate: Long? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) val created: Long? = null,
+	@JsonProperty("_id") override val id: String,
+	@JsonProperty("_rev") override val rev: String? = null,
+	@JsonProperty("deleted") override val deletionDate: Long? = null,
+	@field:NotNull(autoFix = AutoFix.NOW) val created: Long? = null,
 
-        override val name: String? = null,
-        override val properties: Set<PropertyStub> = emptySet(),
-        val roles: Set<String> = emptySet(),
-        override val permissions: Set<Permission> = emptySet(),
-        val type: Users.Type? = null,
-        val status: Users.Status? = null,
-        val login: String? = null,
-        val passwordHash: String? = null,
-        val secret: String? = null,
-        @JsonProperty("isUse2fa") val use2fa: Boolean? = null,
-        val groupId: String? = null,
-        val healthcarePartyId: String? = null,
-        val patientId: String? = null,
-        val deviceId: String? = null,
-        val autoDelegations: Map<DelegationTag, Set<String>> = emptyMap(), //DelegationTag -> healthcarePartyIds
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        val createdDate: Instant? = null,
+	override val name: String? = null,
+	override val properties: Set<PropertyStub> = emptySet(),
+	val roles: Set<String> = emptySet(),
+	override val permissions: Set<Permission> = emptySet(),
+	val type: Users.Type? = null,
+	val status: Users.Status? = null,
+	val login: String? = null,
+	val passwordHash: String? = null,
+	val secret: String? = null,
+	@JsonProperty("isUse2fa") val use2fa: Boolean? = null,
+	val groupId: String? = null,
+	val healthcarePartyId: String? = null,
+	val patientId: String? = null,
+	val deviceId: String? = null,
+	val autoDelegations: Map<DelegationTag, Set<String>> = emptyMap(), //DelegationTag -> healthcarePartyIds
+	@JsonSerialize(using = InstantSerializer::class)
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@JsonDeserialize(using = InstantDeserializer::class)
+	val createdDate: Instant? = null,
 
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        val lastLoginDate: Instant? = null,
+	@JsonSerialize(using = InstantSerializer::class)
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@JsonDeserialize(using = InstantDeserializer::class)
+	val lastLoginDate: Instant? = null,
 
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        val expirationDate: Instant? = null,
+	@JsonSerialize(using = InstantSerializer::class)
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@JsonDeserialize(using = InstantDeserializer::class)
+	val expirationDate: Instant? = null,
 
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        val termsOfUseDate: Instant? = null,
+	@JsonSerialize(using = InstantSerializer::class)
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@JsonDeserialize(using = InstantDeserializer::class)
+	val termsOfUseDate: Instant? = null,
 
-        val email: String? = null,
-        val mobilePhone: String? = null,
+	val email: String? = null,
+	val mobilePhone: String? = null,
 
-        @Deprecated("Application tokens stocked in clear and eternal. Replaced by authenticationTokens")
-        val applicationTokens: Map<String, String>? = null,
+	@Deprecated("Application tokens stocked in clear and eternal. Replaced by authenticationTokens")
+	val applicationTokens: Map<String, String>? = null,
 
-        val authenticationTokens: Map<String, AuthenticationToken> = emptyMap(),
+	val authenticationTokens: Map<String, AuthenticationToken> = emptyMap(),
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap(),
+	@JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+	@JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+	@JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap(),
 
 ) : StoredDocument, Principal, Cloneable, Serializable {
-    companion object : DynamicInitializer<User>
+	companion object : DynamicInitializer<User>
 
-    fun merge(other: User) = User(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: User) = super.solveConflictsWith(other) + mapOf(
-            "created" to (this.created?.coerceAtMost(other.created ?: Long.MAX_VALUE) ?: other.created),
-            "name" to (this.name ?: other.name),
-            "properties" to (other.properties + this.properties),
-            "permissions" to (other.permissions + this.permissions),
-            "type" to (this.type ?: other.type),
-            "status" to (this.status ?: other.status),
-            "login" to (this.login ?: other.login),
-            "passwordHash" to (this.passwordHash ?: other.passwordHash),
-            "secret" to (this.secret ?: other.secret),
-            "isUse2fa" to (this.use2fa ?: other.use2fa),
-            "groupId" to (this.groupId ?: other.groupId),
-            "healthcarePartyId" to (this.healthcarePartyId ?: other.healthcarePartyId),
-            "patientId" to (this.patientId ?: other.patientId),
-            "autoDelegations" to mergeMapsOfSetsDistinct(this.autoDelegations, other.autoDelegations),
-            "createdDate" to (this.createdDate ?: other.createdDate),
-            "lastLoginDate" to (this.lastLoginDate ?: other.lastLoginDate),
-            "expirationDate" to (this.expirationDate ?: other.expirationDate),
-            "termsOfUseDate" to (this.termsOfUseDate ?: other.termsOfUseDate),
-            "email" to (this.email ?: other.email),
-            "applicationTokens" to (other.applicationTokens?.let { it + (this.applicationTokens ?: emptyMap()) } ?: this.applicationTokens),
-            "authenticationTokens" to (other.authenticationTokens + this.authenticationTokens)
-    )
+	fun merge(other: User) = User(args = this.solveConflictsWith(other))
+	fun solveConflictsWith(other: User) = super.solveConflictsWith(other) + mapOf(
+		"created" to (this.created?.coerceAtMost(other.created ?: Long.MAX_VALUE) ?: other.created),
+		"name" to (this.name ?: other.name),
+		"properties" to (other.properties + this.properties),
+		"permissions" to (other.permissions + this.permissions),
+		"type" to (this.type ?: other.type),
+		"status" to (this.status ?: other.status),
+		"login" to (this.login ?: other.login),
+		"passwordHash" to (this.passwordHash ?: other.passwordHash),
+		"secret" to (this.secret ?: other.secret),
+		"isUse2fa" to (this.use2fa ?: other.use2fa),
+		"groupId" to (this.groupId ?: other.groupId),
+		"healthcarePartyId" to (this.healthcarePartyId ?: other.healthcarePartyId),
+		"patientId" to (this.patientId ?: other.patientId),
+		"autoDelegations" to mergeMapsOfSetsDistinct(this.autoDelegations, other.autoDelegations),
+		"createdDate" to (this.createdDate ?: other.createdDate),
+		"lastLoginDate" to (this.lastLoginDate ?: other.lastLoginDate),
+		"expirationDate" to (this.expirationDate ?: other.expirationDate),
+		"termsOfUseDate" to (this.termsOfUseDate ?: other.termsOfUseDate),
+		"email" to (this.email ?: other.email),
+		"applicationTokens" to (other.applicationTokens?.let { it + (this.applicationTokens ?: emptyMap()) } ?: this.applicationTokens),
+		"authenticationTokens" to (other.authenticationTokens + this.authenticationTokens)
+	)
 
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 
-    @JsonIgnore
-    override fun getParents(): Set<String> = this.roles
+	@JsonIgnore
+	override fun getParents(): Set<String> = this.roles
 }

@@ -21,6 +21,6 @@ package org.taktik.icure.services.external.rest.v2.dto.be.efact
 import org.taktik.icure.services.external.rest.v2.dto.MessageDto
 
 class MessageWithBatch {
-    var invoicesBatch: InvoicesBatch? = null
-    var message: MessageDto? = null
+	var invoicesBatch: InvoicesBatch? = null
+	var message: MessageDto? = null
 }

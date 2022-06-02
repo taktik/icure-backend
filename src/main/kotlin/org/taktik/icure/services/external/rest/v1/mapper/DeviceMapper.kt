@@ -26,14 +26,14 @@ import org.taktik.icure.entities.Device
 import org.taktik.icure.services.external.rest.v1.dto.DeviceDto
 import org.taktik.icure.services.external.rest.v1.mapper.base.PropertyStubMapper
 
-@Mapper(componentModel = "spring", uses = [ PropertyStubMapper::class ], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [PropertyStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DeviceMapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(deviceDto: DeviceDto):Device
-	fun map(device: Device):DeviceDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(deviceDto: DeviceDto): Device
+	fun map(device: Device): DeviceDto
 }

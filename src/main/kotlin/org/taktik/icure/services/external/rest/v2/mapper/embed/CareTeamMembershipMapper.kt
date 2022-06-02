@@ -22,8 +22,9 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.CareTeamMembership
 import org.taktik.icure.services.external.rest.v2.dto.embed.CareTeamMembershipDto
+
 @Mapper(componentModel = "spring", uses = [MembershipTypeV2Mapper::class, CareTeamMemberTypeV2Mapper::class, ConfidentialityV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface CareTeamMembershipV2Mapper {
-	fun map(careTeamMembershipDto: CareTeamMembershipDto):CareTeamMembership
-	fun map(careTeamMembership: CareTeamMembership):CareTeamMembershipDto
+	fun map(careTeamMembershipDto: CareTeamMembershipDto): CareTeamMembership
+	fun map(careTeamMembership: CareTeamMembership): CareTeamMembershipDto
 }

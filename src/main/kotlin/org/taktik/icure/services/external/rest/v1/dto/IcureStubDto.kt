@@ -30,21 +30,21 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class IcureStubDto(
-        override val id: String,
-        override val rev: String? = null,
-        override val created: Long? = null,
-        override val modified: Long? = null,
-        override val author: String? = null,
-        override val responsible: String? = null,
-        override val medicalLocationId: String? = null,
-        override val tags: Set<CodeStubDto> = emptySet(),
-        override val codes: Set<CodeStubDto> = emptySet(),
-        override val endOfLife: Long? = null,
-        override val secretForeignKeys: Set<String> = emptySet(),
-        override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = emptyMap(),
-        override val delegations: Map<String, Set<DelegationDto>> = emptyMap(),
-        override val encryptionKeys: Map<String, Set<DelegationDto>> = emptyMap(),
-        override val encryptedSelf: String? = null
+	override val id: String,
+	override val rev: String? = null,
+	override val created: Long? = null,
+	override val modified: Long? = null,
+	override val author: String? = null,
+	override val responsible: String? = null,
+	override val medicalLocationId: String? = null,
+	override val tags: Set<CodeStubDto> = emptySet(),
+	override val codes: Set<CodeStubDto> = emptySet(),
+	override val endOfLife: Long? = null,
+	override val secretForeignKeys: Set<String> = emptySet(),
+	override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = emptyMap(),
+	override val delegations: Map<String, Set<DelegationDto>> = emptyMap(),
+	override val encryptionKeys: Map<String, Set<DelegationDto>> = emptyMap(),
+	override val encryptedSelf: String? = null
 ) : ICureDocumentDto<String>, VersionableDto<String>, EncryptableDto {
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }

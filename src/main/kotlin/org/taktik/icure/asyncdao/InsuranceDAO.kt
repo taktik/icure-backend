@@ -21,8 +21,8 @@ package org.taktik.icure.asyncdao
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.Insurance
 
-interface InsuranceDAO: GenericDAO<Insurance> {
-    fun listInsurancesByCode(code: String): Flow<Insurance>
+interface InsuranceDAO : GenericDAO<Insurance> {
+	fun listInsurancesByCode(code: String): Flow<Insurance>
 
-    fun listInsurancesByName(name: String): Flow<Insurance>
+	fun listInsurancesByName(name: String): Flow<Insurance>
 }

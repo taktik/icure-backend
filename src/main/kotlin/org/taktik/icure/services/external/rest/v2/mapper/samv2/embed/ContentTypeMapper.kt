@@ -21,8 +21,9 @@ package org.taktik.icure.services.external.rest.v2.mapper.samv2.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.ContentType
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.ContentTypeDto
+
 @Mapper(componentModel = "spring")
 interface ContentTypeV2Mapper {
-	fun map(contentTypeDto: ContentTypeDto):ContentType
-	fun map(contentType: ContentType):ContentTypeDto
+	fun map(contentTypeDto: ContentTypeDto): ContentType
+	fun map(contentType: ContentType): ContentTypeDto
 }

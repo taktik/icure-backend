@@ -24,23 +24,24 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.handlers.JsonPolymorphismRoot
 
-@JsonPolymorphismRoot(org.taktik.icure.services.external.rest.v2.dto.filter.predicate.Predicate::class)
+@JsonPolymorphismRoot(Predicate::class)
 @JsonDeserialize(using = JsonDeserializer.None::class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class KeyValuePredicate(val key: String? = null, val operator: Operator? = null, val value: Any? = null) : Predicate {
-    enum class Operator(val code: String) {
-        EQUAL("=="),
-        NOTEQUAL("!="),
-        GREATERTHAN(">"),
-        SMALLERTHAN("<"),
-        GREATERTHANOREQUAL(">="),
-        SMALLERTHANOREQUAL("<="),
-        LIKE("%="),
-        ILIKE("%%=");
-        override fun toString(): String {
-            return code
-        }
-    }
+	enum class Operator(val code: String) {
+		EQUAL("=="),
+		NOTEQUAL("!="),
+		GREATERTHAN(">"),
+		SMALLERTHAN("<"),
+		GREATERTHANOREQUAL(">="),
+		SMALLERTHANOREQUAL("<="),
+		LIKE("%="),
+		ILIKE("%%=");
+
+		override fun toString(): String {
+			return code
+		}
+	}
 }

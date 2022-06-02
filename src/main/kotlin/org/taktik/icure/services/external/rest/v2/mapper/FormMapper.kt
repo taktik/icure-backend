@@ -29,12 +29,12 @@ import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mappe
 
 @Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class, DelegationV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface FormV2Mapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(formDto: FormDto):Form
-	fun map(form: Form):FormDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(formDto: FormDto): Form
+	fun map(form: Form): FormDto
 }

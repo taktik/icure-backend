@@ -18,6 +18,7 @@
 
 package org.taktik.icure.asynclogic
 
+import java.net.URI
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
@@ -25,36 +26,40 @@ import org.taktik.icure.asyncdao.HealthcarePartyDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.chain.FilterChain
 import org.taktik.icure.entities.HealthcareParty
-import java.net.URI
+import org.taktik.icure.entities.embed.Identifier
 
 interface HealthcarePartyLogic : EntityPersister<HealthcareParty, String> {
-    fun getGenericDAO(): HealthcarePartyDAO
+	fun getGenericDAO(): HealthcarePartyDAO
 
-    suspend fun getHealthcareParty(id: String): HealthcareParty?
-    fun listHealthcarePartiesBy(searchString: String, offset: Int, limit: Int): Flow<HealthcareParty>
+	suspend fun getHealthcareParty(id: String): HealthcareParty?
+	fun listHealthcarePartiesBy(searchString: String, offset: Int, limit: Int): Flow<HealthcareParty>
 
-    suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String>
+	@Deprecated(message = "A HCP may now have multiple AES Keys. Use getAesExchangeKeysForDelegate instead")
+	suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String>
 
-    suspend fun modifyHealthcareParty(healthcareParty: HealthcareParty): HealthcareParty?
-    fun deleteHealthcareParties(healthcarePartyIds: List<String>): Flow<DocIdentifier>
+	suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, Map<String, String>>>
 
-    suspend fun createHealthcareParty(healthcareParty: HealthcareParty): HealthcareParty?
+	suspend fun modifyHealthcareParty(healthcareParty: HealthcareParty): HealthcareParty?
+	fun deleteHealthcareParties(healthcarePartyIds: List<String>): Flow<DocIdentifier>
 
-    suspend fun modifyHcPartyKeys(healthcarePartyId: String, newHcPartyKeys: Map<String, Array<String>>): Map<String, Array<String>>
-    fun findHealthcarePartiesBy(offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent>
-    fun findHealthcarePartiesBy(fuzzyName: String, offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent>
-    fun listHealthcarePartiesByNihii(nihii: String): Flow<HealthcareParty>
-    fun listHealthcarePartiesBySsin(ssin: String): Flow<HealthcareParty>
-    fun listHealthcarePartiesByName(name: String): Flow<HealthcareParty>
+	suspend fun createHealthcareParty(healthcareParty: HealthcareParty): HealthcareParty?
 
-    suspend fun getPublicKey(healthcarePartyId: String): String?
-    fun listHealthcarePartiesBy(type: String, spec: String, firstCode: String, lastCode: String): Flow<ViewQueryResultEvent>
-    fun getHealthcareParties(ids: List<String>): Flow<HealthcareParty>
-    fun findHealthcarePartiesBySsinOrNihii(searchValue: String, paginationOffset: PaginationOffset<String>, desc: Boolean): Flow<ViewQueryResultEvent>
-    fun getHealthcarePartiesByParentId(parentId: String): Flow<HealthcareParty>
-    suspend fun getHcpHierarchyIds(sender: HealthcareParty): HashSet<String>
+	suspend fun modifyHcPartyKeys(healthcarePartyId: String, newHcPartyKeys: Map<String, Array<String>>): Map<String, Array<String>>
+	fun findHealthcarePartiesBy(offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent>
+	fun findHealthcarePartiesBy(fuzzyName: String, offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent>
+	fun listHealthcarePartiesByNihii(nihii: String): Flow<HealthcareParty>
+	fun listHealthcarePartiesBySsin(ssin: String): Flow<HealthcareParty>
+	fun listHealthcarePartiesByName(name: String): Flow<HealthcareParty>
 
-    suspend fun createHealthcarePartyOnUserDb(healthcareParty: HealthcareParty, HealthcareParty: URI): HealthcareParty?
-
-    fun filterHealthcareParties(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<HealthcareParty>) : Flow<ViewQueryResultEvent>
+	suspend fun getPublicKey(healthcarePartyId: String): String?
+	fun listHealthcarePartiesBy(type: String, spec: String, firstCode: String, lastCode: String): Flow<ViewQueryResultEvent>
+	fun getHealthcareParties(ids: List<String>): Flow<HealthcareParty>
+	fun findHealthcarePartiesBySsinOrNihii(searchValue: String, paginationOffset: PaginationOffset<String>, desc: Boolean): Flow<ViewQueryResultEvent>
+	fun getHealthcarePartiesByParentId(parentId: String): Flow<HealthcareParty>
+	suspend fun getHcpHierarchyIds(sender: HealthcareParty): HashSet<String>
+	suspend fun createHealthcarePartyOnUserDb(healthcareParty: HealthcareParty, HealthcareParty: URI): HealthcareParty?
+	fun filterHealthcareParties(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<HealthcareParty>): Flow<ViewQueryResultEvent>
+	fun listHealthcarePartyIdsByIdentifiers(hcpIdentifiers: List<Identifier>): Flow<String>
+	fun listHealthcarePartyIdsByCode(codeType: String, codeCode: String?): Flow<String>
+	fun listHealthcarePartyIdsByTag(tagType: String, tagCode: String?): Flow<String>
 }

@@ -21,8 +21,9 @@ package org.taktik.icure.services.external.rest.v2.mapper.base
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.base.LinkQualification
 import org.taktik.icure.services.external.rest.v2.dto.base.LinkQualificationDto
+
 @Mapper(componentModel = "spring")
 interface LinkQualificationV2Mapper {
-	fun map(linkQualificationDto: LinkQualificationDto):LinkQualification
-	fun map(linkQualification: LinkQualification):LinkQualificationDto
+	fun map(linkQualificationDto: LinkQualificationDto): LinkQualification
+	fun map(linkQualification: LinkQualification): LinkQualificationDto
 }

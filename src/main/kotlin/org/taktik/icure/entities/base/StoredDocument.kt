@@ -23,32 +23,33 @@ import org.taktik.couchdb.entity.Versionable
 import org.taktik.icure.entities.embed.RevisionInfo
 
 interface StoredDocument : Versionable<String> {
-    @Suppress("PropertyName")
-    @JsonProperty("java_type")
-    fun getJavaType(): String {
-        return this::class.qualifiedName!!
-    }
-    @JsonProperty("java_type")
-    fun setJavaType(value: String) {
-        if (this::class.qualifiedName != value) throw IllegalArgumentException("Object with ID ${this.id} is not of expected type ${this::class.qualifiedName} but of type $value")
-    }
+	@Suppress("PropertyName")
+	@JsonProperty("java_type")
+	fun getJavaType(): String {
+		return this::class.qualifiedName!!
+	}
 
-    val deletionDate: Long?
-    val revisionsInfo: List<RevisionInfo>?
-    val conflicts: List<String>?
-    val attachments: Map<String, Attachment>?
+	@JsonProperty("java_type")
+	fun setJavaType(value: String) {
+		if (this::class.qualifiedName != value) throw IllegalArgumentException("Object with ID ${this.id} is not of expected type ${this::class.qualifiedName} but of type $value")
+	}
 
-    fun solveConflictsWith(other: StoredDocument): Map<String, Any?> {
-        return mapOf(
-                "id" to this.id,
-                "rev" to this.rev,
-                "revHistory" to (other.revHistory?.let { it + (this.revHistory ?: mapOf()) } ?: this.revHistory),
-                "revisionsInfo" to this.revisionsInfo,
-                "conflicts" to this.conflicts,
-                "attachments" to this.attachments,
-                "deletionDate" to (this.deletionDate ?: other.deletionDate)
-        )
-    }
+	val deletionDate: Long?
+	val revisionsInfo: List<RevisionInfo>?
+	val conflicts: List<String>?
+	val attachments: Map<String, Attachment>?
 
-    fun withDeletionDate(deletionDate: Long?): StoredDocument
+	fun solveConflictsWith(other: StoredDocument): Map<String, Any?> {
+		return mapOf(
+			"id" to this.id,
+			"rev" to this.rev,
+			"revHistory" to (other.revHistory?.let { it + (this.revHistory ?: mapOf()) } ?: this.revHistory),
+			"revisionsInfo" to this.revisionsInfo,
+			"conflicts" to this.conflicts,
+			"attachments" to this.attachments,
+			"deletionDate" to (this.deletionDate ?: other.deletionDate)
+		)
+	}
+
+	fun withDeletionDate(deletionDate: Long?): StoredDocument
 }

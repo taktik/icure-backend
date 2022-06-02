@@ -17,6 +17,7 @@
  */
 package org.taktik.icure.be.format.logic
 
+import java.time.LocalDateTime
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.dto.result.ResultInfo
@@ -24,12 +25,11 @@ import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
-import java.time.LocalDateTime
 
 interface ResultFormatLogic {
-    fun canHandle(doc: Document, enckeys: List<String>): Boolean
-    fun getInfos(doc: Document, full: Boolean, language: String, enckeys: List<String>): List<ResultInfo>
-    suspend fun doImport(language: String, doc: Document, hcpId: String?, protocolIds: List<String>, formIds: List<String>, planOfActionId: String?, ctc: Contact, enckeys: List<String>): Contact?
-    fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?): Flow<DataBuffer>
-    fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?): Flow<DataBuffer>
+	fun canHandle(doc: Document, enckeys: List<String>): Boolean
+	fun getInfos(doc: Document, full: Boolean, language: String, enckeys: List<String>): List<ResultInfo>
+	suspend fun doImport(language: String, doc: Document, hcpId: String?, protocolIds: List<String>, formIds: List<String>, planOfActionId: String?, ctc: Contact, enckeys: List<String>): Contact?
+	fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?): Flow<DataBuffer>
+	fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?): Flow<DataBuffer>
 }

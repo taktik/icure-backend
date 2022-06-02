@@ -22,8 +22,9 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.PackagingType
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.PackagingTypeDto
+
 @Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface PackagingTypeV2Mapper {
-	fun map(packagingTypeDto: PackagingTypeDto):PackagingType
-	fun map(packagingType: PackagingType):PackagingTypeDto
+	fun map(packagingTypeDto: PackagingTypeDto): PackagingType
+	fun map(packagingType: PackagingType): PackagingTypeDto
 }

@@ -22,47 +22,47 @@ import org.taktik.couchdb.entity.Option
 import org.taktik.couchdb.id.Identifiable
 
 interface LookupDAO<T : Identifiable<String>> {
-    /**
-     * Get an existing entity
-     *
-     * @param dbInstanceUrl URI of the couchdb cluster
-     * @param groupId of the targeted db
-     * @param id Id of the entity to get
-     * @param options Any eventual option for fetching the entity. Used if you need to retrieve conflicting revisions,
-     * revisions' history, etc...
-     * @return The entity
-     */
-    suspend fun get(id: String, vararg options: Option): T?
+	/**
+	 * Get an existing entity
+	 *
+	 * @param dbInstanceUrl URI of the couchdb cluster
+	 * @param groupId of the targeted db
+	 * @param id Id of the entity to get
+	 * @param options Any eventual option for fetching the entity. Used if you need to retrieve conflicting revisions,
+	 * revisions' history, etc...
+	 * @return The entity
+	 */
+	suspend fun get(id: String, vararg options: Option): T?
 
-    /**
-     * Gets a specific revision of an existing entity
-     *
-     * @param dbInstanceUrl URI of the couchdb cluster
-     * @param groupId of the targeted db
-     * @param id Id of the entity to get
-     * @param options Any eventual option for fetching the entity. Used if you need to retrieve conflicting revisions,
-     * revisions' history, etc...
-     * @return The entity
-     */
-    suspend fun get(id: String, rev: String?, vararg options: Option): T?
+	/**
+	 * Gets a specific revision of an existing entity
+	 *
+	 * @param dbInstanceUrl URI of the couchdb cluster
+	 * @param groupId of the targeted db
+	 * @param id Id of the entity to get
+	 * @param options Any eventual option for fetching the entity. Used if you need to retrieve conflicting revisions,
+	 * revisions' history, etc...
+	 * @return The entity
+	 */
+	suspend fun get(id: String, rev: String?, vararg options: Option): T?
 
-    /**
-     * Save entity and indicate it is a new entity
-     *
-     * @param dbInstanceUrl URI of the couchdb cluster
-     * @param groupId of the targeted db
-     * @param entity The entity to save
-     * @return Returns the saved entity
-     */
-    suspend fun create(entity: T): T?
+	/**
+	 * Save entity and indicate it is a new entity
+	 *
+	 * @param dbInstanceUrl URI of the couchdb cluster
+	 * @param groupId of the targeted db
+	 * @param entity The entity to save
+	 * @return Returns the saved entity
+	 */
+	suspend fun create(entity: T): T?
 
-    /**
-     * Save entity without knowing if it's a new entity or not
-     *
-     * @param dbInstanceUrl URI of the couchdb cluster
-     * @param groupId of the targeted db
-     * @param entity The entity to save
-     * @return Returns the saved entity
-     */
-    suspend fun save(entity: T): T?
+	/**
+	 * Save entity without knowing if it's a new entity or not
+	 *
+	 * @param dbInstanceUrl URI of the couchdb cluster
+	 * @param groupId of the targeted db
+	 * @param entity The entity to save
+	 * @return Returns the saved entity
+	 */
+	suspend fun save(entity: T): T?
 }

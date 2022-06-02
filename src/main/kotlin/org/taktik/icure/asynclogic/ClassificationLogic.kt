@@ -25,18 +25,18 @@ import org.taktik.icure.entities.Classification
 import org.taktik.icure.entities.embed.Delegation
 
 interface ClassificationLogic : EntityPersister<Classification, String> {
-    fun getGenericDAO(): ClassificationDAO
+	fun getGenericDAO(): ClassificationDAO
 
-    suspend fun createClassification(classification: Classification): Classification?
+	suspend fun createClassification(classification: Classification): Classification?
 
-    suspend fun getClassification(classificationId: String): Classification?
-    fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification>
-    fun deleteClassifications(ids: Set<String>): Flow<DocIdentifier>
+	suspend fun getClassification(classificationId: String): Classification?
+	fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification>
+	fun deleteClassifications(ids: Set<String>): Flow<DocIdentifier>
 
-    suspend fun modifyClassification(classification: Classification): Classification
+	suspend fun modifyClassification(classification: Classification): Classification
 
-    suspend fun addDelegation(classificationId: String, healthcarePartyId: String, delegation: Delegation): Classification?
+	suspend fun addDelegation(classificationId: String, healthcarePartyId: String, delegation: Delegation): Classification?
 
-    suspend fun addDelegations(classificationId: String, delegations: List<Delegation>): Classification?
-    fun getClassifications(ids: List<String>): Flow<Classification>
+	suspend fun addDelegations(classificationId: String, delegations: List<Delegation>): Classification?
+	fun getClassifications(ids: List<String>): Flow<Classification>
 }

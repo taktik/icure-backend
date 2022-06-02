@@ -28,12 +28,12 @@ import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.AddedDocume
 
 @Mapper(componentModel = "spring", uses = [AddedDocumentV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface VerseV2Mapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
 	fun map(verseDto: VerseDto): Verse
-	fun map(verse: Verse):VerseDto
+	fun map(verse: Verse): VerseDto
 }

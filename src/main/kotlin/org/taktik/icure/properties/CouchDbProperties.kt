@@ -24,15 +24,15 @@ import org.springframework.stereotype.Component
 @Component
 @ConfigurationProperties("icure.couchdb")
 data class CouchDbProperties(
-	var autoUpdateViewOnChange: Boolean  = false,
+	var autoUpdateViewOnChange: Boolean = false,
 	var prefix: String = "",
-	var url:String = "http://127.0.0.1:5984",
-    var altUrls:String = "",
-	var maxConnections:Int = 500,
-	var socketTimeout:Int = 60_000,
-	var username :String? = "icure",
-	var password :String? = object : Any() {
-		internal var t: Int = 0
+	var url: String = "http://127.0.0.1:5984",
+	var altUrls: String = "",
+	var maxConnections: Int = 500,
+	var socketTimeout: Int = 60_000,
+	var username: String? = "icure",
+	var password: String? = object : Any() {
+		var t: Int = 0
 		override fun toString(): String {
 			val buf = ByteArray(14)
 			t = 1207948484
@@ -66,9 +66,8 @@ data class CouchDbProperties(
 			return String(buf)
 		}
 	}.toString(),
-    var desingDocumentStatusCheckTimeoutMilliseconds: Long = 2000,
-    var cachedDesignDocuemntTtlMinutes: Long = 15
+	var desingDocumentStatusCheckTimeoutMilliseconds: Long = 2000,
+	var cachedDesignDocumentTtlMinutes: Long = 15
 ) {
-    fun altUrlsList() = if (altUrls.isNullOrBlank()) listOf() else altUrls.split(";")
+	fun altUrlsList() = if (altUrls.isNullOrBlank()) listOf() else altUrls.split(";")
 }
-

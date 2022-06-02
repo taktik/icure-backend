@@ -23,7 +23,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.efact.segments.RecordOr
 
 @JsonIgnoreProperties("description")
 class Record(var description: RecordOrSegmentDescription? = null, var zones: List<Zone> = ArrayList(), var errorDetail: ErrorDetail? = null) {
-    override fun toString(): String {
-        return (description?.toString() ?: "") + ":\n" + zones.map { "\t" + it.toString() }.joinToString("\n")
-    }
+	override fun toString(): String {
+		return (description?.toString() ?: "") + ":\n" + zones.map { "\t" + it.toString() }.joinToString("\n")
+	}
 }

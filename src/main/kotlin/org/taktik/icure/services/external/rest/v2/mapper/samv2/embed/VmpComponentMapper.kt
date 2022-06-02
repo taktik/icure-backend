@@ -22,8 +22,9 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.VmpComponent
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.VmpComponentDto
+
 @Mapper(componentModel = "spring", uses = [RouteOfAdministrationV2Mapper::class, SamTextV2Mapper::class, VirtualIngredientV2Mapper::class, VirtualFormV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface VmpComponentV2Mapper {
-	fun map(vmpComponentDto: VmpComponentDto):VmpComponent
-	fun map(vmpComponent: VmpComponent):VmpComponentDto
+	fun map(vmpComponentDto: VmpComponentDto): VmpComponent
+	fun map(vmpComponent: VmpComponent): VmpComponentDto
 }

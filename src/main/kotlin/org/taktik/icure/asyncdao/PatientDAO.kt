@@ -28,67 +28,69 @@ import org.taktik.icure.entities.embed.Identifier
 
 interface PatientDAO : GenericDAO<Patient> {
 
-    fun listPatientIdsByHcPartyAndName(name: String, healthcarePartyId: String): Flow<String>
-    fun listPatientIdsOfHcPartyAndName(name: String, healthcarePartyId: String): Flow<String>
-    fun listPatientIdsByHcPartyAndSsin(ssin: String, healthcarePartyId: String): Flow<String>
-    fun listPatientIdsOfHcPartyAndSsin(ssin: String, healthcarePartyId: String): Flow<String>
-    fun listPatientIdsByActive(active: Boolean, healthcarePartyId: String): Flow<String>
-    fun listOfMergesAfter(date: Long?): Flow<Patient>
-    suspend fun countByHcParty(healthcarePartyId: String): Int
-    suspend fun countOfHcParty(healthcarePartyId: String): Int
-    fun listPatientIdsByHcParty(healthcarePartyId: String): Flow<String>
-    fun listPatientIdsByHcPartyAndDateOfBirth(date: Int?, healthcarePartyId: String): Flow<String>
+	fun listPatientIdsByHcPartyAndName(name: String, healthcarePartyId: String): Flow<String>
+	fun listPatientIdsOfHcPartyAndName(name: String, healthcarePartyId: String): Flow<String>
+	fun listPatientIdsByHcPartyAndSsin(ssin: String, healthcarePartyId: String): Flow<String>
+	fun listPatientIdsOfHcPartyAndSsin(ssin: String, healthcarePartyId: String): Flow<String>
+	fun listPatientIdsByActive(active: Boolean, healthcarePartyId: String): Flow<String>
+	fun listOfMergesAfter(date: Long?): Flow<Patient>
+	suspend fun countByHcParty(healthcarePartyId: String): Int
+	suspend fun countOfHcParty(healthcarePartyId: String): Int
+	fun listPatientIdsByHcParty(healthcarePartyId: String): Flow<String>
+	fun listPatientIdsByHcPartyAndDateOfBirth(date: Int?, healthcarePartyId: String): Flow<String>
 
-    fun listPatientIdsByHcPartyAndDateOfBirth(startDate: Int?, endDate: Int?, healthcarePartyId: String): Flow<String>
-    fun listPatientIdsByHcPartyGenderEducationProfession(healthcarePartyId: String, gender: Gender?, education: String?, profession: String?): Flow<String>
-    fun listPatientIdsForHcPartyDateOfBirth(date: Int?, healthcarePartyId: String): Flow<String>
-    fun listPatientIdsByHcPartyAndNameContainsFuzzy(searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String>
-    fun listPatientIdsOfHcPartyNameContainsFuzzy(searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String>
+	fun listPatientIdsByHcPartyAndDateOfBirth(startDate: Int?, endDate: Int?, healthcarePartyId: String): Flow<String>
+	fun listPatientIdsByHcPartyGenderEducationProfession(healthcarePartyId: String, gender: Gender?, education: String?, profession: String?): Flow<String>
+	fun listPatientIdsForHcPartyDateOfBirth(date: Int?, healthcarePartyId: String): Flow<String>
+	fun listPatientIdsByHcPartyAndNameContainsFuzzy(searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String>
+	fun listPatientIdsOfHcPartyNameContainsFuzzy(searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String>
 
-    fun listPatientIdsByHcPartyAndExternalId(externalId: String?, healthcarePartyId: String): Flow<String>
+	fun listPatientIdsByHcPartyAndExternalId(externalId: String?, healthcarePartyId: String): Flow<String>
 
-    fun findPatientIdsByHcParty(healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
-    fun findPatientsByHcPartyAndName(name: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
-    fun findPatientsOfHcPartyAndName(name: String?, healthcarePartyId: String, offset: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
-    fun findPatientsByHcPartyAndSsin(ssin: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
-    fun findPatientsOfHcPartyAndSsin(ssin: String?, healthcarePartyId: String, offset: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
+	fun findPatientIdsByHcParty(healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
+	fun findPatientsByHcPartyAndName(name: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
+	fun findPatientsOfHcPartyAndName(name: String?, healthcarePartyId: String, offset: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
+	fun findPatientsByHcPartyAndSsin(ssin: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
+	fun findPatientsOfHcPartyAndSsin(ssin: String?, healthcarePartyId: String, offset: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
 
-    fun findPatientsByHcPartyModificationDate(startDate: Long?, endDate: Long?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
+	fun findPatientsByHcPartyModificationDate(startDate: Long?, endDate: Long?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
 
-    fun findPatientsOfHcPartyModificationDate(startDate: Long?, endDate: Long?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
+	fun findPatientsOfHcPartyModificationDate(startDate: Long?, endDate: Long?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
 
-    fun findPatientsByHcPartyDateOfBirth(startDate: Int?, endDate: Int?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
-    fun findPatientsOfHcPartyDateOfBirth(startDate: Int?, endDate: Int?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
+	fun findPatientsByHcPartyDateOfBirth(startDate: Int?, endDate: Int?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
+	fun findPatientsOfHcPartyDateOfBirth(startDate: Int?, endDate: Int?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
 
+	suspend fun findPatientsByUserId(id: String): Patient?
+	fun getPatients(patIds: Collection<String>): Flow<Patient>
 
-    suspend fun findPatientsByUserId(id: String): Patient?
-    fun getPatients(patIds: Collection<String>): Flow<Patient>
+	suspend fun getPatientByExternalId(externalId: String): Patient?
 
-    suspend fun getPatientByExternalId(externalId: String): Patient?
+	fun findDeletedPatientsByDeleteDate(start: Long, end: Long?, descending: Boolean, paginationOffset: PaginationOffset<Long>): Flow<ViewQueryResultEvent>
 
-    fun findDeletedPatientsByDeleteDate(start: Long, end: Long?, descending: Boolean, paginationOffset: PaginationOffset<Long>): Flow<ViewQueryResultEvent>
+	fun findDeletedPatientsByNames(firstName: String?, lastName: String?): Flow<Patient>
 
-    fun findDeletedPatientsByNames(firstName: String?, lastName: String?): Flow<Patient>
+	fun listConflicts(): Flow<Patient>
 
-    fun listConflicts(): Flow<Patient>
+	fun findPatientsModifiedAfter(date: Long, paginationOffset: PaginationOffset<Long>): Flow<ViewQueryResultEvent>
 
-    fun findPatientsModifiedAfter(date: Long, paginationOffset: PaginationOffset<Long>): Flow<ViewQueryResultEvent>
+	fun listPatientIdsByHcPartyAndSsins(ssins: Collection<String>, healthcarePartyId: String): Flow<String>
 
-    fun listPatientIdsByHcPartyAndSsins(ssins: Collection<String>, healthcarePartyId: String): Flow<String>
+	fun listPatientsByHcPartyName(searchString: String?, healthcarePartyId: String): Flow<String>
 
-    fun listPatientsByHcPartyName(searchString: String?, healthcarePartyId: String): Flow<String>
+	@Deprecated(message = "A Data Owner may now have multiple AES Keys. Use getAesExchangeKeysForDelegate instead")
+	suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String>
 
-    suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String>
+	suspend fun getAesExchangeKeysForDelegate(healthcarePartyId: String): Map<String, Map<String, Map<String, String>>>
 
-    fun getDuplicatePatientsBySsin(healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
+	fun getDuplicatePatientsBySsin(healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
 
-    fun getDuplicatePatientsByName(healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
+	fun getDuplicatePatientsByName(healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
 
-    fun findPatients(ids: Collection<String>):  Flow<ViewQueryResultEvent>
+	fun findPatients(ids: Collection<String>): Flow<ViewQueryResultEvent>
 
-    fun findPatients(ids: Flow<String>):  Flow<ViewQueryResultEvent>
+	fun findPatients(ids: Flow<String>): Flow<ViewQueryResultEvent>
 
-    fun listPatientIdsByHcPartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>): Flow<String>
+	fun listPatientIdsByHcPartyAndIdentifiers(healthcarePartyId: String, identifiers: List<Identifier>): Flow<String>
 
-    fun listPatientsByHcPartyAndIdentifier(healthcarePartyId: String, system: String, id: String): Flow<Patient>
+	fun listPatientsByHcPartyAndIdentifier(healthcarePartyId: String, system: String, id: String): Flow<Patient>
 }

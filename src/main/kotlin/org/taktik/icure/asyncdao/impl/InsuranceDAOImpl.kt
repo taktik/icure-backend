@@ -18,7 +18,11 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.annotation.View
@@ -31,26 +35,28 @@ import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Insurance
 import org.taktik.icure.properties.CouchDbProperties
 
-
 @Repository("insuranceDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Insurance' && !doc.deleted) emit( null, doc._id )}")
-class InsuranceDAOImpl(couchDbProperties: CouchDbProperties,
-                       @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Insurance>(couchDbProperties, Insurance::class.java, couchDbDispatcher, idGenerator), InsuranceDAO {
+class InsuranceDAOImpl(
+	couchDbProperties: CouchDbProperties,
+	@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
+	idGenerator: IDGenerator
+) : GenericDAOImpl<Insurance>(couchDbProperties, Insurance::class.java, couchDbDispatcher, idGenerator), InsuranceDAO {
 
-    @View(name = "all_by_code", map = "classpath:js/insurance/all_by_code_map.js")
-    override fun listInsurancesByCode(code: String): Flow<Insurance> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	@View(name = "all_by_code", map = "classpath:js/insurance/all_by_code_map.js")
+	override fun listInsurancesByCode(code: String): Flow<Insurance> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        emitAll(client.queryViewIncludeDocs<String, String, Insurance>(createQuery(client, "all_by_code").key(code).includeDocs(true)).map { it.doc })
-    }
+		emitAll(client.queryViewIncludeDocs<String, String, Insurance>(createQuery(client, "all_by_code").key(code).includeDocs(true)).map { it.doc })
+	}
 
-    @View(name = "all_by_name", map = "classpath:js/insurance/all_by_name_map.js")
-    override fun listInsurancesByName(name: String): Flow<Insurance> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	@View(name = "all_by_name", map = "classpath:js/insurance/all_by_name_map.js")
+	override fun listInsurancesByName(name: String): Flow<Insurance> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val sanitizedName = StringUtils.sanitizeString(name)
+		val sanitizedName = StringUtils.sanitizeString(name)
 
-        val ids = client.queryView<Array<String>, String>(createQuery(client, "all_by_name").startKey(ComplexKey.of(sanitizedName)).endKey(ComplexKey.of(sanitizedName + "\uFFF0")).includeDocs(false)).mapNotNull { it.value }
-        emitAll(getEntities(ids))
-    }
+		val ids = client.queryView<Array<String>, String>(createQuery(client, "all_by_name").startKey(ComplexKey.of(sanitizedName)).endKey(ComplexKey.of(sanitizedName + "\uFFF0")).includeDocs(false)).mapNotNull { it.value }
+		emitAll(getEntities(ids))
+	}
 }

@@ -17,6 +17,7 @@
  */
 package org.taktik.icure.asynclogic.impl.filter
 
+import java.io.Serializable
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
@@ -24,38 +25,39 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.taktik.couchdb.id.Identifiable
-import java.io.Serializable
-import java.util.*
 
 @ExperimentalCoroutinesApi
 class Filters : ApplicationContextAware {
-    private var applicationContext: ApplicationContext? = null
-    private val filters: MutableMap<String, Filter<*, *, *>> = HashMap()
+	private var applicationContext: ApplicationContext? = null
+	private val filters: MutableMap<String, Filter<*, *, *>> = HashMap()
 
-    override fun setApplicationContext(applicationContext: ApplicationContext) {
-        this.applicationContext = applicationContext
-    }
+	override fun setApplicationContext(applicationContext: ApplicationContext) {
+		this.applicationContext = applicationContext
+	}
 
-    fun <T : Serializable, O : Identifiable<T>> resolve(filter: org.taktik.icure.domain.filter.Filter<T, O>) = flow<T> {
-        val truncatedFullClassName = filter.javaClass.name.replace(".+?filter\\.impl\\.".toRegex(), "").replace(".+?dto\\.filter\\.".toRegex(), "")
-        val filterToBeResolved =
-                filters[truncatedFullClassName] as Filter<T, O, org.taktik.icure.domain.filter.Filter<T, O>>?
-                        ?: try {
-                            ((applicationContext!!.autowireCapableBeanFactory.createBean(
-                                    Class.forName("org.taktik.icure.asynclogic.impl.filter.$truncatedFullClassName"),
-                                    AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
-                                    false
-                            )) as? Filter<T, O, org.taktik.icure.domain.filter.Filter<T, O>>)?.also { filters[truncatedFullClassName] = it }
-                        } catch (e: ClassNotFoundException) {
-                            throw IllegalStateException(e)
-                        }
-        val ids = hashSetOf<Serializable>()
-        (filterToBeResolved?.resolve(filter, this@Filters)?: throw IllegalStateException("Invalid filter")).collect {
-            if (!ids.contains(it)) {
-                emit(it)
-                ids.add(it)
-            }
-        }
-    }
-
+	fun <T : Serializable, O : Identifiable<T>> resolve(filter: org.taktik.icure.domain.filter.Filter<T, O>) = flow<T> {
+		val truncatedFullClassName = filter.javaClass.name.replace(".+?filter\\.impl\\.".toRegex(), "").replace(".+?dto\\.filter\\.".toRegex(), "")
+		val filterToBeResolved =
+			filters[truncatedFullClassName] as Filter<T, O, org.taktik.icure.domain.filter.Filter<T, O>>?
+				?: try {
+					(
+						(
+							applicationContext!!.autowireCapableBeanFactory.createBean(
+								Class.forName("org.taktik.icure.asynclogic.impl.filter.$truncatedFullClassName"),
+								AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
+								false
+							)
+							) as? Filter<T, O, org.taktik.icure.domain.filter.Filter<T, O>>
+						)?.also { filters[truncatedFullClassName] = it }
+				} catch (e: ClassNotFoundException) {
+					throw IllegalStateException(e)
+				}
+		val ids = hashSetOf<Serializable>()
+		(filterToBeResolved?.resolve(filter, this@Filters) ?: throw IllegalStateException("Invalid filter")).collect {
+			if (!ids.contains(it)) {
+				emit(it)
+				ids.add(it)
+			}
+		}
+	}
 }

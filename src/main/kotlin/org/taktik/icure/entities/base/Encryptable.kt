@@ -30,31 +30,30 @@ import org.taktik.icure.entities.utils.MergeUtil.mergeMapsOfSets
  * @property encryptedSelf The base64 encoded data of this object, formatted as JSON and encrypted in AES using the random master key from encryptionKeys.
  */
 interface Encryptable {
-    val secretForeignKeys: Set<String>
+	val secretForeignKeys: Set<String>
 
-    //Used when we want to find the patient for this contact
-    //These keys are the public patient ids encrypted using the hcParty keys.
-    val cryptedForeignKeys: Map<String, Set<Delegation>>
+	//Used when we want to find the patient for this contact
+	//These keys are the public patient ids encrypted using the hcParty keys.
+	val cryptedForeignKeys: Map<String, Set<Delegation>>
 
-    //When a document is created, the responsible generates a cryptographically random master key (never to be used for something else than referencing from other entities)
-    //He/she encrypts it using his own AES exchange key and stores it as a delegation
-    //The responsible is thus always in the delegations as well
-    val delegations: Map<String, Set<Delegation>>
+	//When a document is created, the responsible generates a cryptographically random master key (never to be used for something else than referencing from other entities)
+	//He/she encrypts it using his own AES exchange key and stores it as a delegation
+	//The responsible is thus always in the delegations as well
+	val delegations: Map<String, Set<Delegation>>
 
-    //When a document needs to be encrypted, the responsible generates a cryptographically random master key (different from the delegation key, never to appear in clear anywhere in the db)
-    //He/she encrypts it using his own AES exchange key and stores it as a delegation
-    val encryptionKeys: Map<String, Set<Delegation>>
+	//When a document needs to be encrypted, the responsible generates a cryptographically random master key (different from the delegation key, never to appear in clear anywhere in the db)
+	//He/she encrypts it using his own AES exchange key and stores it as a delegation
+	val encryptionKeys: Map<String, Set<Delegation>>
 
-    val encryptedSelf: String?
+	val encryptedSelf: String?
 
-    fun solveConflictsWith(other: Encryptable): Map<String, Any?> {
-        return mapOf(
-                "secretForeignKeys" to this.secretForeignKeys + other.secretForeignKeys,
-                "cryptedForeignKeys" to mergeMapsOfSets(this.cryptedForeignKeys, other.cryptedForeignKeys),
-                "delegations" to mergeMapsOfSets(this.delegations, other.delegations),
-                "encryptionKeys" to mergeMapsOfSets(this.encryptionKeys, other.encryptionKeys),
-                "encryptedSelf" to (this.encryptedSelf ?: other.encryptedSelf)
-        )
-    }
-
+	fun solveConflictsWith(other: Encryptable): Map<String, Any?> {
+		return mapOf(
+			"secretForeignKeys" to this.secretForeignKeys + other.secretForeignKeys,
+			"cryptedForeignKeys" to mergeMapsOfSets(this.cryptedForeignKeys, other.cryptedForeignKeys),
+			"delegations" to mergeMapsOfSets(this.delegations, other.delegations),
+			"encryptionKeys" to mergeMapsOfSets(this.encryptionKeys, other.encryptionKeys),
+			"encryptedSelf" to (this.encryptedSelf ?: other.encryptedSelf)
+		)
+	}
 }

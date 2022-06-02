@@ -28,12 +28,12 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.TypedValueMapper
 
 @Mapper(componentModel = "spring", uses = [TypedValueMapper::class, PropertyTypeMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface PropertyMapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(propertyDto: PropertyDto):Property
-	fun map(property: Property):PropertyDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(propertyDto: PropertyDto): Property
+	fun map(property: Property): PropertyDto
 }

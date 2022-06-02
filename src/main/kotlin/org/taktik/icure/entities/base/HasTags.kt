@@ -23,5 +23,5 @@ package org.taktik.icure.entities.base
  *
  */
 interface HasTags {
-    val tags: Set<CodeStub>
+	val tags: Set<CodeStub>
 }

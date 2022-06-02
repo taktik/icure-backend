@@ -28,8 +28,8 @@ import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.SamTextDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class VmpStubDto(
-        override val id: String,
-        val code: String? = null,
-        val vmpGroup: VmpGroupStubDto? = null,
-        val name: SamTextDto? = null
+	override val id: String,
+	val code: String? = null,
+	val vmpGroup: VmpGroupStubDto? = null,
+	val name: SamTextDto? = null
 ) : IdentifiableDto<String>

@@ -21,8 +21,9 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Visibility
 import org.taktik.icure.services.external.rest.v2.dto.embed.VisibilityDto
+
 @Mapper(componentModel = "spring")
 interface VisibilityV2Mapper {
-	fun map(visibilityDto: VisibilityDto):Visibility
-	fun map(visibility: Visibility):VisibilityDto
+	fun map(visibilityDto: VisibilityDto): Visibility
+	fun map(visibility: Visibility): VisibilityDto
 }

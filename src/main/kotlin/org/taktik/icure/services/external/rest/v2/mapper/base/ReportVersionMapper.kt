@@ -21,8 +21,9 @@ package org.taktik.icure.services.external.rest.v2.mapper.base
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.base.ReportVersion
 import org.taktik.icure.services.external.rest.v2.dto.base.ReportVersionDto
+
 @Mapper(componentModel = "spring")
 interface ReportVersionV2Mapper {
-	fun map(reportVersionDto: ReportVersionDto):ReportVersion
-	fun map(reportVersion: ReportVersion):ReportVersionDto
+	fun map(reportVersionDto: ReportVersionDto): ReportVersion
+	fun map(reportVersion: ReportVersion): ReportVersionDto
 }

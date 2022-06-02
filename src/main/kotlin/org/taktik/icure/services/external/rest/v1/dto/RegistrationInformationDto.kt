@@ -8,8 +8,8 @@ import com.github.pozo.KotlinBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class RegistrationInformationDto(
-    val firstName: String,
-    val lastName: String,
-    val emailAddress: String,
-    val userOptions: String? = null
+	val firstName: String,
+	val lastName: String,
+	val emailAddress: String,
+	val userOptions: String? = null
 )

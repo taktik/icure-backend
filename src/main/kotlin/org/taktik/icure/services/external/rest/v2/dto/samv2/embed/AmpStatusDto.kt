@@ -19,7 +19,7 @@
 package org.taktik.icure.services.external.rest.v2.dto.samv2.embed
 
 enum class AmpStatusDto {
-    AUTHORIZED,
-    SUSPENDED,
-    REVOKED
+	AUTHORIZED,
+	SUSPENDED,
+	REVOKED
 }

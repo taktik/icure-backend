@@ -19,5 +19,5 @@
 package org.taktik.icure.services.external.rest.v2.dto.base
 
 enum class AppendixTypeDto {
-    externalLink, video, description
+	externalLink, video, description
 }

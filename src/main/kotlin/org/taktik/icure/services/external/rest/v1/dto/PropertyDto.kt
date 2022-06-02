@@ -28,14 +28,14 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.TypedValueDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class PropertyDto(
-        override val id: String,
-        override val rev: String? = null,
-        override val deletionDate: Long? = null,
+	override val id: String,
+	override val rev: String? = null,
+	override val deletionDate: Long? = null,
 
-        val type: PropertyTypeDto? = null,
-        val typedValue: TypedValueDto<*>? = null,
-        override val encryptedSelf: String? = null
+	val type: PropertyTypeDto? = null,
+	val typedValue: TypedValueDto<*>? = null,
+	override val encryptedSelf: String? = null
 ) : StoredDocumentDto, EncryptedDto {
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

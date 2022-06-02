@@ -21,5 +21,5 @@ import org.taktik.icure.domain.filter.Filter
 import org.taktik.icure.entities.User
 
 interface UserByIdsFilter : Filter<String, User> {
-    val ids: List<String>?
+	val ids: List<String>?
 }

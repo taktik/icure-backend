@@ -18,5 +18,5 @@
 package org.taktik.icure.services.external.rest.v2.dto.base
 
 enum class ReportVersionDto {
-    V1_0_0
+	V1_0_0
 }

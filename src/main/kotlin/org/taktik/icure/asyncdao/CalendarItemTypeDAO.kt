@@ -22,5 +22,5 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.CalendarItemType
 
 interface CalendarItemTypeDAO : GenericDAO<CalendarItemType> {
-    fun getCalendarItemsWithDeleted(): Flow<CalendarItemType>
+	fun getCalendarItemsWithDeleted(): Flow<CalendarItemType>
 }

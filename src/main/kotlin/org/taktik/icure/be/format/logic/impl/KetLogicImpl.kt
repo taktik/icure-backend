@@ -17,6 +17,15 @@
  */
 package org.taktik.icure.be.format.logic.impl
 
+import java.io.IOException
+import java.time.LocalDateTime
+import java.util.stream.Collectors
+import java.util.stream.Stream
+import java.util.stream.StreamSupport
+import javax.xml.parsers.ParserConfigurationException
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathExpressionException
+import javax.xml.xpath.XPathFactory
 import kotlinx.coroutines.flow.flowOf
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.stereotype.Service
@@ -32,83 +41,78 @@ import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 import org.xml.sax.SAXException
-import java.io.IOException
-import java.time.LocalDateTime
-import java.util.*
-import java.util.stream.Collectors
-import java.util.stream.Stream
-import java.util.stream.StreamSupport
-import javax.xml.parsers.ParserConfigurationException
-import javax.xml.xpath.XPathConstants
-import javax.xml.xpath.XPathExpressionException
-import javax.xml.xpath.XPathFactory
 
 /**
  * Created by aduchate on 20/06/2017.
  */
 @Service
 class KetLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: FormLogic) : GenericResultFormatLogicImpl(healthcarePartyLogic, formLogic), KetLogic {
-    @Throws(IOException::class)
-    override fun canHandle(doc: Document, enckeys: List<String>): Boolean {
-        return try {
-            val xml = getXmlDocument(doc!!, enckeys)
-            val xPathfactory = XPathFactory.newInstance()
-            val xpath = xPathfactory.newXPath()
-            val expr = xpath.compile("/Record/Header/LaboFileFormatVersion")
-            xml != null && (expr.evaluate(xml, XPathConstants.NODESET) as NodeList).length > 0
-        } catch (e: ParserConfigurationException) {
-            false
-        } catch (e: SAXException) {
-            false
-        } catch (e: XPathExpressionException) {
-            false
-        }
-    }
+	@Throws(IOException::class)
+	override fun canHandle(doc: Document, enckeys: List<String>): Boolean {
+		return try {
+			val xml = getXmlDocument(doc, enckeys)
+			val xPathfactory = XPathFactory.newInstance()
+			val xpath = xPathfactory.newXPath()
+			val expr = xpath.compile("/Record/Header/LaboFileFormatVersion")
+			xml != null && (expr.evaluate(xml, XPathConstants.NODESET) as NodeList).length > 0
+		} catch (e: ParserConfigurationException) {
+			false
+		} catch (e: SAXException) {
+			false
+		} catch (e: XPathExpressionException) {
+			false
+		}
+	}
 
-    @Throws(IOException::class)
-    override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: List<String>): List<ResultInfo> {
-        return try {
-            val xml = getXmlDocument(doc!!, enckeys)
-            val xPathfactory = XPathFactory.newInstance()
-            val xpath = xPathfactory.newXPath()
-            val expr = xpath.compile("/Record/Body/Patient/Person")
-            val nl = expr.evaluate(xml, XPathConstants.NODESET) as NodeList
-            getStream(nl).map { n: Node -> getResultInfo(n) }.collect(Collectors.toList())
-        } catch (e: ParserConfigurationException) {
-            ArrayList()
-        } catch (e: SAXException) {
-            ArrayList()
-        } catch (e: XPathExpressionException) {
-            ArrayList()
-        }
-    }
+	@Throws(IOException::class)
+	override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: List<String>): List<ResultInfo> {
+		return try {
+			val xml = getXmlDocument(doc, enckeys)
+			val xPathfactory = XPathFactory.newInstance()
+			val xpath = xPathfactory.newXPath()
+			val expr = xpath.compile("/Record/Body/Patient/Person")
+			val nl = expr.evaluate(xml, XPathConstants.NODESET) as NodeList
+			getStream(nl).map { n: Node -> getResultInfo(n) }.collect(Collectors.toList())
+		} catch (e: ParserConfigurationException) {
+			ArrayList()
+		} catch (e: SAXException) {
+			ArrayList()
+		} catch (e: XPathExpressionException) {
+			ArrayList()
+		}
+	}
 
-    private fun getStream(nl: NodeList): Stream<Node> {
-        return StreamSupport.stream((Iterable {
-            object : Iterator<Node> {
-                var i = 0
-                override fun hasNext(): Boolean {
-                    return i < nl.length
-                }
+	private fun getStream(nl: NodeList): Stream<Node> {
+		return StreamSupport.stream(
+			(
+				Iterable {
+					object : Iterator<Node> {
+						var i = 0
+						override fun hasNext(): Boolean {
+							return i < nl.length
+						}
 
-                override fun next(): Node {
-                    return nl.item(i++)
-                }
-            }
-        }).spliterator(), false)
-    }
+						override fun next(): Node {
+							return nl.item(i++)
+						}
+					}
+				}
+				).spliterator(),
+			false
+		)
+	}
 
-    private fun getResultInfo(n: Node): ResultInfo {
-        val resultInfo = ResultInfo()
-        resultInfo.lastName = getStream(n.childNodes).filter { nd: Node -> (nd as Element).tagName == "LastName" }.findFirst().map { obj: Node -> obj.textContent }.orElse(null)
-        resultInfo.firstName = getStream(n.childNodes).filter { nd: Node -> (nd as Element).tagName == "FirstName" }.findFirst().map { obj: Node -> obj.textContent }.orElse(null)
-        return resultInfo
-    }
+	private fun getResultInfo(n: Node): ResultInfo {
+		val resultInfo = ResultInfo()
+		resultInfo.lastName = getStream(n.childNodes).filter { nd: Node -> (nd as Element).tagName == "LastName" }.findFirst().map { obj: Node -> obj.textContent }.orElse(null)
+		resultInfo.firstName = getStream(n.childNodes).filter { nd: Node -> (nd as Element).tagName == "FirstName" }.findFirst().map { obj: Node -> obj.textContent }.orElse(null)
+		return resultInfo
+	}
 
-    @Throws(IOException::class)
-    override suspend fun doImport(language: String, doc: Document, hcpId: String?, protocolIds: List<String>, formIds: List<String>, planOfActionId: String?, ctc: Contact, enckeys: List<String>): Contact? {
-        return null
-    }
+	@Throws(IOException::class)
+	override suspend fun doImport(language: String, doc: Document, hcpId: String?, protocolIds: List<String>, formIds: List<String>, planOfActionId: String?, ctc: Contact, enckeys: List<String>): Contact? {
+		return null
+	}
 
-    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?) = flowOf<DataBuffer>()
+	override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?) = flowOf<DataBuffer>()
 }

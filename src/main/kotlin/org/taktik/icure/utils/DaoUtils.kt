@@ -18,13 +18,13 @@
 
 package org.taktik.icure.utils
 
+import java.net.URI
 import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.icure.db.PaginationOffset
-import java.net.URI
 
 inline fun <reified E> PaginationOffset<List<E>>.toComplexKeyPaginationOffset(): PaginationOffset<ComplexKey> =
-        PaginationOffset(this.startKey?.toComplexKey(), this.startDocumentId, this.offset, this.limit)
+	PaginationOffset(this.startKey?.toComplexKey(), this.startDocumentId, this.offset, this.limit)
 
 inline fun <reified E> List<E>.toComplexKey(): ComplexKey = ComplexKey.of(*this.toTypedArray())
 
-fun getFullId(dbInstanceUrl: URI, id: String) = "${dbInstanceUrl}:$id"
+fun getFullId(dbInstanceUrl: URI, id: String) = "$dbInstanceUrl:$id"

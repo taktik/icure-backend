@@ -22,8 +22,9 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.TimeTableItem
 import org.taktik.icure.services.external.rest.v2.dto.embed.TimeTableItemDto
+
 @Mapper(componentModel = "spring", uses = [TimeTableHourV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface TimeTableItemV2Mapper {
-	fun map(timeTableItemDto: TimeTableItemDto):TimeTableItem
-	fun map(timeTableItem: TimeTableItem):TimeTableItemDto
+	fun map(timeTableItemDto: TimeTableItemDto): TimeTableItem
+	fun map(timeTableItem: TimeTableItem): TimeTableItemDto
 }

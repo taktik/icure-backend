@@ -17,50 +17,29 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.filter
 
+import java.io.Serializable
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.domain.filter.Filter
 import org.taktik.icure.handlers.JacksonFilterDeserializer
-import java.io.Serializable
 
 @JsonDeserialize(using = JacksonFilterDeserializer::class)
 interface AbstractFilterDto<O : Identifiable<String>> : Filter<String, O>, Serializable {
-    val desc: String?
-    override fun matches(item: O): Boolean {
-        throw IllegalAccessException("Do not call filter application methods on dtos but on domain objects")
-    }
+	val desc: String?
+	override fun matches(item: O): Boolean {
+		throw IllegalAccessException("Do not call filter application methods on dtos but on domain objects")
+	}
 
-    override fun applyTo(items: List<O>): List<O> {
-        throw IllegalAccessException("Do not call filter application methods on dtos but on domain objects")
-    }
+	override fun applyTo(items: List<O>): List<O> {
+		throw IllegalAccessException("Do not call filter application methods on dtos but on domain objects")
+	}
 
-    override fun applyTo(items: Set<O>): Set<O> {
-        throw IllegalAccessException("Do not call filter application methods on dtos but on domain objects")
-    }
+	override fun applyTo(items: Set<O>): Set<O> {
+		throw IllegalAccessException("Do not call filter application methods on dtos but on domain objects")
+	}
 
-    override fun applyTo(items: Flow<O>): Flow<O> {
-        throw IllegalAccessException("Do not call filter application methods on dtos but on domain objects")
-    }
+	override fun applyTo(items: Flow<O>): Flow<O> {
+		throw IllegalAccessException("Do not call filter application methods on dtos but on domain objects")
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

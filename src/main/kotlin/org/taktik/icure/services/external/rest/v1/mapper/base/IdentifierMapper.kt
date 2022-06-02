@@ -7,6 +7,6 @@ import org.taktik.icure.services.external.rest.v1.dto.base.IdentifierDto
 
 @Mapper(componentModel = "spring", uses = [CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 abstract class IdentifierMapper {
-    abstract fun map(IdentifierDto: IdentifierDto): Identifier
-    abstract fun map(codeStub: Identifier): IdentifierDto
+	abstract fun map(IdentifierDto: IdentifierDto): Identifier
+	abstract fun map(codeStub: Identifier): IdentifierDto
 }

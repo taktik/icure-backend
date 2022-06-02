@@ -17,11 +17,11 @@
  */
 package org.taktik.icure.asynclogic.impl.filter
 
-import kotlinx.coroutines.flow.Flow
-import org.taktik.icure.domain.filter.Filter
-import org.taktik.couchdb.id.Identifiable
 import java.io.Serializable
+import kotlinx.coroutines.flow.Flow
+import org.taktik.couchdb.id.Identifiable
+import org.taktik.icure.domain.filter.Filter
 
 interface Filter<T : Serializable, O : Identifiable<T>, F : Filter<T, O>> {
-    fun resolve(filter: F, context: Filters): Flow<T>
+	fun resolve(filter: F, context: Filters): Flow<T>
 }

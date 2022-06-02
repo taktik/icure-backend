@@ -18,7 +18,6 @@
 
 package org.taktik.icure.services.external.rest.v2.dto.embed
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
@@ -27,6 +26,6 @@ import com.github.pozo.KotlinBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class FormSkeletonDto(
-        val descr: String? = null,
-        val formTemplateId: String? = null
+	val descr: String? = null,
+	val formTemplateId: String? = null
 )

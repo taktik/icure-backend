@@ -22,5 +22,5 @@ import org.taktik.icure.services.external.rest.v1.dto.base.EnumVersionDto
 
 @EnumVersionDto(1L)
 enum class SuspensionReasonDto {
-    notInsured, noReasonGiven, isHospitalized, outsideOfCountry, changeOfMutuality
+	notInsured, noReasonGiven, isHospitalized, outsideOfCountry, changeOfMutuality
 }

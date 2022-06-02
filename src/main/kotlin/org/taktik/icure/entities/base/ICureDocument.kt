@@ -19,6 +19,7 @@ package org.taktik.icure.entities.base
 
 import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.couchdb.id.Identifiable
+
 /**
  * Used to represent an entity that is saved inside the CouchDB database and includes some basic properties used to describe the lifecycle of the entity.
  *
@@ -30,26 +31,32 @@ import org.taktik.couchdb.id.Identifiable
  *
  */
 interface ICureDocument<T> : Identifiable<T>, HasTags, HasCodes {
-    @get:Schema(description = "The timestamp (unix epoch in ms) of creation of the entity, will be filled automatically if missing. Not enforced by the application server.") val created: Long?
-    @get:Schema(description = "The date (unix epoch in ms) of the latest modification of the entity, will be filled automatically if missing. Not enforced by the application server.") val modified: Long?
-    @get:Schema(description = "The id of the User that has created this entity, will be filled automatically if missing. Not enforced by the application server.") val author: String?
-    @get:Schema(description = "The id of the HealthcareParty that is responsible for this entity, will be filled automatically if missing. Not enforced by the application server.") val responsible: String?
-    @get:Schema(description = "The id of the medical location where the entity was created.") val medicalLocationId: String?
-    @get:Schema(description = "Soft delete (unix epoch in ms) timestamp of the object.") val endOfLife: Long?
+	@get:Schema(description = "The timestamp (unix epoch in ms) of creation of the entity, will be filled automatically if missing. Not enforced by the application server.")
+	val created: Long?
+	@get:Schema(description = "The date (unix epoch in ms) of the latest modification of the entity, will be filled automatically if missing. Not enforced by the application server.")
+	val modified: Long?
+	@get:Schema(description = "The id of the User that has created this entity, will be filled automatically if missing. Not enforced by the application server.")
+	val author: String?
+	@get:Schema(description = "The id of the HealthcareParty that is responsible for this entity, will be filled automatically if missing. Not enforced by the application server.")
+	val responsible: String?
+	@get:Schema(description = "The id of the medical location where the entity was created.")
+	val medicalLocationId: String?
+	@get:Schema(description = "Soft delete (unix epoch in ms) timestamp of the object.")
+	val endOfLife: Long?
 
-    fun solveConflictsWith(other: ICureDocument<T>): Map<String, Any?> {
-        return mapOf(
-                "id" to this.id,
-                "created" to (this.created?.coerceAtMost(other.created ?: Long.MAX_VALUE) ?: other.created),
-                "modified" to (this.modified?.coerceAtLeast(other.modified ?: 0L) ?: other.modified),
-                "endOfLife" to (this.endOfLife?.coerceAtMost(other.endOfLife ?: Long.MAX_VALUE) ?: other.endOfLife),
-                "author" to (this.author ?: other.author),
-                "responsible" to (this.responsible ?: other.responsible),
-                "medicalLocationId" to (this.medicalLocationId ?: other.medicalLocationId),
-                "tags" to (other.tags + this.tags),
-                "codes" to (other.codes + this.codes)
-        )
-    }
+	fun solveConflictsWith(other: ICureDocument<T>): Map<String, Any?> {
+		return mapOf(
+			"id" to this.id,
+			"created" to (this.created?.coerceAtMost(other.created ?: Long.MAX_VALUE) ?: other.created),
+			"modified" to (this.modified?.coerceAtLeast(other.modified ?: 0L) ?: other.modified),
+			"endOfLife" to (this.endOfLife?.coerceAtMost(other.endOfLife ?: Long.MAX_VALUE) ?: other.endOfLife),
+			"author" to (this.author ?: other.author),
+			"responsible" to (this.responsible ?: other.responsible),
+			"medicalLocationId" to (this.medicalLocationId ?: other.medicalLocationId),
+			"tags" to (other.tags + this.tags),
+			"codes" to (other.codes + this.codes)
+		)
+	}
 
-    fun withTimestamps(created: Long? = null, modified: Long? = null) : ICureDocument<T>
+	fun withTimestamps(created: Long? = null, modified: Long? = null): ICureDocument<T>
 }

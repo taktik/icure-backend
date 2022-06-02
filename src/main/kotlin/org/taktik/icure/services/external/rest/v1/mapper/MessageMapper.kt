@@ -30,12 +30,12 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.MessageReadStatus
 
 @Mapper(componentModel = "spring", uses = [CodeStubMapper::class, DelegationMapper::class, MessageReadStatusMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface MessageMapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(messageDto: MessageDto):Message
-	fun map(message: Message):MessageDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(messageDto: MessageDto): Message
+	fun map(message: Message): MessageDto
 }

@@ -20,19 +20,19 @@ package org.taktik.icure.services.external.rest.v1.dto
 import java.io.Serializable
 
 class AddAppointmentReply : Serializable {
-    var sessionId: String? = null
-    var mikronoId: String? = null
-    var mikronoUrl: String? = null
+	var sessionId: String? = null
+	var mikronoId: String? = null
+	var mikronoUrl: String? = null
 
-    constructor() {}
-    constructor(mikronoUrl: String?) : super() {
-        this.mikronoUrl = mikronoUrl
-    }
+	constructor()
+	constructor(mikronoUrl: String?) : super() {
+		this.mikronoUrl = mikronoUrl
+	}
 
-    companion object {
-        /**
-         *
-         */
-        private const val serialVersionUID = 1L
-    }
+	companion object {
+		/**
+		 *
+		 */
+		private const val serialVersionUID = 1L
+	}
 }

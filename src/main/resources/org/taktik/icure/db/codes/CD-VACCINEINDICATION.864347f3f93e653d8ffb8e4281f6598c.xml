@@ -1,0 +1,199 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <DATE>2009-11-20</DATE>
+    <STATUS>Draft</STATUS>
+    <NAME>Vaccine Code</NAME>
+    <VALUE>
+        <CODE>cholera</CODE>
+        <DESCRIPTION L='fr'>Vaccin contre le cholera</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against cholera</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen cholera</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>covid19</CODE>
+        <DESCRIPTION L='fr'>Vaccin contre le COVID-19</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against COVID-19</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen COVID-19</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>diphteria</CODE>
+        <DESCRIPTION L='fr'>Vaccin contre la diphtérie</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against diphteria</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen difterie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>ej</CODE>
+        <DESCRIPTION L='fr'>vaccin contre l'encéphalite japonaise</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against Japanese encephalitis</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen Japanese encefalitis</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>hepatitisa</CODE>
+        <DESCRIPTION L='fr'>vaccin contre l'hépatite A</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against hepatitis A</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen hepatitis A</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>hepatitisb</CODE>
+        <DESCRIPTION L='fr'>vaccin contre l'hépatite B</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against hepatitis B</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen hepatitis B</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>hib</CODE>
+        <DESCRIPTION L='fr'>vaccin contre les infections à Hib (Haemophilus influenzae)</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against Hib (haemophilus influenzae)</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen Hibinfecties (Haemophilus influenzae)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>measles</CODE>
+        <DESCRIPTION L='fr'>vaccin contre la rougeole</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against measles</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen mazelen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>meningitis</CODE>
+        <DESCRIPTION L='fr'>vaccin contre les infections à méningocoques des sérogroupes A, C, W et Y</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against meningococcal serogroups A, C, W and Y</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen meningokokkeninfectie van serogroepen A, C, W et Y</DESCRIPTION>
+    </VALUE>
+	<VALUE>
+		<CODE>meningitisb</CODE>
+		<DESCRIPTION L="en">vaccine against meningococcal serogroup B</DESCRIPTION>
+		<DESCRIPTION L="nl">vaccin tegen meningokokkeninfectie van serogroep B</DESCRIPTION>
+		<DESCRIPTION L="fr">vaccin contre les infections à méningocoques du sérogroupe B</DESCRIPTION>
+	</VALUE>
+    <VALUE>
+        <CODE>meningitisc</CODE>
+        <DESCRIPTION L='fr'>vaccin contre les infections à méningocoques du sérogroupe C</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against meningococcal serogroup C</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen meningokokkeninfectie van serogroep C</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>mumps</CODE>
+        <DESCRIPTION L='fr'>vaccin contre les oreillons</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against mumps</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen bof</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pandemics</CODE>
+        <DESCRIPTION L='fr'>vaccin contre une pandémie spécifique</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against specific pandemics</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen specifieke pandemie</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>papillomavirus</CODE>
+        <DESCRIPTION L='fr'>vaccin contre le papillomavirus humain</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against human papillomavirus</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen human papillomavirus</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pertussis</CODE>
+        <DESCRIPTION L='fr'>vaccin contre la coqueluche</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against pertussis</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen kinkhoest</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pneumonia23</CODE>
+        <DESCRIPTION L='fr'>vaccin contre 23 types de pneumocoques</DESCRIPTION>
+        <DESCRIPTION L='en'>23-valent polysaccharide vaccine against pneumonia</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen 23 types pneumokokken</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pneumonia13</CODE>
+        <DESCRIPTION L='fr'>vaccin contre 13 types de pneumocoques</DESCRIPTION>
+        <DESCRIPTION L='en'>13-valent polysaccharide vaccine against pneumonia</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen 13 types pneumokokken</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pneumonia10</CODE>
+        <DESCRIPTION L='fr'>vaccin contre 10 types de pneumocoques</DESCRIPTION>
+        <DESCRIPTION L='en'>10-valent polysaccharide vaccine against pneumonia</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen 10 types pneumokokken</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>pneumonia7</CODE>
+        <DESCRIPTION L='fr'>vaccin contre 7 types de pneumocoques</DESCRIPTION>
+        <DESCRIPTION L='en'>7-valent polysaccharide vaccine against pneumonia</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen 7 types pneumokokken</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>poliomyelitis</CODE>
+        <DESCRIPTION L='fr'>vaccin contre la poliomyélite</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against polio</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen poliomyelitis</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>rabies</CODE>
+        <DESCRIPTION L='fr'>vaccin contre la rage</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against rabies</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen rabiës</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>rotavirus</CODE>
+        <DESCRIPTION L='fr'>vaccin contre le rotavirus</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against rotavirus</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen rotavirus</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>rubella</CODE>
+        <DESCRIPTION L='fr'>vaccin contre la rubéole</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against rubella</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen rubella</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>seasonalinfluenza</CODE>
+        <DESCRIPTION L='fr'>vaccin contre la grippe saisonnière</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against seasonal flu</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen seizoengebonden influenza</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>tetanus</CODE>
+        <DESCRIPTION L='fr'>vaccin contre le tétanos</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against tetanus</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen tetanus</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>tickborneencephalitis</CODE>
+        <DESCRIPTION L='fr'>vaccin contre l'encéphalite à tiques</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against tick-borne encephalitis</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen tekenencefalitis</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>tuberculosis</CODE>
+        <DESCRIPTION L='fr'>vaccin contre la tuberculose (BCG)</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against tuberculosis (BCG)</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen tuberculose (BCG)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>typhoid</CODE>
+        <DESCRIPTION L='fr'>vaccin contre la fièvre typhoïde</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against typhoid</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen buiktyfus</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>varicella</CODE>
+        <DESCRIPTION L='fr'>vaccin contre la varicelle</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against varicella</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen varicella</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>yellowfever</CODE>
+        <DESCRIPTION L='fr'>vaccin contre la fièvre jaune</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against yellow fever</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen gele koorts</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>zona</CODE>
+        <DESCRIPTION L='fr'>vaccin contre le zona</DESCRIPTION>
+        <DESCRIPTION L='en'>vaccine against zona</DESCRIPTION>
+        <DESCRIPTION L='nl'>vaccin tegen zona</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>herpeszoster</CODE>
+        <DESCRIPTION L="en">vaccine against herpes zoster (shingles)</DESCRIPTION>
+        <DESCRIPTION L="nl">vaccin tegen herpes zoster (zona)</DESCRIPTION>
+        <DESCRIPTION L="fr">vaccin contre l'herpès zoster (zona)</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

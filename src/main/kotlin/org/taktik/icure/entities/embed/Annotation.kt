@@ -1,5 +1,6 @@
 package org.taktik.icure.entities.embed
 
+import java.util.UUID
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -7,7 +8,6 @@ import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
-import java.util.*
 
 /**
  * Text node with attribution.
@@ -25,36 +25,36 @@ import java.util.*
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class Annotation(
-        @JsonProperty("_id") override val id: String = UUID.randomUUID().toString(),
-        @field:NotNull(autoFix = AutoFix.CURRENTUSERID) val author: String? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) val created: Long? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) val modified: Long? = null,
-        val text: String? = null,
-        val location: String? = null
+	@JsonProperty("_id") override val id: String = UUID.randomUUID().toString(),
+	@field:NotNull(autoFix = AutoFix.CURRENTUSERID) val author: String? = null,
+	@field:NotNull(autoFix = AutoFix.NOW) val created: Long? = null,
+	@field:NotNull(autoFix = AutoFix.NOW) val modified: Long? = null,
+	val text: String? = null,
+	val location: String? = null
 ) : Identifiable<String> {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (javaClass != other?.javaClass) return false
 
-        other as Annotation
+		other as Annotation
 
-        if (id != other.id) return false
-        if (author != other.author) return false
-        if (created != other.created) return false
-        if (modified != other.modified) return false
-        if (text != other.text) return false
-        if (location != other.location) return false
+		if (id != other.id) return false
+		if (author != other.author) return false
+		if (created != other.created) return false
+		if (modified != other.modified) return false
+		if (text != other.text) return false
+		if (location != other.location) return false
 
-        return true
-    }
+		return true
+	}
 
-    override fun hashCode(): Int {
-        var result = id.hashCode()
-        result = 31 * result + (author?.hashCode() ?: 0)
-        result = 31 * result + (created?.hashCode() ?: 0)
-        result = 31 * result + (modified?.hashCode() ?: 0)
-        result = 31 * result + (text?.hashCode() ?: 0)
-        result = 31 * result + (location?.hashCode() ?: 0)
-        return result
-    }
+	override fun hashCode(): Int {
+		var result = id.hashCode()
+		result = 31 * result + (author?.hashCode() ?: 0)
+		result = 31 * result + (created?.hashCode() ?: 0)
+		result = 31 * result + (modified?.hashCode() ?: 0)
+		result = 31 * result + (text?.hashCode() ?: 0)
+		result = 31 * result + (location?.hashCode() ?: 0)
+		return result
+	}
 }

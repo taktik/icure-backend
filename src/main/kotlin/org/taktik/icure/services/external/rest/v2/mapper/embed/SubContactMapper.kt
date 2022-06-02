@@ -26,6 +26,6 @@ import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 
 @Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class, ServiceLinkV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface SubContactV2Mapper {
-	fun map(subContactDto: SubContactDto):SubContact
-	fun map(subContact: SubContact):SubContactDto
+	fun map(subContactDto: SubContactDto): SubContact
+	fun map(subContact: SubContact): SubContactDto
 }

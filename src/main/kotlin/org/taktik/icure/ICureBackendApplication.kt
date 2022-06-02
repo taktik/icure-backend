@@ -39,72 +39,87 @@ import org.taktik.icure.asyncdao.InternalDAO
 import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.asynclogic.ICureLogic
 import org.taktik.icure.asynclogic.PropertyLogic
-import org.taktik.icure.entities.embed.*
+import org.taktik.icure.entities.embed.AddressType
+import org.taktik.icure.entities.embed.Confidentiality
+import org.taktik.icure.entities.embed.DocumentStatus
+import org.taktik.icure.entities.embed.DocumentType
+import org.taktik.icure.entities.embed.Gender
+import org.taktik.icure.entities.embed.InsuranceStatus
+import org.taktik.icure.entities.embed.PartnershipStatus
+import org.taktik.icure.entities.embed.PartnershipType
+import org.taktik.icure.entities.embed.PaymentType
+import org.taktik.icure.entities.embed.PersonalStatus
+import org.taktik.icure.entities.embed.TelecomType
+import org.taktik.icure.entities.embed.Visibility
 import org.taktik.icure.properties.CouchDbProperties
 
-@SpringBootApplication(scanBasePackages = [
-    "org.springframework.boot.autoconfigure.aop",
-    "org.springframework.boot.autoconfigure.context",
-    "org.springframework.boot.autoconfigure.validation",
-    "org.springframework.boot.autoconfigure.websocket",
-    "org.taktik.icure.config",
-    "org.taktik.icure.asyncdao",
-    "org.taktik.icure.asynclogic",
-    "org.taktik.icure.be.ehealth.logic",
-    "org.taktik.icure.be.format.logic",
-    "org.taktik.icure.properties",
-    "org.taktik.icure.services.external.http",
-    "org.taktik.icure.services.external.rest.v1.controllers",
-    "org.taktik.icure.services.external.rest.v1.mapper",
-    "org.taktik.icure.services.external.rest.v1.wscontrollers",
-    "org.taktik.icure.services.external.rest.v2.controllers",
-    "org.taktik.icure.services.external.rest.v2.mapper",
-    "org.taktik.icure.services.external.rest.v2.wscontrollers",
-    "org.taktik.icure.errors",
-], exclude = [
-    FreeMarkerAutoConfiguration::class,
-    CacheAutoConfiguration::class,
-    DataSourceAutoConfiguration::class,
-    JndiDataSourceAutoConfiguration::class,
-    ErrorWebFluxAutoConfiguration::class
-])
+@SpringBootApplication(
+	scanBasePackages = [
+		"org.springframework.boot.autoconfigure.aop",
+		"org.springframework.boot.autoconfigure.context",
+		"org.springframework.boot.autoconfigure.validation",
+		"org.springframework.boot.autoconfigure.websocket",
+		"org.taktik.icure.config",
+		"org.taktik.icure.asyncdao",
+		"org.taktik.icure.asynclogic",
+		"org.taktik.icure.be.ehealth.logic",
+		"org.taktik.icure.be.format.logic",
+		"org.taktik.icure.properties",
+		"org.taktik.icure.services.external.http",
+		"org.taktik.icure.services.external.rest.v1.controllers",
+		"org.taktik.icure.services.external.rest.v1.mapper",
+		"org.taktik.icure.services.external.rest.v1.wscontrollers",
+		"org.taktik.icure.services.external.rest.v2.controllers",
+		"org.taktik.icure.services.external.rest.v2.mapper",
+		"org.taktik.icure.services.external.rest.v2.wscontrollers",
+		"org.taktik.icure.errors",
+	],
+	exclude = [
+		FreeMarkerAutoConfiguration::class,
+		CacheAutoConfiguration::class,
+		DataSourceAutoConfiguration::class,
+		JndiDataSourceAutoConfiguration::class,
+		ErrorWebFluxAutoConfiguration::class
+	]
+)
 @PropertySource("classpath:icure-default.properties")
 class ICureBackendApplication {
-    private val log = LoggerFactory.getLogger(this.javaClass)
+	private val log = LoggerFactory.getLogger(this.javaClass)
 
+	@Bean
+	fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, iCureLogic: ICureLogic, codeLogic: CodeLogic, propertyLogic: PropertyLogic, allDaos: List<GenericDAO<*>>, internalDaos: List<InternalDAO<*>>, couchDbProperties: CouchDbProperties) = ApplicationRunner {
+		//Check that core types have corresponding codes
+		log.info("icure (" + iCureLogic.getVersion() + ") is initialised")
 
-    @Bean
-    fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, iCureLogic: ICureLogic, codeLogic: CodeLogic, propertyLogic: PropertyLogic, allDaos: List<GenericDAO<*>>, internalDaos: List<InternalDAO<*>>, couchDbProperties: CouchDbProperties) = ApplicationRunner {
-        //Check that core types have corresponding codes
-        log.info("icure (" + iCureLogic.getVersion() + ") is initialised")
+		taskExecutor.execute {
+			listOf(
+				AddressType::class.java, DocumentType::class.java, DocumentStatus::class.java,
+				Gender::class.java, InsuranceStatus::class.java, PartnershipStatus::class.java, PartnershipType::class.java, PaymentType::class.java,
+				PersonalStatus::class.java, TelecomType::class.java, Confidentiality::class.java, Visibility::class.java
+			).forEach { runBlocking { codeLogic.importCodesFromEnum(it) } }
+		}
 
-        taskExecutor.execute {
-            listOf(AddressType::class.java, DocumentType::class.java, DocumentStatus::class.java,
-                   Gender::class.java, InsuranceStatus::class.java, PartnershipStatus::class.java, PartnershipType::class.java, PaymentType::class.java,
-                   PersonalStatus::class.java, TelecomType::class.java, Confidentiality::class.java, Visibility::class.java).forEach { runBlocking { codeLogic.importCodesFromEnum(it) } }
-        }
+		taskExecutor.execute {
+			val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader)
+			resolver.getResources("classpath*:/org/taktik/icure/db/codes/**.xml").forEach {
+				val md5 = it.filename!!.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
+				runBlocking { codeLogic.importCodesFromXml(md5, it.filename!!.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream) }
+			}
+		}
 
-        taskExecutor.execute {
-            val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader)
-            resolver.getResources("classpath*:/org/taktik/icure/db/codes/**.xml").forEach {
-                val md5 = it.filename!!.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
-                runBlocking { codeLogic.importCodesFromXml(md5, it.filename!!.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream) }
-            }
-        }
+		runBlocking {
+			allDaos.forEach {
+				it.forceInitStandardDesignDocument(true)
+			}
+			internalDaos.forEach {
+				it.forceInitStandardDesignDocument(true)
+			}
+		}
 
-        runBlocking {
-            allDaos.forEach {
-                it.forceInitStandardDesignDocument(true)
-            }
-            internalDaos.forEach {
-                it.forceInitStandardDesignDocument(true)
-            }
-        }
-
-        log.info("icure (" + iCureLogic.getVersion() + ") is started")
-    }
+		log.info("icure (" + iCureLogic.getVersion() + ") is started")
+	}
 }
 
 fun main(args: Array<String>) {
-    SpringApplication.run(ICureBackendApplication::class.java, *args)
+	SpringApplication.run(ICureBackendApplication::class.java, *args)
 }

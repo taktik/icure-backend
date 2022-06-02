@@ -26,5 +26,5 @@ import org.taktik.icure.entities.Contact
 
 @Service
 class ContactByHcPartyFilter(private val contactLogic: ContactLogic) : Filter<String, Contact, org.taktik.icure.domain.filter.Filters.ByHcpartyFilter<String, Contact>> {
-    override fun resolve(filter: org.taktik.icure.domain.filter.Filters.ByHcpartyFilter<String, Contact>, context: Filters) = contactLogic.listContactIds(filter.hcpId)
+	override fun resolve(filter: org.taktik.icure.domain.filter.Filters.ByHcpartyFilter<String, Contact>, context: Filters) = contactLogic.listContactIds(filter.hcpId)
 }

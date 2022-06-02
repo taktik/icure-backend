@@ -29,12 +29,12 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 
 @Mapper(componentModel = "spring", uses = [CodeStubMapper::class, DelegationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface AccessLogMapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(accessLogDto: AccessLogDto):AccessLog
-	fun map(accessLog: AccessLog):AccessLogDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(accessLogDto: AccessLogDto): AccessLog
+	fun map(accessLog: AccessLog): AccessLogDto
 }

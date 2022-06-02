@@ -46,152 +46,175 @@ import org.taktik.icure.exceptions.PersistenceException
 @Service
 class MessageLogicImpl(private val documentDAO: DocumentDAO, private val messageDAO: MessageDAO, private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Message, MessageDAO>(sessionLogic), MessageLogic {
 
-    @Throws(LoginException::class)
-    override fun listMessagesByHCPartySecretPatientKeys(secretPatientKeys: List<String>) = flow<Message> {
-        emitAll(messageDAO.listMessagesByHcPartyAndPatient(currentHealthCarPartyId(), secretPatientKeys))
-    }
+	@Throws(LoginException::class)
+	override fun listMessagesByHCPartySecretPatientKeys(secretPatientKeys: List<String>) = flow<Message> {
+		emitAll(messageDAO.listMessagesByHcPartyAndPatient(currentHealthCarPartyId(), secretPatientKeys))
+	}
 
-    @Throws(PersistenceException::class)
-    override fun setStatus(messageIds: List<String>, status: Int) = flow<Message> {
-        emitAll(messageDAO.save(messageDAO.getEntities(messageIds)
-                .map {
-                    it.copy(status = status or (it.status ?: 0))
-                }.toList()))
-    }
+	@Throws(PersistenceException::class)
+	override fun setStatus(messageIds: List<String>, status: Int) = flow<Message> {
+		emitAll(
+			messageDAO.save(
+				messageDAO.getEntities(messageIds)
+					.map {
+						it.copy(status = status or (it.status ?: 0))
+					}.toList()
+			)
+		)
+	}
 
-    @Throws(PersistenceException::class)
-    override fun setReadStatus(messageIds: List<String>, userId: String, status: Boolean, time: Long) = flow<Message> {
-        emitAll(
-            messageDAO.save(messageDAO.getEntities(messageIds).map { m: Message ->
-                if ((m.readStatus[userId]?.time ?: 0) < time) m.copy(readStatus = m.readStatus + (userId to MessageReadStatus(
-                        read = status,
-                        time = time
-                ))) else m
-            }.toList())
-        )
-    }
+	@Throws(PersistenceException::class)
+	override fun setReadStatus(messageIds: List<String>, userId: String, status: Boolean, time: Long) = flow<Message> {
+		emitAll(
+			messageDAO.save(
+				messageDAO.getEntities(messageIds).map { m: Message ->
+					if ((m.readStatus[userId]?.time ?: 0) < time) m.copy(
+						readStatus = m.readStatus + (
+							userId to MessageReadStatus(
+								read = status,
+								time = time
+							)
+							)
+					) else m
+				}.toList()
+			)
+		)
+	}
 
-    @Throws(LoginException::class)
-    override fun findForCurrentHcParty(paginationOffset: PaginationOffset<List<*>>) = flow<ViewQueryResultEvent> {
-        emitAll(messageDAO.findMessagesByHcParty(currentHealthCarPartyId(), paginationOffset))
-    }
+	@Throws(LoginException::class)
+	override fun findForCurrentHcParty(paginationOffset: PaginationOffset<List<*>>) = flow<ViewQueryResultEvent> {
+		emitAll(messageDAO.findMessagesByHcParty(currentHealthCarPartyId(), paginationOffset))
+	}
 
-    override fun findMessagesByFromAddress(
-        partyId: String,
-        fromAddress: String,
-        paginationOffset: PaginationOffset<List<*>>
-    ) = flow<ViewQueryResultEvent> {
-        emitAll(messageDAO.listMessagesByFromAddress(partyId, fromAddress, paginationOffset))
-    }
+	override fun findMessagesByFromAddress(
+		partyId: String,
+		fromAddress: String,
+		paginationOffset: PaginationOffset<List<*>>
+	) = flow<ViewQueryResultEvent> {
+		emitAll(messageDAO.listMessagesByFromAddress(partyId, fromAddress, paginationOffset))
+	}
 
-    override fun findMessagesByToAddress(partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<*>>, reverse: Boolean?) =
-        flow<ViewQueryResultEvent> {
-            emitAll(messageDAO.findMessagesByToAddress(partyId, toAddress, paginationOffset, reverse))
-        }
+	override fun findMessagesByToAddress(partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<*>>, reverse: Boolean?) =
+		flow<ViewQueryResultEvent> {
+			emitAll(messageDAO.findMessagesByToAddress(partyId, toAddress, paginationOffset, reverse))
+		}
 
-    override fun findMessagesByTransportGuidReceived(
-        partyId: String,
-        transportGuid: String?,
-        paginationOffset: PaginationOffset<List<*>>
-    ) = flow<ViewQueryResultEvent> {
-        emitAll(messageDAO.findMessagesByTransportGuidReceived(partyId, transportGuid, paginationOffset))
-    }
+	override fun findMessagesByTransportGuidReceived(
+		partyId: String,
+		transportGuid: String?,
+		paginationOffset: PaginationOffset<List<*>>
+	) = flow<ViewQueryResultEvent> {
+		emitAll(messageDAO.findMessagesByTransportGuidReceived(partyId, transportGuid, paginationOffset))
+	}
 
-    override fun findMessagesByTransportGuid(
-        partyId: String,
-        transportGuid: String?,
-        paginationOffset: PaginationOffset<List<*>>
-    ) = flow<ViewQueryResultEvent> {
-        emitAll(messageDAO.findMessagesByTransportGuid(partyId, transportGuid, paginationOffset))
-    }
+	override fun findMessagesByTransportGuid(
+		partyId: String,
+		transportGuid: String?,
+		paginationOffset: PaginationOffset<List<*>>
+	) = flow<ViewQueryResultEvent> {
+		emitAll(messageDAO.findMessagesByTransportGuid(partyId, transportGuid, paginationOffset))
+	}
 
-    override fun findMessagesByTransportGuidSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<*>>) =
-        flow<ViewQueryResultEvent> {
-            emitAll(messageDAO.findMessagesByTransportGuidAndSentDate(partyId, transportGuid, fromDate, toDate, paginationOffset))
-        }
+	override fun findMessagesByTransportGuidSentDate(partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<*>>) =
+		flow<ViewQueryResultEvent> {
+			emitAll(messageDAO.findMessagesByTransportGuidAndSentDate(partyId, transportGuid, fromDate, toDate, paginationOffset))
+		}
 
-    override suspend fun addDelegation(messageId: String, delegation: Delegation): Message? {
-        val message = messageDAO.get(messageId)
-        return delegation.delegatedTo?.let { healthcarePartyId ->
-            message?.let { c -> messageDAO.save(c.copy(delegations = c.delegations + mapOf(
-                    healthcarePartyId to setOf(delegation)
-            )))}
-        } ?: message
-    }
+	override suspend fun addDelegation(messageId: String, delegation: Delegation): Message? {
+		val message = messageDAO.get(messageId)
+		return delegation.delegatedTo?.let { healthcarePartyId ->
+			message?.let { c ->
+				messageDAO.save(
+					c.copy(
+						delegations = c.delegations + mapOf(
+							healthcarePartyId to setOf(delegation)
+						)
+					)
+				)
+			}
+		} ?: message
+	}
 
-    override suspend fun addDelegations(messageId: String, delegations: List<Delegation>): Message? {
-        val message = messageDAO.get(messageId)
-        return message?.let {
-            return messageDAO.save(it.copy(
-                    delegations = it.delegations +
-                            delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
-            ))
-        }
-    }
+	override suspend fun addDelegations(messageId: String, delegations: List<Delegation>): Message? {
+		val message = messageDAO.get(messageId)
+		return message?.let {
+			return messageDAO.save(
+				it.copy(
+					delegations = it.delegations +
+						delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
+				)
+			)
+		}
+	}
 
-    override fun getMessageChildren(messageId: String) = flow<Message> {
-        emitAll(messageDAO.getChildren(messageId))
-    }
+	override fun getMessageChildren(messageId: String) = flow<Message> {
+		emitAll(messageDAO.getChildren(messageId))
+	}
 
-    override fun getMessagesChildren(parentIds: List<String>) = flow<List<Message>> {
-        emitAll(messageDAO.getMessagesChildren(parentIds))
-    }
+	override fun getMessagesChildren(parentIds: List<String>) = flow<List<Message>> {
+		emitAll(messageDAO.getMessagesChildren(parentIds))
+	}
 
-    override fun getMessagesByTransportGuids(hcpId: String, transportGuids: Set<String>) = flow<Message> {
-        emitAll(messageDAO.getMessagesByTransportGuids(hcpId, transportGuids))
-    }
+	override fun getMessagesByTransportGuids(hcpId: String, transportGuids: Set<String>) = flow<Message> {
+		emitAll(messageDAO.getMessagesByTransportGuids(hcpId, transportGuids))
+	}
 
-    override fun listMessagesByInvoiceIds(ids: List<String>) = flow<Message> {
-        emitAll(messageDAO.listMessagesByInvoiceIds(ids.toSet()))
-    }
+	override fun listMessagesByInvoiceIds(ids: List<String>) = flow<Message> {
+		emitAll(messageDAO.listMessagesByInvoiceIds(ids.toSet()))
+	}
 
-    override fun listMessagesByExternalRefs(hcPartyId: String, externalRefs: List<String>) = flow<Message> {
-        emitAll(messageDAO.getMessagesByExternalRefs(hcPartyId, externalRefs.toSet()))
-    }
+	override fun listMessagesByExternalRefs(hcPartyId: String, externalRefs: List<String>) = flow<Message> {
+		emitAll(messageDAO.getMessagesByExternalRefs(hcPartyId, externalRefs.toSet()))
+	}
 
-    fun createMessages(entities: Collection<Message>, createdEntities: Collection<Message>) = flow {
-        val loggedUser = sessionLogic.getCurrentSessionContext().getUser()
+	fun createMessages(entities: Collection<Message>, createdEntities: Collection<Message>) = flow {
+		val loggedUser = sessionLogic.getCurrentSessionContext().getUser()
 
-        emitAll(super.createEntities(entities.map {
-            if (it.fromAddress == null || it.fromHealthcarePartyId == null)
-                it.copy(
-                        fromAddress = it.fromAddress ?: loggedUser.email,
-                        fromHealthcarePartyId = it.fromHealthcarePartyId ?: loggedUser.healthcarePartyId
-                )
-            else it
-        }))
-    }
+		emitAll(
+			super.createEntities(
+				entities.map {
+					if (it.fromAddress == null || it.fromHealthcarePartyId == null)
+						it.copy(
+							fromAddress = it.fromAddress ?: loggedUser.email,
+							fromHealthcarePartyId = it.fromHealthcarePartyId ?: loggedUser.healthcarePartyId
+						)
+					else it
+				}
+			)
+		)
+	}
 
-    @Throws(CreationException::class, LoginException::class)
-    override suspend fun createMessage(message: Message) = fix(message) { message ->
-        val createdMessages: List<Message> = ArrayList(1)
-        createMessages(setOf(message), createdMessages).firstOrNull()
-    }
+	@Throws(CreationException::class, LoginException::class)
+	override suspend fun createMessage(message: Message) = fix(message) { message ->
+		val createdMessages: List<Message> = ArrayList(1)
+		createMessages(setOf(message), createdMessages).firstOrNull()
+	}
 
-    override suspend fun getMessage(messageId: String): Message? {
-        return messageDAO.get(messageId)
-    }
+	override suspend fun getMessage(messageId: String): Message? {
+		return messageDAO.get(messageId)
+	}
 
-    @Throws(MissingRequirementsException::class)
-    override suspend fun modifyMessage(message: Message) = fix(message) { message ->
-        messageDAO.save(message)
-    }
+	@Throws(MissingRequirementsException::class)
+	override suspend fun modifyMessage(message: Message) = fix(message) { message ->
+		messageDAO.save(message)
+	}
 
-    override fun solveConflicts(): Flow<Message> =
-            messageDAO.listConflicts().mapNotNull { messageDAO.get(it.id, Option.CONFLICTS)?.let { message ->
-                message.conflicts?.mapNotNull { conflictingRevision -> messageDAO.get(message.id, conflictingRevision) }
-                        ?.fold(message) { kept, conflict -> kept.merge(conflict).also { messageDAO.purge(conflict) } }
-                        ?.let { mergedMessage -> messageDAO.save(mergedMessage) }
-            } }
+	override fun solveConflicts(): Flow<Message> =
+		messageDAO.listConflicts().mapNotNull {
+			messageDAO.get(it.id, Option.CONFLICTS)?.let { message ->
+				message.conflicts?.mapNotNull { conflictingRevision -> messageDAO.get(message.id, conflictingRevision) }
+					?.fold(message) { kept, conflict -> kept.merge(conflict).also { messageDAO.purge(conflict) } }
+					?.let { mergedMessage -> messageDAO.save(mergedMessage) }
+			}
+		}
 
-    override fun getGenericDAO(): MessageDAO {
-        return messageDAO
-    }
+	override fun getGenericDAO(): MessageDAO {
+		return messageDAO
+	}
 
-    private suspend fun currentHealthCarPartyId(): String = sessionLogic.getCurrentHealthcarePartyId()
-            ?: throw LoginException("You must be logged to perform this action")
+	private suspend fun currentHealthCarPartyId(): String = sessionLogic.getCurrentHealthcarePartyId()
 
-    companion object {
-        private val logger = LoggerFactory.getLogger(MessageLogicImpl::class.java)
-    }
+	companion object {
+		private val logger = LoggerFactory.getLogger(MessageLogicImpl::class.java)
+	}
 }

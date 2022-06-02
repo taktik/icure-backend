@@ -1,5 +1,6 @@
 package org.taktik.icure.asynclogic.impl.filter.device
 
+import javax.security.auth.login.LoginException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
@@ -11,18 +12,19 @@ import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.domain.filter.device.DeviceByHcPartyFilter
 import org.taktik.icure.entities.Device
 import org.taktik.icure.utils.getLoggedHealthCarePartyId
-import javax.security.auth.login.LoginException
 
 @ExperimentalCoroutinesApi
 @Service
-class DeviceByHcPartyFilter(private val deviceLogic: DeviceLogic,
-                            private val sessionLogic: AsyncSessionLogic) : Filter<String, Device, DeviceByHcPartyFilter> {
+class DeviceByHcPartyFilter(
+	private val deviceLogic: DeviceLogic,
+	private val sessionLogic: AsyncSessionLogic
+) : Filter<String, Device, DeviceByHcPartyFilter> {
 
-    override fun resolve(filter: DeviceByHcPartyFilter, context: Filters) = flow {
-        try {
-            emitAll(deviceLogic.listDeviceIdsByResponsible(filter.responsibleId ?: getLoggedHealthCarePartyId(sessionLogic)))
-        } catch (e: LoginException) {
-            throw IllegalArgumentException(e)
-        }
-    }
+	override fun resolve(filter: DeviceByHcPartyFilter, context: Filters) = flow {
+		try {
+			emitAll(deviceLogic.listDeviceIdsByResponsible(filter.responsibleId ?: getLoggedHealthCarePartyId(sessionLogic)))
+		} catch (e: LoginException) {
+			throw IllegalArgumentException(e)
+		}
+	}
 }

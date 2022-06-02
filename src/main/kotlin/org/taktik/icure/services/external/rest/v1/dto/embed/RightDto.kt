@@ -18,18 +18,18 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
+import java.io.Serializable
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import io.swagger.v3.oas.annotations.media.Schema
-import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class RightDto(
-        val userId: String? = null,
-        @Schema(defaultValue = "false") val read: Boolean = false,
-        @Schema(defaultValue = "false") val write: Boolean = false,
-        @Schema(defaultValue = "false") val administration: Boolean = false
+	val userId: String? = null,
+	@Schema(defaultValue = "false") val read: Boolean = false,
+	@Schema(defaultValue = "false") val write: Boolean = false,
+	@Schema(defaultValue = "false") val administration: Boolean = false
 ) : Serializable

@@ -38,25 +38,25 @@ import org.taktik.icure.services.external.rest.v1.mapper.EntityReferenceMapper
 @RequestMapping("/rest/v1/entityref")
 @Tag(name = "entityref")
 class EntityReferenceController(
-        private val entityReferenceLogic: EntityReferenceLogic,
-        private val entityReferenceMapper: EntityReferenceMapper
+	private val entityReferenceLogic: EntityReferenceLogic,
+	private val entityReferenceMapper: EntityReferenceMapper
 ) {
 
-    @Operation(summary = "Find latest reference for a prefix ")
-    @GetMapping("/latest/{prefix}")
-    fun getLatest(@PathVariable prefix: String) = mono {
-        entityReferenceLogic.getLatest(prefix)?.let { entityReferenceMapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to fetch Entity Reference")
-    }
+	@Operation(summary = "Find latest reference for a prefix ")
+	@GetMapping("/latest/{prefix}")
+	fun getLatest(@PathVariable prefix: String) = mono {
+		entityReferenceLogic.getLatest(prefix)?.let { entityReferenceMapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to fetch Entity Reference")
+	}
 
-    @Operation(summary = "Create an entity reference")
-    @PostMapping
-    fun createEntityReference(@RequestBody er: EntityReferenceDto) = mono {
-        val created = try {
-            entityReferenceLogic.createEntities(listOf(entityReferenceMapper.map(er)))
-        } catch (e: Exception) {
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity reference failed.")
-        }
-        created.firstOrNull()?.let { entityReferenceMapper.map(it) } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity reference creation failed.")
-    }
+	@Operation(summary = "Create an entity reference")
+	@PostMapping
+	fun createEntityReference(@RequestBody er: EntityReferenceDto) = mono {
+		val created = try {
+			entityReferenceLogic.createEntities(listOf(entityReferenceMapper.map(er)))
+		} catch (e: Exception) {
+			throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity reference failed.")
+		}
+		created.firstOrNull()?.let { entityReferenceMapper.map(it) } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity reference creation failed.")
+	}
 }

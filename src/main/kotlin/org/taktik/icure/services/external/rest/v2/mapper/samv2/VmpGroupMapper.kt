@@ -31,15 +31,16 @@ import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.SamTextV2Ma
 
 @Mapper(componentModel = "spring", uses = [NoSwitchReasonV2Mapper::class, SamTextV2Mapper::class, NoGenericPrescriptionReasonV2Mapper::class, EntityReferenceV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface VmpGroupV2Mapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(vmpGroupDto: VmpGroupDto):VmpGroup
-    @Mappings(
-            Mapping(target = "productId", ignore = true)
-    )
-	fun map(vmpGroup: VmpGroup):VmpGroupDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(vmpGroupDto: VmpGroupDto): VmpGroup
+
+	@Mappings(
+		Mapping(target = "productId", ignore = true)
+	)
+	fun map(vmpGroup: VmpGroup): VmpGroupDto
 }

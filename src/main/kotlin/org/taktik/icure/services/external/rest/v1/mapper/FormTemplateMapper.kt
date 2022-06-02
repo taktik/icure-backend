@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.mapper
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
@@ -27,7 +28,6 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.FormTemplate
 import org.taktik.icure.services.external.rest.v1.dto.FormTemplateDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.form.template.Field
 import org.taktik.icure.services.external.rest.v1.dto.embed.form.template.FormTemplateLayout
 import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
@@ -35,31 +35,60 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.DocumentGroupMapp
 
 @Mapper(componentModel = "spring", uses = [DocumentGroupMapper::class, CodeStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 abstract class FormTemplateMapper {
-    val json: ObjectMapper = ObjectMapper().registerModule(KotlinModule.Builder()
-            .nullIsSameAsDefault(true)
-            .build()).apply { setSerializationInclusion(JsonInclude.Include.NON_NULL) }
+	val json: ObjectMapper = ObjectMapper().registerModule(
+		KotlinModule.Builder()
+			.nullIsSameAsDefault(true)
+			.nullToEmptyCollection(true)
+			.nullToEmptyMap(true)
+			.build()
+	).apply { setSerializationInclusion(JsonInclude.Include.NON_NULL) }
 
-    @Mappings(
-            Mapping(target = "isAttachmentDirty", ignore = true),
-            Mapping(target = "layout", source = "formTemplateDto"),
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-    )
+	val yaml: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
+		KotlinModule.Builder()
+			.nullIsSameAsDefault(true)
+			.nullToEmptyCollection(true)
+			.nullToEmptyMap(true)
+			.build()
+	).apply { setSerializationInclusion(JsonInclude.Include.NON_NULL) }
+
+	@Mappings(
+		Mapping(target = "isAttachmentDirty", ignore = true),
+		Mapping(target = "layout", ignore = true),
+		Mapping(target = "templateLayout", source = "formTemplateDto"),
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
 	abstract fun map(formTemplateDto: FormTemplateDto): FormTemplate
 
-    @Mappings(
-            Mapping(target = "templateLayout", source = "layout")
-    )
-    abstract fun map(formTemplate: FormTemplate): FormTemplateDto
+	abstract fun map(formTemplate: FormTemplate): FormTemplateDto
 
-    fun mapLayout(formLayout: ByteArray?): FormLayout? = formLayout?.let { try { json.readValue(it, FormLayout::class.java) } catch(e:Exception) {
-        null
-    } }
-    fun mapTemplateLayout(formLayout: ByteArray?): FormTemplateLayout? = formLayout?.let { try { json.readValue(it, FormTemplateLayout::class.java) } catch(e:Exception) {
-        null
-    } }
+	fun mapLayout(formLayout: ByteArray?): FormLayout? = formLayout?.let {
+		try {
+			if (it[0] == 123.toByte()) json.readValue(it, FormLayout::class.java) else
+				yaml.readValue(it, FormLayout::class.java)
+		} catch (e: Exception) {
+			null
+		}
+	}
 
-    fun mapLayout(formTemplateDto: FormTemplateDto): ByteArray? = formTemplateDto.templateLayout?.let { json.writeValueAsBytes(it) } ?: formTemplateDto.layout?.let { json.writeValueAsBytes(it) }
+	fun mapTemplateLayout(formTemplateLayout: ByteArray?): FormTemplateLayout? = formTemplateLayout?.let {
+		try {
+			if (it[0] == 123.toByte()) json.readValue(it, FormTemplateLayout::class.java) else
+				yaml.readValue(it, FormTemplateLayout::class.java)
+		} catch (e: Exception) {
+			try {
+				yaml.readValue(it, FormTemplateLayout::class.java)
+			} catch (e: Exception) {
+				null
+			}
+		}
+	}
+
+	fun mapLayout(formTemplateDto: FormTemplateDto): ByteArray? {
+		return formTemplateDto.templateLayout?.let {
+			json.writeValueAsBytes(it)
+		}
+	}
 }

@@ -18,6 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v2.controllers.support
 
+import java.io.ByteArrayOutputStream
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -30,7 +31,6 @@ import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -50,104 +50,102 @@ import org.taktik.icure.services.external.rest.v2.mapper.ReceiptV2Mapper
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.writeTo
 import reactor.core.publisher.Flux
-import java.io.ByteArrayOutputStream
 
 @ExperimentalCoroutinesApi
 @RestController("receiptControllerV2")
 @RequestMapping("/rest/v2/receipt")
 @Tag(name = "receipt")
 class ReceiptController(
-        private val receiptLogic: ReceiptLogic,
-        private val receiptV2Mapper: ReceiptV2Mapper
+	private val receiptLogic: ReceiptLogic,
+	private val receiptV2Mapper: ReceiptV2Mapper
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
+	private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Operation(summary = "Creates a receipt")
-    @PostMapping
-    fun createReceipt(@RequestBody receiptDto: ReceiptDto) = mono {
-        try {
-            val created = receiptLogic.createEntities(listOf(receiptV2Mapper.map(receiptDto)))
-            created.firstOrNull()?.let { receiptV2Mapper.map(it) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt creation failed.")
-        } catch (e: Exception) {
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt creation failed.")
-        }
-    }
+	@Operation(summary = "Creates a receipt")
+	@PostMapping
+	fun createReceipt(@RequestBody receiptDto: ReceiptDto) = mono {
+		try {
+			val created = receiptLogic.createEntities(listOf(receiptV2Mapper.map(receiptDto)))
+			created.firstOrNull()?.let { receiptV2Mapper.map(it) }
+				?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt creation failed.")
+		} catch (e: Exception) {
+			throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt creation failed.")
+		}
+	}
 
-    @Operation(summary = "Deletes receipts")
-    @PostMapping("/delete/batch")
-    fun deleteReceipts(@RequestBody receiptIds: ListOfIdsDto): Flux<DocIdentifier> {
-        return receiptIds.ids.takeIf { it.isNotEmpty() }
-                ?.let { ids ->
-                    try {
-                        receiptLogic.deleteEntities(HashSet(ids)).injectReactorContext()
-                    } catch (e: Exception) {
-                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt deletion failed").also { logger.error(it.message) }
-                    }
-                }
-                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
-    }
+	@Operation(summary = "Deletes receipts")
+	@PostMapping("/delete/batch")
+	fun deleteReceipts(@RequestBody receiptIds: ListOfIdsDto): Flux<DocIdentifier> {
+		return receiptIds.ids.takeIf { it.isNotEmpty() }
+			?.let { ids ->
+				try {
+					receiptLogic.deleteEntities(HashSet(ids)).injectReactorContext()
+				} catch (e: Exception) {
+					throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt deletion failed").also { logger.error(it.message) }
+				}
+			}
+			?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
+	}
 
+	@Operation(summary = "Get an attachment", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
+	@GetMapping("/{receiptId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+	fun getReceiptAttachment(
+		@PathVariable receiptId: String,
+		@PathVariable attachmentId: String,
+		@RequestParam enckeys: String
+	) = mono {
+		val attachment = ByteArrayOutputStream().use {
+			receiptLogic.getAttachment(receiptId, attachmentId).writeTo(it)
+			it.toByteArray()
+		}
+		if (attachment.isEmpty()) throw ResponseStatusException(HttpStatus.NOT_FOUND, "Attachment not found")
+			.also { logger.error(it.message) }
+		CryptoUtils.decryptAESWithAnyKey(attachment, enckeys.split('.'))
+	}
 
-    @Operation(summary = "Get an attachment", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
-    @GetMapping("/{receiptId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun getReceiptAttachment(
-            @PathVariable receiptId: String,
-            @PathVariable attachmentId: String,
-            @RequestParam enckeys: String) = mono {
-        val attachment = ByteArrayOutputStream().use {
-            receiptLogic.getAttachment(receiptId, attachmentId).writeTo(it)
-            it.toByteArray()
-        }
-        if (attachment.isEmpty()) throw ResponseStatusException(HttpStatus.NOT_FOUND, "Attachment not found")
-                .also { logger.error(it.message) }
-        CryptoUtils.decryptAESWithAnyKey(attachment, enckeys.split('.'))
-    }
+	@Operation(summary = "Creates a receipt's attachment")
+	@PutMapping("/{receiptId}/attachment/{blobType}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+	fun setReceiptAttachment(
+		@PathVariable receiptId: String,
+		@PathVariable blobType: String,
+		@RequestParam(required = false) enckeys: String?,
+		@Schema(type = "string", format = "binary") @RequestBody payload: ByteArray
+	) = mono {
 
-    @Operation(summary = "Creates a receipt's attachment")
-    @PutMapping("/{receiptId}/attachment/{blobType}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun setReceiptAttachment(
-            @PathVariable receiptId: String,
-            @PathVariable blobType: String,
-            @RequestParam(required = false) enckeys: String?,
-            @Schema(type = "string", format = "binary") @RequestBody payload: ByteArray) = mono {
+		var encryptedPayload = payload
+		if (enckeys?.isNotEmpty() == true) {
+			CryptoUtils.encryptAESWithAnyKey(encryptedPayload, enckeys.split(',')[0])?.let { encryptedPayload = it }
+		}
 
-        var encryptedPayload = payload
-        if (enckeys?.isNotEmpty() == true) {
-            CryptoUtils.encryptAESWithAnyKey(encryptedPayload, enckeys.split(',')[0])?.let { encryptedPayload = it }
-        }
+		val receipt = receiptLogic.getEntity(receiptId)
+		if (receipt != null) {
+			receiptLogic.addReceiptAttachment(receipt, ReceiptBlobType.valueOf(blobType), encryptedPayload)
+			receiptV2Mapper.map(receipt)
+		} else throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt modification failed")
+	}
 
-        val receipt = receiptLogic.getEntity(receiptId)
-        if (receipt != null) {
-            receiptLogic.addReceiptAttachment(receipt, ReceiptBlobType.valueOf(blobType), encryptedPayload)
-            receiptV2Mapper.map(receipt)
-        } else throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt modification failed")
-    }
+	@Operation(summary = "Gets a receipt")
+	@GetMapping("/{receiptId}")
+	fun getReceipt(@PathVariable receiptId: String) = mono {
+		receiptLogic.getEntity(receiptId)?.let { receiptV2Mapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Receipt not found")
+	}
 
-    @Operation(summary = "Gets a receipt")
-    @GetMapping("/{receiptId}")
-    fun getReceipt(@PathVariable receiptId: String) = mono {
-        receiptLogic.getEntity(receiptId)?.let { receiptV2Mapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Receipt not found")
-    }
+	@Operation(summary = "Gets a receipt")
+	@GetMapping("/byRef/{ref}")
+	fun listByReference(@PathVariable ref: String): Flux<ReceiptDto> =
+		receiptLogic.listReceiptsByReference(ref).map { receiptV2Mapper.map(it) }.injectReactorContext()
 
-    @Operation(summary = "Gets a receipt")
-    @GetMapping("/byRef/{ref}")
-    fun listByReference(@PathVariable ref: String): Flux<ReceiptDto> =
-            receiptLogic.listReceiptsByReference(ref).map { receiptV2Mapper.map(it) }.injectReactorContext()
-
-    @Operation(summary = "Updates a receipt")
-    @PutMapping
-    fun modifyReceipt(@RequestBody receiptDto: ReceiptDto) = mono {
-        val receipt = receiptV2Mapper.map(receiptDto)
-        try {
-            receiptLogic.modifyEntities(listOf(receipt)).map { receiptV2Mapper.map(it) }.firstOrNull()
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update receipt")
-
-        } catch (e: Exception) {
-            logger.error("Cannot update receipt", e)
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt modification failed")
-        }
-    }
-
+	@Operation(summary = "Updates a receipt")
+	@PutMapping
+	fun modifyReceipt(@RequestBody receiptDto: ReceiptDto) = mono {
+		val receipt = receiptV2Mapper.map(receiptDto)
+		try {
+			receiptLogic.modifyEntities(listOf(receipt)).map { receiptV2Mapper.map(it) }.firstOrNull()
+				?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update receipt")
+		} catch (e: Exception) {
+			logger.error("Cannot update receipt", e)
+			throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt modification failed")
+		}
+	}
 }

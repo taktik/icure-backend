@@ -24,14 +24,15 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.EntityTemplate
 import org.taktik.icure.services.external.rest.v2.dto.EntityTemplateDto
+
 @Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface EntityTemplateV2Mapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(entityTemplateDto: EntityTemplateDto):EntityTemplate
-	fun map(entityTemplate: EntityTemplate):EntityTemplateDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(entityTemplateDto: EntityTemplateDto): EntityTemplate
+	fun map(entityTemplate: EntityTemplate): EntityTemplateDto
 }

@@ -29,17 +29,19 @@ import org.taktik.icure.asyncdao.EntityReferenceDAO
 import org.taktik.icure.entities.EntityReference
 import org.taktik.icure.properties.CouchDbProperties
 
-
 @Repository("entityReferenceDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.EntityReference' && !doc.deleted) emit(doc._id, doc._id)}")
-class EntityReferenceDAOImpl(couchDbProperties: CouchDbProperties,
-                             @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<EntityReference>(couchDbProperties, EntityReference::class.java, couchDbDispatcher, idGenerator), EntityReferenceDAO {
+class EntityReferenceDAOImpl(
+	couchDbProperties: CouchDbProperties,
+	@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
+	idGenerator: IDGenerator
+) : GenericDAOImpl<EntityReference>(couchDbProperties, EntityReference::class.java, couchDbDispatcher, idGenerator), EntityReferenceDAO {
 
-    override suspend fun getLatest(prefix: String): EntityReference? {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	override suspend fun getLatest(prefix: String): EntityReference? {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        val viewQuery = createQuery(client, "all").startKey(prefix + "\ufff0").descending(true).includeDocs(true).limit(1)
-        val entityReferences = client.queryViewIncludeDocsNoValue<String, EntityReference>(viewQuery).map { it.doc }
-        return entityReferences.firstOrNull()
-    }
+		val viewQuery = createQuery(client, "all").startKey(prefix + "\ufff0").descending(true).includeDocs(true).limit(1)
+		val entityReferences = client.queryViewIncludeDocsNoValue<String, EntityReference>(viewQuery).map { it.doc }
+		return entityReferences.firstOrNull()
+	}
 }

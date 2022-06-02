@@ -22,8 +22,14 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.entity.Attachment
-import org.taktik.icure.entities.base.*
-import org.taktik.icure.entities.embed.*
+import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.CryptoActor
+import org.taktik.icure.entities.base.DataOwner
+import org.taktik.icure.entities.base.Named
+import org.taktik.icure.entities.base.PropertyStub
+import org.taktik.icure.entities.base.StoredICureDocument
+import org.taktik.icure.entities.embed.Identifier
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
@@ -74,80 +80,80 @@ import org.taktik.icure.validation.ValidCode
  */
 
 data class Device(
-        @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String? = null,
-        @JsonProperty("deleted") override val deletionDate: Long? = null,
+	@JsonProperty("_id") override val id: String,
+	@JsonProperty("_rev") override val rev: String? = null,
+	@JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
-        override val endOfLife: Long? = null,
-        @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
-        @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
-        override val medicalLocationId: String? = null,
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
+	@field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+	@field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+	override val endOfLife: Long? = null,
+	@field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+	@field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+	override val medicalLocationId: String? = null,
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
 
-        val externalId: String? = null,
-        val identifiers: List<Identifier> = emptyList(),
+	val externalId: String? = null,
+	val identifiers: List<Identifier> = emptyList(),
 
-        override val name: String? = null,
-        val type: String? = null,
-        val brand: String? = null,
-        val model: String? = null,
-        val serialNumber: String? = null,
+	override val name: String? = null,
+	val type: String? = null,
+	val brand: String? = null,
+	val model: String? = null,
+	val serialNumber: String? = null,
 
-        val parentId: String? = null,
-        val picture: ByteArray? = null,
+	val parentId: String? = null,
+	val picture: ByteArray? = null,
 
-        override val properties: Set<PropertyStub> = emptySet(),
+	override val properties: Set<PropertyStub> = emptySet(),
 
-        // One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
-        // For a pair of HcParties, this key is called the AES exchange key
-        // Each HcParty always has one AES exchange key for himself
-        // The map's keys are the delegate id.
-        // In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
-        // the key encrypted using delegate's public key.
-        override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
-        // Extra AES exchange keys, usually the ones we lost access to at some point
-        // The structure is { publicKey: { delegateId: [aesExKey_for_this, aesExKey_for_delegate] } }
-        override val aesExchangeKeys: Map<String, Map<String, Array<String>>> = emptyMap(),
-        // Our private keys encrypted with our public keys
-        // The structure is { publicKey1: { publicKey2: privateKey2_encrypted_with_publicKey1, publicKey3: privateKey3_encrypted_with_publicKey1 } }
-        override val transferKeys: Map<String, Map<String, String>> = emptyMap(),
-        // The hcparty keys (first of the pair) for which we are asking a re-encryption by the delegate using our new publicKey
-        override val lostHcPartyKeys: Set<String> = emptySet(),
-        override val privateKeyShamirPartitions: Map<String, String> = emptyMap(), //Format is hcpId of key that has been partitioned : "threshold|partition in hex"
-        override val publicKey: String? = null,
+	// One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
+	// For a pair of HcParties, this key is called the AES exchange key
+	// Each HcParty always has one AES exchange key for himself
+	// The map's keys are the delegate id.
+	// In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
+	// the key encrypted using delegate's public key.
+	override val hcPartyKeys: Map<String, Array<String>> = emptyMap(),
+	// Extra AES exchange keys, usually the ones we lost access to at some point
+	// The structure is { publicKey: { delegateId: { myPubKey1: aesExKey_for_this, delegatePubKey1: aesExKey_for_delegate } } }
+	override val aesExchangeKeys: Map<String, Map<String, Map<String, String>>> = emptyMap(),
+	// Our private keys encrypted with our public keys
+	// The structure is { publicKey1: { publicKey2: privateKey2_encrypted_with_publicKey1, publicKey3: privateKey3_encrypted_with_publicKey1 } }
+	override val transferKeys: Map<String, Map<String, String>> = emptyMap(),
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
+	override val privateKeyShamirPartitions: Map<String, String> = emptyMap(), //Format is hcpId of key that has been partitioned : "threshold|partition in hex"
+	override val publicKey: String? = null,
+
+	@JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+	@JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+	@JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredICureDocument, Named, CryptoActor, DataOwner {
-    companion object : DynamicInitializer<Device>
+	companion object : DynamicInitializer<Device>
 
-    fun merge(other: Device) = HealthcareParty(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Device) = super<StoredICureDocument>.solveConflictsWith(other) + super<CryptoActor>.solveConflictsWith(other) + super<DataOwner>.solveConflictsWith(other) + mapOf(
-            "parentId" to (this.parentId ?: other.parentId),
-            "picture" to (this.picture ?: other.picture),
-            "externalId" to (this.type ?: other.externalId),
-            "type" to (this.type ?: other.type),
-            "brand" to (this.type ?: other.brand),
-            "model" to (this.type ?: other.model),
-            "serialNumber" to (this.type ?: other.serialNumber),
-            "identifier" to mergeListsDistinct(this.identifiers, other.identifiers,
-                    { a, b -> a.system == b.system && a.value == b.value },
-            ),
-    )
+	fun merge(other: Device) = HealthcareParty(args = this.solveConflictsWith(other))
+	fun solveConflictsWith(other: Device) = super<StoredICureDocument>.solveConflictsWith(other) + super<CryptoActor>.solveConflictsWith(other) + super<DataOwner>.solveConflictsWith(other) + mapOf(
+		"parentId" to (this.parentId ?: other.parentId),
+		"picture" to (this.picture ?: other.picture),
+		"externalId" to (this.type ?: other.externalId),
+		"type" to (this.type ?: other.type),
+		"brand" to (this.type ?: other.brand),
+		"model" to (this.type ?: other.model),
+		"serialNumber" to (this.type ?: other.serialNumber),
+		"identifier" to mergeListsDistinct(
+			this.identifiers, other.identifiers,
+			{ a, b -> a.system == b.system && a.value == b.value },
+		),
+	)
 
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
-    override fun withTimestamps(created: Long?, modified: Long?) =
-            when {
-                created != null && modified != null -> this.copy(created = created, modified = modified)
-                created != null -> this.copy(created = created)
-                modified != null -> this.copy(modified = modified)
-                else -> this
-            }
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withTimestamps(created: Long?, modified: Long?) =
+		when {
+			created != null && modified != null -> this.copy(created = created, modified = modified)
+			created != null -> this.copy(created = created)
+			modified != null -> this.copy(modified = modified)
+			else -> this
+		}
 }

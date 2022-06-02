@@ -19,7 +19,11 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.annotation.View
@@ -30,32 +34,34 @@ import org.taktik.icure.asyncdao.ClassificationDAO
 import org.taktik.icure.entities.Classification
 import org.taktik.icure.properties.CouchDbProperties
 
-
 /**
  * Created by dlm on 16-07-18
  */
 @FlowPreview
 @Repository("classificationDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Classification' && !doc.deleted) emit( doc.patientId, doc._id )}")
-internal class ClassificationDAOImpl(couchDbProperties: CouchDbProperties,
-                                     @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Classification>(Classification::class.java, couchDbProperties, couchDbDispatcher, idGenerator), ClassificationDAO {
+internal class ClassificationDAOImpl(
+	couchDbProperties: CouchDbProperties,
+	@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
+	idGenerator: IDGenerator
+) : GenericIcureDAOImpl<Classification>(Classification::class.java, couchDbProperties, couchDbDispatcher, idGenerator), ClassificationDAO {
 
-    override fun listClassificationByPatient(patientId: String): Flow<Classification> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery(client, "all").includeDocs(true).key(patientId)
-        emitAll(client.queryViewIncludeDocs<String, String, Classification>(viewQuery).map { it.doc })
-    }
+	override fun listClassificationByPatient(patientId: String): Flow<Classification> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val viewQuery = createQuery(client, "all").includeDocs(true).key(patientId)
+		emitAll(client.queryViewIncludeDocs<String, String, Classification>(viewQuery).map { it.doc })
+	}
 
-    override suspend fun getClassification(classificationId: String): Classification? {
-        return get(classificationId)
-    }
+	override suspend fun getClassification(classificationId: String): Classification? {
+		return get(classificationId)
+	}
 
-    @View(name = "by_hcparty_patient", map = "classpath:js/classification/By_hcparty_patient_map.js")
-    override fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification> = flow {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
+	@View(name = "by_hcparty_patient", map = "classpath:js/classification/By_hcparty_patient_map.js")
+	override fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val viewQuery = createQuery(client, "by_hcparty_patient").includeDocs(true).keys(keys)
-        emitAll(client.queryViewIncludeDocs<ComplexKey, String, Classification>(viewQuery).map { it.doc }.distinctUntilChangedBy { it.id })
-    }
+		val viewQuery = createQuery(client, "by_hcparty_patient").includeDocs(true).keys(keys)
+		emitAll(client.queryViewIncludeDocs<ComplexKey, String, Classification>(viewQuery).map { it.doc }.distinctUntilChangedBy { it.id })
+	}
 }

@@ -18,32 +18,34 @@
 
 package org.taktik.icure.services.external.rest.v2.dto.be.efact
 
+import java.util.Calendar
+import java.util.Date
 import io.swagger.v3.oas.annotations.media.Schema
-import java.util.*
 
 class EIDItem {
-    var deviceType: String? = null
-    var readDate: Long? = null
-    @Schema(defaultValue = "0") var readHour: Int = 0
-    var readType: String? = null
-    var readvalue: String? = null
+	var deviceType: String? = null
+	var readDate: Long? = null
+	@Schema(defaultValue = "0")
+	var readHour: Int = 0
+	var readType: String? = null
+	var readvalue: String? = null
 
-    constructor() {
-        deviceType = "1"
-        readType = "1"
-        readDate = Date().time
+	constructor() {
+		deviceType = "1"
+		readType = "1"
+		readDate = Date().time
 
-        var cal = Calendar.getInstance()
+		var cal = Calendar.getInstance()
 
-        readHour = cal.get(Calendar.HOUR_OF_DAY) * 100 + cal.get(Calendar.MINUTE)
-    }
+		readHour = cal.get(Calendar.HOUR_OF_DAY) * 100 + cal.get(Calendar.MINUTE)
+	}
 
-    constructor(readDate: Long?, readHour: Int?, readvalue: String) {
-        deviceType = "1"
-        readType = "1"
+	constructor(readDate: Long?, readHour: Int?, readvalue: String) {
+		deviceType = "1"
+		readType = "1"
 
-        this.readvalue = readvalue
-        this.readDate = readDate
-        this.readHour = readHour!!
-    }
+		this.readvalue = readvalue
+		this.readDate = readDate
+		this.readHour = readHour!!
+	}
 }

@@ -26,7 +26,11 @@ import org.taktik.icure.entities.ApplicationSettings
 
 @Service
 class ApplicationSettingsLogicImpl(private val applicationSettingsDAO: ApplicationSettingsDAO, sessionLogic: AsyncSessionLogic) : GenericLogicImpl<ApplicationSettings, ApplicationSettingsDAO>(sessionLogic), ApplicationSettingsLogic {
-    override fun getGenericDAO(): ApplicationSettingsDAO {
-        return applicationSettingsDAO
-    }
+	override fun getGenericDAO(): ApplicationSettingsDAO {
+		return applicationSettingsDAO
+	}
+
+	override suspend fun createApplicationSettings(applicationSettings: ApplicationSettings): ApplicationSettings? {
+		return applicationSettingsDAO.create(applicationSettings)
+	}
 }

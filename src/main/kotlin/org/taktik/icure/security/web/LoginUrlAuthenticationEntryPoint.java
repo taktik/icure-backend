@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 public class LoginUrlAuthenticationEntryPoint extends org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint {
-	Map<String,String> prefixedLoginUrls;
+	Map<String, String> prefixedLoginUrls;
 
 	public LoginUrlAuthenticationEntryPoint(String loginFormUrl, Map<String, String> prefixedLoginUrls) {
 		super(loginFormUrl);
@@ -23,7 +23,10 @@ public class LoginUrlAuthenticationEntryPoint extends org.springframework.securi
 		String urlToLoginPage = super.buildRedirectUrlToLoginPage(request, response, authException);
 
 		for (Map.Entry<String, String> e : this.prefixedLoginUrls.entrySet()) {
-			if (request.getRequestURI().startsWith(e.getKey())) { urlToLoginPage = urlToLoginPage + e.getValue(); break; }
+			if (request.getRequestURI().startsWith(e.getKey())) {
+				urlToLoginPage = urlToLoginPage + e.getValue();
+				break;
+			}
 		}
 
 		return urlToLoginPage;

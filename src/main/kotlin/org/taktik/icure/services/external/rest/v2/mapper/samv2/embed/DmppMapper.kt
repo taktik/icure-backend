@@ -24,11 +24,13 @@ import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.entities.samv2.embed.Dmpp
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.DmppDto
+
 @Mapper(componentModel = "spring", uses = [DmppCodeTypeV2Mapper::class, ReimbursementV2Mapper::class, DeliveryEnvironmentV2Mapper::class, DmppCodeTypeV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DmppV2Mapper {
-	fun map(dmppDto: DmppDto):Dmpp
-    @Mappings(
-            Mapping(target = "productId", ignore = true)
-    )
-	fun map(dmpp: Dmpp):DmppDto
+	fun map(dmppDto: DmppDto): Dmpp
+
+	@Mappings(
+		Mapping(target = "productId", ignore = true)
+	)
+	fun map(dmpp: Dmpp): DmppDto
 }

@@ -40,83 +40,95 @@ import org.taktik.icure.entities.embed.Delegation
  */
 @ExperimentalCoroutinesApi
 @Service
-class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: ClassificationTemplateDAO,
-                                      private val uuidGenerator: UUIDGenerator,
-                                      private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<ClassificationTemplate, ClassificationTemplateDAO>(sessionLogic), ClassificationTemplateLogic {
+class ClassificationTemplateLogicImpl(
+	private val classificationTemplateDAO: ClassificationTemplateDAO,
+	private val uuidGenerator: UUIDGenerator,
+	private val sessionLogic: AsyncSessionLogic
+) : GenericLogicImpl<ClassificationTemplate, ClassificationTemplateDAO>(sessionLogic), ClassificationTemplateLogic {
 
-    override fun getGenericDAO(): ClassificationTemplateDAO {
-        return classificationTemplateDAO
-    }
+	override fun getGenericDAO(): ClassificationTemplateDAO {
+		return classificationTemplateDAO
+	}
 
-    override suspend fun createClassificationTemplate(classificationTemplate: ClassificationTemplate) = fix(classificationTemplate) { classificationTemplate ->
-        try { // Fetching the hcParty
-            val userId = sessionLogic.getCurrentUserId()
-            val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
-            // Setting Classification Template attributes
-            createEntities(setOf(classificationTemplate.copy(
-                    author = userId, responsible = healthcarePartyId
-            ))).firstOrNull()
-        } catch (e: Exception) {
-            log.error("createClassificationTemplate: " + e.message)
-            throw IllegalArgumentException("Invalid Classification Template", e)
-        }
-    }
+	override suspend fun createClassificationTemplate(classificationTemplate: ClassificationTemplate) = fix(classificationTemplate) { classificationTemplate ->
+		try { // Fetching the hcParty
+			val userId = sessionLogic.getCurrentUserId()
+			val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
+			// Setting Classification Template attributes
+			createEntities(
+				setOf(
+					classificationTemplate.copy(
+						author = userId, responsible = healthcarePartyId
+					)
+				)
+			).firstOrNull()
+		} catch (e: Exception) {
+			log.error("createClassificationTemplate: " + e.message)
+			throw IllegalArgumentException("Invalid Classification Template", e)
+		}
+	}
 
-    override suspend fun getClassificationTemplate(classificationTemplateId: String): ClassificationTemplate? {
-        return classificationTemplateDAO.getClassificationTemplate(classificationTemplateId)
-    }
+	override suspend fun getClassificationTemplate(classificationTemplateId: String): ClassificationTemplate? {
+		return classificationTemplateDAO.getClassificationTemplate(classificationTemplateId)
+	}
 
-    override fun deleteClassificationTemplates(ids: Set<String>): Flow<DocIdentifier> {
-        return try {
-            deleteEntities(ids)
-        } catch (e: Exception) {
-            log.error(e.message, e)
-            flowOf()
-        }
-    }
+	override fun deleteClassificationTemplates(ids: Set<String>): Flow<DocIdentifier> {
+		return try {
+			deleteEntities(ids)
+		} catch (e: Exception) {
+			log.error(e.message, e)
+			flowOf()
+		}
+	}
 
-    override suspend fun modifyClassificationTemplate(classificationTemplate: ClassificationTemplate) = fix(classificationTemplate) { classificationTemplate ->
-        try {
-            getClassificationTemplate(classificationTemplate.id)?.let { toEdit ->
-                modifyEntities(setOf(toEdit.copy(label = classificationTemplate.label))).firstOrNull()
-            } ?: throw IllegalArgumentException("Non-existing Classification Template")
-        } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid Classification Template", e)
-        }
-    }
+	override suspend fun modifyClassificationTemplate(classificationTemplate: ClassificationTemplate) = fix(classificationTemplate) { classificationTemplate ->
+		try {
+			getClassificationTemplate(classificationTemplate.id)?.let { toEdit ->
+				modifyEntities(setOf(toEdit.copy(label = classificationTemplate.label))).firstOrNull()
+			} ?: throw IllegalArgumentException("Non-existing Classification Template")
+		} catch (e: Exception) {
+			throw IllegalArgumentException("Invalid Classification Template", e)
+		}
+	}
 
-    override suspend fun addDelegation(classificationTemplateId: String, healthcarePartyId: String, delegation: Delegation): ClassificationTemplate? {
-        val classificationTemplate = getClassificationTemplate(classificationTemplateId)
-        return classificationTemplate?.let {
-            classificationTemplateDAO.save(it.copy(delegations = it.delegations + mapOf(
-                    healthcarePartyId to setOf(delegation)
-            )))
-        }
-    }
+	override suspend fun addDelegation(classificationTemplateId: String, healthcarePartyId: String, delegation: Delegation): ClassificationTemplate? {
+		val classificationTemplate = getClassificationTemplate(classificationTemplateId)
+		return classificationTemplate?.let {
+			classificationTemplateDAO.save(
+				it.copy(
+					delegations = it.delegations + mapOf(
+						healthcarePartyId to setOf(delegation)
+					)
+				)
+			)
+		}
+	}
 
-    override suspend fun addDelegations(classificationTemplateId: String, delegations: List<Delegation>): ClassificationTemplate? {
-        val classificationTemplate = getClassificationTemplate(classificationTemplateId)
-        return classificationTemplate?.let {
-            return classificationTemplateDAO.save(it.copy(
-                    delegations = it.delegations +
-                            delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
-            ))
-        }
-    }
+	override suspend fun addDelegations(classificationTemplateId: String, delegations: List<Delegation>): ClassificationTemplate? {
+		val classificationTemplate = getClassificationTemplate(classificationTemplateId)
+		return classificationTemplate?.let {
+			return classificationTemplateDAO.save(
+				it.copy(
+					delegations = it.delegations +
+						delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
+				)
+			)
+		}
+	}
 
-    override fun getClassificationTemplates(ids: List<String>): Flow<ClassificationTemplate> = flow {
-        emitAll(classificationTemplateDAO.getEntities(ids))
-    }
+	override fun getClassificationTemplates(ids: List<String>): Flow<ClassificationTemplate> = flow {
+		emitAll(classificationTemplateDAO.getEntities(ids))
+	}
 
-    override fun listClasificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate> = flow {
-        emitAll(classificationTemplateDAO.listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys))
-    }
+	override fun listClasificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate> = flow {
+		emitAll(classificationTemplateDAO.listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys))
+	}
 
-    override fun listClassificationTemplates(paginationOffset: PaginationOffset<String>) =flow<ViewQueryResultEvent> {
-        emitAll(classificationTemplateDAO.findClassificationTemplates(paginationOffset))
-    }
+	override fun listClassificationTemplates(paginationOffset: PaginationOffset<String>) = flow<ViewQueryResultEvent> {
+		emitAll(classificationTemplateDAO.findClassificationTemplates(paginationOffset))
+	}
 
-    companion object {
-        private val log = LoggerFactory.getLogger(ClassificationTemplateLogicImpl::class.java)
-    }
+	companion object {
+		private val log = LoggerFactory.getLogger(ClassificationTemplateLogicImpl::class.java)
+	}
 }

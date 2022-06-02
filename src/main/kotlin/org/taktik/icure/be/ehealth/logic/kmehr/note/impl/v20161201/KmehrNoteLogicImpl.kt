@@ -18,6 +18,13 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.note.impl.v20161201
 
+import java.io.ByteArrayOutputStream
+import java.io.OutputStreamWriter
+import java.time.Instant
+import java.util.UUID
+import javax.xml.bind.JAXBContext
+import javax.xml.bind.Marshaller
+import kotlin.text.Charsets.UTF_8
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.asFlow
@@ -60,111 +67,116 @@ import org.taktik.icure.be.ehealth.logic.kmehr.medex.KmehrNoteLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
-import java.io.ByteArrayOutputStream
-import java.io.OutputStreamWriter
-import java.time.Instant
-import java.util.*
-import javax.xml.bind.JAXBContext
-import javax.xml.bind.Marshaller
-import kotlin.text.Charsets.UTF_8
 
 @Service
-class KmehrNoteLogicImpl(patientLogic: PatientLogic,
-                         codeLogic: CodeLogic,
-                         healthElementLogic: HealthElementLogic,
-                         healthcarePartyLogic: HealthcarePartyLogic,
-                         contactLogic: ContactLogic,
-                         documentLogic: DocumentLogic,
-                         sessionLogic: AsyncSessionLogic,
-                         userLogic: UserLogic,
-                         filters: Filters) : KmehrNoteLogic, KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
+class KmehrNoteLogicImpl(
+	patientLogic: PatientLogic,
+	codeLogic: CodeLogic,
+	healthElementLogic: HealthElementLogic,
+	healthcarePartyLogic: HealthcarePartyLogic,
+	contactLogic: ContactLogic,
+	documentLogic: DocumentLogic,
+	sessionLogic: AsyncSessionLogic,
+	userLogic: UserLogic,
+	filters: Filters
+) : KmehrNoteLogic, KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 
-    override val log = LogFactory.getLog(KmehrNoteLogicImpl::class.java)
+	override val log = LogFactory.getLog(KmehrNoteLogicImpl::class.java)
 
-    internal val config = Config(_kmehrId = System.currentTimeMillis().toString(),
-            date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
-            time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-            soft = Config.Software(name = "iCure", version = ICUREVERSION),
-            clinicalSummaryType = "",
-            defaultLanguage = "en"
-    )
+	internal val config = Config(
+		_kmehrId = System.currentTimeMillis().toString(),
+		date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
+		time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+		soft = Config.Software(name = "iCure", version = ICUREVERSION),
+		clinicalSummaryType = "",
+		defaultLanguage = "en"
+	)
 
-    override suspend fun createNote(
-            id: String,
-            author: HealthcareParty,
-            date: Long,
-            recipientNihii: String,
-            recipientSsin: String,
-            recipientFirstName: String,
-            recipientLastName: String,
-            patient: Patient,
-            lang: String,
-            transactionType: String,
-            mimeType: String,
-            document: ByteArray
-    ) = flow {
-        val message = Kmehrmessage().apply {
-            header = HeaderType().apply {
-                standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD } }
-                ids.add(IDKMEHR().apply {
-                    s = IDKMEHRschemes.ID_KMEHR; value = recipientNihii + "." + (config._kmehrId
-                        ?: System.currentTimeMillis())
-                })
-                ids.add(localIdKmehr(transactionType, id, config))
-                this.date = Utils.makeXGC(Instant.now().toEpochMilli())
-                this.time = Utils.makeXGC(Instant.now().toEpochMilli())
-                this.sender = SenderType().apply {
-                    hcparties.add(createParty(author, emptyList<CDHCPARTY>()))
-                    hcparties.add(createSpecialistParty(author, emptyList<CDHCPARTY>()))
-                    hcparties.add(HcpartyType().apply { this.cds.addAll(listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "application" })); this.name = "${config.soft?.name} ${config.soft?.version}" })
-                }
-                val recipient = HealthcareParty(
-                        id = UUID.randomUUID().toString(),
-                        lastName = recipientLastName,
-                        firstName = recipientFirstName,
-                        nihii = recipientNihii,
-                        ssin = recipientSsin
-                )
-                this.recipients.add(RecipientType().apply {
-                    hcparties.add(recipient?.let { createParty(it, emptyList()) })
-                })
-            }
-            folders.add(FolderType().apply {
-                this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
-                this.patient = makePerson(patient, config)
+	override suspend fun createNote(
+		id: String,
+		author: HealthcareParty,
+		date: Long,
+		recipientNihii: String,
+		recipientSsin: String,
+		recipientFirstName: String,
+		recipientLastName: String,
+		patient: Patient,
+		lang: String,
+		transactionType: String,
+		mimeType: String,
+		document: ByteArray
+	) = flow {
+		val message = Kmehrmessage().apply {
+			header = HeaderType().apply {
+				standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD } }
+				ids.add(
+					IDKMEHR().apply {
+						s = IDKMEHRschemes.ID_KMEHR; value = recipientNihii + "." + (
+							config._kmehrId
+								?: System.currentTimeMillis()
+							)
+					}
+				)
+				ids.add(localIdKmehr(transactionType, id, config))
+				this.date = Utils.makeXGC(Instant.now().toEpochMilli())
+				this.time = Utils.makeXGC(Instant.now().toEpochMilli())
+				this.sender = SenderType().apply {
+					hcparties.add(createParty(author, emptyList<CDHCPARTY>()))
+					hcparties.add(createSpecialistParty(author, emptyList<CDHCPARTY>()))
+					hcparties.add(HcpartyType().apply { this.cds.addAll(listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "application" })); this.name = "${config.soft?.name} ${config.soft?.version}" })
+				}
+				val recipient = HealthcareParty(
+					id = UUID.randomUUID().toString(),
+					lastName = recipientLastName,
+					firstName = recipientFirstName,
+					nihii = recipientNihii,
+					ssin = recipientSsin
+				)
+				this.recipients.add(
+					RecipientType().apply {
+						hcparties.add(recipient.let { createParty(it, emptyList()) })
+					}
+				)
+			}
+			folders.add(
+				FolderType().apply {
+					this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
+					this.patient = makePerson(patient, config)
 
-                this.transactions.add(
-                    TransactionType().apply {
-                        this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
-                        this.ids.add(localIdKmehr(transactionType, id, config))
-                        this.cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = transactionType})
-                        this.date = Utils.makeXGC(date)
-                        this.time = Utils.makeXGC(date)
-                        this.author = AuthorType().apply {
-                            hcparties.add(createParty(author, emptyList<CDHCPARTY>()))
-                        }
-                        this.isIscomplete = true
-                        this.isIsvalidated = true
+					this.transactions.add(
+						TransactionType().apply {
+							this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
+							this.ids.add(localIdKmehr(transactionType, id, config))
+							this.cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = transactionType })
+							this.date = Utils.makeXGC(date)
+							this.time = Utils.makeXGC(date)
+							this.author = AuthorType().apply {
+								hcparties.add(createParty(author, emptyList<CDHCPARTY>()))
+							}
+							this.isIscomplete = true
+							this.isIsvalidated = true
 
-                        this.headingsAndItemsAndTexts.add(LnkType().apply {
-                            this.type = CDLNKvalues.MULTIMEDIA
-                            this.mediatype = CDMEDIATYPEvalues.fromValue(mimeType)
-                            this.value = document
-                        })
-                    }
-                )
-            })
-        }
+							this.headingsAndItemsAndTexts.add(
+								LnkType().apply {
+									this.type = CDLNKvalues.MULTIMEDIA
+									this.mediatype = CDMEDIATYPEvalues.fromValue(mimeType)
+									this.value = document
+								}
+							)
+						}
+					)
+				}
+			)
+		}
 
-        val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
+		val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
 
-        val os = ByteArrayOutputStream(10000)
-        // output pretty printed
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
-        jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, UTF_8.toString())
+		val os = ByteArrayOutputStream(10000)
+		// output pretty printed
+		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
+		jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, UTF_8.toString())
 
-        jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
-        emitAll(DataBufferUtils.read(ByteArrayResource(os.toByteArray()), DefaultDataBufferFactory(), 10000).asFlow())
-    }
-
+		jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
+		emitAll(DataBufferUtils.read(ByteArrayResource(os.toByteArray()), DefaultDataBufferFactory(), 10000).asFlow())
+	}
 }

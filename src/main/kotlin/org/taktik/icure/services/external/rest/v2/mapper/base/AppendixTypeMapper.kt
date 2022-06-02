@@ -21,8 +21,9 @@ package org.taktik.icure.services.external.rest.v2.mapper.base
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.base.AppendixType
 import org.taktik.icure.services.external.rest.v2.dto.base.AppendixTypeDto
+
 @Mapper(componentModel = "spring")
 interface AppendixTypeV2Mapper {
-	fun map(appendixTypeDto: AppendixTypeDto):AppendixType
-	fun map(appendixType: AppendixType):AppendixTypeDto
+	fun map(appendixTypeDto: AppendixTypeDto): AppendixType
+	fun map(appendixType: AppendixType): AppendixTypeDto
 }

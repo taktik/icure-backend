@@ -36,81 +36,93 @@ import org.taktik.icure.entities.embed.Delegation
  * Created by dlm on 16-07-18
  */
 @Service
-class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
-                              private val uuidGenerator: UUIDGenerator,
-                              private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Classification, ClassificationDAO>(sessionLogic), ClassificationLogic {
+class ClassificationLogicImpl(
+	private val classificationDAO: ClassificationDAO,
+	private val uuidGenerator: UUIDGenerator,
+	private val sessionLogic: AsyncSessionLogic
+) : GenericLogicImpl<Classification, ClassificationDAO>(sessionLogic), ClassificationLogic {
 
-    override fun getGenericDAO(): ClassificationDAO {
-        return classificationDAO
-    }
+	override fun getGenericDAO(): ClassificationDAO {
+		return classificationDAO
+	}
 
-    override suspend fun createClassification(classification: Classification) = fix(classification) { classification ->
-        try { // Fetching the hcParty
-            val userId = sessionLogic.getCurrentUserId()
-            val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
-            createEntities(setOf(classification.copy(
-                    author = userId,
-                    responsible = healthcarePartyId
-            ))).firstOrNull()
-        } catch (e: Exception) {
-            log.error("createClassification: " + e.message)
-            throw IllegalArgumentException("Invalid Classification", e)
-        }
-    }
+	override suspend fun createClassification(classification: Classification) = fix(classification) { classification ->
+		try { // Fetching the hcParty
+			val userId = sessionLogic.getCurrentUserId()
+			val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
+			createEntities(
+				setOf(
+					classification.copy(
+						author = userId,
+						responsible = healthcarePartyId
+					)
+				)
+			).firstOrNull()
+		} catch (e: Exception) {
+			log.error("createClassification: " + e.message)
+			throw IllegalArgumentException("Invalid Classification", e)
+		}
+	}
 
-    override suspend fun getClassification(classificationId: String): Classification? {
-        return classificationDAO.getClassification(classificationId)
-    }
+	override suspend fun getClassification(classificationId: String): Classification? {
+		return classificationDAO.getClassification(classificationId)
+	}
 
-    override fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification> = flow {
-        emitAll(classificationDAO.listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys))
-    }
+	override fun listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification> = flow {
+		emitAll(classificationDAO.listClassificationsByHCPartyAndSecretPatientKeys(hcPartyId, secretPatientKeys))
+	}
 
-    override fun deleteClassifications(ids: Set<String>): Flow<DocIdentifier> {
-        return try {
-            deleteEntities(ids)
-        } catch (e: Exception) {
-            log.error(e.message, e)
-            flowOf()
-        }
-    }
+	override fun deleteClassifications(ids: Set<String>): Flow<DocIdentifier> {
+		return try {
+			deleteEntities(ids)
+		} catch (e: Exception) {
+			log.error(e.message, e)
+			flowOf()
+		}
+	}
 
-    override suspend fun modifyClassification(classification: Classification) = fix(classification) { classification ->
-        try {
-            classification.id.let {
-                getClassification(it)?.let { toEdit ->
-                    modifyEntities(setOf(toEdit.copy(label = classification.label))).firstOrNull()
-                }
-            } ?: throw IllegalArgumentException("Non-existing Classification")
-        } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid Classification", e)
-        }
-    }
+	override suspend fun modifyClassification(classification: Classification) = fix(classification) { classification ->
+		try {
+			classification.id.let {
+				getClassification(it)?.let { toEdit ->
+					modifyEntities(setOf(toEdit.copy(label = classification.label))).firstOrNull()
+				}
+			} ?: throw IllegalArgumentException("Non-existing Classification")
+		} catch (e: Exception) {
+			throw IllegalArgumentException("Invalid Classification", e)
+		}
+	}
 
-    override suspend fun addDelegation(classificationId: String, healthcarePartyId: String, delegation: Delegation): Classification? {
-        val classification = getClassification(classificationId)
-        return classification?.let {
-            classificationDAO.save(it.copy(delegations = it.delegations + mapOf(
-                    healthcarePartyId to setOf(delegation)
-            )))
-        }
-    }
+	override suspend fun addDelegation(classificationId: String, healthcarePartyId: String, delegation: Delegation): Classification? {
+		val classification = getClassification(classificationId)
+		return classification?.let {
+			classificationDAO.save(
+				it.copy(
+					delegations = it.delegations + mapOf(
+						healthcarePartyId to setOf(delegation)
+					)
+				)
+			)
+		}
+	}
 
-    override suspend fun addDelegations(classificationId: String, delegations: List<Delegation>): Classification? {
-        val classification = getClassification(classificationId)
-        return classification?.let {
-            return classificationDAO.save(it.copy(
-                    delegations = it.delegations +
-                            delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
-            ))
-        }
-    }
+	override suspend fun addDelegations(classificationId: String, delegations: List<Delegation>): Classification? {
+		val classification = getClassification(classificationId)
+		return classification?.let {
+			return classificationDAO.save(
+				it.copy(
+					delegations = it.delegations +
+						delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
+				)
+			)
+		}
+	}
 
-    override fun getClassifications(ids: List<String>): Flow<Classification> = flow {
-        emitAll(classificationDAO.getEntities(ids))
-    }
+	override fun getClassifications(ids: List<String>): Flow<Classification> = flow {
+		emitAll(classificationDAO.getEntities(ids))
+	}
 
-    companion object {
-        private val log = LoggerFactory.getLogger(ClassificationLogicImpl::class.java)
-    }
+	companion object {
+		private val log = LoggerFactory.getLogger(ClassificationLogicImpl::class.java)
+	}
 }

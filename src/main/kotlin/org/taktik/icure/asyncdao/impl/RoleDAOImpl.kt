@@ -32,17 +32,24 @@ import org.taktik.icure.spring.asynccache.AsyncCacheManager
 
 @Repository("roleDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Role' && !doc.deleted) emit( null, doc._id )}")
-class RoleDAOImpl(couchDbProperties: CouchDbProperties,
-                  @Qualifier("configCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager) : CachedDAOImpl<Role>(Role::class.java, couchDbProperties, couchDbDispatcher, idGenerator, asyncCacheManager), RoleDAO {
+class RoleDAOImpl(
+	couchDbProperties: CouchDbProperties,
+	@Qualifier("configCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
+	idGenerator: IDGenerator,
+	@Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager
+) : CachedDAOImpl<Role>(Role::class.java, couchDbProperties, couchDbDispatcher, idGenerator, asyncCacheManager), RoleDAO {
 
-    @View(name = "by_name", map = "function(doc) {\n" +
-            "            if (doc.java_type == 'org.taktik.icure.entities.Role' && !doc.deleted && doc.name) {\n" +
-            "            emit(doc.name,doc._id);\n" +
-            "}\n" +
-            "}")
-    override suspend fun getRoleByName(name: String): Role? {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	@View(
+		name = "by_name",
+		map = "function(doc) {\n" +
+			"            if (doc.java_type == 'org.taktik.icure.entities.Role' && !doc.deleted && doc.name) {\n" +
+			"            emit(doc.name,doc._id);\n" +
+			"}\n" +
+			"}"
+	)
+	override suspend fun getRoleByName(name: String): Role? {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
-        return client.queryViewIncludeDocs<String, String, Role>(createQuery(client, "by_name").key(name).includeDocs(true)).map { it.doc }.firstOrNull()
-    }
+		return client.queryViewIncludeDocs<String, String, Role>(createQuery(client, "by_name").key(name).includeDocs(true)).map { it.doc }.firstOrNull()
+	}
 }

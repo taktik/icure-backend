@@ -18,6 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.extra
 
+import java.util.UUID
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -46,91 +47,94 @@ import org.taktik.icure.services.external.rest.v1.dto.TimeTableDto
 import org.taktik.icure.services.external.rest.v1.mapper.TimeTableMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
-import java.util.*
 
 @ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/timeTable")
 @Tag(name = "timeTable")
-class TimeTableController(private val timeTableLogic: TimeTableLogic,
-                          private val timeTableMapper: TimeTableMapper) {
+class TimeTableController(
+	private val timeTableLogic: TimeTableLogic,
+	private val timeTableMapper: TimeTableMapper
+) {
 
-    @Operation(summary = "Creates a timeTable")
-    @PostMapping
-    fun createTimeTable(@RequestBody timeTableDto: TimeTableDto) =
-            mono {
-                timeTableLogic.createTimeTable(timeTableMapper.map(timeTableDto))?.let { timeTableMapper.map(it) }
-                        ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable creation failed")
-            }
+	@Operation(summary = "Creates a timeTable")
+	@PostMapping
+	fun createTimeTable(@RequestBody timeTableDto: TimeTableDto) =
+		mono {
+			timeTableLogic.createTimeTable(timeTableMapper.map(timeTableDto))?.let { timeTableMapper.map(it) }
+				?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable creation failed")
+		}
 
-    @Operation(summary = "Deletes an timeTable")
-    @DeleteMapping("/{timeTableIds}")
-    fun deleteTimeTable(@PathVariable timeTableIds: String): Flux<DocIdentifier> {
-        return timeTableLogic.deleteTimeTables(timeTableIds.split(',')).injectReactorContext()
-    }
+	@Operation(summary = "Deletes an timeTable")
+	@DeleteMapping("/{timeTableIds}")
+	fun deleteTimeTable(@PathVariable timeTableIds: String): Flux<DocIdentifier> {
+		return timeTableLogic.deleteTimeTables(timeTableIds.split(',')).injectReactorContext()
+	}
 
-    @Operation(summary = "Gets a timeTable")
-    @GetMapping("/{timeTableId}")
-    fun getTimeTable(@PathVariable timeTableId: String) =
-            mono {
-                if (timeTableId.equals("new", ignoreCase = true)) {
-                    //Create an hourItem
-                    val timeTableHour = TimeTableHour(
-                            startHour = java.lang.Long.parseLong("0800"),
-                            endHour = java.lang.Long.parseLong("0900"))
+	@Operation(summary = "Gets a timeTable")
+	@GetMapping("/{timeTableId}")
+	fun getTimeTable(@PathVariable timeTableId: String) =
+		mono {
+			if (timeTableId.equals("new", ignoreCase = true)) {
+				//Create an hourItem
+				val timeTableHour = TimeTableHour(
+					startHour = java.lang.Long.parseLong("0800"),
+					endHour = java.lang.Long.parseLong("0900")
+				)
 
-                    //Create a timeTableItem
-                    val timeTableItem = TimeTableItem(
-                            calendarItemTypeId = "consult",
-                            days = mutableListOf("monday"),
-                            recurrenceTypes = ArrayList(),
-                            hours = mutableListOf(timeTableHour)
-                    )
-                    //Create the timeTable
-                    val timeTable = TimeTable(
-                            id = UUID.randomUUID().toString(),
-                            startTime = java.lang.Long.parseLong("20180601000"),
-                            endTime = java.lang.Long.parseLong("20180801000"),
-                            name = "myPeriod",
-                            items = mutableListOf(timeTableItem)
-                    )
+				//Create a timeTableItem
+				val timeTableItem = TimeTableItem(
+					calendarItemTypeId = "consult",
+					days = mutableListOf("monday"),
+					recurrenceTypes = ArrayList(),
+					hours = mutableListOf(timeTableHour)
+				)
+				//Create the timeTable
+				val timeTable = TimeTable(
+					id = UUID.randomUUID().toString(),
+					startTime = java.lang.Long.parseLong("20180601000"),
+					endTime = java.lang.Long.parseLong("20180801000"),
+					name = "myPeriod",
+					items = mutableListOf(timeTableItem)
+				)
 
-                    //Return it
-                    timeTableMapper.map(timeTable)
-                } else {
-                    timeTableLogic.getTimeTable(timeTableId)?.let { timeTableMapper.map(it) }
-                            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "TimeTable fetching failed")
-                }
-            }
+				//Return it
+				timeTableMapper.map(timeTable)
+			} else {
+				timeTableLogic.getTimeTable(timeTableId)?.let { timeTableMapper.map(it) }
+					?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "TimeTable fetching failed")
+			}
+		}
 
-    @Operation(summary = "Modifies an timeTable")
-    @PutMapping
-    fun modifyTimeTable(@RequestBody timeTableDto: TimeTableDto) =
-            mono {
-                timeTableLogic.modifyTimeTable(timeTableMapper.map(timeTableDto))?.let { timeTableMapper.map(it) }
-                        ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable modification failed")
-            }
+	@Operation(summary = "Modifies an timeTable")
+	@PutMapping
+	fun modifyTimeTable(@RequestBody timeTableDto: TimeTableDto) =
+		mono {
+			timeTableLogic.modifyTimeTable(timeTableMapper.map(timeTableDto))?.let { timeTableMapper.map(it) }
+				?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable modification failed")
+		}
 
-    @Operation(summary = "Get TimeTables by Period and AgendaId")
-    @PostMapping("/byPeriodAndAgendaId")
-    fun getTimeTablesByPeriodAndAgendaId(@Parameter(required = true) @RequestParam startDate: Long,
-                                         @Parameter(required = true) @RequestParam endDate: Long,
-                                         @Parameter(required = true) @RequestParam agendaId: String): Flux<TimeTableDto> =
-            flow {
-                if (agendaId.isBlank()) {
-                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
-                }
-                emitAll(timeTableLogic.getTimeTablesByPeriodAndAgendaId(startDate, endDate, agendaId).map { timeTableMapper.map(it) })
-            }.injectReactorContext()
+	@Operation(summary = "Get TimeTables by Period and AgendaId")
+	@PostMapping("/byPeriodAndAgendaId")
+	fun getTimeTablesByPeriodAndAgendaId(
+		@Parameter(required = true) @RequestParam startDate: Long,
+		@Parameter(required = true) @RequestParam endDate: Long,
+		@Parameter(required = true) @RequestParam agendaId: String
+	): Flux<TimeTableDto> =
+		flow {
+			if (agendaId.isBlank()) {
+				throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
+			}
+			emitAll(timeTableLogic.getTimeTablesByPeriodAndAgendaId(startDate, endDate, agendaId).map { timeTableMapper.map(it) })
+		}.injectReactorContext()
 
-    @Operation(summary = "Get TimeTables by AgendaId")
-    @PostMapping("/byAgendaId")
-    fun getTimeTablesByAgendaId(@Parameter(required = true) @RequestParam agendaId: String): Flux<TimeTableDto> =
-            flow {
-                if (agendaId.isBlank()) {
-                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
-                }
-                emitAll(timeTableLogic.getTimeTablesByAgendaId(agendaId).map { timeTableMapper.map(it) })
-            }.injectReactorContext()
-
+	@Operation(summary = "Get TimeTables by AgendaId")
+	@PostMapping("/byAgendaId")
+	fun getTimeTablesByAgendaId(@Parameter(required = true) @RequestParam agendaId: String): Flux<TimeTableDto> =
+		flow {
+			if (agendaId.isBlank()) {
+				throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
+			}
+			emitAll(timeTableLogic.getTimeTablesByAgendaId(agendaId).map { timeTableMapper.map(it) })
+		}.injectReactorContext()
 }

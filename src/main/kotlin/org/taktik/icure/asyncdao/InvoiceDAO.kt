@@ -27,37 +27,37 @@ import org.taktik.icure.entities.Invoice
 import org.taktik.icure.entities.embed.InvoiceType
 import org.taktik.icure.entities.embed.MediumType
 
-interface InvoiceDAO: GenericDAO<Invoice> {
-    fun findInvoicesByHcParty(hcParty: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
+interface InvoiceDAO : GenericDAO<Invoice> {
+	fun findInvoicesByHcParty(hcParty: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
 
-    fun listInvoicesByHcPartyAndContacts(hcParty: String, contactId: Set<String>): Flow<Invoice>
+	fun listInvoicesByHcPartyAndContacts(hcParty: String, contactId: Set<String>): Flow<Invoice>
 
-    fun listInvoicesByHcPartyAndReferences(hcParty: String, invoiceReferences: Set<String>?): Flow<Invoice>
+	fun listInvoicesByHcPartyAndReferences(hcParty: String, invoiceReferences: Set<String>?): Flow<Invoice>
 
-    fun listInvoicesByHcPartyAndReferences(hcParty: String, from: String?, to: String?, descending: Boolean, limit: Int): Flow<Invoice>
+	fun listInvoicesByHcPartyAndReferences(hcParty: String, from: String?, to: String?, descending: Boolean, limit: Int): Flow<Invoice>
 
-    fun listInvoicesByHcPartyAndGroupId(inputGroupId: String, hcParty: String): Flow<Invoice>
+	fun listInvoicesByHcPartyAndGroupId(inputGroupId: String, hcParty: String): Flow<Invoice>
 
-    fun listInvoicesByHcPartyAndRecipientIds(hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
+	fun listInvoicesByHcPartyAndRecipientIds(hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
 
-    fun listInvoicesByHcPartyAndPatientFk(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice>
+	fun listInvoicesByHcPartyAndPatientFk(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice>
 
-    fun listInvoicesByHcPartyAndRecipientIdsUnsent(hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
+	fun listInvoicesByHcPartyAndRecipientIdsUnsent(hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
 
-    fun listInvoicesByHcPartyAndPatientFkUnsent(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice>
+	fun listInvoicesByHcPartyAndPatientFkUnsent(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice>
 
-    fun listInvoicesByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty: String, sentMediumType: MediumType, invoiceType: InvoiceType, sent: Boolean, fromDate: Long?, toDate: Long?): Flow<Invoice>
+	fun listInvoicesByHcPartySentMediumTypeInvoiceTypeSentDate(hcParty: String, sentMediumType: MediumType, invoiceType: InvoiceType, sent: Boolean, fromDate: Long?, toDate: Long?): Flow<Invoice>
 
-    fun listInvoicesByHcPartySendingModeStatus(hcParty: String, sendingMode: String?, status: String?, fromDate: Long?, toDate: Long?): Flow<Invoice>
+	fun listInvoicesByHcPartySendingModeStatus(hcParty: String, sendingMode: String?, status: String?, fromDate: Long?, toDate: Long?): Flow<Invoice>
 
-    fun listInvoicesByServiceIds(serviceIds: Set<String>): Flow<Invoice>
+	fun listInvoicesByServiceIds(serviceIds: Set<String>): Flow<Invoice>
 
-    fun listInvoicesHcpsByStatus(status: String, from: Long?, to: Long?, hcpIds: List<String>): Flow<Invoice>
+	fun listInvoicesHcpsByStatus(status: String, from: Long?, to: Long?, hcpIds: List<String>): Flow<Invoice>
 
-    fun listConflicts(): Flow<Invoice>
+	fun listConflicts(): Flow<Invoice>
 
-    fun listInvoiceIdsByTarificationsAndCode(hcPartyId: String, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
+	fun listInvoiceIdsByTarificationsAndCode(hcPartyId: String, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
 
-    fun listInvoiceIdsByTarificationsByCode(hcPartyId: String, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
-    fun listTarificationsFrequencies(hcPartyId: String): Flow<ViewRowNoDoc<ComplexKey, Long>>
+	fun listInvoiceIdsByTarificationsByCode(hcPartyId: String, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
+	fun listTarificationsFrequencies(hcPartyId: String): Flow<ViewRowNoDoc<ComplexKey, Long>>
 }

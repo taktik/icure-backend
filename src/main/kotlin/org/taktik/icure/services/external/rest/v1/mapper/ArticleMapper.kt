@@ -30,12 +30,12 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
 
 @Mapper(componentModel = "spring", uses = [ServiceMapper::class, CodeStubMapper::class, DelegationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface ArticleMapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(articleDto: ArticleDto):Article
-	fun map(article: Article):ArticleDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(articleDto: ArticleDto): Article
+	fun map(article: Article): ArticleDto
 }

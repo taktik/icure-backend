@@ -29,12 +29,12 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.FrontEndMigration
 
 @Mapper(componentModel = "spring", uses = [FrontEndMigrationStatusMapper::class, PropertyStubMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface FrontEndMigrationMapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(frontEndMigrationDto: FrontEndMigrationDto):FrontEndMigration
-	fun map(frontEndMigration: FrontEndMigration):FrontEndMigrationDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(frontEndMigrationDto: FrontEndMigrationDto): FrontEndMigration
+	fun map(frontEndMigration: FrontEndMigration): FrontEndMigrationDto
 }

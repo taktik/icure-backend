@@ -24,8 +24,8 @@ import org.taktik.icure.entities.Contact
 
 @KotlinBuilder
 data class ContactByHcPartyFilter(
-        override val hcpId: String,
-        override val desc:String? = null
+	override val hcpId: String,
+	override val desc: String? = null
 ) : AbstractFilter<Contact>, Filters.ByHcpartyFilter<String, Contact> {
-    override fun matches(item: Contact) = item.delegations.keys.contains(hcpId)
+	override fun matches(item: Contact) = item.delegations.keys.contains(hcpId)
 }

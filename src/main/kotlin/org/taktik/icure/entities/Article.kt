@@ -40,48 +40,47 @@ import org.taktik.icure.validation.ValidCode
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class Article(
-        @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
-        @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
-        @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
-        @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
-        override val medicalLocationId: String? = null,
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
-        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
-        override val endOfLife: Long? = null,
-        @JsonProperty("deleted") override val deletionDate: Long? = null,
-        val name: String? = null,
-        val content: List<Content> = emptyList(),
-        val classification: String? = null,
-        override val secretForeignKeys: Set<String> = emptySet(),
-        override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
-        override val delegations: Map<String, Set<Delegation>> = emptyMap(),
-        override val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(),
-        override val encryptedSelf: String? = null,
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
-        @JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
+	@JsonProperty("_id") override val id: String,
+	@JsonProperty("_rev") override val rev: String? = null,
+	@field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+	@field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+	@field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+	@field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+	override val medicalLocationId: String? = null,
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = emptySet(),
+	@field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = emptySet(),
+	override val endOfLife: Long? = null,
+	@JsonProperty("deleted") override val deletionDate: Long? = null,
+	val name: String? = null,
+	val content: List<Content> = emptyList(),
+	val classification: String? = null,
+	override val secretForeignKeys: Set<String> = emptySet(),
+	override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
+	override val delegations: Map<String, Set<Delegation>> = emptyMap(),
+	override val encryptionKeys: Map<String, Set<Delegation>> = emptyMap(),
+	override val encryptedSelf: String? = null,
+	@JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = emptyMap(),
+	@JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = emptyList(),
+	@JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
+	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
 ) : StoredICureDocument, Encryptable {
-    companion object : DynamicInitializer<Article>
+	companion object : DynamicInitializer<Article>
 
-    fun merge(other: Article) = Article(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Article) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
-            "name" to (this.name ?: other.name),
-            "content" to MergeUtil.mergeListsDistinct(this.content, other.content, { a, b -> a == b }) { a, _ -> a },
-            "classification" to (this.classification ?: other.classification)
-    )
+	fun merge(other: Article) = Article(args = this.solveConflictsWith(other))
+	fun solveConflictsWith(other: Article) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+		"name" to (this.name ?: other.name),
+		"content" to MergeUtil.mergeListsDistinct(this.content, other.content, { a, b -> a == b }) { a, _ -> a },
+		"classification" to (this.classification ?: other.classification)
+	)
 
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
-    override fun withTimestamps(created: Long?, modified: Long?) =
-            when {
-                created != null && modified != null -> this.copy(created = created, modified = modified)
-                created != null -> this.copy(created = created)
-                modified != null -> this.copy(modified = modified)
-                else -> this
-            }
-
+	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withTimestamps(created: Long?, modified: Long?) =
+		when {
+			created != null && modified != null -> this.copy(created = created, modified = modified)
+			created != null -> this.copy(created = created)
+			modified != null -> this.copy(modified = modified)
+			else -> this
+		}
 }

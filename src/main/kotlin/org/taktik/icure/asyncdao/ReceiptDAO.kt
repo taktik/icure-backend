@@ -21,12 +21,12 @@ package org.taktik.icure.asyncdao
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.Receipt
 
-interface ReceiptDAO: GenericDAO<Receipt> {
-    fun listByReference(ref: String): Flow<Receipt>
+interface ReceiptDAO : GenericDAO<Receipt> {
+	fun listByReference(ref: String): Flow<Receipt>
 
-    fun listReceiptsAfterDate(date: Long): Flow<Receipt>
+	fun listReceiptsAfterDate(date: Long): Flow<Receipt>
 
-    fun listReceiptsByCategory(category: String, subCategory: String, startDate: Long, endDate: Long): Flow<Receipt>
+	fun listReceiptsByCategory(category: String, subCategory: String, startDate: Long, endDate: Long): Flow<Receipt>
 
-    fun listReceiptsByDocId(date: Long): Flow<Receipt>
+	fun listReceiptsByDocId(date: Long): Flow<Receipt>
 }

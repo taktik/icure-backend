@@ -21,8 +21,8 @@ import org.taktik.icure.services.external.rest.v2.dto.base.EnumVersionDto
 
 @EnumVersionDto(1L)
 enum class InvoiceTypeDto {
-    patient, mutualfund, payingagency,  //CPAS, complementary assurances...
-    insurance,  //Deprecated, see MediumTypeDto
-    efact,  //Deprecated, see MediumTypeDto
-    other  //Deprecated
+	patient, mutualfund, payingagency, //CPAS, complementary assurances...
+	insurance, //Deprecated, see MediumTypeDto
+	efact, //Deprecated, see MediumTypeDto
+	other //Deprecated
 }

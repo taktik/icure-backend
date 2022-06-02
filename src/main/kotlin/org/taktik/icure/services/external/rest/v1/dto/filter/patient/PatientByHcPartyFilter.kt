@@ -17,7 +17,6 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.filter.patient
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonDeserializer
@@ -33,6 +32,6 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class PatientByHcPartyFilter(
-        override val desc: String? = null,
-        override val healthcarePartyId: String? = null
+	override val desc: String? = null,
+	override val healthcarePartyId: String? = null
 ) : AbstractFilterDto<Patient>, org.taktik.icure.domain.filter.patient.PatientByHcPartyFilter

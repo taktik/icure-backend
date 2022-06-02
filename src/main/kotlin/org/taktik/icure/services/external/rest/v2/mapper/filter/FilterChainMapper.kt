@@ -24,12 +24,12 @@ import org.taktik.icure.domain.filter.AbstractFilter
 import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 import org.taktik.icure.services.external.rest.v2.dto.filter.chain.FilterChain
 
+@ExperimentalStdlibApi
 @Service
 class FilterChainV2Mapper(val filterV2Mapper: FilterV2Mapper) {
-    fun <O: Identifiable<String>> map(filterChain: org.taktik.icure.domain.filter.chain.FilterChain<O>): FilterChain<O> =
-            FilterChain(filterChain.filter.let { filterV2Mapper.map(it) } as AbstractFilterDto<O>, filterChain.predicate?.let { filterV2Mapper.map(it) })
+	fun <O : Identifiable<String>> map(filterChain: org.taktik.icure.domain.filter.chain.FilterChain<O>): FilterChain<O> =
+		FilterChain(filterChain.filter.let { filterV2Mapper.map(it) } as AbstractFilterDto<O>, filterChain.predicate?.let { filterV2Mapper.map(it) })
 
-    fun <O: Identifiable<String>> map(filterChainDto: FilterChain<O>): org.taktik.icure.domain.filter.chain.FilterChain<O> =
-            org.taktik.icure.domain.filter.chain.FilterChain(filterChainDto.filter.let { filterV2Mapper.map(it) } as AbstractFilter<O>, filterChainDto.predicate?.let { filterV2Mapper.map(it) })
-
+	fun <O : Identifiable<String>> map(filterChainDto: FilterChain<O>): org.taktik.icure.domain.filter.chain.FilterChain<O> =
+		org.taktik.icure.domain.filter.chain.FilterChain(filterChainDto.filter.let { filterV2Mapper.map(it) } as AbstractFilter<O>, filterChainDto.predicate?.let { filterV2Mapper.map(it) })
 }

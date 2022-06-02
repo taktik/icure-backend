@@ -18,6 +18,7 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.smf
 
+import java.nio.ByteBuffer
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
@@ -29,24 +30,26 @@ import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.User
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
-import java.nio.ByteBuffer
 
 /**
  * @author Bernard Paulus on 24/05/17.
  */
 interface SoftwareMedicalFileLogic {
 	fun createSmfExport(patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?, config: Config): Flow<DataBuffer>
-    suspend fun importSmfFile(inputData: ByteArray,
-                              author: User,
-                              language: String,
-                              dryRun: Boolean,
-                              dest: Patient? = null,
-                              mappings: Map<String, List<ImportMapping>> = HashMap()): List<ImportResult>
+	suspend fun importSmfFile(
+		inputData: ByteArray,
+		author: User,
+		language: String,
+		dryRun: Boolean,
+		dest: Patient? = null,
+		mappings: Map<String, List<ImportMapping>> = HashMap()
+	): List<ImportResult>
 
-    suspend fun checkIfSMFPatientsExists(inputData : Flow<ByteBuffer>,
-                                         author: User,
-                                         language: String,
-                                         dest: Patient?,
-                                         mappings: Map<String, List<ImportMapping>>
-    ) : List<CheckSMFPatientResult>
+	suspend fun checkIfSMFPatientsExists(
+		inputData: Flow<ByteBuffer>,
+		author: User,
+		language: String,
+		dest: Patient?,
+		mappings: Map<String, List<ImportMapping>>
+	): List<CheckSMFPatientResult>
 }

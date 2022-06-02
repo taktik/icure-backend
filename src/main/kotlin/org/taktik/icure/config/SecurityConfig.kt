@@ -44,74 +44,75 @@ import org.taktik.icure.security.TokenWebExchangeMatcher
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
 
-
 @ExperimentalCoroutinesApi
 @Configuration
 class SecurityConfig {
 
-    @Bean
-    fun passwordEncoder() = ShaAndVerificationCodePasswordEncoder("SHA-256")
+	@Bean
+	fun passwordEncoder() = ShaAndVerificationCodePasswordEncoder("SHA-256")
 
-    @Bean
-    fun httpFirewall() = StrictHttpFirewall().apply {
-        setAllowSemicolon(true)
-    } // TODO SH later: might be ignored if not registered in the security config
+	@Bean
+	fun httpFirewall() = StrictHttpFirewall().apply {
+		setAllowSemicolon(true)
+	} // TODO SH later: might be ignored if not registered in the security config
 
-    @Bean
-    fun authenticationManager(
-            couchDbProperties: CouchDbProperties,
-            userDAO: UserDAO,
-            permissionLogic: PermissionLogic,
-            passwordEncoder: PasswordEncoder
-    ) =
-            CustomAuthenticationManager(couchDbProperties, userDAO, permissionLogic, passwordEncoder)
+	@Bean
+	fun authenticationManager(
+		couchDbProperties: CouchDbProperties,
+		userDAO: UserDAO,
+		permissionLogic: PermissionLogic,
+		passwordEncoder: PasswordEncoder
+	) =
+		CustomAuthenticationManager(couchDbProperties, userDAO, permissionLogic, passwordEncoder)
 }
 
 @ExperimentalCoroutinesApi
 @Configuration
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
-class SecurityConfigAdapter(private val httpFirewall: StrictHttpFirewall,
-                            private val sessionLogic: AsyncSessionLogic,
-                            private val authenticationManager: CustomAuthenticationManager) {
+class SecurityConfigAdapter(
+	private val httpFirewall: StrictHttpFirewall,
+	private val sessionLogic: AsyncSessionLogic,
+	private val authenticationManager: CustomAuthenticationManager
+) {
 
-    val log: Logger = LoggerFactory.getLogger(javaClass)
+	val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    @Bean
-    fun securityWebFilterChain(http: ServerHttpSecurity, asyncCacheManager: AsyncCacheManager): SecurityWebFilterChain {
-        return http
-                .csrf().disable()
-                .httpBasic().authenticationEntryPoint(Http401UnauthorizedEntryPoint()).securityContextRepository(WebSessionServerSecurityContextRepository())
-                //.securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation // https://stackoverflow.com/questions/56056404/disable-websession-creation-when-using-spring-security-with-spring-webflux for webflux (TODO SH later: necessary?)
-                .authenticationManager(authenticationManager)
-                .and()
-                .authorizeExchange()
-                .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .pathMatchers("/v3/api-docs/v*").permitAll()
-                .pathMatchers("/api/**").permitAll()
-                .pathMatchers("/rest/*/replication/group/**").hasAnyRole("USER", "BOOTSTRAP")
-                .pathMatchers("/rest/*/auth/login").permitAll()
-                .pathMatchers("/rest/*/user/forgottenPassword/*").permitAll()
-                .pathMatchers("/rest/*/pubsub/auth/recover/*").permitAll()
-                .pathMatchers("/rest/*/icure/v").permitAll()
-                .pathMatchers("/rest/*/icure/p").permitAll()
-                .pathMatchers("/rest/*/icure/check").permitAll()
-                .pathMatchers("/rest/*/icure/c").permitAll()
-                .pathMatchers("/rest/*/icure/ok").permitAll()
-                .pathMatchers("/rest/*/icure/pok").permitAll()
-                .pathMatchers("/").permitAll()
-                .pathMatchers("/ping.json").permitAll()
-                .pathMatchers("/actuator/**").permitAll()
-                .matchers(
-                        TokenWebExchangeMatcher(asyncCacheManager).paths(
-                                        "/rest/v1/document/*/attachment/*",
-                                        "/rest/v1/form/template/*/attachment/*",
-                                        "/ws/**"
-                                        )).hasRole("USER")
-                .pathMatchers("/**").hasRole("USER")
-                .and().build()
-    }
-
+	@Bean
+	fun securityWebFilterChain(http: ServerHttpSecurity, asyncCacheManager: AsyncCacheManager): SecurityWebFilterChain {
+		return http
+			.csrf().disable()
+			.httpBasic().authenticationEntryPoint(Http401UnauthorizedEntryPoint()).securityContextRepository(WebSessionServerSecurityContextRepository())
+			//.securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation // https://stackoverflow.com/questions/56056404/disable-websession-creation-when-using-spring-security-with-spring-webflux for webflux (TODO SH later: necessary?)
+			.authenticationManager(authenticationManager)
+			.and()
+			.authorizeExchange()
+			.pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+			.pathMatchers("/v3/api-docs/v*").permitAll()
+			.pathMatchers("/api/**").permitAll()
+			.pathMatchers("/rest/*/replication/group/**").hasAnyRole("USER", "BOOTSTRAP")
+			.pathMatchers("/rest/*/auth/login").permitAll()
+			.pathMatchers("/rest/*/user/forgottenPassword/*").permitAll()
+			.pathMatchers("/rest/*/pubsub/auth/recover/*").permitAll()
+			.pathMatchers("/rest/*/icure/v").permitAll()
+			.pathMatchers("/rest/*/icure/p").permitAll()
+			.pathMatchers("/rest/*/icure/check").permitAll()
+			.pathMatchers("/rest/*/icure/c").permitAll()
+			.pathMatchers("/rest/*/icure/ok").permitAll()
+			.pathMatchers("/rest/*/icure/pok").permitAll()
+			.pathMatchers("/").permitAll()
+			.pathMatchers("/ping.json").permitAll()
+			.pathMatchers("/actuator/**").permitAll()
+			.matchers(
+				TokenWebExchangeMatcher(asyncCacheManager).paths(
+					"/rest/v1/document/*/attachment/*",
+					"/rest/v1/form/template/*/attachment/*",
+					"/ws/**"
+				)
+			).hasRole("USER")
+			.pathMatchers("/**").hasRole("USER")
+			.and().build()
+	}
 }
 
 private fun ServerWebExchangeMatcher.and(matcher: ServerWebExchangeMatcher): ServerWebExchangeMatcher = AndServerWebExchangeMatcher(this, matcher)

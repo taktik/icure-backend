@@ -21,20 +21,19 @@ import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.domain.filter.Filter
 
 object Filters {
-    fun <O : Identifiable<String>> union(vararg filters: AbstractFilterDto<O>): UnionFilter<O> {
-        return UnionFilter(null, filters.toList())
-    }
+	fun <O : Identifiable<String>> union(vararg filters: AbstractFilterDto<O>): UnionFilter<O> {
+		return UnionFilter(null, filters.toList())
+	}
 
-    fun <O : Identifiable<String>> intersection(vararg filters: AbstractFilterDto<O>): IntersectionFilter<O> {
-        return IntersectionFilter(null, filters.toList())
-    }
+	fun <O : Identifiable<String>> intersection(vararg filters: AbstractFilterDto<O>): IntersectionFilter<O> {
+		return IntersectionFilter(null, filters.toList())
+	}
 
-    fun <O : Identifiable<String>> complement(superSet: AbstractFilterDto<O>, subset: AbstractFilterDto<O>): Filter<String, O> {
-        return ComplementFilter(null, superSet, subset)
-    }
+	fun <O : Identifiable<String>> complement(superSet: AbstractFilterDto<O>, subset: AbstractFilterDto<O>): Filter<String, O> {
+		return ComplementFilter(null, superSet, subset)
+	}
 
-    fun <O : Identifiable<String>> ids(set: Set<String>): IdsFilter<O> {
-        return IdsFilter(null, set)
-    }
-
+	fun <O : Identifiable<String>> ids(set: Set<String>): IdsFilter<O> {
+		return IdsFilter(null, set)
+	}
 }

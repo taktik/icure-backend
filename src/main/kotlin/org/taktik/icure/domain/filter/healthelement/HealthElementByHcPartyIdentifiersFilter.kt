@@ -23,6 +23,6 @@ import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Identifier
 
 interface HealthElementByHcPartyIdentifiersFilter : Filter<String, HealthElement> {
-    val hcPartyId: String?
-    val identifiers: List<Identifier>
+	val hcPartyId: String?
+	val identifiers: List<Identifier>
 }

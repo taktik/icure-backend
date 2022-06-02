@@ -23,5 +23,5 @@ import com.fasterxml.jackson.annotation.JsonInclude
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class PlannedSending(
-        val cronExpression: String? = null
+	val cronExpression: String? = null
 )

@@ -1,9 +1,9 @@
 package org.taktik.icure.entities.embed
 
+import java.io.Serializable
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
-import java.io.Serializable
 
 /**
  * @property lastName Last Name of the person
@@ -19,13 +19,12 @@ import java.io.Serializable
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class PersonName(
-        val lastName: String? = null,
-        val firstNames: List<String> = emptyList(),
-        val start: Long? = null,
-        val end: Long? = null,
-        val prefix: List<String> = emptyList(),
-        val suffix: List<String> = emptyList(),
-        val text: String? = null,
-        val use: PersonNameUse? = null
+	val lastName: String? = null,
+	val firstNames: List<String> = emptyList(),
+	val start: Long? = null,
+	val end: Long? = null,
+	val prefix: List<String> = emptyList(),
+	val suffix: List<String> = emptyList(),
+	val text: String? = null,
+	val use: PersonNameUse? = null
 ) : Serializable
-

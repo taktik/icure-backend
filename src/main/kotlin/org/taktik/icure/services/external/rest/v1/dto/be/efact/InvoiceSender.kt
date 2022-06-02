@@ -21,17 +21,19 @@ package org.taktik.icure.services.external.rest.v1.dto.be.efact
 import io.swagger.v3.oas.annotations.media.Schema
 
 class InvoiceSender {
-    var nihii: Long? = null
-    var bic: String? = null
-    var iban: String? = null
-    @Schema(defaultValue = "999999922L") var bce: Long? = 999999922L
+	var nihii: Long? = null
+	var bic: String? = null
+	var iban: String? = null
+	@Schema(defaultValue = "999999922L")
+	var bce: Long? = 999999922L
 
-    var ssin: String? = null
-    var lastName: String? = null
-    var firstName: String? = null
-    var phoneNumber: Long? = null
-    var conventionCode: Int? = null
+	var ssin: String? = null
+	var lastName: String? = null
+	var firstName: String? = null
+	var phoneNumber: Long? = null
+	var conventionCode: Int? = null
 
-    @Schema(defaultValue = "false") var isSpecialist: Boolean = false
-        get() = nihii!! % 1000L >= 10
+	@Schema(defaultValue = "false")
+	var isSpecialist: Boolean = false
+		get() = nihii!! % 1000L >= 10
 }

@@ -21,7 +21,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.CalendarItemTypeDAO
@@ -29,42 +28,43 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.CalendarItemTypeLogic
 import org.taktik.icure.entities.CalendarItemType
 import org.taktik.icure.exceptions.DeletionException
-import java.net.URI
 
 @ExperimentalCoroutinesApi
 @Service
-class CalendarItemTypeLogicImpl(private val calendarItemTypeDAO: CalendarItemTypeDAO,
-                                private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<CalendarItemType, CalendarItemTypeDAO>(sessionLogic), CalendarItemTypeLogic {
+class CalendarItemTypeLogicImpl(
+	private val calendarItemTypeDAO: CalendarItemTypeDAO,
+	private val sessionLogic: AsyncSessionLogic
+) : GenericLogicImpl<CalendarItemType, CalendarItemTypeDAO>(sessionLogic), CalendarItemTypeLogic {
 
-    override suspend fun createCalendarItemType(calendarItemType: CalendarItemType) = fix(calendarItemType) { calendarItemType ->
-        calendarItemTypeDAO.create(calendarItemType)
-    }
+	override suspend fun createCalendarItemType(calendarItemType: CalendarItemType) = fix(calendarItemType) { calendarItemType ->
+		calendarItemTypeDAO.create(calendarItemType)
+	}
 
-    override fun deleteCalendarItemTypes(ids: List<String>): Flow<DocIdentifier> {
-        try {
-            return deleteEntities(ids)
-        } catch (e: Exception) {
-            throw DeletionException(e.message, e)
-        }
-    }
+	override fun deleteCalendarItemTypes(ids: List<String>): Flow<DocIdentifier> {
+		try {
+			return deleteEntities(ids)
+		} catch (e: Exception) {
+			throw DeletionException(e.message, e)
+		}
+	}
 
-    override suspend fun getCalendarItemType(calendarItemTypeId: String): CalendarItemType? {
-        return calendarItemTypeDAO.get(calendarItemTypeId)
-    }
+	override suspend fun getCalendarItemType(calendarItemTypeId: String): CalendarItemType? {
+		return calendarItemTypeDAO.get(calendarItemTypeId)
+	}
 
-    override fun getCalendarItemTypes(calendarItemTypeIds: Collection<String>) = flow {
-        emitAll(calendarItemTypeDAO.getEntities(calendarItemTypeIds))
-    }
+	override fun getCalendarItemTypes(calendarItemTypeIds: Collection<String>) = flow {
+		emitAll(calendarItemTypeDAO.getEntities(calendarItemTypeIds))
+	}
 
-    override suspend fun modifyCalendarTypeItem(calendarItemType: CalendarItemType)= fix(calendarItemType) { calendarItemType ->
-        calendarItemTypeDAO.save(calendarItemType)
-    }
+	override suspend fun modifyCalendarTypeItem(calendarItemType: CalendarItemType) = fix(calendarItemType) { calendarItemType ->
+		calendarItemTypeDAO.save(calendarItemType)
+	}
 
-    override fun getAllEntitiesIncludeDelete(): Flow<CalendarItemType> = flow {
-        emitAll(calendarItemTypeDAO.getCalendarItemsWithDeleted())
-    }
+	override fun getAllEntitiesIncludeDelete(): Flow<CalendarItemType> = flow {
+		emitAll(calendarItemTypeDAO.getCalendarItemsWithDeleted())
+	}
 
-    override fun getGenericDAO(): CalendarItemTypeDAO {
-        return calendarItemTypeDAO
-    }
+	override fun getGenericDAO(): CalendarItemTypeDAO {
+		return calendarItemTypeDAO
+	}
 }

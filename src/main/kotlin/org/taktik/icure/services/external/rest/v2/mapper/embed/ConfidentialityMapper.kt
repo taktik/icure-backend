@@ -21,8 +21,9 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Confidentiality
 import org.taktik.icure.services.external.rest.v2.dto.embed.ConfidentialityDto
+
 @Mapper(componentModel = "spring")
 interface ConfidentialityV2Mapper {
-	fun map(confidentialityDto: ConfidentialityDto):Confidentiality
-	fun map(confidentiality: Confidentiality):ConfidentialityDto
+	fun map(confidentialityDto: ConfidentialityDto): Confidentiality
+	fun map(confidentiality: Confidentiality): ConfidentialityDto
 }

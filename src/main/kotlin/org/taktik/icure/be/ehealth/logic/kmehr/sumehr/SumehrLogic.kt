@@ -18,6 +18,7 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr
 
+import java.nio.ByteBuffer
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.be.ehealth.dto.SumehrStatus
@@ -32,17 +33,16 @@ import org.taktik.icure.entities.embed.Partnership
 import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
-import java.nio.ByteBuffer
 
 interface SumehrLogic {
-    suspend fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, services: List<Service>?, healthElements: List<HealthElement>?): SumehrStatus
-    fun createSumehr(pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, services: List<Service>?, healthElements: List<HealthElement>?, config: Config): Flow<DataBuffer>
-    fun validateSumehr(pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, services: List<Service>?, healthElements: List<HealthElement>?, config: Config): Flow<DataBuffer>
-    suspend fun getAllServices(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): List<Service>
+	suspend fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, services: List<Service>?, healthElements: List<HealthElement>?): SumehrStatus
+	fun createSumehr(pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, services: List<Service>?, healthElements: List<HealthElement>?, config: Config): Flow<DataBuffer>
+	fun validateSumehr(pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, services: List<Service>?, healthElements: List<HealthElement>?, config: Config): Flow<DataBuffer>
+	suspend fun getAllServices(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): List<Service>
 	suspend fun getHealthElements(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean): List<HealthElement>
-    suspend fun getContactPeople(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<Partnership>
-    suspend fun getPatientHealthcareParties(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<PatientHealthCareParty>
+	suspend fun getContactPeople(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<Partnership>
+	suspend fun getPatientHealthcareParties(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<PatientHealthCareParty>
 	suspend fun getSumehrMd5(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean): String
-    suspend fun importSumehr(inputData : Flow<ByteBuffer>, author: User, language: String, dest: Patient? = null, mappings: Map<String, List<ImportMapping>> = HashMap(), saveToDatabase: Boolean): List<ImportResult>
-    suspend fun importSumehrByItemId(inputData : Flow<ByteBuffer>, itemId: String, author: User, language: String, dest: Patient? = null, mappings: Map<String, List<ImportMapping>> = HashMap(), saveToDatabase: Boolean): List<ImportResult>
+	suspend fun importSumehr(inputData: Flow<ByteBuffer>, author: User, language: String, dest: Patient? = null, mappings: Map<String, List<ImportMapping>> = HashMap(), saveToDatabase: Boolean): List<ImportResult>
+	suspend fun importSumehrByItemId(inputData: Flow<ByteBuffer>, itemId: String, author: User, language: String, dest: Patient? = null, mappings: Map<String, List<ImportMapping>> = HashMap(), saveToDatabase: Boolean): List<ImportResult>
 }

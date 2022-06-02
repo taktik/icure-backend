@@ -21,5 +21,5 @@ import org.taktik.icure.domain.filter.Filter
 import org.taktik.icure.entities.Contact
 
 interface ContactByServiceIdsFilter : Filter<String, Contact> {
-    val ids: List<String>?
+	val ids: List<String>?
 }

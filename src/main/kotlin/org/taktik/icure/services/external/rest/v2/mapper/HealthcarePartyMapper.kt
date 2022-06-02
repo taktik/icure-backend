@@ -26,16 +26,22 @@ import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.services.external.rest.v2.dto.HealthcarePartyDto
 import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubV2Mapper
-import org.taktik.icure.services.external.rest.v2.mapper.embed.*
+import org.taktik.icure.services.external.rest.v2.mapper.embed.AddressV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.FinancialInstitutionInformationV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.FlatRateTarificationV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.GenderV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.HealthcarePartyStatusV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.PersonNameV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.embed.TelecomTypeV2Mapper
 
 @Mapper(componentModel = "spring", uses = [GenderV2Mapper::class, FinancialInstitutionInformationV2Mapper::class, AddressV2Mapper::class, TelecomTypeV2Mapper::class, CodeStubV2Mapper::class, FlatRateTarificationV2Mapper::class, HealthcarePartyStatusV2Mapper::class, PersonNameV2Mapper::class, PropertyStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface HealthcarePartyV2Mapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(healthcarePartyDto: HealthcarePartyDto):HealthcareParty
-	fun map(healthcareParty: HealthcareParty):HealthcarePartyDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(healthcarePartyDto: HealthcarePartyDto): HealthcareParty
+	fun map(healthcareParty: HealthcareParty): HealthcarePartyDto
 }

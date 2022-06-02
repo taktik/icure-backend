@@ -23,7 +23,12 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.EntityReferenceLogic
 import org.taktik.icure.services.external.rest.v2.dto.EntityReferenceDto
@@ -33,25 +38,25 @@ import org.taktik.icure.services.external.rest.v2.mapper.EntityReferenceV2Mapper
 @RequestMapping("/rest/v2/entityref")
 @Tag(name = "entityref")
 class EntityReferenceController(
-        private val entityReferenceLogic: EntityReferenceLogic,
-        private val entityReferenceV2Mapper: EntityReferenceV2Mapper
+	private val entityReferenceLogic: EntityReferenceLogic,
+	private val entityReferenceV2Mapper: EntityReferenceV2Mapper
 ) {
 
-    @Operation(summary = "Find latest reference for a prefix ")
-    @GetMapping("/latest/{prefix}")
-    fun getLatest(@PathVariable prefix: String) = mono {
-        entityReferenceLogic.getLatest(prefix)?.let { entityReferenceV2Mapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to fetch Entity Reference")
-    }
+	@Operation(summary = "Find latest reference for a prefix ")
+	@GetMapping("/latest/{prefix}")
+	fun getLatest(@PathVariable prefix: String) = mono {
+		entityReferenceLogic.getLatest(prefix)?.let { entityReferenceV2Mapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to fetch Entity Reference")
+	}
 
-    @Operation(summary = "Create an entity reference")
-    @PostMapping
-    fun createEntityReference(@RequestBody er: EntityReferenceDto) = mono {
-        val created = try {
-            entityReferenceLogic.createEntities(listOf(entityReferenceV2Mapper.map(er)))
-        } catch (e: Exception) {
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity reference failed.")
-        }
-        created.firstOrNull()?.let { entityReferenceV2Mapper.map(it) } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity reference creation failed.")
-    }
+	@Operation(summary = "Create an entity reference")
+	@PostMapping
+	fun createEntityReference(@RequestBody er: EntityReferenceDto) = mono {
+		val created = try {
+			entityReferenceLogic.createEntities(listOf(entityReferenceV2Mapper.map(er)))
+		} catch (e: Exception) {
+			throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity reference failed.")
+		}
+		created.firstOrNull()?.let { entityReferenceV2Mapper.map(it) } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity reference creation failed.")
+	}
 }

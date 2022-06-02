@@ -30,12 +30,12 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.TimeTableItemMapp
 
 @Mapper(componentModel = "spring", uses = [TimeTableItemMapper::class, CodeStubMapper::class, DelegationMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface TimeTableMapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(timeTableDto: TimeTableDto):TimeTable
-	fun map(timeTable: TimeTable):TimeTableDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(timeTableDto: TimeTableDto): TimeTable
+	fun map(timeTable: TimeTable): TimeTableDto
 }

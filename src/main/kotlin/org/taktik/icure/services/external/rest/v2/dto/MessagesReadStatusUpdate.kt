@@ -18,9 +18,8 @@
 package org.taktik.icure.services.external.rest.v2.dto
 
 class MessagesReadStatusUpdate {
-    var ids: List<String>? = null
-    var time: Long? = null
-    var status: Boolean? = null
-    var userId: String? = null
-
+	var ids: List<String>? = null
+	var time: Long? = null
+	var status: Boolean? = null
+	var userId: String? = null
 }

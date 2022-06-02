@@ -28,34 +28,39 @@ import io.swagger.v3.oas.annotations.media.Schema
  * To change this template use File | Settings | File Templates.
  */
 class InvoiceItem {
-    var dateCode: Long? = null
-    @Schema(defaultValue = "0") var codeNomenclature: Long = 0
-    var relatedCode: Long? = null
+	var dateCode: Long? = null
+	@Schema(defaultValue = "0")
+	var codeNomenclature: Long = 0
+	var relatedCode: Long? = null
 
-    var eidItem: EIDItem? = null
-    var insuranceRef: String? = null
-    var insuranceRefDate: Long? = null
+	var eidItem: EIDItem? = null
+	var insuranceRef: String? = null
+	var insuranceRefDate: Long? = null
 
-    @Schema(defaultValue = "0") var units: Int = 0
+	@Schema(defaultValue = "0")
+	var units: Int = 0
 
-    @Schema(defaultValue = "0") var reimbursedAmount: Long = 0
-    @Schema(defaultValue = "0") var patientFee: Long = 0
-    @Schema(defaultValue = "0") var doctorSupplement: Long = 0
+	@Schema(defaultValue = "0")
+	var reimbursedAmount: Long = 0
+	@Schema(defaultValue = "0")
+	var patientFee: Long = 0
+	@Schema(defaultValue = "0")
+	var doctorSupplement: Long = 0
 
-    var sideCode: InvoicingSideCode? = null
-    var timeOfDay: InvoicingTimeOfDay? = null
+	var sideCode: InvoicingSideCode? = null
+	var timeOfDay: InvoicingTimeOfDay? = null
 
-    var override3rdPayerCode: Int? = null
-    var gnotionNihii: String? = null
+	var override3rdPayerCode: Int? = null
+	var gnotionNihii: String? = null
 
-    var derogationMaxNumber: InvoicingDerogationMaxNumberCode? = null
-    var prescriberNorm: InvoicingPrescriberCode? = null
-    var prescriberNihii: String? = null
-    var prescriptionDate: Long? = null
+	var derogationMaxNumber: InvoicingDerogationMaxNumberCode? = null
+	var prescriberNorm: InvoicingPrescriberCode? = null
+	var prescriberNihii: String? = null
+	var prescriptionDate: Long? = null
 
-    var personalInterventionCoveredByThirdPartyCode: Int? = null
+	var personalInterventionCoveredByThirdPartyCode: Int? = null
 
-    var doctorIdentificationNumber: String? = null
-    var invoiceRef: String? = null
-    var percentNorm: InvoicingPercentNorm? = null
+	var doctorIdentificationNumber: String? = null
+	var invoiceRef: String? = null
+	var percentNorm: InvoicingPercentNorm? = null
 }

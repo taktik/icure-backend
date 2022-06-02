@@ -21,8 +21,9 @@ package org.taktik.icure.services.external.rest.v2.mapper.embed
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.MediumType
 import org.taktik.icure.services.external.rest.v2.dto.embed.MediumTypeDto
+
 @Mapper(componentModel = "spring")
 interface MediumTypeV2Mapper {
-	fun map(mediumTypeDto: MediumTypeDto):MediumType
-	fun map(mediumType: MediumType):MediumTypeDto
+	fun map(mediumTypeDto: MediumTypeDto): MediumType
+	fun map(mediumType: MediumType): MediumTypeDto
 }

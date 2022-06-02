@@ -21,5 +21,5 @@ import org.taktik.icure.services.external.rest.v2.dto.base.EnumVersionDto
 
 @EnumVersionDto(1L)
 enum class InsuranceStatusDto {
-    titular, child, spouse
+	titular, child, spouse
 }

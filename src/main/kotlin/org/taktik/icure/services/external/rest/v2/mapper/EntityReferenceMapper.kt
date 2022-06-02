@@ -27,12 +27,12 @@ import org.taktik.icure.services.external.rest.v2.dto.EntityReferenceDto
 
 @Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface EntityReferenceV2Mapper {
-    @Mappings(
-            Mapping(target = "attachments", ignore = true),
-            Mapping(target = "revHistory", ignore = true),
-            Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true)
-            )
-	fun map(entityReferenceDto: EntityReferenceDto):EntityReference
-	fun map(entityReference: EntityReference):EntityReferenceDto
+	@Mappings(
+		Mapping(target = "attachments", ignore = true),
+		Mapping(target = "revHistory", ignore = true),
+		Mapping(target = "conflicts", ignore = true),
+		Mapping(target = "revisionsInfo", ignore = true)
+	)
+	fun map(entityReferenceDto: EntityReferenceDto): EntityReference
+	fun map(entityReference: EntityReference): EntityReferenceDto
 }

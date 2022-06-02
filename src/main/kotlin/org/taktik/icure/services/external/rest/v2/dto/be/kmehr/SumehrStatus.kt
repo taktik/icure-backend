@@ -20,5 +20,5 @@ package org.taktik.icure.services.external.rest.v2.dto.be.kmehr
 import java.io.Serializable
 
 enum class SumehrStatus : Serializable {
-    absent, uptodate, outdated
+	absent, uptodate, outdated
 }

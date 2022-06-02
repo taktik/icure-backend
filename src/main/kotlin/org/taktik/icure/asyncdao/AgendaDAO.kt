@@ -21,8 +21,8 @@ package org.taktik.icure.asyncdao
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.Agenda
 
-interface AgendaDAO: GenericDAO<Agenda> {
-    fun getAgendasByUser(userId: String): Flow<Agenda>
+interface AgendaDAO : GenericDAO<Agenda> {
+	fun getAgendasByUser(userId: String): Flow<Agenda>
 
-    fun getReadableAgendaByUser(userId: String): Flow<Agenda>
+	fun getReadableAgendaByUser(userId: String): Flow<Agenda>
 }

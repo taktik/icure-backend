@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -45,53 +44,52 @@ import reactor.core.publisher.Flux
 @RequestMapping("/rest/v2/keyword")
 @Tag(name = "keyword")
 class KeywordController(private val keywordLogic: KeywordLogic, private val keywordV2Mapper: KeywordV2Mapper) {
-    private val logger = LoggerFactory.getLogger(javaClass)
+	private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Operation(summary = "Create a keyword with the current user", description = "Returns an instance of created keyword.")
-    @PostMapping
-    fun createKeyword(@RequestBody c: KeywordDto) = mono {
-        keywordLogic.createKeyword(keywordV2Mapper.map(c))?.let { keywordV2Mapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Keyword creation failed.")
-    }
+	@Operation(summary = "Create a keyword with the current user", description = "Returns an instance of created keyword.")
+	@PostMapping
+	fun createKeyword(@RequestBody c: KeywordDto) = mono {
+		keywordLogic.createKeyword(keywordV2Mapper.map(c))?.let { keywordV2Mapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Keyword creation failed.")
+	}
 
-    @Operation(summary = "Get a keyword")
-    @GetMapping("/{keywordId}")
-    fun getKeyword(@PathVariable keywordId: String) = mono {
-        keywordLogic.getKeyword(keywordId)?.let { keywordV2Mapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting keyword failed. Possible reasons: no such keyword exists, or server error. Please try again or read the server log.")
-    }
+	@Operation(summary = "Get a keyword")
+	@GetMapping("/{keywordId}")
+	fun getKeyword(@PathVariable keywordId: String) = mono {
+		keywordLogic.getKeyword(keywordId)?.let { keywordV2Mapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting keyword failed. Possible reasons: no such keyword exists, or server error. Please try again or read the server log.")
+	}
 
-    @Operation(summary = "Get keywords by user")
-    @GetMapping("/byUser/{userId}")
-    fun getKeywordsByUser(@PathVariable userId: String) =
-            keywordLogic.getKeywordsByUser(userId).let { it.map { c -> keywordV2Mapper.map(c) } }.injectReactorContext()
+	@Operation(summary = "Get keywords by user")
+	@GetMapping("/byUser/{userId}")
+	fun getKeywordsByUser(@PathVariable userId: String) =
+		keywordLogic.getKeywordsByUser(userId).let { it.map { c -> keywordV2Mapper.map(c) } }.injectReactorContext()
 
-    @Operation(summary = "Gets all keywords")
-    @GetMapping
-    fun getKeywords(): Flux<KeywordDto> {
-        return keywordLogic.getEntities().map { c -> keywordV2Mapper.map(c) }.injectReactorContext()
-    }
+	@Operation(summary = "Gets all keywords")
+	@GetMapping
+	fun getKeywords(): Flux<KeywordDto> {
+		return keywordLogic.getEntities().map { c -> keywordV2Mapper.map(c) }.injectReactorContext()
+	}
 
-    @Operation(summary = "Delete keywords.", description = "Response is a set containing the ID's of deleted keywords.")
-    @PostMapping("/delete/batch")
-    fun deleteKeywords(@RequestBody keywordIds: ListOfIdsDto): Flux<DocIdentifier> {
-        return keywordIds.ids.takeIf { it.isNotEmpty() }
-                ?.let { ids ->
-                    try {
-                        keywordLogic.deleteEntities(ids.toSet()).injectReactorContext()
-                    }
-                    catch (e: java.lang.Exception) {
-                        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
-                    }
-                }
-                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
-    }
+	@Operation(summary = "Delete keywords.", description = "Response is a set containing the ID's of deleted keywords.")
+	@PostMapping("/delete/batch")
+	fun deleteKeywords(@RequestBody keywordIds: ListOfIdsDto): Flux<DocIdentifier> {
+		return keywordIds.ids.takeIf { it.isNotEmpty() }
+			?.let { ids ->
+				try {
+					keywordLogic.deleteEntities(ids.toSet()).injectReactorContext()
+				} catch (e: java.lang.Exception) {
+					throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
+				}
+			}
+			?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.").also { logger.error(it.message) }
+	}
 
-    @Operation(summary = "Modify a keyword", description = "Returns the modified keyword.")
-    @PutMapping
-    fun modifyKeyword(@RequestBody keywordDto: KeywordDto) = mono {
-        keywordLogic.modifyKeyword(keywordV2Mapper.map(keywordDto))
-        keywordLogic.getKeyword(keywordDto.id)?.let { keywordV2Mapper.map(it) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Keyword modification failed.")
-    }
+	@Operation(summary = "Modify a keyword", description = "Returns the modified keyword.")
+	@PutMapping
+	fun modifyKeyword(@RequestBody keywordDto: KeywordDto) = mono {
+		keywordLogic.modifyKeyword(keywordV2Mapper.map(keywordDto))
+		keywordLogic.getKeyword(keywordDto.id)?.let { keywordV2Mapper.map(it) }
+			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Keyword modification failed.")
+	}
 }

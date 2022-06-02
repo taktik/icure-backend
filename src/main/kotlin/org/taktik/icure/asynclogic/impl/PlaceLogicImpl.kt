@@ -28,30 +28,32 @@ import org.taktik.icure.entities.Place
 import org.taktik.icure.exceptions.DeletionException
 
 @Service
-class PlaceLogicImpl(private val placeDAO: PlaceDAO,
-                     private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Place, PlaceDAO>(sessionLogic), PlaceLogic {
+class PlaceLogicImpl(
+	private val placeDAO: PlaceDAO,
+	private val sessionLogic: AsyncSessionLogic
+) : GenericLogicImpl<Place, PlaceDAO>(sessionLogic), PlaceLogic {
 
-    override suspend fun createPlace(place: Place) = fix(place) { place ->
-        placeDAO.create(place)
-    }
+	override suspend fun createPlace(place: Place) = fix(place) { place ->
+		placeDAO.create(place)
+	}
 
-    override fun deletePlace(ids: List<String>): Flow<DocIdentifier> {
-        return try {
-            deleteEntities(ids)
-        } catch (e: Exception) {
-            throw DeletionException(e.message, e)
-        }
-    }
+	override fun deletePlace(ids: List<String>): Flow<DocIdentifier> {
+		return try {
+			deleteEntities(ids)
+		} catch (e: Exception) {
+			throw DeletionException(e.message, e)
+		}
+	}
 
-    override suspend fun getPlace(place: String): Place? {
-        return placeDAO.get(place)
-    }
+	override suspend fun getPlace(place: String): Place? {
+		return placeDAO.get(place)
+	}
 
-    override suspend fun modifyPlace(place: Place) = fix(place) { place ->
-        placeDAO.save(place)
-    }
+	override suspend fun modifyPlace(place: Place) = fix(place) { place ->
+		placeDAO.save(place)
+	}
 
-    override fun getGenericDAO(): PlaceDAO {
-        return placeDAO
-    }
+	override fun getGenericDAO(): PlaceDAO {
+		return placeDAO
+	}
 }

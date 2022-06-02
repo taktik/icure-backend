@@ -18,6 +18,10 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20110701
 
+import java.io.File
+import java.io.IOException
+import java.io.OutputStreamWriter
+import java.nio.ByteBuffer
 import be.fgov.ehealth.ehvalidator.core.EhValidator
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -42,24 +46,20 @@ import org.taktik.icure.entities.embed.Partnership
 import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
-import java.io.File
-import java.io.IOException
-import java.io.OutputStreamWriter
-import java.nio.ByteBuffer
 
 @ExperimentalCoroutinesApi
 @org.springframework.stereotype.Service("sumehrLogicV1")
 class SumehrLogicImpl(val contactLogic: ContactLogic, val healthcarePartyLogic: HealthcarePartyLogic, @Qualifier("sumehrExportV1") val sumehrExport: SumehrExport, @Qualifier("sumehrImportV1") val sumehrImport: SumehrImport) : SumehrLogic {
 
-    override suspend fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, services: List<Service>?, healthElements: List<HealthElement>?): SumehrStatus {
-        val sumehrServiceIds = ArrayList<String>()
-       sumehrServiceIds.addAll(contactLogic.listServiceIdsByTag(hcPartyId, patientSecretForeignKeys, "CD-TRANSACTION", "sumehr", null, null).toList())
+	override suspend fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, services: List<Service>?, healthElements: List<HealthElement>?): SumehrStatus {
+		val sumehrServiceIds = ArrayList<String>()
+		sumehrServiceIds.addAll(contactLogic.listServiceIdsByTag(hcPartyId, patientSecretForeignKeys, "CD-TRANSACTION", "sumehr", null, null).toList())
 
-        if (sumehrServiceIds.isEmpty()) {
-            return SumehrStatus.absent
-        }
+		if (sumehrServiceIds.isEmpty()) {
+			return SumehrStatus.absent
+		}
 
-		val servicesByIds = mutableMapOf<String,Service>()
+		val servicesByIds = mutableMapOf<String, Service>()
 		val comparator = Comparator<Service> { a, b -> a.modified?.compareTo(b.modified ?: 0) ?: -1 }
 
 		contactLogic.getServices(sumehrServiceIds).toList().sortedWith(comparator).forEach { if (it.endOfLife != null) servicesByIds.remove(it.id) else servicesByIds[it.id] = it }
@@ -69,52 +69,51 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, val healthcarePartyLogic: 
 		}
 
 		return if (servicesByIds.values.sortedWith(comparator).last().comment == getSumehrMd5(hcPartyId, patient, patientSecretForeignKeys, excludedIds, includeIrrelevantInformation)) SumehrStatus.uptodate else SumehrStatus.outdated
-    }
+	}
 
 	override suspend fun getSumehrMd5(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean) =
 		sumehrExport.getMd5(hcPartyId, patient, patientSecretForeignKeys, excludedIds, includeIrrelevantInformation)
 
-    override suspend fun importSumehr(inputData : Flow<ByteBuffer>, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>, saveToDatabase: Boolean): List<ImportResult> {
-        return sumehrImport.importSumehr(inputData, author, language, mappings, saveToDatabase, dest)
-    }
+	override suspend fun importSumehr(inputData: Flow<ByteBuffer>, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>, saveToDatabase: Boolean): List<ImportResult> {
+		return sumehrImport.importSumehr(inputData, author, language, mappings, saveToDatabase, dest)
+	}
 
-    override suspend fun importSumehrByItemId(inputData : Flow<ByteBuffer>, itemId: String, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>, saveToDatabase: Boolean): List<ImportResult> {
-        return sumehrImport.importSumehrByItemId(inputData, itemId, author, language, mappings, saveToDatabase, dest)
-    }
+	override suspend fun importSumehrByItemId(inputData: Flow<ByteBuffer>, itemId: String, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>, saveToDatabase: Boolean): List<ImportResult> {
+		return sumehrImport.importSumehrByItemId(inputData, itemId, author, language, mappings, saveToDatabase, dest)
+	}
 
-    override fun createSumehr(pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, services: List<Service>?, healthElements: List<HealthElement>?, config: Config) = sumehrExport.createSumehr(pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, services, healthElements, config)
+	override fun createSumehr(pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, services: List<Service>?, healthElements: List<HealthElement>?, config: Config) = sumehrExport.createSumehr(pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, services, healthElements, config)
 
-    @Throws(IOException::class)
-    override fun validateSumehr(pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, services: List<Service>?, healthElements: List<HealthElement>?, config: Config)  =flow<DataBuffer> {
-        val temp = File.createTempFile("temp", java.lang.Long.toString(System.nanoTime()))
+	@Throws(IOException::class)
+	override fun validateSumehr(pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, services: List<Service>?, healthElements: List<HealthElement>?, config: Config) = flow<DataBuffer> {
+		val temp = File.createTempFile("temp", java.lang.Long.toString(System.nanoTime()))
 
-        val sos = sumehrExport.createSumehr(pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, services, healthElements, config)
-        try {
-            val databuffer = sos.first()
-            val html = EhValidator.getHTMLReport(temp.absolutePath, EhValidator.Language.french, "Sumehr")
-            val w = OutputStreamWriter(databuffer.asOutputStream(), "UTF-8")
-            w.write(html)
-            w.close()
-        } catch (e: Exception) {
-            throw IOException(e)
-        }
+		val sos = sumehrExport.createSumehr(pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, services, healthElements, config)
+		try {
+			val databuffer = sos.first()
+			val html = EhValidator.getHTMLReport(temp.absolutePath, EhValidator.Language.french, "Sumehr")
+			val w = OutputStreamWriter(databuffer.asOutputStream(), "UTF-8")
+			w.write(html)
+			w.close()
+		} catch (e: Exception) {
+			throw IOException(e)
+		}
 
-        emitAll(sos)
+		emitAll(sos)
+	}
 
-    }
-
-	override suspend fun getAllServices(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?)
-        = healthcarePartyLogic.getHealthcareParty(hcPartyId)?.let { healthcarePartyLogic.getHcpHierarchyIds(it) }?.let { sumehrExport.getAllServices(it, sfks, excludedIds, includeIrrelevantInformation, decryptor) } ?: listOf()
+	override suspend fun getAllServices(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?) =
+		healthcarePartyLogic.getHealthcareParty(hcPartyId)?.let { healthcarePartyLogic.getHcpHierarchyIds(it) }?.let { sumehrExport.getAllServices(it, sfks, excludedIds, includeIrrelevantInformation, decryptor) } ?: listOf()
 
 	override suspend fun getHealthElements(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean): List<HealthElement> {
-        return healthcarePartyLogic.getHealthcareParty(hcPartyId)?.let { healthcarePartyLogic.getHcpHierarchyIds(it) }?.let { sumehrExport.getHealthElements(it, sfks, excludedIds, includeIrrelevantInformation, HashSet()) } ?: listOf()
-    }
+		return healthcarePartyLogic.getHealthcareParty(hcPartyId)?.let { healthcarePartyLogic.getHcpHierarchyIds(it) }?.let { sumehrExport.getHealthElements(it, sfks, excludedIds, includeIrrelevantInformation, HashSet()) } ?: listOf()
+	}
 
-    override suspend fun getContactPeople(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<Partnership> {
-        return healthcarePartyLogic.getHealthcareParty(hcPartyId)?.let { healthcarePartyLogic.getHcpHierarchyIds(it) }?.let { sumehrExport.getContactPeople(it, sfks, excludedIds, patientId) } ?: listOf()
-    }
+	override suspend fun getContactPeople(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<Partnership> {
+		return healthcarePartyLogic.getHealthcareParty(hcPartyId)?.let { healthcarePartyLogic.getHcpHierarchyIds(it) }?.let { sumehrExport.getContactPeople(it, sfks, excludedIds, patientId) } ?: listOf()
+	}
 
-    override suspend fun getPatientHealthcareParties(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<PatientHealthCareParty> {
-        return healthcarePartyLogic.getHealthcareParty(hcPartyId)?.let { healthcarePartyLogic.getHcpHierarchyIds(it) }?.let { sumehrExport.getPatientHealthCareParties(it, sfks, excludedIds, patientId) } ?: listOf()
-    }
+	override suspend fun getPatientHealthcareParties(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<PatientHealthCareParty> {
+		return healthcarePartyLogic.getHealthcareParty(hcPartyId)?.let { healthcarePartyLogic.getHcpHierarchyIds(it) }?.let { sumehrExport.getPatientHealthCareParties(it, sfks, excludedIds, patientId) } ?: listOf()
+	}
 }

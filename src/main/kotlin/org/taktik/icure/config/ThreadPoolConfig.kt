@@ -25,7 +25,6 @@ import org.springframework.scheduling.TaskScheduler
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
 
-
 @Configuration
 class ThreadPoolConfig {
 	@Bean
@@ -37,7 +36,7 @@ class ThreadPoolConfig {
 	}
 
 	@Bean
-	fun threadPoolTaskScheduler(): TaskScheduler  = ThreadPoolTaskScheduler(). apply {
+	fun threadPoolTaskScheduler(): TaskScheduler = ThreadPoolTaskScheduler().apply {
 		setThreadNamePrefix("default_task_scheduler_thread_pool")
 		initialize()
 	}

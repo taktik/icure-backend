@@ -19,15 +19,14 @@ package org.taktik.icure.asynclogic.impl.filter.device
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flowOf
 import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.impl.filter.Filter
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.entities.Device
 
 @Service
-class DeviceByIdsFilter : Filter<String, Device, org.taktik.icure.domain.filter.Filters.IdsFilter<String,Device>> {
-    override fun resolve(filter: org.taktik.icure.domain.filter.Filters.IdsFilter<String,Device>, context: Filters): Flow<String> {
-        return filter.ids.asFlow() ?: flowOf()
-    }
+class DeviceByIdsFilter : Filter<String, Device, org.taktik.icure.domain.filter.Filters.IdsFilter<String, Device>> {
+	override fun resolve(filter: org.taktik.icure.domain.filter.Filters.IdsFilter<String, Device>, context: Filters): Flow<String> {
+		return filter.ids.asFlow()
+	}
 }

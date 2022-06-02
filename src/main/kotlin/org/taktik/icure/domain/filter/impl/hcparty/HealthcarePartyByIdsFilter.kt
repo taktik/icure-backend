@@ -17,7 +17,6 @@
  */
 package org.taktik.icure.domain.filter.impl.hcparty
 
-
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.AbstractFilter
 import org.taktik.icure.domain.filter.Filters
@@ -25,8 +24,8 @@ import org.taktik.icure.entities.HealthcareParty
 
 @KotlinBuilder
 data class HealthcarePartyByIdsFilter(
-        override val ids: Set<String>,
-        override val desc: String? = null
+	override val ids: Set<String>,
+	override val desc: String? = null
 ) : AbstractFilter<HealthcareParty>, Filters.IdsFilter<String, HealthcareParty> {
-    override fun matches(item: HealthcareParty) = ids.contains(item.id)
+	override fun matches(item: HealthcareParty) = ids.contains(item.id)
 }
