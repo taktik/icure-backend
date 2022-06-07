@@ -25,7 +25,6 @@ import org.mapstruct.Mappings
 import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.services.external.rest.v2.dto.samv2.AmpDto
 import org.taktik.icure.services.external.rest.v2.mapper.EntityReferenceV2Mapper
-import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.*
 import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.AmpComponentV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.AmppV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.samv2.embed.CompanyV2Mapper

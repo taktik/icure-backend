@@ -13,7 +13,7 @@ val ktlint by configurations.creating
 val repoUsername: String by project
 val repoPassword: String by project
 val mavenReleasesRepository: String by project
-val kmapVersion = "0.1.23-0a1725c2ab"
+val kmapVersion = "0.1.27-dc75c6d709"
 
 plugins {
     kotlin("jvm") version "1.6.21"
@@ -63,6 +63,7 @@ java {
 }
 
 repositories {
+    gradlePluginPortal()
     mavenCentral()
     jcenter()
     maven { url = uri("https://maven.taktik.be/content/groups/public") }
@@ -312,3 +313,8 @@ publishing {
         }
     }
 }
+
+tasks.withType<JavaCompile>().configureEach {
+    options.isIncremental = true
+}
+

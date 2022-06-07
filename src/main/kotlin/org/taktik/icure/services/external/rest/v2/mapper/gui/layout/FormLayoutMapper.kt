@@ -54,7 +54,8 @@ abstract class FormLayoutV2Mapper {
 	abstract fun map(formLayoutDto: FormLayout): org.taktik.icure.dto.gui.layout.FormLayout
 	abstract fun map(formLayout: org.taktik.icure.dto.gui.layout.FormLayout): FormLayout
 
-	abstract fun map(columnDto: Column): org.taktik.icure.dto.gui.Columnabstract fun map(editorDto: ActionButton): org.taktik.icure.dto.gui.editor.ActionButton
+	abstract fun map(columnDto: Column): org.taktik.icure.dto.gui.Column
+	abstract fun map(editorDto: ActionButton): org.taktik.icure.dto.gui.editor.ActionButton
 	abstract fun map(editorDto: Audiometry): org.taktik.icure.dto.gui.editor.Audiometry
 	abstract fun map(editorDto: CheckBoxEditor): org.taktik.icure.dto.gui.editor.CheckBoxEditor
 	abstract fun map(editorDto: DashboardEditor): org.taktik.icure.dto.gui.editor.DashboardEditor
@@ -99,7 +100,8 @@ abstract class FormLayoutV2Mapper {
 		else -> throw IllegalArgumentException("Unsupported filter class")
 	}
 
-	abstract fun map(column: org.taktik.icure.dto.gui.Column): Columnabstract fun map(editor: org.taktik.icure.dto.gui.editor.ActionButton): ActionButton
+	abstract fun map(column: org.taktik.icure.dto.gui.Column): Column
+	abstract fun map(editor: org.taktik.icure.dto.gui.editor.ActionButton): ActionButton
 	abstract fun map(editor: org.taktik.icure.dto.gui.editor.Audiometry): Audiometry
 	abstract fun map(editor: org.taktik.icure.dto.gui.editor.CheckBoxEditor): CheckBoxEditor
 	abstract fun map(editor: org.taktik.icure.dto.gui.editor.DashboardEditor): DashboardEditor
