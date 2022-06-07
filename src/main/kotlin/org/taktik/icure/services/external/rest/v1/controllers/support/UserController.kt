@@ -141,6 +141,12 @@ class UserController(
 		userLogic.findByHcpartyId(id).toList()
 	}
 
+	@Operation(summary = "Get the list of users by patient id")
+	@GetMapping("/byPatientId/{id}")
+	fun findByPatientId(@PathVariable id: String) = mono {
+		userLogic.findByPatientId(id).toList()
+	}
+
 	@Operation(summary = "Delete a User based on his/her ID.", description = "Delete a User based on his/her ID. The return value is an array containing the ID of deleted user.")
 	@DeleteMapping("/{userId}")
 	fun deleteUser(@PathVariable userId: String) = mono {
