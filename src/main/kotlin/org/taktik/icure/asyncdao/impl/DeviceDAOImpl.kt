@@ -1,6 +1,5 @@
 package org.taktik.icure.asyncdao.impl
 
-import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -82,11 +81,15 @@ class DeviceDAOImpl(
 
 		return result.fold(emptyMap<String, Map<String, Map<String, String>>>()) { acc, (key, value) ->
 			if (key != null && value != null) {
-				acc + (value[0] to (acc[value[0]] ?: emptyMap()).let {
-					it + (value[1].let { it.substring((it.length - 12).coerceAtLeast(0)) } to (it[value[1]] ?: emptyMap()).let {dels ->
-						dels + (value[2] to value[3])
-					})
-				})
+				acc + (
+					value[0] to (acc[value[0]] ?: emptyMap()).let {
+						it + (
+							value[1].let { it.substring((it.length - 12).coerceAtLeast(0)) } to (it[value[1]] ?: emptyMap()).let { dels ->
+								dels + (value[2] to value[3])
+							}
+							)
+					}
+					)
 			} else acc
 		}
 	}

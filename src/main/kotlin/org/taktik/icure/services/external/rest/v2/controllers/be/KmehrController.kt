@@ -138,30 +138,32 @@ class KmehrController(
 		@RequestParam language: String,
 		@RequestBody info: SumehrExportInfoDto,
 		response: ServerHttpResponse
-	) = mono {
+	) = flow {
 		patientLogic.getPatient(patientId)?.let {
 			healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { hcp ->
-				sumehrLogicV1.createSumehr(
-					it,
-					info.secretForeignKeys,
-					hcp,
-					healthcarePartyV2Mapper.map(info.recipient!!),
-					language,
-					info.comment,
-					info.excludedIds,
-					info.includeIrrelevantInformation
-						?: false,
-					null,
-					mapServices(info.services),
-					mapHealthElements(info.healthElements),
-					Config(
-						_kmehrId = System.currentTimeMillis().toString(),
-						date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
-						time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-						soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
-						clinicalSummaryType = "",
-						defaultLanguage = "en",
-						format = Config.Format.SUMEHR
+				emitAll(
+					sumehrLogicV1.createSumehr(
+						it,
+						info.secretForeignKeys,
+						hcp,
+						healthcarePartyV2Mapper.map(info.recipient!!),
+						language,
+						info.comment,
+						info.excludedIds,
+						info.includeIrrelevantInformation
+							?: false,
+						null,
+						mapServices(info.services),
+						mapHealthElements(info.healthElements),
+						Config(
+							_kmehrId = System.currentTimeMillis().toString(),
+							date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
+							time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+							soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
+							clinicalSummaryType = "",
+							defaultLanguage = "en",
+							format = Config.Format.SUMEHR
+						)
 					)
 				)
 			}
@@ -259,30 +261,32 @@ class KmehrController(
 		@RequestParam language: String,
 		@RequestBody info: SumehrExportInfoDto,
 		response: ServerHttpResponse
-	) = mono {
+	) = flow {
 		patientLogic.getPatient(patientId)?.let {
 			healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { hcp ->
-				sumehrLogicV2.createSumehr(
-					it,
-					info.secretForeignKeys,
-					hcp,
-					healthcarePartyV2Mapper.map(info.recipient!!),
-					language,
-					info.comment,
-					info.excludedIds,
-					info.includeIrrelevantInformation
-						?: false,
-					null,
-					mapServices(info.services),
-					mapHealthElements(info.healthElements),
-					Config(
-						_kmehrId = System.currentTimeMillis().toString(),
-						date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
-						time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-						soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
-						clinicalSummaryType = "",
-						defaultLanguage = "en",
-						format = Config.Format.SUMEHR
+				emitAll(
+					sumehrLogicV2.createSumehr(
+						it,
+						info.secretForeignKeys,
+						hcp,
+						healthcarePartyV2Mapper.map(info.recipient!!),
+						language,
+						info.comment,
+						info.excludedIds,
+						info.includeIrrelevantInformation
+							?: false,
+						null,
+						mapServices(info.services),
+						mapHealthElements(info.healthElements),
+						Config(
+							_kmehrId = System.currentTimeMillis().toString(),
+							date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
+							time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+							soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
+							clinicalSummaryType = "",
+							defaultLanguage = "en",
+							format = Config.Format.SUMEHR
+						)
 					)
 				)
 			}

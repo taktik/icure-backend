@@ -39,6 +39,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.LifecycleType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.ProfessionType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.RecipientType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.TelecomType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
@@ -200,15 +201,31 @@ class IncapacityExport(
 		foreignStayBegin: Long,
 		foreignStayEnd: Long
 	): FolderType {
-		//creation of Patient
 		val folder = FolderType().apply {
 			ids.add(idKmehr(patientIndex))
 			this.patient = makePatient(patient, config)
 			if (recoveryAddress != null) {
 				this.patient.addresses.addAll(makeAddresses(listOf(recoveryAddress)))
 			}
-			if (listOf("civilservant", "employed", "selfemployed").contains(jobstatus)) {
+			if (listOf("civilservant", "employed", "selfemployed").contains(jobstatus) && !diagnoseServices.isEmpty()) {
+				if(this.patient.profession == null){
+					this.patient.profession = ProfessionType()
+				}
 				this.patient.profession.cds.add(CDEMPLOYMENTSITUATION().apply { value = CDEMPLOYMENTSITUATIONvalues.fromValue(jobstatus) })
+			}
+			if(dataset == "c" || diagnoseServices.isEmpty()){
+				this.patient.profession = null;
+				this.patient.telecoms.clear();
+			} else {
+				this.patient.profession.text = TextType().apply {
+					this.l = language
+					this.value = job;
+				}
+			}
+			this.patient.birthlocation = null;
+			this.patient.deathlocation = null;
+			if(diagnoseServices.isEmpty()){
+				this.patient.telecoms.clear();
 			}
 		}
 
@@ -290,21 +307,6 @@ class IncapacityExport(
 							this.endmoment = Utils.makeDateTypeFromFuzzyLong(endmoment)
 						}
 					)
-					//TODO:
-					//  CD-ITEM diagnosis
-					//   ID-KMEHR = idx
-					//   content
-					//     ICD = MS-INCAPACITYFIELD|diagnosis, ICD|*|10
-					//     ICPC = MS-INCAPACITYFIELD|diagnosis, ICPC|*|2
-					//     ...
-					//     text = griep ...
-					//  CD-ITEM diagnosis
-					//   ID-KMEHR = idx
-					//   content
-					//     ICD = MS-INCAPACITYFIELD|diagnosis, ICD|*|10
-					//     ICPC = MS-INCAPACITYFIELD|diagnosis, ICPC|*|2
-					//     ...
-					//     text = griep ...
 					val diagnosisServices = diagnoseServices.filter { it.tags.any { tag -> tag.id == "MS-INCAPACITYFIELD|diagnosis|1" } }
 					headingsAndItemsAndTexts.addAll(
 						diagnosisServices.mapIndexed { index, svc ->
@@ -316,11 +318,21 @@ class IncapacityExport(
 								}
 
 								//svc.codes has all the content
+								//remove BE-THESAURUS
+								var codes = svc.codes.filter { cd ->  cd.type != "BE-THESAURUS"}
+								var snomedDesc:String? = null
+								//remove ICD/ICPC if SNOMED present
+								if(svc.codes.any{cd -> cd.type == "SNOMED"}){
+									codes = listOf(svc.codes.filter { cd ->  cd.type == "SNOMED"}.first()) //avoid multiple snomed codes
+									//not the nicest but there should always be max one snomed code per service
+									snomedDesc = if(language == "fr") codes[0]?.label?.get("fr") else codes[0]?.label?.get("nl")
+								}
+
 								contents.add(
 									ContentType().apply {
 										cds.addAll(
-											svc.codes.map { cd ->
-												CDCONTENT().apply { s(if (cd.type == "ICD") CDCONTENTschemes.ICD else (if (cd.type == "ICPC") CDCONTENTschemes.ICPC else CDCONTENTschemes.CD_CLINICAL)); value = cd.code }
+											codes.map { cd ->
+												CDCONTENT().apply { s(if (cd.type == "ICD") CDCONTENTschemes.ICD else (if (cd.type == "ICPC") CDCONTENTschemes.ICPC else CDCONTENTschemes.CD_SNOMED)); value = cd.code }
 											}
 										)
 										val descr_fr = svc.content?.get("descr_fr")?.stringValue
@@ -329,7 +341,7 @@ class IncapacityExport(
 										texts.add(
 											TextType().apply {
 												this.l = language
-												this.value = if (language == "fr") descr_fr ?: descr_nl ?: descr else descr_nl ?: descr_fr ?: descr
+												this.value = snomedDesc ?: if (language == "fr") descr_fr ?: descr_nl ?: descr else descr_nl ?: descr_fr ?: descr
 											}
 										)
 									}
@@ -337,7 +349,7 @@ class IncapacityExport(
 							}
 						}
 					)
-					if (!hospital?.id.isNullOrBlank() || hospitalisationEnd > 0 || hospitalisationBegin > 0) {
+					if ((!hospital?.id.isNullOrBlank() || hospitalisationEnd > 0 || hospitalisationBegin > 0) && !diagnoseServices.isEmpty()) {
 						headingsAndItemsAndTexts.add(
 							ItemType().apply {
 								ids.add(idKmehr(itemsIdx++))
@@ -391,7 +403,7 @@ class IncapacityExport(
 							)
 						}
 					}
-					if (!contactPersonTel.isNullOrEmpty()) {
+					if (!contactPersonTel.isNullOrEmpty() && !diagnoseServices.isEmpty()) {
 						headingsAndItemsAndTexts.add(
 							ItemType().apply {
 								ids.add(idKmehr(itemsIdx++))
