@@ -110,6 +110,8 @@ public class HealthcareParty extends StoredDocument implements Person, CryptoAct
 
     protected Map<String, String> importedData = new HashMap<>();
 
+    protected Map<String, String> descr = new HashMap<>();
+
 	public HealthcareParty() {
 
 	}
@@ -427,6 +429,13 @@ public class HealthcareParty extends StoredDocument implements Person, CryptoAct
 
     public void setFlatRateTarifications(List<FlatRateTarification> flatRateTarifications) { this.flatRateTarifications = flatRateTarifications; }
 
+    public Map<String, String> getDescr() {
+        return descr;
+    }
+
+    public void setDescr(Map<String, String> descr) {
+        this.descr = descr;
+    }
 
     public HealthcareParty solveConflictWith(HealthcareParty other) {
         super.solveConflictsWith(other);
@@ -471,6 +480,7 @@ public class HealthcareParty extends StoredDocument implements Person, CryptoAct
         if (this.type == null && other.type != null) { this.type = other.type; }
         if (this.contactPerson == null && other.contactPerson != null) { this.contactPerson = other.contactPerson; }
         if (this.contactPersonHcpId == null && other.contactPersonHcpId != null) { this.contactPersonHcpId = other.contactPersonHcpId; }
+        if (this.descr == null && other.descr != null) { this.descr= other.descr; }
 
         this.statuses = MergeUtil.mergeListsDistinct(this.statuses, other.statuses, HealthcarePartyStatus::equals, (a, b)->a);
 
