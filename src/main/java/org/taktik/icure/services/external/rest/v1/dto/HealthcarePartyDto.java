@@ -92,6 +92,8 @@ public class HealthcarePartyDto extends StoredDto {
 
     protected Map<String, String> importedData = new HashMap<>();
 
+    protected Map<String, String> descr = new HashMap<>();
+
 	public String getName() {
         return name;
     }
@@ -400,4 +402,13 @@ public class HealthcarePartyDto extends StoredDto {
     public void setImportedData(Map<String, String> importedData) {
         this.importedData = importedData;
     }
+
+    public Map<String, String> getDescr() {
+        return descr;
+    }
+
+    public void setDescr(Map<String, String> descr) {
+        this.descr = descr;
+    }
+
 }
