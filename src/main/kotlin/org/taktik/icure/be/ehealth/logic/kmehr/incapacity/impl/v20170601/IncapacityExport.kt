@@ -216,7 +216,10 @@ class IncapacityExport(
 			if(dataset == "c" || diagnoseServices.isEmpty()){
 				this.patient.profession = null;
 				this.patient.telecoms.clear();
-			} else {
+			} else if (!job.isNullOrBlank()) {
+				if(this.patient.profession == null){
+					this.patient.profession = ProfessionType()
+				}
 				this.patient.profession.text = TextType().apply {
 					this.l = language
 					this.value = job;
