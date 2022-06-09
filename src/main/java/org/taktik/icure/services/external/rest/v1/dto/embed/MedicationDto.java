@@ -147,7 +147,7 @@ public class MedicationDto implements Serializable {
 		this.instructionForPatient = instructionForPatient;
 	}
 
-	public @Nullable InstructionForReimbursementDto getInstructionForReimbursement() {
+	public InstructionForReimbursementDto getInstructionForReimbursement() {
 		return instructionForReimbursement;
 	}
 
