@@ -52,6 +52,7 @@ public class Medication implements Serializable {
 	private String batch;
 
 	private String instructionForPatient;
+	private InstructionForReimbursement instructionForReimbursement;
 	private String commentForDelivery;
 	private String drugRoute; //CD-DRUG-ROUTE
 	private String temporality; //CD-TEMPORALITY : chronic, acute, oneshot
@@ -143,6 +144,14 @@ public class Medication implements Serializable {
 
 	public void setInstructionForPatient(String instructionForPatient) {
 		this.instructionForPatient = instructionForPatient;
+	}
+
+	public @Nullable InstructionForReimbursement getInstructionForReimbursement() {
+		return instructionForReimbursement;
+	}
+
+	public void setInstructionForReimbursement(InstructionForReimbursement instructionForReimbursement) {
+		this.instructionForReimbursement = instructionForReimbursement;
 	}
 
 	public @Nullable String getCommentForDelivery() {
