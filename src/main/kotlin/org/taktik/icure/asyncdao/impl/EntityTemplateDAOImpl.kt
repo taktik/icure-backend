@@ -123,7 +123,7 @@ class EntityTemplateDAOImpl(
 	@View(name = "by_type_keyword", map = "classpath:js/entitytemplate/By_type_keyword.js")
 	override fun listEntityTemplatesByTypeAndKeyword(type: String?, keyword: String?, includeEntities: Boolean?): Flow<EntityTemplate> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
-		val viewQuery = createQuery(client, "by_type_descr").startKey(ComplexKey.of(type, keyword)).endKey(
+		val viewQuery = createQuery(client, "by_type_keyword").startKey(ComplexKey.of(type, keyword)).endKey(
 			ComplexKey.of(
 				type,
 				(
