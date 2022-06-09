@@ -68,6 +68,39 @@ class IncapacityExport(
 	filters: org.taktik.icure.asynclogic.impl.filter.Filters,
 	val serviceMapper: ServiceMapper
 ) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
+	data class IncapacityDetail(
+		val incapacityId: String,
+		val notificationDate: Long,
+		val retraction: Boolean,
+		val dataset: String, //will not use for now, front-end will decide what is sent
+		val transactionType: String,
+		val incapacityreason: String,
+		val beginmoment: Long,
+		val endmoment: Long,
+		val outofhomeallowed: Boolean,
+		val incapWork: Boolean,
+		val incapSchool: Boolean,
+		val incapSwim: Boolean,
+		val incapSchoolsports: Boolean,
+		val incapHeavyphysicalactivity: Boolean,
+		val diagnoseServices: List<Service>,
+		val jobstatus: String, //values of CD-EMPLOYMENTSITUATION --> patient.profession.cd
+		val job: String,
+		val occupationalDiseaseDeclDate: Long,
+		val accidentDate: Long,
+		val expectedbirthgivingDate: Long,
+		val maternityleaveBegin: Long,
+		val maternityleaveEnd: Long, //will not be used (yet)
+		val hospitalisationBegin: Long,
+		val hospitalisationEnd: Long,
+		val hospital: HealthcareParty?,
+		val contactPersonTel: String,
+		val recoveryAddress: Address?,
+		val foreignStayBegin: Long,
+		val foreignStayEnd: Long
+	)
+
+
 	fun exportIncapacity(
 		patient: Patient,
 		sfks: List<String>,
@@ -131,35 +164,37 @@ class IncapacityExport(
 			config,
 			language,
 			comment,
-			incapacityId,
-			notificationDate,
-			retraction,
-			dataset,
-			transactionType,
-			incapacityreason,
-			beginmoment,
-			endmoment,
-			outofhomeallowed,
-			incapWork,
-			incapSchool,
-			incapSwim,
-			incapSchoolsports,
-			incapHeavyphysicalactivity,
-			diagnoseServices,
-			jobstatus,
-			job,
-			occupationalDiseaseDeclDate,
-			accidentDate,
-			expectedbirthgivingDate,
-			maternityleaveBegin,
-			maternityleaveEnd,
-			hospitalisationBegin,
-			hospitalisationEnd,
-			hospital,
-			contactPersonTel,
-			recoveryAddress,
-			foreignStayBegin,
-			foreignStayEnd
+			IncapacityDetail(
+				incapacityId = incapacityId,
+				notificationDate = notificationDate,
+				retraction = retraction,
+				dataset = dataset,
+				transactionType = transactionType,
+				incapacityreason = incapacityreason,
+				beginmoment = beginmoment,
+				endmoment = endmoment,
+				outofhomeallowed = outofhomeallowed,
+				incapWork = incapWork,
+				incapSchool = incapSchool,
+				incapSwim = incapSwim,
+				incapSchoolsports = incapSchoolsports,
+				incapHeavyphysicalactivity = incapHeavyphysicalactivity,
+				diagnoseServices = diagnoseServices,
+				jobstatus = jobstatus,
+				job = job,
+				occupationalDiseaseDeclDate = occupationalDiseaseDeclDate,
+				accidentDate = accidentDate,
+				expectedbirthgivingDate = expectedbirthgivingDate,
+				maternityleaveBegin = maternityleaveBegin,
+				maternityleaveEnd = maternityleaveEnd,
+				hospitalisationBegin = hospitalisationBegin,
+				hospitalisationEnd = hospitalisationEnd,
+				hospital = hospital,
+				contactPersonTel = contactPersonTel,
+				recoveryAddress = recoveryAddress,
+				foreignStayBegin = foreignStayBegin,
+				foreignStayEnd = foreignStayEnd
+			)
 		)
 		emitMessage(message.apply { folders.add(folder) }).collect { emit(it) }
 	}
@@ -171,49 +206,21 @@ class IncapacityExport(
 		config: Config,
 		language: String,
 		comment: String?, //not needed (yet)
-		incapacityId: String,
-		notificationDate: Long,
-		retraction: Boolean,
-		dataset: String, //will not use for now, front-end will decide what is sent
-		transactionType: String,
-		incapacityreason: String,
-		beginmoment: Long,
-		endmoment: Long,
-		outofhomeallowed: Boolean,
-		incapWork: Boolean,
-		incapSchool: Boolean,
-		incapSwim: Boolean,
-		incapSchoolsports: Boolean,
-		incapHeavyphysicalactivity: Boolean,
-		diagnoseServices: List<Service>,
-		jobstatus: String, //values of CD-EMPLOYMENTSITUATION --> patient.profession.cd
-		job: String,
-		occupationalDiseaseDeclDate: Long,
-		accidentDate: Long,
-		expectedbirthgivingDate: Long,
-		maternityleaveBegin: Long,
-		maternityleaveEnd: Long, //will not be used (yet)
-		hospitalisationBegin: Long,
-		hospitalisationEnd: Long,
-		hospital: HealthcareParty?,
-		contactPersonTel: String,
-		recoveryAddress: Address?,
-		foreignStayBegin: Long,
-		foreignStayEnd: Long
-	): FolderType {
-		val folder = FolderType().apply {
+		incapacityDetail: IncapacityDetail
+	) = with(incapacityDetail) {
+		FolderType().apply {
 			ids.add(idKmehr(patientIndex))
 			this.patient = makePatient(patient, config)
 			if (recoveryAddress != null) {
 				this.patient.addresses.addAll(makeAddresses(listOf(recoveryAddress)))
 			}
 			if (listOf("civilservant", "employed", "selfemployed").contains(jobstatus) && !diagnoseServices.isEmpty()) {
-				if(this.patient.profession == null){
+				if (this.patient.profession == null) {
 					this.patient.profession = ProfessionType()
 				}
 				this.patient.profession.cds.add(CDEMPLOYMENTSITUATION().apply { value = CDEMPLOYMENTSITUATIONvalues.fromValue(jobstatus) })
 			}
-			if(dataset == "c" || diagnoseServices.isEmpty()){
+			if (dataset == "c" || diagnoseServices.isEmpty()) {
 				this.patient.profession = null;
 				this.patient.telecoms.clear();
 			} else {
@@ -224,242 +231,239 @@ class IncapacityExport(
 			}
 			this.patient.birthlocation = null;
 			this.patient.deathlocation = null;
-			if(diagnoseServices.isEmpty()){
+			if (diagnoseServices.isEmpty()) {
 				this.patient.telecoms.clear();
 			}
-		}
-
-		var itemsIdx = 1
-
-		if (retraction) {
-			folder.transactions.add(
-				TransactionType().apply {
-					ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
-					cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = "notification" })
-					cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION_TYPE); value = "incapacity" })
-					date = config.date
-					time = config.time
-					author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
-					isIscomplete = true
-					isIsvalidated = true
-					headingsAndItemsAndTexts.add(
-						ItemType().apply {
-							ids.add(idKmehr(1))
-							cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity" })
-							contents.add(
-								ContentType().apply {
-									ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = incapacityId })
-								}
-							)
-							lifecycle = LifecycleType().apply { cd = CDLIFECYCLE().apply { s = "CD-LIFECYCLE"; value = CDLIFECYCLEvalues.RETRACTED } }
-						}
-					)
-				}
-			)
-		} else {
-			folder.transactions.add(
-				TransactionType().apply {
-					ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
-					cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = "notification" })
-
-					cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION_TYPE); value = transactionType })
-					date = config.date
-					time = config.time
-					author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
-					isIscomplete = true
-					isIsvalidated = true
-
-					headingsAndItemsAndTexts.add(
-						ItemType().apply {
-							ids.add(idKmehr(itemsIdx++))
-							cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity" })
-							contents.add(
-								ContentType().apply {
-									incapacity = IncapacityType().apply {
-										if (incapWork) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("work") })
-										if (incapSchool) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("school") })
-										if (incapSwim) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("swim") })
-										if (incapSchoolsports) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("schoolsports") })
-										if (incapHeavyphysicalactivity) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("heavyphysicalactivity") })
-										this.incapacityreason = IncapacityreasonType().apply {
-											this.cd = CDINCAPACITYREASON().apply { value = CDINCAPACITYREASONvalues.fromValue(incapacityreason) }
-										}
-										this.isOutofhomeallowed = outofhomeallowed
-									}
-								}
-							)
-
-							if (listOf("accident", "workaccident", "traveltofromworkaccident").contains(incapacityreason)) {
-								contents.add(
-									ContentType().apply {
-										this.date = Utils.makeXMLGregorianCalendarFromFuzzyLong(accidentDate)
-									}
-								)
-							}
-							if ("occupationaldisease" == incapacityreason) {
-								contents.add(
-									ContentType().apply {
-										this.date = Utils.makeXMLGregorianCalendarFromFuzzyLong(occupationalDiseaseDeclDate)
-									}
-								)
-							}
-							this.beginmoment = Utils.makeDateTypeFromFuzzyLong(beginmoment)
-							this.endmoment = Utils.makeDateTypeFromFuzzyLong(endmoment)
-						}
-					)
-					val diagnosisServices = diagnoseServices.filter { it.tags.any { tag -> tag.id == "MS-INCAPACITYFIELD|diagnosis|1" } }
-					headingsAndItemsAndTexts.addAll(
-						diagnosisServices.mapIndexed { index, svc ->
-							ItemType().apply {
-								ids.add(idKmehr(itemsIdx++))
-								cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "diagnosis" })
-								if (index == 0 && diagnoseServices.size > 1) {
-									cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "MMEDIATT-ITEM"; value = "principal" })
-								}
-
-								//svc.codes has all the content
-								//remove BE-THESAURUS
-								var codes = svc.codes.filter { cd ->  cd.type != "BE-THESAURUS"}
-								var snomedDesc:String? = null
-								//remove ICD/ICPC if SNOMED present
-								if(svc.codes.any{cd -> cd.type == "SNOMED"}){
-									codes = listOf(svc.codes.filter { cd ->  cd.type == "SNOMED"}.first()) //avoid multiple snomed codes
-									//not the nicest but there should always be max one snomed code per service
-									snomedDesc = if(language == "fr") codes[0]?.label?.get("fr") else codes[0]?.label?.get("nl")
-								}
-
-								contents.add(
-									ContentType().apply {
-										cds.addAll(
-											codes.map { cd ->
-												CDCONTENT().apply { s(if (cd.type == "ICD") CDCONTENTschemes.ICD else (if (cd.type == "ICPC") CDCONTENTschemes.ICPC else CDCONTENTschemes.CD_SNOMED)); value = cd.code }
-											}
-										)
-										val descr_fr = svc.content?.get("descr_fr")?.stringValue
-										val descr_nl = svc.content?.get("descr_nl")?.stringValue
-										val descr = svc.content?.get("descr")?.stringValue
-										texts.add(
-											TextType().apply {
-												this.l = language
-												this.value = snomedDesc ?: if (language == "fr") descr_fr ?: descr_nl ?: descr else descr_nl ?: descr_fr ?: descr
-											}
-										)
-									}
-								)
-							}
-						}
-					)
-					if ((!hospital?.id.isNullOrBlank() || hospitalisationEnd > 0 || hospitalisationBegin > 0) && !diagnoseServices.isEmpty()) {
+		}.also { folder ->
+			var itemsIdx = 1
+			if (retraction) {
+				folder.transactions.add(
+					TransactionType().apply {
+						ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
+						cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = "notification" })
+						cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION_TYPE); value = "incapacity" })
+						date = config.date
+						time = config.time
+						author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
+						isIscomplete = true
+						isIsvalidated = true
 						headingsAndItemsAndTexts.add(
 							ItemType().apply {
-								ids.add(idKmehr(itemsIdx++))
-								cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "encountertype" })
+								ids.add(idKmehr(1))
+								cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity" })
 								contents.add(
 									ContentType().apply {
-										cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ENCOUNTER); value = "hospital" })
+										ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = incapacityId })
 									}
 								)
+								lifecycle = LifecycleType().apply { cd = CDLIFECYCLE().apply { s = "CD-LIFECYCLE"; value = CDLIFECYCLEvalues.RETRACTED } }
 							}
 						)
-						if (hospitalisationBegin > 0) {
-							headingsAndItemsAndTexts.add(
-								ItemType().apply {
-									ids.add(idKmehr(itemsIdx++))
-									cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "encounterdatetime" })
-									contents.add(
-										ContentType().apply {
-											date = Utils.makeXMLGregorianCalendarFromFuzzyLong(hospitalisationBegin)
-										}
-									)
-								}
-							)
-						}
-						if (hospitalisationEnd > 0) {
-							headingsAndItemsAndTexts.add(
-								ItemType().apply {
-									ids.add(idKmehr(itemsIdx++))
-									cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "dischargedatetime" })
-									contents.add(
-										ContentType().apply {
-											date = Utils.makeXMLGregorianCalendarFromFuzzyLong(hospitalisationEnd)
-										}
-									)
-								}
-							)
-						}
-						if (!hospital?.id.isNullOrBlank()) {
-							headingsAndItemsAndTexts.add(
-								ItemType().apply {
-									ids.add(idKmehr(itemsIdx++))
-									cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "encounterlocation" })
-									contents.add(
-										ContentType().apply {
-											hcparty = hospital?.let { it ->
-												createParty(it, emptyList())
-											}
-										}
-									)
-								}
-							)
-						}
 					}
-					if (!contactPersonTel.isNullOrEmpty() && !diagnoseServices.isEmpty()) {
+				)
+			} else {
+				folder.transactions.add(
+					TransactionType().apply {
+						ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
+						cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = "notification" })
+
+						cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION_TYPE); value = transactionType })
+						date = config.date
+						time = config.time
+						author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
+						isIscomplete = true
+						isIsvalidated = true
+
 						headingsAndItemsAndTexts.add(
 							ItemType().apply {
 								ids.add(idKmehr(itemsIdx++))
-								cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "contactperson" })
-								cds.add(CDITEM().apply { s(CDITEMschemes.CD_CONTACT_PERSON); value = "contact" })
+								cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity" })
 								contents.add(
 									ContentType().apply {
-										person = PersonType().apply {
-											telecoms.add(
-												TelecomType().apply {
-													cds.add(CDTELECOM().apply { s(CDTELECOMschemes.CD_TELECOM); value = "phone" })
-													telecomnumber = contactPersonTel
+										incapacity = IncapacityType().apply {
+											if (incapWork) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("work") })
+											if (incapSchool) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("school") })
+											if (incapSwim) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("swim") })
+											if (incapSchoolsports) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("schoolsports") })
+											if (incapHeavyphysicalactivity) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("heavyphysicalactivity") })
+											this.incapacityreason = IncapacityreasonType().apply {
+												this.cd = CDINCAPACITYREASON().apply { value = CDINCAPACITYREASONvalues.fromValue(incapacityDetail.incapacityreason) }
+											}
+											this.isOutofhomeallowed = outofhomeallowed
+										}
+									}
+								)
+
+								if (listOf("accident", "workaccident", "traveltofromworkaccident").contains(incapacityreason)) {
+									contents.add(
+										ContentType().apply {
+											this.date = Utils.makeXMLGregorianCalendarFromFuzzyLong(accidentDate)
+										}
+									)
+								}
+								if ("occupationaldisease" == incapacityreason) {
+									contents.add(
+										ContentType().apply {
+											this.date = Utils.makeXMLGregorianCalendarFromFuzzyLong(occupationalDiseaseDeclDate)
+										}
+									)
+								}
+								this.beginmoment = Utils.makeDateTypeFromFuzzyLong(incapacityDetail.beginmoment)
+								this.endmoment = Utils.makeDateTypeFromFuzzyLong(incapacityDetail.endmoment)
+							}
+						)
+						val diagnosisServices = diagnoseServices.filter { it.tags.any { tag -> tag.id == "MS-INCAPACITYFIELD|diagnosis|1" } }
+						headingsAndItemsAndTexts.addAll(
+							diagnosisServices.mapIndexed { index, svc ->
+								ItemType().apply {
+									ids.add(idKmehr(itemsIdx++))
+									cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "diagnosis" })
+									if (index == 0 && diagnoseServices.size > 1) {
+										cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "MMEDIATT-ITEM"; value = "principal" })
+									}
+
+									//svc.codes has all the content
+									//remove BE-THESAURUS
+									var codes = svc.codes.filter { cd -> cd.type != "BE-THESAURUS" }
+									var snomedDesc: String? = null
+									//remove ICD/ICPC if SNOMED present
+									if (svc.codes.any { cd -> cd.type == "SNOMED" }) {
+										codes = listOf(svc.codes.filter { cd -> cd.type == "SNOMED" }.first()) //avoid multiple snomed codes
+										//not the nicest but there should always be max one snomed code per service
+										snomedDesc = if (language == "fr") codes[0]?.label?.get("fr") else codes[0]?.label?.get("nl")
+									}
+
+									contents.add(
+										ContentType().apply {
+											cds.addAll(
+												codes.map { cd ->
+													CDCONTENT().apply { s(if (cd.type == "ICD") CDCONTENTschemes.ICD else (if (cd.type == "ICPC") CDCONTENTschemes.ICPC else CDCONTENTschemes.CD_SNOMED)); value = cd.code }
+												}
+											)
+											val descr_fr = svc.content?.get("descr_fr")?.stringValue
+											val descr_nl = svc.content?.get("descr_nl")?.stringValue
+											val descr = svc.content?.get("descr")?.stringValue
+											texts.add(
+												TextType().apply {
+													this.l = language
+													this.value = snomedDesc ?: if (language == "fr") descr_fr ?: descr_nl ?: descr else descr_nl ?: descr_fr ?: descr
 												}
 											)
 										}
+									)
+								}
+							}
+						)
+						if ((!hospital?.id.isNullOrBlank() || hospitalisationEnd > 0 || hospitalisationBegin > 0) && !diagnoseServices.isEmpty()) {
+							headingsAndItemsAndTexts.add(
+								ItemType().apply {
+									ids.add(idKmehr(itemsIdx++))
+									cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "encountertype" })
+									contents.add(
+										ContentType().apply {
+											cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ENCOUNTER); value = "hospital" })
+										}
+									)
+								}
+							)
+							if (hospitalisationBegin > 0) {
+								headingsAndItemsAndTexts.add(
+									ItemType().apply {
+										ids.add(idKmehr(itemsIdx++))
+										cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "encounterdatetime" })
+										contents.add(
+											ContentType().apply {
+												date = Utils.makeXMLGregorianCalendarFromFuzzyLong(hospitalisationBegin)
+											}
+										)
 									}
 								)
 							}
-						)
-					}
-					if (expectedbirthgivingDate > 0) {
-						headingsAndItemsAndTexts.add(
-							ItemType().apply {
-								ids.add(idKmehr(itemsIdx++))
-								cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "MMEDIATT-ITEM"; value = "expectedbirthgivingdate" })
-								contents.add(
-									ContentType().apply {
-										date = Utils.makeXMLGregorianCalendarFromFuzzyLong(expectedbirthgivingDate)
+							if (hospitalisationEnd > 0) {
+								headingsAndItemsAndTexts.add(
+									ItemType().apply {
+										ids.add(idKmehr(itemsIdx++))
+										cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "dischargedatetime" })
+										contents.add(
+											ContentType().apply {
+												date = Utils.makeXMLGregorianCalendarFromFuzzyLong(hospitalisationEnd)
+											}
+										)
 									}
 								)
 							}
-						)
-					}
-					if (maternityleaveBegin > 0) {
-						headingsAndItemsAndTexts.add(
-							ItemType().apply {
-								ids.add(idKmehr(itemsIdx++))
-								cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "MMEDIATT-ITEM"; value = "maternityleave" })
-								this.beginmoment = Utils.makeDateTypeFromFuzzyLong(maternityleaveBegin)
+							if (!hospital?.id.isNullOrBlank()) {
+								headingsAndItemsAndTexts.add(
+									ItemType().apply {
+										ids.add(idKmehr(itemsIdx++))
+										cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "encounterlocation" })
+										contents.add(
+											ContentType().apply {
+												hcparty = hospital?.let { it ->
+													createParty(it, emptyList())
+												}
+											}
+										)
+									}
+								)
 							}
-						)
+						}
+						if (!contactPersonTel.isNullOrEmpty() && !diagnoseServices.isEmpty()) {
+							headingsAndItemsAndTexts.add(
+								ItemType().apply {
+									ids.add(idKmehr(itemsIdx++))
+									cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "contactperson" })
+									cds.add(CDITEM().apply { s(CDITEMschemes.CD_CONTACT_PERSON); value = "contact" })
+									contents.add(
+										ContentType().apply {
+											person = PersonType().apply {
+												telecoms.add(
+													TelecomType().apply {
+														cds.add(CDTELECOM().apply { s(CDTELECOMschemes.CD_TELECOM); value = "phone" })
+														telecomnumber = contactPersonTel
+													}
+												)
+											}
+										}
+									)
+								}
+							)
+						}
+						if (expectedbirthgivingDate > 0) {
+							headingsAndItemsAndTexts.add(
+								ItemType().apply {
+									ids.add(idKmehr(itemsIdx++))
+									cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "MMEDIATT-ITEM"; value = "expectedbirthgivingdate" })
+									contents.add(
+										ContentType().apply {
+											date = Utils.makeXMLGregorianCalendarFromFuzzyLong(expectedbirthgivingDate)
+										}
+									)
+								}
+							)
+						}
+						if (maternityleaveBegin > 0) {
+							headingsAndItemsAndTexts.add(
+								ItemType().apply {
+									ids.add(idKmehr(itemsIdx++))
+									cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "MMEDIATT-ITEM"; value = "maternityleave" })
+									this.beginmoment = Utils.makeDateTypeFromFuzzyLong(maternityleaveBegin)
+								}
+							)
+						}
+						if (foreignStayBegin > 0 && foreignStayEnd > 0) {
+							headingsAndItemsAndTexts.add(
+								ItemType().apply {
+									ids.add(idKmehr(itemsIdx++))
+									cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "MMEDIATT-ITEM"; value = "foreignstay" })
+									this.beginmoment = Utils.makeDateTypeFromFuzzyLong(foreignStayBegin)
+									this.endmoment = Utils.makeDateTypeFromFuzzyLong(foreignStayEnd)
+								}
+							)
+						}
 					}
-					if (foreignStayBegin > 0 && foreignStayEnd > 0) {
-						headingsAndItemsAndTexts.add(
-							ItemType().apply {
-								ids.add(idKmehr(itemsIdx++))
-								cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "MMEDIATT-ITEM"; value = "foreignstay" })
-								this.beginmoment = Utils.makeDateTypeFromFuzzyLong(foreignStayBegin)
-								this.endmoment = Utils.makeDateTypeFromFuzzyLong(foreignStayEnd)
-							}
-						)
-					}
-				}
-			)
+				)
+			}
 		}
-
-		return folder
 	}
 }
