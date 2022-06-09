@@ -6,10 +6,10 @@ package org.taktik.icure.services.external.rest.v1.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
-import org.taktik.icure.entities.embed.Identifier
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.EncryptableDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
+import org.taktik.icure.services.external.rest.v1.dto.base.IdentifierDto
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.TaskStatusDto
@@ -20,7 +20,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.TaskStatusDto
 data class MaintenanceTaskDto(
 	override val id: String,
 	override val rev: String? = null,
-	val identifier: List<Identifier> = listOf(),
+	val identifier: List<IdentifierDto> = listOf(),
 	override val created: Long? = null,
 	override val modified: Long? = null,
 	override val author: String? = null,

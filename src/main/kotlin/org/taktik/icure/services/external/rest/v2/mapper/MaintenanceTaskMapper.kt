@@ -11,10 +11,11 @@ import org.mapstruct.Mappings
 import org.taktik.icure.entities.MaintenanceTask
 import org.taktik.icure.services.external.rest.v2.dto.MaintenanceTaskDto
 import org.taktik.icure.services.external.rest.v2.mapper.base.CodeStubV2Mapper
+import org.taktik.icure.services.external.rest.v2.mapper.base.IdentifierV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.base.PropertyStubV2Mapper
 import org.taktik.icure.services.external.rest.v2.mapper.embed.DelegationV2Mapper
 
-@Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class, DelegationV2Mapper::class, PropertyStubV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = [CodeStubV2Mapper::class, DelegationV2Mapper::class, PropertyStubV2Mapper::class, IdentifierV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface MaintenanceTaskV2Mapper {
 	@Mappings(
 		Mapping(target = "attachments", ignore = true),
