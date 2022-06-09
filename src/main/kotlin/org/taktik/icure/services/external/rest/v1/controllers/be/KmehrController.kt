@@ -68,6 +68,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.mapper.HealthElementMapper
 import org.taktik.icure.services.external.rest.v1.mapper.HealthcarePartyMapper
+import org.taktik.icure.services.external.rest.v1.mapper.be.kmehr.IncapacityExportInfoMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.AddressMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.ImportResultMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.PartnershipMapper
@@ -98,7 +99,8 @@ class KmehrController(
 	val patientHealthCarePartyMapper: PatientHealthCarePartyMapper,
 	val addressMapper: AddressMapper,
 	val partnershipMapper: PartnershipMapper,
-	val importResultMapper: ImportResultMapper
+	val importResultMapper: ImportResultMapper,
+	val incapacityExportInfoMapper: IncapacityExportInfoMapper,
 ) {
 	@Value("\${icure.version}")
 	internal val ICUREVERSION: String = "4.0.0"
@@ -473,37 +475,7 @@ class KmehrController(
 						patient = patient,
 						sender = userHealthCareParty,
 						language = language,
-						recipient = incapacityExportParams.recipient?.let { it1 -> healthcarePartyMapper.map(it1) },
-						comment = incapacityExportParams.comment,
-						incapacityId = incapacityExportParams.incapacityId,
-						notificationDate = incapacityExportParams.notificationDate,
-						retraction = incapacityExportParams.retraction,
-						dataset = incapacityExportParams.dataset,
-						transactionType = incapacityExportParams.transactionType,
-						incapacityreason = incapacityExportParams.incapacityreason,
-						beginmoment = incapacityExportParams.beginmoment,
-						endmoment = incapacityExportParams.endmoment,
-						outofhomeallowed = incapacityExportParams.outofhomeallowed,
-						incapWork = incapacityExportParams.incapWork,
-						incapSchool = incapacityExportParams.incapSchool,
-						incapSwim = incapacityExportParams.incapSwim,
-						incapSchoolsports = incapacityExportParams.incapSchoolsports,
-						incapHeavyphysicalactivity = incapacityExportParams.incapHeavyphysicalactivity,
-						diagnoseServices = incapacityExportParams.diagnoseServices.map { s -> serviceMapper.map(s) },
-						jobstatus = incapacityExportParams.jobstatus,
-						job = incapacityExportParams.job,
-						occupationalDiseaseDeclDate = incapacityExportParams.occupationalDiseaseDeclDate,
-						accidentDate = incapacityExportParams.accidentDate,
-						expectedbirthgivingDate = incapacityExportParams.expectedbirthgivingDate,
-						maternityleaveBegin = incapacityExportParams.maternityleaveBegin,
-						maternityleaveEnd = incapacityExportParams.maternityleaveEnd,
-						hospitalisationBegin = incapacityExportParams.hospitalisationBegin,
-						hospitalisationEnd = incapacityExportParams.hospitalisationEnd,
-						hospital = incapacityExportParams.hospital?.let { it1 -> healthcarePartyMapper.map(it1) },
-						contactPersonTel = incapacityExportParams.contactPersonTel,
-						recoveryAddress = incapacityExportParams.recoveryAddress?.let { it1 -> addressMapper.map(it1) },
-						foreignStayBegin = incapacityExportParams.foreignStayBegin,
-						foreignStayEnd = incapacityExportParams.foreignStayEnd,
+						exportInfo = incapacityExportInfoMapper.map(incapacityExportParams),
 						timeZone = tz, progressor = null
 					)
 				)

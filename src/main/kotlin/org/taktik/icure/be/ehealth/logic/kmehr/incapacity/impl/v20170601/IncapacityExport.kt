@@ -46,6 +46,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
 import org.taktik.icure.be.ehealth.logic.kmehr.v20170601.KmehrExport
+import org.taktik.icure.domain.be.kmehr.IncapacityExportInfo
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Address
@@ -54,7 +55,6 @@ import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
 
-@Suppress("UNNECESSARY_SAFE_CALL")
 @org.springframework.stereotype.Service
 class IncapacityExport(
 	patientLogic: PatientLogic,
@@ -68,75 +68,12 @@ class IncapacityExport(
 	filters: org.taktik.icure.asynclogic.impl.filter.Filters,
 	val serviceMapper: ServiceMapper
 ) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
-	data class IncapacityDetail(
-		val incapacityId: String,
-		val notificationDate: Long,
-		val retraction: Boolean,
-		val dataset: String, //will not use for now, front-end will decide what is sent
-		val transactionType: String,
-		val incapacityreason: String,
-		val beginmoment: Long,
-		val endmoment: Long,
-		val outofhomeallowed: Boolean,
-		val incapWork: Boolean,
-		val incapSchool: Boolean,
-		val incapSwim: Boolean,
-		val incapSchoolsports: Boolean,
-		val incapHeavyphysicalactivity: Boolean,
-		val diagnoseServices: List<Service>,
-		val jobstatus: String, //values of CD-EMPLOYMENTSITUATION --> patient.profession.cd
-		val job: String,
-		val occupationalDiseaseDeclDate: Long,
-		val accidentDate: Long,
-		val expectedbirthgivingDate: Long,
-		val maternityleaveBegin: Long,
-		val maternityleaveEnd: Long, //will not be used (yet)
-		val hospitalisationBegin: Long,
-		val hospitalisationEnd: Long,
-		val hospital: HealthcareParty?,
-		val contactPersonTel: String,
-		val recoveryAddress: Address?,
-		val foreignStayBegin: Long,
-		val foreignStayEnd: Long
-	)
-
-
 	fun exportIncapacity(
 		patient: Patient,
 		sfks: List<String>,
 		sender: HealthcareParty,
 		language: String,
-		recipient: HealthcareParty?,
-		comment: String?,
-		incapacityId: String,
-		notificationDate: Long,
-		retraction: Boolean,
-		dataset: String,
-		transactionType: String,
-		incapacityreason: String,
-		beginmoment: Long,
-		endmoment: Long,
-		outofhomeallowed: Boolean,
-		incapWork: Boolean,
-		incapSchool: Boolean,
-		incapSwim: Boolean,
-		incapSchoolsports: Boolean,
-		incapHeavyphysicalactivity: Boolean,
-		diagnoseServices: List<Service>,
-		jobstatus: String,
-		job: String,
-		occupationalDiseaseDeclDate: Long,
-		accidentDate: Long,
-		expectedbirthgivingDate: Long,
-		maternityleaveBegin: Long,
-		maternityleaveEnd: Long,
-		hospitalisationBegin: Long,
-		hospitalisationEnd: Long,
-		hospital: HealthcareParty?,
-		contactPersonTel: String,
-		recoveryAddress: Address?,
-		foreignStayBegin: Long,
-		foreignStayEnd: Long,
+		exportInfo: IncapacityExportInfo,
 		decryptor: AsyncDecrypt?,
 		progressor: AsyncProgress?,
 		config: Config = Config(
@@ -150,10 +87,10 @@ class IncapacityExport(
 	) = flow {
 		config.defaultLanguage = if (sender.languages.firstOrNull() == "nl") "nl-BE" else if (sender.languages.firstOrNull() == "de") "de-BE" else "fr-BE"
 		config.format = Config.Format.MULTEMEDIATT
-		val message = initializeMessage(sender, config, incapacityId)
-		if (recipient != null) {
+		val message = initializeMessage(sender, config, exportInfo.incapacityId)
+		if (exportInfo.recipient != null) {
 			message.header.recipients.add(
-				RecipientType().apply { hcparties.add(createParty(recipient, emptyList())) }
+				RecipientType().apply { hcparties.add(createParty(exportInfo.recipient, emptyList())) }
 			)
 		}
 
@@ -163,38 +100,7 @@ class IncapacityExport(
 			sender,
 			config,
 			language,
-			comment,
-			IncapacityDetail(
-				incapacityId = incapacityId,
-				notificationDate = notificationDate,
-				retraction = retraction,
-				dataset = dataset,
-				transactionType = transactionType,
-				incapacityreason = incapacityreason,
-				beginmoment = beginmoment,
-				endmoment = endmoment,
-				outofhomeallowed = outofhomeallowed,
-				incapWork = incapWork,
-				incapSchool = incapSchool,
-				incapSwim = incapSwim,
-				incapSchoolsports = incapSchoolsports,
-				incapHeavyphysicalactivity = incapHeavyphysicalactivity,
-				diagnoseServices = diagnoseServices,
-				jobstatus = jobstatus,
-				job = job,
-				occupationalDiseaseDeclDate = occupationalDiseaseDeclDate,
-				accidentDate = accidentDate,
-				expectedbirthgivingDate = expectedbirthgivingDate,
-				maternityleaveBegin = maternityleaveBegin,
-				maternityleaveEnd = maternityleaveEnd,
-				hospitalisationBegin = hospitalisationBegin,
-				hospitalisationEnd = hospitalisationEnd,
-				hospital = hospital,
-				contactPersonTel = contactPersonTel,
-				recoveryAddress = recoveryAddress,
-				foreignStayBegin = foreignStayBegin,
-				foreignStayEnd = foreignStayEnd
-			)
+			exportInfo,
 		)
 		emitMessage(message.apply { folders.add(folder) }).collect { emit(it) }
 	}
@@ -205,9 +111,8 @@ class IncapacityExport(
 		sender: HealthcareParty,
 		config: Config,
 		language: String,
-		comment: String?, //not needed (yet)
-		incapacityDetail: IncapacityDetail
-	) = with(incapacityDetail) {
+		exportInfo: IncapacityExportInfo
+	) = with(exportInfo) {
 		FolderType().apply {
 			ids.add(idKmehr(patientIndex))
 			this.patient = makePatient(patient, config)
@@ -290,7 +195,7 @@ class IncapacityExport(
 											if (incapSchoolsports) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("schoolsports") })
 											if (incapHeavyphysicalactivity) cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.fromValue("heavyphysicalactivity") })
 											this.incapacityreason = IncapacityreasonType().apply {
-												this.cd = CDINCAPACITYREASON().apply { value = CDINCAPACITYREASONvalues.fromValue(incapacityDetail.incapacityreason) }
+												this.cd = CDINCAPACITYREASON().apply { value = CDINCAPACITYREASONvalues.fromValue(exportInfo.incapacityreason) }
 											}
 											this.isOutofhomeallowed = outofhomeallowed
 										}
@@ -311,8 +216,8 @@ class IncapacityExport(
 										}
 									)
 								}
-								this.beginmoment = Utils.makeDateTypeFromFuzzyLong(incapacityDetail.beginmoment)
-								this.endmoment = Utils.makeDateTypeFromFuzzyLong(incapacityDetail.endmoment)
+								this.beginmoment = Utils.makeDateTypeFromFuzzyLong(exportInfo.beginmoment)
+								this.endmoment = Utils.makeDateTypeFromFuzzyLong(exportInfo.endmoment)
 							}
 						)
 						val diagnosisServices = diagnoseServices.filter { it.tags.any { tag -> tag.id == "MS-INCAPACITYFIELD|diagnosis|1" } }
