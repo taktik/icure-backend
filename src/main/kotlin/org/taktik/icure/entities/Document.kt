@@ -146,9 +146,11 @@ data class Document(
 		"externalUuid" to (this.externalUuid ?: other.externalUuid),
 		"attachmentId" to (this.attachmentId ?: other.attachmentId),
 		"attachment" to (
-			this.attachment?.let { if (it.size >= other.attachment?.size ?: 0) it else other.attachment }
-				?: other.attachment
-			)
+			this.attachment?.let {
+				// Condition solves bug where replicated attachments may be corrupted, and corrupted is always smaller.
+				if (it.size >= (other.attachment?.size ?: 0)) it else other.attachment
+			} ?: other.attachment
+		)
 	)
 
 	fun decryptAttachment(enckeys: List<String?>?): ByteArray? {

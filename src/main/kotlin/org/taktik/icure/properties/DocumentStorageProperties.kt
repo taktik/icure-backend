@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component
 class DocumentStorageProperties {
     var cacheLocation: String = ""
     var icureCloudUrl: String = ""
-    var useObjectStorage: Boolean = true
     var backlogToObjectStorage: Boolean = true
     var sizeLimit: Long = 2_000_000
 }

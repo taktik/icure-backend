@@ -71,7 +71,7 @@ class DocumentDAOImpl(
 			if (document.attachment != null) {
 				val newAttachmentId = DigestUtils.sha256Hex(document.attachment)
 				if (documentStorageProperties.sizeLimit <= (document.size ?: 0)) {
-					documentCacheService.store(newAttachmentId, document.attachment)
+					documentCacheService.store(document.id, newAttachmentId, document.attachment)
 					document.copy(objectStoreReference = newAttachmentId)
 				} else {
 					embedAttachmentInCouchdbDatabase(newAttachmentId, document)
@@ -83,7 +83,7 @@ class DocumentDAOImpl(
 					isAttachmentDirty = false
 				)
 			} else if (document.objectStoreReference != null && document.rev != null) {
-				icureCloudStorage.deleteAttachment(document.id)
+				icureCloudStorage.deleteAttachment(documentId = document.id, attachmentId = document.objectStoreReference)
 				document.copy(objectStoreReference = null)
 			} else document
 		}
@@ -121,8 +121,8 @@ class DocumentDAOImpl(
 					)
 				}
 			} else if (document.objectStoreReference != null) {
-				documentCacheService.read(document.objectStoreReference)?.let { attachment ->
-					icureCloudStorage.storeAttachment(document.id, attachment)
+				documentCacheService.read(document.id, document.objectStoreReference)?.let { attachment ->
+					icureCloudStorage.storeAttachment(document.id, document.objectStoreReference, attachment)
 				} ?: kotlin.run {
 					log.error("Could not read from local cache: ${document.objectStoreReference}.")
 				}
@@ -143,14 +143,19 @@ class DocumentDAOImpl(
 					}
 					if (documentStorageProperties.backlogToObjectStorage && documentStorageProperties.sizeLimit < attachment.size) {
 						// If the object was not using object storage but should migrate to object storage
+						/* TODO ensure consistency and usability:
+						 *  1. I shouldn't actually remove the attachment from the couchdb until it is available in cloud
+						 *  2. When the attachment is in the cloud wait a bit before actually updating this, otherwise we give the user a version of a document which will
+						 *     soon be made obsolete and they will have the update unexpectedly denied
+						 */
 						val doc = document.copy(
 							objectStoreReference = document.attachmentId,
 							attachmentId = null,
 							attachments = document.attachments?.let { it - document.attachmentId } ?: emptyMap()
 						)
 						save(doc)
-						documentCacheService.store(document.attachmentId, attachment)
-						icureCloudStorage.storeAttachment(document.id, attachment)
+						documentCacheService.store(document.id, document.attachmentId, attachment)
+						icureCloudStorage.storeAttachment(document.id, document.attachmentId, attachment)
 						doc
 					} else {
 						document.copy(attachment = attachment)
@@ -159,8 +164,9 @@ class DocumentDAOImpl(
 					document //Could not load
 				}
 			} else if (document.objectStoreReference != null) {
-				(documentCacheService.read(document.objectStoreReference)
-					?: icureCloudStorage.readAttachment(document.id, document.objectStoreReference).also { documentCacheService.store(document.objectStoreReference, it) })
+				(documentCacheService.read(document.id, document.objectStoreReference)
+					?: icureCloudStorage.readAttachment(document.id, document.objectStoreReference)
+						.also { documentCacheService.store(document.id, document.objectStoreReference, it) })
 					.let {
 						document.copy(attachment = DataBufferUtils.join(it.asPublisher()).awaitFirst().asByteBuffer().array())
 					}
