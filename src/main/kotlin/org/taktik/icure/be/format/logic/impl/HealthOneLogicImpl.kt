@@ -86,22 +86,22 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 	@Throws(IOException::class)
 	fun parseReportsAndLabs(language: String, protocols: List<String?>, r: Reader): List<LaboLine> {
 		val result: MutableList<LaboLine> = LinkedList()
-		var line: String
+		var line: String? = null
 		val reader = BufferedReader(r)
 		var ll: LaboLine? = null
 		var position: Long = 0
-		while (reader.readLine().also { line = it } != null && position < 10000000L /* ultimate safeguard */) {
+		while ((reader.readLine()?.also { line = it }) != null && position < 10000000L /* ultimate safeguard */) {
 			position++
-			if (isLaboLine(line)) {
+			if (isLaboLine(line!!)) {
 				ll?.let { createServices(it, language, position) }
-				ll = getLaboLine(line)
+				ll = getLaboLine(line!!)
 				if (protocols.contains(ll.resultReference) || protocols.size == 1 && protocols[0] != null && protocols[0]!!.startsWith("***")) {
 					result.add(ll)
 				} else {
 					ll = null
 				}
-			} else if (ll != null && isLaboResultLine(line)) {
-				val lrl = getLaboResultLine(line, ll)
+			} else if (ll != null && isLaboResultLine(line!!)) {
+				val lrl = getLaboResultLine(line!!, ll)
 				if (lrl != null) {
 					ll.isResultLabResult = true
 					if (ll.labosList.size > 0 && !(lrl.analysisCode == ll.labosList[0]!!.analysisCode && lrl.analysisType == ll.labosList[0]!!.analysisType)) {
@@ -109,8 +109,8 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 					}
 					ll.labosList.add(lrl)
 				}
-			} else if (ll != null && isProtocolLine(line)) {
-				val pl = getProtocolLine(line)
+			} else if (ll != null && isProtocolLine(line!!)) {
+				val pl = getProtocolLine(line!!)
 				if (pl != null) { // Less than 20 lines ... If the codes are different,
 // We probably have a bad header... Just concatenate
 					if (ll.protoList.size > 20 && pl.code != ll.protoList[ll.protoList.size - 1]!!.code) {
@@ -118,10 +118,10 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 					}
 					ll.protoList.add(pl)
 				}
-			} else if (ll != null && isResultsInfosLine(line)) {
-				ll.ril = getResultsInfosLine(line)
-			} else if (ll != null && isPatientAddressLine(line)) {
-				ll.pal = getPatientAddressLine(line)
+			} else if (ll != null && isResultsInfosLine(line!!)) {
+				ll.ril = getResultsInfosLine(line!!)
+			} else if (ll != null && isPatientAddressLine(line!!)) {
+				ll.pal = getPatientAddressLine(line!!)
 			}
 		}
 		ll?.let { createServices(it, language, position) }
@@ -195,7 +195,8 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 
 	protected fun addLaboResult(lrl: LaboResultLine, language: String, position: Long, ril: ResultsInfosLine, comment: String?): MutableList<org.taktik.icure.entities.embed.Service> {
 		val result: MutableList<org.taktik.icure.entities.embed.Service> = ArrayList()
-		val d = tryToGetValueAsNumber(lrl.value)
+		val laboResultLineValue = lrl.value!!.replace("<".toRegex(), "").replace(">".toRegex(), "")
+		val d = tryToGetValueAsNumber(laboResultLineValue)
 		if (d != null) { //We import as a Measure
 			result.add(importNumericLaboResult(language, d, lrl, position, ril, comment))
 		} else {
@@ -242,8 +243,9 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 						min = r?.minValue,
 						max = r?.maxValue,
 						severity = if (severity?.isNotEmpty() == true) 1 else null,
-						severityCode = severity
-					)
+						severityCode = severity,
+                        sign = lrl?.sign?.let{ if(!it.isBlank()) it else null }
+                    )
 				)
 			),
 			label = lrl.analysisType ?: "",
@@ -485,63 +487,64 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
 		return pl
 	}
 
-	protected fun getLaboResultLine(line: String, ll: LaboLine): LaboResultLine? {
-		return try {
-			val parts = splitLine(line)
-			val lrl = LaboResultLine()
-			lrl.value = ""
-			lrl.severity = lrl.value
-			lrl.unit = lrl.severity
-			lrl.referenceValues = lrl.unit
-			lrl.analysisType = lrl.referenceValues
-			lrl.analysisCode = lrl.analysisType
-			lrl.protocol = lrl.analysisCode
-			if (parts.size > 1) {
-				lrl.protocol = parts[1].trim { it <= ' ' }
-			}
-			if (parts.size > 2) {
-				lrl.analysisCode = parts[2].trim { it <= ' ' }
-			}
-			if (parts.size > 3) {
-				lrl.analysisType = parts[3].trim { it <= ' ' }
-			}
-			if (!line.startsWith("L1")) {
-				if (parts.size > 5) {
-					lrl.referenceValues = parts[4].trim { it <= ' ' } + " - " + parts[5].trim { it <= ' ' }
-				}
-				if (parts.size > 6) {
-					lrl.unit = parts[6].trim { it <= ' ' }
-				}
-				lrl.severity = ""
-			} else {
-				if (lrl.analysisType!!.length == 0 && ll.labosList.size > 0 && ll.labosList[ll.labosList.size - 1]!!.analysisCode != null && ll.labosList[ll.labosList.size - 1]!!.analysisCode == lrl.analysisCode) {
-					lrl.analysisType = ll.labosList[ll.labosList.size - 1]!!.analysisType
-					lrl.value = parts[4].trim { it <= ' ' }
-				} else {
-					if (parts.size > 4) {
-						lrl.referenceValues = parts[4].trim { it <= ' ' }
-					}
-					if (parts.size > 5) {
-						lrl.unit = parts[5].trim { it <= ' ' }
-					}
-					if (parts.size > 6) {
-						lrl.severity = parts[6].trim { it <= ' ' }
-					}
-				}
-			}
-			if (lrl.value == "" && parts.size > 7) {
-				lrl.value = parts[7].trim { it <= ' ' }
-			}
-			if (lrl.analysisType == null || lrl.analysisType == "") {
-				lrl.analysisType = "untitled"
-			}
-			lrl
-		} catch (e: Exception) {
-			println("------------Line = $line")
-			e.printStackTrace()
-			null
-		}
-	}
+    protected fun getLaboResultLine(line: String, ll: LaboLine): LaboResultLine? {
+        return try {
+            val parts = splitLine(line)
+            val lrl = LaboResultLine()
+            lrl.value = ""
+            lrl.severity = lrl.value
+            lrl.unit = lrl.severity
+            lrl.referenceValues = lrl.unit
+            lrl.analysisType = lrl.referenceValues
+            lrl.analysisCode = lrl.analysisType
+            lrl.protocol = lrl.analysisCode
+            if (parts.size > 1) {
+                lrl.protocol = parts[1].trim { it <= ' ' }
+            }
+            if (parts.size > 2) {
+                lrl.analysisCode = parts[2].trim { it <= ' ' }
+            }
+            if (parts.size > 3) {
+                lrl.analysisType = parts[3].trim { it <= ' ' }
+            }
+            if (!line.startsWith("L1")) {
+                if (parts.size > 5) {
+                    lrl.referenceValues = parts[4].trim { it <= ' ' } + " - " + parts[5].trim { it <= ' ' }
+                }
+                if (parts.size > 6) {
+                    lrl.unit = parts[6].trim { it <= ' ' }
+                }
+                lrl.severity = ""
+            } else {
+                if (lrl.analysisType!!.length == 0 && ll.labosList.size > 0 && ll.labosList[ll.labosList.size - 1]!!.analysisCode != null && ll.labosList[ll.labosList.size - 1]!!.analysisCode == lrl.analysisCode) {
+                    lrl.analysisType = ll.labosList[ll.labosList.size - 1]!!.analysisType
+                    lrl.value = parts[4].trim { it <= ' ' }
+                } else {
+                    if (parts.size > 4) {
+                        lrl.referenceValues = parts[4].trim { it <= ' ' }
+                    }
+                    if (parts.size > 5) {
+                        lrl.unit = parts[5].trim { it <= ' ' }
+                    }
+                    if (parts.size > 6) {
+                        lrl.severity = parts[6].trim { it <= ' ' }
+                    }
+                }
+            }
+            if (lrl.value == "" && parts.size > 7) {
+                lrl.value = parts[7].trim { it <= ' ' }
+                lrl.sign = parts[7].trim().let { if (it.startsWith("<") || it.startsWith(">")) it.substring(0, 1) else null }
+            }
+            if (lrl.analysisType == null || lrl.analysisType == "") {
+                lrl.analysisType = "untitled"
+            }
+            lrl
+        } catch (e: Exception) {
+            println("------------Line = $line")
+            e.printStackTrace()
+            null
+        }
+    }
 
 	protected fun getProtocolLine(line: String): ProtocolLine? {
 		return try {

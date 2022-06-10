@@ -68,6 +68,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.mapper.HealthElementMapper
 import org.taktik.icure.services.external.rest.v1.mapper.HealthcarePartyMapper
+import org.taktik.icure.services.external.rest.v1.mapper.be.kmehr.IncapacityExportInfoMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.AddressMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.ImportResultMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.PartnershipMapper
@@ -98,7 +99,8 @@ class KmehrController(
 	val patientHealthCarePartyMapper: PatientHealthCarePartyMapper,
 	val addressMapper: AddressMapper,
 	val partnershipMapper: PartnershipMapper,
-	val importResultMapper: ImportResultMapper
+	val importResultMapper: ImportResultMapper,
+	val incapacityExportInfoMapper: IncapacityExportInfoMapper,
 ) {
 	@Value("\${icure.version}")
 	internal val ICUREVERSION: String = "4.0.0"
@@ -138,30 +140,32 @@ class KmehrController(
 		@RequestParam language: String,
 		@RequestBody info: SumehrExportInfoDto,
 		response: ServerHttpResponse
-	) = mono {
+	) = flow {
 		patientLogic.getPatient(patientId)?.let {
 			healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { hcp ->
-				sumehrLogicV1.createSumehr(
-					it,
-					info.secretForeignKeys,
-					hcp,
-					healthcarePartyMapper.map(info.recipient!!),
-					language,
-					info.comment,
-					info.excludedIds,
-					info.includeIrrelevantInformation
-						?: false,
-					null,
-					mapServices(info.services),
-					mapHealthElements(info.healthElements),
-					Config(
-						_kmehrId = System.currentTimeMillis().toString(),
-						date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
-						time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-						soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
-						clinicalSummaryType = "",
-						defaultLanguage = "en",
-						format = Config.Format.SUMEHR
+				emitAll(
+					sumehrLogicV1.createSumehr(
+						it,
+						info.secretForeignKeys,
+						hcp,
+						healthcarePartyMapper.map(info.recipient!!),
+						language,
+						info.comment,
+						info.excludedIds,
+						info.includeIrrelevantInformation
+							?: false,
+						null,
+						mapServices(info.services),
+						mapHealthElements(info.healthElements),
+						Config(
+							_kmehrId = System.currentTimeMillis().toString(),
+							date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
+							time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+							soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
+							clinicalSummaryType = "",
+							defaultLanguage = "en",
+							format = Config.Format.SUMEHR
+						)
 					)
 				)
 			}
@@ -259,30 +263,32 @@ class KmehrController(
 		@RequestParam language: String,
 		@RequestBody info: SumehrExportInfoDto,
 		response: ServerHttpResponse
-	) = mono {
+	) = flow {
 		patientLogic.getPatient(patientId)?.let {
 			healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { hcp ->
-				sumehrLogicV2.createSumehr(
-					it,
-					info.secretForeignKeys,
-					hcp,
-					healthcarePartyMapper.map(info.recipient!!),
-					language,
-					info.comment,
-					info.excludedIds,
-					info.includeIrrelevantInformation
-						?: false,
-					null,
-					mapServices(info.services),
-					mapHealthElements(info.healthElements),
-					Config(
-						_kmehrId = System.currentTimeMillis().toString(),
-						date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
-						time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-						soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
-						clinicalSummaryType = "",
-						defaultLanguage = "en",
-						format = Config.Format.SUMEHR
+				emitAll(
+					sumehrLogicV2.createSumehr(
+						it,
+						info.secretForeignKeys,
+						hcp,
+						healthcarePartyMapper.map(info.recipient!!),
+						language,
+						info.comment,
+						info.excludedIds,
+						info.includeIrrelevantInformation
+							?: false,
+						null,
+						mapServices(info.services),
+						mapHealthElements(info.healthElements),
+						Config(
+							_kmehrId = System.currentTimeMillis().toString(),
+							date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
+							time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+							soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
+							clinicalSummaryType = "",
+							defaultLanguage = "en",
+							format = Config.Format.SUMEHR
+						)
 					)
 				)
 			}
@@ -469,37 +475,7 @@ class KmehrController(
 						patient = patient,
 						sender = userHealthCareParty,
 						language = language,
-						recipient = incapacityExportParams.recipient?.let { it1 -> healthcarePartyMapper.map(it1) },
-						comment = incapacityExportParams.comment,
-						incapacityId = incapacityExportParams.incapacityId,
-						notificationDate = incapacityExportParams.notificationDate,
-						retraction = incapacityExportParams.retraction,
-						dataset = incapacityExportParams.dataset,
-						transactionType = incapacityExportParams.transactionType,
-						incapacityreason = incapacityExportParams.incapacityreason,
-						beginmoment = incapacityExportParams.beginmoment,
-						endmoment = incapacityExportParams.endmoment,
-						outofhomeallowed = incapacityExportParams.outofhomeallowed,
-						incapWork = incapacityExportParams.incapWork,
-						incapSchool = incapacityExportParams.incapSchool,
-						incapSwim = incapacityExportParams.incapSwim,
-						incapSchoolsports = incapacityExportParams.incapSchoolsports,
-						incapHeavyphysicalactivity = incapacityExportParams.incapHeavyphysicalactivity,
-						diagnoseServices = incapacityExportParams.diagnoseServices.map { s -> serviceMapper.map(s) },
-						jobstatus = incapacityExportParams.jobstatus,
-						job = incapacityExportParams.job,
-						occupationalDiseaseDeclDate = incapacityExportParams.occupationalDiseaseDeclDate,
-						accidentDate = incapacityExportParams.accidentDate,
-						expectedbirthgivingDate = incapacityExportParams.expectedbirthgivingDate,
-						maternityleaveBegin = incapacityExportParams.maternityleaveBegin,
-						maternityleaveEnd = incapacityExportParams.maternityleaveEnd,
-						hospitalisationBegin = incapacityExportParams.hospitalisationBegin,
-						hospitalisationEnd = incapacityExportParams.hospitalisationEnd,
-						hospital = incapacityExportParams.hospital?.let { it1 -> healthcarePartyMapper.map(it1) },
-						contactPersonTel = incapacityExportParams.contactPersonTel,
-						recoveryAddress = incapacityExportParams.recoveryAddress?.let { it1 -> addressMapper.map(it1) },
-						foreignStayBegin = incapacityExportParams.foreignStayBegin,
-						foreignStayEnd = incapacityExportParams.foreignStayEnd,
+						exportInfo = incapacityExportInfoMapper.map(incapacityExportParams),
 						timeZone = tz, progressor = null
 					)
 				)

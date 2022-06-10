@@ -160,7 +160,7 @@ dependencies {
     implementation(group = "org.mapstruct", name = "mapstruct", version = "1.3.1.Final")
 
     //Krouch
-    implementation(group = "org.taktik.couchdb", name = "krouch", version = "jack211-1.0.2-96-g9eff2f70a0")
+    implementation(group = "org.taktik.couchdb", name = "krouch", version = "jack211-1.0.2-103-gfebaca6a27")
     implementation(group = "io.icure", name = "async-jackson-http-client", version = "0.1.12-dd2039b194")
     implementation(group = "io.icure", name = "mapper-processor", version = "0.1.1-32d45af2a6")
 

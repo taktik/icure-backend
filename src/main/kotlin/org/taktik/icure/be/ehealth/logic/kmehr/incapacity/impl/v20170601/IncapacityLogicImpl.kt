@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.incapacity.IncapacityLogic
+import org.taktik.icure.domain.be.kmehr.IncapacityExportInfo
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Address
@@ -21,44 +22,12 @@ class IncapacityLogicImpl(val incapacityExport: IncapacityExport) : IncapacityLo
 		patient: Patient,
 		sender: HealthcareParty,
 		language: String,
-		recipient: HealthcareParty?,
-		comment: String?,
-		incapacityId: String,
-		notificationDate: Long,
-		retraction: Boolean,
-		dataset: String,
-		transactionType: String,
-		incapacityreason: String,
-		beginmoment: Long,
-		endmoment: Long,
-		outofhomeallowed: Boolean,
-		incapWork: Boolean,
-		incapSchool: Boolean,
-		incapSwim: Boolean,
-		incapSchoolsports: Boolean,
-		incapHeavyphysicalactivity: Boolean,
-		diagnoseServices: List<org.taktik.icure.entities.embed.Service>,
-		jobstatus: String,
-		job: String,
-		occupationalDiseaseDeclDate: Long,
-		accidentDate: Long,
-		expectedbirthgivingDate: Long,
-		maternityleaveBegin: Long,
-		maternityleaveEnd: Long,
-		hospitalisationBegin: Long,
-		hospitalisationEnd: Long,
-		hospital: HealthcareParty?,
-		contactPersonTel: String,
-		recoveryAddress: Address?,
-		foreignStayBegin: Long,
-		foreignStayEnd: Long,
+		exportInfo: IncapacityExportInfo,
 		timeZone: String?,
 		progressor: AsyncProgress?
 	) =
 		incapacityExport.exportIncapacity(
-			patient, listOf(), sender, language, recipient, comment, incapacityId, notificationDate, retraction, dataset, transactionType, incapacityreason, beginmoment, endmoment, outofhomeallowed,
-			incapWork, incapSchool, incapSwim, incapSchoolsports, incapHeavyphysicalactivity, diagnoseServices, jobstatus, job, occupationalDiseaseDeclDate, accidentDate, expectedbirthgivingDate, maternityleaveBegin, maternityleaveEnd,
-			hospitalisationBegin, hospitalisationEnd, hospital, contactPersonTel, recoveryAddress, foreignStayBegin, foreignStayEnd, null, progressor,
+			patient, listOf(), sender, language, exportInfo, null, progressor,
 			Config(
 				_kmehrId = System.currentTimeMillis().toString(),
 				date = Utils.makeXGC(Instant.now().toEpochMilli(), unsetMillis = false, setTimeZone = false, timeZone = timeZone ?: "Europe/Brussels")!!,

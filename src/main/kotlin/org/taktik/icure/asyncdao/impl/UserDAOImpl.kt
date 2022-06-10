@@ -154,6 +154,13 @@ class UserDAOImpl(
 		emitAll(client.queryViewIncludeDocsNoValue<String, User>(createQuery(client, "by_hcp_id").key(hcPartyId).includeDocs(true)).map { it.doc })
 	}
 
+	@View(name = "by_patient_id", map = "classpath:js/user/by_patient_id.js")
+	override fun listUsersByPatientId(patientId: String): Flow<User> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+
+		emitAll(client.queryViewIncludeDocsNoValue<String, User>(createQuery(client, "by_patient_id").key(patientId).includeDocs(true)).map { it.doc })
+	}
+
 	@View(name = "by_name_email_phone", map = "classpath:js/user/By_name_email_phone.js")
 	override fun listUserIdsByNameEmailPhone(searchString: String): Flow<String> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)

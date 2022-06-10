@@ -171,6 +171,12 @@ open class KmehrExport(
 
 	suspend fun createParty(m: HealthcareParty, cds: List<CDHCPARTY>? = listOf()): HcpartyType {
 		return HcpartyType().apply {
+			if (!m.ehp.isNullOrBlank()) {
+				m.ehp.let { ehp -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_EHP; sv = "1.0"; value = ehp }) }
+			}
+			if (!m.cbe.isNullOrBlank()) {
+				m.cbe.let { cbe -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_CBE; sv = "1.0"; value = cbe }) }
+			}
 			if (!m.nihii.isNullOrBlank()) {
 				m.nihii.let { nihii -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; sv = "1.0"; value = nihii }) }
 			}
