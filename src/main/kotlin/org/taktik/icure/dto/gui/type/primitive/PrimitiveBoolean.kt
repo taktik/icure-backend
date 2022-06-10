@@ -21,12 +21,11 @@ import java.io.Serializable
 import java.util.*
 
 class PrimitiveBoolean(val value: Boolean? = null) : Primitive {
-    override fun getPrimitiveValue(): Serializable? {
-        return value
-    }
+	override fun getPrimitiveValue(): Serializable? {
+		return value
+	}
 
-    companion object {
-        var positiveValues = Arrays.asList("yes", "ja", "oui", "si", "yo", "ok")
-    }
+	companion object {
+		var positiveValues = Arrays.asList("yes", "ja", "oui", "si", "yo", "ok")
+	}
 }
-

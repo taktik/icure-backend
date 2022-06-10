@@ -20,14 +20,11 @@ package org.taktik.icure.services.external.rest.v1.mapper.be.kmehr
 
 import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
-import org.mapstruct.Mapping
 import org.mapstruct.Mappings
 import org.taktik.icure.domain.be.kmehr.IncapacityExportInfo
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.IncapacityExportInfoDto
 import org.taktik.icure.services.external.rest.v1.mapper.HealthcarePartyMapper
-import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.AddressMapper
-import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
 
 @Mapper(componentModel = "spring", uses = [HealthcarePartyMapper::class, AddressMapper::class, ServiceMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)

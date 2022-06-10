@@ -20,4 +20,3 @@ package org.taktik.icure.dto.gui.type
 import java.io.Serializable
 
 class MenuOption(val key: String? = null, val display: String? = null) : Serializable, Data
-

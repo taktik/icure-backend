@@ -1,7 +1,6 @@
 package org.taktik.icure.domain.be.kmehr
 
 import java.io.Serializable
-
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.embed.Address

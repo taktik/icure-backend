@@ -21,7 +21,6 @@ package org.taktik.icure.services.external.rest.v2.mapper.samv2.embed
 import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.samv2.embed.Commercialization
-import org.taktik.icure.services.external.rest.v1.mapper.samv2.embed.SamTextMapper
 import org.taktik.icure.services.external.rest.v2.dto.samv2.embed.CommercializationDto
 
 @Mapper(componentModel = "spring", uses = [SamTextV2Mapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)

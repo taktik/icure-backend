@@ -49,7 +49,6 @@ import org.taktik.icure.be.ehealth.logic.kmehr.v20170601.KmehrExport
 import org.taktik.icure.domain.be.kmehr.IncapacityExportInfo
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
-import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
@@ -126,21 +125,21 @@ class IncapacityExport(
 				this.patient.profession.cds.add(CDEMPLOYMENTSITUATION().apply { value = CDEMPLOYMENTSITUATIONvalues.fromValue(jobstatus) })
 			}
 			if (dataset == "c" || diagnoseServices.isEmpty()) {
-				this.patient.profession = null;
-				this.patient.telecoms.clear();
+				this.patient.profession = null
+				this.patient.telecoms.clear()
 			} else if (!job.isNullOrBlank()) {
-				if(this.patient.profession == null){
+				if (this.patient.profession == null) {
 					this.patient.profession = ProfessionType()
 				}
 				this.patient.profession.text = TextType().apply {
 					this.l = language
-					this.value = job;
+					this.value = job
 				}
 			}
-			this.patient.birthlocation = null;
-			this.patient.deathlocation = null;
+			this.patient.birthlocation = null
+			this.patient.deathlocation = null
 			if (diagnoseServices.isEmpty()) {
-				this.patient.telecoms.clear();
+				this.patient.telecoms.clear()
 			}
 		}.also { folder ->
 			var itemsIdx = 1

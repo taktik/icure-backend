@@ -38,5 +38,5 @@ data class MeasureDto(
 	val unitCodes: Set<CodeStubDto>? = null,
 	val comment: String? = null,
 	val comparator: String? = null,
-    val sign: String? = null
+	val sign: String? = null
 ) : Serializable

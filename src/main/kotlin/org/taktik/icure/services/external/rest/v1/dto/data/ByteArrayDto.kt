@@ -20,4 +20,3 @@ package org.taktik.icure.services.external.rest.v1.dto.data
 import java.io.Serializable
 
 class ByteArrayDto(val data: ByteArray) : Serializable
-

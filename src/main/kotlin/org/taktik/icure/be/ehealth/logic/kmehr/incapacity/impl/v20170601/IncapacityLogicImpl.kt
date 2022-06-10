@@ -9,7 +9,6 @@ import org.taktik.icure.be.ehealth.logic.kmehr.incapacity.IncapacityLogic
 import org.taktik.icure.domain.be.kmehr.IncapacityExportInfo
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
-import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 
 @Service
