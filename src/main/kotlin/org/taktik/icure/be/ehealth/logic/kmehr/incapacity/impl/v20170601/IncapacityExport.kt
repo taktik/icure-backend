@@ -245,9 +245,17 @@ class IncapacityExport(
 										ContentType().apply {
 											cds.addAll(
 												codes.map { cd ->
-													CDCONTENT().apply { s(if (cd.type == "ICD") CDCONTENTschemes.ICD else (if (cd.type == "ICPC") CDCONTENTschemes.ICPC else CDCONTENTschemes.CD_SNOMED)); value = cd.code }
+													val version = cd.version;
+													val type = cd.type
+													val cdt = CDCONTENTschemes.fromValue(if(type == "SNOMED") "CD-SNOMED" else type)
+													CDCONTENT().apply { s(cdt); sv = version; value = cd.code }
+													//CDCONTENT().apply { s(if (cd.type == "ICD") CDCONTENTschemes.ICD else (if (cd.type == "ICPC") CDCONTENTschemes.ICPC else CDCONTENTschemes.CD_SNOMED)); value = cd.code }
 												}
 											)
+										}
+									)
+									contents.add(
+										ContentType().apply {
 											val descr_fr = svc.content?.get("descr_fr")?.stringValue
 											val descr_nl = svc.content?.get("descr_nl")?.stringValue
 											val descr = svc.content?.get("descr")?.stringValue
