@@ -18,4 +18,14 @@ public class ApplicationSettingsLogicImpl extends GenericLogicImpl<ApplicationSe
 
     @Autowired
     public void setApplicationSettingsDAO(ApplicationSettingsDAO dao) { this.applicationSettingsDAO = dao; }
+
+    @Override
+    public ApplicationSettings modifyApplicationSettings(ApplicationSettings applicationSettings) {
+        return applicationSettingsDAO.save(applicationSettings);
+    }
+
+    @Override
+    public ApplicationSettings createApplicationSettings(ApplicationSettings applicationSettings) {
+        return applicationSettingsDAO.create(applicationSettings);
+    }
 }

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.entities.ApplicationSettings;
 import org.taktik.icure.logic.ApplicationSettingsLogic;
+import org.taktik.icure.services.external.rest.v1.dto.AccessLogDto;
 import org.taktik.icure.services.external.rest.v1.dto.ApplicationSettingsDto;
 import org.taktik.icure.utils.ResponseUtils;
 
@@ -61,6 +62,41 @@ public class ApplicationSettingsFacade implements OpenApiFacade {
     Response exceptionHandler(Exception e) {
         logger.error(e.getMessage(), e);
         return ResponseUtils.internalServerError(e.getMessage());
+    }
+
+    @ApiOperation(response = ApplicationSettingsDto.class, value = "Create an application settings")
+    @POST
+    public Response createApplicationSettings(ApplicationSettingsDto applicationSettingsDto){
+        Response response;
+        if(applicationSettingsDto == null){
+            response = ResponseUtils.badRequest("Cannot create application settings: supplied application settings is null");
+        }else{
+            ApplicationSettings applicationSettings = applicationSettingsLogic.createApplicationSettings(mapper.map(applicationSettingsDto, ApplicationSettings.class));
+            if(applicationSettings != null){
+                response = ResponseUtils.ok(mapper.map(applicationSettingsDto, ApplicationSettingsDto.class));
+            }else{
+                response = ResponseUtils.internalServerError("Cannot create application settings");
+            }
+        }
+
+        return response;
+    }
+
+    @ApiOperation(response = ApplicationSettingsDto.class, value = "Update an application settings")
+    @POST
+    public Response updateApplicationSettings(ApplicationSettingsDto applicationSettingsDto){
+        Response response;
+        if(applicationSettingsDto == null){
+            response = ResponseUtils.badRequest("Cannot update application settings: supplied application settings is null");
+        }else{
+            ApplicationSettings applicationSettings = applicationSettingsLogic.modifyApplicationSettings(mapper.map(applicationSettingsDto, ApplicationSettings.class));
+            if(applicationSettings != null){
+                response = ResponseUtils.ok(mapper.map(applicationSettingsDto, ApplicationSettingsDto.class));
+            }else{
+                response = ResponseUtils.internalServerError("Cannot update application settings");
+            }
+        }
+        return response;
     }
 }
 
