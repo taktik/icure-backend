@@ -83,7 +83,7 @@ public class ApplicationSettingsFacade implements OpenApiFacade {
     }
 
     @ApiOperation(response = ApplicationSettingsDto.class, value = "Update an application settings")
-    @POST
+    @PUT
     public Response updateApplicationSettings(ApplicationSettingsDto applicationSettingsDto){
         Response response;
         if(applicationSettingsDto == null){
