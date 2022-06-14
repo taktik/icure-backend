@@ -56,4 +56,11 @@ class ApplicationSettingsController(
 		val applicationSettings = applicationSettingsLogic.createApplicationSettings(applicationSettingsV2Mapper.map(applicationSettingsDto)) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ApplicationSettings creation failed")
 		applicationSettingsV2Mapper.map(applicationSettings)
 	}
+
+	@Operation(summary = "Update application settings")
+	@PostMapping
+	fun updateApplicationSettings(@RequestBody applicationSettingsDto: ApplicationSettingsDto) = mono {
+		val applicationSettings = applicationSettingsLogic.modifyApplicationSettings(applicationSettingsV2Mapper.map(applicationSettingsDto)) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ApplicationSettings modification failed")
+		applicationSettingsV2Mapper.map(applicationSettings)
+	}
 }
