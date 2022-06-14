@@ -241,19 +241,21 @@ class IncapacityExport(
 										snomedDesc = if (language == "fr") codes[0]?.label?.get("fr") else codes[0]?.label?.get("nl")
 									}
 
-									contents.add(
-										ContentType().apply {
-											cds.addAll(
-												codes.map { cd ->
-													val version = cd.version;
-													val type = cd.type
-													val cdt = CDCONTENTschemes.fromValue(if(type == "SNOMED") "CD-SNOMED" else type)
-													CDCONTENT().apply { s(cdt); sv = version; value = cd.code }
-													//CDCONTENT().apply { s(if (cd.type == "ICD") CDCONTENTschemes.ICD else (if (cd.type == "ICPC") CDCONTENTschemes.ICPC else CDCONTENTschemes.CD_SNOMED)); value = cd.code }
-												}
-											)
-										}
-									)
+									if(!codes.isEmpty()) {
+										contents.add(
+											ContentType().apply {
+												cds.addAll(
+													codes.map { cd ->
+														val version = cd.version;
+														val type = cd.type
+														val cdt = CDCONTENTschemes.fromValue(if (type == "SNOMED") "CD-SNOMED" else type)
+														CDCONTENT().apply { s(cdt); sv = version; value = cd.code }
+														//CDCONTENT().apply { s(if (cd.type == "ICD") CDCONTENTschemes.ICD else (if (cd.type == "ICPC") CDCONTENTschemes.ICPC else CDCONTENTschemes.CD_SNOMED)); value = cd.code }
+													}
+												)
+											}
+										)
+									}
 									contents.add(
 										ContentType().apply {
 											val descr_fr = svc.content?.get("descr_fr")?.stringValue
