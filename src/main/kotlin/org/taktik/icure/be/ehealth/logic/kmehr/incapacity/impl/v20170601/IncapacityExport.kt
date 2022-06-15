@@ -126,19 +126,24 @@ class IncapacityExport(
 				this.patient.profession.cds.add(CDEMPLOYMENTSITUATION().apply { value = CDEMPLOYMENTSITUATIONvalues.fromValue(jobstatus) })
 			}
 			if (dataset == "c" || diagnoseServices.isEmpty()) {
-				this.patient.profession = null;
-				this.patient.telecoms.clear();
+				this.patient.profession = null
+				this.patient.telecoms.clear()
 			} else if (!job.isNullOrBlank()) {
 				if(this.patient.profession == null){
 					this.patient.profession = ProfessionType()
 				}
 				this.patient.profession.text = TextType().apply {
 					this.l = language
-					this.value = job;
+					this.value = job
+				}
+			} else {
+				this.patient.profession!!.text = null
+				if(this.patient.profession!!.cds!!.size == 0){
+					this.patient.profession = null
 				}
 			}
-			this.patient.birthlocation = null;
-			this.patient.deathlocation = null;
+			this.patient.birthlocation = null
+			this.patient.deathlocation = null
 			if (diagnoseServices.isEmpty()) {
 				this.patient.telecoms.clear();
 			}
