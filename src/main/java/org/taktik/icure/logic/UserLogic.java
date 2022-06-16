@@ -134,7 +134,7 @@ public interface UserLogic extends EntityPersister<User, String>, PrincipalLogic
 
 	void userLogged(User user);
 
-	PaginatedList<User> listUsers(PaginationOffset pagination);
+	PaginatedList<User> listUsers(PaginationOffset pagination, Boolean skipPatient);
 
 	User setProperties(User user, List<Property> properties);
 
