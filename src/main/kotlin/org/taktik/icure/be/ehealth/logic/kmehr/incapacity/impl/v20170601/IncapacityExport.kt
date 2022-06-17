@@ -138,10 +138,10 @@ class IncapacityExport(
 				}
 			} else {
 				if(this.patient.profession != null) {
-					this.patient.profession!!.text = null
-				}
-				if(this.patient.profession!!.cds!!.size == 0){
-					this.patient.profession = null
+					this.patient.profession?.text = null
+					if(this.patient.profession?.cds?.size == 0){
+						this.patient.profession = null
+					}
 				}
 			}
 			this.patient.birthlocation = null
