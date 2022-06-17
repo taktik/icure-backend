@@ -25,6 +25,7 @@ import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -54,6 +55,13 @@ class ApplicationSettingsController(
 	@PostMapping
 	fun createApplicationSettings(@RequestBody applicationSettingsDto: ApplicationSettingsDto) = mono {
 		val applicationSettings = applicationSettingsLogic.createApplicationSettings(applicationSettingsV2Mapper.map(applicationSettingsDto)) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ApplicationSettings creation failed")
+		applicationSettingsV2Mapper.map(applicationSettings)
+	}
+
+	@Operation(summary = "Update application settings")
+	@PutMapping
+	fun updateApplicationSettings(@RequestBody applicationSettingsDto: ApplicationSettingsDto) = mono {
+		val applicationSettings = applicationSettingsLogic.modifyApplicationSettings(applicationSettingsV2Mapper.map(applicationSettingsDto)) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ApplicationSettings modification failed")
 		applicationSettingsV2Mapper.map(applicationSettings)
 	}
 }
