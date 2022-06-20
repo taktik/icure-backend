@@ -746,9 +746,11 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 		userPaginatedList
                 .setRows(userPaginatedList.getRows().stream()
                         .map(this::fillGroup)
-                        .filter(u -> !skipPatients || !Strings.isNullOrEmpty(u.getHealthcarePartyId()))
+                        .filter(u ->
+                                        !skipPatients ||
+                                        !Strings.isNullOrEmpty(u.getHealthcarePartyId()) ||
+                                        (Strings.isNullOrEmpty(u.getHealthcarePartyId()) && (Strings.isNullOrEmpty(u.getPatientId()))))
                         .collect(Collectors.toList()));
-
 		return userPaginatedList;
 	}
 
