@@ -125,12 +125,12 @@ public class UserFacade implements OpenApiFacade{
 			@ApiParam(value = "An user email", required = false) @QueryParam("startKey") String startKey,
 			@ApiParam(value = "An user document ID", required = false) @QueryParam("startDocumentId") String startDocumentId,
 			@ApiParam(value = "Number of rows", required = false) @QueryParam("limit") String limit,
-            @ApiParam(value = "Skip patients", required = false) @QueryParam("skipPatient") Boolean skipPatient
+            @ApiParam(value = "Skip patients", required = false) @QueryParam("skipPatients") Boolean skipPatients
     ) {
 
 		PaginationOffset paginationOffset = new PaginationOffset(startKey, startDocumentId, null, limit == null ? null : Integer.valueOf(limit));
 
-		PaginatedList<User> allUsers = userLogic.listUsers(paginationOffset, skipPatient == null || skipPatient);
+		PaginatedList<User> allUsers = userLogic.listUsers(paginationOffset, skipPatients == null || skipPatients);
 
 		boolean succeed = (allUsers != null);
 		if (succeed) {

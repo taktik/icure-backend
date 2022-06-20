@@ -740,13 +740,13 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	}
 
 	@Override
-	public PaginatedList<User> listUsers(PaginationOffset pagination, Boolean skipPatient) {
+	public PaginatedList<User> listUsers(PaginationOffset pagination, boolean skipPatients) {
 		PaginatedList<User> userPaginatedList = userDAO.listUsers(pagination);
 
 		userPaginatedList
                 .setRows(userPaginatedList.getRows().stream()
                         .map(this::fillGroup)
-                        .filter(u -> !skipPatient || !Strings.isNullOrEmpty(u.getHealthcarePartyId()))
+                        .filter(u -> !skipPatients || !Strings.isNullOrEmpty(u.getHealthcarePartyId()))
                         .collect(Collectors.toList()));
 
 		return userPaginatedList;
