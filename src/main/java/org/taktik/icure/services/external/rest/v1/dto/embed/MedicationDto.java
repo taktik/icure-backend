@@ -34,7 +34,7 @@ public class MedicationDto implements Serializable {
 	String batch;
 
 	String instructionForPatient;
-	InstructionForReimbursementDto instructionForReimbursement;
+	String instructionForReimbursement;
 	String commentForDelivery;
 	String drugRoute; //CD-DRUG-ROUTE
 	String temporality; //CD-TEMPORALITY : chronic, acute, oneshot
@@ -147,11 +147,11 @@ public class MedicationDto implements Serializable {
 		this.instructionForPatient = instructionForPatient;
 	}
 
-	public InstructionForReimbursementDto getInstructionForReimbursement() {
+	public String getInstructionForReimbursement() {
 		return instructionForReimbursement;
 	}
 
-	public void setInstructionForReimbursement(InstructionForReimbursementDto instructionForReimbursement) {
+	public void setInstructionForReimbursement(String instructionForReimbursement) {
 		this.instructionForReimbursement = instructionForReimbursement;
 	}
 
