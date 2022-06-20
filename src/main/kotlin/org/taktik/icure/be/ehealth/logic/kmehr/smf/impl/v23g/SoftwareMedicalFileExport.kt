@@ -321,7 +321,7 @@ class SoftwareMedicalFileExport(
 							time = makeXGC(0L)
 						}
 						(contact.responsible ?: healthcareParty.id).let {
-							author = AuthorType().apply { hcparties.add(healthcarePartyLogic.getHealthcareParty(it)?.let { hcp -> createParty(hcp, emptyList()) }) }
+							author = AuthorType().apply { hcparties.add(checkHcpAndCreateCorrespondingPartyType(it, emptyList())) }
 						}
 						isIscomplete = true
 						isIsvalidated = true
@@ -490,7 +490,7 @@ class SoftwareMedicalFileExport(
 						time = makeXGC(0L)
 					}
 					(svc.responsible ?: healthcareParty.id).let {
-						author = AuthorType().apply { hcparties.add(healthcarePartyLogic.getHealthcareParty(it)?.let { hcp -> createParty(hcp, emptyList()) }) }
+						author = AuthorType().apply { hcparties.add(checkHcpAndCreateCorrespondingPartyType(it, emptyList())) }
 					}
 					isIscomplete = true
 					isIsvalidated = true
@@ -565,7 +565,7 @@ class SoftwareMedicalFileExport(
 							time = makeXGC(0L)
 						}
 						(svc.responsible ?: healthcareParty.id).let {
-							author = AuthorType().apply { hcparties.add(healthcarePartyLogic.getHealthcareParty(it)?.let { hcp -> createParty(hcp, emptyList()) }) }
+							author = AuthorType().apply { hcparties.add(checkHcpAndCreateCorrespondingPartyType(it, emptyList())) }
 						}
 						isIscomplete = true
 						isIsvalidated = true
@@ -696,7 +696,7 @@ class SoftwareMedicalFileExport(
 				time = makeXGC(it)
 			}
 			service.responsible?.let {
-				author = AuthorType().apply { hcparties.add(healthcarePartyLogic.getHealthcareParty(it)?.let { hcp -> createParty(hcp, emptyList()) }) }
+				author = AuthorType().apply { hcparties.add(checkHcpAndCreateCorrespondingPartyType(it, emptyList())) }
 			}
 			service.created?.let {
 				recorddatetime = Utils.makeXGC(it)
@@ -823,7 +823,7 @@ class SoftwareMedicalFileExport(
 				time = makeXGC(it)
 			}
 			service.responsible?.let {
-				author = AuthorType().apply { hcparties.add(healthcarePartyLogic.getHealthcareParty(it)?.let { hcp -> createParty(hcp, emptyList()) }) }
+				author = AuthorType().apply { hcparties.add(checkHcpAndCreateCorrespondingPartyType(it, emptyList())) }
 			}
 			service.created?.let {
 				recorddatetime = Utils.makeXGC(it)
@@ -851,7 +851,7 @@ class SoftwareMedicalFileExport(
 							time = makeXGC(0L)
 						}
 					(service.responsible ?: healthcareParty.id).let {
-						author = AuthorType().apply { hcparties.add(healthcarePartyLogic.getHealthcareParty(it)?.let { hcp -> createParty(hcp, emptyList()) }) }
+						author = AuthorType().apply { hcparties.add(checkHcpAndCreateCorrespondingPartyType(it, emptyList())) }
 					}
 					isIscomplete = true
 					isIsvalidated = true
@@ -1105,6 +1105,8 @@ class SoftwareMedicalFileExport(
 		return Pair(gmd, gmdRelationship.referralPeriods.find(isActive))
 	}
 
+	suspend fun checkHcpAndCreateCorrespondingPartyType(hcpId: String, cds: List<CDHCPARTY>? = emptyList()): HcpartyType? = healthcarePartyLogic.getHealthcareParty(hcpId)?.let { createParty(it, cds) }
+
 	private fun codesToKmehr(codes: Set<CodeStub>): ContentType {
 		return ContentType().apply {
 			cds.addAll(
@@ -1306,7 +1308,7 @@ class SoftwareMedicalFileExport(
 				time = makeXGC(it)
 			}
 			contact.responsible?.let {
-				author = AuthorType().apply { hcparties.add(healthcarePartyLogic.getHealthcareParty(it)?.let { hcp -> createParty(hcp, emptyList()) }) }
+				author = AuthorType().apply { hcparties.add(checkHcpAndCreateCorrespondingPartyType(it, emptyList())) }
 			}
 			recorddatetime = Utils.makeXGC(contact.created) // TODO: maybe should take form date instead of contact date
 			isIscomplete = true
