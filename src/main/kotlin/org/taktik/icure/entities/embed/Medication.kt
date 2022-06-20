@@ -35,7 +35,7 @@ data class Medication(
 	val numberOfPackages: Int? = null,
 	val batch: String? = null,
 	val instructionForPatient: String? = null,
-	val instructionForReimbursement: InstructionForReimbursement? = null,
+	val instructionForReimbursement: String? = null,
 	val commentForDelivery: String? = null,
 	val drugRoute: String? = null, //CD-DRUG-ROUTE
 	val temporality: String? = null, //CD-TEMPORALITY : chronic, acute, oneshot
