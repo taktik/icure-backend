@@ -3,6 +3,7 @@ package org.taktik.icure.test
 import javax.annotation.PreDestroy
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.runBlocking
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -25,6 +26,7 @@ import org.taktik.icure.asynclogic.ICureLogic
 import org.taktik.icure.asynclogic.PropertyLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.constants.Users
+import org.taktik.icure.exceptions.DuplicateDocumentException
 import org.taktik.icure.properties.CouchDbProperties
 import reactor.netty.http.client.HttpClient
 
@@ -61,14 +63,16 @@ import reactor.netty.http.client.HttpClient
 @TestConfiguration
 class ICureTestApplication {
 
+	private val log = LoggerFactory.getLogger(this.javaClass)
+
 	@Bean
 	fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, iCureLogic: ICureLogic, codeLogic: CodeLogic, propertyLogic: PropertyLogic, allDaos: List<GenericDAO<*>>, internalDaos: List<InternalDAO<*>>, couchDbProperties: CouchDbProperties, userLogic: UserLogic) = ApplicationRunner {
 		val client = HttpClient.create()
-		try {
+		try { // Check if I already have a database running
 			client.get().uri("http://127.0.0.1:5984")
 				.response()
 				.block()
-		} catch (e: Exception) {
+		} catch (e: Exception) { // If not, I use docker to create a container
 			println("Starting docker")
 			ProcessBuilder(("docker run " +
 				"-p 5984:5984 " +
@@ -77,6 +81,8 @@ class ICureTestApplication {
 				"couchdb:3.2.2").split(' '))
 				.start()
 				.waitFor()
+
+			// Polling, waiting for the database to initialize
 			runBlocking {
 				var waitingForDb = true
 				while (waitingForDb) {
@@ -92,6 +98,7 @@ class ICureTestApplication {
 			}
 		}
 
+		// Import of the test code
 		val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader)
 		resolver.getResources("classpath*:/org/taktik/icure/db/codes/test/**.xml").forEach {
 			val md5 = it.filename!!.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
@@ -105,14 +112,19 @@ class ICureTestApplication {
 			internalDaos.forEach {
 				it.forceInitStandardDesignDocument(true)
 			}
+
+			// Creation of the test user
 			try {
-				userLogic.getUser("icuretest") //Doesn't work
-			} catch (e: DocumentNotFoundException) {
-				userLogic.newUser(Users.Type.database, "icuretest", "icuretest", "icure")
+				userLogic.newUser(Users.Type.database, "icuretest", "icuretest", "icure")// Creates a test user if it does not exist
+			} catch (e: DuplicateDocumentException) {
+				log.info("Test user already exists!")
+			}finally {
+				log.info("iCure test user\nusername: icuretest\npassword: icuretest")
 			}
 		}
 	}
 
+	// At the end of the tests, I destroy the docker container
 	@PreDestroy
 	fun destroyDockerDBContainer() {
 		ProcessBuilder(("docker rm -f couchdb-test").split(' '))

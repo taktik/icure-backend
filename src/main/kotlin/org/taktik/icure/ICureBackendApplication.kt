@@ -39,6 +39,8 @@ import org.taktik.icure.asyncdao.InternalDAO
 import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.asynclogic.ICureLogic
 import org.taktik.icure.asynclogic.PropertyLogic
+import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.constants.Users
 import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.Confidentiality
 import org.taktik.icure.entities.embed.DocumentStatus
@@ -51,6 +53,7 @@ import org.taktik.icure.entities.embed.PaymentType
 import org.taktik.icure.entities.embed.PersonalStatus
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.entities.embed.Visibility
+import org.taktik.icure.exceptions.DuplicateDocumentException
 import org.taktik.icure.properties.CouchDbProperties
 
 @SpringBootApplication(
@@ -87,7 +90,7 @@ class ICureBackendApplication {
 	private val log = LoggerFactory.getLogger(this.javaClass)
 
 	@Bean
-	fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, iCureLogic: ICureLogic, codeLogic: CodeLogic, propertyLogic: PropertyLogic, allDaos: List<GenericDAO<*>>, internalDaos: List<InternalDAO<*>>, couchDbProperties: CouchDbProperties) = ApplicationRunner {
+	fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, userLogic: UserLogic, iCureLogic: ICureLogic, codeLogic: CodeLogic, propertyLogic: PropertyLogic, allDaos: List<GenericDAO<*>>, internalDaos: List<InternalDAO<*>>, couchDbProperties: CouchDbProperties) = ApplicationRunner {
 		//Check that core types have corresponding codes
 		log.info("icure (" + iCureLogic.getVersion() + ") is initialised")
 
@@ -113,6 +116,13 @@ class ICureBackendApplication {
 			}
 			internalDaos.forEach {
 				it.forceInitStandardDesignDocument(true)
+			}
+			try {
+				userLogic.newUser(Users.Type.database, "icuretest", "icuretest", "icure")// Creates a test user if it does not exist
+			} catch (e: DuplicateDocumentException) {
+				log.info("Test user already exists!")
+			}finally {
+				log.info("iCure test user\nusername: icuretest\npassword: icuretest")
 			}
 		}
 
