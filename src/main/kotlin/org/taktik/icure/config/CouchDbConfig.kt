@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.http.client.reactive.ReactorResourceFactory
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
-import org.taktik.couchdb.springramework.webclient.SpringWebfluxWebClient
+import org.taktik.icure.domain.webclient.SpringWebfluxWebClient
 import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncMapCacheManager

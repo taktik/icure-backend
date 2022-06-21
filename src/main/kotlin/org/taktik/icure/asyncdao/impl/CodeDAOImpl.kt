@@ -28,9 +28,13 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.transform
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
+import org.taktik.couchdb.TotalCount
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.couchdb.id.IDGenerator
@@ -160,42 +164,111 @@ class CodeDAOImpl(
 		emitAll(client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java))
 	}
 
+	// Recursive function to filter results by version
+	// If the filtered results are not enough to fill a page, it does the recusive step
+	fun findCodesByLabel(from: ComplexKey, to: ComplexKey, version: String?, viewName: String, mapIndex: Int, paginationOffset: PaginationOffset<List<String?>>, extensionFactor: Float, prevTotalCount: Int, isContinue: Boolean): Flow<ViewQueryResultEvent> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val extendedLimit = (paginationOffset.limit * extensionFactor).toInt()
+		val viewQuery = pagedViewQuery<Code, ComplexKey>(
+			client,
+			viewName,
+			from,
+			to,
+			paginationOffset.copy(limit = extendedLimit).toPaginationOffset { sk -> ComplexKey.of(*sk.mapIndexed { i, s -> if (i == mapIndex) s?.let { StringUtils.sanitizeString(it) } else s }.toTypedArray()) },
+			false
+		)
+
+		var seenElements = 0
+		var sentElements = 0
+		var totalCount = 0
+		var latestResult: ViewRowWithDoc<*, *, *>? = null
+		emitAll(
+			client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java).let{ flw ->
+				if(version == null) flw else //If I have to filter the results
+					flw.transform {
+						when(it) {
+							is ViewRowWithDoc<*, *, *> -> {
+								seenElements++
+
+								if(version != "latest" &&						// If the type of filtering is "one specific version"
+									(latestResult != null || !isContinue) &&	// If it is the second or later call, I have to skip the first result (otherwise is repeates)
+									(it.doc as Code).version == version &&		// Check the version
+									sentElements < paginationOffset.limit) { 	// Check if the page is full
+
+									sentElements++
+									emit(it)
+
+								} else if(version == "latest" && sentElements < paginationOffset.limit) { 	// If I have to get the latest version
+									if (latestResult != null &&												// If I have something to emit
+										((latestResult?.doc as Code).code != (it.doc as Code).code || 		// The codes are sorted, If this one is different for something
+											(latestResult?.doc as Code).type != (it.doc as Code).type)		// Then I can emit the previous one
+									) {
+										//Do I have to emit the previous code?
+										//IF the code changed THEN the previous one is the latest, and I can emit it
+										sentElements++
+										emit((latestResult as ViewRowWithDoc<*, *, *>))
+									}
+
+								}
+
+								latestResult = it
+							}
+							is TotalCount -> {
+								totalCount = it.total
+							}
+							else -> emit(it)
+						}
+					}.onCompletion {
+						// If the version filter is latest and there are no more elements to visit and the page is not full, I emit the last element
+ 						if(version == "latest" && seenElements < extendedLimit && sentElements < paginationOffset.limit) {
+ 							sentElements++										//If the version filter is "latest" then the last code must be always emitted
+							emit((latestResult as ViewRowWithDoc<*, *, *>))
+ 						}
+						if(seenElements >= extendedLimit && sentElements < paginationOffset.limit) {
+							emitAll(
+								findCodesByLabel(
+									from,
+									to,
+									version,
+									viewName,
+									mapIndex,
+									paginationOffset.copy(startKey = (latestResult?.key as? Array<String>)?.toList() , startDocumentId = latestResult?.id, limit = paginationOffset.limit - sentElements),
+									(if (seenElements == 0) extensionFactor * 2 else (seenElements.toFloat() / sentElements)).coerceAtMost(100f),
+									totalCount + prevTotalCount,
+									true
+								)
+							)
+						} else {
+							emit(TotalCount(totalCount + prevTotalCount))
+						}
+					}
+			}
+		)
+	}
+
 	@ExperimentalCoroutinesApi
 	@FlowPreview
 	@View(name = "by_language_label", map = "classpath:js/code/By_language_label.js")
-	override fun findCodesByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
-		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	override fun findCodesByLabel(region: String?, language: String?, label: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
 		val sanitizedLabel = label?.let { StringUtils.sanitizeString(it) }
-		val startKey = paginationOffset.startKey
-		val from =
-			ComplexKey.of(
-				region ?: "\u0000",
-				language ?: "\u0000",
-				sanitizedLabel ?: "\u0000"
-			)
+		val from = ComplexKey.of(
+			region ?: "\u0000",
+			language ?: "\u0000",
+			sanitizedLabel ?: "\u0000"
+		)
 
 		val to = ComplexKey.of(
 			if (region == null) ComplexKey.emptyObject() else if (language == null) region + "\ufff0" else region,
 			if (language == null) ComplexKey.emptyObject() else if (sanitizedLabel == null) language + "\ufff0" else language,
 			if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
 		)
-
-		val viewQuery = pagedViewQuery<Code, ComplexKey>(
-			client,
-			"by_language_label",
-			from,
-			to,
-			paginationOffset.toPaginationOffset { sk -> ComplexKey.of(*sk.mapIndexed { i, s -> if (i == 2) s?.let { StringUtils.sanitizeString(it) } else s }.toTypedArray()) },
-			false
-		)
-		emitAll(client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java))
+		return findCodesByLabel(from, to, version, "by_language_label", 2, paginationOffset, 1f, 0, false)
 	}
 
 	@ExperimentalCoroutinesApi
 	@FlowPreview
 	@View(name = "by_language_type_label", map = "classpath:js/code/By_language_type_label.js")
-	override fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
-		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	override fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
 		val sanitizedLabel = label?.let { StringUtils.sanitizeString(it) }
 		val from = ComplexKey.of(
 			region ?: "\u0000",
@@ -211,15 +284,7 @@ class CodeDAOImpl(
 			if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
 		)
 
-		val viewQuery = pagedViewQuery<Code, ComplexKey>(
-			client,
-			"by_language_type_label",
-			from,
-			to,
-			paginationOffset.toPaginationOffset { sk -> ComplexKey.of(*sk.mapIndexed { i, s -> if (i == 3) s?.let { StringUtils.sanitizeString(it) } else s }.toTypedArray()) },
-			false
-		)
-		emitAll(client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java))
+		return findCodesByLabel(from, to, version, "by_language_type_label", 3, paginationOffset, 1f, 0, false)
 	}
 
 	@ExperimentalCoroutinesApi

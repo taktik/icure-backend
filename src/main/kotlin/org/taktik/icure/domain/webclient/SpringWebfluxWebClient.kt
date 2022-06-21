@@ -16,7 +16,7 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.couchdb.springramework.webclient
+package org.taktik.icure.domain.webclient
 
 import java.net.URI
 import java.nio.ByteBuffer

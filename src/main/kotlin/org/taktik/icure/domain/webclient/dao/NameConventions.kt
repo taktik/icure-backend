@@ -16,7 +16,7 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.couchdb.dao
+package org.taktik.icure.domain.webclient.dao
 
 fun designDocName(clazz: Class<*>) = designDocName(clazz.simpleName)
 fun designDocName(name: String) = "_design/$name"

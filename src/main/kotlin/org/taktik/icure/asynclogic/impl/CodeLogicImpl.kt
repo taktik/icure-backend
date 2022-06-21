@@ -115,12 +115,12 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 		emitAll(codeDAO.findCodesBy(region, type, code, version, paginationOffset))
 	}
 
-	override fun findCodesByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>) = flow<ViewQueryResultEvent> {
-		emitAll(codeDAO.findCodesByLabel(region, language, label, paginationOffset))
+	override fun findCodesByLabel(region: String?, language: String?, label: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>) = flow<ViewQueryResultEvent> {
+		emitAll(codeDAO.findCodesByLabel(region, language, label, version, paginationOffset))
 	}
 
-	override fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>) = flow<ViewQueryResultEvent> {
-		emitAll(codeDAO.findCodesByLabel(region, language, type, label, paginationOffset))
+	override fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>) = flow<ViewQueryResultEvent> {
+		emitAll(codeDAO.findCodesByLabel(region, language, type, label, version, paginationOffset))
 	}
 
 	override fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?) = flow<String> {
@@ -222,11 +222,12 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 								version = it
 							}
 							"VALUE" -> {
-								code = mutableMapOf("type" to type, "version" to version, "label" to mapOf<String, String>())
+								code = mutableMapOf("type" to type, "version" to version, "label" to mapOf<String, String>(), "regions" to setOf<String>())
 							}
 							"CODE" -> charsHandler = { code["code"] = it }
 							"PARENT" -> charsHandler = { code["qualifiedLinks"] = mapOf(LinkQualification.parent to listOf("$type|$it|$version")) }
 							"DESCRIPTION" -> charsHandler = { attributes?.getValue("L")?.let { attributesValue -> code["label"] = (code["label"] as Map<String, String>) + (attributesValue to it.trim()) } }
+							"REGIONS" -> charsHandler = { code["regions"] = (code["regions"] as Set<String>) + it.trim() }
 							else -> {
 								charsHandler = null
 							}
@@ -468,11 +469,65 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 				}
 			}
 
+			// Hanler to parse test code from XML
+			// Equal to default handler but allow to set the type and a different version for each code
+			val testHandler = object : DefaultHandler() {
+				var initialized = false
+				var charsHandler: ((chars: String) -> Unit)? = null
+				var code: MutableMap<String, Any> = mutableMapOf()
+				var characters: String = ""
+				var newType = type
+
+				override fun characters(ch: CharArray?, start: Int, length: Int) {
+					ch?.let { characters += String(it, start, length) }
+				}
+
+				override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
+					if (!initialized && qName != "kmehr-cd") {
+						throw IllegalArgumentException("Not supported")
+					}
+					initialized = true
+					characters = ""
+					qName?.let {
+						when (it.toUpperCase()) {
+							"TYPE" -> charsHandler = { newType = it }
+							"VALUE" -> {
+								code = mutableMapOf("type" to newType, "label" to mapOf<String, String>(), "regions" to setOf<String>())
+							}
+							"VERSION" -> charsHandler = { code["version"] = it}
+							"CODE" -> charsHandler = { code["code"] = it }
+							"PARENT" -> charsHandler = { code["qualifiedLinks"] = mapOf(LinkQualification.parent to listOf("$type|$it|${code["version"]}")) }
+							"DESCRIPTION" -> charsHandler = { attributes?.getValue("L")?.let { attributesValue -> code["label"] = (code["label"] as Map<String, String>) + (attributesValue to it.trim()) } }
+							"REGIONS" -> charsHandler = { code["regions"] = (code["regions"] as Set<String>) + it.trim() }
+							else -> {
+								charsHandler = null
+							}
+						}
+					}
+				}
+
+				override fun endElement(uri: String?, localName: String?, qName: String?) {
+					charsHandler?.let { it(characters) }
+					qName?.let {
+						when (it.toUpperCase()) {
+							"VALUE" -> {
+								runBlocking(coroutineScope.coroutineContext) {
+									code["id"] = "${code["type"] as String}|${code["code"] as String}|${code["version"] as String}"
+									batchSave(Code(args = code), false)
+								}
+							}
+							else -> null
+						}
+					}
+				}
+			}
+
 			try {
 				when (type.toUpperCase()) {
 					"BE-THESAURUS-PROCEDURES" -> saxParser.parse(stream, beThesaurusProcHandler)
 					"BE-THESAURUS" -> saxParser.parse(stream, beThesaurusHandler)
 					"ISO-639-1" -> saxParser.parse(stream, iso6391Handler)
+					"TEST-CODES.XML" -> saxParser.parse(stream, testHandler)
 					else -> saxParser.parse(stream, handler)
 				}
 				batchSave(null, true)
