@@ -18,6 +18,7 @@
 
 package org.taktik.icure.logic.impl;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.lang3.Validate;
@@ -739,11 +740,17 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	}
 
 	@Override
-	public PaginatedList<User> listUsers(PaginationOffset pagination) {
+	public PaginatedList<User> listUsers(PaginationOffset pagination, boolean skipPatients) {
 		PaginatedList<User> userPaginatedList = userDAO.listUsers(pagination);
 
-		userPaginatedList.setRows(userPaginatedList.getRows().stream().map(this::fillGroup).collect(Collectors.toList()));
-
+		userPaginatedList
+                .setRows(userPaginatedList.getRows().stream()
+                        .map(this::fillGroup)
+                        .filter(u ->
+                                        !skipPatients ||
+                                        !Strings.isNullOrEmpty(u.getHealthcarePartyId()) ||
+                                        (Strings.isNullOrEmpty(u.getHealthcarePartyId()) && (Strings.isNullOrEmpty(u.getPatientId()))))
+                        .collect(Collectors.toList()));
 		return userPaginatedList;
 	}
 
