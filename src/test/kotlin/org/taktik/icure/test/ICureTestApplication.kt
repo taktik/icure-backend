@@ -1,6 +1,7 @@
 package org.taktik.icure.test
 
 import javax.annotation.PreDestroy
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -15,10 +16,8 @@ import org.springframework.boot.autoconfigure.web.reactive.error.ErrorWebFluxAut
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.core.task.TaskExecutor
 import org.springframework.scheduling.TaskScheduler
-import org.taktik.couchdb.exception.DocumentNotFoundException
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.InternalDAO
 import org.taktik.icure.asynclogic.CodeLogic
@@ -86,23 +85,16 @@ class ICureTestApplication {
 			runBlocking {
 				var waitingForDb = true
 				while (waitingForDb) {
-					waitingForDb = try {
+					try {
 						client.get().uri("http://127.0.0.1:5984")
 							.response()
 							.awaitFirstOrNull()
-						false
+						waitingForDb = false
 					} catch (e: reactor.netty.http.client.PrematureCloseException) {
-						true
+						delay(500)
 					}
 				}
 			}
-		}
-
-		// Import of the test code
-		val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader)
-		resolver.getResources("classpath*:/org/taktik/icure/db/codes/test/**.xml").forEach {
-			val md5 = it.filename!!.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
-			runBlocking { codeLogic.importCodesFromXml(md5, it.filename!!.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream) }
 		}
 
 		runBlocking {

@@ -226,6 +226,8 @@ dependencies {
 
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.4.2")
     testImplementation(group = "org.springframework.boot", name = "spring-boot-starter-test", version = "2.5.13")
+	testImplementation(group = "io.kotest", name = "kotest-assertions-core", version = "4.6.4")
+	testImplementation(group = "io.kotest", name = "kotest-runner-junit5", version = "4.6.4")
 
 }
 

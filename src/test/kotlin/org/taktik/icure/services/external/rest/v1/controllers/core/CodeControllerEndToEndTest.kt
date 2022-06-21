@@ -2,10 +2,12 @@ package org.taktik.icure.services.external.rest.v1.controllers.core
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import javax.xml.parsers.SAXParserFactory
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.SingletonSupport
 import com.fasterxml.jackson.core.type.TypeReference
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
@@ -14,9 +16,16 @@ import reactor.netty.http.client.HttpClient
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.TestInstance
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver
+import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.test.ICureTestApplication
+import org.xml.sax.Attributes
+import org.xml.sax.helpers.DefaultHandler
 
 @SpringBootTest(
 	classes = [ICureTestApplication::class],
@@ -24,12 +33,17 @@ import org.taktik.icure.test.ICureTestApplication
 	webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @ActiveProfiles("app")
-class CodeControllerEndToEndTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class CodeControllerEndToEndTest @Autowired constructor(
+	private val codeLogic: CodeLogic
+	) {
 
 	@LocalServerPort
 	var port = 0
 
-	val objectMapper: ObjectMapper? = ObjectMapper().registerModule(
+	val codesStats: MutableMap<String, Any> = mutableMapOf("total" to 0, "count" to mutableMapOf<String, Int>(), "latest" to mutableMapOf<String, String>())
+
+	private val objectMapper: ObjectMapper? = ObjectMapper().registerModule(
 		KotlinModule.Builder()
 			.nullIsSameAsDefault(nullIsSameAsDefault = false)
 			.reflectionCacheSize(reflectionCacheSize = 512)
@@ -39,6 +53,63 @@ class CodeControllerEndToEndTest {
 			.strictNullChecks(strictNullChecks = false)
 			.build()
 	)
+
+	@BeforeAll
+	fun addTestCodes() {
+
+		val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader)
+
+		// Imports the codes into the database
+		val codesFile = "classpath*:/org/taktik/icure/db/codes/test/test-codes.xml"
+		resolver.getResources(codesFile).forEach {
+			val md5 = it.filename!!.replace(Regex(".+\\.([\\da-f]{20}[\\da-f]+)\\.xml"), "$1")
+			runBlocking { codeLogic.importCodesFromXml(md5, it.filename!!.replace(Regex("(.+)\\.[\\da-f]{20}[\\da-f]+\\.xml"), "$1"), it.inputStream) }
+		}
+
+		// Parses the input file to calculate the numbers used in the tests
+		val statsHandler = object : DefaultHandler() {
+			var initialized = false
+			var charsHandler: ((chars: String) -> Unit)? = null
+			var characters: String = ""
+			var currentCode: String = ""
+
+			override fun characters(ch: CharArray?, start: Int, length: Int) {
+				ch?.let { characters += String(it, start, length) }
+			}
+
+			override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
+				if (!initialized && qName != "kmehr-cd") {
+					throw IllegalArgumentException("Not supported")
+				}
+				initialized = true
+				characters = ""
+				qName?.let {
+					when (it.toUpperCase()) {
+						"VALUE" -> {
+							codesStats["total"] = (codesStats["total"] as Int ) + 1
+						}
+						"CODE" -> charsHandler = { currentCode = it }
+						"VERSION" -> charsHandler = {
+							(codesStats["count"] as MutableMap<String, Int>).put(it, (codesStats["count"] as Map<String, Int>)[it]?.plus(1) ?: 1)
+							(codesStats["latest"] as MutableMap<String, String>)[currentCode] = it
+						}
+						else -> {
+							charsHandler = null
+						}
+					}
+				}
+			}
+
+			override fun endElement(uri: String?, localName: String?, qName: String?) {
+				charsHandler?.let { it(characters) }
+			}
+		}
+
+		resolver.getResources(codesFile).forEach {
+			SAXParserFactory.newInstance().newSAXParser().parse(it.inputStream, statsHandler)
+		}
+
+	}
 
 	fun makeGetRequest(url: String): PaginatedList<CodeDto>? {
 		val client = HttpClient.create().headers { h ->
@@ -64,6 +135,7 @@ class CodeControllerEndToEndTest {
 		for(code in responseBody?.rows ?: listOf()) {
 			assertNotNull(code.version)
 			if (version != "latest") assertEquals(code.version, version)
+			else assertEquals(code.version, (codesStats["latest"] as Map<String, String>)[code.code])
 		}
 	}
 
@@ -88,6 +160,7 @@ class CodeControllerEndToEndTest {
 		for(code in responseBodySecondPage?.rows ?: listOf()) {
 			assertNotNull(code.version)
 			if (version != "latest") assertEquals(code.version, version)
+			else assertEquals(code.version, (codesStats["latest"] as Map<String, String>)[code.code])
 		}
 		assertNull(responseBodySecondPage?.nextKeyPair)
 	}
@@ -100,6 +173,7 @@ class CodeControllerEndToEndTest {
 		for (code in responseBody?.rows ?: listOf()) {
 			assertNotNull(code.version)
 			if (version != "latest") assertEquals(code.version, version)
+			else assertEquals(code.version, (codesStats["latest"] as Map<String, String>)[code.code])
 		}
 	}
 
@@ -108,7 +182,7 @@ class CodeControllerEndToEndTest {
 	fun testNoFilter() {
 		val responseBody = makeGetRequest("http://localhost:$port/rest/v1/code/byLabel")
 		assertNotNull(responseBody)
-		assertEquals(responseBody?.rows?.size, 21)
+		assertEquals(responseBody?.rows?.size, codesStats["total"])
 		assertNull(responseBody?.nextKeyPair)
 	}
 
@@ -118,7 +192,7 @@ class CodeControllerEndToEndTest {
 		val region = "fr"
 		val responseBody = makeGetRequest("http://localhost:$port/rest/v1/code/byLabel?region=$region")
 		assertNotNull(responseBody)
-		assertEquals(responseBody?.rows?.size, 21)
+		assertEquals(responseBody?.rows?.size, codesStats["total"])
 		assertNull(responseBody?.nextKeyPair)
 	}
 
@@ -129,7 +203,7 @@ class CodeControllerEndToEndTest {
 		val language = "en"
 		val responseBody = makeGetRequest("http://localhost:$port/rest/v1/code/byLabel?region=$region&language=$language")
 		assertNotNull(responseBody)
-		assertEquals(responseBody?.rows?.size, 21)
+		assertEquals(responseBody?.rows?.size, codesStats["total"])
 		assertNull(responseBody?.nextKeyPair)
 	}
 
@@ -141,38 +215,42 @@ class CodeControllerEndToEndTest {
 		val type = "testCode"
 		val responseBody = makeGetRequest("http://localhost:$port/rest/v1/code/byLabel?region=$region&language=$language&types=$type")
 		assertNotNull(responseBody)
-		assertEquals(responseBody?.rows?.size, 21)
+		assertEquals(responseBody?.rows?.size, codesStats["total"])
 		assertNull(responseBody?.nextKeyPair)
 	}
 
 	//If there is no code with the specified version, then no results are returned
 	@Test
 	fun testNonExistentVersionFilter() {
-		testVersionSinglePage("-1", 0)
+		val nonExistentVer = "-1"
+		assertNull((codesStats["count"] as Map<String, Int>)[nonExistentVer])
+		testVersionSinglePage(nonExistentVer, 0)
 	}
 
 	//If I specify the version, then I should get only results for that version
 	@Test
 	fun testVersionFilter() {
-		testVersionSinglePage("2", 6)
+		val version = "2"
+		testVersionSinglePage(version, (codesStats["count"] as Map<String, Int>)[version] ?: 0)
 	}
 
 	@Test
 	fun testVersionLatestFilter() {
-		testVersionSinglePage("latest", 12)
+		testVersionSinglePage("latest", (codesStats["latest"] as Map<String, Int>).size)
 	}
 
 	//If I specify region and version, then I should get only results for that version
 	@Test
 	fun testRegionVersionFilter() {
 		val region = "fr"
-		testVersionSinglePage("2", 6,"region=$region")
+		val version = "2"
+		testVersionSinglePage(version, (codesStats["count"] as Map<String, Int>)[version] ?: 0,"region=$region")
 	}
 
 	@Test
 	fun testRegionVersionLatestFilter() {
 		val region = "fr"
-		testVersionSinglePage("latest", 12,"region=$region")
+		testVersionSinglePage("latest", (codesStats["latest"] as Map<String, Int>).size,"region=$region")
 	}
 
 	//If I specify region, language and version, then I should get only results for that version
@@ -180,14 +258,15 @@ class CodeControllerEndToEndTest {
 	fun testRegionLanguageVersionFilter() {
 		val region = "fr"
 		val language = "en"
-		testVersionSinglePage("2", 6, "region=$region&language=$language")
+		val version = "2"
+		testVersionSinglePage(version, (codesStats["count"] as Map<String, Int>)[version] ?: 0, "region=$region&language=$language")
 	}
 
 	@Test
 	fun testRegionLanguageVersionLatestFilter() {
 		val region = "fr"
 		val language = "en"
-		testVersionSinglePage("latest", 12, "region=$region&language=$language")
+		testVersionSinglePage("latest", (codesStats["latest"] as Map<String, Int>).size, "region=$region&language=$language")
 	}
 
 	//If I specify region, language, type and version, then I should get only results for that version
@@ -196,7 +275,8 @@ class CodeControllerEndToEndTest {
 		val region = "fr"
 		val language = "en"
 		val type = "testCode"
-		testVersionSinglePage("2", 6,"region=$region&language=$language&types=$type")
+		val version = "2"
+		testVersionSinglePage(version, (codesStats["count"] as Map<String, Int>)[version] ?: 0,"region=$region&language=$language&types=$type")
 	}
 
 	@Test
@@ -204,7 +284,7 @@ class CodeControllerEndToEndTest {
 		val region = "fr"
 		val language = "en"
 		val type = "testCode"
-		testVersionSinglePage("latest", 12,"region=$region&language=$language&types=$type")
+		testVersionSinglePage("latest", (codesStats["latest"] as Map<String, Int>).size,"region=$region&language=$language&types=$type")
 	}
 
 	//From now on, I just test with and without type, because is the only one that calls a different method
@@ -213,88 +293,116 @@ class CodeControllerEndToEndTest {
 	@Test
 	fun testVersionFilterPaginationFewResults() {
 		val version = "2"
-		val limit = "10"
-		testPaginationFewResults(version, "http://localhost:$port/rest/v1/code/byLabel?version=$version&limit=$limit", 6)
+		val expectedRows = (codesStats["count"] as Map<String, Int>)[version] ?: 0
+		testPaginationFewResults(version, "http://localhost:$port/rest/v1/code/byLabel?version=$version&limit=${expectedRows+2}", expectedRows)
 	}
 
 	@Test
 	fun testVersionLatestFilterPaginationFewResults() {
 		val version = "latest"
-		val limit = "20"
-		testPaginationFewResults(version, "http://localhost:$port/rest/v1/code/byLabel?version=$version&limit=$limit", 12)
+		val expectedRows = (codesStats["latest"] as Map<String, Int>).size
+		testPaginationFewResults(version, "http://localhost:$port/rest/v1/code/byLabel?version=$version&limit=${expectedRows+2}", expectedRows)
 	}
 
 	//If the number of elements in the db is less than the page size, all elements are in the same page
 	@Test
 	fun testTypeVersionFilterPaginationFewResults() {
 		val version = "2"
-		val limit = "10"
+		val expectedRows = (codesStats["count"] as Map<String, Int>)[version] ?: 0
 		val type = "testCode"
-		testPaginationFewResults(version, "http://localhost:$port/rest/v1/code/byLabel?version=$version&type=$type&limit=$limit", 6)
+		testPaginationFewResults(version, "http://localhost:$port/rest/v1/code/byLabel?version=$version&type=$type&limit=${expectedRows+2}", expectedRows)
 	}
 
 	@Test
 	fun testTypeVersionLatestFilterPaginationFewResults() {
 		val version = "latest"
-		val limit = "20"
+		val expectedRows = (codesStats["latest"] as Map<String, Int>).size
 		val type = "testCode"
-		testPaginationFewResults(version, "http://localhost:$port/rest/v1/code/byLabel?version=$version&type=$type&limit=$limit", 12)
+		testPaginationFewResults(version, "http://localhost:$port/rest/v1/code/byLabel?version=$version&type=$type&limit=${expectedRows+2}", expectedRows)
 	}
 
 	//Test the pagination using only the version filter. The second page is not full
 	@Test
 	fun testVersionFilterPaginationFewResultsOnSecondPage() {
-		val limit = "4"
-		testResultsOnTwoPages("2", "limit=$limit",4, 2)
+		val version = "2"
+		val expectedRows = (codesStats["count"] as Map<String, Int>)[version] ?: 0
+		assertEquals(expectedRows >= 4, true)
+		val limit: Int = (expectedRows / 2) + (expectedRows / 4)
+		testResultsOnTwoPages(version, "limit=$limit",limit, expectedRows-limit)
 	}
 
 	@Test
 	fun testVersionLatestFilterPaginationFewResultsOnSecondPage() {
-		val limit = "7"
-		testResultsOnTwoPages("latest", "limit=$limit",7, 5)
+		val expectedRows = (codesStats["latest"] as Map<String, Int>).size
+		assertEquals(expectedRows >= 4, true)
+		val limit: Int = (expectedRows / 2) + (expectedRows / 4)
+		testResultsOnTwoPages("latest", "limit=$limit",limit, expectedRows-limit)
 	}
 
 
 	//Test the pagination using the version and type filter. The second page is not full
 	@Test
 	fun testVersionTypeFilterPaginationFewResultsOnSecondPage() {
-		val limit = "4"
+		val version = "2"
+		val expectedRows = (codesStats["count"] as Map<String, Int>)[version] ?: 0
+		assertEquals(expectedRows >= 4, true)
+		val limit: Int = (expectedRows / 2) + (expectedRows / 4)
 		val type = "code"
-		testResultsOnTwoPages("2", "limit=$limit&types=$type", 4, 2)
+		testResultsOnTwoPages("2", "limit=$limit&types=$type", limit, expectedRows-limit)
 	}
 
 	@Test
 	fun testVersionLatestTypeFilterPaginationFewResultsOnSecondPage() {
-		val limit = "7"
+		val expectedRows = (codesStats["latest"] as Map<String, Int>).size
+		assertEquals(expectedRows >= 4, true)
+		val limit: Int = (expectedRows / 2) + (expectedRows / 4)
 		val type = "code"
-		testResultsOnTwoPages("latest", "limit=$limit&types=$type", 7, 5)
+		testResultsOnTwoPages("latest", "limit=$limit&types=$type", limit, expectedRows-limit)
 	}
 
 	//Test the pagination using the version filter. The second page is full
 	@Test
 	fun testVersionFilterPaginationFewResultsSecondPageFull() {
-		val limit = "3"
-		testResultsOnTwoPages("2", "limit=$limit",3, 3)
+		var version: String? = null
+		var limit = 0
+		(codesStats["count"] as Map<String, Int>).forEach{ (k,v) ->
+			if (v % 2 == 0) {
+				version = k
+				limit = v / 2
+			}
+		}
+		assertNotNull(version)
+		testResultsOnTwoPages(version!!, "limit=$limit",limit, limit)
 	}
 
 	@Test
 	fun testVersionLatestFilterPaginationFewResultsSecondPageFull() {
-		val limit = "6"
-		testResultsOnTwoPages("latest", "limit=$limit",6, 6)
+		val expectedRows = (codesStats["latest"] as Map<String, Int>).size
+		assertEquals(expectedRows%2, 0)
+		testResultsOnTwoPages("latest", "limit=${expectedRows/2}",expectedRows/2, expectedRows/2)
 	}
 
 	@Test
 	fun testVersionTypeFilterPaginationFewResultsSecondPageFull() {
-		val limit = "3"
+		var version: String? = null
+		var limit = 0
+		(codesStats["count"] as Map<String, Int>).forEach{ (k,v) ->
+			if (v % 2 == 0) {
+				version = k
+				limit = v / 2
+			}
+		}
+		assertNotNull(version)
 		val type = "code"
-		testResultsOnTwoPages("2", "limit=$limit&types=$type", 3, 3)
+		testResultsOnTwoPages(version!!, "limit=$limit&types=$type", limit, limit)
 	}
 
 	@Test
 	fun testVersionLatestTypeFilterPaginationFewResultsSecondPageFull() {
-		val limit = "6"
+		val expectedRows = (codesStats["latest"] as Map<String, Int>).size
+		assertEquals(expectedRows%2, 0)
 		val type = "code"
-		testResultsOnTwoPages("latest", "limit=$limit&types=$type", 6, 6)
+		testResultsOnTwoPages("latest", "limit=${expectedRows/2}&types=$type", expectedRows/2, expectedRows/2)
 	}
 
 

@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 import org.taktik.couchdb.entity.ViewQuery
 import org.taktik.couchdb.exception.CouchDbConflictException
-import org.taktik.couchdb.springramework.webclient.SpringWebfluxWebClient
+import org.taktik.icure.domain.webclient.SpringWebfluxWebClient
 import org.taktik.icure.entities.base.Code
 
 @FlowPreview
