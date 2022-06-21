@@ -143,15 +143,18 @@ data class Document(
 		"version" to (this.version ?: other.version),
 		"otherUtis" to (other.otherUtis + this.otherUtis),
 		"storedICureDocumentId" to (this.storedICureDocumentId ?: other.storedICureDocumentId),
-		"externalUuid" to (this.externalUuid ?: other.externalUuid),
-		"attachmentId" to (this.attachmentId ?: other.attachmentId),
-		"attachment" to (
-			this.attachment?.let {
-				// Condition solves bug where replicated attachments may be corrupted, and corrupted is always smaller.
-				if (it.size >= (other.attachment?.size ?: 0)) it else other.attachment
-			} ?: other.attachment
+		"externalUuid" to (this.externalUuid ?: other.externalUuid)
+	) + if (this.attachment != null && this.attachment.size >= (other.attachment?.size ?: 0)) {
+		mapOf(
+			"attachmentId" to this.attachmentId,
+			"attachment" to this.attachment
 		)
-	)
+	} else {
+		mapOf(
+			"attachmentId" to other.attachmentId,
+			"attachment" to other.attachment
+		)
+	}
 
 	fun decryptAttachment(enckeys: List<String?>?): ByteArray? {
 		return enckeys

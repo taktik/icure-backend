@@ -1,4 +1,4 @@
-package org.taktik.icure.asyncdao.cache
+package org.taktik.icure.asynclogic.objectstorage.impl
 
 import java.io.IOException
 import java.io.RandomAccessFile
@@ -15,37 +15,22 @@ import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.stereotype.Service
-import org.taktik.icure.properties.DocumentStorageProperties
+import org.taktik.icure.asynclogic.objectstorage.LocalObjectStorage
+import org.taktik.icure.properties.ObjectStorageProperties
 
-/**
- * Cache for attachments of documents which where stored not in couchdb.
- */
+
 @Service
-class DocumentCache(private val documentStorageProperties: DocumentStorageProperties) {
+class LocalObjectStorageImpl(private val objectStorageProperties: ObjectStorageProperties) : LocalObjectStorage {
 	companion object {
-		private val log = LoggerFactory.getLogger(DocumentCache::class.java)
+		private val log = LoggerFactory.getLogger(LocalObjectStorageImpl::class.java)
 	}
 
-	/**
-	 * Store an attachment in the cache.
-	 * @param documentId id of the document owner of the attachment
-	 * @param attachmentId id of the attachment
-	 * @param attachment value of the attachment
-	 * @return true if the attachment could be properly stored, false on errors
-	 */
-	suspend fun store(documentId: String, attachmentId: String, attachment: ByteArray) = doStore(documentId, attachmentId) { documentDirectory ->
+	override suspend fun store(documentId: String, attachmentId: String, attachment: ByteArray) = doStore(documentId, attachmentId) { documentDirectory ->
 		@Suppress("BlockingMethodInNonBlockingContext")	// Will be called in IO dispatcher with runCatching -> ok
 		Files.write(documentDirectory.resolve(attachmentId), attachment)
 	}
 
-	/**
-	 * Store an attachment in the cache.
-	 * @param documentId id of the document owner of the attachment
-	 * @param attachmentId id of the attachment
-	 * @param attachment value of the attachment
-	 * @return true if the attachment could be properly stored, false on errors
-	 */
-	suspend fun store(documentId: String, attachmentId: String, attachment: Flow<DataBuffer>) = doStore(documentId, attachmentId) { documentDirectory ->
+	override suspend fun store(documentId: String, attachmentId: String, attachment: Flow<DataBuffer>) = doStore(documentId, attachmentId) { documentDirectory ->
 		@Suppress("BlockingMethodInNonBlockingContext") // Will be called in IO dispatcher with runCatching -> ok
 		RandomAccessFile(documentDirectory.resolve(attachmentId).toFile(), "rw").channel.use { channel ->
 			attachment.collect { dataBuffer ->
@@ -65,18 +50,12 @@ class DocumentCache(private val documentStorageProperties: DocumentStorageProper
 				directory.toFile().mkdirs()
 				saveAttachment(directory)
 			}
-			if (writeResult.isFailure) log.warn("Could not cache attachment $attachmentId of document $documentId", writeResult.exceptionOrNull())
+			if (writeResult.isFailure) log.warn("Could not cache attachment $attachmentId@$documentId", writeResult.exceptionOrNull())
 			writeResult.isSuccess
 		}
 	}
 
-	/**
-	 * Load an attachment from tha cache.
-	 * @param documentId id of the document owner of the attachment
-	 * @param attachmentId id of the attachment
-	 * @return the attachment value or null if the attachment was not stored in cache or could not be read.
-	 */
-	suspend fun read(documentId: String, attachmentId: String): Flow<DataBuffer>? = try {
+	override suspend fun read(documentId: String, attachmentId: String): Flow<DataBuffer>? = try {
 		toFolderPath(documentId).resolve(attachmentId)
 			.takeIf { Files.isRegularFile(it) }
 			?.let { DataBufferUtils.read(it, DefaultDataBufferFactory(), 10000).asFlow() }
@@ -84,8 +63,22 @@ class DocumentCache(private val documentStorageProperties: DocumentStorageProper
 		null
 	}
 
+	override suspend fun delete(documentId: String, attachmentId: String) {
+		toFolderPath(documentId).resolve(attachmentId)
+			.takeIf { Files.isRegularFile(it) }
+			?.let {
+				withContext(Dispatchers.IO) {
+					kotlin.runCatching {
+						Files.delete(it)
+					}.exceptionOrNull()?.let { e ->
+						log.error("Could not remove from cache attachment $attachmentId@$documentId", e)
+					}
+				}
+			}
+	}
+
 	private fun toFolderPath(documentId: String) = Paths.get(
-		documentStorageProperties.cacheLocation,
+		objectStorageProperties.cacheLocation,
 		*(documentId.chunked(2).take(3) + documentId).toTypedArray()
 	)
 }

@@ -7,45 +7,43 @@ import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import org.taktik.icure.asyncdao.cache.DocumentCache
-import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorageImpl
-import org.taktik.icure.asyncdao.objectstorage.StorageTasksDao
-import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorage
+import org.taktik.icure.asynclogic.objectstorage.impl.DocumentCache
+import org.taktik.icure.asyncdao.objectstorage.ObjectStorageTasksDao
+import org.taktik.icure.asynclogic.objectstorage.ObjectStorageClient
 import org.taktik.icure.entities.objectstorage.ObjectStorageTaskType
+
+private const val ONE_HOUR = 60 * 60 * 1000L
 
 @ExperimentalCoroutinesApi
 @Component
 class StorageTasksProcessor(
-	private val cloudStorageTasksDao: StorageTasksDao,
-	private val icureCloudStorage: IcureObjectStorage,
+	private val cloudObjectStorageTasksDao: ObjectStorageTasksDao,
+	private val objectStorageClient: ObjectStorageClient,
 	private val documentCacheService: DocumentCache
 ) {
+	private val log = LoggerFactory.getLogger(javaClass)
 
-private val log = LoggerFactory.getLogger(javaClass)
-
-@Scheduled(fixedDelay = 3_600_000)
-fun handleIcureCloudAttachmentTasks() {
-	runBlocking {
-		cloudStorageTasksDao.getEntities()
+	@Scheduled(fixedDelay = ONE_HOUR)
+	fun handleIcureCloudAttachmentTasks() : Unit = runBlocking {
+		cloudObjectStorageTasksDao.getEntities()
 			.collect { value ->
 				log.info("Running objectStorage task ${value.id} for doc ${value.documentId} : ${value.type}.")
 				when (value.type) {
 					ObjectStorageTaskType.UPLOAD -> {
 						documentCacheService.read(value.documentId, value.id)?.let {
-							icureCloudStorage.storeAttachment(value.documentId, value.attachmentId, it, false)?.let {
+							if (objectStorageClient.upload(value.documentId, value.attachmentId, it)) {
 								log.info("Successfully executed UPLOAD task for doc ${value.attachmentId}@${value.documentId}.")
-								cloudStorageTasksDao.remove(flowOf(value))
+								cloudObjectStorageTasksDao.purge(flowOf(value))
 							}
 						}
 					}
 					ObjectStorageTaskType.DELETE -> {
-						icureCloudStorage.deleteAttachment(value.documentId, value.attachmentId, false)?.let {
+						if (objectStorageClient.delete(value.documentId, value.attachmentId)) {
 							log.info("Successfully executed DELETE task for doc ${value.attachmentId}@${value.documentId}.")
-							cloudStorageTasksDao.remove(flowOf(value))
+							cloudObjectStorageTasksDao.purge(flowOf(value))
 						}
 					}
 				}
 			}
-		}
 	}
 }

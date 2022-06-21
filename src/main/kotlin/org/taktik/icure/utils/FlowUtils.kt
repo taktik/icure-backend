@@ -18,6 +18,7 @@
 
 package org.taktik.icure.utils
 
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -34,6 +35,9 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.asCoroutineContext
 import kotlinx.coroutines.reactor.asFlux
 import kotlinx.coroutines.withContext
+import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.core.io.buffer.DataBufferUtils
+import org.taktik.couchdb.ViewRow
 import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.entities.base.StoredDocument
 import reactor.core.publisher.Flux
@@ -74,6 +78,29 @@ fun <T : StoredDocument> Flow<T>.subsequentDistinctById(): Flow<T> = flow {
 	}
 }
 
+// TODO needs testing
+fun <K, T : ViewRow<K, *, *>, V> Flow<T>.subsequentGroupByKeyTo(valueCollector: (T) -> V): Flow<Pair<K?, List<V>>> = flow {
+	var first = true
+	var currKey: K? = null
+	var valuesForKey = mutableListOf<V>()
+	collect { curr ->
+		if (first) {
+			currKey = curr.key
+			first = false
+		}
+		if (curr.key != currKey) {
+			emit(Pair(currKey, valuesForKey))
+			currKey = curr.key
+			valuesForKey = mutableListOf(valueCollector(curr))
+		} else {
+			valuesForKey.add(valueCollector(curr))
+		}
+	}
+	if (!first) {
+		emit(Pair(currKey, valuesForKey))
+	}
+}
+
 @ExperimentalCoroutinesApi
 fun <T : Any> Flow<T>.injectReactorContext(): Flux<T> {
 	/*return Mono.deferContextual { Mono.just(it) }.flatMapMany { reactorCtx ->
@@ -106,13 +133,7 @@ fun <T> Flow<T>.bufferedChunks(min: Int, max: Int): Flow<List<T>> = channelFlow 
 }.buffer(1)
 
 suspend fun Flow<ByteBuffer>.writeTo(os: OutputStream) {
-	this.collect { bb ->
-		if (bb.hasArray() && bb.hasRemaining()) {
-			os.write(bb.array(), bb.position() + bb.arrayOffset(), bb.remaining())
-		} else {
-			os.write(ByteArray(bb.remaining()).also { bb.get(it) })
-		}
-	}
+	this.collect { it.writeTo(os) }
 }
 
 suspend fun Flow<ByteBuffer>.toInputStream(): InputStream {
@@ -152,3 +173,22 @@ suspend fun Flow<ByteBuffer>.toInputStream(): InputStream {
 		}
 	}
 }
+
+/* TODO check if other implementation is more efficient and is also correct (does never leave trailing zeroes)
+DataBufferUtils.join(asPublisher()).awaitFirst().asByteBuffer().array()
+ */
+suspend fun Flow<DataBuffer>.toByteArray(releaseBuffers: Boolean): ByteArray =
+	ByteArrayOutputStream().use { os ->
+		collect {
+			it.asByteBuffer().writeTo(os)
+			if (releaseBuffers) DataBufferUtils.release(it)
+		}
+		os.toByteArray()
+	}
+
+private fun ByteBuffer.writeTo(os: OutputStream): Unit =
+	if (hasArray() && hasRemaining()) {
+		os.write(array(), position() + arrayOffset(), remaining())
+	} else {
+		os.write(ByteArray(remaining()).also { get(it) })
+	}

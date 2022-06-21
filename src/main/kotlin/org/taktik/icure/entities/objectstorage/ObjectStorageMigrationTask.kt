@@ -5,7 +5,7 @@ import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.RevisionInfo
 
-data class ObjectStorageTask(
+data class ObjectStorageMigrationTask(
 	@JsonProperty("_id") override val id: String,
 	@JsonProperty("_rev") override val rev: String? = null,
 	@JsonProperty("deleted") override val deletionDate: Long? = null,
@@ -13,13 +13,12 @@ data class ObjectStorageTask(
 	@JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
 	@JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
 	@JsonProperty("_conflicts") override val conflicts: List<String>? = null,
-	val type: ObjectStorageTaskType,
 	val documentId: String,
 	val attachmentId: String,
-	val requestTime: Long = System.currentTimeMillis()
+	val lastCheckedDate: Long = System.currentTimeMillis()
 ) : StoredDocument {
 	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
-}
 
-enum class ObjectStorageTaskType { UPLOAD, DELETE }
+	fun withUpdatedLastCheckedDate() = copy(lastCheckedDate = System.currentTimeMillis())
+}

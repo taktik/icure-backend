@@ -28,13 +28,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asPublisher
-import kotlinx.coroutines.reactive.awaitFirst
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.stereotype.Repository
 import org.taktik.commons.uti.UTI
 import org.taktik.couchdb.annotation.View
@@ -43,11 +40,11 @@ import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.DocumentDAO
-import org.taktik.icure.asyncdao.cache.DocumentCache
 import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorage
 import org.taktik.icure.entities.Document
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.properties.DocumentStorageProperties
+import org.taktik.icure.properties.ObjectStorageProperties
+import org.taktik.icure.utils.toByteArray
 import org.taktik.icure.utils.writeTo
 
 @FlowPreview
@@ -58,9 +55,8 @@ class DocumentDAOImpl(
 	couchDbProperties: CouchDbProperties,
 	@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
 	idGenerator: IDGenerator,
-	private val documentCacheService: DocumentCache,
-	private val icureCloudStorage: IcureObjectStorage,
-	private val documentStorageProperties: DocumentStorageProperties
+	private val icureObjectStorage: IcureObjectStorage,
+	private val objectStorageProperties: ObjectStorageProperties
 ) : GenericDAOImpl<Document>(couchDbProperties, Document::class.java, couchDbDispatcher, idGenerator), DocumentDAO {
 	companion object {
 		private val log = LoggerFactory.getLogger(DocumentDAOImpl::class.java)
@@ -69,41 +65,51 @@ class DocumentDAOImpl(
 	override suspend fun beforeSave(entity: Document) =
 		super.beforeSave(entity).let { document ->
 			if (document.attachment != null) {
+				// TODO separate attachment id from attachment hash
 				val newAttachmentId = DigestUtils.sha256Hex(document.attachment)
-				if (documentStorageProperties.sizeLimit <= (document.size ?: 0)) {
-					documentCacheService.store(document.id, newAttachmentId, document.attachment)
-					document.copy(objectStoreReference = newAttachmentId)
+				val oldAttachmentId = document.attachmentId ?: document.objectStoreReference
+				if (newAttachmentId != oldAttachmentId) {
+					val updatedDocument =
+						if (oldAttachmentId != null) {
+							deleteStoredAttachment(document)
+						} else {
+							document
+						}
+					if (
+						document.attachment.size >= objectStorageProperties.sizeLimit
+							&& icureObjectStorage.preStore(document.id, newAttachmentId, document.attachment) // If cache can't be used fallback to couchdb attachment
+					) {
+						updatedDocument.copy(objectStoreReference = newAttachmentId, isAttachmentDirty = true)
+					} else {
+						updatedDocument.copy(attachmentId = newAttachmentId, isAttachmentDirty = true)
+					}
 				} else {
-					embedAttachmentInCouchdbDatabase(newAttachmentId, document)
+					document
 				}
-			} else if (document.attachmentId != null && document.rev != null) {
-				document.copy(
-					rev = deleteAttachment(document.id, document.rev, document.attachmentId),
-					attachmentId = null,
-					isAttachmentDirty = false
-				)
-			} else if (document.objectStoreReference != null && document.rev != null) {
-				icureCloudStorage.deleteAttachment(documentId = document.id, attachmentId = document.objectStoreReference)
-				document.copy(objectStoreReference = null)
+			} else if (document.attachmentId != null || document.objectStoreReference != null) { // && document.attachment == null
+				deleteStoredAttachment(document)
 			} else document
 		}
 
-	private suspend fun embedAttachmentInCouchdbDatabase(newAttachmentId: String?, document: Document) =
-			if (newAttachmentId != document.attachmentId && document.rev != null && document.attachmentId != null) {
-				document.attachments?.containsKey(document.attachmentId)?.takeIf { it }?.let {
-					document.copy(
-						rev = deleteAttachment(document.id, document.rev, document.attachmentId),
-						attachments = document.attachments - document.attachmentId,
-						attachmentId = newAttachmentId,
-						isAttachmentDirty = true
-					)
-				} ?: document.copy(
-					attachmentId = newAttachmentId,
-					isAttachmentDirty = true
+	private suspend fun deleteStoredAttachment(document: Document): Document =
+		if (document.rev != null) {
+			if (document.objectStoreReference != null) {
+				icureObjectStorage.deleteAttachment(documentId = document.id, attachmentId = document.objectStoreReference)
+			}
+			if (document.attachmentId != null && document.attachments?.containsKey(document.attachmentId) == true) {
+				document.copy(
+					rev = deleteAttachment(document.id, document.rev, document.attachmentId),
+					attachments = document.attachments - document.attachmentId,
+					attachmentId = null,
+					objectStoreReference = null,
+					isAttachmentDirty = false
 				)
 			} else {
-				document.copy(isAttachmentDirty = true, attachmentId = newAttachmentId)
+				document.copy(attachmentId = null, objectStoreReference = null, isAttachmentDirty = false)
 			}
+		} else {
+			document
+		}
 
 
 	override suspend fun afterSave(entity: Document) =
@@ -115,18 +121,11 @@ class DocumentDAOImpl(
 					mimeType = uti.mimeTypes[0]
 				}
 				createAttachment(document.id, document.attachmentId, document.rev, mimeType, flowOf(ByteBuffer.wrap(document.attachment))).let {
-					document.copy(
-						rev = it,
-						isAttachmentDirty = false
-					)
+					document.copy(rev = it, isAttachmentDirty = false)
 				}
-			} else if (document.objectStoreReference != null) {
-				documentCacheService.read(document.id, document.objectStoreReference)?.let { attachment ->
-					icureCloudStorage.storeAttachment(document.id, document.objectStoreReference, attachment)
-				} ?: kotlin.run {
-					log.error("Could not read from local cache: ${document.objectStoreReference}.")
-				}
-				document
+			} else if (document.isAttachmentDirty && document.objectStoreReference != null) {
+				icureObjectStorage.storeAttachment(documentId = document.id, attachmentId = document.objectStoreReference)
+				document.copy(isAttachmentDirty = false)
 			} else {
 				document
 			}
@@ -135,28 +134,35 @@ class DocumentDAOImpl(
 	override suspend fun postLoad(entity: Document) =
 		super.postLoad(entity).let { document ->
 			if (document.attachmentId != null) {
-				try {
-					val attachmentFlow = getAttachment(document.id, document.attachmentId, document.rev)
+				document.objectStoreReference?.let {
+					icureObjectStorage.readAttachment(documentId = document.id, attachmentId = document.objectStoreReference)
+				}?.let {
+					document.copy(attachment = it.toByteArray(true))
+				} ?: try {
 					val attachment = ByteArrayOutputStream().use {
-						attachmentFlow.writeTo(it)
+						getAttachment(document.id, document.attachmentId, document.rev).writeTo(it)
 						it.toByteArray()
 					}
-					if (documentStorageProperties.backlogToObjectStorage && documentStorageProperties.sizeLimit < attachment.size) {
-						// If the object was not using object storage but should migrate to object storage
-						/* TODO ensure consistency and usability:
-						 *  1. I shouldn't actually remove the attachment from the couchdb until it is available in cloud
-						 *  2. When the attachment is in the cloud wait a bit before actually updating this, otherwise we give the user a version of a document which will
-						 *     soon be made obsolete and they will have the update unexpectedly denied
+					if (
+						objectStorageProperties.backlogToObjectStorage
+							&& attachment.size >= objectStorageProperties.sizeLimit
+							&& document.objectStoreReference == null
+							&& icureObjectStorage.preStore(documentId = document.id, attachmentId = document.attachmentId, attachment)
+					) {
+						// The object was not using object storage but should migrate to object storage
+						/* TODO
+						 *  The check for objectStoreReference == null avoids having duplicate migration tasks. Duplicating the tasks should not cause any problems except
+						 *  for the executino of unnecessary computations and requests, but there not duplicating them can cause an issue: if someone starts the migration
+						 *  task (which is local) but closes before completing it and never opens the application again we will have the document always with a "migration
+						 *  in progress" (at least until the attachment is changed).
+						 *  Two possible solutions:
+						 *   - don't check for migrations in progress and duplicate tasks
+						 *   - check if the last modification is old and in that case re-execute the migration
 						 */
-						val doc = document.copy(
-							objectStoreReference = document.attachmentId,
-							attachmentId = null,
-							attachments = document.attachments?.let { it - document.attachmentId } ?: emptyMap()
-						)
-						save(doc)
-						documentCacheService.store(document.id, document.attachmentId, attachment)
-						icureCloudStorage.storeAttachment(document.id, document.attachmentId, attachment)
-						doc
+						document.copy(objectStoreReference = document.attachmentId, attachment = attachment).also {
+							save(it)
+							icureObjectStorage.migrateAttachment(documentId = document.id, attachmentId = document.attachmentId)
+						}
 					} else {
 						document.copy(attachment = attachment)
 					}
@@ -164,12 +170,8 @@ class DocumentDAOImpl(
 					document //Could not load
 				}
 			} else if (document.objectStoreReference != null) {
-				(documentCacheService.read(document.id, document.objectStoreReference)
-					?: icureCloudStorage.readAttachment(document.id, document.objectStoreReference)
-						.also { documentCacheService.store(document.id, document.objectStoreReference, it) })
-					.let {
-						document.copy(attachment = DataBufferUtils.join(it.asPublisher()).awaitFirst().asByteBuffer().array())
-					}
+				icureObjectStorage.readAttachment(document.id, document.objectStoreReference)
+					.let { document.copy(attachment = it.toByteArray(true)) }
 			} else document
 		}
 

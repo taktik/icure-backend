@@ -5,9 +5,10 @@ import org.springframework.stereotype.Component
 
 @Component
 @ConfigurationProperties("icure.documentstorage")
-class DocumentStorageProperties {
+class ObjectStorageProperties {
     var cacheLocation: String = ""
     var icureCloudUrl: String = ""
     var backlogToObjectStorage: Boolean = true
     var sizeLimit: Long = 2_000_000
+	var migrationDelayMs: Long = 15 * 60 * 1000
 }
