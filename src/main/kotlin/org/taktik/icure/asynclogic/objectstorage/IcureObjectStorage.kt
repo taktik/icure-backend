@@ -11,7 +11,7 @@ interface IcureObjectStorage {
 	/**
 	 * Performs the pre-storage tasks for an attachment.
 	 * @param documentId id of the document owner of the attachment.
-	 * @param attachmentId id of the attachment. This id should NOT be a hash of the content, but a generated UUID to avoid collisions in case of multiple updates to documents.
+	 * @param attachmentId id of the attachment.
 	 * @param content content of the attachment.
 	 * @return If the pre-storage was successful (normally it should always be successful). If not the attachment should be stored as a couchdb attachment.
 	 */
@@ -20,7 +20,7 @@ interface IcureObjectStorage {
 	/**
 	 * Performs the pre-storage tasks for an attachment.
 	 * @param documentId id of the document owner of the attachment.
-	 * @param attachmentId id of the attachment. This id should NOT be a hash of the content, but a generated UUID to avoid collisions in case of multiple updates to documents.
+	 * @param attachmentId id of the attachment.
 	 * @param content content of the attachment.
 	 * @return If the pre-storage was successful (normally it should always be successful). If not the attachment should be stored as a couchdb attachment.
 	 */
@@ -33,14 +33,14 @@ interface IcureObjectStorage {
 	 * the task will be stored to try to re-execute it later.
 	 * Before invoking this function you must pre-store the attachment content.
 	 * @param documentId id of the document owner of the attachment.
-	 * @param attachmentId id of the attachment. This id should NOT be a hash of the content, but a generated UUID to avoid collisions in case of multiple updates to documents.
+	 * @param attachmentId id of the attachment.
 	 */
 	suspend fun storeAttachment(documentId: String, attachmentId: String)
 
 	/**
 	 * Reads the attachment. Throws exceptions in case the cloud is not reachable or the attachment does not exist.
 	 * @param documentId id of the document owner of the attachment.
-	 * @param attachmentId id of the attachment. This id should NOT be a hash of the content, but a generated UUID to avoid collisions in case of multiple updates to documents.
+	 * @param attachmentId id of the attachment.
 	 * @return the attachment content.
 	 */
 	suspend fun readAttachment(documentId: String, attachmentId: String): Flow<DataBuffer>
@@ -51,7 +51,7 @@ interface IcureObjectStorage {
 	 * If the attachment can not be deleted from the cloud service the moment the task is executed (for example due to a network error)
 	 * the task will be stored to try to re-execute it later.
 	 * @param documentId id of the document owner of the attachment.
-	 * @param attachmentId id of the attachment. This id should NOT be a hash of the content, but a generated UUID to avoid collisions in case of multiple updates to documents.
+	 * @param attachmentId id of the attachment.
 	 */
 	suspend fun deleteAttachment(documentId: String, attachmentId: String)
 

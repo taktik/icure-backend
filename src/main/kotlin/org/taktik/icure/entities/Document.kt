@@ -78,7 +78,7 @@ import org.taktik.icure.validation.ValidCode
  * @property otherUtis Extra Uniform Type Identifiers
  * @property storedICureDocumentId The ICureDocument (Form, Contact, ...) that has been used to generate the document
  * @property externalUuid A unique external id (from another external source).
- * @property attachmentId Id of attachment to this document
+ * @property attachmentId Id of attachment to this document (hash)
  * @property idOpeningContact Id of the contact marking the beginning of a healthcare element for which the document was created
  * @property idClosingContact Id of the contact marking the end of a healthcare element for which the document was created.
  * @property delegations The delegations giving access to all connected healthcare information.

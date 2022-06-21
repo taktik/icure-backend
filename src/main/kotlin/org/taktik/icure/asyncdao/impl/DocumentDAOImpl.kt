@@ -65,7 +65,6 @@ class DocumentDAOImpl(
 	override suspend fun beforeSave(entity: Document) =
 		super.beforeSave(entity).let { document ->
 			if (document.attachment != null) {
-				// TODO separate attachment id from attachment hash
 				val newAttachmentId = DigestUtils.sha256Hex(document.attachment)
 				val oldAttachmentId = document.attachmentId ?: document.objectStoreReference
 				if (newAttachmentId != oldAttachmentId) {
