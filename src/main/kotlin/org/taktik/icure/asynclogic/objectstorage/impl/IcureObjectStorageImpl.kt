@@ -26,6 +26,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
@@ -64,7 +65,6 @@ class IcureObjectStorageImpl(
 	private val scheduledTasks = mutableMapOf<ScheduledTaskKey, ObjectStorageTask>()
 	private val taskExecutorScope = CoroutineScope(Dispatchers.Default)
 
-	@PostConstruct
 	fun launchScheduledTaskExecutor() = taskExecutorScope.launch {
 		while (true) {
 			scheduledTaskAvailability.awaitAvailable()
@@ -81,8 +81,20 @@ class IcureObjectStorageImpl(
 		}
 	}
 
+	suspend fun resumeMigrationTasks() {
+		objectStorageMigrationTasksDao.getEntities().collect {
+			taskExecutorScope.launch { doMigration(it) }
+		}
+	}
+
+	@PostConstruct
+	private fun initialize() {
+		launchScheduledTaskExecutor()
+		runBlocking { resumeMigrationTasks() }
+	}
+
 	@PreDestroy
-	fun stopTaskExecutors() {
+	private fun stopTaskExecutors() {
 		taskExecutorScope.cancel()
 	}
 
