@@ -1,5 +1,6 @@
 package org.taktik.icure.services.external.rest.v1.controllers.core
 
+import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import javax.xml.parsers.SAXParserFactory
@@ -7,7 +8,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.SingletonSupport
 import com.fasterxml.jackson.core.type.TypeReference
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
@@ -21,11 +24,15 @@ import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.taktik.icure.asynclogic.CodeLogic
+import org.taktik.icure.entities.base.Code
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
+import org.taktik.icure.services.external.rest.v1.dto.IdWithRevDto
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.test.ICureTestApplication
+import org.taktik.icure.test.removeEntities
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
+import reactor.core.publisher.Mono
 
 @SpringBootTest(
 	classes = [ICureTestApplication::class],
@@ -41,7 +48,12 @@ class CodeControllerEndToEndTest @Autowired constructor(
 	@LocalServerPort
 	var port = 0
 
-	val codesStats: MutableMap<String, Any> = mutableMapOf("total" to 0, "count" to mutableMapOf<String, Int>(), "latest" to mutableMapOf<String, String>())
+	val codesStats: MutableMap<String, Any> = mutableMapOf(
+		"total" to 0,
+		"count" to mutableMapOf<String, Int>(),
+		"latest" to mutableMapOf<String, String>(),
+		"ids" to listOf<String>()
+	)
 
 	private val objectMapper: ObjectMapper? = ObjectMapper().registerModule(
 		KotlinModule.Builder()
@@ -92,6 +104,7 @@ class CodeControllerEndToEndTest @Autowired constructor(
 						"VERSION" -> charsHandler = {
 							(codesStats["count"] as MutableMap<String, Int>).put(it, (codesStats["count"] as Map<String, Int>)[it]?.plus(1) ?: 1)
 							(codesStats["latest"] as MutableMap<String, String>)[currentCode] = it
+							codesStats["ids"] = (codesStats["ids"] as List<String>) + "testCode|$currentCode|$it"
 						}
 						else -> {
 							charsHandler = null
@@ -112,8 +125,9 @@ class CodeControllerEndToEndTest @Autowired constructor(
 	}
 
 	fun makeGetRequest(url: String): PaginatedList<CodeDto>? {
+		val auth = "Basic ${java.util.Base64.getEncoder().encodeToString("${System.getenv("ICURE_COUCHDB_TEST_USER")}:${System.getenv("ICURE_COUCHDB_TEST_PWD")}".toByteArray())}"
 		val client = HttpClient.create().headers { h ->
-			h.set("Authorization", "Basic aWN1cmV0ZXN0OmljdXJldGVzdA==") //Can I get this dynamically?
+			h.set("Authorization", auth) //
 			h.set("Content-type", "application/json")
 		}
 
@@ -405,6 +419,12 @@ class CodeControllerEndToEndTest @Autowired constructor(
 		testResultsOnTwoPages("latest", "limit=${expectedRows/2}&types=$type", expectedRows/2, expectedRows/2)
 	}
 
+	@AfterAll
+	fun cleanCodes() {
+		runBlocking {
+			removeEntities(codesStats["ids"] as List<String>, objectMapper)
+		}
+	}
 
 
 }

@@ -67,15 +67,16 @@ class ICureTestApplication {
 	@Bean
 	fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, iCureLogic: ICureLogic, codeLogic: CodeLogic, propertyLogic: PropertyLogic, allDaos: List<GenericDAO<*>>, internalDaos: List<InternalDAO<*>>, couchDbProperties: CouchDbProperties, userLogic: UserLogic) = ApplicationRunner {
 		val client = HttpClient.create()
+		val dbPort = System.getenv("ICURE_COUCHDB_URL").split(":")[2]
 		try { // Check if I already have a database running
-			client.get().uri("http://127.0.0.1:5984")
+			client.get().uri(System.getenv("ICURE_COUCHDB_URL"))
 				.response()
 				.block()
 		} catch (e: Exception) { // If not, I use docker to create a container
 			println("Starting docker")
 			ProcessBuilder(("docker run " +
-				"-p 5984:5984 " +
-				"-e COUCHDB_USER=admin -e COUCHDB_PASSWORD=admin " +
+				"-p $dbPort:5984 " +
+				"-e COUCHDB_USER=${System.getenv("ICURE_COUCHDB_USERNAME")} -e COUCHDB_PASSWORD=${System.getenv("ICURE_COUCHDB_PASSWORD")} " +
 				"-d --name couchdb-test " +
 				"couchdb:3.2.2").split(' '))
 				.start()
@@ -86,7 +87,7 @@ class ICureTestApplication {
 				var waitingForDb = true
 				while (waitingForDb) {
 					try {
-						client.get().uri("http://127.0.0.1:5984")
+						client.get().uri(System.getenv("ICURE_COUCHDB_URL"))
 							.response()
 							.awaitFirstOrNull()
 						waitingForDb = false
@@ -107,11 +108,11 @@ class ICureTestApplication {
 
 			// Creation of the test user
 			try {
-				userLogic.newUser(Users.Type.database, "icuretest", "icuretest", "icure")// Creates a test user if it does not exist
+				userLogic.newUser(Users.Type.database, System.getenv("ICURE_COUCHDB_TEST_USER"), System.getenv("ICURE_COUCHDB_TEST_PWD"), "icure")// Creates a test user if it does not exist
 			} catch (e: DuplicateDocumentException) {
 				log.info("Test user already exists!")
 			}finally {
-				log.info("iCure test user\nusername: icuretest\npassword: icuretest")
+				log.info("iCure test user\nusername: ${System.getenv("ICURE_COUCHDB_TEST_USER")}\npassword: ${System.getenv("ICURE_COUCHDB_TEST_PWD")}")
 			}
 		}
 	}
