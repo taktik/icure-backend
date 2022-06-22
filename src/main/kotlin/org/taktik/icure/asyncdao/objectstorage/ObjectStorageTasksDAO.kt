@@ -6,6 +6,6 @@ import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.icure.asyncdao.InternalDAO
 import org.taktik.icure.entities.objectstorage.ObjectStorageTask
 
-interface ObjectStorageTasksDao : InternalDAO<ObjectStorageTask> {
+interface ObjectStorageTasksDAO : InternalDAO<ObjectStorageTask> {
 	fun findTasksByDocumentAndAttachmentIds(documentId: String, attachmentId: String): Flow<ObjectStorageTask>
 }

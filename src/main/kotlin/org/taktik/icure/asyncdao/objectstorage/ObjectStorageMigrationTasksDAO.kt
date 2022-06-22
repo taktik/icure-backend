@@ -4,4 +4,4 @@ import org.taktik.icure.asyncdao.InternalDAO
 import org.taktik.icure.entities.objectstorage.ObjectStorageMigrationTask
 import org.taktik.icure.entities.objectstorage.ObjectStorageTask
 
-interface ObjectStorageMigrationTasksDao : InternalDAO<ObjectStorageMigrationTask>
+interface ObjectStorageMigrationTasksDAO : InternalDAO<ObjectStorageMigrationTask>
