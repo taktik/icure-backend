@@ -1,4 +1,4 @@
-package org.taktik.icure.asyncdao
+package org.taktik.icure.asynclogic
 
 import io.mockk.every
 import io.mockk.mockk
@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.id.UUIDGenerator
+import org.taktik.icure.asyncdao.RoleDAO
+import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PropertyLogic
