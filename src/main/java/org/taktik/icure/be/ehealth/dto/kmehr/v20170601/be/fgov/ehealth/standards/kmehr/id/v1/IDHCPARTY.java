@@ -67,7 +67,7 @@ public class IDHCPARTY
     @XmlAttribute(name = "S", required = true)
     protected IDHCPARTYschemes s;
     @XmlAttribute(name = "SV", required = true)
-    protected String sv = "1.0";
+    protected String sv = "1.10";
     @XmlAttribute(name = "SL")
     protected String sl;
 

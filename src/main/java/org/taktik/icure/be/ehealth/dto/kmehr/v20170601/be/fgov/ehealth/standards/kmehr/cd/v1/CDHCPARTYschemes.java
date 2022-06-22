@@ -54,7 +54,7 @@ import javax.xml.bind.annotation.XmlType;
 public enum CDHCPARTYschemes {
 
     @XmlEnumValue("CD-HCPARTY")
-    CD_HCPARTY("CD-HCPARTY", "1.0"),
+    CD_HCPARTY("CD-HCPARTY", "1.10"),
     @XmlEnumValue("CD-APPLICATION")
     CD_APPLICATION("CD-APPLICATION", "1.0"),
     @XmlEnumValue("CD-ENCRYPTION-ACTOR")

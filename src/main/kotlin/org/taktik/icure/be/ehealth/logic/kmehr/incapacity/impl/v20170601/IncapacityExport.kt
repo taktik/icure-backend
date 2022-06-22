@@ -126,19 +126,26 @@ class IncapacityExport(
 				this.patient.profession.cds.add(CDEMPLOYMENTSITUATION().apply { value = CDEMPLOYMENTSITUATIONvalues.fromValue(jobstatus) })
 			}
 			if (dataset == "c" || diagnoseServices.isEmpty()) {
-				this.patient.profession = null;
-				this.patient.telecoms.clear();
+				this.patient.profession = null
+				this.patient.telecoms.clear()
 			} else if (!job.isNullOrBlank()) {
 				if(this.patient.profession == null){
 					this.patient.profession = ProfessionType()
 				}
 				this.patient.profession.text = TextType().apply {
 					this.l = language
-					this.value = job;
+					this.value = job
+				}
+			} else {
+				if(this.patient.profession != null) {
+					this.patient.profession?.text = null
+					if(this.patient.profession?.cds?.size == 0){
+						this.patient.profession = null
+					}
 				}
 			}
-			this.patient.birthlocation = null;
-			this.patient.deathlocation = null;
+			this.patient.birthlocation = null
+			this.patient.deathlocation = null
 			if (diagnoseServices.isEmpty()) {
 				this.patient.telecoms.clear();
 			}
@@ -241,13 +248,23 @@ class IncapacityExport(
 										snomedDesc = if (language == "fr") codes[0]?.label?.get("fr") else codes[0]?.label?.get("nl")
 									}
 
+									if(!codes.isEmpty()) {
+										contents.add(
+											ContentType().apply {
+												cds.addAll(
+													codes.map { cd ->
+														val version = cd.version;
+														val type = cd.type
+														val cdt = CDCONTENTschemes.fromValue(if (type == "SNOMED") "CD-SNOMED" else type)
+														CDCONTENT().apply { s(cdt); sv = version; value = cd.code }
+														//CDCONTENT().apply { s(if (cd.type == "ICD") CDCONTENTschemes.ICD else (if (cd.type == "ICPC") CDCONTENTschemes.ICPC else CDCONTENTschemes.CD_SNOMED)); value = cd.code }
+													}
+												)
+											}
+										)
+									}
 									contents.add(
 										ContentType().apply {
-											cds.addAll(
-												codes.map { cd ->
-													CDCONTENT().apply { s(if (cd.type == "ICD") CDCONTENTschemes.ICD else (if (cd.type == "ICPC") CDCONTENTschemes.ICPC else CDCONTENTschemes.CD_SNOMED)); value = cd.code }
-												}
-											)
 											val descr_fr = svc.content?.get("descr_fr")?.stringValue
 											val descr_nl = svc.content?.get("descr_nl")?.stringValue
 											val descr = svc.content?.get("descr")?.stringValue
