@@ -20,14 +20,18 @@ package org.taktik.icure.asyncdao.impl
 
 import java.io.IOException
 import java.nio.ByteBuffer
+import javax.annotation.PostConstruct
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.slf4j.LoggerFactory
@@ -60,6 +64,11 @@ class DocumentDAOImpl(
 ) : GenericDAOImpl<Document>(couchDbProperties, Document::class.java, couchDbDispatcher, idGenerator), DocumentDAO {
 	companion object {
 		private val log = LoggerFactory.getLogger(DocumentDAOImpl::class.java)
+	}
+
+	@PostConstruct
+	fun resumeMigrationTasks() = runBlocking {
+		icureObjectStorage.resumeMigrationTasks(this@DocumentDAOImpl)
 	}
 
 	override suspend fun beforeSave(entity: Document) =
@@ -160,7 +169,7 @@ class DocumentDAOImpl(
 						 */
 						document.copy(objectStoreReference = document.attachmentId, attachment = attachment).also {
 							save(it)
-							icureObjectStorage.migrateAttachment(documentId = document.id, attachmentId = document.attachmentId)
+							icureObjectStorage.migrateAttachment(documentId = document.id, attachmentId = document.attachmentId, this@DocumentDAOImpl)
 						}
 					} else {
 						document.copy(attachment = attachment)

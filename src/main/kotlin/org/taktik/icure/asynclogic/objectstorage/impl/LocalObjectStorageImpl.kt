@@ -63,19 +63,20 @@ class LocalObjectStorageImpl(private val objectStorageProperties: ObjectStorageP
 		null
 	}
 
-	override suspend fun delete(documentId: String, attachmentId: String) {
+	override suspend fun delete(documentId: String, attachmentId: String): Boolean =
 		toFolderPath(documentId).resolve(attachmentId)
-			.takeIf { Files.isRegularFile(it) }
+			.takeIf { Files.exists(it) }
 			?.let {
 				withContext(Dispatchers.IO) {
 					kotlin.runCatching {
 						Files.delete(it)
+						true
 					}.exceptionOrNull()?.let { e ->
 						log.error("Could not remove from cache attachment $attachmentId@$documentId", e)
+						false
 					}
 				}
-			}
-	}
+			} ?: true
 
 	private fun toFolderPath(documentId: String) = Paths.get(
 		objectStorageProperties.cacheLocation,

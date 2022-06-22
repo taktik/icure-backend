@@ -66,6 +66,7 @@ apply(plugin = "maven-publish")
 
 tasks.withType<Test> {
     useJUnitPlatform()
+	System.getProperties().forEach { k,	v -> systemProperty(k as String, v) }
 }
 
 tasks.withType<JavaCompile> {
@@ -228,6 +229,8 @@ dependencies {
     testImplementation(group = "org.springframework.boot", name = "spring-boot-starter-test", version = "2.5.13")
     testImplementation(group = "io.mockk", name = "mockk", version = "1.11.0")
     testImplementation(group = "com.ninja-squad", name = "springmockk", version = "3.1.1")
+	testImplementation(group = "io.kotest", name = "kotest-assertions-core", version = "4.4.3")
+	testImplementation(group = "io.kotest", name = "kotest-runner-junit5", version = "4.4.3")
 }
 
 val outputDir = "${project.buildDir}/reports/ktlint/"

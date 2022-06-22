@@ -51,7 +51,9 @@ class ObjectStorageClientImpl(
 				.body(bodyInserter)
 				.retrieve()
 				.awaitBody<Any>()
-		}.also { r -> r.exceptionOrNull()?.let { log.warn("Failed to upload attachment $attachmentId@$documentId", it) } }.isSuccess
+		}.also { r ->
+			r.exceptionOrNull()?.let { log.warn("Failed to upload attachment $attachmentId@$documentId", it) }
+		}.isSuccess
 
 	override suspend fun get(documentId: String, attachmentId: String): Flow<DataBuffer> =
 		icureCloudClient.get()
@@ -65,7 +67,9 @@ class ObjectStorageClientImpl(
 				.setUriAndAuthorization(documentId, attachmentId)
 				.retrieve()
 				.awaitBody<Any>()
-		}.also { r -> r.exceptionOrNull()?.let { log.warn("Failed to delete attachment $attachmentId@$documentId", it) } }.isSuccess
+		}.also { r ->
+			r.exceptionOrNull()?.let { log.warn("Failed to delete attachment $attachmentId@$documentId", it) }
+		}.isSuccess
 
 	private suspend fun <T : WebClient.RequestHeadersSpec<T>> WebClient.RequestHeadersUriSpec<T>.setUriAndAuthorization(
 		documentId: String,

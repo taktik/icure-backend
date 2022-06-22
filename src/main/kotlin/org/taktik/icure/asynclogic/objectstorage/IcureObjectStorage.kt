@@ -2,6 +2,7 @@ package org.taktik.icure.asynclogic.objectstorage
 
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
+import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.entities.objectstorage.ObjectStorageTask
 
 /**
@@ -64,10 +65,15 @@ interface IcureObjectStorage {
 	 * - The document still refers to the same attachment. If the attachment changed the task will be completely removed.
 	 * - The attachment has been successfully uploaded to the cloud. If the attachment was not updated the task will be delayed further.
  	 */
-	suspend fun migrateAttachment(documentId: String, attachmentId: String)
+	suspend fun migrateAttachment(documentId: String, attachmentId: String, documentDAO: DocumentDAO)
 
 	/**
 	 * Attempts to re-execute all stored tasks. This method only re-schedules tasks for execution, and may return before the tasks are actually completed.
 	 */
 	suspend fun retryStoredTasks()
+
+	/**
+	 * Resume any stored migration tasks.
+	 */
+	suspend fun resumeMigrationTasks(documentDAO: DocumentDAO)
 }

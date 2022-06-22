@@ -2,58 +2,44 @@ package org.taktik.icure.asynclogic.objectstorage.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.stereotype.Service
-import org.taktik.couchdb.create
-import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
 import org.taktik.icure.entities.objectstorage.ObjectStorageTask
 import org.taktik.icure.entities.objectstorage.ObjectStorageTaskType
-import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.security.database.DatabaseUserDetails
-import java.net.URI
 import java.util.*
-import java.util.concurrent.BlockingQueue
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
-import kotlin.collections.LinkedHashMap
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import org.taktik.couchdb.exception.CouchDbException
 import org.taktik.icure.asyncdao.DocumentDAO
-import org.taktik.icure.asyncdao.objectstorage.ObjectStorageMigrationTasksDao
-import org.taktik.icure.asyncdao.objectstorage.ObjectStorageTasksDao
+import org.taktik.icure.asyncdao.objectstorage.ObjectStorageMigrationTasksDAO
+import org.taktik.icure.asyncdao.objectstorage.ObjectStorageTasksDAO
 import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorage
 import org.taktik.icure.asynclogic.objectstorage.LocalObjectStorage
 import org.taktik.icure.asynclogic.objectstorage.ObjectStorageClient
 import org.taktik.icure.entities.objectstorage.ObjectStorageMigrationTask
 import org.taktik.icure.properties.ObjectStorageProperties
+import org.taktik.icure.utils.SignalerWithMemory
 
 @Service
 @ExperimentalCoroutinesApi
+// TODO maybe should update this to actually cancel opposite tasks instead of keeping the latest.
 class IcureObjectStorageImpl(
 	private val objectStorageProperties: ObjectStorageProperties,
-    private val objectStorageTasksDao: ObjectStorageTasksDao,
-    private val objectStorageMigrationTasksDao: ObjectStorageMigrationTasksDao,
+    private val objectStorageTasksDao: ObjectStorageTasksDAO,
+    private val objectStorageMigrationTasksDao: ObjectStorageMigrationTasksDAO,
 	private val objectStorageClient: ObjectStorageClient,
-	private val localObjectStorage: LocalObjectStorage,
-	private val documentDAO: DocumentDAO
+	private val localObjectStorage: LocalObjectStorage
 ) : IcureObjectStorage {
     companion object {
 		private const val MIGRATION_RETRY_DELAY = 1 * 60 * 1000L
@@ -61,40 +47,18 @@ class IcureObjectStorageImpl(
     }
 
 	private val scheduledTasksLock = Mutex(locked = false)
-	private val scheduledTaskAvailability = ScheduledTaskAvailability()
+	// Can't use a channel directly for tasks because I may need to update tasks which refer to the same attachment, hence the signaler + task map
+	private val scheduledTaskAvailability = SignalerWithMemory()
 	private val scheduledTasks = mutableMapOf<ScheduledTaskKey, ObjectStorageTask>()
 	private val taskExecutorScope = CoroutineScope(Dispatchers.Default)
 
-	fun launchScheduledTaskExecutor() = taskExecutorScope.launch {
-		while (true) {
-			scheduledTaskAvailability.awaitAvailable()
-			var task: ObjectStorageTask?
-			do {
-				ensureActive()
-				task = scheduledTasksLock.withLock {
-					scheduledTasks.keys.firstOrNull()?.let {
-						scheduledTasks.remove(it)
-					}
-				}
-				if (task != null) executeTask(task)
-			} while (task != null)
-		}
-	}
-
-	suspend fun resumeMigrationTasks() {
-		objectStorageMigrationTasksDao.getEntities().collect {
-			taskExecutorScope.launch { doMigration(it) }
-		}
-	}
-
 	@PostConstruct
-	private fun initialize() {
+	internal fun initialize() {
 		launchScheduledTaskExecutor()
-		runBlocking { resumeMigrationTasks() }
 	}
 
 	@PreDestroy
-	private fun stopTaskExecutors() {
+	internal fun finalize() {
 		taskExecutorScope.cancel()
 	}
 
@@ -108,12 +72,15 @@ class IcureObjectStorageImpl(
 		scheduleNewStorageTask(documentId, attachmentId, ObjectStorageTaskType.UPLOAD)
 
 	override suspend fun readAttachment(documentId: String, attachmentId: String): Flow<DataBuffer> =
-		localObjectStorage.read(documentId, attachmentId) ?: objectStorageClient.get(documentId, attachmentId)
+		localObjectStorage.read(documentId, attachmentId)
+			?: objectStorageClient.get(documentId, attachmentId)
+				.also { localObjectStorage.store(documentId, attachmentId, it) }
 
 	override suspend fun deleteAttachment(documentId: String, attachmentId: String) =
 		scheduleNewStorageTask(documentId, attachmentId, ObjectStorageTaskType.DELETE)
 
-	override suspend fun migrateAttachment(documentId: String, attachmentId: String) {
+	// TODO refactor for better separation of document dao and migration tasks
+	override suspend fun migrateAttachment(documentId: String, attachmentId: String, documentDAO: DocumentDAO) {
 		scheduleNewStorageTask(documentId = documentId, attachmentId = attachmentId, ObjectStorageTaskType.UPLOAD)
 		val task = ObjectStorageMigrationTask(
 			id = UUID.randomUUID().toString(),
@@ -123,7 +90,7 @@ class IcureObjectStorageImpl(
 		objectStorageMigrationTasksDao.save(task)
 		taskExecutorScope.launch {
 			delay(objectStorageProperties.migrationDelayMs)
-			doMigration(task)
+			doMigration(task, documentDAO)
 		}
 	}
 
@@ -136,15 +103,20 @@ class IcureObjectStorageImpl(
 		}
 	}
 
+	override suspend fun resumeMigrationTasks(documentDAO: DocumentDAO) {
+		objectStorageMigrationTasksDao.getEntities().collect {
+			taskExecutorScope.launch { doMigration(it, documentDAO) }
+		}
+	}
+
 	private suspend fun scheduleNewStorageTask(
 		documentId: String,
 		attachmentId: String,
 		taskType: ObjectStorageTaskType
 	) {
 		// TODO may be better to launch a new coroutine to return immediately, but this way we guarantee the task is saved before postSave
-		// TODO may be simplified if we consider delete task always comes after store?
 		scheduledTasksLock.withLock {
-			objectStorageTasksDao.remove(objectStorageTasksDao.findTasksByDocumentAndAttachmentIds(documentId = documentId, attachmentId = attachmentId))
+			objectStorageTasksDao.purge(objectStorageTasksDao.findTasksByDocumentAndAttachmentIds(documentId = documentId, attachmentId = attachmentId)).collect()
 			val task = ObjectStorageTask(
 				id = UUID.randomUUID().toString(),
 				type = taskType,
@@ -152,9 +124,10 @@ class IcureObjectStorageImpl(
 				attachmentId = attachmentId
 			)
 			if (lockedAddOrUpdateScheduledTask(ScheduledTaskKey(documentId = documentId, attachmentId = attachmentId), task)) {
+				// Always storing the task so that if we have a big backlog of tasks to do and the user shuts down before the task is executed it will anyway be saved for later
 				objectStorageTasksDao.save(task)
 			}
-			scheduledTaskAvailability.notifyAvailable()
+			scheduledTaskAvailability.signal()
 		}
 	}
 
@@ -178,12 +151,14 @@ class IcureObjectStorageImpl(
 				ObjectStorageTaskType.DELETE ->
 					objectStorageClient.delete(documentId = task.documentId, attachmentId = task.attachmentId)
 			}
-		if (success) {
-			objectStorageTasksDao.purge(flowOf(task))
+		if (success) try {
+			objectStorageTasksDao.purge(task)
+		} catch (_: CouchDbException) {
+			// Ignore, could happen if a colliding task was created and it already deleted this. Should not case any problem because the new task will be executed after this.
 		}
 	}
 
-	private suspend fun doMigration(task: ObjectStorageMigrationTask) {
+	private suspend fun doMigration(task: ObjectStorageMigrationTask, documentDAO: DocumentDAO) {
 		var done = false
 		while (!done) {
 			val updateResult = documentDAO.get(task.documentId)
@@ -201,7 +176,7 @@ class IcureObjectStorageImpl(
 			if (updateResult?.exceptionOrNull()?.let { it is CouchDbException } != false) {
 				// If the migration was successful or there are not the conditions for migration anymore (e.g. the attachment to migrate changed or someone else migrated) we are done.
 				done = true
-				objectStorageMigrationTasksDao.purge(flowOf(task))
+				objectStorageMigrationTasksDao.purge(task)
 			} else {
 				// Retry only if we encountered a non-db exception (like a connection error)
 				delay(MIGRATION_RETRY_DELAY)
@@ -209,15 +184,19 @@ class IcureObjectStorageImpl(
 		}
 	}
 
-	private class ScheduledTaskAvailability {
-		private val channel = Channel<Unit>(capacity = 1)
-
-		fun notifyAvailable() {
-			channel.offer(Unit)
-		}
-
-		suspend fun awaitAvailable() {
-			channel.receive()
+	private fun launchScheduledTaskExecutor() = taskExecutorScope.launch {
+		while (true) {
+			scheduledTaskAvailability.awaitSignal()
+			var task: ObjectStorageTask?
+			do {
+				ensureActive()
+				task = scheduledTasksLock.withLock {
+					scheduledTasks.keys.firstOrNull()?.let {
+						scheduledTasks.remove(it)
+					}
+				}
+				if (task != null) executeTask(task)
+			} while (task != null)
 		}
 	}
 

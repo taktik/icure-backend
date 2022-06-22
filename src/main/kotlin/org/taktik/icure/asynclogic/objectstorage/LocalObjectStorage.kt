@@ -40,6 +40,7 @@ interface LocalObjectStorage {
 	 * Deletes an attachment stored locally.
 	 * @param documentId id of the document owner of the attachment
 	 * @param attachmentId id of the attachment
+	 * @return if the attachment was properly deleted or did not exist
 	 */
-	suspend fun delete(documentId: String, attachmentId: String)
+	suspend fun delete(documentId: String, attachmentId: String): Boolean
 }
