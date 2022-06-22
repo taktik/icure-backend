@@ -1,14 +1,11 @@
 package org.taktik.icure.services.external.rest.v1.controllers.core
 
-import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import javax.xml.parsers.SAXParserFactory
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.SingletonSupport
 import com.fasterxml.jackson.core.type.TypeReference
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
@@ -26,13 +23,9 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
-import org.taktik.icure.services.external.rest.v1.dto.IdWithRevDto
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.test.ICureTestApplication
 import org.taktik.icure.test.removeEntities
-import org.xml.sax.Attributes
-import org.xml.sax.helpers.DefaultHandler
-import reactor.core.publisher.Mono
 
 @SpringBootTest(
 	classes = [ICureTestApplication::class],
@@ -51,7 +44,7 @@ class CodeControllerEndToEndTest @Autowired constructor(
 	val codesStats: MutableMap<String, Any> = mutableMapOf(
 		"total" to 0,
 		"count" to mutableMapOf<String, Int>(),
-		"latest" to mutableMapOf<String, String>(),
+		"latest" to mapOf<String, String>(),
 		"ids" to listOf<String>()
 	)
 
@@ -72,54 +65,24 @@ class CodeControllerEndToEndTest @Autowired constructor(
 		val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader)
 
 		// Imports the codes into the database
-		val codesFile = "classpath*:/org/taktik/icure/db/codes/test/test-codes.xml"
-		resolver.getResources(codesFile).forEach {
-			val md5 = it.filename!!.replace(Regex(".+\\.([\\da-f]{20}[\\da-f]+)\\.xml"), "$1")
-			runBlocking { codeLogic.importCodesFromXml(md5, it.filename!!.replace(Regex("(.+)\\.[\\da-f]{20}[\\da-f]+\\.xml"), "$1"), it.inputStream) }
-		}
-
-		// Parses the input file to calculate the numbers used in the tests
-		val statsHandler = object : DefaultHandler() {
-			var initialized = false
-			var charsHandler: ((chars: String) -> Unit)? = null
-			var characters: String = ""
-			var currentCode: String = ""
-
-			override fun characters(ch: CharArray?, start: Int, length: Int) {
-				ch?.let { characters += String(it, start, length) }
-			}
-
-			override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
-				if (!initialized && qName != "kmehr-cd") {
-					throw IllegalArgumentException("Not supported")
-				}
-				initialized = true
-				characters = ""
-				qName?.let {
-					when (it.toUpperCase()) {
-						"VALUE" -> {
-							codesStats["total"] = (codesStats["total"] as Int ) + 1
-						}
-						"CODE" -> charsHandler = { currentCode = it }
-						"VERSION" -> charsHandler = {
-							(codesStats["count"] as MutableMap<String, Int>).put(it, (codesStats["count"] as Map<String, Int>)[it]?.plus(1) ?: 1)
-							(codesStats["latest"] as MutableMap<String, String>)[currentCode] = it
-							codesStats["ids"] = (codesStats["ids"] as List<String>) + "testCode|$currentCode|$it"
-						}
-						else -> {
-							charsHandler = null
-						}
-					}
-				}
-			}
-
-			override fun endElement(uri: String?, localName: String?, qName: String?) {
-				charsHandler?.let { it(characters) }
+		resolver.getResources("classpath*:/org/taktik/icure/db/codes/codes-test-version-filter.json").forEach {
+			runBlocking {
+				codeLogic.importCodesFromJSON(it.inputStream)
 			}
 		}
 
-		resolver.getResources(codesFile).forEach {
-			SAXParserFactory.newInstance().newSAXParser().parse(it.inputStream, statsHandler)
+		val countVersions = mutableMapOf<String, MutableList<String>>()
+		resolver.getResources("classpath*:/org/taktik/icure/db/codes/codes-test-version-filter.json").forEach {
+			objectMapper?.readValue(it.inputStream, object: TypeReference<List<Code>>() {})?.forEach { code ->
+				codesStats["total"] = (codesStats["total"] as Int) + 1
+				(codesStats["count"] as MutableMap<String, Int>)[code.version ?: "NO_VERSION"] = (codesStats["count"] as Map<String, Int>)[code.version ?: "NO_VERSION"]?.plus(1) ?: 1
+				codesStats["ids"] = (codesStats["ids"] as List<String>) + code.id
+				if (countVersions[code.code] == null) countVersions[code.code ?: "NO_CODE"] = mutableListOf(code.version ?: "NO_VERSION")
+				else countVersions[code.code ?: "NO_CODE"]?.add(code.version ?: "NO_VERSION")
+			}
+		}
+		countVersions.forEach{ (k, v) ->
+			codesStats["latest"] = (codesStats["latest"] as Map<String, String>) + (k to (v.maxOrNull() ?: "NO_VERSION"))
 		}
 
 	}

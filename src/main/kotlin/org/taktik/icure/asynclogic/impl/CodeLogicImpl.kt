@@ -23,6 +23,10 @@ import java.lang.reflect.InvocationTargetException
 import java.util.LinkedList
 import javax.xml.parsers.SAXParserFactory
 import kotlin.coroutines.coroutineContext
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.SingletonSupport
 import com.google.common.collect.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -469,65 +473,11 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 				}
 			}
 
-			// Hanler to parse test code from XML
-			// Equal to default handler but allow to set the type and a different version for each code
-			val testHandler = object : DefaultHandler() {
-				var initialized = false
-				var charsHandler: ((chars: String) -> Unit)? = null
-				var code: MutableMap<String, Any> = mutableMapOf()
-				var characters: String = ""
-				var newType = type
-
-				override fun characters(ch: CharArray?, start: Int, length: Int) {
-					ch?.let { characters += String(it, start, length) }
-				}
-
-				override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
-					if (!initialized && qName != "kmehr-cd") {
-						throw IllegalArgumentException("Not supported")
-					}
-					initialized = true
-					characters = ""
-					qName?.let {
-						when (it.toUpperCase()) {
-							"TYPE" -> charsHandler = { newType = it }
-							"VALUE" -> {
-								code = mutableMapOf("type" to newType, "label" to mapOf<String, String>(), "regions" to setOf<String>())
-							}
-							"VERSION" -> charsHandler = { code["version"] = it}
-							"CODE" -> charsHandler = { code["code"] = it }
-							"PARENT" -> charsHandler = { code["qualifiedLinks"] = mapOf(LinkQualification.parent to listOf("$type|$it|${code["version"]}")) }
-							"DESCRIPTION" -> charsHandler = { attributes?.getValue("L")?.let { attributesValue -> code["label"] = (code["label"] as Map<String, String>) + (attributesValue to it.trim()) } }
-							"REGIONS" -> charsHandler = { code["regions"] = (code["regions"] as Set<String>) + it.trim() }
-							else -> {
-								charsHandler = null
-							}
-						}
-					}
-				}
-
-				override fun endElement(uri: String?, localName: String?, qName: String?) {
-					charsHandler?.let { it(characters) }
-					qName?.let {
-						when (it.toUpperCase()) {
-							"VALUE" -> {
-								runBlocking(coroutineScope.coroutineContext) {
-									code["id"] = "${code["type"] as String}|${code["code"] as String}|${code["version"] as String}"
-									batchSave(Code(args = code), false)
-								}
-							}
-							else -> null
-						}
-					}
-				}
-			}
-
 			try {
 				when (type.toUpperCase()) {
 					"BE-THESAURUS-PROCEDURES" -> saxParser.parse(stream, beThesaurusProcHandler)
 					"BE-THESAURUS" -> saxParser.parse(stream, beThesaurusHandler)
 					"ISO-639-1" -> saxParser.parse(stream, iso6391Handler)
-					"TEST-CODES.XML" -> saxParser.parse(stream, testHandler)
 					else -> saxParser.parse(stream, handler)
 				}
 				batchSave(null, true)
@@ -540,6 +490,33 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 		} else {
 			stream.close()
 		}
+	}
+
+	override suspend fun importCodesFromJSON(stream: InputStream) {
+		val objectMapper: ObjectMapper? = ObjectMapper().registerModule(
+			KotlinModule.Builder()
+				.nullIsSameAsDefault(nullIsSameAsDefault = false)
+				.reflectionCacheSize(reflectionCacheSize = 512)
+				.nullToEmptyMap(nullToEmptyMap = false)
+				.nullToEmptyCollection(nullToEmptyCollection = false)
+				.singletonSupport(singletonSupport = SingletonSupport.DISABLED)
+				.strictNullChecks(strictNullChecks = false)
+				.build()
+		)
+
+		val codeList = objectMapper?.readValue(stream, object: TypeReference<List<Code>>() {}) ?: listOf()
+
+		val existing = getCodes(codeList.map { it.id }).fold(HashMap<String, Code>()) { map, c -> map[c.id] = c; map }
+		try {
+			codeDAO.save(
+				codeList.map { xc ->
+					existing[xc.id]?.let { xc.copy(rev = it.rev) } ?: xc
+				}
+			).collect { log.debug("Code: ${it.id} is saved") }
+		} catch (e: BulkUpdateConflictException) {
+			log.error("${e.conflicts.size} conflicts")
+		}
+
 	}
 
 	override fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Code>, sort: String?, desc: Boolean?) = flow<ViewQueryResultEvent> {
