@@ -113,7 +113,7 @@ class UserDAOImpl(
 								latestResult = it
 								seenElements++
 								if (skipped || !isContinuation) {
-									if ((it.doc as User).patientId === null && sentElements < pagination.limit) {
+									if (((it.doc as User).patientId === null || (it.doc as User).healthcarePartyId != null) && sentElements < pagination.limit) {
 										sentElements++
 										true
 									} else false
