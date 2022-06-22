@@ -138,12 +138,30 @@ open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T
 		return client.update(entity, entityClass)
 	}
 
+	override suspend fun purge(entity: T): DocIdentifier {
+		val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
+		if (log.isDebugEnabled) {
+			log.debug(entityClass.simpleName + ".purge: " + entity)
+		}
+		return client.delete(entity)
+	}
+
 	override fun purge(entities: Flow<T>) = flow {
 		val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
 		if (log.isDebugEnabled) {
 			log.debug(entityClass.simpleName + ".purge flow of entities ")
 		}
 		emitAll(client.bulkDelete(entities.toList()))
+	}
+
+	@Suppress("UNCHECKED_CAST")
+	override suspend fun remove(entity: T): DocIdentifier {
+		val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
+		if (log.isDebugEnabled) {
+			log.debug(entityClass.simpleName + ".remove: " + entity)
+		}
+		val deleted = client.update(entity.withDeletionDate(deletionDate = System.currentTimeMillis()) as T, entityClass)
+		return DocIdentifier(deleted.id, deleted.rev)
 	}
 
 	override fun remove(entities: Flow<T>) = flow {
