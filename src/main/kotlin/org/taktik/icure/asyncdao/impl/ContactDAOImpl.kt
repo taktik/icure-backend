@@ -452,7 +452,7 @@ class ContactDAOImpl(
 
 		val viewQuery = createQuery(client, "service_by_hcparty_code").startKey(from).endKey(to).includeDocs(false).reduce(true).group(true).groupLevel(3)
 
-		emitAll(client.queryView<Array<String>, Long>(viewQuery).map { Pair(ComplexKey.of(it.key), it.value) })
+		emitAll(client.queryView<Array<String>, Long>(viewQuery).map { Pair(ComplexKey.of(*(it.key as Array<String>)), it.value) })
 	}
 
 	@View(name = "service_by_hcparty_patient_code", map = "classpath:js/contact/Service_by_hcparty_patient_code.js")

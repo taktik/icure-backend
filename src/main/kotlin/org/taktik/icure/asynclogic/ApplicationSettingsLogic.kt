@@ -22,4 +22,5 @@ import org.taktik.icure.entities.ApplicationSettings
 
 interface ApplicationSettingsLogic : EntityPersister<ApplicationSettings, String> {
 	suspend fun createApplicationSettings(applicationSettings: ApplicationSettings): ApplicationSettings?
+	suspend fun modifyApplicationSettings(applicationSettings: ApplicationSettings): ApplicationSettings?
 }

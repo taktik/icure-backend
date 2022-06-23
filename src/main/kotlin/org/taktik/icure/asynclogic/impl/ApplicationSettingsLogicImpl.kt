@@ -33,4 +33,8 @@ class ApplicationSettingsLogicImpl(private val applicationSettingsDAO: Applicati
 	override suspend fun createApplicationSettings(applicationSettings: ApplicationSettings): ApplicationSettings? {
 		return applicationSettingsDAO.create(applicationSettings)
 	}
+
+	override suspend fun modifyApplicationSettings(applicationSettings: ApplicationSettings): ApplicationSettings? {
+		return applicationSettingsDAO.save(applicationSettings)
+	}
 }
