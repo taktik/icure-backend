@@ -13,13 +13,13 @@ import javax.annotation.PreDestroy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.taktik.couchdb.exception.CouchDbException
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asyncdao.objectstorage.ObjectStorageMigrationTasksDAO
@@ -29,10 +29,8 @@ import org.taktik.icure.asynclogic.objectstorage.LocalObjectStorage
 import org.taktik.icure.asynclogic.objectstorage.ObjectStorageClient
 import org.taktik.icure.entities.objectstorage.ObjectStorageMigrationTask
 import org.taktik.icure.properties.ObjectStorageProperties
-import org.taktik.icure.utils.SignalerWithMemory
 
 @Service
-@ExperimentalCoroutinesApi
 // TODO maybe should update this to actually cancel opposite tasks instead of keeping the latest.
 class IcureObjectStorageImpl(
 	private val objectStorageProperties: ObjectStorageProperties,
@@ -46,14 +44,17 @@ class IcureObjectStorageImpl(
         private val log = LoggerFactory.getLogger(IcureObjectStorageImpl::class.java)
     }
 
-	private val scheduledTasksLock = Mutex(locked = false)
-	// Can't use a channel directly for tasks because I may need to update tasks which refer to the same attachment, hence the signaler + task map
-	private val scheduledTaskAvailability = SignalerWithMemory()
-	private val scheduledTasks = mutableMapOf<ScheduledTaskKey, ObjectStorageTask>()
 	private val taskExecutorScope = CoroutineScope(Dispatchers.Default)
+	private val taskChannel = Channel<ObjectStorageTask>(UNLIMITED)
+
+	/**
+	 * Specifies if there are any tasks scheduled for execution. Should only be used for testing purposes.
+	 */
+	@ExperimentalCoroutinesApi
+	internal val hasScheduledTasks get() = !taskChannel.isEmpty
 
 	@PostConstruct
-	internal fun initialize() {
+	internal fun start() {
 		launchScheduledTaskExecutor()
 	}
 
@@ -79,7 +80,12 @@ class IcureObjectStorageImpl(
 	override suspend fun deleteAttachment(documentId: String, attachmentId: String) =
 		scheduleNewStorageTask(documentId, attachmentId, ObjectStorageTaskType.DELETE)
 
-	// TODO refactor for better separation of document dao and migration tasks
+	override suspend fun retryStoredTasks() {
+		objectStorageTasksDao.getEntities().collect {
+			taskChannel.send(it)
+		}
+	}
+
 	override suspend fun migrateAttachment(documentId: String, attachmentId: String, documentDAO: DocumentDAO) {
 		scheduleNewStorageTask(documentId = documentId, attachmentId = attachmentId, ObjectStorageTaskType.UPLOAD)
 		val task = ObjectStorageMigrationTask(
@@ -94,15 +100,6 @@ class IcureObjectStorageImpl(
 		}
 	}
 
-	override suspend fun retryStoredTasks() {
-		scheduledTasksLock.withLock {
-			objectStorageTasksDao.getEntities().toList().forEach {
-				// Since I lock should always be successful.
-				lockedAddOrUpdateScheduledTask(ScheduledTaskKey(documentId = it.documentId, attachmentId = it.attachmentId), it)
-			}
-		}
-	}
-
 	override suspend fun resumeMigrationTasks(documentDAO: DocumentDAO) {
 		objectStorageMigrationTasksDao.getEntities().collect {
 			taskExecutorScope.launch { doMigration(it, documentDAO) }
@@ -114,48 +111,35 @@ class IcureObjectStorageImpl(
 		attachmentId: String,
 		taskType: ObjectStorageTaskType
 	) {
-		// TODO may be better to launch a new coroutine to return immediately, but this way we guarantee the task is saved before postSave
-		scheduledTasksLock.withLock {
-			objectStorageTasksDao.purge(objectStorageTasksDao.findTasksByDocumentAndAttachmentIds(documentId = documentId, attachmentId = attachmentId)).collect()
-			val task = ObjectStorageTask(
-				id = UUID.randomUUID().toString(),
-				type = taskType,
-				documentId = documentId,
-				attachmentId = attachmentId
-			)
-			if (lockedAddOrUpdateScheduledTask(ScheduledTaskKey(documentId = documentId, attachmentId = attachmentId), task)) {
-				// Always storing the task so that if we have a big backlog of tasks to do and the user shuts down before the task is executed it will anyway be saved for later
-				objectStorageTasksDao.save(task)
-			}
-			scheduledTaskAvailability.signal()
-		}
+		val task = ObjectStorageTask(
+			id = UUID.randomUUID().toString(),
+			type = taskType,
+			documentId = documentId,
+			attachmentId = attachmentId
+		)
+		objectStorageTasksDao.save(task)
+		taskChannel.send(task)
 	}
 
-	// Must already have lock
-	// Return true if the provided task was added to scheduled tasks, false otherwise (there was already an updated version of the task for that key)
-	private fun lockedAddOrUpdateScheduledTask(key: ScheduledTaskKey, task: ObjectStorageTask): Boolean =
-		if (scheduledTasks[key]?.takeIf { it.requestTime > task.requestTime } == null) {
-			scheduledTasks[key] = task
-			true
-		} else {
-			false
-		}
-
 	private suspend fun executeTask(task: ObjectStorageTask) {
-		val success =
-			when (task.type) {
-				ObjectStorageTaskType.UPLOAD ->
-					localObjectStorage.read(documentId = task.documentId, attachmentId = task.attachmentId)?.let {
-						objectStorageClient.upload(documentId = task.documentId, attachmentId = task.attachmentId, it)
-					} ?: false.also { log.error("Could not load value of attachment to store ${task.attachmentId}@${task.documentId}") }
-				ObjectStorageTaskType.DELETE ->
-					objectStorageClient.delete(documentId = task.documentId, attachmentId = task.attachmentId)
-			}
-		if (success) try {
-			objectStorageTasksDao.purge(task)
-		} catch (_: CouchDbException) {
-			// Ignore, could happen if a colliding task was created and it already deleted this. Should not case any problem because the new task will be executed after this.
+		val relatedTasks = objectStorageTasksDao
+			.findTasksByDocumentAndAttachmentIds(documentId = task.documentId, attachmentId = task.attachmentId)
+			.toList()
+		val newestTask = relatedTasks.maxByOrNull { it.requestTime }
+		var success = false
+		if (newestTask?.id == task.id) {
+			success =
+				when (task.type) {
+					ObjectStorageTaskType.UPLOAD ->
+						localObjectStorage.read(documentId = task.documentId, attachmentId = task.attachmentId)?.let {
+							objectStorageClient.upload(documentId = task.documentId, attachmentId = task.attachmentId, it)
+						} ?: false.also { log.error("Could not load value of attachment to store ${task.attachmentId}@${task.documentId}") }
+					ObjectStorageTaskType.DELETE ->
+						objectStorageClient.delete(documentId = task.documentId, attachmentId = task.attachmentId)
+				}
 		}
+		val toDelete = if (success) relatedTasks else relatedTasks.filter { it !== newestTask }
+		if (toDelete.isNotEmpty()) objectStorageTasksDao.remove(toDelete.asFlow()).collect()
 	}
 
 	private suspend fun doMigration(task: ObjectStorageMigrationTask, documentDAO: DocumentDAO) {
@@ -184,24 +168,14 @@ class IcureObjectStorageImpl(
 		}
 	}
 
+	// Must only be one, else there can be race-conditions
 	private fun launchScheduledTaskExecutor() = taskExecutorScope.launch {
-		while (true) {
-			scheduledTaskAvailability.awaitSignal()
-			var task: ObjectStorageTask?
-			do {
-				ensureActive()
-				task = scheduledTasksLock.withLock {
-					scheduledTasks.keys.firstOrNull()?.let {
-						scheduledTasks.remove(it)
-					}
-				}
-				if (task != null) executeTask(task)
-			} while (task != null)
+		for (task in taskChannel) {
+			runCatching {
+				executeTask(task)
+			}.exceptionOrNull()?.let {
+				log.error("Failed to process task $task.", it)
+			}
 		}
 	}
-
-	private data class ScheduledTaskKey(
-		val documentId: String,
-		val attachmentId: String
-	)
 }

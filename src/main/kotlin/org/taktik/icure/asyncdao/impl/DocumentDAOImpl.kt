@@ -104,6 +104,7 @@ class DocumentDAOImpl(
 			if (document.objectStoreReference != null) {
 				icureObjectStorage.deleteAttachment(documentId = document.id, attachmentId = document.objectStoreReference)
 			}
+			// Note: attachments is actually the attachments stubs, and won't be null if there were any stored attachments for the document.
 			if (document.attachmentId != null && document.attachments?.containsKey(document.attachmentId) == true) {
 				document.copy(
 					rev = deleteAttachment(document.id, document.rev, document.attachmentId),

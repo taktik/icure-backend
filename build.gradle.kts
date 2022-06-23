@@ -66,7 +66,11 @@ apply(plugin = "maven-publish")
 
 tasks.withType<Test> {
     useJUnitPlatform()
-	System.getProperties().forEach { k,	v -> systemProperty(k as String, v) }
+	/*
+	 * If tests rely on system properties we can use gradle settings to set the properties but then we need to propagate them to the actual test virtual machine.
+	 * This example propagates all properties passed to gradle, it would be better to only propagate the necessary properties.
+	 */
+	// System.getProperties().forEach { k,	v -> systemProperty(k as String, v) }
 }
 
 tasks.withType<JavaCompile> {
@@ -231,6 +235,7 @@ dependencies {
     testImplementation(group = "com.ninja-squad", name = "springmockk", version = "3.1.1")
 	testImplementation(group = "io.kotest", name = "kotest-assertions-core", version = "4.4.3")
 	testImplementation(group = "io.kotest", name = "kotest-runner-junit5", version = "4.4.3")
+	testImplementation(group = "io.mockk", name = "mockk", version = "1.11.0")
 }
 
 val outputDir = "${project.buildDir}/reports/ktlint/"
