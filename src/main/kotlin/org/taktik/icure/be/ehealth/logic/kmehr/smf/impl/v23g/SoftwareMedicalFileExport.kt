@@ -665,15 +665,8 @@ class SoftwareMedicalFileExport(
 					)
 				}
 			}
-			itemByServiceId[serviceId] = item
 		}
-	}
-
-	private fun isServiceANewVersionOf(mfId: String): Boolean {
-		itemByServiceId[mfId]?.let {
-			return true
-		}
-		return false
+		itemByServiceId[serviceId] = item
 	}
 
 	private suspend fun makeNursePrescriptionTransaction(contact: Service, language: String, decryptor: AsyncDecrypt?, transactionMfId: String): TransactionType {
