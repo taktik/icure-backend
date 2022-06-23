@@ -117,7 +117,7 @@ class ICureTestApplication {
 	// At the end of the tests, I destroy the docker container
 	@PreDestroy
 	fun destroyDockerDBContainer() {
-		ProcessBuilder(("docker rm -f couchdb-test").split(' '))
+		ProcessBuilder(("docker rm -f couchdb-test -v").split(' '))
 			.start()
 			.waitFor()
 	}
