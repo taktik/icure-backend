@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository
 import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.couchdb.id.IDGenerator
-import org.taktik.couchdb.queryViewIncludeDocs
+import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
 import org.taktik.icure.asyncdao.impl.InternalDAOImpl
 import org.taktik.icure.asyncdao.objectstorage.ObjectStorageTasksDAO
@@ -44,6 +44,6 @@ class ObjectStorageTasksDAOImpl(
 	override fun findTasksByDocumentAndAttachmentIds(documentId: String, attachmentId: String): Flow<ObjectStorageTask> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 		val viewQuery = createQuery(client, BY_DOC_ID_ATTACHMENT_ID).key(ComplexKey.of(documentId, attachmentId)).includeDocs(true)
-		emitAll(client.queryViewIncludeDocs<ComplexKey, String, ObjectStorageTask>(viewQuery).map { it.doc })
+		emitAll(client.queryViewIncludeDocsNoValue<ComplexKey, ObjectStorageTask>(viewQuery).map { it.doc })
 	}
 }

@@ -38,6 +38,7 @@ import org.springframework.stereotype.Repository
 import org.taktik.commons.uti.UTI
 import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
+import org.taktik.couchdb.exception.CouchDbConflictException
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
@@ -138,49 +139,59 @@ class DocumentDAOImpl(
 			}
 		}
 
-	override suspend fun postLoad(entity: Document) =
-		super.postLoad(entity).let { document ->
-			if (document.attachmentId != null) {
-				document.objectStoreReference?.let {
-					icureObjectStorage.readAttachment(documentId = document.id, attachmentId = document.objectStoreReference)
-				}?.let {
-					document.copy(attachment = it.toByteArray(true))
-				} ?: try {
-					val attachment = ByteArrayOutputStream().use {
-						getAttachment(document.id, document.attachmentId, document.rev).writeTo(it)
-						it.toByteArray()
-					}
-					if (
-						objectStorageProperties.backlogToObjectStorage
-							&& attachment.size >= objectStorageProperties.sizeLimit
-							&& document.objectStoreReference == null
-							&& icureObjectStorage.preStore(documentId = document.id, attachmentId = document.attachmentId, attachment)
-					) {
-						// The object was not using object storage but should migrate to object storage
-						/* TODO
-						 *  The check for objectStoreReference == null avoids having duplicate migration tasks. Duplicating the tasks should not cause any problems except
-						 *  for the executino of unnecessary computations and requests, but there not duplicating them can cause an issue: if someone starts the migration
-						 *  task (which is local) but closes before completing it and never opens the application again we will have the document always with a "migration
-						 *  in progress" (at least until the attachment is changed).
-						 *  Two possible solutions:
-						 *   - don't check for migrations in progress and duplicate tasks
-						 *   - check if the last modification is old and in that case re-execute the migration
-						 */
-						document.copy(objectStoreReference = document.attachmentId, attachment = attachment).also {
-							save(it)
-							icureObjectStorage.scheduleMigrateAttachment(documentId = document.id, attachmentId = document.attachmentId, this@DocumentDAOImpl)
-						}
-					} else {
-						document.copy(attachment = attachment)
-					}
-				} catch (e: IOException) {
-					document //Could not load
+	override suspend fun postLoad(entity: Document) = super.postLoad(entity).let { document ->
+		if (document.attachmentId != null) {
+			tryLoadMigratingAttachment(document) ?: try {
+				val attachment = ByteArrayOutputStream().use {
+					getAttachment(document.id, document.attachmentId, document.rev).writeTo(it)
+					it.toByteArray()
 				}
-			} else if (document.objectStoreReference != null) {
+				val documentWithAttachment = document.copy(attachment = attachment)
+				if (
+					objectStorageProperties.backlogToObjectStorage
+						&& attachment.size >= objectStorageProperties.sizeLimit
+						&& !icureObjectStorage.isMigrating(documentId = document.id, attachmentId = document.attachmentId)
+						&& icureObjectStorage.preStore(documentId = document.id, attachmentId = document.attachmentId, attachment)
+				) {
+					startMigration(documentWithAttachment, document.attachmentId)
+				} else {
+					documentWithAttachment
+				}
+			} catch (e: IOException) {
+				log.warn("Could not access couchdb attachment", e)
+				document
+			}
+		} else if (document.objectStoreReference != null) {
+			try {
 				icureObjectStorage.readAttachment(document.id, document.objectStoreReference)
 					.let { document.copy(attachment = it.toByteArray(true)) }
-			} else document
+			} catch (e: IOException) {
+				log.warn("Could not access object storage attachment", e)
+				document
+			}
+		} else document
+	}
+
+	// Faster attachment loading if we are migrating locally (i.e. it is not someone else who is migrating) an attachment from couchdb to the object storage service
+	private suspend fun tryLoadMigratingAttachment(document: Document): Document? =
+		document.objectStoreReference?.takeIf {
+			icureObjectStorage.isMigrating(documentId = document.id, attachmentId = it)
+		}?.let {
+			icureObjectStorage.tryReadCachedAttachment(documentId = document.id, attachmentId = it)
+		}?.let {
+			document.copy(attachment = it.toByteArray(true))
 		}
+
+	// Start migration and return the document updated for migration
+	private suspend fun startMigration(document: Document, attachmentId: String): Document = try {
+		val migratingDocument =
+			document.takeIf { it.objectStoreReference == it.attachmentId } // Someone else has updated the document for migration
+				?: document.copy(objectStoreReference = document.attachmentId).also { save(it) } // Mark the document as migrating
+		icureObjectStorage.scheduleMigrateAttachment(documentId = document.id, attachmentId = attachmentId, this@DocumentDAOImpl)
+		migratingDocument
+	} catch (_: CouchDbConflictException) {
+		document
+	}
 
 	@View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted && doc._conflicts) emit(doc._id )}")
 	override fun listConflicts(): Flow<Document> = flow {

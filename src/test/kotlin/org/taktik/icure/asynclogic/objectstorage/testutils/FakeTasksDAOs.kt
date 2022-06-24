@@ -10,8 +10,8 @@ import org.taktik.icure.entities.objectstorage.ObjectStorageTask
 import org.taktik.icure.testutils.FakeInternalDAO
 
 class FakeObjectStorageTasksDAO : ObjectStorageTasksDAO, InternalDAO<ObjectStorageTask> by FakeInternalDAO() {
-	override fun findTasksByDocumentAndAttachmentIds(documentId: String, attachmentId: String): Flow<ObjectStorageTask> = getEntities()
-		.filter { it.documentId == documentId && it.attachmentId == attachmentId }
+	override fun findTasksByDocumentAndAttachmentIds(documentId: String, attachmentId: String): Flow<ObjectStorageTask> =
+		getEntities().filter { it.documentId == documentId && it.attachmentId == attachmentId }
 }
 
 class FakeObjectStorageMigrationTasksDAO : ObjectStorageMigrationTasksDAO, InternalDAO<ObjectStorageMigrationTask> by FakeInternalDAO()

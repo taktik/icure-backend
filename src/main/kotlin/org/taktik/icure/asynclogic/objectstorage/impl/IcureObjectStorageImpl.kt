@@ -1,5 +1,6 @@
 package org.taktik.icure.asynclogic.objectstorage.impl
 
+import java.io.IOException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import org.slf4j.LoggerFactory
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service
 import org.taktik.icure.entities.objectstorage.ObjectStorageTask
 import org.taktik.icure.entities.objectstorage.ObjectStorageTaskType
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 import kotlinx.coroutines.CoroutineScope
@@ -45,6 +47,7 @@ class IcureObjectStorageImpl(
 
 	private val taskExecutorScope = CoroutineScope(Dispatchers.Default)
 	private val taskChannel = Channel<ObjectStorageTask>(UNLIMITED)
+	private val migrationTaskSet = ConcurrentHashMap.newKeySet<Pair<String, String>>()
 
 	/**
 	 * Specifies if there are any tasks scheduled for execution. Should only be used for testing purposes.
@@ -71,10 +74,17 @@ class IcureObjectStorageImpl(
 	override suspend fun scheduleStoreAttachment(documentId: String, attachmentId: String) =
 		scheduleNewStorageTask(documentId, attachmentId, ObjectStorageTaskType.UPLOAD)
 
-	override suspend fun readAttachment(documentId: String, attachmentId: String): Flow<DataBuffer> =
-		localObjectStorage.read(documentId, attachmentId)
+	override suspend fun readAttachment(documentId: String, attachmentId: String): Flow<DataBuffer> = runCatching {
+		tryReadCachedAttachment(documentId, attachmentId)
 			?: objectStorageClient.get(documentId, attachmentId)
 				.also { localObjectStorage.store(documentId, attachmentId, it) }
+	}.fold(
+		onSuccess = { it },
+		onFailure = { throw if (it is IOException) it else IOException("Failed to access object storage service", it) }
+	)
+
+	override fun tryReadCachedAttachment(documentId: String, attachmentId: String): Flow<DataBuffer>? =
+		localObjectStorage.read(documentId, attachmentId)
 
 	override suspend fun scheduleDeleteAttachment(documentId: String, attachmentId: String) =
 		scheduleNewStorageTask(documentId, attachmentId, ObjectStorageTaskType.DELETE)
@@ -85,23 +95,31 @@ class IcureObjectStorageImpl(
 		}
 	}
 
+	override fun isMigrating(documentId: String, attachmentId: String): Boolean = migrationTaskSet.contains(documentId to attachmentId)
+
 	override suspend fun scheduleMigrateAttachment(documentId: String, attachmentId: String, documentDAO: DocumentDAO) {
-		scheduleNewStorageTask(documentId = documentId, attachmentId = attachmentId, ObjectStorageTaskType.UPLOAD)
-		val task = ObjectStorageMigrationTask(
-			id = UUID.randomUUID().toString(),
-			documentId = documentId,
-			attachmentId = attachmentId
-		)
-		objectStorageMigrationTasksDao.save(task)
-		taskExecutorScope.launch {
-			do { delay(objectStorageProperties.migrationDelayMs) } while (!tryMigration(task, documentDAO))
+		if (migrationTaskSet.add(documentId to attachmentId)) {
+			scheduleNewStorageTask(documentId = documentId, attachmentId = attachmentId, ObjectStorageTaskType.UPLOAD)
+			val task = ObjectStorageMigrationTask(
+				id = UUID.randomUUID().toString(),
+				documentId = documentId,
+				attachmentId = attachmentId
+			)
+			objectStorageMigrationTasksDao.save(task)
+			taskExecutorScope.launch {
+				do {
+					delay(objectStorageProperties.migrationDelayMs)
+				} while (!tryMigration(task, documentDAO))
+			}
 		}
 	}
 
 	override suspend fun resumeMigrationTasks(documentDAO: DocumentDAO) {
 		objectStorageMigrationTasksDao.getEntities().collect {
-			taskExecutorScope.launch {
-				while (!tryMigration(it, documentDAO)) { delay(objectStorageProperties.migrationDelayMs) }
+			if (migrationTaskSet.add(it.documentId to it.attachmentId)) {
+				taskExecutorScope.launch {
+					while (!tryMigration(it, documentDAO)) { delay(objectStorageProperties.migrationDelayMs) }
+				}
 			}
 		}
 	}
@@ -155,7 +173,12 @@ class IcureObjectStorageImpl(
 				true // The attachment was changed or someone else completed migration, no need to update
 			}
 		} ?: true // The document was deleted, no need to migrate
-	).also { completed -> if (completed) objectStorageMigrationTasksDao.purge(task) }
+	).also { completed ->
+		if (completed) {
+			objectStorageMigrationTasksDao.purge(task)
+			migrationTaskSet.remove(task.documentId to task.attachmentId)
+		}
+	}
 
 	private suspend fun doMigration(document: Document, task: ObjectStorageMigrationTask, documentDAO: DocumentDAO) {
 		if (document.attachments?.containsKey(task.attachmentId) == true) {

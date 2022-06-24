@@ -5,6 +5,7 @@ import java.io.RandomAccessFile
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.io.path.isRegularFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -46,16 +47,20 @@ class LocalObjectStorageImpl(private val objectStorageProperties: ObjectStorageP
 	private suspend fun doStore(documentId: String, attachmentId: String, saveAttachment: suspend (documentDirectory: Path) -> Unit): Boolean {
 		val directory = toFolderPath(documentId)
 		return withContext(Dispatchers.IO) {
-			val writeResult = kotlin.runCatching {
-				directory.toFile().mkdirs()
-				saveAttachment(directory)
+			if (Files.isRegularFile(directory.resolve(attachmentId))) {
+				true
+			} else {
+				runCatching {
+					directory.toFile().mkdirs()
+					saveAttachment(directory)
+				}.onFailure {
+					log.warn("Could not cache attachment $attachmentId@$documentId", it)
+				}.isSuccess
 			}
-			if (writeResult.isFailure) log.warn("Could not cache attachment $attachmentId@$documentId", writeResult.exceptionOrNull())
-			writeResult.isSuccess
 		}
 	}
 
-	override suspend fun read(documentId: String, attachmentId: String): Flow<DataBuffer>? = try {
+	override fun read(documentId: String, attachmentId: String): Flow<DataBuffer>? = try {
 		toFolderPath(documentId).resolve(attachmentId)
 			.takeIf { Files.isRegularFile(it) }
 			?.let { DataBufferUtils.read(it, DefaultDataBufferFactory(), 10000).asFlow() }

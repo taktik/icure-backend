@@ -34,7 +34,7 @@ interface LocalObjectStorage {
 	 * @param attachmentId id of the attachment
 	 * @return the attachment value or null if the attachment was not stored locally or could not be read.
 	 */
-	suspend fun read(documentId: String, attachmentId: String): Flow<DataBuffer>?
+	fun read(documentId: String, attachmentId: String): Flow<DataBuffer>?
 
 	/**
 	 * Deletes an attachment stored locally.

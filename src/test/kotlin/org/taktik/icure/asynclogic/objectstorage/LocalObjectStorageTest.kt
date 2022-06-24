@@ -23,6 +23,8 @@ import org.taktik.icure.properties.ObjectStorageProperties
 import org.taktik.icure.testutils.shouldContainExactly
 import org.taktik.icure.utils.toByteArray
 
+private const val SLOW_BYTES_DELAY = 100L
+
 class LocalObjectStorageTest : StringSpec({
 	val cache: LocalObjectStorage =
 		LocalObjectStorageImpl(ObjectStorageProperties(cacheLocation = testLocalStorageDirectory))
@@ -55,18 +57,26 @@ class LocalObjectStorageTest : StringSpec({
 	"Store function should not complete until file is completely written" {
 		val dataFlow = flow {
 			emit(dataBufferFactory.wrap(byteArrayOf(1)))
-			delay(200)
+			delay(SLOW_BYTES_DELAY)
 			emit(dataBufferFactory.wrap(byteArrayOf(2)))
-			delay(200)
+			delay(SLOW_BYTES_DELAY)
 			emit(dataBufferFactory.wrap(byteArrayOf(3)))
 		}
 		val writingJob = async {
 			cache.store(document1, attachment1, dataFlow)
 		}
+		delay(SLOW_BYTES_DELAY / 2)
 		writingJob.isCompleted shouldBe false
-		delay(200)
+		delay(SLOW_BYTES_DELAY)
 		writingJob.isCompleted shouldBe false
-		withTimeout(200) { writingJob.await() shouldBe true }
+		withTimeout(SLOW_BYTES_DELAY) { writingJob.await() shouldBe true }
 		cache.read(document1, attachment1)?.toByteArray(true) shouldContainExactly byteArrayOf(1, 2, 3)
+	}
+
+	"Storing the same attachment multiple times should not cause any errors" {
+		repeat(2) {
+			cache.store(document1, attachment1, bytes1) shouldBe true
+			cache.read(document1, attachment1)?.toByteArray(true) shouldContainExactly bytes1
+		}
 	}
 })
