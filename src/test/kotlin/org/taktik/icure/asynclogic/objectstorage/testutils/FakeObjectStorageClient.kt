@@ -38,6 +38,9 @@ class FakeObjectStorageClient : ObjectStorageClient {
 			?: throw IllegalStateException("Document does not exist. Available attachments: $attachmentsKeys")
 	} else throw HttpServerErrorException(HttpStatus.SERVICE_UNAVAILABLE)
 
+	override suspend fun checkAvailable(documentId: String, attachmentId: String): Boolean =
+		documentToAttachments[documentId]?.let { attachmentId in it } == true
+
 	override suspend fun delete(documentId: String, attachmentId: String): Boolean = if (available) {
 		documentToAttachments[documentId]?.remove(attachmentId)
 		eventsChannel.send(ObjectStoreEvent(documentId, attachmentId, ObjectStoreEvent.Type.SUCCESSFUL_DELETE))

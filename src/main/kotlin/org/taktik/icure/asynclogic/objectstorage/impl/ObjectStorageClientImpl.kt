@@ -61,6 +61,9 @@ class ObjectStorageClientImpl(
 			.retrieve()
 			.bodyToFlow()
 
+	override suspend fun checkAvailable(documentId: String, attachmentId: String): Boolean =
+		TODO("Head request or similar")
+
 	override suspend fun delete(documentId: String, attachmentId: String): Boolean =
 		runCatching {
 			icureCloudClient.delete()

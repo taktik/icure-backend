@@ -8,7 +8,7 @@ import org.springframework.core.io.buffer.DataBuffer
  */
 interface ObjectStorageClient {
 	/**
-	 * Stores an attachment in the attachment storage server.
+	 * Stores an attachment in the attachment storage service.
 	 * @param documentId id of the document owner of the attachment.
 	 * @param attachmentId id of the attachment.
 	 * @param content the attachment content
@@ -17,7 +17,7 @@ interface ObjectStorageClient {
 	suspend fun upload(documentId: String, attachmentId: String, content: ByteArray): Boolean
 
 	/**
-	 * Stores an attachment in the attachment storage server.
+	 * Stores an attachment in the attachment storage service.
 	 * @param documentId id of the document owner of the attachment.
 	 * @param attachmentId id of the attachment.
 	 * @param content the attachment content
@@ -26,7 +26,7 @@ interface ObjectStorageClient {
 	suspend fun upload(documentId: String, attachmentId: String, content: Flow<DataBuffer>): Boolean
 
 	/**
-	 * Reads the attachment. Throws exceptions in case the cloud is not reachable or the attachment does not exist.
+	 * Reads the attachment. Throws exceptions in case the storage service is not reachable or the attachment does not exist.
 	 * @param documentId id of the document owner of the attachment.
 	 * @param attachmentId id of the attachment.
 	 * @return the attachment content.
@@ -34,7 +34,13 @@ interface ObjectStorageClient {
 	suspend fun get(documentId: String, attachmentId: String): Flow<DataBuffer>
 
 	/**
-	 * Deletes an attachment from the storage server.
+	 * Checks if a specific attachment is available.
+	 * @return true if the storage service is available and reachable.
+	 */
+	suspend fun checkAvailable(documentId: String, attachmentId: String): Boolean
+
+	/**
+	 * Deletes an attachment from the storage service.
 	 * @param documentId id of the document owner of the attachment.
 	 * @param attachmentId id of the attachment.
 	 * @return if deletion was successful: either there was no matching attachment for the document or it was successfully deleted.

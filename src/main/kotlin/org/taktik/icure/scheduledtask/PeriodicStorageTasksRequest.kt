@@ -15,5 +15,5 @@ class PeriodicStorageTasksRequest(
 ) {
 	@Scheduled(fixedDelay = ONE_HOUR)
 	fun handleIcureCloudAttachmentTasks() =
-		runBlocking { icureObjectStorage.retryStoredTasks() }
+		runBlocking { icureObjectStorage.rescheduleFailedStorageTasks() }
 }

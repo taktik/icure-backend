@@ -24,13 +24,11 @@ import javax.annotation.PostConstruct
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
@@ -102,7 +100,7 @@ class DocumentDAOImpl(
 	private suspend fun deleteStoredAttachment(document: Document): Document =
 		if (document.rev != null) {
 			if (document.objectStoreReference != null) {
-				icureObjectStorage.deleteAttachment(documentId = document.id, attachmentId = document.objectStoreReference)
+				icureObjectStorage.scheduleDeleteAttachment(documentId = document.id, attachmentId = document.objectStoreReference)
 			}
 			// Note: attachments is actually the attachments stubs, and won't be null if there were any stored attachments for the document.
 			if (document.attachmentId != null && document.attachments?.containsKey(document.attachmentId) == true) {
@@ -133,7 +131,7 @@ class DocumentDAOImpl(
 					document.copy(rev = it, isAttachmentDirty = false)
 				}
 			} else if (document.isAttachmentDirty && document.objectStoreReference != null) {
-				icureObjectStorage.storeAttachment(documentId = document.id, attachmentId = document.objectStoreReference)
+				icureObjectStorage.scheduleStoreAttachment(documentId = document.id, attachmentId = document.objectStoreReference)
 				document.copy(isAttachmentDirty = false)
 			} else {
 				document
@@ -170,7 +168,7 @@ class DocumentDAOImpl(
 						 */
 						document.copy(objectStoreReference = document.attachmentId, attachment = attachment).also {
 							save(it)
-							icureObjectStorage.migrateAttachment(documentId = document.id, attachmentId = document.attachmentId, this@DocumentDAOImpl)
+							icureObjectStorage.scheduleMigrateAttachment(documentId = document.id, attachmentId = document.attachmentId, this@DocumentDAOImpl)
 						}
 					} else {
 						document.copy(attachment = attachment)

@@ -32,11 +32,11 @@ interface IcureObjectStorage {
 	 * This method only schedules the task for execution, and may return before the tasks are actually completed.
 	 * If the attachment can not be stored on the cloud service the moment the task is executed (for example due to a network error)
 	 * the task will be stored to try to re-execute it later.
-	 * Before invoking this function you must pre-store the attachment content.
+	 * Before invoking this function you must successfully pre-store the attachment content, else the storage task will fail.
 	 * @param documentId id of the document owner of the attachment.
 	 * @param attachmentId id of the attachment.
 	 */
-	suspend fun storeAttachment(documentId: String, attachmentId: String)
+	suspend fun scheduleStoreAttachment(documentId: String, attachmentId: String)
 
 	/**
 	 * Reads the attachment. Throws exceptions in case the cloud is not reachable or the attachment does not exist.
@@ -54,7 +54,7 @@ interface IcureObjectStorage {
 	 * @param documentId id of the document owner of the attachment.
 	 * @param attachmentId id of the attachment.
 	 */
-	suspend fun deleteAttachment(documentId: String, attachmentId: String)
+	suspend fun scheduleDeleteAttachment(documentId: String, attachmentId: String)
 
 	/**
 	 * Store an attachment in the cloud and schedules a migration task to be executed later.
@@ -65,15 +65,15 @@ interface IcureObjectStorage {
 	 * - The document still refers to the same attachment. If the attachment changed the task will be completely removed.
 	 * - The attachment has been successfully uploaded to the cloud. If the attachment was not updated the task will be delayed further.
  	 */
-	suspend fun migrateAttachment(documentId: String, attachmentId: String, documentDAO: DocumentDAO)
+	suspend fun scheduleMigrateAttachment(documentId: String, attachmentId: String, documentDAO: DocumentDAO)
 
 	/**
 	 * Attempts to re-execute all stored tasks. This method only re-schedules tasks for execution, and may return before the tasks are actually completed.
 	 */
-	suspend fun retryStoredTasks()
+	suspend fun `rescheduleFailedStorageTasks`()
 
 	/**
-	 * Resume any stored migration tasks.
+	 * Resume any stored migration tasks, attempting to execute them immediately.
 	 */
 	suspend fun resumeMigrationTasks(documentDAO: DocumentDAO)
 }
