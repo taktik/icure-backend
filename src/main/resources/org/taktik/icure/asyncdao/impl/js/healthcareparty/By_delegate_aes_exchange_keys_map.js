@@ -7,14 +7,14 @@ map = function(doc) {
 				var delegateKeys = ks[hcpId];
 				Object.keys(delegateKeys).forEach(function (delPub) {
 					var delK = delegateKeys[delPub]
-					emit(hcpId, [doc._id, pk.slice(-12), delPub.slice(-12), delK]);
+					emit(hcpId, [doc._id, pk.slice(-32), delPub.slice(-32), delK]);
 				})
 			});
 		});
 
 		if (!doc.aesExchangeKeys || !doc.aesExchangeKeys[doc.publicKey]) {
 			Object.keys(doc.hcPartyKeys).forEach(function (k) {
-				emit(k, [doc._id, doc.publicKey.slice(-12), '', doc.hcPartyKeys[k][1]]);
+				emit(k, [doc._id, doc.publicKey.slice(-32), '', doc.hcPartyKeys[k][1]]);
 			});
 		}
 	}

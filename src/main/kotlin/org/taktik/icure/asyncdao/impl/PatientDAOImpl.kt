@@ -494,7 +494,7 @@ class PatientDAOImpl(
 				acc + (
 					value[0] to (acc[value[0]] ?: emptyMap()).let {
 						it + (
-							value[1].let { it.substring((it.length - 12).coerceAtLeast(0)) } to (it[value[1]] ?: emptyMap()).let { dels ->
+							value[1].let { it.substring((it.length - 32).coerceAtLeast(0)) } to (it[value[1]] ?: emptyMap()).let { dels ->
 								dels + (value[2] to value[3])
 							}
 							)
