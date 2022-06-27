@@ -186,6 +186,12 @@ suspend fun Flow<DataBuffer>.toByteArray(releaseBuffers: Boolean): ByteArray =
 		os.toByteArray()
 	}
 
+suspend fun Flow<ByteBuffer>.toByteArray(): ByteArray =
+	ByteArrayOutputStream().use { os ->
+		collect { it.writeTo(os) }
+		os.toByteArray()
+	}
+
 private fun ByteBuffer.writeTo(os: OutputStream): Unit =
 	if (hasArray() && hasRemaining()) {
 		os.write(array(), position() + arrayOffset(), remaining())

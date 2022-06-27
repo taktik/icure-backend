@@ -98,7 +98,11 @@ class DocumentDAOImpl(
 			if (document.objectStoreReference != null) {
 				icureObjectStorage.scheduleDeleteAttachment(documentId = document.id, attachmentId = document.objectStoreReference)
 			}
-			// Note: attachments is actually the attachments stubs, and won't be null if there were any stored attachments for the document.
+			/*
+			 * Note: the `attachments` property can be just attachment stubs, and as long as we loaded the document from the database and it has any attachments
+			 * its value won't be null. Additionally, since all methods which modify the document first load it we are sure this won't be null if a client requested
+			 * the change.
+			 */
 			if (document.attachmentId != null && document.attachments?.containsKey(document.attachmentId) == true) {
 				document.copy(
 					rev = deleteAttachment(document.id, document.rev, document.attachmentId),
@@ -170,6 +174,7 @@ class DocumentDAOImpl(
 	// Faster attachment loading if we are migrating locally (i.e. it is not someone else who is migrating) an attachment from couchdb to the object storage service
 	private suspend fun tryLoadMigratingAttachment(document: Document): Document? =
 		document.objectStoreReference?.takeIf {
+			// Need to check if migrating, checking if attachment is in the cache is not enough: we may have cached the document then failed to start migration due to conflicts.
 			icureObjectStorage.isMigrating(documentId = document.id, attachmentId = it)
 		}?.let {
 			icureObjectStorage.tryReadCachedAttachment(documentId = document.id, attachmentId = it)
