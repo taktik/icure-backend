@@ -18,7 +18,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withTimeout
 import org.apache.http.HttpStatus.SC_CONFLICT
-import org.springframework.web.client.HttpServerErrorException
 import org.taktik.couchdb.exception.CouchDbConflictException
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asyncdao.objectstorage.ObjectStorageMigrationTasksDAO
@@ -298,7 +297,7 @@ class TestIcureObjectStorage : StringSpec({
 		migrationTasksDAO.save(ObjectStorageMigrationTask(UUID.randomUUID().toString(), documentId = document1, attachmentId = attachment1))
 		val documentDAO = mockk<DocumentDAO>()
 		coEvery { documentDAO.get(document1) } returns Document(document1, rev = "1")
-		icureObjectStorage.resumeMigrationTasks(documentDAO)
+		icureObjectStorage.rescheduleStoredMigrationTasks(documentDAO)
 		delay(TEST_MIGRATION_DELAY / 2)
 		coVerify { documentDAO.get(document1) }
 		migrationTasksDAO.getEntities().toList().shouldBeEmpty()

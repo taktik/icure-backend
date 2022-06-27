@@ -3,7 +3,7 @@ package org.taktik.icure.asynclogic.objectstorage
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.asyncdao.DocumentDAO
-import org.taktik.icure.entities.objectstorage.ObjectStorageTask
+import java.io.IOException
 
 /**
  * Handles the attachments object storage, including caching, saving of tasks for the future if there are problems with the upload/deletion, etc.
@@ -51,7 +51,7 @@ interface IcureObjectStorage {
 	 * Try to read a cached attachment. If the attachment is available without contacting the object storage service returns it, else returns null.
 	 * @param documentId id of the document owner of the attachment.
 	 * @param attachmentId id of the attachment.
-	 * @return the attachment content, if available.
+	 * @return the attachment content, if available, else null.
 	 */
 	fun tryReadCachedAttachment(documentId: String, attachmentId: String): Flow<DataBuffer>?
 
@@ -86,12 +86,14 @@ interface IcureObjectStorage {
 	suspend fun scheduleMigrateAttachment(documentId: String, attachmentId: String, documentDAO: DocumentDAO)
 
 	/**
-	 * Attempts to re-execute all stored tasks. This method only re-schedules tasks for execution, and may return before the tasks are actually completed.
+	 * Reschedules all object storage tasks which either failed or were not completed before the system was last shut down.
+	 * This method only schedules the tasks for execution, and may return before the tasks are actually completed.
 	 */
 	suspend fun rescheduleFailedStorageTasks()
 
 	/**
-	 * Resume any stored migration tasks, attempting to execute them immediately.
+	 * Reschedules all migration tasks which could not be completed before the system was last shut down.
+	 * This method only schedules the tasks for execution, and may return before the tasks are actually completed.
 	 */
-	suspend fun resumeMigrationTasks(documentDAO: DocumentDAO)
+	suspend fun rescheduleStoredMigrationTasks(documentDAO: DocumentDAO)
 }

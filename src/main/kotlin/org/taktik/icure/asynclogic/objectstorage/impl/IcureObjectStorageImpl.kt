@@ -80,7 +80,7 @@ class IcureObjectStorageImpl(
 				.also { localObjectStorage.store(documentId, attachmentId, it) }
 	}.fold(
 		onSuccess = { it },
-		onFailure = { throw if (it is IOException) it else IOException("Failed to access object storage service", it) }
+		onFailure = { throw IOException("Failed to access object storage service", it) }
 	)
 
 	override fun tryReadCachedAttachment(documentId: String, attachmentId: String): Flow<DataBuffer>? =
@@ -114,7 +114,7 @@ class IcureObjectStorageImpl(
 		}
 	}
 
-	override suspend fun resumeMigrationTasks(documentDAO: DocumentDAO) {
+	override suspend fun rescheduleStoredMigrationTasks(documentDAO: DocumentDAO) {
 		objectStorageMigrationTasksDao.getEntities().collect {
 			if (migrationTaskSet.add(it.documentId to it.attachmentId)) {
 				taskExecutorScope.launch {

@@ -35,13 +35,14 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.core.task.TaskExecutor
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.scheduling.annotation.EnableScheduling
+import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.InternalDAO
 import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.asynclogic.ICureLogic
 import org.taktik.icure.asynclogic.PropertyLogic
 import org.taktik.icure.asynclogic.UserLogic
-import org.taktik.icure.constants.Users
+import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorage
 import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.Confidentiality
 import org.taktik.icure.entities.embed.DocumentStatus
@@ -54,7 +55,6 @@ import org.taktik.icure.entities.embed.PaymentType
 import org.taktik.icure.entities.embed.PersonalStatus
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.entities.embed.Visibility
-import org.taktik.icure.exceptions.DuplicateDocumentException
 import org.taktik.icure.properties.CouchDbProperties
 
 @SpringBootApplication(
@@ -93,7 +93,19 @@ class ICureBackendApplication {
 	private val log = LoggerFactory.getLogger(this.javaClass)
 
 	@Bean
-	fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, userLogic: UserLogic, iCureLogic: ICureLogic, codeLogic: CodeLogic, propertyLogic: PropertyLogic, allDaos: List<GenericDAO<*>>, internalDaos: List<InternalDAO<*>>, couchDbProperties: CouchDbProperties) = ApplicationRunner {
+	fun performStartupTasks(
+		@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor,
+		taskScheduler: TaskScheduler,
+		userLogic: UserLogic,
+		iCureLogic: ICureLogic,
+		codeLogic: CodeLogic,
+		propertyLogic: PropertyLogic,
+		allDaos: List<GenericDAO<*>>,
+		internalDaos: List<InternalDAO<*>>,
+		couchDbProperties: CouchDbProperties,
+		icureObjectStorage: IcureObjectStorage,
+		documentDAO: DocumentDAO
+	) = ApplicationRunner {
 		//Check that core types have corresponding codes
 		log.info("icure (" + iCureLogic.getVersion() + ") is initialised")
 
@@ -120,6 +132,8 @@ class ICureBackendApplication {
 			internalDaos.forEach {
 				it.forceInitStandardDesignDocument(true)
 			}
+			icureObjectStorage.rescheduleFailedStorageTasks()
+			icureObjectStorage.rescheduleStoredMigrationTasks(documentDAO)
 		}
 
 		log.info("icure (" + iCureLogic.getVersion() + ") is started")

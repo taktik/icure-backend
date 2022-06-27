@@ -65,11 +65,6 @@ class DocumentDAOImpl(
 		private val log = LoggerFactory.getLogger(DocumentDAOImpl::class.java)
 	}
 
-	@PostConstruct
-	fun resumeMigrationTasks() = runBlocking {
-		icureObjectStorage.resumeMigrationTasks(this@DocumentDAOImpl)
-	}
-
 	override suspend fun beforeSave(entity: Document) =
 		super.beforeSave(entity).let { document ->
 			if (document.attachment != null) {
