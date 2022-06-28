@@ -94,21 +94,21 @@ class ICureBackendApplication {
 		//Check that core types have corresponding codes
 		log.info("icure (" + iCureLogic.getVersion() + ") is initialised")
 
-		taskExecutor.execute {
-			listOf(
-				AddressType::class.java, DocumentType::class.java, DocumentStatus::class.java,
-				Gender::class.java, InsuranceStatus::class.java, PartnershipStatus::class.java, PartnershipType::class.java, PaymentType::class.java,
-				PersonalStatus::class.java, TelecomType::class.java, Confidentiality::class.java, Visibility::class.java
-			).forEach { runBlocking { codeLogic.importCodesFromEnum(it) } }
-		}
-
-		taskExecutor.execute {
-			val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader)
-			resolver.getResources("classpath*:/org/taktik/icure/db/codes/**.xml").forEach {
-				val md5 = it.filename!!.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
-				runBlocking { codeLogic.importCodesFromXml(md5, it.filename!!.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream) }
-			}
-		}
+// 		taskExecutor.execute {
+// 			listOf(
+// 				AddressType::class.java, DocumentType::class.java, DocumentStatus::class.java,
+// 				Gender::class.java, InsuranceStatus::class.java, PartnershipStatus::class.java, PartnershipType::class.java, PaymentType::class.java,
+// 				PersonalStatus::class.java, TelecomType::class.java, Confidentiality::class.java, Visibility::class.java
+// 			).forEach { runBlocking { codeLogic.importCodesFromEnum(it) } }
+// 		}
+//
+// 		taskExecutor.execute {
+// 			val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader)
+// 			resolver.getResources("classpath*:/org/taktik/icure/db/codes/**.xml").forEach {
+// 				val md5 = it.filename!!.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
+// 				runBlocking { codeLogic.importCodesFromXml(md5, it.filename!!.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream) }
+// 			}
+// 		}
 
 		runBlocking {
 			allDaos.forEach {
@@ -116,13 +116,6 @@ class ICureBackendApplication {
 			}
 			internalDaos.forEach {
 				it.forceInitStandardDesignDocument(true)
-			}
-			try {
-				userLogic.newUser(Users.Type.database, "icuretest", "icuretest", "icure")// Creates a test user if it does not exist
-			} catch (e: DuplicateDocumentException) {
-				log.info("Test user already exists!")
-			}finally {
-				log.info("iCure test user\nusername: icuretest\npassword: icuretest")
 			}
 		}
 

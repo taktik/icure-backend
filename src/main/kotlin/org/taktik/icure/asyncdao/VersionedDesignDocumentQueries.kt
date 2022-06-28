@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import org.taktik.couchdb.Client
-import org.taktik.icure.domain.webclient.dao.designDocName
+import org.taktik.couchdb.dao.designDocName
 import org.taktik.couchdb.entity.DesignDocument
 import org.taktik.couchdb.entity.Indexer
 import org.taktik.couchdb.entity.ViewQuery

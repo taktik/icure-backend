@@ -185,10 +185,8 @@ class CodeController(
 	fun findCodeTypes(
 		@Parameter(description = "Code region") @RequestParam(required = false) region: String?,
 		@Parameter(description = "Code type") @RequestParam(required = false) type: String?
-	) = mono {
-		val ret = codeLogic.findCodeTypes(region, type)
-			.toList()
-		ret
+	): Flux<String> {
+		return codeLogic.findCodeTypes(region, type).injectReactorContext()
 	}
 
 	@Operation(summary = "Gets list of tag types by region and type.", description = "Returns a list of tag types matched with given input.")
@@ -196,12 +194,12 @@ class CodeController(
 	fun findTagTypes(
 		@Parameter(description = "Code region") @RequestParam(required = false) region: String?,
 		@Parameter(description = "Code type") @RequestParam(required = false) type: String?
-	) = mono {
+	): Flux<String> {
 		val tagTypeCandidates = codeLogic.getTagTypeCandidates()
-		val ret = codeLogic.findCodeTypes(region, type)
+		return codeLogic.findCodeTypes(region, type)
 			.filter { tagTypeCandidates.contains(it) }
-			.toList()
-		ret
+			.injectReactorContext()
+
 	}
 
 	@Operation(summary = "Create a code", description = "Create a code entity. Fields Type, Code and Version are required.")

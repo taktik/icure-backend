@@ -32,7 +32,7 @@ import org.apache.commons.lang3.ArrayUtils
 import org.slf4j.LoggerFactory
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewRowWithDoc
-import org.taktik.icure.domain.webclient.dao.designDocName
+import org.taktik.couchdb.dao.designDocName
 import org.taktik.couchdb.entity.DesignDocument
 import org.taktik.couchdb.entity.Option
 import org.taktik.couchdb.entity.ViewQuery

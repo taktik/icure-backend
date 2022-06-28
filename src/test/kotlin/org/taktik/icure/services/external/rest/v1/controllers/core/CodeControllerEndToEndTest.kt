@@ -40,6 +40,8 @@ class CodeControllerEndToEndTest @Autowired constructor(
 
 	@LocalServerPort
 	var port = 0
+	val apiHost = System.getenv("ICURE_BE_URL") ?: "http://localhost"
+	val apiEndpoint = System.getenv("ENDPOINT_TO_TEST") ?: "/rest/v1/code/byLabel"
 
 	val codesStats: MutableMap<String, Any> = mutableMapOf(
 		"total" to 0,
@@ -107,22 +109,22 @@ class CodeControllerEndToEndTest @Autowired constructor(
 	fun testPaginationFewResults(version: String, url: String, expectedRows: Int) {
 		val responseBody = makeGetRequest(url)
 		assertNotNull(responseBody)
-		assertEquals(responseBody?.rows?.size, expectedRows)
+		assertEquals(expectedRows, responseBody?.rows?.size)
 		assertNull(responseBody?.nextKeyPair)
-		for(code in responseBody?.rows ?: listOf()) {
-			assertNotNull(code.version)
-			if (version != "latest") assertEquals(code.version, version)
-			else assertEquals(code.version, (codesStats["latest"] as Map<String, String>)[code.code])
+		responseBody?.rows?.forEach {
+			assertNotNull(it.version)
+			if (version != "latest") assertEquals(version, it.version)
+			else assertEquals((codesStats["latest"] as Map<String, String>)[it.code], it.version)
 		}
 	}
 
 	fun testResultsOnTwoPages(version: String, params: String, sizeFirstPage: Int, sizeSecondPage: Int) {
-		val responseBody = makeGetRequest("http://localhost:$port/rest/v1/code/byLabel?version=$version&$params")
+		val responseBody = makeGetRequest("$apiHost:$port$apiEndpoint?version=$version&$params")
 		assertNotNull(responseBody)
-		assertEquals(responseBody?.rows?.size, sizeFirstPage)
-		for(code in responseBody?.rows ?: listOf()) {
-			assertNotNull(code.version)
-			if (version != "latest") assertEquals(code.version, version)
+		assertEquals(sizeFirstPage, responseBody?.rows?.size)
+		responseBody?.rows?.forEach {
+			assertNotNull(it.version)
+			if (version != "latest") assertEquals(version, it.version)
 		}
 		assertNotNull(responseBody?.nextKeyPair)
 		assertNotNull(responseBody?.nextKeyPair?.startKey)
@@ -130,20 +132,20 @@ class CodeControllerEndToEndTest @Autowired constructor(
 
 		val startKey = URLEncoder.encode(objectMapper?.writeValueAsString(responseBody?.nextKeyPair?.startKey), "utf-8")
 		val startKeyDocId = URLEncoder.encode(objectMapper?.writeValueAsString(responseBody?.nextKeyPair?.startKeyDocId), "utf-8")
-		val secondPageUrl = "http://localhost:$port/rest/v1/code/byLabel?version=$version&startKey=$startKey&startDocumentId=$startKeyDocId&$params"
+		val secondPageUrl = "$apiHost:$port$apiEndpoint?version=$version&startKey=$startKey&startDocumentId=$startKeyDocId&$params"
 		val responseBodySecondPage = makeGetRequest(secondPageUrl)
 		assertNotNull(responseBodySecondPage)
-		assertEquals(responseBodySecondPage?.rows?.size, sizeSecondPage)
-		for(code in responseBodySecondPage?.rows ?: listOf()) {
-			assertNotNull(code.version)
-			if (version != "latest") assertEquals(code.version, version)
-			else assertEquals(code.version, (codesStats["latest"] as Map<String, String>)[code.code])
+		assertEquals(sizeSecondPage, responseBodySecondPage?.rows?.size)
+		responseBodySecondPage?.rows?.forEach {
+			assertNotNull(it.version)
+			if (version != "latest") assertEquals(version, it.version)
+			else assertEquals((codesStats["latest"] as Map<String, String>)[it.code], it.version)
 		}
 		assertNull(responseBodySecondPage?.nextKeyPair)
 	}
 
 	fun testVersionSinglePage(version: String, expectedRows: Int, params: String = "") {
-		val responseBody = makeGetRequest("http://localhost:$port/rest/v1/code/byLabel?version=$version&$params")
+		val responseBody = makeGetRequest("$apiHost:$port$apiEndpoint?version=$version&$params")
 		assertNotNull(responseBody)
 		assertEquals(responseBody?.rows?.size, expectedRows)
 		assertNull(responseBody?.nextKeyPair)
@@ -157,7 +159,7 @@ class CodeControllerEndToEndTest @Autowired constructor(
 	//If I specify no filter, then I should get all the results
 	@Test
 	fun testNoFilter() {
-		val responseBody = makeGetRequest("http://localhost:$port/rest/v1/code/byLabel")
+		val responseBody = makeGetRequest("$apiHost:$port$apiEndpoint")
 		assertNotNull(responseBody)
 		assertEquals(responseBody?.rows?.size, codesStats["total"])
 		assertNull(responseBody?.nextKeyPair)
@@ -167,7 +169,7 @@ class CodeControllerEndToEndTest @Autowired constructor(
 	@Test
 	fun testRegionFilter() {
 		val region = "fr"
-		val responseBody = makeGetRequest("http://localhost:$port/rest/v1/code/byLabel?region=$region")
+		val responseBody = makeGetRequest("$apiHost:$port$apiEndpoint?region=$region")
 		assertNotNull(responseBody)
 		assertEquals(responseBody?.rows?.size, codesStats["total"])
 		assertNull(responseBody?.nextKeyPair)
@@ -178,7 +180,7 @@ class CodeControllerEndToEndTest @Autowired constructor(
 	fun testRegionLanguageFilter() {
 		val region = "fr"
 		val language = "en"
-		val responseBody = makeGetRequest("http://localhost:$port/rest/v1/code/byLabel?region=$region&language=$language")
+		val responseBody = makeGetRequest("$apiHost:$port$apiEndpoint?region=$region&language=$language")
 		assertNotNull(responseBody)
 		assertEquals(responseBody?.rows?.size, codesStats["total"])
 		assertNull(responseBody?.nextKeyPair)
@@ -190,7 +192,7 @@ class CodeControllerEndToEndTest @Autowired constructor(
 		val region = "fr"
 		val language = "en"
 		val type = "testCode"
-		val responseBody = makeGetRequest("http://localhost:$port/rest/v1/code/byLabel?region=$region&language=$language&types=$type")
+		val responseBody = makeGetRequest("$apiHost:$port$apiEndpoint?region=$region&language=$language&types=$type")
 		assertNotNull(responseBody)
 		assertEquals(responseBody?.rows?.size, codesStats["total"])
 		assertNull(responseBody?.nextKeyPair)
@@ -271,14 +273,14 @@ class CodeControllerEndToEndTest @Autowired constructor(
 	fun testVersionFilterPaginationFewResults() {
 		val version = "2"
 		val expectedRows = (codesStats["count"] as Map<String, Int>)[version] ?: 0
-		testPaginationFewResults(version, "http://localhost:$port/rest/v1/code/byLabel?version=$version&limit=${expectedRows+2}", expectedRows)
+		testPaginationFewResults(version, "$apiHost:$port$apiEndpoint?version=$version&limit=${expectedRows+2}", expectedRows)
 	}
 
 	@Test
 	fun testVersionLatestFilterPaginationFewResults() {
 		val version = "latest"
 		val expectedRows = (codesStats["latest"] as Map<String, Int>).size
-		testPaginationFewResults(version, "http://localhost:$port/rest/v1/code/byLabel?version=$version&limit=${expectedRows+2}", expectedRows)
+		testPaginationFewResults(version, "$apiHost:$port$apiEndpoint?version=$version&limit=${expectedRows+2}", expectedRows)
 	}
 
 	//If the number of elements in the db is less than the page size, all elements are in the same page
@@ -287,7 +289,7 @@ class CodeControllerEndToEndTest @Autowired constructor(
 		val version = "2"
 		val expectedRows = (codesStats["count"] as Map<String, Int>)[version] ?: 0
 		val type = "testCode"
-		testPaginationFewResults(version, "http://localhost:$port/rest/v1/code/byLabel?version=$version&type=$type&limit=${expectedRows+2}", expectedRows)
+		testPaginationFewResults(version, "$apiHost:$port$apiEndpoint?version=$version&type=$type&limit=${expectedRows+2}", expectedRows)
 	}
 
 	@Test
@@ -295,7 +297,7 @@ class CodeControllerEndToEndTest @Autowired constructor(
 		val version = "latest"
 		val expectedRows = (codesStats["latest"] as Map<String, Int>).size
 		val type = "testCode"
-		testPaginationFewResults(version, "http://localhost:$port/rest/v1/code/byLabel?version=$version&type=$type&limit=${expectedRows+2}", expectedRows)
+		testPaginationFewResults(version, "$apiHost:$port$apiEndpoint?version=$version&type=$type&limit=${expectedRows+2}", expectedRows)
 	}
 
 	//Test the pagination using only the version filter. The second page is not full

@@ -79,7 +79,7 @@ class ICureTestApplication {
 			ProcessBuilder(("docker run " +
 				"-p $dbPort:5984 " +
 				"-e COUCHDB_USER=${System.getenv("ICURE_COUCHDB_USERNAME")} -e COUCHDB_PASSWORD=${System.getenv("ICURE_COUCHDB_PASSWORD")} " +
-				"-d --name couchdb-test " +
+				"-d --name couchdb-test-instance " +
 				"couchdb:3.2.2").split(' '))
 				.start()
 				.waitFor()

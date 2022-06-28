@@ -66,6 +66,20 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 		private val log = LogFactory.getLog(this.javaClass)
 	}
 
+	val objectMapper: ObjectMapper by lazy {
+		ObjectMapper().registerModule(
+			KotlinModule.Builder()
+				.nullIsSameAsDefault(nullIsSameAsDefault = false)
+				.reflectionCacheSize(reflectionCacheSize = 512)
+				.nullToEmptyMap(nullToEmptyMap = false)
+				.nullToEmptyCollection(nullToEmptyCollection = false)
+				.singletonSupport(singletonSupport = SingletonSupport.DISABLED)
+				.strictNullChecks(strictNullChecks = false)
+				.build()
+			)
+	}
+
+
 	override fun getTagTypeCandidates(): List<String> {
 		return listOf("CD-ITEM", "CD-PARAMETER", "CD-CAREPATH", "CD-SEVERITY", "CD-URGENCY", "CD-GYNECOLOGY")
 	}
@@ -493,24 +507,14 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 	}
 
 	override suspend fun importCodesFromJSON(stream: InputStream) {
-		val objectMapper: ObjectMapper? = ObjectMapper().registerModule(
-			KotlinModule.Builder()
-				.nullIsSameAsDefault(nullIsSameAsDefault = false)
-				.reflectionCacheSize(reflectionCacheSize = 512)
-				.nullToEmptyMap(nullToEmptyMap = false)
-				.nullToEmptyCollection(nullToEmptyCollection = false)
-				.singletonSupport(singletonSupport = SingletonSupport.DISABLED)
-				.strictNullChecks(strictNullChecks = false)
-				.build()
-		)
 
-		val codeList = objectMapper?.readValue(stream, object: TypeReference<List<Code>>() {}) ?: listOf()
+		val codeList = objectMapper.readValue(stream, object: TypeReference<List<Code>>() {}) ?: listOf()
 
-		val existing = getCodes(codeList.map { it.id }).fold(HashMap<String, Code>()) { map, c -> map[c.id] = c; map }
+		val existing = getCodes(codeList.map { it.id }).fold(mapOf<String, Code>()) { map, c -> map + (c.id to c) }
 		try {
 			codeDAO.save(
-				codeList.map { xc ->
-					existing[xc.id]?.let { xc.copy(rev = it.rev) } ?: xc
+				codeList.map { newCode ->
+					existing[newCode.id]?.let { newCode.copy(rev = it.rev) } ?: newCode
 				}
 			).collect { log.debug("Code: ${it.id} is saved") }
 		} catch (e: BulkUpdateConflictException) {
