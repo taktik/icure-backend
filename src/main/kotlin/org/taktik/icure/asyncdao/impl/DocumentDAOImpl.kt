@@ -44,6 +44,7 @@ import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorage
+import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorageMigration
 import org.taktik.icure.entities.Document
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.properties.ObjectStorageProperties
@@ -59,6 +60,7 @@ class DocumentDAOImpl(
 	@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
 	idGenerator: IDGenerator,
 	private val icureObjectStorage: IcureObjectStorage,
+	private val icureObjectStorageMigration: IcureObjectStorageMigration,
 	private val objectStorageProperties: ObjectStorageProperties
 ) : GenericDAOImpl<Document>(couchDbProperties, Document::class.java, couchDbDispatcher, idGenerator), DocumentDAO {
 	companion object {
@@ -149,8 +151,8 @@ class DocumentDAOImpl(
 				if (
 					objectStorageProperties.backlogToObjectStorage
 						&& attachment.size >= objectStorageProperties.sizeLimit
-						&& !icureObjectStorage.isMigrating(documentId = document.id, attachmentId = document.attachmentId)
-						&& icureObjectStorage.preStore(documentId = document.id, attachmentId = document.attachmentId, attachment)
+						&& !icureObjectStorageMigration.isMigrating(documentId = document.id, attachmentId = document.attachmentId)
+						&& icureObjectStorageMigration.preMigrate(documentId = document.id, attachmentId = document.attachmentId, attachment)
 				) {
 					startMigration(documentWithAttachment, document.attachmentId)
 				} else {
@@ -174,8 +176,11 @@ class DocumentDAOImpl(
 	// Faster attachment loading if we are migrating locally (i.e. it is not someone else who is migrating) an attachment from couchdb to the object storage service
 	private suspend fun tryLoadMigratingAttachment(document: Document): Document? =
 		document.objectStoreReference?.takeIf {
-			// Need to check if migrating, checking if attachment is in the cache is not enough: we may have cached the document then failed to start migration due to conflicts.
-			icureObjectStorage.isMigrating(documentId = document.id, attachmentId = it)
+			/*
+			 * Need to check if migrating: we may have cached the document then failed to start migration due to conflicts. In that case this function has to return
+			 * null so we can try again to migrate.
+			 */
+			icureObjectStorageMigration.isMigrating(documentId = document.id, attachmentId = it)
 		}?.let {
 			icureObjectStorage.tryReadCachedAttachment(documentId = document.id, attachmentId = it)
 		}?.let {
@@ -187,7 +192,7 @@ class DocumentDAOImpl(
 		val migratingDocument =
 			document.takeIf { it.objectStoreReference == it.attachmentId } // Someone else has updated the document for migration
 				?: document.copy(objectStoreReference = document.attachmentId).also { save(it) } // Mark the document as migrating
-		icureObjectStorage.scheduleMigrateAttachment(documentId = document.id, attachmentId = attachmentId, this@DocumentDAOImpl)
+		icureObjectStorageMigration.scheduleMigrateAttachment(documentId = document.id, attachmentId = attachmentId, this@DocumentDAOImpl)
 		migratingDocument
 	} catch (_: CouchDbConflictException) {
 		document

@@ -43,6 +43,7 @@ import org.taktik.icure.asynclogic.ICureLogic
 import org.taktik.icure.asynclogic.PropertyLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorage
+import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorageMigration
 import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.Confidentiality
 import org.taktik.icure.entities.embed.DocumentStatus
@@ -104,6 +105,7 @@ class ICureBackendApplication {
 		internalDaos: List<InternalDAO<*>>,
 		couchDbProperties: CouchDbProperties,
 		icureObjectStorage: IcureObjectStorage,
+		icureObjectStorageMigration: IcureObjectStorageMigration,
 		documentDAO: DocumentDAO
 	) = ApplicationRunner {
 		//Check that core types have corresponding codes
@@ -133,7 +135,7 @@ class ICureBackendApplication {
 				it.forceInitStandardDesignDocument(true)
 			}
 			icureObjectStorage.rescheduleFailedStorageTasks()
-			icureObjectStorage.rescheduleStoredMigrationTasks(documentDAO)
+			icureObjectStorageMigration.rescheduleStoredMigrationTasks(documentDAO)
 		}
 
 		log.info("icure (" + iCureLogic.getVersion() + ") is started")

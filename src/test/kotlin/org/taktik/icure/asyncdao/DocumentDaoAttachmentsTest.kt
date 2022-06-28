@@ -28,6 +28,7 @@ import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
 import org.taktik.icure.asyncdao.impl.DocumentDAOImpl
 import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorage
+import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorageMigration
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.embed.DocumentType
 import org.taktik.icure.properties.CouchDbProperties
@@ -47,6 +48,7 @@ class DocumentDaoAttachmentsTest : StringSpec({
 	val bigAttachmentId = DigestUtils.sha256Hex(bigAttachment)
 
 	val icureObjectStorage = mockk<IcureObjectStorage>()
+	val icureObjectStorageMigration = mockk<IcureObjectStorageMigration>()
 	val dbClient = mockk<Client>()
 	val dispatcher = mockk<CouchDbDispatcher>()
 		.also { dispatcherMock -> coEvery { dispatcherMock.getClient(any(), any()) } returns dbClient }
@@ -55,6 +57,7 @@ class DocumentDaoAttachmentsTest : StringSpec({
 		dispatcher,
 		UUIDGenerator(),
 		icureObjectStorage,
+		icureObjectStorageMigration,
 		ObjectStorageProperties(sizeLimit = SIZE_LIMIT, backlogToObjectStorage = true)
 	)
 
@@ -167,17 +170,17 @@ class DocumentDaoAttachmentsTest : StringSpec({
 	fun supportDocumentMigration(
 		document: Document,
 		isMigratingAnswer: Boolean?,
-		preStoreAnswer: Boolean?,
+		preMigrateAnswer: Boolean?,
 		allowUpdate: Boolean,
 		allowScheduleMigrate: Boolean
 	) {
 		if (isMigratingAnswer != null) {
-			coEvery { icureObjectStorage.isMigrating(document.id, document.attachmentId!!) } returns isMigratingAnswer
+			coEvery { icureObjectStorageMigration.isMigrating(document.id, document.attachmentId!!) } returns isMigratingAnswer
 		}
-		if (preStoreAnswer != null) {
-			coEvery { icureObjectStorage.preStore(document.id, document.attachmentId!!, any<ByteArray>()) } answers {
+		if (preMigrateAnswer != null) {
+			coEvery { icureObjectStorageMigration.preMigrate(document.id, document.attachmentId!!, any<ByteArray>()) } answers {
 				thirdArg<ByteArray>() shouldContainExactly document.attachment!!
-				preStoreAnswer
+				preMigrateAnswer
 			}
 		}
 		if (allowUpdate) {
@@ -190,7 +193,7 @@ class DocumentDaoAttachmentsTest : StringSpec({
 			}
 		}
 		if (allowScheduleMigrate) {
-			coEvery { icureObjectStorage.scheduleMigrateAttachment(document.id, document.attachmentId!!, any()) } just Runs
+			coEvery { icureObjectStorageMigration.scheduleMigrateAttachment(document.id, document.attachmentId!!, any()) } just Runs
 		}
 	}
 
@@ -199,11 +202,15 @@ class DocumentDaoAttachmentsTest : StringSpec({
 		loaded.attachment shouldBe original.attachment
 		loaded.attachmentId shouldBe original.attachmentId
 		loaded.objectStoreReference shouldBe original.attachmentId
-		coVerify(exactly = 1) { icureObjectStorage.scheduleMigrateAttachment(original.id, original.attachmentId!!, any())}
+		coVerify(exactly = 1) { icureObjectStorageMigration.scheduleMigrateAttachment(original.id, original.attachmentId!!, any())}
+	}
+
+	fun resetMocks() {
+		clearMocks(icureObjectStorage, icureObjectStorageMigration, dbClient)
 	}
 
 	beforeEach {
-		clearMocks(icureObjectStorage, dbClient)
+		resetMocks()
 	}
 
 	"Small attachments should be stored in couch db" {
@@ -272,7 +279,7 @@ class DocumentDaoAttachmentsTest : StringSpec({
 				}
 				existingDoc.attachmentId?.let { verifyCouchDbAttachmentDeletion(existingDoc.id, it, existingDocRev) }
 				existingDoc.objectStoreReference?.let { verifyObjectStorageAttachmentDeletion(existingDoc.id, it) }
-				clearMocks(icureObjectStorage, dbClient)
+				resetMocks()
 			}
 		}
 	}
@@ -294,7 +301,7 @@ class DocumentDaoAttachmentsTest : StringSpec({
 				objectStoreReference shouldBe existingDoc.objectStoreReference
 				documentType shouldBe newDocType
 			}
-			clearMocks(icureObjectStorage, dbClient)
+			resetMocks()
 		}
 	}
 
@@ -321,7 +328,7 @@ class DocumentDaoAttachmentsTest : StringSpec({
 			}
 			existingDoc.attachmentId?.let { verifyCouchDbAttachmentDeletion(existingDoc.id, it, existingDocRev) }
 			existingDoc.objectStoreReference?.let { verifyObjectStorageAttachmentDeletion(existingDoc.id, it) }
-			clearMocks(icureObjectStorage, dbClient)
+			resetMocks()
 		}
 	}
 
@@ -330,7 +337,7 @@ class DocumentDaoAttachmentsTest : StringSpec({
 		supportDocumentMigration(
 			document = existingDocLegacy,
 			isMigratingAnswer = false,
-			preStoreAnswer = true,
+			preMigrateAnswer = true,
 			allowUpdate = true,
 			allowScheduleMigrate = true
 		)
@@ -342,7 +349,7 @@ class DocumentDaoAttachmentsTest : StringSpec({
 		supportDocumentMigration(
 			document = existingDocMigrating,
 			isMigratingAnswer = false,
-			preStoreAnswer = true,
+			preMigrateAnswer = true,
 			allowUpdate = false,
 			allowScheduleMigrate = true
 		)
@@ -354,7 +361,7 @@ class DocumentDaoAttachmentsTest : StringSpec({
 		supportDocumentMigration(
 			document = existingDocLegacy,
 			isMigratingAnswer = false,
-			preStoreAnswer = true,
+			preMigrateAnswer = true,
 			allowUpdate = false,
 			allowScheduleMigrate = false
 		)
@@ -368,7 +375,7 @@ class DocumentDaoAttachmentsTest : StringSpec({
 		supportDocumentMigration(
 			document = updatedLegacy,
 			isMigratingAnswer = false,
-			preStoreAnswer = true,
+			preMigrateAnswer = true,
 			allowUpdate = true,
 			allowScheduleMigrate = true
 		)
@@ -382,7 +389,7 @@ class DocumentDaoAttachmentsTest : StringSpec({
 		supportDocumentMigration(
 			document = existingDocLegacy,
 			isMigratingAnswer = false,
-			preStoreAnswer = false,
+			preMigrateAnswer = false,
 			allowUpdate = false,
 			allowScheduleMigrate = false
 		)
@@ -396,7 +403,7 @@ class DocumentDaoAttachmentsTest : StringSpec({
 		supportDocumentMigration(
 			document = existingDocMigrating,
 			isMigratingAnswer = true,
-			preStoreAnswer = null,
+			preMigrateAnswer = null,
 			allowUpdate = false,
 			allowScheduleMigrate = false
 		)

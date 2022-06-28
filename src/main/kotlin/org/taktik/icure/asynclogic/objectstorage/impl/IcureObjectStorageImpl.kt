@@ -33,11 +33,8 @@ import org.taktik.icure.entities.objectstorage.ObjectStorageMigrationTask
 import org.taktik.icure.properties.ObjectStorageProperties
 
 @Service
-// TODO maybe should update this to actually cancel opposite tasks instead of keeping the latest.
 class IcureObjectStorageImpl(
-	private val objectStorageProperties: ObjectStorageProperties,
     private val objectStorageTasksDao: ObjectStorageTasksDAO,
-    private val objectStorageMigrationTasksDao: ObjectStorageMigrationTasksDAO,
 	private val objectStorageClient: ObjectStorageClient,
 	private val localObjectStorage: LocalObjectStorage
 ) : IcureObjectStorage {
@@ -47,7 +44,6 @@ class IcureObjectStorageImpl(
 
 	private val taskExecutorScope = CoroutineScope(Dispatchers.Default)
 	private val taskChannel = Channel<ObjectStorageTask>(UNLIMITED)
-	private val migrationTaskSet = ConcurrentHashMap.newKeySet<Pair<String, String>>()
 
 	/**
 	 * Specifies if there are any tasks scheduled for execution. Should only be used for testing purposes.
@@ -86,41 +82,15 @@ class IcureObjectStorageImpl(
 	override fun tryReadCachedAttachment(documentId: String, attachmentId: String): Flow<DataBuffer>? =
 		localObjectStorage.read(documentId, attachmentId)
 
+	override suspend fun hasStoredAttachment(documentId: String, attachmentId: String): Boolean =
+		objectStorageClient.checkAvailable(documentId, attachmentId)
+
 	override suspend fun scheduleDeleteAttachment(documentId: String, attachmentId: String) =
 		scheduleNewStorageTask(documentId, attachmentId, ObjectStorageTaskType.DELETE)
 
 	override suspend fun rescheduleFailedStorageTasks() {
 		objectStorageTasksDao.getEntities().collect {
 			taskChannel.send(it)
-		}
-	}
-
-	override fun isMigrating(documentId: String, attachmentId: String): Boolean = migrationTaskSet.contains(documentId to attachmentId)
-
-	override suspend fun scheduleMigrateAttachment(documentId: String, attachmentId: String, documentDAO: DocumentDAO) {
-		if (migrationTaskSet.add(documentId to attachmentId)) {
-			scheduleNewStorageTask(documentId = documentId, attachmentId = attachmentId, ObjectStorageTaskType.UPLOAD)
-			val task = ObjectStorageMigrationTask(
-				id = UUID.randomUUID().toString(),
-				documentId = documentId,
-				attachmentId = attachmentId
-			)
-			objectStorageMigrationTasksDao.save(task)
-			taskExecutorScope.launch {
-				do {
-					delay(objectStorageProperties.migrationDelayMs)
-				} while (!tryMigration(task, documentDAO))
-			}
-		}
-	}
-
-	override suspend fun rescheduleStoredMigrationTasks(documentDAO: DocumentDAO) {
-		objectStorageMigrationTasksDao.getEntities().collect {
-			if (migrationTaskSet.add(it.documentId to it.attachmentId)) {
-				taskExecutorScope.launch {
-					while (!tryMigration(it, documentDAO)) { delay(objectStorageProperties.migrationDelayMs) }
-				}
-			}
 		}
 	}
 
@@ -158,36 +128,6 @@ class IcureObjectStorageImpl(
 		}
 		val toDelete = if (success) relatedTasks else relatedTasks.filter { it !== newestTask }
 		if (toDelete.isNotEmpty()) objectStorageTasksDao.remove(toDelete.asFlow()).collect()
-	}
-
-	// Attempts to execute migration task returns if the task completed (successfully performed migration or there is no need for it anymore) or should be retried later
-	private suspend fun tryMigration(task: ObjectStorageMigrationTask, documentDAO: DocumentDAO): Boolean = (
-		documentDAO.get(task.documentId)?.let { document ->
-			if (document.attachmentId == task.attachmentId && document.objectStoreReference == task.attachmentId) {
-				if (objectStorageClient.checkAvailable(documentId = task.documentId, attachmentId = task.attachmentId)) {
-					runCatching { doMigration(document, task, documentDAO) }.isSuccess // If it failed (e.g. someone else modified the attachment concurrently) we want to retry later
-				} else {
-					false // The document was not yet uploaded, we will retry to migrate later
-				}
-			} else {
-				true // The attachment was changed or someone else completed migration, no need to update
-			}
-		} ?: true // The document was deleted, no need to migrate
-	).also { completed ->
-		if (completed) {
-			objectStorageMigrationTasksDao.purge(task)
-			migrationTaskSet.remove(task.documentId to task.attachmentId)
-		}
-	}
-
-	private suspend fun doMigration(document: Document, task: ObjectStorageMigrationTask, documentDAO: DocumentDAO) {
-		if (document.attachments?.containsKey(task.attachmentId) == true) {
-			val updated = documentDAO.save(document.copy(attachmentId = null, attachments = document.attachments - task.attachmentId))
-			documentDAO.deleteAttachment(document.id, updated?.rev!!, task.attachmentId)
-		} else {
-			// This branch should never happen, if attachmentId is not null it should be in attachments.
-			documentDAO.save(document.copy(attachmentId = null))
-		}
 	}
 
 	// Must only be one, else there can be race-conditions

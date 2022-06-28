@@ -2,28 +2,30 @@ package org.taktik.icure.asynclogic.objectstorage
 
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
-import org.taktik.icure.asyncdao.DocumentDAO
 import java.io.IOException
 
 /**
- * Handles the attachments object storage, including caching, saving of tasks for the future if there are problems with the upload/deletion, etc.
+ * Handles object storage for document attachments. Depending on the implementation this may include caching,
+ * saving of tasks for the future if there are problems with the upload/deletion, etc.
  */
 interface IcureObjectStorage {
 	/**
-	 * Performs the pre-storage tasks for an attachment.
+	 * Performs the pre-storage task for an attachment.
 	 * @param documentId id of the document owner of the attachment.
 	 * @param attachmentId id of the attachment.
 	 * @param content content of the attachment.
-	 * @return If the pre-storage was successful (normally it should always be successful). If not the attachment should be stored as a couchdb attachment.
+	 * @return If the pre-storage was successful. If not the attachment can't be stored to the object storage service,
+	 * and should be stored as a couchdb attachment instead.
 	 */
 	suspend fun preStore(documentId: String, attachmentId: String, content: ByteArray): Boolean
 
 	/**
-	 * Performs the pre-storage tasks for an attachment.
+	 * Performs the pre-storage task for an attachment.
 	 * @param documentId id of the document owner of the attachment.
 	 * @param attachmentId id of the attachment.
 	 * @param content content of the attachment.
-	 * @return If the pre-storage was successful (normally it should always be successful). If not the attachment should be stored as a couchdb attachment.
+	 * @return If the pre-storage was successful. If not the attachment can't be stored to the object storage service,
+	 * and should be stored as a couchdb attachment instead.
 	 */
 	suspend fun preStore(documentId: String, attachmentId: String, content: Flow<DataBuffer>): Boolean
 
@@ -48,12 +50,21 @@ interface IcureObjectStorage {
 	suspend fun readAttachment(documentId: String, attachmentId: String): Flow<DataBuffer>
 
 	/**
-	 * Try to read a cached attachment. If the attachment is available without contacting the object storage service returns it, else returns null.
+	 * Try to read a cached attachment: if the attachment is available without contacting the object storage service returns it, else returns null.
+	 * If the implementation does not support caching will always return null.
 	 * @param documentId id of the document owner of the attachment.
 	 * @param attachmentId id of the attachment.
 	 * @return the attachment content, if available, else null.
 	 */
 	fun tryReadCachedAttachment(documentId: String, attachmentId: String): Flow<DataBuffer>?
+
+	/**
+	 * Check if an attachment is stored in the object storage service (does not consider cache).
+	 * @param documentId id of the document owner of the attachment.
+	 * @param attachmentId id of the attachment.
+	 * @return true if the attachment is stored in the object storage service.
+	 */
+	suspend fun hasStoredAttachment(documentId: String, attachmentId: String): Boolean
 
 	/**
 	 * Deletes an attachment from the object storage service.
@@ -66,34 +77,8 @@ interface IcureObjectStorage {
 	suspend fun scheduleDeleteAttachment(documentId: String, attachmentId: String)
 
 	/**
-	 * @param documentId id of the document owner of the attachment.
-	 * @param attachmentId id of the attachment.
-	 * @return if there is a migration task scheduled for the provided document and attachment.
-	 */
-	fun isMigrating(documentId: String, attachmentId: String): Boolean
-
-	/**
-	 * Store an attachment previously stored as a couchdb attachment to the object storage service and schedules a migration task to be executed later.
-	 * This method only schedules the tasks for execution, and may return before the tasks are actually completed.
-	 * Before invoking this function you must pre-store the attachment content.
-	 * The migration task will remove the attachment from couchDb, only keeping a reference to the cloud-stored attachment.
-	 * This task will only be executed if:
-	 * - The document still refers to the same attachment. If the attachment changed the task will be completely removed.
-	 * - The attachment has been successfully uploaded to the cloud. If the attachment was not updated the task will be delayed further.
-	 * @param documentId id of the document owner of the attachment.
-	 * @param attachmentId id of the attachment.
- 	 */
-	suspend fun scheduleMigrateAttachment(documentId: String, attachmentId: String, documentDAO: DocumentDAO)
-
-	/**
 	 * Reschedules all object storage tasks which either failed or were not completed before the system was last shut down.
 	 * This method only schedules the tasks for execution, and may return before the tasks are actually completed.
 	 */
 	suspend fun rescheduleFailedStorageTasks()
-
-	/**
-	 * Reschedules all migration tasks which could not be completed before the system was last shut down.
-	 * This method only schedules the tasks for execution, and may return before the tasks are actually completed.
-	 */
-	suspend fun rescheduleStoredMigrationTasks(documentDAO: DocumentDAO)
 }
