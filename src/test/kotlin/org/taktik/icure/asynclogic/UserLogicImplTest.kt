@@ -12,10 +12,6 @@ import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.asyncdao.RoleDAO
 import org.taktik.icure.asyncdao.UserDAO
-import org.taktik.icure.asynclogic.AsyncSessionLogic
-import org.taktik.icure.asynclogic.HealthcarePartyLogic
-import org.taktik.icure.asynclogic.PropertyLogic
-import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.impl.UserLogicImpl
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.User
@@ -56,48 +52,56 @@ class UserLogicImplTest {
         every { (doc as User).patientId } returns null
     }
 
+    private val paginationOffset = PaginationOffset<String>(1000)
+    private val extendedLimit = (1000 * 1F).toInt()
+
     @Test
     fun `listUser with skipPatients = false, user has only a patientId, Should be found`() {
-        every { userDAO.findUsers(any(), any(), any()) } returns flowOf(patientUser)
+        val skipPatient = false
+        every { userDAO.findUsers(paginationOffset, extendedLimit, skipPatient) } returns flowOf(patientUser)
 
         runBlocking {
-            assert(userLogic.listUsers(PaginationOffset(limit = 1000), false).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().single() === patientUser)
+            assert(userLogic.listUsers(paginationOffset, skipPatient).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().single() === patientUser)
         }
     }
 
     @Test
     fun `listUser with skipPatients = true, user has only a patientId, Should not be found`() {
-        every { userDAO.findUsers(any(), any(), any()) } returns flowOf(patientUser)
+        val skipPatient = true
+        every { userDAO.findUsers(paginationOffset, extendedLimit, skipPatient) } returns flowOf(patientUser)
 
         runBlocking {
-            assert(userLogic.listUsers(PaginationOffset(limit = 1000), true).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().isEmpty())
+            assert(userLogic.listUsers(paginationOffset, skipPatient).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().isEmpty())
         }
     }
 
     @Test
     fun `listUser with skipPatients = true, user has only a hcpId, Should be found`() {
-        every { userDAO.findUsers(any(), any(), any()) } returns flowOf(hcpUser)
+        val skipPatient = true
+        every { userDAO.findUsers(paginationOffset, extendedLimit, skipPatient) } returns flowOf(hcpUser)
 
         runBlocking {
-            assert(userLogic.listUsers(PaginationOffset(limit = 1000), true).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().single() === hcpUser)
+            assert(userLogic.listUsers(paginationOffset, skipPatient).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().single() === hcpUser)
         }
     }
 
     @Test
     fun `listUser with skipPatients = true, user has a patientId AND a hcpId, Should be found`() {
-        every { userDAO.findUsers(any(), any(), any()) } returns flowOf(hcpAndPatientUser)
+        val skipPatient = true
+        every { userDAO.findUsers(paginationOffset, extendedLimit, skipPatient) } returns flowOf(hcpAndPatientUser)
 
         runBlocking {
-            assert(userLogic.listUsers(PaginationOffset(limit = 1000), true).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().single() === hcpAndPatientUser)
+            assert(userLogic.listUsers(paginationOffset, skipPatient).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().single() === hcpAndPatientUser)
         }
     }
 
     @Test
     fun `listUser with skipPatients = true, user has no patientId AND no hcpId, Should be found`() {
-        every { userDAO.findUsers(any(), any(), any()) } returns flowOf(user)
+        val skipPatient = true
+        every { userDAO.findUsers(paginationOffset, extendedLimit, skipPatient) } returns flowOf(user)
 
         runBlocking {
-            assert(userLogic.listUsers(PaginationOffset(limit = 1000), true).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().single() === user)
+            assert(userLogic.listUsers(paginationOffset, skipPatient).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().single() === user)
         }
     }
 }
