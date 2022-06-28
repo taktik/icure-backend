@@ -466,7 +466,7 @@ class UserLogicImpl(
 		val extendedLimit = (pagination.limit * extensionFactor).toInt()
 
 		emitAll(
-			userDAO.findUsers(pagination, skipPatients, extendedLimit).let { flw ->
+			userDAO.findUsers(pagination, extendedLimit, skipPatients).let { flw ->
 				if (!skipPatients) flw else
 					flw.filter {
 						when (it) {

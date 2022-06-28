@@ -27,12 +27,9 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.onCompletion
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
-import org.taktik.couchdb.TotalCount
 import org.taktik.couchdb.ViewQueryResultEvent
-import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.exception.DocumentNotFoundException
 import org.taktik.couchdb.id.IDGenerator
@@ -87,7 +84,7 @@ class UserDAOImpl(
 	 * startKey in pagination is the email of the patient.
 	 */
 	@View(name = "allForPagination", map = "map = function (doc) { if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) { emit(doc.login, null); }};")
-	override fun findUsers(pagination: PaginationOffset<String>, skipPatients: Boolean, extendedLimit: Int): Flow<ViewQueryResultEvent> = flow {
+	override fun findUsers(pagination: PaginationOffset<String>, extendedLimit: Int, skipPatients: Boolean): Flow<ViewQueryResultEvent> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 		val viewQuery = pagedViewQuery<User, String>(
 			client,
