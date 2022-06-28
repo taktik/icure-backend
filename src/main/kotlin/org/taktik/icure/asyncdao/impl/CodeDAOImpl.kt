@@ -217,8 +217,8 @@ class CodeDAOImpl(
 							if (version == "latest") emitLatestVersionOrNull(acc, it, paginationOffset.limit)
 							else emitVersionOrNull(acc, it, paginationOffset.limit, version, isContinue)
 							}
-						is TotalCount -> QueryResultAccumulator(acc.seenElements, acc.sentElements, it.total, acc.offset, acc.lastVisited)
-						is Offset ->QueryResultAccumulator(acc.seenElements, acc.sentElements, acc.elementsFound, it.offset, acc.lastVisited)
+						is TotalCount -> QueryResultAccumulator(acc.seenElements, acc.sentElements, it.total, acc.offset, null, acc.lastVisited)
+						is Offset ->QueryResultAccumulator(acc.seenElements, acc.sentElements, acc.elementsFound, it.offset, null, acc.lastVisited)
 						else -> QueryResultAccumulator(acc.seenElements, acc.sentElements, acc.elementsFound, acc.offset,null, acc.lastVisited)
 						}
 					}
