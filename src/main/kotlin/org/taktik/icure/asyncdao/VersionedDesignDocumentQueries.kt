@@ -41,7 +41,8 @@ open class VersionedDesignDocumentQueries<T : StoredDocument>(protected open val
 						deleteStaleDesignDocuments(client, relatedDesignDocs.filter { it != generatedDesignDocument.id })
 						generatedDesignDocument.id
 					} else {
-						relatedDesignDocs.filter { it != generatedDesignDocument.id }.first { isReadyDesignDoc(client, it) }
+						relatedDesignDocs.filter { it != generatedDesignDocument.id }.firstOrNull { isReadyDesignDoc(client, it) }
+							?: throw IllegalStateException("No design doc for $baseId can be found at this time")
 					}
 				}
 			}
@@ -71,7 +72,11 @@ open class VersionedDesignDocumentQueries<T : StoredDocument>(protected open val
 				.catch { emit(false) }
 				.firstOrNull() ?: true
 
-	private suspend fun designDocId(client: Client) = designDocIdProvider.get(Pair(client, this.entityClass)).await()
+	private suspend fun designDocId(client: Client): String {
+		val cacheKey = Pair(client, this.entityClass)
+		return runCatching {
+			designDocIdProvider.get(cacheKey).await() }.onFailure { designDocIdProvider.invalidate(cacheKey) }.getOrThrow()
+	}
 
 	protected suspend fun createQuery(client: Client, viewName: String): ViewQuery = ViewQuery()
 		.designDocId(designDocId(client))
