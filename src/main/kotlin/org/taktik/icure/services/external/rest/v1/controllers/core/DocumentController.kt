@@ -149,7 +149,7 @@ class DocumentController(
 			?: payload
 
 		val document = documentLogic.getDocument(documentId)
-			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
 		documentLogic.modifyDocument(document.copy(attachment = newPayload))
 			?.let { documentMapper.map(it) }
 	}
@@ -176,7 +176,7 @@ class DocumentController(
 			?: payload
 
 		val document = documentLogic.getDocument(documentId)
-			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
 		documentLogic.modifyDocument(document.copy(attachment = newPayload))
 			?.let { documentMapper.map(it) }
 	}
