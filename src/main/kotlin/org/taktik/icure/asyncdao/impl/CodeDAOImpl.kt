@@ -218,7 +218,7 @@ class CodeDAOImpl(
 							else emitVersionOrNull(acc, it, paginationOffset.limit, version, isContinue)
 							}
 						is TotalCount -> QueryResultAccumulator(acc.seenElements, acc.sentElements, it.total, acc.offset, null, acc.lastVisited)
-						is Offset ->QueryResultAccumulator(acc.seenElements, acc.sentElements, acc.elementsFound, it.offset, null, acc.lastVisited)
+						is Offset -> QueryResultAccumulator(acc.seenElements, acc.sentElements, acc.elementsFound, it.offset, null, acc.lastVisited)
 						else -> QueryResultAccumulator(acc.seenElements, acc.sentElements, acc.elementsFound, acc.offset,null, acc.lastVisited)
 						}
 					}
@@ -251,7 +251,7 @@ class CodeDAOImpl(
 								// If the version filter is latest and there are no more elements to visit and the page is not full, I emit the last element
 								if (version == "latest" && it.lastVisited != null && it.sentElements < paginationOffset.limit)
 									emit(it.lastVisited)    //If the version filter is "latest" then the last code must be always emitted
-								emit(TotalCount(it.seenElements + prevTotalCount))
+								emit(TotalCount(it.elementsFound ?: 0))
 							}
 						}
 					}

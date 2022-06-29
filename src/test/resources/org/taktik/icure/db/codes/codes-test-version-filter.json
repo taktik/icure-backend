@@ -47,7 +47,7 @@
 		"label": {
 			"en": "testcode1"
 		},
-		"regions": ["fr"]
+		"regions": ["aa"]
 	},
 	{
 		"_id": "testCode|testcode1|2",
@@ -57,7 +57,7 @@
 		"label": {
 			"en": "testcode1"
 		},
-		"regions": ["fr"]
+		"regions": ["aa"]
 	},
 	{
 		"_id": "testCode|testcode2|1",
@@ -208,5 +208,11 @@
 			"en": "testcode11"
 		},
 		"regions": ["fr"]
+	},
+	{
+		"_id": "testCode|testcode12|1",
+		"type": "testCode",
+		"code": "testcode12",
+		"version": "1"
 	}
 ]
