@@ -32,6 +32,7 @@ import org.taktik.couchdb.exception.CouchDbException
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.entities.Document
+import org.taktik.icure.entities.embed.DataAttachment
 import org.taktik.icure.exceptions.CreationException
 
 @ExperimentalCoroutinesApi
@@ -41,9 +42,9 @@ class DocumentLogicImpl(
 	sessionLogic: AsyncSessionLogicImpl
 ) : GenericLogicImpl<Document, DocumentDAO>(sessionLogic), DocumentLogic {
 
-	override suspend fun createDocument(document: Document, ownerHealthcarePartyId: String) = fix(document) { document ->
+	override suspend fun createDocument(document: Document, ownerHealthcarePartyId: String) = fix(document) { fixedDocument ->
 		try {
-			createEntities(setOf(document)).firstOrNull()
+			createEntities(setOf(fixedDocument)).firstOrNull()
 		} catch (e: Exception) {
 			throw CreationException("Could not create document. ", e)
 		}
@@ -63,18 +64,37 @@ class DocumentLogicImpl(
 		emitAll(documentDAO.readAttachment(documentId, attachmentId, null))
 	}
 
-	override suspend fun modifyDocument(updatedDocument: Document, strict: Boolean, currentDocument: Document?): Document? {
-		TODO("Not yet implemented")
-	/* OLD
-	override suspend fun modifyDocument(document: Document) = fix(document) { document ->
+	override suspend fun modifyDocument(updatedDocument: Document, strict: Boolean, currentDocument: Document?): Document? = fix(updatedDocument) { newDoc ->
+		fun validateDataAttachment(updatedAttachment: DataAttachment?, currentAttachment: DataAttachment?, attachmentName: String): DataAttachment? =
+			if (currentAttachment != null) {
+				if (updatedAttachment != null && updatedAttachment hasSameIdsAs currentAttachment) {
+					updatedAttachment
+				} else {
+					require(!strict) {
+						"Inconsistency between updated and current attachment for $attachmentName with strict mode enabled: expected ${currentAttachment.ids} but got ${updatedAttachment?.ids}"
+					}
+					updatedAttachment?.withIdsOf(currentAttachment) ?: currentAttachment
+				}
+			} else {
+				require(updatedAttachment == null) { "Attachment $attachmentName is in updated document but does not exist in current document" }
+				null
+			}
+
+		val baseline = requireNotNull(currentDocument ?: getDocument(newDoc.id)) {
+			"Attempting to modify a non-existing document ${newDoc.id}."
+		}
+		require(newDoc.rev == baseline.rev) { "Updated document has an older revision ${newDoc.rev} -> ${baseline.rev}" }
+		val validatedSecondaryAttachments = (baseline.secondaryAttachments.keys + newDoc.secondaryAttachments.keys).mapNotNull { key ->
+			validateDataAttachment(newDoc.secondaryAttachments[key], baseline.secondaryAttachments[key], key)?.let { key to it }
+		}.toMap()
+		val validatedMainAttachment = validateDataAttachment(newDoc.mainAttachment, baseline.mainAttachment, "MAIN")
 		try {
-			documentDAO.save(document)
+			documentDAO.save(newDoc.copy(secondaryAttachments = validatedSecondaryAttachments).withUpdatedMainAttachment(validatedMainAttachment))
 		} catch (e: CouchDbException) {
-			logger.warn("Documents of class {} with id {} and rev {} could not be merged", document.javaClass.simpleName, document.id, document.rev)
+			// TODO take from previous implementation of modify document
+			logger.warn("Documents of class {} with id {} and rev {} could not be merged", newDoc.javaClass.simpleName, newDoc.id, newDoc.rev)
 			throw IllegalStateException(e)
 		}
-	}
-	 */
 	}
 
 	override suspend fun updateAttachments(currentDocument: Document, mainAttachmentChange: DocumentLogic.DataAttachmentChange?, secondaryAttachmentsChanges: Map<String, DocumentLogic.DataAttachmentChange>): Document? {

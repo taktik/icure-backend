@@ -36,6 +36,8 @@ data class DataAttachment(
 		}
 	}
 
+	val ids: Pair<String?, String?> get() = couchDbAttachmentId to objectStoreAttachmentId
+
 	@JsonIgnore private var cachedBytes: Deferred<ByteArray>? = null
 
 	/**
@@ -70,4 +72,18 @@ data class DataAttachment(
 			if (cachedBytes === getBytesTask) cachedBytes = null
 		}.getOrThrow()
 	}
+
+	/**
+	 * @return if this and other attachment have the same ids (the attachment is the same and is stored in the same place)
+	 */
+	infix fun hasSameIdsAs(other: DataAttachment) =
+		this.ids == other.ids
+
+	/**
+	 * @return a copy of this data attachment where the ids are replaced with those of another data attachment
+	 */
+	fun withIdsOf(other: DataAttachment) = copy(
+		couchDbAttachmentId = other.couchDbAttachmentId,
+		objectStoreAttachmentId = other.couchDbAttachmentId
+	)
 }

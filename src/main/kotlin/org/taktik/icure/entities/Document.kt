@@ -128,13 +128,16 @@ data class Document(
 ) : StoredICureDocument, Encryptable {
 	companion object : DynamicInitializer<Document>
 
-	val mainAttachment: DataAttachment by lazy {
-		DataAttachment(
-			attachmentId,
-			objectStoreReference,
-			listOfNotNull(mainUti) + otherUtis,
-			attachmentLoadingContext
-		)
+	val mainAttachment: DataAttachment? by lazy {
+		if (attachmentId != null || objectStoreReference != null)
+			DataAttachment(
+				attachmentId,
+				objectStoreReference,
+				listOfNotNull(mainUti) + otherUtis,
+				attachmentLoadingContext
+			)
+		else
+			null
 	}
 
 	fun merge(other: Document) = Document(args = this.solveConflictsWith(other))
@@ -195,11 +198,11 @@ data class Document(
 			modified != null -> this.copy(modified = modified)
 			else -> this
 		}
-	fun withUpdatedMainAttachment(newMainAttachment: DataAttachment) = this.copy(
-		attachmentId = newMainAttachment.couchDbAttachmentId,
-		objectStoreReference = newMainAttachment.objectStoreAttachmentId,
-		mainUti = newMainAttachment.utis.firstOrNull(),
-		otherUtis = newMainAttachment.utis.drop(1).toSet(),
-		attachmentLoadingContext = newMainAttachment.loadingContext
+	fun withUpdatedMainAttachment(newMainAttachment: DataAttachment?) = this.copy(
+		attachmentId = newMainAttachment?.couchDbAttachmentId,
+		objectStoreReference = newMainAttachment?.objectStoreAttachmentId,
+		mainUti = newMainAttachment?.utis?.firstOrNull(),
+		otherUtis = newMainAttachment?.utis?.drop(1)?.toSet() ?: emptySet(),
+		attachmentLoadingContext = newMainAttachment?.loadingContext
 	)
 }
