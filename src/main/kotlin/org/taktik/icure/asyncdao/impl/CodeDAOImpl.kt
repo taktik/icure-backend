@@ -28,9 +28,14 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.flow.transform
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
+import org.taktik.couchdb.Offset
+import org.taktik.couchdb.TotalCount
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.couchdb.id.IDGenerator
@@ -42,6 +47,15 @@ import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
+
+data class QueryResultAccumulator(
+	val seenElements: Int = 0,
+	val sentElements: Int = 0,
+	val elementsFound: Int? = null,
+	val offset: Int? = null,
+	val toEmit: ViewQueryResultEvent? = null,
+	val lastVisited: ViewRowWithDoc<*, *, *>? = null
+)
 
 @Repository("codeDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.base.Code' && !doc.deleted) emit( null, doc._id )}")
@@ -160,42 +174,114 @@ class CodeDAOImpl(
 		emitAll(client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java))
 	}
 
+
+	fun accumulateLatestVersionOrNull(acc: QueryResultAccumulator, row: ViewRowWithDoc<*, *, *>, limit: Int): QueryResultAccumulator {
+		return if (acc.lastVisited != null &&                                            // If I have something to emit
+			acc.sentElements < limit &&                        // And I still have space on the page
+			((acc.lastVisited.doc as Code).code != (row.doc as Code).code ||    // The codes are sorted, If this one is different for something
+				(acc.lastVisited.doc as Code).type != (row.doc as Code).type)
+		)
+			QueryResultAccumulator(acc.seenElements + 1, acc.sentElements + 1, acc.elementsFound, acc.offset, acc.lastVisited, row)
+		else QueryResultAccumulator(acc.seenElements + 1, acc.sentElements, acc.elementsFound, acc.offset,null, row)
+	}
+
+	fun accumulateVersionOrNull(acc: QueryResultAccumulator, row: ViewRowWithDoc<*, *, *>, limit: Int, version: String, skip: Boolean): QueryResultAccumulator {
+		return if ((acc.lastVisited != null || !skip) &&                            // If it is the second or later call, I have to skip the first result (otherwise is repeated)
+			(row.doc as Code).version == version &&                           // And the version is correct
+			acc.sentElements < limit										// And I still have space on the page
+		)
+			QueryResultAccumulator(acc.seenElements + 1, acc.sentElements + 1, acc.elementsFound, acc.offset, row, row)
+		else QueryResultAccumulator(acc.seenElements + 1, acc.sentElements, acc.elementsFound, acc.offset,null, row)
+	}
+
+	// Recursive function to filter results by version
+	// If the filtered results are not enough to fill a page, it does the recusive step
+	fun findCodesByLabel(from: ComplexKey, to: ComplexKey, version: String?, viewName: String, mapIndex: Int, paginationOffset: PaginationOffset<List<String?>>, extensionFactor: Float, prevTotalCount: Int, isContinue: Boolean): Flow<ViewQueryResultEvent> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val extendedLimit = (paginationOffset.limit * extensionFactor).toInt()
+		val viewQuery = pagedViewQuery<Code, ComplexKey>(
+			client,
+			viewName,
+			from,
+			to,
+			paginationOffset.copy(limit = extendedLimit).toPaginationOffset { sk -> ComplexKey.of(*sk.mapIndexed { i, s -> if (i == mapIndex) s?.let { StringUtils.sanitizeString(it) } else s }.toTypedArray()) },
+			false
+		)
+
+		emitAll(
+			client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java).let { flw ->
+				if (version == null) flw
+				else flw.scan(QueryResultAccumulator()) { acc, it ->
+					when (it) {
+						is ViewRowWithDoc<*, *, *> -> {
+							if (version == "latest") accumulateLatestVersionOrNull(acc, it, paginationOffset.limit)
+							else accumulateVersionOrNull(acc, it, paginationOffset.limit, version, isContinue)
+							}
+						is TotalCount -> QueryResultAccumulator(acc.seenElements, acc.sentElements, it.total, acc.offset, null, acc.lastVisited)
+						is Offset -> QueryResultAccumulator(acc.seenElements, acc.sentElements, acc.elementsFound, it.offset, null, acc.lastVisited)
+						else -> QueryResultAccumulator(acc.seenElements, acc.sentElements, acc.elementsFound, acc.offset,null, acc.lastVisited)
+						}
+					}
+					.transform {
+						if (it.toEmit != null){
+							emit(it.toEmit)
+						} // If I have something to emit, I emit it
+
+						// Condition to check if I arrived at the end of the page
+						if (it.seenElements >= extendedLimit || (it.elementsFound != null && it.offset != null && it.seenElements >= (it.elementsFound - it.offset))) {
+
+							// If it viewed all the elements there can be more
+							// AND it did not fill the page
+							// it does the recursive call
+							if(it.seenElements >= extendedLimit && it.sentElements < paginationOffset.limit)
+								emitAll(
+									findCodesByLabel(
+										from,
+										to,
+										version,
+										viewName,
+										mapIndex,
+										paginationOffset.copy(startKey = (it.lastVisited?.key as? Array<String>)?.toList() , startDocumentId = it.lastVisited?.id, limit = paginationOffset.limit - it.sentElements),
+										(if (it.seenElements == 0) extensionFactor * 2 else (it.seenElements.toFloat() / it.sentElements)).coerceAtMost(100f),
+										it.sentElements + prevTotalCount,
+										true
+									)
+								)
+							else{
+								// If the version filter is latest and there are no more elements to visit and the page is not full, I emit the last element
+								if (version == "latest" && it.lastVisited != null && it.sentElements < paginationOffset.limit)
+									emit(it.lastVisited)    //If the version filter is "latest" then the last code must be always emitted
+								emit(TotalCount(it.elementsFound ?: 0))
+							}
+						}
+					}
+			}
+		)
+	}
+
 	@ExperimentalCoroutinesApi
 	@FlowPreview
 	@View(name = "by_language_label", map = "classpath:js/code/By_language_label.js")
-	override fun findCodesByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
-		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	override fun findCodesByLabel(region: String?, language: String?, label: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
 		val sanitizedLabel = label?.let { StringUtils.sanitizeString(it) }
-		val startKey = paginationOffset.startKey
-		val from =
-			ComplexKey.of(
-				region ?: "\u0000",
-				language ?: "\u0000",
-				sanitizedLabel ?: "\u0000"
-			)
+		val from = ComplexKey.of(
+			region ?: "\u0000",
+			language ?: "\u0000",
+			sanitizedLabel ?: "\u0000"
+		)
 
 		val to = ComplexKey.of(
 			if (region == null) ComplexKey.emptyObject() else if (language == null) region + "\ufff0" else region,
 			if (language == null) ComplexKey.emptyObject() else if (sanitizedLabel == null) language + "\ufff0" else language,
 			if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
 		)
-
-		val viewQuery = pagedViewQuery<Code, ComplexKey>(
-			client,
-			"by_language_label",
-			from,
-			to,
-			paginationOffset.toPaginationOffset { sk -> ComplexKey.of(*sk.mapIndexed { i, s -> if (i == 2) s?.let { StringUtils.sanitizeString(it) } else s }.toTypedArray()) },
-			false
-		)
-		emitAll(client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java))
+		return findCodesByLabel(from, to, version, "by_language_label", 2, paginationOffset, 1f, 0, false)
 	}
 
 	@ExperimentalCoroutinesApi
 	@FlowPreview
 	@View(name = "by_language_type_label", map = "classpath:js/code/By_language_type_label.js")
-	override fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
-		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+	override fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
 		val sanitizedLabel = label?.let { StringUtils.sanitizeString(it) }
 		val from = ComplexKey.of(
 			region ?: "\u0000",
@@ -211,15 +297,7 @@ class CodeDAOImpl(
 			if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
 		)
 
-		val viewQuery = pagedViewQuery<Code, ComplexKey>(
-			client,
-			"by_language_type_label",
-			from,
-			to,
-			paginationOffset.toPaginationOffset { sk -> ComplexKey.of(*sk.mapIndexed { i, s -> if (i == 3) s?.let { StringUtils.sanitizeString(it) } else s }.toTypedArray()) },
-			false
-		)
-		emitAll(client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java))
+		return findCodesByLabel(from, to, version, "by_language_type_label", 3, paginationOffset, 1f, 0, false)
 	}
 
 	@ExperimentalCoroutinesApi
