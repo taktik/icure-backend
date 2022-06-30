@@ -9,9 +9,9 @@ map = function (doc) {
 		}
 	};
 
-	var emit_patients_by_address = function (hcparty, doc) {
+	var emit_patients_by_address = function (hcparty, doc, latin_map) {
 		doc.addresses.forEach(function (address) {
-			emit_normalized_substrings(hcparty, ((address.street || '') + (address.postalCode || '') + (address.city || '')).replace(new RegExp('\\s', 'g'), '').replace(new RegExp('\\W', 'g'), '').toLowerCase(), doc._id);
+			emit_normalized_substrings(hcparty, ((address.street || '') + (address.postalCode || '') + (address.city || '')).replace(new RegExp('\\s', 'g'), '').replace(new RegExp('\\W', 'g'), '').toLowerCase(), doc._id, latin_map);
 		});
 	};
 
@@ -45,7 +45,7 @@ map = function (doc) {
 			"ₒ":"o","ᵣ":"r","ᵤ":"u","ᵥ":"v","ₓ":"x"};
 		if (doc.delegations) {
 			Object.keys(doc.delegations).forEach(function (k) {
-				emit_patients_by_address(k, doc);
+				emit_patients_by_address(k, doc, latin_map);
 			});
 		}
 	}
