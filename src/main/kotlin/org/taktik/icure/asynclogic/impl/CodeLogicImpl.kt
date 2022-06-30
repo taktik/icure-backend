@@ -23,10 +23,10 @@ import java.lang.reflect.InvocationTargetException
 import java.util.LinkedList
 import javax.xml.parsers.SAXParserFactory
 import kotlin.coroutines.coroutineContext
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.SingletonSupport
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.collect.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -508,7 +508,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 
 	override suspend fun importCodesFromJSON(stream: InputStream) {
 
-		val codeList = objectMapper.readValue(stream, object: TypeReference<List<Code>>() {}) ?: listOf()
+		val codeList = objectMapper.readValue<List<Code>>(stream)
 
 		val existing = getCodes(codeList.map { it.id }).fold(mapOf<String, Code>()) { map, c -> map + (c.id to c) }
 		try {

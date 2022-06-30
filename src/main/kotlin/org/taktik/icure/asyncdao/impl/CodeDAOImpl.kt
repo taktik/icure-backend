@@ -175,7 +175,7 @@ class CodeDAOImpl(
 	}
 
 
-	fun emitLatestVersionOrNull(acc: QueryResultAccumulator, row: ViewRowWithDoc<*, *, *>, limit: Int): QueryResultAccumulator {
+	fun accumulateLatestVersionOrNull(acc: QueryResultAccumulator, row: ViewRowWithDoc<*, *, *>, limit: Int): QueryResultAccumulator {
 		return if (acc.lastVisited != null &&                                            // If I have something to emit
 			acc.sentElements < limit &&                        // And I still have space on the page
 			((acc.lastVisited.doc as Code).code != (row.doc as Code).code ||    // The codes are sorted, If this one is different for something
@@ -185,7 +185,7 @@ class CodeDAOImpl(
 		else QueryResultAccumulator(acc.seenElements + 1, acc.sentElements, acc.elementsFound, acc.offset,null, row)
 	}
 
-	fun emitVersionOrNull(acc: QueryResultAccumulator, row: ViewRowWithDoc<*, *, *>, limit: Int, version: String, skip: Boolean): QueryResultAccumulator {
+	fun accumulateVersionOrNull(acc: QueryResultAccumulator, row: ViewRowWithDoc<*, *, *>, limit: Int, version: String, skip: Boolean): QueryResultAccumulator {
 		return if ((acc.lastVisited != null || !skip) &&                            // If it is the second or later call, I have to skip the first result (otherwise is repeated)
 			(row.doc as Code).version == version &&                           // And the version is correct
 			acc.sentElements < limit										// And I still have space on the page
@@ -214,8 +214,8 @@ class CodeDAOImpl(
 				else flw.scan(QueryResultAccumulator()) { acc, it ->
 					when (it) {
 						is ViewRowWithDoc<*, *, *> -> {
-							if (version == "latest") emitLatestVersionOrNull(acc, it, paginationOffset.limit)
-							else emitVersionOrNull(acc, it, paginationOffset.limit, version, isContinue)
+							if (version == "latest") accumulateLatestVersionOrNull(acc, it, paginationOffset.limit)
+							else accumulateVersionOrNull(acc, it, paginationOffset.limit, version, isContinue)
 							}
 						is TotalCount -> QueryResultAccumulator(acc.seenElements, acc.sentElements, it.total, acc.offset, null, acc.lastVisited)
 						is Offset -> QueryResultAccumulator(acc.seenElements, acc.sentElements, acc.elementsFound, it.offset, null, acc.lastVisited)
