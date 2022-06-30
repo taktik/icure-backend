@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -81,6 +82,7 @@ class CodeController(
 		@RequestParam(required = false) types: String?,
 		@RequestParam(required = false) language: String?,
 		@RequestParam(required = false) label: String?,
+		@RequestParam(required = false) version: String?,
 		@Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
 		@Parameter(description = "A code document ID") @RequestParam(required = false) startDocumentId: String?,
 		@Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?
@@ -96,7 +98,7 @@ class CodeController(
 			val wordsList = label?.split(' ') ?: listOf()
 			if (typesList.size > 1 || wordsList.size > 1) {
 				typesList.asFlow()
-					.map { type -> codeLogic.findCodesByLabel(region, language, type, label, paginationOffset) }
+					.map { type -> codeLogic.findCodesByLabel(region, language, type, label, version, paginationOffset) }
 					.flattenMerge()
 					.paginatedList<Code, CodeDto>(
 						codeToCodeDto, realLimit,
@@ -107,10 +109,10 @@ class CodeController(
 						}
 					)
 			} else {
-				codeLogic.findCodesByLabel(region, language, typesList[0], label, paginationOffset)
+				codeLogic.findCodesByLabel(region, language, typesList[0], label, version, paginationOffset)
 					.paginatedList<Code, CodeDto>(codeToCodeDto, realLimit)
 			}
-		} ?: codeLogic.findCodesByLabel(region, language, label, paginationOffset)
+		} ?: codeLogic.findCodesByLabel(region, language, label, version, paginationOffset)
 			.paginatedList<Code, CodeDto>(codeToCodeDto, realLimit)
 	}
 
@@ -184,8 +186,7 @@ class CodeController(
 		@Parameter(description = "Code region") @RequestParam(required = false) region: String?,
 		@Parameter(description = "Code type") @RequestParam(required = false) type: String?
 	): Flux<String> {
-		return codeLogic.findCodeTypes(region, type)
-			.injectReactorContext()
+		return codeLogic.findCodeTypes(region, type).injectReactorContext()
 	}
 
 	@Operation(summary = "Gets list of tag types by region and type.", description = "Returns a list of tag types matched with given input.")
@@ -198,6 +199,7 @@ class CodeController(
 		return codeLogic.findCodeTypes(region, type)
 			.filter { tagTypeCandidates.contains(it) }
 			.injectReactorContext()
+
 	}
 
 	@Operation(summary = "Create a code", description = "Create a code entity. Fields Type, Code and Version are required.")

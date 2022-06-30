@@ -23,6 +23,10 @@ import java.lang.reflect.InvocationTargetException
 import java.util.LinkedList
 import javax.xml.parsers.SAXParserFactory
 import kotlin.coroutines.coroutineContext
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.SingletonSupport
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.collect.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -61,6 +65,20 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 	companion object {
 		private val log = LogFactory.getLog(this.javaClass)
 	}
+
+	val objectMapper: ObjectMapper by lazy {
+		ObjectMapper().registerModule(
+			KotlinModule.Builder()
+				.nullIsSameAsDefault(nullIsSameAsDefault = false)
+				.reflectionCacheSize(reflectionCacheSize = 512)
+				.nullToEmptyMap(nullToEmptyMap = false)
+				.nullToEmptyCollection(nullToEmptyCollection = false)
+				.singletonSupport(singletonSupport = SingletonSupport.DISABLED)
+				.strictNullChecks(strictNullChecks = false)
+				.build()
+			)
+	}
+
 
 	override fun getTagTypeCandidates(): List<String> {
 		return listOf("CD-ITEM", "CD-PARAMETER", "CD-CAREPATH", "CD-SEVERITY", "CD-URGENCY", "CD-GYNECOLOGY")
@@ -115,12 +133,12 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 		emitAll(codeDAO.findCodesBy(region, type, code, version, paginationOffset))
 	}
 
-	override fun findCodesByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>) = flow<ViewQueryResultEvent> {
-		emitAll(codeDAO.findCodesByLabel(region, language, label, paginationOffset))
+	override fun findCodesByLabel(region: String?, language: String?, label: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>) = flow<ViewQueryResultEvent> {
+		emitAll(codeDAO.findCodesByLabel(region, language, label, version, paginationOffset))
 	}
 
-	override fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>) = flow<ViewQueryResultEvent> {
-		emitAll(codeDAO.findCodesByLabel(region, language, type, label, paginationOffset))
+	override fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>) = flow<ViewQueryResultEvent> {
+		emitAll(codeDAO.findCodesByLabel(region, language, type, label, version, paginationOffset))
 	}
 
 	override fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?) = flow<String> {
@@ -222,11 +240,12 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 								version = it
 							}
 							"VALUE" -> {
-								code = mutableMapOf("type" to type, "version" to version, "label" to mapOf<String, String>())
+								code = mutableMapOf("type" to type, "version" to version, "label" to mapOf<String, String>(), "regions" to setOf<String>())
 							}
 							"CODE" -> charsHandler = { code["code"] = it }
 							"PARENT" -> charsHandler = { code["qualifiedLinks"] = mapOf(LinkQualification.parent to listOf("$type|$it|$version")) }
 							"DESCRIPTION" -> charsHandler = { attributes?.getValue("L")?.let { attributesValue -> code["label"] = (code["label"] as Map<String, String>) + (attributesValue to it.trim()) } }
+							"REGIONS" -> charsHandler = { code["regions"] = (code["regions"] as Set<String>) + it.trim() }
 							else -> {
 								charsHandler = null
 							}
@@ -485,6 +504,23 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 		} else {
 			stream.close()
 		}
+	}
+
+	override suspend fun importCodesFromJSON(stream: InputStream) {
+
+		val codeList = objectMapper.readValue<List<Code>>(stream)
+
+		val existing = getCodes(codeList.map { it.id }).fold(mapOf<String, Code>()) { map, c -> map + (c.id to c) }
+		try {
+			codeDAO.save(
+				codeList.map { newCode ->
+					existing[newCode.id]?.let { newCode.copy(rev = it.rev) } ?: newCode
+				}
+			).collect { log.debug("Code: ${it.id} is saved") }
+		} catch (e: BulkUpdateConflictException) {
+			log.error("${e.conflicts.size} conflicts")
+		}
+
 	}
 
 	override fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Code>, sort: String?, desc: Boolean?) = flow<ViewQueryResultEvent> {

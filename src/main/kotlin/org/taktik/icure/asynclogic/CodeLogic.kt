@@ -43,14 +43,16 @@ interface CodeLogic : EntityPersister<Code, String> {
 	fun findCodesBy(type: String?, code: String?, version: String?): Flow<Code>
 	fun findCodesBy(region: String?, type: String?, code: String?, version: String?): Flow<Code>
 	fun findCodesBy(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
-	fun findCodesByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
-	fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
+	fun findCodesByLabel(region: String?, language: String?, label: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
+	fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
 	fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): Flow<String>
 	fun findCodesByQualifiedLinkId(region: String?, linkType: String, linkedId: String, pagination: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
 	fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): Flow<String>
 	suspend fun <T : Enum<*>> importCodesFromEnum(e: Class<T>)
 
 	suspend fun importCodesFromXml(md5: String, type: String, stream: InputStream)
+
+	suspend fun importCodesFromJSON(stream: InputStream)
 	fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Code>, sort: String?, desc: Boolean?): Flow<ViewQueryResultEvent>
 
 	suspend fun getOrCreateCode(type: String, code: String, version: String): Code?

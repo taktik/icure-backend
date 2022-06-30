@@ -350,7 +350,7 @@ class SoftwareMedicalFileImport(
 		val trnauthorhcpid = extractTransactionAuthor(trn, saveToDatabase, author, v)
 		val trnTypeCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION_TYPE }?.value
 
-		val services = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter { it.type == CDLNKvalues.MULTIMEDIA }?.map { lnk ->
+		val services = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter { it.type == CDLNKvalues.MULTIMEDIA && it.url == null }?.map { lnk ->
 			val docname = trn.cds.firstOrNull { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.dn ?: trnTypeCd ?: "unnamed_document"
 			val svcRecordDateTime = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli()
 
