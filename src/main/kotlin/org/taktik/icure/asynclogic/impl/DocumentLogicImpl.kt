@@ -36,7 +36,10 @@ import org.taktik.icure.exceptions.CreationException
 
 @ExperimentalCoroutinesApi
 @Service
-class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessionLogic: AsyncSessionLogicImpl) : GenericLogicImpl<Document, DocumentDAO>(sessionLogic), DocumentLogic {
+class DocumentLogicImpl(
+	private val documentDAO: DocumentDAO,
+	sessionLogic: AsyncSessionLogicImpl
+) : GenericLogicImpl<Document, DocumentDAO>(sessionLogic), DocumentLogic {
 
 	override suspend fun createDocument(document: Document, ownerHealthcarePartyId: String) = fix(document) { document ->
 		try {
@@ -60,6 +63,9 @@ class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessio
 		emitAll(documentDAO.readAttachment(documentId, attachmentId, null))
 	}
 
+	override suspend fun modifyDocument(updatedDocument: Document, strict: Boolean, currentDocument: Document?): Document? {
+		TODO("Not yet implemented")
+	/* OLD
 	override suspend fun modifyDocument(document: Document) = fix(document) { document ->
 		try {
 			documentDAO.save(document)
@@ -67,6 +73,12 @@ class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessio
 			logger.warn("Documents of class {} with id {} and rev {} could not be merged", document.javaClass.simpleName, document.id, document.rev)
 			throw IllegalStateException(e)
 		}
+	}
+	 */
+	}
+
+	override suspend fun updateAttachments(currentDocument: Document, mainAttachmentChange: DocumentLogic.DataAttachmentChange?, secondaryAttachmentsChanges: Map<String, DocumentLogic.DataAttachmentChange>): Document? {
+		TODO("Not yet implemented")
 	}
 
 	override fun listDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> = flow {
