@@ -7,7 +7,10 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.asynclogic.objectstorage.DataAttachmentLoadingContext
 import org.taktik.icure.utils.toByteArray
@@ -42,6 +45,10 @@ data class DataAttachment(
 		 * Default mime type for data attachments, if no specific uti is provided.
 		 */
 		const val DEFAULT_MIME_TYPE = "application/xml"
+
+		private const val NULL_CONTEXT_MESSAGE =
+			"Can't load the content of this attachment: loading context is not set. " +
+			"Only \"loaded\" entities have the attachment context automatically initialized. "
 	}
 
 	val ids: Pair<String?, String?> get() = couchDbAttachmentId to objectStoreAttachmentId
@@ -62,28 +69,26 @@ data class DataAttachment(
 
 	/**
 	 * Get the content of the attachment as a data flow.
+	 * If someone previously invoked [contentBytes], or [contentFlow] with [cacheBytes] true the flow is build on top of the cached byte array.
+	 * Note that in this case the array us shared by all users of the data attachment, therefore you should avoid changing the array directly.
+	 * @param cacheBytes if true caches the attachment content.
 	 */
-	fun contentFlow(): Flow<DataBuffer> {
-		checkNotNull(loadingContext) {
-			"""
-				Can't load the content of this attachment: loading context is not set.
-				Only "loaded" entities have the attachment context automatically initialized.
-			""".trimIndent()
-		}
-		return with(loadingContext) { loadFlow() }
+	fun contentFlow(cacheBytes: Boolean): Flow<DataBuffer> {
+		checkNotNull(loadingContext) { NULL_CONTEXT_MESSAGE }
+		return if (cacheBytes) {
+			flow { emit(DefaultDataBufferFactory.sharedInstance.wrap(contentBytes())) }
+		} else doLoadFlow(true)
 	}
 
 	/**
 	 * Get the content of the attachment as a byte array.
-	 * This should generally be avoided as attachments may be big.
-	 * The bytes are loaded on first invocation of the method, and retrieved from cache in following invocations.
+	 * This method automatically caches the attachment content.
 	 * Note that the loaded bytes are shared by all users of the data attachment, therefore you should avoid changing the array directly.
 	 */
-	@Deprecated("Avoid using content bytes when possible, prefer using content flow.")
 	suspend fun contentBytes(): ByteArray = coroutineScope {
 		val getBytesTask = cachedBytes ?: (
 			async(start = CoroutineStart.LAZY) {
-				contentFlow().toByteArray(true)
+				doLoadFlow(false).toByteArray(true)
 			}.also { cachedBytes = it }
 		)
 		kotlin.runCatching {
@@ -91,6 +96,13 @@ data class DataAttachment(
 		}.onFailure {
 			if (cachedBytes === getBytesTask) cachedBytes = null
 		}.getOrThrow()
+	}
+
+	fun doLoadFlow(allowFromCachedBytes: Boolean): Flow<DataBuffer> {
+		checkNotNull(loadingContext) { NULL_CONTEXT_MESSAGE }
+		return cachedBytes?.takeIf { allowFromCachedBytes }?.let {
+			flow { emit(DefaultDataBufferFactory.sharedInstance.wrap(it.await())) }
+		} ?: with(loadingContext) { loadFlow() }
 	}
 
 	/**

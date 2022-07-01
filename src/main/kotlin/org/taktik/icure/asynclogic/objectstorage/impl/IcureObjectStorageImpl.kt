@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service
 import org.taktik.icure.entities.objectstorage.ObjectStorageTask
 import org.taktik.icure.entities.objectstorage.ObjectStorageTaskType
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 import kotlinx.coroutines.CoroutineScope
@@ -17,20 +16,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import org.taktik.icure.asyncdao.DocumentDAO
-import org.taktik.icure.asyncdao.objectstorage.ObjectStorageMigrationTasksDAO
 import org.taktik.icure.asyncdao.objectstorage.ObjectStorageTasksDAO
 import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorage
 import org.taktik.icure.asynclogic.objectstorage.LocalObjectStorage
 import org.taktik.icure.asynclogic.objectstorage.ObjectStorageClient
-import org.taktik.icure.entities.Document
-import org.taktik.icure.entities.objectstorage.ObjectStorageMigrationTask
-import org.taktik.icure.properties.ObjectStorageProperties
 
 @Service
 class IcureObjectStorageImpl(
@@ -70,10 +63,9 @@ class IcureObjectStorageImpl(
 	override suspend fun scheduleStoreAttachment(documentId: String, attachmentId: String) =
 		scheduleNewStorageTask(documentId, attachmentId, ObjectStorageTaskType.UPLOAD)
 
-	override suspend fun readAttachment(documentId: String, attachmentId: String): Flow<DataBuffer> = runCatching {
+	override fun readAttachment(documentId: String, attachmentId: String): Flow<DataBuffer> = runCatching {
 		tryReadCachedAttachment(documentId, attachmentId)
-			?: objectStorageClient.get(documentId, attachmentId)
-				.also { localObjectStorage.store(documentId, attachmentId, it) }
+			?: objectStorageClient.get(documentId, attachmentId).let { localObjectStorage.storing(documentId, attachmentId, it) }
 	}.fold(
 		onSuccess = { it },
 		onFailure = { throw IOException("Failed to access object storage service", it) }

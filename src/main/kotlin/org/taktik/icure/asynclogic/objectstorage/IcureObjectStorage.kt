@@ -47,7 +47,7 @@ interface IcureObjectStorage {
 	 * @return the attachment content.
 	 * @throws IOException if the attachment is not cached and the object storage service is not available.
 	 */
-	suspend fun readAttachment(documentId: String, attachmentId: String): Flow<DataBuffer>
+	fun readAttachment(documentId: String, attachmentId: String): Flow<DataBuffer>
 
 	/**
 	 * Try to read a cached attachment: if the attachment is available without contacting the object storage service returns it, else returns null.

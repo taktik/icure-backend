@@ -31,7 +31,7 @@ interface ObjectStorageClient {
 	 * @param attachmentId id of the attachment.
 	 * @return the attachment content.
 	 */
-	suspend fun get(documentId: String, attachmentId: String): Flow<DataBuffer>
+	fun get(documentId: String, attachmentId: String): Flow<DataBuffer>
 
 	/**
 	 * Checks if a specific attachment is available.

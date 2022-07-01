@@ -18,38 +18,35 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import java.io.IOException
 import java.nio.ByteBuffer
-import javax.annotation.PostConstruct
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.runBlocking
-import org.apache.commons.codec.digest.DigestUtils
-import org.apache.commons.io.output.ByteArrayOutputStream
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.core.io.buffer.DataBufferFactory
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.stereotype.Repository
-import org.taktik.commons.uti.UTI
 import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.entity.ComplexKey
-import org.taktik.couchdb.exception.CouchDbConflictException
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.DocumentDAO
+import org.taktik.icure.asynclogic.objectstorage.DataAttachmentLoadingContext
 import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorage
 import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorageMigration
+import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
 import org.taktik.icure.entities.Document
+import org.taktik.icure.entities.embed.DataAttachment
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.properties.ObjectStorageProperties
 import org.taktik.icure.utils.toByteArray
-import org.taktik.icure.utils.writeTo
 
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -63,139 +60,22 @@ class DocumentDAOImpl(
 	private val icureObjectStorageMigration: IcureObjectStorageMigration,
 	private val objectStorageProperties: ObjectStorageProperties
 ) : GenericDAOImpl<Document>(couchDbProperties, Document::class.java, couchDbDispatcher, idGenerator), DocumentDAO {
-	companion object {
-		private val log = LoggerFactory.getLogger(DocumentDAOImpl::class.java)
-	}
 
-	override suspend fun beforeSave(entity: Document) =
-		super.beforeSave(entity).let { document ->
-			if (document.attachment != null) {
-				val newAttachmentId = DigestUtils.sha256Hex(document.attachment)
-				val oldAttachmentId = document.attachmentId ?: document.objectStoreReference
-				if (newAttachmentId != oldAttachmentId) {
-					val updatedDocument =
-						if (oldAttachmentId != null) {
-							deleteStoredAttachment(document)
-						} else {
-							document
-						}
-					if (
-						document.attachment.size >= objectStorageProperties.sizeLimit
-							&& icureObjectStorage.preStore(document.id, newAttachmentId, document.attachment) // If cache can't be used fallback to couchdb attachment
-					) {
-						updatedDocument.copy(objectStoreReference = newAttachmentId, isAttachmentDirty = true)
-					} else {
-						updatedDocument.copy(attachmentId = newAttachmentId, isAttachmentDirty = true)
-					}
-				} else {
-					document
-				}
-			} else if (document.attachmentId != null || document.objectStoreReference != null) { // && document.attachment == null
-				deleteStoredAttachment(document)
-			} else document
+	override suspend fun afterSave(entity: Document) = super.afterSave(entity).let(::setLoadingContext)
+
+	override suspend fun postLoad(entity: Document) = super.postLoad(entity).let(::setLoadingContext)
+
+	private fun setLoadingContext(document: Document): Document {
+		val loadingContext = AttachmentLoadingContext(this, icureObjectStorage, icureObjectStorageMigration, objectStorageProperties, document.id)
+		return (
+			document.secondaryAttachments.takeIf { it.isNotEmpty() }?.let {
+				document.copy(secondaryAttachments = it.mapValues { (_, v) -> v.copy(loadingContext = loadingContext) })
+			} ?: document
+		).let { updatedDocument ->
+			updatedDocument.mainAttachment?.let {
+				updatedDocument.withUpdatedMainAttachment(it.copy(loadingContext = loadingContext))
+			} ?: updatedDocument
 		}
-
-	private suspend fun deleteStoredAttachment(document: Document): Document =
-		if (document.rev != null) {
-			if (document.objectStoreReference != null) {
-				icureObjectStorage.scheduleDeleteAttachment(documentId = document.id, attachmentId = document.objectStoreReference)
-			}
-			/*
-			 * Note: the `attachments` property can be just attachment stubs, and as long as we loaded the document from the database and it has any attachments
-			 * its value won't be null. Additionally, since all methods which modify the document first load it we are sure this won't be null if a client requested
-			 * the change.
-			 */
-			if (document.attachmentId != null && document.attachments?.containsKey(document.attachmentId) == true) {
-				document.copy(
-					rev = deleteAttachment(document.id, document.rev, document.attachmentId),
-					attachments = document.attachments - document.attachmentId,
-					attachmentId = null,
-					objectStoreReference = null,
-					isAttachmentDirty = false
-				)
-			} else {
-				document.copy(attachmentId = null, objectStoreReference = null, isAttachmentDirty = false)
-			}
-		} else {
-			document
-		}
-
-
-	override suspend fun afterSave(entity: Document) =
-		super.afterSave(entity).let { document ->
-			if (document.isAttachmentDirty && document.attachmentId != null && document.rev != null && document.attachment != null) {
-				val uti = UTI.get(document.mainUti)
-				var mimeType = "application/xml"
-				if (uti != null && uti.mimeTypes != null && uti.mimeTypes.size > 0) {
-					mimeType = uti.mimeTypes[0]
-				}
-				createAttachment(document.id, document.attachmentId, document.rev, mimeType, flowOf(ByteBuffer.wrap(document.attachment))).let {
-					document.copy(rev = it, isAttachmentDirty = false)
-				}
-			} else if (document.isAttachmentDirty && document.objectStoreReference != null) {
-				icureObjectStorage.scheduleStoreAttachment(documentId = document.id, attachmentId = document.objectStoreReference)
-				document.copy(isAttachmentDirty = false)
-			} else {
-				document
-			}
-		}
-
-	override suspend fun postLoad(entity: Document) = super.postLoad(entity).let { document ->
-		if (document.attachmentId != null) {
-			tryLoadMigratingAttachment(document) ?: try {
-				val attachment = ByteArrayOutputStream().use {
-					getAttachment(document.id, document.attachmentId, document.rev).writeTo(it)
-					it.toByteArray()
-				}
-				val documentWithAttachment = document.copy(attachment = attachment)
-				if (
-					objectStorageProperties.backlogToObjectStorage
-						&& attachment.size >= objectStorageProperties.sizeLimit
-						&& !icureObjectStorageMigration.isMigrating(documentId = document.id, attachmentId = document.attachmentId)
-						&& icureObjectStorageMigration.preMigrate(documentId = document.id, attachmentId = document.attachmentId, attachment)
-				) {
-					startMigration(documentWithAttachment, document.attachmentId)
-				} else {
-					documentWithAttachment
-				}
-			} catch (e: IOException) {
-				log.warn("Could not access couchdb attachment", e)
-				document
-			}
-		} else if (document.objectStoreReference != null) {
-			try {
-				icureObjectStorage.readAttachment(document.id, document.objectStoreReference)
-					.let { document.copy(attachment = it.toByteArray(true)) }
-			} catch (e: IOException) {
-				log.warn("Could not access object storage attachment", e)
-				document
-			}
-		} else document
-	}
-
-	// Faster attachment loading if we are migrating locally (i.e. it is not someone else who is migrating) an attachment from couchdb to the object storage service
-	private suspend fun tryLoadMigratingAttachment(document: Document): Document? =
-		document.objectStoreReference?.takeIf {
-			/*
-			 * Need to check if migrating: we may have cached the document then failed to start migration due to conflicts. In that case this function has to return
-			 * null so we can try again to migrate.
-			 */
-			icureObjectStorageMigration.isMigrating(documentId = document.id, attachmentId = it)
-		}?.let {
-			icureObjectStorage.tryReadCachedAttachment(documentId = document.id, attachmentId = it)
-		}?.let {
-			document.copy(attachment = it.toByteArray(true))
-		}
-
-	// Start migration and return the document updated for migration
-	private suspend fun startMigration(document: Document, attachmentId: String): Document = try {
-		val migratingDocument =
-			document.takeIf { it.objectStoreReference == it.attachmentId } // Someone else has updated the document for migration
-				?: document.copy(objectStoreReference = document.attachmentId).also { save(it) } // Mark the document as migrating
-		icureObjectStorageMigration.scheduleMigrateAttachment(documentId = document.id, attachmentId = attachmentId, this@DocumentDAOImpl)
-		migratingDocument
-	} catch (_: CouchDbConflictException) {
-		document
 	}
 
 	@View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted && doc._conflicts) emit(doc._id )}")
@@ -259,5 +139,29 @@ class DocumentDAOImpl(
 			.includeDocs(true)
 
 		return client.queryViewIncludeDocs<String, String, Document>(viewQuery).map { it.doc /*postLoad(it.doc)*/ }.toList().sortedByDescending { it.created ?: 0 }
+	}
+
+	private class AttachmentLoadingContext(
+		private val dao: DocumentDAO,
+		private val icureObjectStorage: IcureObjectStorage,
+		private val icureObjectStorageMigration: IcureObjectStorageMigration,
+		private val objectStorageProperties: ObjectStorageProperties,
+		private val documentId: String
+	) : DataAttachmentLoadingContext {
+		override fun DataAttachment.loadFlow(): Flow<DataBuffer> =
+			objectStoreAttachmentId?.let { icureObjectStorage.readAttachment(documentId, it) } ?: couchDbAttachmentId!!.let { attachmentId ->
+				if (icureObjectStorageMigration.isMigrating(documentId, attachmentId)) {
+					icureObjectStorage.tryReadCachedAttachment(documentId, attachmentId) ?: loadCouchDbAttachment(attachmentId)
+				} else if (objectStorageProperties.backlogToObjectStorage) flow {
+					val bytes = loadCouchDbAttachment(attachmentId).toByteArray(true)
+					if (bytes.size >= objectStorageProperties.sizeLimit && icureObjectStorageMigration.preMigrate(documentId, attachmentId, bytes)) {
+						icureObjectStorageMigration.scheduleMigrateAttachment(documentId, attachmentId, dao)
+					}
+					emit(DefaultDataBufferFactory.sharedInstance.wrap(bytes))
+				} else loadCouchDbAttachment(attachmentId)
+			}
+
+		private fun loadCouchDbAttachment(attachmentId: String) =
+			dao.getAttachment(documentId, attachmentId).map { DefaultDataBufferFactory.sharedInstance.wrap(it) }
 	}
 }

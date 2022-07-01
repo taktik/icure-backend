@@ -15,6 +15,7 @@ import org.taktik.icure.asyncdao.objectstorage.ObjectStorageMigrationTasksDAO
 import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorage
 import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorageMigration
 import org.taktik.icure.entities.Document
+import org.taktik.icure.entities.embed.DataAttachment
 import org.taktik.icure.entities.objectstorage.ObjectStorageMigrationTask
 import org.taktik.icure.properties.ObjectStorageProperties
 
@@ -67,15 +68,13 @@ class IcureObjectStorageMigrationImpl(
 	// Attempts to execute migration task returns if the task completed (successfully performed migration or there is no need for it anymore) or should be retried later
 	private suspend fun tryMigration(task: ObjectStorageMigrationTask, documentDAO: DocumentDAO): Boolean = (
 		documentDAO.get(task.documentId)?.let { document ->
-			if (document.attachmentId == task.attachmentId && document.objectStoreReference == task.attachmentId) {
+			document.findMigrationTargetKeyAndAttachment(task.attachmentId)?.let { (key, dataAttachment) ->
 				if (objectStorage.hasStoredAttachment(documentId = task.documentId, attachmentId = task.attachmentId)) {
-					runCatching { doMigration(document, task, documentDAO) }.isSuccess // If it failed (e.g. someone else modified the attachment concurrently) we want to retry later
+					runCatching { doMigration(document, key, dataAttachment, documentDAO) }.isSuccess // If it failed (e.g. someone else modified the attachment concurrently) we want to retry later
 				} else {
 					false // The document was not yet uploaded, we will retry to migrate later
 				}
-			} else {
-				true // The attachment was changed or someone else completed migration, no need to update
-			}
+			} ?: true // The attachment was changed or someone else completed migration, no need to update
 		} ?: true // The document was deleted, no need to migrate
 	).also { completed ->
 		if (completed) {
@@ -84,6 +83,24 @@ class IcureObjectStorageMigrationImpl(
 		}
 	}
 
+	private suspend fun doMigration(document: Document, key: String?, dataAttachment: DataAttachment, documentDAO: DocumentDAO) {
+		val newDataAttachment = dataAttachment.copy(couchDbAttachmentId = null, objectStoreAttachmentId = dataAttachment.couchDbAttachmentId)
+		val newRev =
+			if (document.attachments?.containsKey(dataAttachment.couchDbAttachmentId) == true)
+				documentDAO.deleteAttachment(document.id, document.rev!!, dataAttachment.couchDbAttachmentId!!)
+			else
+				document.rev!!
+		val newAttachments = document.attachments?.let { it - dataAttachment.couchDbAttachmentId!! }
+		documentDAO.save(
+			if (key != null) {
+				document.copy(rev = newRev, attachments = newAttachments, secondaryAttachments = document.secondaryAttachments + (key to newDataAttachment))
+			} else {
+				document.copy(rev = newRev, attachments = newAttachments).withUpdatedMainAttachment(newDataAttachment)
+			}
+		)
+	}
+
+	/*
 	private suspend fun doMigration(document: Document, task: ObjectStorageMigrationTask, documentDAO: DocumentDAO) {
 		if (document.attachments?.containsKey(task.attachmentId) == true) {
 			val updated = documentDAO.save(document.copy(attachmentId = null, attachments = document.attachments - task.attachmentId))
@@ -93,4 +110,11 @@ class IcureObjectStorageMigrationImpl(
 			documentDAO.save(document.copy(attachmentId = null))
 		}
 	}
+	 */
+
+	private fun Document.findMigrationTargetKeyAndAttachment(attachmentId: String): Pair<String?, DataAttachment>? =
+		(listOfNotNull(mainAttachment?.let { null to it }) + secondaryAttachments.toList()).firstOrNull { (_, dataAttachment) ->
+			dataAttachment.couchDbAttachmentId == attachmentId
+		}
+
 }
