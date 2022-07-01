@@ -9,13 +9,8 @@ import kotlinx.coroutines.withTimeout
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.taktik.icure.asynclogic.objectstorage.impl.LocalObjectStorageImpl
 import org.taktik.icure.asynclogic.objectstorage.testutils.attachment1
-import org.taktik.icure.asynclogic.objectstorage.testutils.attachment2
 import org.taktik.icure.asynclogic.objectstorage.testutils.bytes1
-import org.taktik.icure.asynclogic.objectstorage.testutils.bytes2
-import org.taktik.icure.asynclogic.objectstorage.testutils.bytes3
-import org.taktik.icure.asynclogic.objectstorage.testutils.bytes4
 import org.taktik.icure.asynclogic.objectstorage.testutils.document1
-import org.taktik.icure.asynclogic.objectstorage.testutils.document2
 import org.taktik.icure.asynclogic.objectstorage.testutils.resetTestLocalStorageDirectory
 import org.taktik.icure.asynclogic.objectstorage.testutils.sampleAttachments
 import org.taktik.icure.asynclogic.objectstorage.testutils.testLocalStorageDirectory
@@ -78,5 +73,13 @@ class LocalObjectStorageTest : StringSpec({
 			cache.store(document1, attachment1, bytes1) shouldBe true
 			cache.read(document1, attachment1)?.toByteArray(true) shouldContainExactly bytes1
 		}
+	}
+
+	"Storing flow should work as expected" {
+		TODO("""
+			Has stored to cache once done collecting
+			Does not overwrite existing data
+			In case of errors it does not leave a broken cached file (how to simulate error?)
+		""".trimIndent())
 	}
 })
