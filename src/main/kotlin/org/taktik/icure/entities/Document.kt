@@ -31,6 +31,7 @@ import org.taktik.icure.entities.base.Encryptable
 import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.DataAttachment
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.DeletedAttachment
 import org.taktik.icure.entities.embed.DocumentLocation
 import org.taktik.icure.entities.embed.DocumentStatus
 import org.taktik.icure.entities.embed.DocumentType
@@ -114,6 +115,7 @@ data class Document(
 	val otherUtis: Set<String> = emptySet(),
 	@JsonIgnore val attachmentLoadingContext: DataAttachmentLoadingContext? = null,
 	val secondaryAttachments: Map<String, DataAttachment> = emptyMap(),
+	val deletedAttachments: List<DeletedAttachment> = emptyList(),
 	override val secretForeignKeys: Set<String> = emptySet(),
 	override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
 	override val delegations: Map<String, Set<Delegation>> = emptyMap(),

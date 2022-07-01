@@ -8,6 +8,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
+import org.taktik.commons.uti.UTI
 import org.taktik.icure.asynclogic.objectstorage.DataAttachmentLoadingContext
 import org.taktik.icure.utils.toByteArray
 
@@ -36,7 +37,26 @@ data class DataAttachment(
 		}
 	}
 
+	companion object {
+		/**
+		 * Default mime type for data attachments, if no specific uti is provided.
+		 */
+		const val DEFAULT_MIME_TYPE = "application/xml"
+	}
+
 	val ids: Pair<String?, String?> get() = couchDbAttachmentId to objectStoreAttachmentId
+
+	/**
+	 * Get the mime type string for this attachment. If the attachment does not specify a UTI with a valid mime type returns null.
+	 */
+	val mimeType: String? get() =
+		utis.mapNotNull(UTI::get).flatMap { it.mimeTypes ?: emptyList() }.firstOrNull()
+
+	/**
+	 * [mimeType] or [DEFAULT_MIME_TYPE].
+	 */
+	val mimeTypeOrDefault: String get() =
+		mimeType ?: DEFAULT_MIME_TYPE
 
 	@JsonIgnore private var cachedBytes: Deferred<ByteArray>? = null
 
