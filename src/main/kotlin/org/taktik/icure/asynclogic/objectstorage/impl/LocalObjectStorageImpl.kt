@@ -9,7 +9,10 @@ import kotlin.io.path.isRegularFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.asPublisher
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.buffer.DataBuffer
@@ -26,14 +29,16 @@ class LocalObjectStorageImpl(private val objectStorageProperties: ObjectStorageP
 		private val log = LoggerFactory.getLogger(LocalObjectStorageImpl::class.java)
 	}
 
-	override suspend fun store(documentId: String, attachmentId: String, attachment: ByteArray) = doStore(documentId, attachmentId) { documentDirectory ->
+	// TODO test `storing`
+
+	override suspend fun store(documentId: String, attachmentId: String, attachment: ByteArray) = doStore(documentId, attachmentId) { filepath ->
 		@Suppress("BlockingMethodInNonBlockingContext")	// Will be called in IO dispatcher with runCatching -> ok
-		Files.write(documentDirectory.resolve(attachmentId), attachment)
+		Files.write(filepath, attachment)
 	}
 
-	override suspend fun store(documentId: String, attachmentId: String, attachment: Flow<DataBuffer>) = doStore(documentId, attachmentId) { documentDirectory ->
+	override suspend fun store(documentId: String, attachmentId: String, attachment: Flow<DataBuffer>) = doStore(documentId, attachmentId) { filepath ->
 		@Suppress("BlockingMethodInNonBlockingContext") // Will be called in IO dispatcher with runCatching -> ok
-		RandomAccessFile(documentDirectory.resolve(attachmentId).toFile(), "rw").channel.use { channel ->
+		RandomAccessFile(filepath.toFile(), "rw").channel.use { channel ->
 			attachment.collect { dataBuffer ->
 				dataBuffer.asByteBuffer().let { byteBuffer ->
 					while (byteBuffer.hasRemaining()) {
@@ -44,26 +49,54 @@ class LocalObjectStorageImpl(private val objectStorageProperties: ObjectStorageP
 		}
 	}
 
-	private suspend fun doStore(documentId: String, attachmentId: String, saveAttachment: suspend (documentDirectory: Path) -> Unit): Boolean {
-		val directory = toFolderPath(documentId)
-		return withContext(Dispatchers.IO) {
-			if (Files.isRegularFile(directory.resolve(attachmentId))) {
-				true
-			} else {
+	private suspend fun doStore(
+		documentId: String,
+		attachmentId: String,
+		saveAttachment: suspend (filepath: Path) -> Unit
+	): Boolean = when (val cacheFileResult = newCacheFile(documentId, attachmentId)) {
+		CacheFileCreationResult.Exists ->
+			true
+		is CacheFileCreationResult.Failure ->
+			false.also { log.warn("Could not cache attachment $attachmentId@$documentId", cacheFileResult.e) }
+		is CacheFileCreationResult.Success ->
+			runCatching { withContext(Dispatchers.IO) { saveAttachment(cacheFileResult.path) } }.isSuccess
+	}
+
+	override fun storing(documentId: String, attachmentId: String, attachment: Flow<DataBuffer>): Flow<DataBuffer> = flow {
+		(newCacheFile(documentId, attachmentId) as? CacheFileCreationResult.Success)?.path?.let { filepath ->
+			DataBufferUtils.write(attachment.asPublisher(), filepath)
+		}
+		emitAll(attachment)
+	}
+
+	private suspend fun newCacheFile(documentId: String, attachmentId: String): CacheFileCreationResult {
+		val filepath = toFolderPath(documentId).resolve(attachmentId)
+		return if (Files.isRegularFile(filepath)) {
+			CacheFileCreationResult.Exists
+		} else {
+			filepath.toFile().mkdirs()
+			withContext(Dispatchers.IO) {
 				runCatching {
-					directory.toFile().mkdirs()
-					saveAttachment(directory)
-				}.onFailure {
-					log.warn("Could not cache attachment $attachmentId@$documentId", it)
-				}.isSuccess
+					Files.createFile(filepath)
+				}.fold(
+					onSuccess = { CacheFileCreationResult.Success(filepath) },
+					onFailure = { e ->
+						if (e is FileAlreadyExistsException) {
+							CacheFileCreationResult.Exists
+						} else {
+							CacheFileCreationResult.Failure(e)
+						}
+					}
+				)
 			}
 		}
 	}
 
+
 	override fun read(documentId: String, attachmentId: String): Flow<DataBuffer>? = try {
 		toFolderPath(documentId).resolve(attachmentId)
 			.takeIf { Files.isRegularFile(it) }
-			?.let { DataBufferUtils.read(it, DefaultDataBufferFactory(), 10000).asFlow() }
+			?.let { DataBufferUtils.read(it, DefaultDataBufferFactory.sharedInstance, 10000).asFlow() }
 	} catch (e: IOException) {
 		null
 	}
@@ -87,4 +120,10 @@ class LocalObjectStorageImpl(private val objectStorageProperties: ObjectStorageP
 		objectStorageProperties.cacheLocation,
 		*(documentId.chunked(2).take(3) + documentId).toTypedArray()
 	)
+
+	private sealed class CacheFileCreationResult {
+		class Success(val path: Path) : CacheFileCreationResult()
+		object Exists : CacheFileCreationResult()
+		class Failure(val e: Throwable) : CacheFileCreationResult()
+	}
 }
