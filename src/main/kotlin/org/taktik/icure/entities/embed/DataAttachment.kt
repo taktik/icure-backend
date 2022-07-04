@@ -25,9 +25,9 @@ import org.taktik.icure.utils.toByteArray
  * @property loadingContext allows loading of the attachment content.
  */
 data class DataAttachment(
-	val couchDbAttachmentId: String?,
-	val objectStoreAttachmentId: String?,
-	val utis: List<String>,
+	val couchDbAttachmentId: String? = null,
+	val objectStoreAttachmentId: String? = null,
+	val utis: List<String> = emptyList(),
 	@JsonIgnore val loadingContext: DataAttachmentLoadingContext? = null
 ) : Serializable {
 	init {

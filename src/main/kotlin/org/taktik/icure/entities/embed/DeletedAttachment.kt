@@ -11,8 +11,8 @@ import java.io.Serializable
  * @property deletionTime the instant the attachment was deleted.
  */
 data class DeletedAttachment(
-	val couchDbAttachmentId: String?,
-	val objectStoreAttachmentId: String?,
-	val key: String?,
-	val deletionTime: Long
+	val couchDbAttachmentId: String? = null,
+	val objectStoreAttachmentId: String? = null,
+	val key: String? = null,
+	val deletionTime: Long? = null
 ) : Serializable

@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import io.swagger.v3.oas.annotations.media.Schema
+import org.taktik.icure.entities.embed.DataAttachment
+import org.taktik.icure.entities.embed.DeletedAttachment
 import org.taktik.icure.services.external.rest.v2.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v2.dto.base.EncryptableDto
 import org.taktik.icure.services.external.rest.v2.dto.base.ICureDocumentDto
@@ -47,22 +49,24 @@ data class DocumentDto(
 	override val endOfLife: Long? = null,
 	override val deletionDate: Long? = null,
 
-	@Schema(description = "Reference in object store") val objectStoreReference: String? = null,
 	@Schema(description = "Location of the document") val documentLocation: DocumentLocationDto? = null,
 	@Schema(description = "The type of document, ex: admission, clinical path, document report,invoice, etc.") val documentType: DocumentTypeDto? = null,
 	@Schema(description = "The status of the development of the document. Ex: Draft, finalized, reviewed, signed, etc.") val documentStatus: DocumentStatusDto? = null,
 	@Schema(description = "When the document is stored in an external repository, this is the uri of the document in that repository") val externalUri: String? = null,
-	@Schema(description = "The main Uniform Type Identifier of the document (https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/understanding_utis/understand_utis_conc/understand_utis_conc.html#//apple_ref/doc/uid/TP40001319-CH202-CHDHIJDE)") val mainUti: String? = null,
 	@Schema(description = "Name of the document") val name: String? = null,
 	@Schema(description = "The document version") val version: String? = null,
-	@Schema(description = "Extra Uniform Type Identifiers") val otherUtis: Set<String> = emptySet(),
 	@Schema(description = "The ICureDocument (Form, Contact, ...) that has been used to generate the document") val storedICureDocumentId: String? = null, //The ICureDocumentDto (FormDto, ContactDto, ...) that has been used to generate the document
 	@Schema(description = "A unique external id (from another external source).") val externalUuid: String? = null,
 	@Schema(description = "Size of the document file") val size: Long? = null,
 	@Schema(description = "Hashed version of the document") val hash: String? = null,
 	@Schema(description = "Id of the contact during which the document was created") val openingContactId: String? = null,
 
-	@Schema(description = "Id of attachment to this document") val attachmentId: String? = null,
+	@Schema(description = "Id of the main attachment of this document, if stored as a couchdb attachment") val attachmentId: String? = null,
+	@Schema(description = "Id of the main attachment of this document, if stored using the object storage service") val objectStoreReference: String? = null,
+	@Schema(description = "The main Uniform Type Identifier for the main attachment (https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/understanding_utis/understand_utis_conc/understand_utis_conc.html#//apple_ref/doc/uid/TP40001319-CH202-CHDHIJDE)") val mainUti: String? = null,
+	@Schema(description = "Extra Uniform Type Identifiers for the main attachment") val otherUtis: Set<String> = emptySet(),
+	@Schema(description = "Secondary attachments for this document") val secondaryAttachments: Map<String, DataAttachment> = emptyMap(),
+	@Schema(description = "Information on past attachments for this document") val deletedAttachments: List<DeletedAttachment> = emptyList(),
 
 	val encryptedAttachment: ByteArray? = null,
 	val decryptedAttachment: ByteArray? = null,

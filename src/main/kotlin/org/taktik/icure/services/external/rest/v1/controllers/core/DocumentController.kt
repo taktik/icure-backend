@@ -239,7 +239,8 @@ class DocumentController(
 				) ?: throw IllegalStateException("Cannot update document")
 			)
 		} else
-			documentMapper.map(documentLogic.modifyDocument(document) ?: throw IllegalStateException("Cannot update document"))
+			documentMapper.map(documentLogic.modifyDocum
+			ent(document) ?: throw IllegalStateException("Cannot update document"))
 	}
 
 	@Operation(summary = "Update a batch of documents", description = "Returns the modified documents.")

@@ -100,18 +100,6 @@ class IcureObjectStorageMigrationImpl(
 		)
 	}
 
-	/*
-	private suspend fun doMigration(document: Document, task: ObjectStorageMigrationTask, documentDAO: DocumentDAO) {
-		if (document.attachments?.containsKey(task.attachmentId) == true) {
-			val updated = documentDAO.save(document.copy(attachmentId = null, attachments = document.attachments - task.attachmentId))
-			documentDAO.deleteAttachment(document.id, updated?.rev!!, task.attachmentId)
-		} else {
-			// This branch should never happen, if attachmentId is not null it should be in attachments.
-			documentDAO.save(document.copy(attachmentId = null))
-		}
-	}
-	 */
-
 	private fun Document.findMigrationTargetKeyAndAttachment(attachmentId: String): Pair<String?, DataAttachment>? =
 		(listOfNotNull(mainAttachment?.let { null to it }) + secondaryAttachments.toList()).firstOrNull { (_, dataAttachment) ->
 			dataAttachment.couchDbAttachmentId == attachmentId
