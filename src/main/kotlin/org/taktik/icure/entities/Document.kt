@@ -17,17 +17,16 @@
  */
 package org.taktik.icure.entities
 
-import java.security.GeneralSecurityException
-import java.security.KeyException
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.entity.Attachment
-import org.taktik.icure.asynclogic.objectstorage.DataAttachmentLoadingContext
+import org.taktik.icure.asynclogic.objectstorage.DataAttachmentLoader
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.Encryptable
+import org.taktik.icure.entities.base.HasDataAttachments
 import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.DataAttachment
 import org.taktik.icure.entities.embed.Delegation
@@ -36,9 +35,6 @@ import org.taktik.icure.entities.embed.DocumentLocation
 import org.taktik.icure.entities.embed.DocumentStatus
 import org.taktik.icure.entities.embed.DocumentType
 import org.taktik.icure.entities.embed.RevisionInfo
-import org.taktik.icure.security.CryptoUtils
-import org.taktik.icure.security.CryptoUtils.isValidAesKey
-import org.taktik.icure.security.CryptoUtils.keyFromHexString
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
@@ -101,10 +97,10 @@ data class Document(
 	val size: Long? = null,
 	val hash: String? = null,
 	val openingContactId: String? = null,
-	val documentLocation: DocumentLocation? = null, // TODO what is this
+	val documentLocation: DocumentLocation? = null,
 	val documentType: DocumentType? = null,
 	val documentStatus: DocumentStatus? = null,
-	val externalUri: String? = null, // TODO should i use this instead of objectStoreReference
+	val externalUri: String? = null,
 	val name: String? = null,
 	val version: String? = null,
 	val storedICureDocumentId: String? = null, //The ICureDocument (Form, Contact, ...) that has been used to generate the document
@@ -113,7 +109,6 @@ data class Document(
 	val objectStoreReference: String? = null,
 	val mainUti: String? = null,
 	val otherUtis: Set<String> = emptySet(),
-	@JsonIgnore val attachmentLoadingContext: DataAttachmentLoadingContext? = null,
 	val secondaryAttachments: Map<String, DataAttachment> = emptyMap(),
 	val deletedAttachments: List<DeletedAttachment> = emptyList(),
 	override val secretForeignKeys: Set<String> = emptySet(),
@@ -127,7 +122,7 @@ data class Document(
 	@JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
 	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
-) : StoredICureDocument, Encryptable {
+) : StoredICureDocument, Encryptable, HasDataAttachments {
 	companion object : DynamicInitializer<Document>
 
 	val mainAttachment: DataAttachment? by lazy {
@@ -135,12 +130,14 @@ data class Document(
 			DataAttachment(
 				attachmentId,
 				objectStoreReference,
-				listOfNotNull(mainUti) + otherUtis,
-				attachmentLoadingContext
+				listOfNotNull(mainUti) + otherUtis
 			)
 		else
 			null
 	}
+
+	override val dataAttachments: Map<String, DataAttachment>
+		get() = mainAttachment?.let { secondaryAttachments + (id to it) } ?: secondaryAttachments
 
 	fun merge(other: Document) = Document(args = this.solveConflictsWith(other))
 	// TODO update conflict resolution
@@ -156,6 +153,7 @@ data class Document(
 		"externalUuid" to (this.externalUuid ?: other.externalUuid),
 		"mainUti" to (this.mainUti ?: other.mainUti),
 		"otherUtis" to (other.otherUtis + this.otherUtis),
+		// TODO can check _attachments to decide
 	)/* + if (this.attachment != null && this.attachment.size >= (other.attachment?.size ?: 0)) {
 		mapOf(
 			"attachmentId" to this.attachmentId,
@@ -205,6 +203,5 @@ data class Document(
 		objectStoreReference = newMainAttachment?.objectStoreAttachmentId,
 		mainUti = newMainAttachment?.utis?.firstOrNull(),
 		otherUtis = newMainAttachment?.utis?.drop(1)?.toSet() ?: emptySet(),
-		attachmentLoadingContext = newMainAttachment?.loadingContext
 	)
 }

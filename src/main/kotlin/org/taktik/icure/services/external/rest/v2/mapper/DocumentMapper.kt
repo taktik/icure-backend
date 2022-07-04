@@ -47,8 +47,6 @@ import org.taktik.icure.services.external.rest.v2.mapper.embed.DocumentTypeV2Map
 )
 interface DocumentV2Mapper {
 	@Mappings(
-		Mapping(target = "attachmentLoadingContext", ignore = true),
-
 		Mapping(target = "attachments", ignore = true),
 		Mapping(target = "revHistory", ignore = true),
 		Mapping(target = "conflicts", ignore = true),

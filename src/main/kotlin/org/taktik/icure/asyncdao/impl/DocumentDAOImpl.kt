@@ -26,10 +26,8 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.io.buffer.DataBuffer
-import org.springframework.core.io.buffer.DataBufferFactory
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.annotation.View
@@ -38,10 +36,9 @@ import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.DocumentDAO
-import org.taktik.icure.asynclogic.objectstorage.DataAttachmentLoadingContext
+import org.taktik.icure.asynclogic.objectstorage.DataAttachmentLoader
 import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorage
 import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorageMigration
-import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.embed.DataAttachment
 import org.taktik.icure.properties.CouchDbProperties
@@ -55,29 +52,8 @@ import org.taktik.icure.utils.toByteArray
 class DocumentDAOImpl(
 	couchDbProperties: CouchDbProperties,
 	@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher,
-	idGenerator: IDGenerator,
-	private val icureObjectStorage: IcureObjectStorage,
-	private val icureObjectStorageMigration: IcureObjectStorageMigration,
-	private val objectStorageProperties: ObjectStorageProperties
+	idGenerator: IDGenerator
 ) : GenericDAOImpl<Document>(couchDbProperties, Document::class.java, couchDbDispatcher, idGenerator), DocumentDAO {
-
-	override suspend fun afterSave(entity: Document) = super.afterSave(entity).let(::setLoadingContext)
-
-	override suspend fun postLoad(entity: Document) = super.postLoad(entity).let(::setLoadingContext)
-
-	private fun setLoadingContext(document: Document): Document {
-		val loadingContext = AttachmentLoadingContext(this, icureObjectStorage, icureObjectStorageMigration, objectStorageProperties, document.id)
-		return (
-			document.secondaryAttachments.takeIf { it.isNotEmpty() }?.let {
-				document.copy(secondaryAttachments = it.mapValues { (_, v) -> v.copy(loadingContext = loadingContext) })
-			} ?: document
-		).let { updatedDocument ->
-			updatedDocument.mainAttachment?.let {
-				updatedDocument.withUpdatedMainAttachment(it.copy(loadingContext = loadingContext))
-			} ?: updatedDocument
-		}
-	}
-
 	@View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted && doc._conflicts) emit(doc._id )}")
 	override fun listConflicts(): Flow<Document> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
@@ -139,29 +115,5 @@ class DocumentDAOImpl(
 			.includeDocs(true)
 
 		return client.queryViewIncludeDocs<String, String, Document>(viewQuery).map { it.doc /*postLoad(it.doc)*/ }.toList().sortedByDescending { it.created ?: 0 }
-	}
-
-	private class AttachmentLoadingContext(
-		private val dao: DocumentDAO,
-		private val icureObjectStorage: IcureObjectStorage,
-		private val icureObjectStorageMigration: IcureObjectStorageMigration,
-		private val objectStorageProperties: ObjectStorageProperties,
-		private val documentId: String
-	) : DataAttachmentLoadingContext {
-		override fun DataAttachment.loadFlow(): Flow<DataBuffer> =
-			objectStoreAttachmentId?.let { icureObjectStorage.readAttachment(documentId, it) } ?: couchDbAttachmentId!!.let { attachmentId ->
-				if (icureObjectStorageMigration.isMigrating(documentId, attachmentId)) {
-					icureObjectStorage.tryReadCachedAttachment(documentId, attachmentId) ?: loadCouchDbAttachment(attachmentId)
-				} else if (objectStorageProperties.backlogToObjectStorage) flow {
-					val bytes = loadCouchDbAttachment(attachmentId).toByteArray(true)
-					if (bytes.size >= objectStorageProperties.sizeLimit && icureObjectStorageMigration.preMigrate(documentId, attachmentId, bytes)) {
-						icureObjectStorageMigration.scheduleMigrateAttachment(documentId, attachmentId, dao)
-					}
-					emit(DefaultDataBufferFactory.sharedInstance.wrap(bytes))
-				} else loadCouchDbAttachment(attachmentId)
-			}
-
-		private fun loadCouchDbAttachment(attachmentId: String) =
-			dao.getAttachment(documentId, attachmentId).map { DefaultDataBufferFactory.sharedInstance.wrap(it) }
 	}
 }

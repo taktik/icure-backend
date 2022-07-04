@@ -11,9 +11,10 @@ private const val ONE_HOUR = 60 * 60 * 1000L
 @ExperimentalCoroutinesApi
 @Component
 class PeriodicStorageTasksRequest(
-	private val icureObjectStorage: IcureObjectStorage
+	private val allObjectStorageLogic: List<IcureObjectStorage<*>>
 ) {
 	@Scheduled(fixedDelay = ONE_HOUR)
-	fun handleIcureCloudAttachmentTasks() =
-		runBlocking { icureObjectStorage.rescheduleFailedStorageTasks() }
+	fun handleIcureCloudAttachmentTasks() = runBlocking {
+		allObjectStorageLogic.forEach { it.rescheduleFailedStorageTasks() }
+	}
 }

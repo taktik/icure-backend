@@ -104,9 +104,8 @@ class ICureBackendApplication {
 		allDaos: List<GenericDAO<*>>,
 		internalDaos: List<InternalDAO<*>>,
 		couchDbProperties: CouchDbProperties,
-		icureObjectStorage: IcureObjectStorage,
-		icureObjectStorageMigration: IcureObjectStorageMigration,
-		documentDAO: DocumentDAO
+		allObjectStorageLogic: List<IcureObjectStorage<*>>,
+		allObjectStorageMigrationLogic: List<IcureObjectStorageMigration<*>>
 	) = ApplicationRunner {
 		//Check that core types have corresponding codes
 		log.info("icure (" + iCureLogic.getVersion() + ") is initialised")
@@ -134,8 +133,8 @@ class ICureBackendApplication {
 			internalDaos.forEach {
 				it.forceInitStandardDesignDocument(true)
 			}
-			icureObjectStorage.rescheduleFailedStorageTasks()
-			icureObjectStorageMigration.rescheduleStoredMigrationTasks(documentDAO)
+			allObjectStorageLogic.forEach { it.rescheduleFailedStorageTasks() }
+			allObjectStorageMigrationLogic.forEach { it.rescheduleStoredMigrationTasks() }
 		}
 
 		log.info("icure (" + iCureLogic.getVersion() + ") is started")
