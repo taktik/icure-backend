@@ -2,16 +2,13 @@ package org.taktik.icure.entities.embed
 
 import java.io.Serializable
 import com.fasterxml.jackson.annotation.JsonIgnore
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.taktik.commons.uti.UTI
-import org.taktik.icure.asynclogic.objectstorage.DataAttachmentLoader
 import org.taktik.icure.utils.toByteArray
+import org.taktik.icure.asynclogic.objectstorage.DataAttachmentLoader
 
 /**
  * Represent an attachment holding some additional data for an entity.
@@ -43,7 +40,7 @@ data class DataAttachment(
 		const val DEFAULT_MIME_TYPE = "application/xml"
 	}
 
-	@JsonIgnore var cachedBytes: ByteArray? = null
+	@JsonIgnore private var cachedBytes: ByteArray? = null
 
 	val ids: Pair<String?, String?> get() = couchDbAttachmentId to objectStoreAttachmentId
 
@@ -72,4 +69,20 @@ data class DataAttachment(
 		couchDbAttachmentId = other.couchDbAttachmentId,
 		objectStoreAttachmentId = other.couchDbAttachmentId
 	)
+
+	/**
+	 * Get the attachment content as bytes. If the content has been cached immediately returns it, otherwise loads the content from
+	 * the flowProvider and caches it. This method is not intended to be used directly, as the appropriate implementation of flow
+	 * provider is not trivial, you should instead use [DataAttachmentLoader.contentBytesOf].
+	 */
+	suspend fun contentBytesFromCacheOrLoad(flowProvider: () -> Flow<DataBuffer>) : ByteArray =
+		cachedBytes ?: flowProvider().toByteArray(true).also { cachedBytes = it }
+
+	/**
+	 * Get the attachment content as a flow. If the content has been cached immediately returns a flow which wraps its content,
+	 * otherwise loads the flow directly from the flowProvider. This method is not intended to be used directly, as the appropriate
+	 * implementation of flow provider is not trivial, you should instead use [DataAttachmentLoader.contentFlowOf].
+	 */
+	fun contentFlowFromCacheOrLoad(flowProvider: () -> Flow<DataBuffer>) : Flow<DataBuffer> =
+		cachedBytes?.let { flowOf(DefaultDataBufferFactory.sharedInstance.wrap(it)) } ?: flowProvider()
 }

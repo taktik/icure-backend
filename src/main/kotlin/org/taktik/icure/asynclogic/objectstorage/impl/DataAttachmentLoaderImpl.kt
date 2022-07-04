@@ -34,14 +34,14 @@ class DataAttachmentLoaderImpl<T : HasDataAttachments>(
 		target: T,
 		retrieveAttachment: T.() -> DataAttachment
 	): Flow<DataBuffer> = target.retrieveAttachment().let { attachment ->
-		attachment.cachedBytes?.let { flowOf(DefaultDataBufferFactory.sharedInstance.wrap(it)) } ?: doLoadFlow(target, attachment)
+		attachment.contentFlowFromCacheOrLoad { doLoadFlow(target, attachment) }
 	}
 
 	override suspend fun contentBytesOf(
 		target: T,
 		retrieveAttachment: T.() -> DataAttachment
 	): ByteArray = target.retrieveAttachment().let { attachment ->
-		attachment.cachedBytes ?: doLoadFlow(target, attachment).toByteArray(true).also { attachment.cachedBytes = it }
+		attachment.contentBytesFromCacheOrLoad { doLoadFlow(target, attachment) }
 	}
 
 	private fun doLoadFlow(target: T, attachment: DataAttachment): Flow<DataBuffer> =
