@@ -42,6 +42,7 @@ import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
+import org.taktik.icure.asynclogic.objectstorage.DocumentDataAttachmentLoader
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTY
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
@@ -78,8 +79,9 @@ class KmehrNoteLogicImpl(
 	documentLogic: DocumentLogic,
 	sessionLogic: AsyncSessionLogic,
 	userLogic: UserLogic,
-	filters: Filters
-) : KmehrNoteLogic, KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
+	filters: Filters,
+	documentDataAttachmentLoader: DocumentDataAttachmentLoader
+) : KmehrNoteLogic, KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters, documentDataAttachmentLoader) {
 
 	override val log = LogFactory.getLog(KmehrNoteLogicImpl::class.java)
 

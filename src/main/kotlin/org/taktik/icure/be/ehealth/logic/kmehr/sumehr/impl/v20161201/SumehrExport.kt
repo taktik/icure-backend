@@ -35,6 +35,7 @@ import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.asynclogic.objectstorage.DocumentDataAttachmentLoader
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENT
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
@@ -103,8 +104,9 @@ class SumehrExport(
 	userLogic: UserLogic,
 	filters: org.taktik.icure.asynclogic.impl.filter.Filters,
 	val serviceMapper: ServiceMapper,
-	val healthElementMapper: HealthElementMapper
-) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
+	val healthElementMapper: HealthElementMapper,
+	documentDataAttachmentLoader: DocumentDataAttachmentLoader
+) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters, documentDataAttachmentLoader) {
 	override val log = LogFactory.getLog(SumehrExport::class.java)
 
 	suspend fun getMd5(hcPartyId: String, patient: Patient, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, services: List<Service>? = null, healthElements: List<HealthElement>? = null): String {

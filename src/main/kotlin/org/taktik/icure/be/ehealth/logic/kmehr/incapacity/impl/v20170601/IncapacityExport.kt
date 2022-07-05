@@ -13,6 +13,7 @@ import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.asynclogic.objectstorage.DocumentDataAttachmentLoader
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENT
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170601.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
@@ -66,8 +67,9 @@ class IncapacityExport(
 	sessionLogic: AsyncSessionLogic,
 	userLogic: UserLogic,
 	filters: org.taktik.icure.asynclogic.impl.filter.Filters,
-	val serviceMapper: ServiceMapper
-) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
+	val serviceMapper: ServiceMapper,
+	documentDataAttachmentLoader: DocumentDataAttachmentLoader
+) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters, documentDataAttachmentLoader) {
 	fun exportIncapacity(
 		patient: Patient,
 		sfks: List<String>,

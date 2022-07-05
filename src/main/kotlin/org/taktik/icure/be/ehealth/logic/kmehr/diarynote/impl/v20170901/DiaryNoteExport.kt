@@ -32,6 +32,7 @@ import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.asynclogic.objectstorage.DocumentDataAttachmentLoader
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTY
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
@@ -66,8 +67,9 @@ class DiaryNoteExport(
 	documentLogic: DocumentLogic,
 	sessionLogic: AsyncSessionLogic,
 	userLogic: UserLogic,
-	filters: org.taktik.icure.asynclogic.impl.filter.Filters
-) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
+	filters: org.taktik.icure.asynclogic.impl.filter.Filters,
+	documentDataAttachmentLoader: DocumentDataAttachmentLoader
+) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters, documentDataAttachmentLoader) {
 	override val log = LogFactory.getLog(DiaryNoteExport::class.java)
 
 	fun getMd5(hcPartyId: String, patient: Patient, sfks: List<String>, excludedIds: List<String>): String {

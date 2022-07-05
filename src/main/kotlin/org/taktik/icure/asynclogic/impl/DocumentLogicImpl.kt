@@ -18,7 +18,6 @@
 package org.taktik.icure.asynclogic.impl
 
 import java.nio.ByteBuffer
-import java.util.UUID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -27,22 +26,15 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapNotNull
-import org.apache.commons.codec.digest.DigestUtils
-import org.slf4j.LoggerFactory
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.entity.Option
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asynclogic.DocumentLogic
-import org.taktik.icure.asynclogic.objectstorage.DataAttachmentModificationLogic
 import org.taktik.icure.asynclogic.objectstorage.DataAttachmentModificationLogic.DataAttachmentChange
 import org.taktik.icure.asynclogic.objectstorage.DocumentDataAttachmentModificationLogic
-import org.taktik.icure.asynclogic.objectstorage.DocumentObjectStorage
 import org.taktik.icure.entities.Document
-import org.taktik.icure.entities.embed.DataAttachment
-import org.taktik.icure.entities.embed.DeletedAttachment
 import org.taktik.icure.exceptions.CreationException
-import org.taktik.icure.properties.ObjectStorageProperties
-import org.taktik.icure.utils.toByteArray
 
 @ExperimentalCoroutinesApi
 @Service
@@ -52,12 +44,26 @@ class DocumentLogicImpl(
 	private val attachmentModificationLogic: DocumentDataAttachmentModificationLogic
 ) : GenericLogicImpl<Document, DocumentDAO>(sessionLogic), DocumentLogic {
 
-	override suspend fun createDocument(document: Document, ownerHealthcarePartyId: String) = fix(document) { fixedDocument ->
-		try {
-			createEntities(setOf(fixedDocument)).firstOrNull()
-		} catch (e: Exception) {
-			throw CreationException("Could not create document. ", e)
-		}
+	override suspend fun createDocument(document: Document, initialMainAttachment: ByteArray?, ownerHealthcarePartyId: String) = fix(document) { fixedDocument ->
+		runCatching {
+			if (initialMainAttachment != null) {
+				createEntities(setOf(fixedDocument.withUpdatedMainAttachment(null))).firstOrNull()?.let { createdDocument ->
+					updateAttachments(
+						createdDocument,
+						DataAttachmentChange.CreateOrUpdate(
+							flowOf(DefaultDataBufferFactory.sharedInstance.wrap(initialMainAttachment)),
+							initialMainAttachment.size,
+							listOfNotNull(fixedDocument.mainUti) + fixedDocument.otherUtis
+						)
+					)
+				}
+			} else {
+				createEntities(setOf(fixedDocument)).firstOrNull()
+			}
+		}.fold(
+			onSuccess = { it },
+			onFailure = { throw CreationException("Could not create document. ", it) }
+		)
 	}
 
 	override suspend fun getDocument(documentId: String): Document? {
@@ -93,8 +99,14 @@ class DocumentLogicImpl(
 	): Document? =
 		attachmentModificationLogic.updateAttachments(
 			currentDocument,
-			mainAttachmentChange?.let { secondaryAttachmentsChanges + (currentDocument.mainAttachmentKey to it) }
-				?: secondaryAttachmentsChanges
+			mainAttachmentChange?.let {
+				if (it is DataAttachmentChange.CreateOrUpdate && it.utis == null && currentDocument.mainAttachment == null) {
+					// Capture cases where the document has no attachment id set (main attachment is null) but specifies some utis
+					it.copy(utis = listOfNotNull(currentDocument.mainUti) + currentDocument.otherUtis)
+				} else it
+			}?.let {
+				secondaryAttachmentsChanges + (currentDocument.mainAttachmentKey to it)
+			} ?: secondaryAttachmentsChanges
 		)
 
 	override fun listDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document> = flow {
@@ -127,15 +139,5 @@ class DocumentLogicImpl(
 
 	override fun getGenericDAO(): DocumentDAO {
 		return documentDAO
-	}
-
-	private fun Document.attachmentOf(key: String?): DataAttachment? =
-		key?.let { secondaryAttachments[it] } ?: mainAttachment
-
-	private fun secondaryAttachmentString(key: String) = "secondary attachment \"$key\""
-
-	companion object {
-		private val logger = LoggerFactory.getLogger(DocumentLogicImpl::class.java)
-		private const val MAIN_ATTACHMENT = "main attachment"
 	}
 }

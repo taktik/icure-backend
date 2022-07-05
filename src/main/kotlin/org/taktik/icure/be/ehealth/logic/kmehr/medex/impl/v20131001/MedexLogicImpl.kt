@@ -33,6 +33,7 @@ import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.asynclogic.objectstorage.DocumentDataAttachmentLoader
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENT
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
@@ -81,8 +82,9 @@ class MedexLogicImpl(
 	documentLogic: DocumentLogic,
 	sessionLogic: AsyncSessionLogic,
 	userLogic: UserLogic,
-	filters: org.taktik.icure.asynclogic.impl.filter.Filters
-) : MedexLogic, KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
+	filters: org.taktik.icure.asynclogic.impl.filter.Filters,
+	documentDataAttachmentLoader: DocumentDataAttachmentLoader
+) : MedexLogic, KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters, documentDataAttachmentLoader) {
 
 	override val log = LogFactory.getLog(MedexLogicImpl::class.java)
 

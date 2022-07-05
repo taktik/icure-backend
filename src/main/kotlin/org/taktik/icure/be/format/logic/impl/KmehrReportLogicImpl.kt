@@ -138,12 +138,12 @@ class KmehrReportLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic
 											responsible = ctc.responsible,
 											created = demandTimestamp ?: ctc.created,
 											modified = demandTimestamp ?: ctc.created,
-											attachment = lnk.value,
 											name = "Protocol Document",
 
 											mainUti = utis.firstOrNull()?.identifier ?: "com.adobe.pdf",
 											otherUtis = (if (utis.size > 1) utis.subList(1, utis.size).map { it.identifier } else listOf<String>()).toSet()
 										),
+										lnk.value,
 										it
 									)?.id
 								}

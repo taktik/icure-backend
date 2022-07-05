@@ -388,13 +388,19 @@ class SoftwareMedicalFileImport(
 							}?.firstOrNull()?.id ?: author.healthcarePartyId,
 							created = svcRecordDateTime,
 							modified = svcRecordDateTime,
-							attachment = lnk.value,
 							name = docname,
 							mainUti = mainUti,
 							otherUtis = otherUtis
 						).let {
+							/*TODO
+							 * Before attachment redesign document was also created with an initialized value for the attachment bytes, which would also appear in the
+							 * document added to the import result `v`, but now it is not allowed to put directly the bytes in the document.
+							 * I don't think this is an issue because anyway the import result would be serialized to json, so without the bytes.
+							 * Another possible issue is that the document added to the import result won't have the `attachmentId` properly initialized, but this
+							 * was already happening before, so I don't think this is an issue either.
+							 */
 							v.documents.add(it)
-							if (saveToDatabase) documentLogic.createDocument(it, trnauthorhcpid) else it
+							if (saveToDatabase) documentLogic.createDocument(it, lnk.value, trnauthorhcpid) else it
 						}?.id
 					)
 				)

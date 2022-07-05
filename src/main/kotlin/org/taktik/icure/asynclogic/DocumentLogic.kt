@@ -25,9 +25,14 @@ import org.taktik.icure.asynclogic.objectstorage.DataAttachmentModificationLogic
 import org.taktik.icure.entities.Document
 
 interface DocumentLogic : EntityPersister<Document, String> {
-	suspend fun createDocument(document: Document, ownerHealthcarePartyId: String): Document?
+	suspend fun createDocument(
+		document: Document,
+		initialMainAttachment: ByteArray?,
+		ownerHealthcarePartyId: String
+	): Document?
 
 	suspend fun getDocument(documentId: String): Document?
+
 	fun getAttachment(documentId: String, attachmentId: String): Flow<ByteBuffer>
 
 	/**
