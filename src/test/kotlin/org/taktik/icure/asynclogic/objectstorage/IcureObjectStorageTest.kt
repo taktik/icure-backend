@@ -13,8 +13,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withTimeout
 import org.taktik.icure.asyncdao.objectstorage.ObjectStorageTasksDAO
-import org.taktik.icure.asynclogic.objectstorage.impl.IcureObjectStorageImpl
-import org.taktik.icure.asynclogic.objectstorage.impl.LocalObjectStorageImpl
+import org.taktik.icure.asynclogic.objectstorage.impl.DocumentLocalObjectStorageImpl
+import org.taktik.icure.asynclogic.objectstorage.impl.DocumentObjectStorageImpl
 import org.taktik.icure.asynclogic.objectstorage.testutils.FakeObjectStorageClient
 import org.taktik.icure.asynclogic.objectstorage.testutils.FakeObjectStorageClient.ObjectStoreEvent
 import org.taktik.icure.asynclogic.objectstorage.testutils.FakeObjectStorageTasksDAO
@@ -25,6 +25,7 @@ import org.taktik.icure.asynclogic.objectstorage.testutils.document1
 import org.taktik.icure.asynclogic.objectstorage.testutils.resetTestLocalStorageDirectory
 import org.taktik.icure.asynclogic.objectstorage.testutils.sampleAttachments
 import org.taktik.icure.asynclogic.objectstorage.testutils.testLocalStorageDirectory
+import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.objectstorage.ObjectStorageTask
 import org.taktik.icure.entities.objectstorage.ObjectStorageTaskType
 import org.taktik.icure.properties.ObjectStorageProperties
@@ -38,34 +39,34 @@ class IcureObjectStorageTest : StringSpec({
 	val objectStorageProperties = ObjectStorageProperties(
 		cacheLocation = testLocalStorageDirectory
 	)
-	val localStorage = LocalObjectStorageImpl(objectStorageProperties)
+	val localStorage = DocumentLocalObjectStorageImpl(objectStorageProperties)
 	lateinit var storageTasksDAO: ObjectStorageTasksDAO
-	lateinit var objectStorageClient: FakeObjectStorageClient
-	lateinit var icureObjectStorage: IcureObjectStorageImpl
+	lateinit var objectStorageClient: FakeObjectStorageClient<Document>
+	lateinit var icureObjectStorage: DocumentObjectStorageImpl
 
 	beforeEach {
 		resetTestLocalStorageDirectory()
 		objectStorageClient = FakeObjectStorageClient()
 		storageTasksDAO = FakeObjectStorageTasksDAO()
-		icureObjectStorage = IcureObjectStorageImpl(
+		icureObjectStorage = DocumentObjectStorageImpl(
 			storageTasksDAO,
-			objectStorageClient,
+			object : DocumentObjectStorageClient, ObjectStorageClient<Document> by objectStorageClient {},
 			localStorage
-		).also { it.start() }
+		).also { it.afterPropertiesSet() }
 	}
 
 	afterEach {
-		(icureObjectStorage as? IcureObjectStorageImpl)?.finalize()
+		icureObjectStorage.destroy()
 	}
 
-	suspend fun store(documentId: String, attachmentId: String, bytes: ByteArray) {
-		icureObjectStorage.preStore(documentId, attachmentId, bytes)
-		icureObjectStorage.scheduleStoreAttachment(documentId, attachmentId)
+	suspend fun store(document: Document, attachmentId: String, bytes: ByteArray) {
+		icureObjectStorage.preStore(document, attachmentId, bytes)
+		icureObjectStorage.scheduleStoreAttachment(document, attachmentId)
 	}
 
-	suspend fun storeAndWait(documentId: String, attachmentId: String, bytes: ByteArray) {
-		store(documentId, attachmentId, bytes)
-		objectStorageClient.eventsChannel.receive() shouldBe ObjectStoreEvent(documentId, attachmentId, ObjectStoreEvent.Type.SUCCESSFUL_UPLOAD)
+	suspend fun storeAndWait(document: Document, attachmentId: String, bytes: ByteArray) {
+		store(document, attachmentId, bytes)
+		objectStorageClient.eventsChannel.receive() shouldBe ObjectStoreEvent(document.id, attachmentId, ObjectStoreEvent.Type.SUCCESSFUL_UPLOAD)
 	}
 
 	"Object storage should be able to store, read, and delete attachments in the service" {
@@ -74,7 +75,7 @@ class IcureObjectStorageTest : StringSpec({
 		sampleAttachments.forEach { icureObjectStorage.scheduleStoreAttachment(it.first, it.second) }
 		withTimeout(STORAGE_TASK_TIMEOUT * sampleAttachments.size) {
 			sampleAttachments.map { objectStorageClient.eventsChannel.receive() } shouldContainExactlyInAnyOrder sampleAttachments.map {
-				ObjectStoreEvent(it.first, it.second, ObjectStoreEvent.Type.SUCCESSFUL_UPLOAD)
+				ObjectStoreEvent(it.first.id, it.second, ObjectStoreEvent.Type.SUCCESSFUL_UPLOAD)
 			}
 		}
 		resetTestLocalStorageDirectory() // clear cache -> ensure we are reading from storage client
@@ -83,9 +84,9 @@ class IcureObjectStorageTest : StringSpec({
 		val remaining = sampleAttachments.filter { it !== deleted }
 		icureObjectStorage.scheduleDeleteAttachment(deleted.first, deleted.second)
 		withTimeout(STORAGE_TASK_TIMEOUT) {
-			objectStorageClient.eventsChannel.receive() shouldBe ObjectStoreEvent(deleted.first, deleted.second, ObjectStoreEvent.Type.SUCCESSFUL_DELETE)
+			objectStorageClient.eventsChannel.receive() shouldBe ObjectStoreEvent(deleted.first.id, deleted.second, ObjectStoreEvent.Type.SUCCESSFUL_DELETE)
 		}
-		objectStorageClient.attachmentsKeys shouldContainExactlyInAnyOrder remaining.map { it.first to it.second }
+		objectStorageClient.attachmentsKeys shouldContainExactlyInAnyOrder remaining.map { it.first.id to it.second }
 		storageTasksDAO.getEntities().toList().shouldBeEmpty()
 	}
 
@@ -105,14 +106,14 @@ class IcureObjectStorageTest : StringSpec({
 		store(document1, attachment1, bytes1)
 		icureObjectStorage.scheduleDeleteAttachment(document1, attachment2)
 		val expectedTasks = listOf(
-			StorageTaskInfo(document1, attachment1, ObjectStorageTaskType.UPLOAD),
-			StorageTaskInfo(document1, attachment2, ObjectStorageTaskType.DELETE)
+			StorageTaskInfo(document1.id, attachment1, ObjectStorageTaskType.UPLOAD),
+			StorageTaskInfo(document1.id, attachment2, ObjectStorageTaskType.DELETE)
 		)
 		// Tasks execution will fail and they will still be stored
 		withTimeout(STORAGE_TASK_TIMEOUT * 2) {
 			listOf(objectStorageClient.eventsChannel.receive(), objectStorageClient.eventsChannel.receive()) shouldContainExactlyInAnyOrder listOf(
-				ObjectStoreEvent(document1, attachment1, ObjectStoreEvent.Type.UNSUCCESSFUL_UPLOAD),
-				ObjectStoreEvent(document1, attachment2, ObjectStoreEvent.Type.UNSUCCESSFUL_DELETE)
+				ObjectStoreEvent(document1.id, attachment1, ObjectStoreEvent.Type.UNSUCCESSFUL_UPLOAD),
+				ObjectStoreEvent(document1.id, attachment2, ObjectStoreEvent.Type.UNSUCCESSFUL_DELETE)
 			)
 		}
 		storageTasksDAO.getTasksInfo() shouldContainExactlyInAnyOrder expectedTasks
@@ -125,8 +126,8 @@ class IcureObjectStorageTest : StringSpec({
 		icureObjectStorage.rescheduleFailedStorageTasks()
 		withTimeout(STORAGE_TASK_TIMEOUT * 2) {
 			listOf(objectStorageClient.eventsChannel.receive(), objectStorageClient.eventsChannel.receive()) shouldContainExactlyInAnyOrder listOf(
-				ObjectStoreEvent(document1, attachment1, ObjectStoreEvent.Type.SUCCESSFUL_UPLOAD),
-				ObjectStoreEvent(document1, attachment2, ObjectStoreEvent.Type.SUCCESSFUL_DELETE)
+				ObjectStoreEvent(document1.id, attachment1, ObjectStoreEvent.Type.SUCCESSFUL_UPLOAD),
+				ObjectStoreEvent(document1.id, attachment2, ObjectStoreEvent.Type.SUCCESSFUL_DELETE)
 			)
 		}
 	}
@@ -135,7 +136,8 @@ class IcureObjectStorageTest : StringSpec({
 		val tasks = (0 until 100).map {
 			ObjectStorageTask(
 				UUID.randomUUID().toString(),
-				documentId = document1,
+				entityClassName = Document::class.java.simpleName,
+				entityId = document1.id,
 				attachmentId = attachment1,
 				type = if (it % 2 == 0) ObjectStorageTaskType.UPLOAD else ObjectStorageTaskType.DELETE,
 				requestTime = 100L + (it * 100)
@@ -158,7 +160,7 @@ class IcureObjectStorageTest : StringSpec({
 })
 
 private suspend fun ObjectStorageTasksDAO.getTasksInfo() = getEntities().toList().map {
-	StorageTaskInfo(it.documentId, it.attachmentId, it.type)
+	StorageTaskInfo(it.entityId, it.attachmentId, it.type)
 }
 
 private data class StorageTaskInfo(val documentId: String, val attachmentId: String, val type: ObjectStorageTaskType)
