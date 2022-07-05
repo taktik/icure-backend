@@ -8,7 +8,7 @@ import org.taktik.icure.entities.base.HasDataAttachments
 /**
  * Handles interaction with the object storage service.
  */
-interface ObjectStorageClient<T : HasDataAttachments> {
+interface ObjectStorageClient<T : HasDataAttachments<T>> {
 	/**
 	 * Stores an attachment in the attachment storage service.
 	 * @param entity entity which owns the attachment.

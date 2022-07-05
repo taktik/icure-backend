@@ -52,7 +52,7 @@ class ObjectStorageTasksDAOImpl(
 	}
 
 	@View(name = BY_ENTITY_CLASS, map = "classpath:js/objectstoragetask/By_entityclass_map.js")
-	override fun <T : HasDataAttachments> findTasksForEntities(entityClass: Class<T>) = flow {
+	override fun <T : HasDataAttachments<T>> findTasksForEntities(entityClass: Class<T>) = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 		val viewQuery = createQuery(client, BY_ENTITY_CLASS)
 			.key(entityClass.simpleName)

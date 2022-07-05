@@ -8,9 +8,6 @@ import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.stereotype.Service
 import org.taktik.icure.entities.objectstorage.ObjectStorageTask
 import org.taktik.icure.entities.objectstorage.ObjectStorageTaskType
-import java.util.*
-import javax.annotation.PostConstruct
-import javax.annotation.PreDestroy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -32,12 +29,12 @@ import org.taktik.icure.asynclogic.objectstorage.ObjectStorageClient
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.base.HasDataAttachments
 
-interface ScheduledIcureObjectStorage<T : HasDataAttachments> : IcureObjectStorage<T>, InitializingBean, DisposableBean {
+interface ScheduledIcureObjectStorage<T : HasDataAttachments<T>> : IcureObjectStorage<T>, InitializingBean, DisposableBean {
 	val hasScheduledStorageTasks: Boolean
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-private class IcureObjectStorageImpl<T : HasDataAttachments>(
+private class IcureObjectStorageImpl<T : HasDataAttachments<T>>(
     private val objectStorageTasksDao: ObjectStorageTasksDAO,
 	private val objectStorageClient: ObjectStorageClient<T>,
 	private val localObjectStorage: LocalObjectStorage<T>,

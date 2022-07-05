@@ -20,7 +20,7 @@ data class ObjectStorageMigrationTask(
 	val attachmentId: String
 ) : StoredDocument {
 	companion object {
-		fun <T : HasDataAttachments> of(entity: T, attachmentId: String) = ObjectStorageMigrationTask(
+		fun <T : HasDataAttachments<T>> of(entity: T, attachmentId: String) = ObjectStorageMigrationTask(
 			UUID.randomUUID().toString(),
 			entityClassName = entity::class.java.simpleName.also {
 				require(it.isNotBlank()) { "Entity with attachments must have a unique class name." }

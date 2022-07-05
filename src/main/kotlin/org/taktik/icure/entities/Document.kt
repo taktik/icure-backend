@@ -110,7 +110,7 @@ data class Document(
 	val mainUti: String? = null,
 	val otherUtis: Set<String> = emptySet(),
 	val secondaryAttachments: Map<String, DataAttachment> = emptyMap(),
-	val deletedAttachments: List<DeletedAttachment> = emptyList(),
+	override val deletedAttachments: List<DeletedAttachment> = emptyList(),
 	override val secretForeignKeys: Set<String> = emptySet(),
 	override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
 	override val delegations: Map<String, Set<Delegation>> = emptyMap(),
@@ -122,8 +122,10 @@ data class Document(
 	@JsonProperty("_conflicts") override val conflicts: List<String>? = emptyList(),
 	@JsonProperty("rev_history") override val revHistory: Map<String, String>? = emptyMap()
 
-) : StoredICureDocument, Encryptable, HasDataAttachments {
+) : StoredICureDocument, Encryptable, HasDataAttachments<Document> {
 	companion object : DynamicInitializer<Document>
+
+	val mainAttachmentKey: String get() = id
 
 	val mainAttachment: DataAttachment? by lazy {
 		if (attachmentId != null || objectStoreReference != null)
@@ -136,8 +138,25 @@ data class Document(
 			null
 	}
 
-	override val dataAttachments: Map<String, DataAttachment>
-		get() = mainAttachment?.let { secondaryAttachments + (id to it) } ?: secondaryAttachments
+	override val dataAttachments: Map<String, DataAttachment> by lazy {
+		mainAttachment?.let { secondaryAttachments + (mainAttachmentKey to it) } ?: secondaryAttachments
+	}
+
+	override fun withUpdatedDataAttachment(key: String, newValue: DataAttachment?): Document =
+		if (key == mainAttachmentKey) {
+			withUpdatedMainAttachment(newValue)
+		} else if (newValue != null) {
+			copy(secondaryAttachments = secondaryAttachments + (key to newValue))
+		} else {
+			copy(secondaryAttachments = secondaryAttachments - key)
+		}
+
+	override fun withDataAttachments(newDataAttachments: Map<String, DataAttachment>): Document = this
+		.copy(secondaryAttachments = newDataAttachments.filter { it.key != mainAttachmentKey })
+		.withUpdatedMainAttachment(newDataAttachments[mainAttachmentKey])
+
+	override fun withDeletedAttachments(newDeletedAttachments: List<DeletedAttachment>): Document =
+		copy(deletedAttachments = newDeletedAttachments)
 
 	fun merge(other: Document) = Document(args = this.solveConflictsWith(other))
 	// TODO update conflict resolution
@@ -189,8 +208,12 @@ data class Document(
 		TODO("Update with new attachment design")
 	}
 
-	override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-	override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+	override fun withIdRev(id: String?, rev: String) =
+		if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+	override fun withDeletionDate(deletionDate: Long?) =
+		this.copy(deletionDate = deletionDate)
+
 	override fun withTimestamps(created: Long?, modified: Long?) =
 		when {
 			created != null && modified != null -> this.copy(created = created, modified = modified)
@@ -198,10 +221,12 @@ data class Document(
 			modified != null -> this.copy(modified = modified)
 			else -> this
 		}
-	fun withUpdatedMainAttachment(newMainAttachment: DataAttachment?) = this.copy(
-		attachmentId = newMainAttachment?.couchDbAttachmentId,
-		objectStoreReference = newMainAttachment?.objectStoreAttachmentId,
-		mainUti = newMainAttachment?.utis?.firstOrNull(),
-		otherUtis = newMainAttachment?.utis?.drop(1)?.toSet() ?: emptySet(),
-	)
+
+	fun withUpdatedMainAttachment(newMainAttachment: DataAttachment?) =
+		this.copy(
+			attachmentId = newMainAttachment?.couchDbAttachmentId,
+			objectStoreReference = newMainAttachment?.objectStoreAttachmentId,
+			mainUti = newMainAttachment?.utis?.firstOrNull(),
+			otherUtis = newMainAttachment?.utis?.drop(1)?.toSet() ?: emptySet(),
+		)
 }

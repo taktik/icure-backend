@@ -8,5 +8,5 @@ import org.taktik.icure.entities.objectstorage.ObjectStorageMigrationTask
 import org.taktik.icure.entities.objectstorage.ObjectStorageTask
 
 interface ObjectStorageMigrationTasksDAO : InternalDAO<ObjectStorageMigrationTask> {
-	fun <T : HasDataAttachments> findTasksForEntities(entityClass: Class<T>): Flow<ObjectStorageMigrationTask>
+	fun <T : HasDataAttachments<T>> findTasksForEntities(entityClass: Class<T>): Flow<ObjectStorageMigrationTask>
 }

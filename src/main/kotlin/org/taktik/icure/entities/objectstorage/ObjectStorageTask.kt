@@ -22,7 +22,7 @@ data class ObjectStorageTask(
 	val requestTime: Long = System.currentTimeMillis()
 ) : StoredDocument {
 	companion object {
-		fun <T : HasDataAttachments> of(entity: T, attachmentId: String, type: ObjectStorageTaskType) = ObjectStorageTask(
+		fun <T : HasDataAttachments<T>> of(entity: T, attachmentId: String, type: ObjectStorageTaskType) = ObjectStorageTask(
 			UUID.randomUUID().toString(),
 			type = type,
 			entityClassName = entity::class.java.simpleName.also {

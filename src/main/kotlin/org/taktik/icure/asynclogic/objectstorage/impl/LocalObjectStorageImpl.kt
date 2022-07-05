@@ -26,7 +26,7 @@ import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.base.HasDataAttachments
 import org.taktik.icure.properties.ObjectStorageProperties
 
-private class LocalObjectStorageImpl<T : HasDataAttachments>(
+private class LocalObjectStorageImpl<T : HasDataAttachments<T>>(
 	private val objectStorageProperties: ObjectStorageProperties,
 	private val entityPath: String
 ) : LocalObjectStorage<T> {

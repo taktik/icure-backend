@@ -24,7 +24,7 @@ import org.taktik.icure.entities.embed.DataAttachment
 import org.taktik.icure.properties.ObjectStorageProperties
 import org.taktik.icure.utils.toByteArray
 
-class DataAttachmentLoaderImpl<T : HasDataAttachments>(
+class DataAttachmentLoaderImpl<T : HasDataAttachments<T>>(
 	private val dao: GenericDAO<T>,
 	private val icureObjectStorage: IcureObjectStorage<T>,
 	private val icureObjectStorageMigration: IcureObjectStorageMigration<T>,

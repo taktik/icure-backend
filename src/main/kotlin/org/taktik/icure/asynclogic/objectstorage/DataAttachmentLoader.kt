@@ -9,7 +9,7 @@ import org.taktik.icure.entities.embed.DataAttachment
 /**
  * Allows loading attachments for an entity of type [T].
  */
-interface DataAttachmentLoader<T : HasDataAttachments> {
+interface DataAttachmentLoader<T : HasDataAttachments<T>> {
 	/**
 	 * Load the content of an attachment as a flow.
 	 * This method does not automatically cache the content, but if the content was loaded as byte in
@@ -34,13 +34,13 @@ interface DataAttachmentLoader<T : HasDataAttachments> {
 /**
  * Nullable version of [DataAttachmentLoader.contentFlowOf]
  */
-fun <T : HasDataAttachments> DataAttachmentLoader<T>.contentFlowOf(target: T?, retrieveAttachment: T.() -> DataAttachment?): Flow<DataBuffer>? =
+fun <T : HasDataAttachments<T>> DataAttachmentLoader<T>.contentFlowOf(target: T?, retrieveAttachment: T.() -> DataAttachment?): Flow<DataBuffer>? =
 	target?.let { t -> t.retrieveAttachment()?.let { contentFlowOf(t) { it } } }
 
 /**
  * Nullable version of [DataAttachmentLoader.contentBytesOf]
  */
-suspend fun <T : HasDataAttachments> DataAttachmentLoader<T>.contentBytesOf(target: T?, retrieveAttachment: T.() -> DataAttachment?): ByteArray? =
+suspend fun <T : HasDataAttachments<T>> DataAttachmentLoader<T>.contentBytesOf(target: T?, retrieveAttachment: T.() -> DataAttachment?): ByteArray? =
 	target?.let { t -> t.retrieveAttachment()?.let { contentBytesOf(t) { it } } }
 
 interface DocumentDataAttachmentLoader: DataAttachmentLoader<Document>

@@ -2,7 +2,6 @@ package org.taktik.icure.asynclogic.objectstorage.impl
 
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
-import javax.annotation.PreDestroy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -26,9 +25,9 @@ import org.taktik.icure.entities.embed.DataAttachment
 import org.taktik.icure.entities.objectstorage.ObjectStorageMigrationTask
 import org.taktik.icure.properties.ObjectStorageProperties
 
-interface ScheduledIcureObjectStorageMigration<T : HasDataAttachments> : IcureObjectStorageMigration<T>, DisposableBean
+interface ScheduledIcureObjectStorageMigration<T : HasDataAttachments<T>> : IcureObjectStorageMigration<T>, DisposableBean
 
-private abstract class IcureObjectStorageMigrationImpl<T : HasDataAttachments>(
+private abstract class IcureObjectStorageMigrationImpl<T : HasDataAttachments<T>>(
 	private val dao: GenericDAO<T>,
 	private val objectStorageProperties: ObjectStorageProperties,
     private val objectStorageMigrationTasksDao: ObjectStorageMigrationTasksDAO,
@@ -137,9 +136,5 @@ class DocumentObjectStorageMigrationImpl(
 		dataAttachmentKey: String,
 		newDataAttachment: DataAttachment
 	): Document =
-		if (dataAttachmentKey == id) {
-			copy(rev = rev, attachments = attachments).withUpdatedMainAttachment(newDataAttachment)
-		} else {
-			copy(rev = rev, attachments = attachments, secondaryAttachments = secondaryAttachments + (dataAttachmentKey to newDataAttachment))
-		}
+		copy(rev = rev, attachments = attachments).withUpdatedDataAttachment(dataAttachmentKey, newDataAttachment)
 }

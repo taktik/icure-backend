@@ -20,10 +20,9 @@ package org.taktik.icure.asynclogic
 
 import java.nio.ByteBuffer
 import kotlinx.coroutines.flow.Flow
-import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.asyncdao.DocumentDAO
+import org.taktik.icure.asynclogic.objectstorage.DataAttachmentModificationLogic.DataAttachmentChange
 import org.taktik.icure.entities.Document
-import org.taktik.icure.entities.embed.DataAttachment
 
 interface DocumentLogic : EntityPersister<Document, String> {
 	suspend fun createDocument(document: Document, ownerHealthcarePartyId: String): Document?
@@ -70,30 +69,4 @@ interface DocumentLogic : EntityPersister<Document, String> {
 	fun solveConflicts(ids: List<String>?): Flow<Document>
 	fun getGenericDAO(): DocumentDAO
 	suspend fun getDocumentsByExternalUuid(documentId: String): List<Document>
-
-	/**
-	 * Specifies how to change [DataAttachment]s.
-	 * - [DataAttachmentChange.Delete] delete an attachment (if it exists)
-	 * - [DataAttachmentChange.CreateOrUpdate] update an existing attachment or create a new one if none exist.
-	 */
-	sealed class DataAttachmentChange { // TODO Change to sealed interface on kotlin 1.5+
-		/**
-		 * Represents a request to delete an attachment.
-		 */
-		object Delete : DataAttachmentChange()
-
-		/**
-		 * Represents a request to create or update an attachment.
-		 * @param data the content of the attachment.
-		 * @param size the size of the attachment content, if known. This value can help to decide the most appropriate storage location for the attachment.
-		 * @param utis used differently depending on whether this [DataAttachmentChange] triggers the creation of a new [DataAttachment] or updates an existing one:
-		 * - `Update`: if not null specifies a new value for [DataAttachment.utis].
-		 * - `Create`: specifies the initial value for [DataAttachment.utis], in this case `null` will be converted to an empty list.
-		 */
-		data class CreateOrUpdate(
-			val data: Flow<DataBuffer>,
-			val size: Int?,
-			val utis: List<String>?
-		) : DataAttachmentChange()
-	}
 }

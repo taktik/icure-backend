@@ -9,7 +9,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DataAttachmentDto
 @Mapper(componentModel = "spring")
 interface DataAttachmentMapper {
 	@Mappings(
-		Mapping(target = "cachedBytes", ignore = true),
 		Mapping(target = "withIdsOf", ignore = true) // Was giving a warning, but it is not a property
 	)
 	fun map(dataAttachmentDto: DataAttachmentDto): DataAttachment

@@ -2,7 +2,6 @@ package org.taktik.icure.asynclogic.objectstorage
 
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
-import org.taktik.icure.asynclogic.objectstorage.impl.LocalObjectStorageImpl
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.base.HasDataAttachments
 
@@ -12,7 +11,7 @@ import org.taktik.icure.entities.base.HasDataAttachments
  *  - cache of documents stored using the object storage service, to speed up loading in future
  *  - temporary storage for attachments which will be uploaded in a second moment
  */
-interface LocalObjectStorage<T : HasDataAttachments> {
+interface LocalObjectStorage<T : HasDataAttachments<T>> {
 	/**
 	 * Store an attachment locally.
 	 * @param entity entity which owns the attachment.

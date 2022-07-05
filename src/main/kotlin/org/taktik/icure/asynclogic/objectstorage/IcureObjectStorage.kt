@@ -10,7 +10,7 @@ import org.taktik.icure.entities.base.HasDataAttachments
  * Handles object storage for attachments. Depending on the implementation this may include caching,
  * saving of tasks for the future if there are problems with the upload/deletion, etc.
  */
-interface IcureObjectStorage<T : HasDataAttachments> {
+interface IcureObjectStorage<T : HasDataAttachments<T>> {
 	/**
 	 * Performs the pre-storage task for the attachment.
 	 * @param entity entity which owns the attachment.
@@ -32,6 +32,7 @@ interface IcureObjectStorage<T : HasDataAttachments> {
 	suspend fun preStore(entity: T, attachmentId: String, content: Flow<DataBuffer>): Boolean
 
 	/**
+	 * TODO support mime type?
 	 * Stores an attachment which was pre-stored to the object storage service.
 	 * This method only schedules the task for execution, and may return before the tasks are actually completed.
 	 * If the attachment can not be stored on the cloud service the moment the task is executed (for example due to a network error)

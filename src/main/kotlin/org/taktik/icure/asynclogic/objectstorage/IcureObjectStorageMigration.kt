@@ -8,7 +8,7 @@ import org.taktik.icure.entities.base.HasDataAttachments
 /**
  * Handles the migration of data attachments.
  */
-interface IcureObjectStorageMigration<T : HasDataAttachments> {
+interface IcureObjectStorageMigration<T : HasDataAttachments<T>> {
 
 	/**
 	 * @param entity entity which owns the attachment.

@@ -16,5 +16,5 @@ interface ObjectStorageTasksDAO : InternalDAO<ObjectStorageTask> {
 	/**
 	 * Find all tasks which refer to entities of a specific type.
 	 */
-	fun <T : HasDataAttachments> findTasksForEntities(entityClass: Class<T>): Flow<ObjectStorageTask>
+	fun <T : HasDataAttachments<T>> findTasksForEntities(entityClass: Class<T>): Flow<ObjectStorageTask>
 }

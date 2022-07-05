@@ -30,7 +30,7 @@ import org.taktik.icure.security.database.DatabaseUserDetails
 import reactor.core.publisher.Mono
 
 @OptIn(ExperimentalCoroutinesApi::class)
-private class ObjectStorageClientImpl<T : HasDataAttachments>(
+private class ObjectStorageClientImpl<T : HasDataAttachments<T>>(
 	private val sessionLogic: AsyncSessionLogic,
 	private val objectStorageProperties: ObjectStorageProperties,
 	private val entityPath: String
