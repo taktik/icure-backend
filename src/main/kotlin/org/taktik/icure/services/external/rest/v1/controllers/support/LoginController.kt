@@ -66,7 +66,7 @@ class LoginController(
 			val secContext = SecurityContextImpl(authentication)
 			val securityContext = kotlin.coroutines.coroutineContext[ReactorContext]?.context?.put(SecurityContext::class.java, Mono.just(secContext))
 			withContext(kotlin.coroutines.coroutineContext.plus(securityContext?.asCoroutineContext() as CoroutineContext)) {
-				response.healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
+				response.healthcarePartyId = runCatching { sessionLogic.getCurrentHealthcarePartyId() }.getOrNull()
 				response.username = loginCredentials.username
 				session.attributes["SPRING_SECURITY_CONTEXT"] = secContext
 			}

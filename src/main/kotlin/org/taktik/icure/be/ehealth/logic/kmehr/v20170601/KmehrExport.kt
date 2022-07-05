@@ -248,7 +248,7 @@ open class KmehrExport(
 			p.id.let { id -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.LOCAL; sv = config.soft?.version; sl = "${config.soft?.name}-Person-Id"; value = id }) }
 			firstnames.add(p.firstName)
 			familyname = p.lastName
-			sex = SexType().apply { cd = CDSEX().apply { s = "CD-SEX"; sv = "1.0"; value = p.gender?.let { CDSEXvalues.fromValue(it.name) } ?: CDSEXvalues.UNKNOWN } }
+			sex = SexType().apply { cd = CDSEX().apply { s = "CD-SEX"; sv = "1.1"; value = p.gender?.let { CDSEXvalues.fromValue(it.name) } ?: CDSEXvalues.UNKNOWN } }
 			p.dateOfBirth?.let { birthdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
 			recorddatetime = makeXGC(p.modified)
 		}
@@ -693,7 +693,7 @@ open class KmehrExport(
 						specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; value = filetype }; version = SMF_VERSION }
 					}
 				}
-				ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = kmehrId ?: ((sender.nihii ?: sender.id) + "." + (config._kmehrId ?: System.currentTimeMillis())) })
+				ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.10"; value = kmehrId ?: ((sender.nihii ?: sender.id) + "." + (config._kmehrId ?: System.currentTimeMillis())) })
 				makeXGC(Instant.now().toEpochMilli()).let {
 					date = it
 					time = it

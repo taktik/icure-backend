@@ -244,6 +244,46 @@ class PatientDAOImpl(
 		emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
 	}
 
+	@View(name = "by_hcparty_telecom", map = "classpath:js/patient/By_hcparty_telecom.js")
+	override fun listPatientIdsByHcPartyAndTelecom(searchString: String?, healthcarePartyId: String): Flow<String> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val startKey: ComplexKey
+		val endKey: ComplexKey
+
+		if (searchString != null) {
+			val csearchString = searchString.replace(" ".toRegex(), "").replace("\\W".toRegex(), "")
+			startKey = ComplexKey.of(healthcarePartyId, csearchString)
+			endKey = ComplexKey.of(healthcarePartyId, csearchString + "\ufff0")
+		} else {
+			startKey = ComplexKey.of(healthcarePartyId, null)
+			endKey = ComplexKey.of(healthcarePartyId, "\ufff0")
+		}
+
+		val viewQuery = createQuery(client, "by_hcparty_telecom").startKey(startKey).endKey(endKey).includeDocs(false)
+
+		emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
+	}
+
+	@View(name = "by_hcparty_address", map = "classpath:js/patient/By_hcparty_address.js")
+	override fun listPatientIdsByHcPartyAndAddress(searchString: String?, healthcarePartyId: String): Flow<String> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val startKey: ComplexKey
+		val endKey: ComplexKey
+
+		if (searchString != null) {
+			val csearchString = searchString.replace(" ".toRegex(), "").replace("\\W".toRegex(), "")
+			startKey = ComplexKey.of(healthcarePartyId, csearchString)
+			endKey = ComplexKey.of(healthcarePartyId, csearchString + "\ufff0")
+		} else {
+			startKey = ComplexKey.of(healthcarePartyId, null)
+			endKey = ComplexKey.of(healthcarePartyId, "\ufff0")
+		}
+
+		val viewQuery = createQuery(client, "by_hcparty_address").startKey(startKey).endKey(endKey).includeDocs(false)
+
+		emitAll(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
+	}
+
 	override fun findPatientIdsByHcParty(healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 		val viewQuery = pagedViewQueryOfIds<Patient, ComplexKey>(client, "by_hcparty_name", pagination.startKey ?: ComplexKey.of(healthcarePartyId, null), ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject()), pagination)
@@ -494,7 +534,7 @@ class PatientDAOImpl(
 				acc + (
 					value[0] to (acc[value[0]] ?: emptyMap()).let {
 						it + (
-							value[1].let { it.substring((it.length - 12).coerceAtLeast(0)) } to (it[value[1]] ?: emptyMap()).let { dels ->
+							value[1].let { it.substring((it.length - 32).coerceAtLeast(0)) } to (it[value[1]] ?: emptyMap()).let { dels ->
 								dels + (value[2] to value[3])
 							}
 							)

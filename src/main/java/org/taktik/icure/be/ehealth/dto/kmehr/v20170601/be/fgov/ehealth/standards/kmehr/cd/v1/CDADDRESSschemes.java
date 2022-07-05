@@ -51,7 +51,7 @@ import javax.xml.bind.annotation.XmlType;
 public enum CDADDRESSschemes {
 
     @XmlEnumValue("CD-ADDRESS")
-    CD_ADDRESS("CD-ADDRESS", "1.0"),
+    CD_ADDRESS("CD-ADDRESS", "1.1"),
     LOCAL("LOCAL", "1.0");
     private final String value; //
     private final String version;

@@ -3,6 +3,9 @@ package org.taktik.icure.test
 import javax.annotation.PreDestroy
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.retry
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -77,24 +80,19 @@ class ICureTestApplication {
 			ProcessBuilder(("docker run " +
 				"-p $dbPort:5984 " +
 				"-e COUCHDB_USER=${System.getenv("ICURE_COUCHDB_USERNAME")} -e COUCHDB_PASSWORD=${System.getenv("ICURE_COUCHDB_PASSWORD")} " +
-				"-d --name couchdb-test " +
+				"-d --name couchdb-test-instance " +
 				"couchdb:3.2.2").split(' '))
 				.start()
 				.waitFor()
 
 			// Polling, waiting for the database to initialize
 			runBlocking {
-				var waitingForDb = true
-				while (waitingForDb) {
-					try {
-						client.get().uri(System.getenv("ICURE_COUCHDB_URL"))
-							.response()
-							.awaitFirstOrNull()
-						waitingForDb = false
-					} catch (e: reactor.netty.http.client.PrematureCloseException) {
-						delay(500)
-					}
-				}
+				client.get().uri(System.getenv("ICURE_COUCHDB_URL"))
+					.response()
+					.asFlow()
+					.retry(retries = 120) { e ->
+						(e is reactor.netty.http.client.PrematureCloseException).also { if (it) delay(500) }
+					}.collect()
 			}
 		}
 

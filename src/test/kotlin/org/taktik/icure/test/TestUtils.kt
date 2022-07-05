@@ -16,7 +16,7 @@ private data class IdWithRev(@field:JsonProperty("_id") val id: String, @field:J
 suspend fun removeEntities(ids: List<String>, objectMapper: ObjectMapper?) {
 	val auth = "Basic ${java.util.Base64.getEncoder().encodeToString("${System.getenv("ICURE_COUCHDB_USERNAME")}:${System.getenv("ICURE_COUCHDB_PASSWORD")}".toByteArray())}"
 	val client = HttpClient.create().headers { h ->
-		h.set("Authorization",auth) //
+		h.set("Authorization",auth)
 		h.set("Content-type", "application/json")
 	}
 
