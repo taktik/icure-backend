@@ -2,6 +2,7 @@ package org.taktik.icure.test
 
 import javax.annotation.PreDestroy
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.reactive.asFlow
@@ -117,7 +118,7 @@ class ICureTestApplication {
 	// At the end of the tests, I destroy the docker container
 	@PreDestroy
 	fun destroyDockerDBContainer() {
-		ProcessBuilder(("docker rm -f couchdb-test-instance -v").split(' '))
+		ProcessBuilder(("docker rm -f couchdb-test -v").split(' '))
 			.start()
 			.waitFor()
 	}

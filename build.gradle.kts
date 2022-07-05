@@ -226,7 +226,8 @@ dependencies {
 
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.4.2")
     testImplementation(group = "org.springframework.boot", name = "spring-boot-starter-test", version = "2.5.13")
-
+    testImplementation(group = "io.mockk", name = "mockk", version = "1.11.0")
+    testImplementation(group = "com.ninja-squad", name = "springmockk", version = "3.1.1")
 }
 
 val outputDir = "${project.buildDir}/reports/ktlint/"

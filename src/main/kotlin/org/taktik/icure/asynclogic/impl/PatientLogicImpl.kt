@@ -117,6 +117,14 @@ class PatientLogicImpl(
 		emitAll(patientDAO.listPatientIdsByHcPartyAndExternalId(externalId, healthcarePartyId))
 	}
 
+	override fun listPatientIdsByHcPartyAndTelecomOnly(searchString: String?, healthcarePartyId: String) = flow<String> {
+		emitAll(patientDAO.listPatientIdsByHcPartyAndTelecom(searchString, healthcarePartyId))
+	}
+
+	override fun listPatientIdsByHcPartyAndAddressOnly(searchString: String?, healthcarePartyId: String) = flow<String> {
+		emitAll(patientDAO.listPatientIdsByHcPartyAndAddress(searchString, healthcarePartyId))
+	}
+
 	override fun listByHcPartyAndActiveIdsOnly(active: Boolean, healthcarePartyId: String) = flow<String> {
 		emitAll(patientDAO.listPatientIdsByActive(active, healthcarePartyId))
 	}
