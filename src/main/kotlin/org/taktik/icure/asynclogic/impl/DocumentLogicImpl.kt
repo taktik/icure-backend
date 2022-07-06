@@ -88,7 +88,7 @@ class DocumentLogicImpl(
 		documentDAO.save(
 			newDoc
 				.copy(attachments = baseline.attachments)
-				.let { attachmentModificationLogic.ensureNoAttachmentContentChanges(baseline, it, strict) }
+				.let { attachmentModificationLogic.ensureValidAttachmentChanges(baseline, it, strict) }
 		)
 	}
 

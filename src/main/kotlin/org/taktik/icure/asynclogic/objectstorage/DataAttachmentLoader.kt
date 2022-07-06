@@ -38,9 +38,22 @@ fun <T : HasDataAttachments<T>> DataAttachmentLoader<T>.contentFlowOf(target: T?
 	target?.let { t -> t.retrieveAttachment()?.let { contentFlowOf(t) { it } } }
 
 /**
+ * Automatically retrieve the attachment by key.
+ */
+fun <T : HasDataAttachments<T>> DataAttachmentLoader<T>.contentFlowOf(target: T?, key: String): Flow<DataBuffer>? =
+	contentFlowOf(target) { dataAttachments[key] }
+
+/**
  * Nullable version of [DataAttachmentLoader.contentBytesOf]
  */
 suspend fun <T : HasDataAttachments<T>> DataAttachmentLoader<T>.contentBytesOf(target: T?, retrieveAttachment: T.() -> DataAttachment?): ByteArray? =
 	target?.let { t -> t.retrieveAttachment()?.let { contentBytesOf(t) { it } } }
+
+/**
+ * Automatically retrieve the attachment by key.
+ */
+suspend fun <T : HasDataAttachments<T>> DataAttachmentLoader<T>.contentBytesOf(target: T?, key: String): ByteArray? =
+	contentBytesOf(target) { dataAttachments[key] }
+
 
 interface DocumentDataAttachmentLoader: DataAttachmentLoader<Document>

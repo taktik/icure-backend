@@ -48,7 +48,7 @@ data class DataAttachment(
 	 * Get the mime type string for this attachment. If the attachment does not specify a UTI with a valid mime type returns null.
 	 */
 	val mimeType: String? get() =
-		utis.mapNotNull(UTI::get).flatMap { it.mimeTypes ?: emptyList() }.firstOrNull()
+		utis.asSequence().mapNotNull(UTI::get).flatMap { it.mimeTypes ?: emptyList() }.firstOrNull()
 
 	/**
 	 * [mimeType] or [DEFAULT_MIME_TYPE].
@@ -67,7 +67,7 @@ data class DataAttachment(
 	 */
 	fun withIdsOf(other: DataAttachment) = copy(
 		couchDbAttachmentId = other.couchDbAttachmentId,
-		objectStoreAttachmentId = other.couchDbAttachmentId
+		objectStoreAttachmentId = other.objectStoreAttachmentId
 	)
 
 	/**

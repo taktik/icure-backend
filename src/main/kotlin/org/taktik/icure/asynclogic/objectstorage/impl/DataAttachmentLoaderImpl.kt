@@ -52,6 +52,11 @@ class DataAttachmentLoaderImpl<T : HasDataAttachments<T>>(
 				icureObjectStorage.tryReadCachedAttachment(target, attachmentId) ?: loadCouchDbAttachment(target, attachmentId)
 			} else if (shouldMigrate(target, attachmentId)) {
 				flow {
+					/*TODO
+					 * This will actually load the attachment from couchdb twice, one to store it for pre-migrate, and one to return the result.
+					 * What to we prefer between this and temporarily storing the full byte content of the attachment in memory, considering that
+					 * this code is only executed when we migrate an attachment anyway.
+					 */
 					if (tryPreMigrate(target, attachmentId)) {
 						icureObjectStorageMigration.scheduleMigrateAttachment(target, attachmentId)
 					}
@@ -66,6 +71,7 @@ class DataAttachmentLoaderImpl<T : HasDataAttachments<T>>(
 		dao.getAttachment(target.id, attachmentId).map { DefaultDataBufferFactory.sharedInstance.wrap(it) }
 
 	private fun shouldMigrate(target: T, attachmentId: String) =
+		// TODO maybe we want to have a bigger size limit for migration, to limit the amount of migration task actually executed
 		objectStorageProperties.backlogToObjectStorage
 			&& target.attachments?.get(attachmentId)?.let { it.contentLength >= objectStorageProperties.sizeLimit } == true
 

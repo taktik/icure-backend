@@ -4,10 +4,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.scan
-import kotlinx.coroutines.flow.transform
+import org.apache.commons.codec.digest.DigestUtils
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.taktik.icure.entities.Document
 
@@ -43,3 +41,19 @@ fun ByteArray.delayedBytesFlow(byteDelay: Long, maxDelays: Int) = flow {
 		emit(data)
 	}
 }
+
+fun ByteArray.modify(amount: Byte) = map { (it + amount).toByte() }.toByteArray()
+
+const val SIZE_LIMIT = 10L
+val smallAttachment by lazy { (1 .. SIZE_LIMIT / 2).map { it.toByte() }.toByteArray() }
+val bigAttachment by lazy { (1 .. SIZE_LIMIT * 3 / 2).map { it.toByte() }.toByteArray() }
+
+const val jsonUti = "public.json"
+const val htmlUti = "public.html"
+const val xmlUti = "public.xml"
+val sampleUtis by lazy { listOf(xmlUti, jsonUti) }
+
+const val key1 = "key1"
+const val key2 = "key2"
+const val key3 = "key3"
+const val key4 = "key4"

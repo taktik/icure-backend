@@ -11,9 +11,9 @@ import org.taktik.icure.entities.embed.DataAttachment
  */
 interface DataAttachmentModificationLogic<T : HasDataAttachments<T>> {
 	/**
-	 * Verifies that the updates to an entity with data attachments don't change references to
-	 * retrieve the attachment content. This ensures there will be no accidental loss of
-	 * information.
+	 * Verifies that all updates to an entity with data attachments are valid in regard to
+	 * the data attachment information: some changes to attachment information can only be
+	 * executed through [updateAttachments]. This prevents accidental loss of information.
 	 *
 	 * This method can be used in two modes, depending on the value of strict: if strict is
 	 * true invalid changes from the current entity to the new entity will cause the method
@@ -25,6 +25,7 @@ interface DataAttachmentModificationLogic<T : HasDataAttachments<T>> {
 	 * current version.
 	 * - The new version changes the value of a [DataAttachment.couchDbAttachmentId] or
 	 * [DataAttachment.objectStoreAttachmentId].
+	 * - Any change in the [HasDataAttachments.deletedAttachments]
 	 * @param currEntity the current value of the entity being updated
 	 * @param newEntity the new desired value for the entity
 	 * @param strict if true use the method in strict mode, else lenient
@@ -32,7 +33,7 @@ interface DataAttachmentModificationLogic<T : HasDataAttachments<T>> {
 	 * and the method returns it will always be equivalent to newEntity)
 	 * @throws IllegalArgumentException if strict is true and there are any invalid changes
 	 */
-	fun ensureNoAttachmentContentChanges(currEntity: T, newEntity: T, strict: Boolean): T
+	fun ensureValidAttachmentChanges(currEntity: T, newEntity: T, strict: Boolean): T
 
 	/**
 	 * Updates an entity attachments, also performing any side-tasks necessary for the appropriate

@@ -25,11 +25,10 @@ private abstract class DataAttachmentModificationLogicImpl<T : HasDataAttachment
 	private val icureObjectStorage: IcureObjectStorage<T>,
 	private val objectStorageProperties: ObjectStorageProperties,
 ) : DataAttachmentModificationLogic<T> {
-	override fun ensureNoAttachmentContentChanges(currEntity: T, newEntity: T, strict: Boolean): T {
+	override fun ensureValidAttachmentChanges(currEntity: T, newEntity: T, strict: Boolean): T {
 		check(currEntity.attachments == newEntity.attachments) {
 			"Couchdb attachments for new entity should have been updated to match current entity."
 		}
-
 		val currentAttachments = currEntity.dataAttachments
 		val newAttachments = newEntity.dataAttachments
 		return newEntity.withDataAttachments(
