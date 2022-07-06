@@ -209,6 +209,19 @@ class CodeController(
 		code?.let { codeV2Mapper.map(it) }
 	}
 
+	@Operation(summary = "Create a batch of codes", description = "Create a batch of code entities. Fields Type, Code and Version are required for each code.")
+	@PostMapping("/batch")
+	fun createCodes(@RequestBody codeBatch: List<CodeDto>) = mono {
+		val codes = codeBatch.fold(listOf<Code>()) { acc, c ->
+			acc + codeV2Mapper.map(c)
+		}
+		try {
+			codeLogic.batchCreate(codes)?.map { codeV2Mapper.map(it) }
+		} catch (e: IllegalStateException) {
+			throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+		}
+	}
+
 	@Operation(summary = "Get a list of codes by ids", description = "Keys must be delimited by coma")
 	@PostMapping("/byIds")
 	fun getCodes(@RequestBody codeIds: ListOfIdsDto): Flux<CodeDto> {

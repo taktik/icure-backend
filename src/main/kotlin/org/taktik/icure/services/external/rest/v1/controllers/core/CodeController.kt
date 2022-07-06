@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -199,7 +198,6 @@ class CodeController(
 		return codeLogic.findCodeTypes(region, type)
 			.filter { tagTypeCandidates.contains(it) }
 			.injectReactorContext()
-
 	}
 
 	@Operation(summary = "Create a code", description = "Create a code entity. Fields Type, Code and Version are required.")
@@ -207,6 +205,19 @@ class CodeController(
 	fun createCode(@RequestBody c: CodeDto) = mono {
 		val code = codeLogic.create(codeMapper.map(c))
 		code?.let { codeMapper.map(it) }
+	}
+
+	@Operation(summary = "Create a batch of codes", description = "Create a batch of code entities. Fields Type, Code and Version are required for each code.")
+	@PostMapping("/batch")
+	fun createCodes(@RequestBody codeBatch: List<CodeDto>) = mono {
+		val codes = codeBatch.fold(listOf<Code>()) { acc, c ->
+			acc + codeMapper.map(c)
+		}
+		try {
+			codeLogic.batchCreate(codes)?.map { codeMapper.map(it) }
+		} catch (e: IllegalStateException) {
+			throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+		}
 	}
 
 	@Operation(summary = "Gets a list of codes by ids", description = "Get a list of codes by ids/keys. Keys must be delimited by coma")

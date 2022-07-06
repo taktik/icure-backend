@@ -77,11 +77,15 @@ class ICureTestApplication {
 				.block()
 		} catch (e: Exception) { // If not, I use docker to create a container
 			println("Starting docker")
-			ProcessBuilder(("docker run " +
-				"-p $dbPort:5984 " +
-				"-e COUCHDB_USER=${System.getenv("ICURE_COUCHDB_USERNAME")} -e COUCHDB_PASSWORD=${System.getenv("ICURE_COUCHDB_PASSWORD")} " +
-				"-d --name couchdb-test-instance " +
-				"couchdb:3.2.2").split(' '))
+			ProcessBuilder(
+				(
+					"docker run " +
+						"-p $dbPort:5984 " +
+						"-e COUCHDB_USER=${System.getenv("ICURE_COUCHDB_USERNAME")} -e COUCHDB_PASSWORD=${System.getenv("ICURE_COUCHDB_PASSWORD")} " +
+						"-d --name couchdb-test-instance " +
+						"couchdb:3.2.2"
+					).split(' ')
+			)
 				.start()
 				.waitFor()
 
@@ -109,7 +113,7 @@ class ICureTestApplication {
 				userLogic.newUser(Users.Type.database, System.getenv("ICURE_COUCHDB_TEST_USER"), System.getenv("ICURE_COUCHDB_TEST_PWD"), "icure")// Creates a test user if it does not exist
 			} catch (e: DuplicateDocumentException) {
 				log.info("Test user already exists!")
-			}finally {
+			} finally {
 				log.info("iCure test user\nusername: ${System.getenv("ICURE_COUCHDB_TEST_USER")}\npassword: ${System.getenv("ICURE_COUCHDB_TEST_PWD")}")
 			}
 		}

@@ -76,9 +76,8 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 				.singletonSupport(singletonSupport = SingletonSupport.DISABLED)
 				.strictNullChecks(strictNullChecks = false)
 				.build()
-			)
+		)
 	}
-
 
 	override fun getTagTypeCandidates(): List<String> {
 		return listOf("CD-ITEM", "CD-PARAMETER", "CD-CAREPATH", "CD-SEVERITY", "CD-URGENCY", "CD-GYNECOLOGY")
@@ -107,6 +106,26 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 
 		codeDAO.create(code.copy(id = code.type + "|" + code.code + "|" + code.version))
 	}
+
+	// Do we need fix? No annotations on code
+	override suspend fun batchCreate(batch: List<Code>) =
+		batch.fold(setOf<Code>()) { acc, code ->	// First, I check that all the codes are valid
+			code.code ?: error("Code field is null")
+			code.type ?: error("Type field is null")
+			code.version ?: error("Version field is null")
+
+			if (acc.contains(code)) error("Batch contains duplicate elements. id: ${code.type}|${code.code}|${code.version}")
+
+			acc + code.copy(id = code.type + "|" + code.code + "|" + code.version)
+		}.also { codeList ->
+			this.getCodes(codeList.map { it.id }).firstOrNull()?.let { duplicatedCode ->
+				error("Code with id ${duplicatedCode.id} already exists")
+			}
+		}.fold(listOf<Code>()) { acc, code ->	// Then, I add the codes
+			codeDAO.create(code)?.let {
+				acc + it
+			} ?: error("Error creating code with id ${code.type}|${code.code}|${code.version}")
+		}
 
 	@Throws(Exception::class)
 	override suspend fun modify(code: Code) = fix(code) { code ->
@@ -520,7 +539,6 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 		} catch (e: BulkUpdateConflictException) {
 			log.error("${e.conflicts.size} conflicts")
 		}
-
 	}
 
 	override fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Code>, sort: String?, desc: Boolean?) = flow<ViewQueryResultEvent> {

@@ -35,6 +35,8 @@ interface CodeLogic : EntityPersister<Code, String> {
 	fun getCodes(ids: List<String>): Flow<Code>
 	suspend fun create(code: Code): Code?
 
+	suspend fun batchCreate(batch: List<Code>): List<Code>?
+
 	@Throws(Exception::class)
 	suspend fun modify(code: Code): Code?
 
