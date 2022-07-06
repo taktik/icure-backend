@@ -210,9 +210,7 @@ class CodeController(
 	@Operation(summary = "Create a batch of codes", description = "Create a batch of code entities. Fields Type, Code and Version are required for each code.")
 	@PostMapping("/batch")
 	fun createCodes(@RequestBody codeBatch: List<CodeDto>) = mono {
-		val codes = codeBatch.fold(listOf<Code>()) { acc, c ->
-			acc + codeMapper.map(c)
-		}
+		val codes = codeBatch.map { codeMapper.map(it) }
 		try {
 			codeLogic.batchCreate(codes)?.map { codeMapper.map(it) }
 		} catch (e: IllegalStateException) {
