@@ -9,12 +9,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.objectstorage.ObjectStorageMigrationTasksDAO
+import org.taktik.icure.asynclogic.objectstorage.DataAttachmentModificationLogic
 import org.taktik.icure.asynclogic.objectstorage.DocumentObjectStorage
 import org.taktik.icure.asynclogic.objectstorage.DocumentObjectStorageMigration
 import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorage
@@ -22,6 +24,7 @@ import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorageMigration
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.base.HasDataAttachments
 import org.taktik.icure.entities.embed.DataAttachment
+import org.taktik.icure.entities.embed.DeletedAttachment
 import org.taktik.icure.entities.objectstorage.ObjectStorageMigrationTask
 import org.taktik.icure.properties.ObjectStorageProperties
 
@@ -75,7 +78,11 @@ private abstract class IcureObjectStorageMigrationImpl<T : HasDataAttachments<T>
 		dao.get(task.entityId)?.let { entity ->
 			entity.findMigrationTargetKeyAndAttachment(task.attachmentId)?.let { (key, dataAttachment) ->
 				if (objectStorage.hasStoredAttachment(entity, task.attachmentId)) {
-					runCatching { doMigration(entity, key, dataAttachment) }.isSuccess // If migration fails (e.g. someone else modified the attachment concurrently) we want to retry later
+					runCatching {
+						doMigration(entity, key, dataAttachment)
+					}.onFailure {
+						logger.warn("Failed to migrate attachment ${task.attachmentId}@${task.entityId}", it)
+					}.isSuccess // If migration fails (e.g. someone else modified the attachment concurrently) we want to retry later
 				} else {
 					false // The document was not yet uploaded, we will retry to migrate later
 				}
@@ -101,7 +108,8 @@ private abstract class IcureObjectStorageMigrationImpl<T : HasDataAttachments<T>
 				rev = newRev,
 				attachments = newAttachments,
 				dataAttachmentKey = key,
-				newDataAttachment = newDataAttachment
+				newDataAttachment = newDataAttachment,
+				newDeletedAttachment = DeletedAttachment(dataAttachment.couchDbAttachmentId, null, key, System.currentTimeMillis())
 			)
 		)
 	}
@@ -113,8 +121,13 @@ private abstract class IcureObjectStorageMigrationImpl<T : HasDataAttachments<T>
 		rev: String,
 		attachments: Map<String, Attachment>?,
 		dataAttachmentKey: String,
-		newDataAttachment: DataAttachment
+		newDataAttachment: DataAttachment,
+		newDeletedAttachment: DeletedAttachment
 	): T
+
+	companion object {
+		private val logger = LoggerFactory.getLogger(IcureObjectStorageMigrationImpl::class.java)
+	}
 }
 
 @Service
@@ -134,7 +147,8 @@ class DocumentObjectStorageMigrationImpl(
 		rev: String,
 		attachments: Map<String, Attachment>?,
 		dataAttachmentKey: String,
-		newDataAttachment: DataAttachment
+		newDataAttachment: DataAttachment,
+		newDeletedAttachment: DeletedAttachment
 	): Document =
-		copy(rev = rev, attachments = attachments).withUpdatedDataAttachment(dataAttachmentKey, newDataAttachment)
+		copy(rev = rev, attachments = attachments, deletedAttachments = deletedAttachments + newDeletedAttachment).withUpdatedDataAttachment(dataAttachmentKey, newDataAttachment)
 }

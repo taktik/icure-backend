@@ -74,10 +74,12 @@ private class LocalObjectStorageImpl<T : HasDataAttachments<T>>(
 
 	override fun storing(entity: T, attachmentId: String, attachment: Flow<DataBuffer>): Flow<DataBuffer> = flow {
 		val filepath = toFilePath(entity.id, attachmentId)
-		if (!Files.exists(filepath) && writeLocks.add(entity.id to attachmentId)) withContext(Dispatchers.IO) {
+		if (!Files.exists(filepath) && writeLocks.add(entity.id to attachmentId)) {
 			runCatching {
-				filepath.parent.toFile().mkdirs()
-				RandomAccessFile(filepath.toFile(), "rw")
+				withContext(Dispatchers.IO) {
+					filepath.parent.toFile().mkdirs()
+					RandomAccessFile(filepath.toFile(), "rw")
+				}
 			}.getOrNull()?.channel?.use { channel ->
 				val writeError =
 					attachment.fold(false) { hadError, dataBuffer ->
@@ -86,7 +88,9 @@ private class LocalObjectStorageImpl<T : HasDataAttachments<T>>(
 							true
 						} else {
 							runCatching {
-								dataBuffer.writeTo(channel)
+								withContext(Dispatchers.IO) {
+									dataBuffer.writeTo(channel)
+								}
 							}.isFailure.also { emit(dataBuffer) }
 						}
 					}

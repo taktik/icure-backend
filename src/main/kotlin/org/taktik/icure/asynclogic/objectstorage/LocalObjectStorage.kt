@@ -31,7 +31,7 @@ interface LocalObjectStorage<T : HasDataAttachments<T>> {
 	suspend fun store(entity: T, attachmentId: String, attachment: Flow<DataBuffer>): Boolean
 
 	/**
-	 * Marks an attachment for storing in cache. The attachment will be stored in cache only when the returned flow gets collected.
+	 * Marks an attachment for storing in cache. The attachment will be stored in cache only as the returned flow gets collected.
 	 * @param entity entity which owns the attachment.
 	 * @param attachmentId id of the attachment
 	 * @param attachment value of the attachment
