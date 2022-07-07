@@ -113,16 +113,15 @@ class IcureObjectStorageMigrationTest : StringSpec({
 		)
 	}
 
-	suspend fun migrate() {
-		icureObjectStorageMigration.preMigrate(document1, attachment1, bytes1.byteSizeDataBufferFlow())
-		icureObjectStorageMigration.scheduleMigrateAttachment(document1, attachment1)
-		icureObjectStorageMigration.isMigrating(document1, attachment1) shouldBe true
+	fun migrate() {
+		icureObjectStorageMigration.scheduleMigrateAttachment(migrationDocument, attachment1)
+		icureObjectStorageMigration.isMigrating(migrationDocument, attachment1) shouldBe true
 	}
 
 	fun setupSuccessfulMigrationDocumentDAOMock() {
-		coEvery { documentDAO.get(document1.id) } returns migrationDocument
-		coEvery { documentDAO.getAttachment(document1.id, migrationDocument.attachmentId!!) } returns flowOf(ByteBuffer.wrap(bytes1))
-		coEvery { documentDAO.deleteAttachment(document1.id, "0", attachment1) } returns "1"
+		coEvery { documentDAO.get(migrationDocument.id) } returns migrationDocument
+		coEvery { documentDAO.getAttachment(migrationDocument.id, migrationDocument.attachmentId!!) } returns flowOf(ByteBuffer.wrap(bytes1))
+		coEvery { documentDAO.deleteAttachment(migrationDocument.id, "0", attachment1) } returns "1"
 		coEvery { documentDAO.save(any()) } answers { firstArg<Document>().withIdRev(null, "2") }
 	}
 
@@ -185,13 +184,15 @@ class IcureObjectStorageMigrationTest : StringSpec({
 	}
 
 	"Migration task should be canceled without updating the document if someone else completed migration" {
-		coEvery { documentDAO.get(document1.id) } returns sampleMigrationUpdateDocument.withIdRev(null, "2")
+		coEvery { documentDAO.getAttachment(migrationDocument.id, attachment1) } returns flowOf(ByteBuffer.wrap(bytes1))
+		coEvery { documentDAO.get(migrationDocument.id) } returns sampleMigrationUpdateDocument.withIdRev(null, "2")
 		migrate()
 		delay(TEST_MIGRATION_DELAY * 3 / 2)
 		verifyMigrationCompletedUnsuccessfully()
 	}
 
 	"Migration task should be canceled without updating the document if the attachment changed" {
+		coEvery { documentDAO.getAttachment(migrationDocument.id, attachment1) } returns flowOf(ByteBuffer.wrap(bytes1))
 		coEvery { documentDAO.get(document1.id) } returns Document(
 			document1.id,
 			rev = "1",
@@ -205,7 +206,8 @@ class IcureObjectStorageMigrationTest : StringSpec({
 		verifyMigrationCompletedUnsuccessfully()
 	}
 
-	"In case of concurrent modifications migration task should not delete attachment and be retried later" {
+	"In case of concurrent modifications migration task should be retried later" {
+		coEvery { documentDAO.getAttachment(migrationDocument.id, attachment1) } returns flowOf(ByteBuffer.wrap(bytes1))
 		coEvery { documentDAO.get(document1.id) } returns migrationDocument
 		coEvery { documentDAO.deleteAttachment(document1.id, "0", attachment1) } throws CouchDbConflictException("Document update conflict", SC_CONFLICT, "Conflict")
 		migrate()

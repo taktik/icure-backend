@@ -52,7 +52,7 @@ class DocumentLogicImpl(
 						createdDocument,
 						DataAttachmentChange.CreateOrUpdate(
 							flowOf(DefaultDataBufferFactory.sharedInstance.wrap(initialMainAttachment)),
-							initialMainAttachment.size,
+							initialMainAttachment.size.toLong(),
 							listOfNotNull(fixedDocument.mainUti) + fixedDocument.otherUtis
 						)
 					)

@@ -142,6 +142,10 @@ private abstract class DataAttachmentModificationLogicImpl<T : HasDataAttachment
 		utis: List<String>
 	): Pair<DataAttachment, AttachmentTask> =
 		if (change.size == null || change.size >= objectStorageProperties.sizeLimit)
+			/*TODO
+			 * if size is null we could actually buffer until we reach size limit or the end of the flow. If we reach size limit
+			 * we go to object storage, passing all the buffered data and the rest of the flow, else we create the couchdb attachment.
+			 */
 			tryCreateObjectStorageAttachment(entity, change, utis) ?: createCouchDbAttachment(change, utis)
 		else
 			createCouchDbAttachment(change, utis)

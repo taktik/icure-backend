@@ -68,7 +68,7 @@ interface DataAttachmentModificationLogic<T : HasDataAttachments<T>> {
 		 */
 		data class CreateOrUpdate(
 			val data: Flow<DataBuffer>,
-			val size: Int?,
+			val size: Long?,
 			val utis: List<String>?
 		) : DataAttachmentChange()
 	}

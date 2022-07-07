@@ -85,31 +85,16 @@ class DataAttachmentLoaderTest : StringSpec({
 		loader.contentBytesOf(sampleDocument, key1) shouldContainExactly bigAttachment
 	}
 
-	"Loading a big attachment stored in couch db should (in normal circumstances) trigger a migration task" {
+	"Loading a big attachment stored in couch db should trigger a migration task" {
 		every { objectStorageMigration.isMigrating(sampleDocument, attachment1) } returns false
 		every { attachmentStub.contentLength } returns bigAttachment.size.toLong()
 		every { objectStorage.tryReadCachedAttachment(sampleDocument, attachment1) } returns null
 		every { dao.getAttachment(sampleDocument.id, attachment1, null) } returns flowOf(ByteBuffer.wrap(bigAttachment))
-		coEvery { objectStorageMigration.preMigrate(sampleDocument, attachment1, any()) } returns true
 		coEvery { objectStorageMigration.scheduleMigrateAttachment(sampleDocument, attachment1) } just Runs
 		loader.contentBytesOf(sampleDocument, key1) shouldContainExactly bigAttachment
-		coVerifyOrder {
-			objectStorageMigration.preMigrate(
-				sampleDocument,
-				attachment1,
-				coWithArg { it.toByteArray(true) shouldContainExactly bigAttachment }
-			)
+		coVerify(exactly = 1) {
 			objectStorageMigration.scheduleMigrateAttachment(sampleDocument, attachment1)
 		}
-	}
-
-	"Loading a big attachment stored in couch db should not trigger a migration task if attachment could not be pre-stored" {
-		every { objectStorageMigration.isMigrating(sampleDocument, attachment1) } returns false
-		every { attachmentStub.contentLength } returns bigAttachment.size.toLong()
-		every { objectStorage.tryReadCachedAttachment(sampleDocument, attachment1) } returns null
-		every { dao.getAttachment(sampleDocument.id, attachment1, null) } returns flowOf(ByteBuffer.wrap(bigAttachment))
-		coEvery { objectStorageMigration.preMigrate(sampleDocument, attachment1, any()) } returns false
-		loader.contentBytesOf(sampleDocument, key1) shouldContainExactly bigAttachment
 	}
 
 	"Loading the attachment as a flow should not cache the content" {

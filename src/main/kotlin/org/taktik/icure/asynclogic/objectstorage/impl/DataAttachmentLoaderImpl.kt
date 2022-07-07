@@ -50,19 +50,8 @@ class DataAttachmentLoaderImpl<T : HasDataAttachments<T>>(
 		} ?: attachment.couchDbAttachmentId!!.let { attachmentId ->
 			if (icureObjectStorageMigration.isMigrating(target, attachmentId)) {
 				icureObjectStorage.tryReadCachedAttachment(target, attachmentId) ?: loadCouchDbAttachment(target, attachmentId)
-			} else if (shouldMigrate(target, attachmentId)) {
-				flow {
-					/*TODO
-					 * This will actually load the attachment from couchdb twice, one to store it for pre-migrate, and one to return the result.
-					 * What to we prefer between this and temporarily storing the full byte content of the attachment in memory, considering that
-					 * this code is only executed when we migrate an attachment anyway.
-					 */
-					if (tryPreMigrate(target, attachmentId)) {
-						icureObjectStorageMigration.scheduleMigrateAttachment(target, attachmentId)
-					}
-					emitAll(icureObjectStorage.tryReadCachedAttachment(target, attachmentId) ?: loadCouchDbAttachment(target, attachmentId))
-				}
 			} else {
+				if (shouldMigrate(target, attachmentId)) icureObjectStorageMigration.scheduleMigrateAttachment(target, attachmentId)
 				loadCouchDbAttachment(target, attachmentId)
 			}
 		}
@@ -74,10 +63,6 @@ class DataAttachmentLoaderImpl<T : HasDataAttachments<T>>(
 		// TODO maybe we want to have a bigger size limit for migration, to limit the amount of migration task actually executed
 		objectStorageProperties.backlogToObjectStorage
 			&& target.attachments?.get(attachmentId)?.let { it.contentLength >= objectStorageProperties.sizeLimit } == true
-
-	private suspend fun tryPreMigrate(target: T, attachmentId: String) =
-		!icureObjectStorageMigration.isMigrating(target, attachmentId)
-			&& icureObjectStorageMigration.preMigrate(target, attachmentId, loadCouchDbAttachment(target, attachmentId))
 }
 
 @Service

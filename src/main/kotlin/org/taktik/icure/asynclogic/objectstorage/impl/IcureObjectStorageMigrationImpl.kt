@@ -8,10 +8,12 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asyncdao.GenericDAO
@@ -47,18 +49,17 @@ private abstract class IcureObjectStorageMigrationImpl<T : HasDataAttachments<T>
 	override fun isMigrating(entity: T, attachmentId: String): Boolean =
 		migrationTaskSet.contains(entity.id to attachmentId)
 
-	override suspend fun preMigrate(entity: T, attachmentId: String, content: Flow<DataBuffer>): Boolean =
-		objectStorage.preStore(entity, attachmentId, content)
-
-	override suspend fun scheduleMigrateAttachment(entity: T, attachmentId: String) {
-		if (migrationTaskSet.add(entity.id to attachmentId)) {
-			objectStorage.scheduleStoreAttachment(entity, attachmentId)
-			val task = ObjectStorageMigrationTask.of(entity, attachmentId)
-			objectStorageMigrationTasksDao.save(task)
-			taskExecutorScope.launch {
+	override fun scheduleMigrateAttachment(entity: T, attachmentId: String) {
+		if (migrationTaskSet.add(entity.id to attachmentId)) taskExecutorScope.launch {
+			if (loadAttachment(entity, attachmentId)?.let { objectStorage.preStore(entity, attachmentId, it) } == true) {
+				objectStorage.scheduleStoreAttachment(entity, attachmentId)
+				val task = ObjectStorageMigrationTask.of(entity, attachmentId)
+				objectStorageMigrationTasksDao.save(task)
 				do {
 					delay(objectStorageProperties.migrationDelayMs)
 				} while (!tryMigration(task))
+			} else {
+				migrationTaskSet.remove(entity.id to attachmentId)
 			}
 		}
 	}
@@ -116,6 +117,9 @@ private abstract class IcureObjectStorageMigrationImpl<T : HasDataAttachments<T>
 
 	private fun T.findMigrationTargetKeyAndAttachment(attachmentId: String): Pair<String, DataAttachment>? =
 		dataAttachments.toList().firstOrNull { (_, dataAttachment) -> dataAttachment.couchDbAttachmentId == attachmentId }
+
+	private fun loadAttachment(entity: T, attachmentId: String): Flow<DataBuffer>? =
+		runCatching { dao.getAttachment(entity.id, attachmentId) }.getOrNull()?.map { DefaultDataBufferFactory.sharedInstance.wrap(it) }
 
 	protected abstract fun T.updateWith(
 		rev: String,
