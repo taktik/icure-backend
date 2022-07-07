@@ -24,7 +24,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 import org.taktik.icure.services.external.rest.v1.dto.base.AppendixTypeDto
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeFlagDto
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeIdentificationDto
-import org.taktik.icure.services.external.rest.v1.dto.base.LinkQualificationDto
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.PeriodicityDto
 

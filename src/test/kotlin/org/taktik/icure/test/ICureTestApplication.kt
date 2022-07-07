@@ -2,7 +2,6 @@ package org.taktik.icure.test
 
 import javax.annotation.PreDestroy
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.reactive.asFlow

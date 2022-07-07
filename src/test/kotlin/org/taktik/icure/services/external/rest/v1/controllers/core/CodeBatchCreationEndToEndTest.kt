@@ -109,7 +109,7 @@ class CodeBatchCreationEndToEndTest @Autowired constructor(
 		// Check that the provided response is correct
 		assertEquals(batch.size, response.size)
 		response.forEach {
-			assert(batch.contains(it))
+			assert(batch.contains(it.copy(rev = null)))
 		}
 
 		// Check that all the new codes are in the database

@@ -30,7 +30,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.collect.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
@@ -134,25 +133,27 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 
 	// Do we need fix? No annotations on code
 	override fun modify(batch: List<Code>) = flow {
-		emitAll(modifyEntities(
-			batch.fold(mapOf<String, Code>()) { acc, code ->    // First, I check that all the codes are valid
-				code.code ?: error("Code field is null")
-				code.type ?: error("Type field is null")
-				code.version ?: error("Version field is null")
-				code.rev ?: error("rev field is null")
+		emitAll(
+			modifyEntities(
+				batch.fold(mapOf<String, Code>()) { acc, code -> // First, I check that all the codes are valid
+					code.code ?: error("Code field is null")
+					code.type ?: error("Type field is null")
+					code.version ?: error("Version field is null")
+					code.rev ?: error("rev field is null")
 
-				if (code.id != "${code.type}|${code.code}|${code.version}") error("Code id does not match the code, type or version value")
-				if (acc.contains(code.id)) error("The batch contains a duplicate")
+					if (code.id != "${code.type}|${code.code}|${code.version}") error("Code id does not match the code, type or version value")
+					if (acc.contains(code.id)) error("The batch contains a duplicate")
 
-				acc + (code.id to code)
-			}
-			.map {
-				it.value
-			}
-			.also { codeList ->
-				if (getCodes(codeList.map { it.id }).count() != batch.size) error("You are trying to modify a code that does not exists")
-			}.toSet()
-		))
+					acc + (code.id to code)
+				}
+					.map {
+						it.value
+					}
+					.also { codeList ->
+						if (getCodes(codeList.map { it.id }).count() != batch.size) error("You are trying to modify a code that does not exists")
+					}.toSet()
+			)
+		)
 	}
 
 	override fun findCodeTypes(type: String?) = flow<String> {

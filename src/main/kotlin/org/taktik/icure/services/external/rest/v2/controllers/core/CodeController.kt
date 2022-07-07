@@ -27,10 +27,8 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flattenMerge
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
@@ -276,13 +274,12 @@ class CodeController(
 	@PutMapping("/batch")
 	fun modifyCodes(@RequestBody codeBatch: List<CodeDto>) =
 		codeLogic.modify(codeBatch.map { codeV2Mapper.map(it) })
-		.catch { e ->
-			if (e is IllegalStateException) throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
-			else throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding modification of the code. Read the app logs: " + e.message)
-		}
-		.map { codeV2Mapper.map(it) }
-		.injectReactorContext()
-
+			.catch { e ->
+				if (e is IllegalStateException) throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+				else throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding modification of the code. Read the app logs: " + e.message)
+			}
+			.map { codeV2Mapper.map(it) }
+			.injectReactorContext()
 
 	@Operation(summary = "Filter codes ", description = "Returns a list of codes along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
 	@PostMapping("/filter")

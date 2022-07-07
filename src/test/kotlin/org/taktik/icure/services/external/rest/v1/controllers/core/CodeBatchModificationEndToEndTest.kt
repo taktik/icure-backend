@@ -5,11 +5,10 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.SingletonSupport
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,10 +16,10 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.context.ActiveProfiles
 import org.taktik.icure.asynclogic.CodeLogic
-import org.taktik.icure.test.CodeBatchGenerator
-import org.taktik.icure.test.ICureTestApplication
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeMapper
+import org.taktik.icure.test.CodeBatchGenerator
+import org.taktik.icure.test.ICureTestApplication
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Flux.zip
 import reactor.netty.ByteBufFlux
@@ -43,7 +42,7 @@ class CodeBatchModificationEndToEndTest @Autowired constructor(
 	val apiHost = System.getenv("ICURE_BE_URL") ?: "http://localhost"
 	val apiEndpoint: String = System.getenv("ENDPOINT_TO_TEST") ?: "/rest/v1"
 	private final val codeGenerator = CodeBatchGenerator()
-	private final val batchSize = 42
+	private final val batchSize = 1001
 	var existingCodes: List<CodeDto> = listOf()
 
 	val objectMapper: ObjectMapper by lazy {
@@ -104,7 +103,7 @@ class CodeBatchModificationEndToEndTest @Autowired constructor(
 
 		responseCodes.zip(requestCodes).forEach {
 			assertNotEquals(it.second.rev, it.first.rev)
-			assertEquals(it.second.copy(rev=""), it.first.copy(rev=""))
+			assertEquals(it.second.copy(rev = ""), it.first.copy(rev = ""))
 		}
 
 		// Check that all the new codes are in the database
@@ -302,6 +301,4 @@ class CodeBatchModificationEndToEndTest @Autowired constructor(
 
 		verifyExistingCodes(existingCodes)
 	}
-
-
 }
