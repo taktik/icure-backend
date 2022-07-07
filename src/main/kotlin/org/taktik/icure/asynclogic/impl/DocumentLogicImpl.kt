@@ -44,22 +44,11 @@ class DocumentLogicImpl(
 	private val attachmentModificationLogic: DocumentDataAttachmentModificationLogic
 ) : GenericLogicImpl<Document, DocumentDAO>(sessionLogic), DocumentLogic {
 
-	override suspend fun createDocument(document: Document, initialMainAttachment: ByteArray?, ownerHealthcarePartyId: String) = fix(document) { fixedDocument ->
+	override suspend fun createDocument(document: Document, ownerHealthcarePartyId: String, strict: Boolean) = fix(document) { fixedDocument ->
+		if (strict) strictCheckNewDocument(fixedDocument)
 		runCatching {
-			if (initialMainAttachment != null) {
-				createEntities(setOf(fixedDocument.withUpdatedMainAttachment(null))).firstOrNull()?.let { createdDocument ->
-					updateAttachments(
-						createdDocument,
-						DataAttachmentChange.CreateOrUpdate(
-							flowOf(DefaultDataBufferFactory.sharedInstance.wrap(initialMainAttachment)),
-							initialMainAttachment.size.toLong(),
-							listOfNotNull(fixedDocument.mainUti) + fixedDocument.otherUtis
-						)
-					)
-				}
-			} else {
-				createEntities(setOf(fixedDocument)).firstOrNull()
-			}
+			// TODO ownerHealthcarePartyId was ignored before as well...
+			createEntities(setOf(fixedDocument)).firstOrNull()
 		}.fold(
 			onSuccess = { it },
 			onFailure = { throw CreationException("Could not create document. ", it) }
@@ -80,7 +69,7 @@ class DocumentLogicImpl(
 		emitAll(documentDAO.readAttachment(documentId, attachmentId, null))
 	}
 
-	override suspend fun modifyDocument(updatedDocument: Document, strict: Boolean, currentDocument: Document?): Document? = fix(updatedDocument) { newDoc ->
+	override suspend fun modifyDocument(updatedDocument: Document, currentDocument: Document?, strict: Boolean): Document? = fix(updatedDocument) { newDoc ->
 		val baseline = requireNotNull(currentDocument ?: getDocument(newDoc.id)) {
 			"Attempting to modify a non-existing document ${newDoc.id}."
 		}
@@ -91,6 +80,20 @@ class DocumentLogicImpl(
 				.let { attachmentModificationLogic.ensureValidAttachmentChanges(baseline, it, strict) }
 		)
 	}
+
+	override fun createOrModifyDocuments(documents: List<DocumentLogic.BatchUpdateDocumentInfo>, ownerHealthcarePartyId: String, strict: Boolean): Flow<Document> =
+		documentDAO.save(
+			documents.map { (newDoc, prevDoc) ->
+				if (prevDoc != null) {
+					newDoc
+						.copy(attachments = prevDoc.attachments)
+						.let { attachmentModificationLogic.ensureValidAttachmentChanges(prevDoc, it, strict) }
+				} else {
+					if (strict) strictCheckNewDocument(newDoc)
+					newDoc
+				}
+			}
+		)
 
 	override suspend fun updateAttachments(
 		currentDocument: Document,
@@ -121,7 +124,7 @@ class DocumentLogicImpl(
 		emitAll(documentDAO.listDocumentsWithNoDelegations(limit))
 	}
 
-	override fun modifyDocuments(documents: List<Document>): Flow<Document> = flow {
+	override fun unsafeModifyDocuments(documents: List<Document>): Flow<Document> = flow {
 		emitAll(documentDAO.save(documents))
 	}
 
@@ -139,5 +142,14 @@ class DocumentLogicImpl(
 
 	override fun getGenericDAO(): DocumentDAO {
 		return documentDAO
+	}
+
+	private fun strictCheckNewDocument(document: Document) {
+		require(document.dataAttachments.isEmpty()) {
+			"New document can't provide any attachment information."
+		}
+		require(document.deletedAttachments.isEmpty()) {
+			"New document can't specify deleted attachments."
+		}
 	}
 }

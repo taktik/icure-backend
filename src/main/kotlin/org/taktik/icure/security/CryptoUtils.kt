@@ -293,6 +293,7 @@ object CryptoUtils {
 				bb.putLong(uuid.leastSignificantBits)
 				bb.array()
 			} else {
+				// TODO this should be a require: if the key is not even length it is the user fault, we are not in an illegal state
 				check(it.length % 2 == 0) { "Must have an even length" }
 
 				it.chunked(2)

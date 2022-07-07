@@ -68,7 +68,7 @@ class DiaryNoteExport(
 	sessionLogic: AsyncSessionLogic,
 	userLogic: UserLogic,
 	filters: org.taktik.icure.asynclogic.impl.filter.Filters,
-	documentDataAttachmentLoader: DocumentDataAttachmentLoader
+	private val documentDataAttachmentLoader: DocumentDataAttachmentLoader
 ) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters, documentDataAttachmentLoader) {
 	override val log = LogFactory.getLog(DiaryNoteExport::class.java)
 
@@ -153,7 +153,7 @@ class DiaryNoteExport(
 		folder.transactions.add(trn)
 		if (documentId?.isNotEmpty() == true && attachmentId?.isNotEmpty() == true) {
 			val document = documentLogic.getDocument(documentId)
-			val attachment = document?.decryptAttachment(sfks)
+			val attachment = document?.let { documentDataAttachmentLoader.decryptMainAttachment(it, sfks) }
 			if (attachment != null) {
 				trn.headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(document); value = attachment })
 			}

@@ -1,15 +1,12 @@
 package org.taktik.icure.asynclogic.objectstorage.impl
 
+import java.security.GeneralSecurityException
+import java.security.KeyException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.stereotype.Service
-import org.taktik.couchdb.entity.Attachment
-import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asynclogic.objectstorage.DataAttachmentLoader
@@ -22,7 +19,9 @@ import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.base.HasDataAttachments
 import org.taktik.icure.entities.embed.DataAttachment
 import org.taktik.icure.properties.ObjectStorageProperties
-import org.taktik.icure.utils.toByteArray
+import org.taktik.icure.security.CryptoUtils
+import org.taktik.icure.security.CryptoUtils.isValidAesKey
+import org.taktik.icure.security.CryptoUtils.keyFromHexString
 
 class DataAttachmentLoaderImpl<T : HasDataAttachments<T>>(
 	private val dao: GenericDAO<T>,
@@ -76,4 +75,28 @@ class DocumentDataAttachmentLoaderImpl(
 	objectStorage,
 	objectStorageMigration,
 	objectStorageProperties
-)
+) {
+	override suspend fun decryptAttachment(document: Document?, enckeys: String?, retrieveAttachment: Document.() -> DataAttachment?): ByteArray? =
+		decryptAttachment(document, if (enckeys.isNullOrBlank()) null else enckeys.split(','), retrieveAttachment)
+
+	override suspend fun decryptAttachment(document: Document?, enckeys: List<String?>?, retrieveAttachment: Document.() -> DataAttachment?): ByteArray? =
+		contentBytesOfNullable(document, retrieveAttachment)?.let { content ->
+			enckeys
+				?.asSequence()
+				?.filterNotNull()
+				?.filter { sfk -> sfk.keyFromHexString().isValidAesKey() }
+				?.mapNotNull { sfk ->
+					try {
+						CryptoUtils.decryptAES(content, sfk.keyFromHexString())
+					} catch (_: GeneralSecurityException) {
+						null
+					} catch (_: KeyException) {
+						null
+					} catch (_: IllegalArgumentException) {
+						null
+					}
+				}
+				?.firstOrNull()
+				?: content
+		}
+}

@@ -38,6 +38,7 @@ import java.util.regex.Pattern
 import com.google.common.base.Strings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
 import org.springframework.core.io.ByteArrayResource
@@ -48,6 +49,7 @@ import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.asynclogic.FormLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.objectstorage.DocumentDataAttachmentLoader
 import org.taktik.icure.be.format.logic.MedidocLogic
 import org.taktik.icure.dto.result.ResultInfo
 import org.taktik.icure.entities.Contact
@@ -63,7 +65,12 @@ import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.utils.FuzzyValues
 
 @Service
-class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: FormLogic, val contactLogic: ContactLogic) : GenericResultFormatLogicImpl(healthcarePartyLogic, formLogic), MedidocLogic {
+class MedidocLogicImpl(
+	healthcarePartyLogic: HealthcarePartyLogic,
+	formLogic: FormLogic,
+	val contactLogic: ContactLogic,
+	private val documentDataAttachmentLoader: DocumentDataAttachmentLoader
+) : GenericResultFormatLogicImpl(healthcarePartyLogic, formLogic, documentDataAttachmentLoader), MedidocLogic {
 	private val p1 = Pattern.compile("^#A.*$")
 	private val p2 = Pattern.compile("^#R[a-zA-Z]*\\s*$")
 	private val p3 = Pattern.compile("^#A/\\s*$")
@@ -81,7 +88,7 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
 		var hasRHash = false
 		var hasRHashSlash = false
 		var hasFinalTag = false
-		val text = decodeRawData(doc.decryptAttachment(enckeys))
+		val text = decodeRawData(runBlocking { documentDataAttachmentLoader.decryptMainAttachment(doc, enckeys) })
 		if (text != null) {
 			val reader = BufferedReader(StringReader(text))
 			while (reader.readLine()?.also { line ->

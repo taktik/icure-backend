@@ -25,10 +25,19 @@ import org.taktik.icure.asynclogic.objectstorage.DataAttachmentModificationLogic
 import org.taktik.icure.entities.Document
 
 interface DocumentLogic : EntityPersister<Document, String> {
+	/**
+	 * Creates a new document.
+	 * When using this method in a strict way it is going to first verify that the document does not specify any attachment information,
+	 * throwing an [IllegalArgumentException] if it does.
+	 * When using this method in a lenient way there is no restriction on how the document can be created.
+	 * @param document the document to create
+	 * @param ownerHealthcarePartyId TODO currently ignored
+	 * @param strict specifies whether to behave in a strict or lenient way.
+	 */
 	suspend fun createDocument(
 		document: Document,
-		initialMainAttachment: ByteArray?,
-		ownerHealthcarePartyId: String
+		ownerHealthcarePartyId: String,
+		strict: Boolean
 	): Document?
 
 	suspend fun getDocument(documentId: String): Document?
@@ -43,13 +52,29 @@ interface DocumentLogic : EntityPersister<Document, String> {
 	 * - **lenient**: updates all other values, leaving data attachment information unchanged.
 	 * This method still allows updating non-id attachment information such as utis.
 	 * @param updatedDocument the new version of the document
-	 * @param strict specifies whether to behave in a strict or lenient way.
 	 * @param currentDocument the current document if already available, else null
+	 * @param strict specifies whether to behave in a strict or lenient way.
 	 * @return the updated document.
-	 * @throws IllegalArgumentException if strict and the updated document data attachment information is inconsistent
-	 * with the current document.
 	 */
-	suspend fun modifyDocument(updatedDocument: Document, strict: Boolean = true, currentDocument: Document? = null): Document?
+	suspend fun modifyDocument(updatedDocument: Document, currentDocument: Document?, strict: Boolean): Document?
+
+	/**
+	 * Create or modify multiple documents at once.
+	 * This method can be executed both in a strict or lenient way. The strict and lenient behaviours are equivalent
+	 * to [createDocument] for documents which will be newly created or to [modifyDocument] for documents which will be
+	 * updated.
+	 * If running in strict mode all documents will be checked before performing any modification, therefore if this throws
+	 * [IllegalArgumentException] due to invalid document values no change has been performed to the stored data.
+	 * @param documents information on documents to create / modify.
+	 * @param ownerHealthcarePartyId TODO currently ignored, but here for consistency with [createDocument]
+	 * @param strict specifies whether to behave in a strict or lenient way.
+	 * @return the updated documents.
+	 */
+	fun createOrModifyDocuments(
+		documents: List<BatchUpdateDocumentInfo>,
+		ownerHealthcarePartyId: String,
+		strict: Boolean
+	): Flow<Document>
 
 	/**
 	 * Updates the attachments for a document. For additional details check [DataAttachmentChange].
@@ -69,9 +94,21 @@ interface DocumentLogic : EntityPersister<Document, String> {
 	fun listDocumentsByHCPartySecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>
 	fun listDocumentsWithoutDelegation(limit: Int): Flow<Document>
 	fun getDocuments(documentIds: List<String>): Flow<Document>
-	fun modifyDocuments(documents: List<Document>): Flow<Document>
+
+	/**
+	 * Allows the modification of multiple documents at a time in an unsafe way: this means the method will not ensure that the document update will
+	 * not change any attachment information.
+	 */
+	fun unsafeModifyDocuments(documents: List<Document>): Flow<Document>
 
 	fun solveConflicts(ids: List<String>?): Flow<Document>
 	fun getGenericDAO(): DocumentDAO
 	suspend fun getDocumentsByExternalUuid(documentId: String): List<Document>
+
+	/**
+	 * Information on a single document part of a batch updated.
+	 * @property newDocument new value for a document.
+	 * @property previousDocument the current version of the document or null if [newDocument] is a completely new document which will be created.
+	 */
+	data class BatchUpdateDocumentInfo(val newDocument: Document, val previousDocument: Document?)
 }

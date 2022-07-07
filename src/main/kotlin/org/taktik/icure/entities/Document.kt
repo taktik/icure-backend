@@ -185,29 +185,6 @@ data class Document(
 		)
 	}*/
 
-	fun decryptAttachment(enckeys: List<String?>?): ByteArray? {
-		/*
-		return enckeys
-			?.filterNotNull()
-			?.filter { sfk -> sfk.keyFromHexString().isValidAesKey() }
-			?.mapNotNull { sfk ->
-				try {
-					attachment?.let { CryptoUtils.decryptAES(it, sfk.keyFromHexString()) }
-				} catch (ignored: GeneralSecurityException) {
-					null
-				} catch (ignored: KeyException) {
-					null
-				} catch (ignored: IllegalArgumentException) {
-					null
-				}
-			}
-			?.firstOrNull()
-			?: attachment
-
-		 */
-		TODO("Update with new attachment design")
-	}
-
 	override fun withIdRev(id: String?, rev: String) =
 		if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 

@@ -45,6 +45,7 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.asynclogic.objectstorage.DocumentDataAttachmentLoader
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.diarynote.DiaryNoteLogic
@@ -101,6 +102,7 @@ class KmehrController(
 	val partnershipV2Mapper: PartnershipV2Mapper,
 	val importResultV2Mapper: ImportResultV2Mapper,
 	val incapacityExportInfoV2Mapper: IncapacityExportInfoV2Mapper,
+	private val documentDataAttachmentLoader: DocumentDataAttachmentLoader
 ) {
 	@Value("\${icure.version}")
 	internal val ICUREVERSION: String = "4.0.0"
@@ -650,7 +652,7 @@ class KmehrController(
 	) = mono {
 		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
 		val document = documentLogic.getDocument(documentId)
-		val attachment = document?.decryptAttachment(if (documentKey.isNullOrBlank()) null else documentKey.split(','))
+		val attachment = documentDataAttachmentLoader.decryptMainAttachment(document, documentKey)
 
 		attachment?.let {
 			softwareMedicalFileLogic.importSmfFile(

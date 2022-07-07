@@ -46,7 +46,7 @@ import org.taktik.icure.asynclogic.InsuranceLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.objectstorage.DocumentDataAttachmentLoader
-import org.taktik.icure.asynclogic.objectstorage.contentBytesOf
+import org.taktik.icure.asynclogic.objectstorage.contentBytesOfNullable
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils.makeMomentType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils.makeXMLGregorianCalendarFromFuzzyLong
@@ -1466,5 +1466,5 @@ class SoftwareMedicalFileExport(
 
 	// TODO do we also need to use secondary attachments here?
 	private suspend fun Document.attachment(): ByteArray? =
-		documentDataAttachmentLoader.contentBytesOf(this, Document::mainAttachment)
+		documentDataAttachmentLoader.contentBytesOfNullable(this, Document::mainAttachment)
 }

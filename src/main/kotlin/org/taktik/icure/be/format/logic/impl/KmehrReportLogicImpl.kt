@@ -25,13 +25,16 @@ import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import javax.xml.bind.JAXBContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import org.apache.commons.logging.LogFactory
 import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.FormLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.objectstorage.DataAttachmentModificationLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDMESSAGEvalues
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
@@ -139,13 +142,19 @@ class KmehrReportLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic
 											created = demandTimestamp ?: ctc.created,
 											modified = demandTimestamp ?: ctc.created,
 											name = "Protocol Document",
-
-											mainUti = utis.firstOrNull()?.identifier ?: "com.adobe.pdf",
-											otherUtis = (if (utis.size > 1) utis.subList(1, utis.size).map { it.identifier } else listOf<String>()).toSet()
 										),
-										lnk.value,
-										it
-									)?.id
+										it,
+										true
+									)?.let { createdDocument ->
+										documentLogic.updateAttachments(
+											createdDocument,
+											mainAttachmentChange = DataAttachmentModificationLogic.DataAttachmentChange.CreateOrUpdate(
+												flowOf(DefaultDataBufferFactory.sharedInstance.wrap(lnk.value)),
+												lnk.value.size.toLong(),
+												utis.takeIf { x -> x.isNotEmpty() }?.map { x -> x.identifier } ?: listOf("com.adobe.pdf")
+											)
+										)
+									}?.id
 								}
 							)
 						),

@@ -6,7 +6,6 @@ import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -64,25 +63,25 @@ class DataAttachmentLoaderTest : StringSpec({
 		every { objectStorageMigration.isMigrating(sampleDocument, attachment1) } returns false
 		every { attachmentStub.contentLength } returns smallAttachment.size.toLong()
 		every { dao.getAttachment(sampleDocument.id, attachment1, null) } returns flowOf(ByteBuffer.wrap(smallAttachment))
-		loader.contentBytesOf(sampleDocument, key1) shouldContainExactly smallAttachment
+		loader.contentBytesOfNullable(sampleDocument, key1) shouldContainExactly smallAttachment
 	}
 
 	"Loading an attachment stored with object storage should read the value from object storage" {
 		every { objectStorage.readAttachment(sampleDocument, attachment2) } returns bigAttachment.byteSizeDataBufferFlow()
-		loader.contentBytesOf(sampleDocument, key2) shouldContainExactly bigAttachment
+		loader.contentBytesOfNullable(sampleDocument, key2) shouldContainExactly bigAttachment
 	}
 
 	"Loading a migrating attachment should prioritize loading the attachment from cache" {
 		every { objectStorageMigration.isMigrating(sampleDocument, attachment1) } returns true
 		every { objectStorage.tryReadCachedAttachment(sampleDocument, attachment1) } returns bigAttachment.byteSizeDataBufferFlow()
-		loader.contentBytesOf(sampleDocument, key1) shouldContainExactly bigAttachment
+		loader.contentBytesOfNullable(sampleDocument, key1) shouldContainExactly bigAttachment
 	}
 
 	"Loading a migrating attachment should fallback to couch db if the attachment can't be loaded from cache" {
 		every { objectStorageMigration.isMigrating(sampleDocument, attachment1) } returns true
 		every { objectStorage.tryReadCachedAttachment(sampleDocument, attachment1) } returns null
 		every { dao.getAttachment(sampleDocument.id, attachment1, null) } returns flowOf(ByteBuffer.wrap(bigAttachment))
-		loader.contentBytesOf(sampleDocument, key1) shouldContainExactly bigAttachment
+		loader.contentBytesOfNullable(sampleDocument, key1) shouldContainExactly bigAttachment
 	}
 
 	"Loading a big attachment stored in couch db should trigger a migration task" {
@@ -91,7 +90,7 @@ class DataAttachmentLoaderTest : StringSpec({
 		every { objectStorage.tryReadCachedAttachment(sampleDocument, attachment1) } returns null
 		every { dao.getAttachment(sampleDocument.id, attachment1, null) } returns flowOf(ByteBuffer.wrap(bigAttachment))
 		coEvery { objectStorageMigration.scheduleMigrateAttachment(sampleDocument, attachment1) } just Runs
-		loader.contentBytesOf(sampleDocument, key1) shouldContainExactly bigAttachment
+		loader.contentBytesOfNullable(sampleDocument, key1) shouldContainExactly bigAttachment
 		coVerify(exactly = 1) {
 			objectStorageMigration.scheduleMigrateAttachment(sampleDocument, attachment1)
 		}
@@ -99,8 +98,8 @@ class DataAttachmentLoaderTest : StringSpec({
 
 	"Loading the attachment as a flow should not cache the content" {
 		every { objectStorage.readAttachment(sampleDocument, attachment2) } returns bigAttachment.byteSizeDataBufferFlow()
-		loader.contentFlowOf(sampleDocument, key2)?.toByteArray(true) shouldContainExactly bigAttachment
-		loader.contentFlowOf(sampleDocument, key2)?.toByteArray(true) shouldContainExactly bigAttachment
+		loader.contentFlowOfNullable(sampleDocument, key2)?.toByteArray(true) shouldContainExactly bigAttachment
+		loader.contentFlowOfNullable(sampleDocument, key2)?.toByteArray(true) shouldContainExactly bigAttachment
 		coVerify(exactly = 2) {
 			objectStorage.readAttachment(sampleDocument, attachment2)
 		}
@@ -108,8 +107,8 @@ class DataAttachmentLoaderTest : StringSpec({
 
 	"Loading the attachment as a byte array should cache the content" {
 		every { objectStorage.readAttachment(sampleDocument, attachment2) } returns bigAttachment.byteSizeDataBufferFlow()
-		loader.contentBytesOf(sampleDocument, key2) shouldContainExactly bigAttachment
-		loader.contentBytesOf(sampleDocument, key2) shouldContainExactly bigAttachment
+		loader.contentBytesOfNullable(sampleDocument, key2) shouldContainExactly bigAttachment
+		loader.contentBytesOfNullable(sampleDocument, key2) shouldContainExactly bigAttachment
 		coVerify(exactly = 1) {
 			objectStorage.readAttachment(sampleDocument, attachment2)
 		}
@@ -117,8 +116,8 @@ class DataAttachmentLoaderTest : StringSpec({
 
 	"Loading the attachment as a flow should reuse cached content if available" {
 		every { objectStorage.readAttachment(sampleDocument, attachment2) } returns bigAttachment.byteSizeDataBufferFlow()
-		loader.contentBytesOf(sampleDocument, key2) shouldContainExactly bigAttachment
-		loader.contentFlowOf(sampleDocument, key2)?.toByteArray(true) shouldContainExactly bigAttachment
+		loader.contentBytesOfNullable(sampleDocument, key2) shouldContainExactly bigAttachment
+		loader.contentFlowOfNullable(sampleDocument, key2)?.toByteArray(true) shouldContainExactly bigAttachment
 		coVerify(exactly = 1) {
 			objectStorage.readAttachment(sampleDocument, attachment2)
 		}

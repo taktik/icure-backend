@@ -34,26 +34,50 @@ interface DataAttachmentLoader<T : HasDataAttachments<T>> {
 /**
  * Nullable version of [DataAttachmentLoader.contentFlowOf]
  */
-fun <T : HasDataAttachments<T>> DataAttachmentLoader<T>.contentFlowOf(target: T?, retrieveAttachment: T.() -> DataAttachment?): Flow<DataBuffer>? =
+fun <T : HasDataAttachments<T>> DataAttachmentLoader<T>.contentFlowOfNullable(target: T?, retrieveAttachment: T.() -> DataAttachment?): Flow<DataBuffer>? =
 	target?.let { t -> t.retrieveAttachment()?.let { contentFlowOf(t) { it } } }
 
 /**
  * Automatically retrieve the attachment by key.
  */
-fun <T : HasDataAttachments<T>> DataAttachmentLoader<T>.contentFlowOf(target: T?, key: String): Flow<DataBuffer>? =
-	contentFlowOf(target) { dataAttachments[key] }
+fun <T : HasDataAttachments<T>> DataAttachmentLoader<T>.contentFlowOfNullable(target: T?, key: String): Flow<DataBuffer>? =
+	contentFlowOfNullable(target) { dataAttachments[key] }
 
 /**
  * Nullable version of [DataAttachmentLoader.contentBytesOf]
  */
-suspend fun <T : HasDataAttachments<T>> DataAttachmentLoader<T>.contentBytesOf(target: T?, retrieveAttachment: T.() -> DataAttachment?): ByteArray? =
+suspend fun <T : HasDataAttachments<T>> DataAttachmentLoader<T>.contentBytesOfNullable(target: T?, retrieveAttachment: T.() -> DataAttachment?): ByteArray? =
 	target?.let { t -> t.retrieveAttachment()?.let { contentBytesOf(t) { it } } }
 
 /**
  * Automatically retrieve the attachment by key.
  */
-suspend fun <T : HasDataAttachments<T>> DataAttachmentLoader<T>.contentBytesOf(target: T?, key: String): ByteArray? =
-	contentBytesOf(target) { dataAttachments[key] }
+suspend fun <T : HasDataAttachments<T>> DataAttachmentLoader<T>.contentBytesOfNullable(target: T?, key: String): ByteArray? =
+	contentBytesOfNullable(target) { dataAttachments[key] }
 
 
-interface DocumentDataAttachmentLoader: DataAttachmentLoader<Document>
+interface DocumentDataAttachmentLoader: DataAttachmentLoader<Document> {
+	suspend fun decryptAttachment(
+		document: Document?,
+		enckeys: String?,
+		retrieveAttachment: Document.() -> DataAttachment?
+	): ByteArray?
+
+	suspend fun decryptAttachment(
+		document: Document?,
+		enckeys: List<String?>?,
+		retrieveAttachment: Document.() -> DataAttachment?
+	): ByteArray?
+
+	suspend fun decryptMainAttachment(
+		document: Document?,
+		enckeys: String?
+	): ByteArray? =
+		decryptAttachment(document, enckeys, Document::mainAttachment)
+
+	suspend fun decryptMainAttachment(
+		document: Document?,
+		enckeys: List<String?>?
+	): ByteArray? =
+		decryptAttachment(document, enckeys, Document::mainAttachment)
+}

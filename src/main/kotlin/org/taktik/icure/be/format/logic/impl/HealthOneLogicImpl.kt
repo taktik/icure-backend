@@ -51,6 +51,7 @@ import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.FormLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.asynclogic.objectstorage.DocumentDataAttachmentLoader
 import org.taktik.icure.be.format.logic.HealthOneLogic
 import org.taktik.icure.dto.result.ResultInfo
 import org.taktik.icure.entities.Contact
@@ -65,14 +66,21 @@ import org.taktik.icure.entities.embed.Measure
 import org.taktik.icure.utils.FuzzyValues
 
 @Service
-class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: FormLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic, val contactLogic: ContactLogic) : GenericResultFormatLogicImpl(healthcarePartyLogic, formLogic), HealthOneLogic {
+class HealthOneLogicImpl(
+	healthcarePartyLogic: HealthcarePartyLogic,
+	formLogic: FormLogic,
+	val patientLogic: PatientLogic,
+	val documentLogic: DocumentLogic,
+	val contactLogic: ContactLogic,
+	private val documentDataAttachmentLoader: DocumentDataAttachmentLoader
+) : GenericResultFormatLogicImpl(healthcarePartyLogic, formLogic, documentDataAttachmentLoader), HealthOneLogic {
 	private val shortDateTimeFormatter = DateTimeFormatter.ofPattern("ddMMyyyy")
 
 	/* Import a series of protocols from a document into a contact
 
 	 */
 	override suspend fun doImport(language: String, doc: Document, hcpId: String?, protocolIds: List<String>, formIds: List<String>, planOfActionId: String?, ctc: Contact, enckeys: List<String>): Contact? {
-		val text = decodeRawData(doc.decryptAttachment(enckeys))
+		val text = decodeRawData(documentDataAttachmentLoader.decryptMainAttachment(doc, enckeys))
 		return if (text != null) {
 			val r: Reader = StringReader(text)
 			val lls = parseReportsAndLabs(language, protocolIds, r).filterNotNull()
