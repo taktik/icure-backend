@@ -108,7 +108,7 @@ class CodeBatchCreationEndToEndTest @Autowired constructor(
 
 		// Check that the provided response is correct
 		assertEquals(batch.size, response.size)
-		batch.forEach {
+		response.forEach {
 			assert(batch.contains(it))
 		}
 
@@ -193,7 +193,8 @@ class CodeBatchCreationEndToEndTest @Autowired constructor(
 
 		makePostRequest(
 			"$apiHost:$port$apiEndpoint",
-			stringBatch.replace("\\{ *\"DUMMY_LANG\" *: *\"DUMMY_VAL\" *}".toRegex(), "\"DUMMY\""), 400
+			stringBatch.replace("\\{ *\"DUMMY_LANG\" *: *\"DUMMY_VAL\" *}".toRegex(), "\"DUMMY\""),
+			400
 		)
 
 		// Check that none of the new codes exist in the DB

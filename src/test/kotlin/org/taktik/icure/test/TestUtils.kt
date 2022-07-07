@@ -44,6 +44,7 @@ class CodeBatchGenerator {
 	private val alphabet: List<Char> = ('a'..'z').toList() + ('A'..'Z') + ('0'..'9')
 	private val languages = listOf("en", "fr", "nl")
 	private val types = listOf("SNOMED", "LOINC", "TESTCODE", "DEEPSECRET")
+	private val regions = listOf("int", "fr", "be")
 
 	private fun generateRandomString(length: Int) = (1..length)
 		.map { _ -> alphabet[nextInt(0, alphabet.size)] }
@@ -62,9 +63,24 @@ class CodeBatchGenerator {
 				code = code,
 				version = version,
 				label = if (nextInt(0, 4) == 0) mapOf(lang to generateRandomString(nextInt(20, 100))) else mapOf(),
-				regions = if (nextInt(0, 4) == 0) setOf("int") else setOf(),
+				regions = if (nextInt(0, 4) == 0) setOf(regions[nextInt(0, regions.size)]) else setOf(),
 				qualifiedLinks = if (nextInt(0, 4) == 0) mapOf(generateRandomString(10) to List(nextInt(1, 4)) { generateRandomString(10) }) else mapOf(),
 				searchTerms = if (nextInt(0, 4) == 0) mapOf(generateRandomString(10) to List(nextInt(1, 4)) { generateRandomString(10) }.toSet()) else mapOf(),
 			)
+		}
+
+	fun randomCodeModification(code: CodeDto, modifyLabel: Boolean = false, modifyRegions: Boolean = false, modifyQualifiedLinks: Boolean = false, modifySearchTerms: Boolean = false) = code
+		.let {
+			if (modifyLabel && nextInt(0, 4) == 0) it.copy(label = mapOf(languages[nextInt(0, languages.size)] to generateRandomString(nextInt(20, 100))))
+			else it
+		}.let {
+			if (modifyRegions && nextInt(0, 4) == 0) it.copy(regions = setOf(regions[nextInt(0, regions.size)]))
+			else it
+		}.let {
+			if (modifyQualifiedLinks && nextInt(0, 4) == 0) it.copy(qualifiedLinks = mapOf(generateRandomString(10) to List(nextInt(1, 4)) { generateRandomString(10) }))
+			else it
+		}.let {
+			if (modifySearchTerms && nextInt(0, 4) == 0) it.copy(searchTerms = mapOf(generateRandomString(10) to List(nextInt(1, 4)) { generateRandomString(10) }.toSet()))
+			else it
 		}
 }

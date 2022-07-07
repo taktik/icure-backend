@@ -30,8 +30,10 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.collect.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
@@ -108,7 +110,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 	}
 
 	// Do we need fix? No annotations on code
-	override suspend fun batchCreate(batch: List<Code>) =
+	override suspend fun create(batch: List<Code>) =
 		batch.fold(setOf<Code>()) { acc, code ->	// First, I check that all the codes are valid
 			code.code ?: error("Code field is null")
 			code.type ?: error("Type field is null")
@@ -121,15 +123,36 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 			this.getCodes(codeList.map { it.id }).firstOrNull()?.let { duplicatedCode ->
 				error("Code with id ${duplicatedCode.id} already exists")
 			}
-		}.fold(listOf<Code>()) { acc, code ->	// Then, I add the codes
-			codeDAO.create(code)?.let {
-				acc + it
-			} ?: error("Error creating code with id ${code.type}|${code.code}|${code.version}")
-		}
+		}.map { code ->	// Then, I add the codes
+			codeDAO.create(code) ?: error("Error creating code with id ${code.type}|${code.code}|${code.version}")
+		}.toList()
 
 	@Throws(Exception::class)
 	override suspend fun modify(code: Code) = fix(code) { code ->
 		modifyEntities(setOf(code)).firstOrNull()
+	}
+
+	// Do we need fix? No annotations on code
+	override fun modify(batch: List<Code>) = flow {
+		emitAll(modifyEntities(
+			batch.fold(mapOf<String, Code>()) { acc, code ->    // First, I check that all the codes are valid
+				code.code ?: error("Code field is null")
+				code.type ?: error("Type field is null")
+				code.version ?: error("Version field is null")
+				code.rev ?: error("rev field is null")
+
+				if (code.id != "${code.type}|${code.code}|${code.version}") error("Code id does not match the code, type or version value")
+				if (acc.contains(code.id)) error("The batch contains a duplicate")
+
+				acc + (code.id to code)
+			}
+			.map {
+				it.value
+			}
+			.also { codeList ->
+				if (getCodes(codeList.map { it.id }).count() != batch.size) error("You are trying to modify a code that does not exists")
+			}.toSet()
+		))
 	}
 
 	override fun findCodeTypes(type: String?) = flow<String> {
