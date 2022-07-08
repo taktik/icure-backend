@@ -150,17 +150,16 @@ abstract class GenericResultFormatLogicImpl(val healthcarePartyLogic: Healthcare
 		var text: String? = null
 	}
 
-    inner class LaboResultLine {
-        var protocol: String? = null
-        var analysisCode: String? = null
-        var analysisType: String? = null
-        var referenceValues: String? = null
-        var unit: String? = null
-        var severity: String? = null
-        var value: String? = null
-        var sign: String? = null
-
-    }
+	inner class LaboResultLine {
+		var protocol: String? = null
+		var analysisCode: String? = null
+		var analysisType: String? = null
+		var referenceValues: String? = null
+		var unit: String? = null
+		var severity: String? = null
+		var value: String? = null
+		var sign: String? = null
+	}
 
 	inner class ResultsInfosLine {
 		var protocol: String? = null
