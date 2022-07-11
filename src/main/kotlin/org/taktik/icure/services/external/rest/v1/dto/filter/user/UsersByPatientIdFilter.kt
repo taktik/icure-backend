@@ -18,4 +18,4 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.AbstractFilterDto
 class UsersByPatientIdFilter(
 	override val patientId: String,
 	override val desc: String? = null
-) : AbstractFilterDto<User>, Filters.ByPatientIdFilter<String, User>
+) : AbstractFilterDto<User>, org.taktik.icure.domain.filter.user.UsersByPatientIdFilter

@@ -44,8 +44,4 @@ interface Filters {
 	interface ByHcpartyFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
 		val hcpId: String
 	}
-
-	interface ByPatientIdFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O> {
-		val patientId: String
-	}
 }
