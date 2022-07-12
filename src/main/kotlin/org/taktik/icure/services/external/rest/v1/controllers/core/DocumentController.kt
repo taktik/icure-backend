@@ -151,10 +151,12 @@ class DocumentController(
 	): Mono<DocumentDto> = mono {
 		val document = documentLogic.getOr404(documentId)
 		checkRevision(rev, document)
-		documentLogic.updateAttachments(
-			document,
-			mainAttachmentChange = DataAttachmentChange.Delete
-		).let { documentMapper.map(checkNotNull(it) { "Failed to update attachment" }) }
+		if (document.mainAttachment != null) {
+			documentLogic.updateAttachments(
+				document,
+				mainAttachmentChange = DataAttachmentChange.Delete
+			).let { documentMapper.map(checkNotNull(it) { "Failed to update attachment" }) }
+		} else documentMapper.map(document)
 	}
 
 	@Operation(summary = "Creates or modifies a document's attachment", description = "Creates a document's attachment and returns the modified document instance afterward")
@@ -265,8 +267,10 @@ class DocumentController(
 				payload
 		val document = documentLogic.getOr404(documentId)
 		checkRevision(rev, document)
-		documentLogic.updateAttachments(document, mainAttachmentChange = DataAttachmentChange.CreateOrUpdate(newPayload, size, utis))
-			?.let { documentMapper.map(it) }
+		documentLogic.updateAttachments(
+			document,
+			mainAttachmentChange = DataAttachmentChange.CreateOrUpdate(newPayload, size, utis)
+		)?.let { documentMapper.map(it) }
 	}
 
 	@Operation(summary = "Get a document", description = "Returns the document corresponding to the identifier passed in the request")
@@ -490,7 +494,7 @@ class DocumentController(
 		).let { documentMapper.map(checkNotNull(it) { "Could not update document" }) }
 	}
 
-	// TODO bulk get secondary attachments?
+	// TODO bulk get attachments?
 
 	@Operation(
 		summary = "Creates, modifies, or delete the attachments of a document",

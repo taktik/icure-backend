@@ -19,6 +19,7 @@ import org.springframework.web.reactive.function.client.bodyToFlow
 import org.taktik.couchdb.exception.CouchDbException
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asynclogic.objectstorage.DocumentObjectStorageClient
+import org.taktik.icure.asynclogic.objectstorage.testutils.sampleUtis
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.embed.DataAttachment
 import org.taktik.icure.properties.ObjectStorageProperties
@@ -86,6 +87,11 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 			.retrieve()
 			.awaitDto()
 
+	suspend fun createDocumentWithAttachment(dto: DTO, attachment: ByteArray, attachmentKey: String?): DTO =
+		createDocument(dto).document.let {
+			updateAttachment(it.id, attachmentKey, it.rev, attachment, sampleUtis)
+		}
+
 	suspend fun updateDocument(dto: DTO): DTO =
 		client.put()
 			.uri("http://127.0.0.1:$port/$controllerRoot")
@@ -144,8 +150,13 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 			.retrieve()
 			.awaitDto()
 
-	suspend fun updateSecondaryAttachment(id: String, key: String, rev: String?, attachment: ByteArray, utis: List<String>) =
-		// Automatically sets also Content-length header
+	suspend fun updateSecondaryAttachment(
+		id: String,
+		key: String,
+		rev: String?,
+		attachment: ByteArray,
+		utis: List<String>,
+	) =
 		client.put()
 			.uriWithVars(
 				"http://127.0.0.1:$port/$controllerRoot/${id}/secondaryAttachments/${key}",
@@ -156,7 +167,6 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 			)
 			.bytesContent()
 			.body<DataBuffer>(Mono.just(DefaultDataBufferFactory.sharedInstance.wrap(attachment)))
-			.also { println(it) }
 			.retrieve()
 			.awaitDto()
 
@@ -185,7 +195,8 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 		id: String,
 		rev: String?,
 		options: BAO,
-		attachments: Map<String, ByteArray>
+		attachments: Map<String, ByteArray>,
+		includeSize: Boolean = true
 	) : DTO {
 		val multipartBody = MultipartBodyBuilder().apply {
 			part("options", options, MediaType.APPLICATION_JSON)
@@ -194,7 +205,9 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 					"attachments",
 					flowOf(DefaultDataBufferFactory.sharedInstance.wrap(it.value)).asPublisher(),
 					DataBuffer::class.java
-				).filename(it.key).header(HttpHeaders.CONTENT_LENGTH, it.value.size.toString())
+				).let { pb ->
+					if (includeSize) pb.header(HttpHeaders.CONTENT_LENGTH, it.value.size.toString()) else pb
+				}.filename(it.key)
 			}
 		}.build()
 		return client.put()

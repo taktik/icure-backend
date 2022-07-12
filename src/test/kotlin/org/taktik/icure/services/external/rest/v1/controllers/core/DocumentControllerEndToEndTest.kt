@@ -1,8 +1,6 @@
 package org.taktik.icure.services.external.rest.v1.controllers.core
 
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
 import java.util.UUID
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -43,7 +41,6 @@ import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentTypeDto
 import org.taktik.icure.services.external.rest.v1.mapper.DocumentMapper
 import org.taktik.icure.test.ICureTestApplication
-import org.taktik.icure.testutils.bytesContent
 import org.taktik.icure.testutils.multipartContent
 import org.taktik.icure.testutils.shouldContainExactly
 import org.taktik.icure.testutils.shouldNotContainExactly
@@ -157,6 +154,16 @@ private fun StringSpec.v1EndToEndTests(
 		shouldRespondErrorStatus(HttpStatus.NOT_FOUND) { getMainAttachment(doc.id).toByteArray(true) }
 	}
 
+	// Both netty http client and spring web client automatically set content length and can't be removed: for now ignore the test
+	/*
+	"Updating the main attachment should not require to specify its size" {
+		val doc = createDocument(dataFactory.newDocumentNoAttachment())
+		val newAttachment = randomBigAttachment()
+		updateMainAttachment(doc.id, doc.rev, newAttachment, emptyList()).document.mainAttachment.shouldNotBeNull()
+		getMainAttachment(doc.id).toByteArray(true) shouldContainExactly newAttachment
+	}
+	 */
+
 	"Providing encryption keys when setting a new attachment should encrypt it" {
 		val doc = createDocument(dataFactory.newDocumentNoAttachment())
 		val unencrypted = randomBigAttachment()
@@ -236,9 +243,7 @@ private fun StringSpec.v1EndToEndTests(
 	}
 
 	"Changing a document attachment id in an update should trigger deletion of the attachment" {
-		val doc = createDocument(dataFactory.newDocumentNoAttachment()).document.let {
-			updateMainAttachment(it.id, it.rev, randomSmallAttachment(), emptyList())
-		}
+		val doc = createDocumentWithAttachment(dataFactory.newDocumentNoAttachment(), randomSmallAttachment(), null)
 		val updated = updateDocument(doc.copy(attachmentId = null)).document
 		updated.mainAttachment shouldBe null
 		ensureDeleted(doc.document, null)
@@ -246,9 +251,7 @@ private fun StringSpec.v1EndToEndTests(
 
 	"Changing a document attachment id in a bulk update should trigger deletion of the attachment" {
 		val docs = (1..10).map { i ->
-			createDocument(dataFactory.newDocumentNoAttachment(i)).document.let {
-				updateMainAttachment(it.id, it.rev, randomSmallAttachment(), emptyList())
-			}
+			createDocumentWithAttachment(dataFactory.newDocumentNoAttachment(i), randomSmallAttachment(), null)
 		}
 		val deleting = docs.take(5)
 		val updating = docs.drop(5)

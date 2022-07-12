@@ -120,34 +120,6 @@ fun <DTO : Any, METADTO : Any> StringSpec.documentControllerSharedEndToEndTests(
 		}
 	}
 
-	"Updating or deleting an attachment should fail with CONFLICT if the provided revision is not the latest" {
-		listOf(null, key1, key2).forEach { attachmentKey ->
-			val doc = createDocument(dataFactory.newDocumentNoAttachment()).document
-			updateAttachment(doc.id, attachmentKey, doc.rev, randomSmallAttachment(), sampleUtis)
-			shouldRespondErrorStatus(HttpStatus.CONFLICT) {
-				updateAttachment(doc.id, attachmentKey, doc.rev, randomSmallAttachment(), sampleUtis)
-			}
-			shouldRespondErrorStatus(HttpStatus.CONFLICT) {
-				deleteAttachment(doc.id, attachmentKey, doc.rev)
-			}
-		}
-	}
-
-	"Updating or deleting an attachment should fail with BAD REQUEST if no revision was provided (except for main attachment if legacy)" {
-		listOf(null, key1, key2).forEach { attachmentKey ->
-			val doc = createDocument(dataFactory.newDocumentNoAttachment()).document
-			updateAttachment(doc.id, attachmentKey, doc.rev, randomSmallAttachment(), sampleUtis)
-			if (!legacy || attachmentKey != null) {
-				shouldRespondErrorStatus(HttpStatus.BAD_REQUEST) {
-					updateAttachment(doc.id, attachmentKey, null, randomSmallAttachment(), sampleUtis)
-				}
-				shouldRespondErrorStatus(HttpStatus.BAD_REQUEST) {
-					deleteAttachment(doc.id, attachmentKey, null)
-				}
-			}
-		}
-	}
-
 	"Bulk attachment changes should allow to create, update or delete multiple attachments at the same time, without changing unrelated attachments" {
 		val key2Attachment = randomBigAttachment()
 		val doc = createDocument(dataFactory.newDocumentNoAttachment()).document.let {
@@ -184,10 +156,96 @@ fun <DTO : Any, METADTO : Any> StringSpec.documentControllerSharedEndToEndTests(
 		getSecondaryAttachment(doc.id, key3).toByteArray(true) shouldContainExactly key3Content
 	}
 
-	"Modification of document should allow changes to non-attachment information and attachment utis" {
-		val dtoWithAttachment = createDocument(dataFactory.newDocumentNoAttachment()).document.let {
-			updateMainAttachment(it.id, it.rev, randomSmallAttachment(), emptyList())
+	"Updating or deleting an attachment should fail with CONFLICT if the provided revision is not the latest" {
+		listOf(null, key1, key2).forEach { attachmentKey ->
+			val doc = createDocument(dataFactory.newDocumentNoAttachment()).document
+			val docWithAttachment = updateAttachment(doc.id, attachmentKey, doc.rev, randomSmallAttachment(), sampleUtis).document
+			shouldRespondErrorStatus(HttpStatus.CONFLICT) {
+				updateAttachment(doc.id, attachmentKey, doc.rev, randomSmallAttachment(), sampleUtis)
+			}
+			shouldRespondErrorStatus(HttpStatus.CONFLICT) {
+				deleteAttachment(doc.id, attachmentKey, doc.rev)
+			}
+			getDocument(doc.id).document.rev shouldBe docWithAttachment.rev
 		}
+	}
+
+	"Updating or deleting an attachment should fail with BAD REQUEST if no revision was provided (except for main attachment non-bulk change if legacy)" {
+		listOf(null, key1, key2).forEach { attachmentKey ->
+			val doc = createDocumentWithAttachment(dataFactory.newDocumentNoAttachment(), randomSmallAttachment(), attachmentKey).document
+			if (!legacy || attachmentKey != null) {
+				shouldRespondErrorStatus(HttpStatus.BAD_REQUEST) {
+					updateAttachment(doc.id, attachmentKey, null, randomSmallAttachment(), sampleUtis)
+				}
+				shouldRespondErrorStatus(HttpStatus.BAD_REQUEST) {
+					deleteAttachment(doc.id, attachmentKey, null)
+				}
+			}
+			shouldRespondErrorStatus(HttpStatus.BAD_REQUEST) {
+				updateAttachments(
+					doc.id,
+					null,
+					options = dataFactory.bulkAttachmentUpdateOptions(
+						deleteAttachments = setOf(attachmentKey ?: doc.mainAttachmentKey),
+						updateAttachmentsMetadata = emptyMap()
+					),
+					attachments = emptyMap()
+				)
+			}
+			getDocument(doc.id).document.rev shouldBe doc.rev
+		}
+	}
+
+	"Updating an attachment should fail with BAD REQUEST if the size was not provided (except for main attachment non-bulk update if legacy)" {
+		listOf(null, key1, key2).forEach { attachmentKey ->
+			val doc = createDocument(dataFactory.newDocumentNoAttachment()).document
+			// Both netty http client and spring web client automatically set content length and can't be removed: for now only do test on bulk
+			/*
+			if (!legacy || attachmentKey != null) {
+				shouldRespondErrorStatus(HttpStatus.BAD_REQUEST) { updateAttachment(doc.id, attachmentKey, doc.rev, randomSmallAttachment(), sampleUtis) }
+			}
+			 */
+			shouldRespondErrorStatus(HttpStatus.BAD_REQUEST) {
+				updateAttachments(
+					doc.id,
+					doc.rev,
+					options = dataFactory.bulkAttachmentUpdateOptions(
+						deleteAttachments = emptySet(),
+						updateAttachmentsMetadata = emptyMap()
+					),
+					attachments = mapOf((attachmentKey ?: doc.mainAttachmentKey) to randomSmallAttachment()),
+					includeSize = false
+				)
+			}
+			getDocument(doc.id).document.rev shouldBe doc.rev
+		}
+	}
+
+	"Deleting an attachment should fail with BAD REQUEST if the attachment does not actually exist (except for main attachment non-bulk if legacy)" {
+		listOf(null, key1, key2).forEach { attachmentKey ->
+			val doc = createDocument(dataFactory.newDocumentNoAttachment()).document
+			if (!legacy || attachmentKey != null) {
+				shouldRespondErrorStatus(HttpStatus.BAD_REQUEST) {
+					deleteAttachment(doc.id, attachmentKey, doc.rev)
+				}
+			}
+			shouldRespondErrorStatus(HttpStatus.BAD_REQUEST) {
+				updateAttachments(
+					doc.id,
+					doc.rev,
+					options = dataFactory.bulkAttachmentUpdateOptions(
+						deleteAttachments = setOf(attachmentKey ?: doc.mainAttachmentKey),
+						updateAttachmentsMetadata = emptyMap()
+					),
+					attachments = emptyMap()
+				)
+			}
+			getDocument(doc.id).document.rev shouldBe doc.rev
+		}
+	}
+
+	"Modification of document should allow changes to non-attachment information and attachment utis" {
+		val dtoWithAttachment = createDocumentWithAttachment(dataFactory.newDocumentNoAttachment(), randomSmallAttachment(), null)
 		val desiredDto = dtoWithAttachment.changeNonAttachmentInfo().changeMainAttachmentUtis()
 		val updatedDto = updateDocument(desiredDto)
 		desiredDto.withoutDbUpdatedInfo shouldBe updatedDto.withoutDbUpdatedInfo
@@ -195,9 +253,7 @@ fun <DTO : Any, METADTO : Any> StringSpec.documentControllerSharedEndToEndTests(
 
 	"Bulk modification of document should allow changes to non-attachment information and attachment utis" {
 		val dtosWithAttachment = (1..10).map { i ->
-			createDocument(dataFactory.newDocumentNoAttachment(i)).document.let {
-				updateMainAttachment(it.id, it.rev, randomSmallAttachment(), emptyList())
-			}
+			createDocumentWithAttachment(dataFactory.newDocumentNoAttachment(i), randomSmallAttachment(), null)
 		}
 		val desiredDtos = dtosWithAttachment.map { it.changeNonAttachmentInfo().changeMainAttachmentUtis() }
 		val updatedDtos = bulkModify(desiredDtos)
@@ -206,9 +262,7 @@ fun <DTO : Any, METADTO : Any> StringSpec.documentControllerSharedEndToEndTests(
 
 	"Bulk modification of document should also allow creation of new documents" {
 		val existingDtos = (1..5).map { i ->
-			createDocument(dataFactory.newDocumentNoAttachment(i)).document.let {
-				updateMainAttachment(it.id, it.rev, randomSmallAttachment(), emptyList())
-			}
+			createDocumentWithAttachment(dataFactory.newDocumentNoAttachment(i), randomSmallAttachment(), null)
 		}
 		val updatedDtos = existingDtos.map { it.changeNonAttachmentInfo().changeMainAttachmentUtis() }
 		val newDtos = (6..10).map { i -> dataFactory.newDocumentNoAttachment(i) }
