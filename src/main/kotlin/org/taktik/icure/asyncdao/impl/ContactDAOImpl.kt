@@ -397,7 +397,7 @@ class ContactDAOImpl(
 					if (it.key == null || it.key!!.components.size < 3) {
 						return@mapNotNull null
 					}
-					return@mapNotNull it.id
+					return@mapNotNull it.value
 				}
 		)
 	}
