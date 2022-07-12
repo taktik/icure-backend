@@ -15,6 +15,7 @@ import org.taktik.icure.asynclogic.objectstorage.DocumentObjectStorage
 import org.taktik.icure.asynclogic.objectstorage.DocumentObjectStorageMigration
 import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorage
 import org.taktik.icure.asynclogic.objectstorage.IcureObjectStorageMigration
+import org.taktik.icure.asynclogic.objectstorage.contentBytesOfNullable
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.base.HasDataAttachments
 import org.taktik.icure.entities.embed.DataAttachment

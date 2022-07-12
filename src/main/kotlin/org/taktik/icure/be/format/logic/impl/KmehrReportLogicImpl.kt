@@ -35,6 +35,7 @@ import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.FormLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.objectstorage.DataAttachmentModificationLogic
+import org.taktik.icure.asynclogic.objectstorage.DocumentDataAttachmentLoader
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDMESSAGEvalues
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
@@ -58,7 +59,13 @@ import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.utils.FuzzyValues
 
 @org.springframework.stereotype.Service
-class KmehrReportLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: FormLogic, val documentLogic: DocumentLogic, val contactLogic: ContactLogic) : GenericResultFormatLogicImpl(healthcarePartyLogic, formLogic), KmehrReportLogic {
+class KmehrReportLogicImpl(
+	healthcarePartyLogic: HealthcarePartyLogic,
+	formLogic: FormLogic,
+	val documentLogic: DocumentLogic,
+	val contactLogic: ContactLogic,
+	documentDataAttachmentLoader: DocumentDataAttachmentLoader
+) : GenericResultFormatLogicImpl(healthcarePartyLogic, formLogic, documentDataAttachmentLoader), KmehrReportLogic {
 	internal var log = LogFactory.getLog(this.javaClass)
 
 	override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?): Flow<DataBuffer> {
@@ -143,7 +150,6 @@ class KmehrReportLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic
 											modified = demandTimestamp ?: ctc.created,
 											name = "Protocol Document",
 										),
-										it,
 										true
 									)?.let { createdDocument ->
 										documentLogic.updateAttachments(

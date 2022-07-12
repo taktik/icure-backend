@@ -51,6 +51,7 @@ val bigAttachment by lazy { (1 .. SIZE_LIMIT * 3 / 2).map { it.toByte() }.toByte
 const val jsonUti = "public.json"
 const val htmlUti = "public.html"
 const val xmlUti = "public.xml"
+const val javascriptUti = "com.netscape.javascript-source"
 val sampleUtis by lazy { listOf(xmlUti, jsonUti) }
 
 const val key1 = "key1"

@@ -42,7 +42,7 @@ class ObjectStorageTasksDAOImpl(
 
 	private val dbInstanceUrl = URI(couchDbProperties.url)
 
-	@View(name = BY_ENTITY_CLASS_ENTITY_ID_ATTACHMENT_ID, map = "classpath:js/objectstoragetask/By_entityclass_entityid_attachmentid_map.js")
+	@View(name = BY_ENTITY_CLASS_ENTITY_ID_ATTACHMENT_ID, map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.objectstorage.ObjectStorageTask' && !doc.deleted) emit([doc.entityClassName, doc.entityId, doc.attachmentId], doc._id) }")
 	override fun findRelatedTasks(task: ObjectStorageTask): Flow<ObjectStorageTask> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 		val viewQuery = createQuery(client, BY_ENTITY_CLASS_ENTITY_ID_ATTACHMENT_ID)
@@ -51,7 +51,7 @@ class ObjectStorageTasksDAOImpl(
 		emitAll(client.queryViewIncludeDocsNoValue<ComplexKey, ObjectStorageTask>(viewQuery).map { it.doc })
 	}
 
-	@View(name = BY_ENTITY_CLASS, map = "classpath:js/objectstoragetask/By_entityclass_map.js")
+	@View(name = BY_ENTITY_CLASS, map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.objectstorage.ObjectStorageTask' && !doc.deleted) emit(doc.entityClassName, doc._id) }")
 	override fun <T : HasDataAttachments<T>> findTasksForEntities(entityClass: Class<T>) = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 		val viewQuery = createQuery(client, BY_ENTITY_CLASS)

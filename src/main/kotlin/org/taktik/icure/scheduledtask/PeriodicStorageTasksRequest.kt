@@ -13,7 +13,7 @@ private const val ONE_HOUR = 60 * 60 * 1000L
 class PeriodicStorageTasksRequest(
 	private val allObjectStorageLogic: List<IcureObjectStorage<*>>
 ) {
-	@Scheduled(fixedDelay = ONE_HOUR)
+	@Scheduled(initialDelay = ONE_HOUR, fixedDelay = ONE_HOUR)
 	fun handleIcureCloudAttachmentTasks() = runBlocking {
 		allObjectStorageLogic.forEach { it.rescheduleFailedStorageTasks() }
 	}

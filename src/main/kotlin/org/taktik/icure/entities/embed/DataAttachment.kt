@@ -42,18 +42,18 @@ data class DataAttachment(
 
 	@JsonIgnore private var cachedBytes: ByteArray? = null
 
-	val ids: Pair<String?, String?> get() = couchDbAttachmentId to objectStoreAttachmentId
+	@get:JsonIgnore val ids: Pair<String?, String?> get() = couchDbAttachmentId to objectStoreAttachmentId
 
 	/**
 	 * Get the mime type string for this attachment. If the attachment does not specify a UTI with a valid mime type returns null.
 	 */
-	val mimeType: String? get() =
+	@get:JsonIgnore val mimeType: String? get() =
 		utis.asSequence().mapNotNull(UTI::get).flatMap { it.mimeTypes ?: emptyList() }.firstOrNull()
 
 	/**
 	 * [mimeType] or [DEFAULT_MIME_TYPE].
 	 */
-	val mimeTypeOrDefault: String get() =
+	@get:JsonIgnore val mimeTypeOrDefault: String get() =
 		mimeType ?: DEFAULT_MIME_TYPE
 
 	/**

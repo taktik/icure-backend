@@ -125,8 +125,10 @@ data class Document(
 ) : StoredICureDocument, Encryptable, HasDataAttachments<Document> {
 	companion object : DynamicInitializer<Document>
 
+	@get:JsonIgnore
 	val mainAttachmentKey: String get() = id
 
+	@get:JsonIgnore
 	val mainAttachment: DataAttachment? by lazy {
 		if (attachmentId != null || objectStoreReference != null)
 			DataAttachment(
@@ -138,6 +140,7 @@ data class Document(
 			null
 	}
 
+	@get:JsonIgnore
 	override val dataAttachments: Map<String, DataAttachment> by lazy {
 		mainAttachment?.let { secondaryAttachments + (mainAttachmentKey to it) } ?: secondaryAttachments
 	}

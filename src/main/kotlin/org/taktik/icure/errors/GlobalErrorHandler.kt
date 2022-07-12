@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono
 @Configuration
 class GlobalErrorHandler(private val objectMapper: ObjectMapper) : ErrorWebExceptionHandler {
 	override fun handle(exchange: ServerWebExchange, ex: Throwable) = exchange.response.let { r ->
+
 		val bufferFactory = r.bufferFactory()
 
 		r.headers.contentType = MediaType.APPLICATION_JSON

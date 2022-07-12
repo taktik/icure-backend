@@ -403,7 +403,7 @@ class SoftwareMedicalFileImport(
 							 */
 							v.documents.add(it)
 							if (saveToDatabase) {
-								documentLogic.createDocument(it, trnauthorhcpid, true)?.let {
+								documentLogic.createDocument(it, true)?.let {
 									documentLogic.updateAttachments(
 										it,
 										mainAttachmentChange = DataAttachmentChange.CreateOrUpdate(

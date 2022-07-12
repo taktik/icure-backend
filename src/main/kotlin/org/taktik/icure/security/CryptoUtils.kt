@@ -44,6 +44,7 @@ import kotlinx.coroutines.flow.scan
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.exceptions.EncryptionException
+import org.taktik.icure.security.CryptoUtils.tryKeyFromHexString
 import org.taktik.icure.utils.toByteArray
 
 object CryptoUtils {
@@ -284,24 +285,30 @@ object CryptoUtils {
 		}
 	}
 
-	fun String.keyFromHexString(): ByteArray {
-		return this.let {
-			if (it.matches(Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"))) {
-				val bb = ByteBuffer.wrap(ByteArray(16))
-				val uuid = UUID.fromString(it)
-				bb.putLong(uuid.mostSignificantBits)
-				bb.putLong(uuid.leastSignificantBits)
-				bb.array()
-			} else {
-				// TODO this should be a require: if the key is not even length it is the user fault, we are not in an illegal state
-				check(it.length % 2 == 0) { "Must have an even length" }
-
-				it.chunked(2)
-					.map { it.toInt(16).toByte() }
-					.toByteArray()
-			}
+	fun String.keyFromHexString(): ByteArray =
+		requireNotNull(tryKeyFromHexString()) {
+			"$this must be either a guid or a hex string."
 		}
-	}
+
+	fun String.tryKeyFromHexString(): ByteArray? =
+		if (this.isUUID()) {
+			val bb = ByteBuffer.wrap(ByteArray(16))
+			val uuid = UUID.fromString(this)
+			bb.putLong(uuid.mostSignificantBits)
+			bb.putLong(uuid.leastSignificantBits)
+			bb.array()
+		} else if (this.length % 2 == 0) {
+			this.chunked(2)
+				.fold<String, MutableList<Byte>?>(mutableListOf()) { acc, s ->
+					if (acc != null) {
+						s.toIntOrNull(16)?.let { i -> acc.also { it.add(i.toByte()) } }
+					} else null
+				}
+				?.toByteArray()
+		} else null
+
+	private fun String.isUUID() =
+		this.matches(Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"))
 
 	fun ByteArray.isValidAesKey() = this.size * 8 in setOf(128, 192, 256)
 

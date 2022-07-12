@@ -37,6 +37,7 @@ private class ObjectStorageClientImpl<T : HasDataAttachments<T>>(
 ) : ObjectStorageClient<T> {
 	companion object {
 		private val log = LoggerFactory.getLogger(ObjectStorageClientImpl::class.java)
+		// TODO should i use webflux client?
 		private val icureCloudClient = WebClient.builder()
 			.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.type)
 			.build()
@@ -119,7 +120,6 @@ private class ObjectStorageClientImpl<T : HasDataAttachments<T>>(
 			?.let { "Basic ${Base64.getEncoder().encodeToString((it.username + ":" + it.secret).toByteArray())}" }
 }
 
-@Service
 class DocumentObjectStorageClientImpl(
 	sessionLogic: AsyncSessionLogic,
 	objectStorageProperties: ObjectStorageProperties,

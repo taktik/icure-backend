@@ -31,12 +31,10 @@ interface DocumentLogic : EntityPersister<Document, String> {
 	 * throwing an [IllegalArgumentException] if it does.
 	 * When using this method in a lenient way there is no restriction on how the document can be created.
 	 * @param document the document to create
-	 * @param ownerHealthcarePartyId TODO currently ignored
 	 * @param strict specifies whether to behave in a strict or lenient way.
 	 */
 	suspend fun createDocument(
 		document: Document,
-		ownerHealthcarePartyId: String,
 		strict: Boolean
 	): Document?
 
@@ -66,13 +64,11 @@ interface DocumentLogic : EntityPersister<Document, String> {
 	 * If running in strict mode all documents will be checked before performing any modification, therefore if this throws
 	 * [IllegalArgumentException] due to invalid document values no change has been performed to the stored data.
 	 * @param documents information on documents to create / modify.
-	 * @param ownerHealthcarePartyId TODO currently ignored, but here for consistency with [createDocument]
 	 * @param strict specifies whether to behave in a strict or lenient way.
 	 * @return the updated documents.
 	 */
 	fun createOrModifyDocuments(
 		documents: List<BatchUpdateDocumentInfo>,
-		ownerHealthcarePartyId: String,
 		strict: Boolean
 	): Flow<Document>
 

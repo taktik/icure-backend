@@ -44,15 +44,9 @@ class DocumentLogicImpl(
 	private val attachmentModificationLogic: DocumentDataAttachmentModificationLogic
 ) : GenericLogicImpl<Document, DocumentDAO>(sessionLogic), DocumentLogic {
 
-	override suspend fun createDocument(document: Document, ownerHealthcarePartyId: String, strict: Boolean) = fix(document) { fixedDocument ->
+	override suspend fun createDocument(document: Document, strict: Boolean) = fix(document) { fixedDocument ->
 		if (strict) strictCheckNewDocument(fixedDocument)
-		runCatching {
-			// TODO ownerHealthcarePartyId was ignored before as well...
-			createEntities(setOf(fixedDocument)).firstOrNull()
-		}.fold(
-			onSuccess = { it },
-			onFailure = { throw CreationException("Could not create document. ", it) }
-		)
+		documentDAO.create(fixedDocument)
 	}
 
 	override suspend fun getDocument(documentId: String): Document? {
@@ -81,19 +75,21 @@ class DocumentLogicImpl(
 		)
 	}
 
-	override fun createOrModifyDocuments(documents: List<DocumentLogic.BatchUpdateDocumentInfo>, ownerHealthcarePartyId: String, strict: Boolean): Flow<Document> =
-		documentDAO.save(
-			documents.map { (newDoc, prevDoc) ->
-				if (prevDoc != null) {
-					newDoc
-						.copy(attachments = prevDoc.attachments)
-						.let { attachmentModificationLogic.ensureValidAttachmentChanges(prevDoc, it, strict) }
-				} else {
-					if (strict) strictCheckNewDocument(newDoc)
-					newDoc
+	override fun createOrModifyDocuments(documents: List<DocumentLogic.BatchUpdateDocumentInfo>, strict: Boolean): Flow<Document> = flow {
+		val fixedDocuments = documents.map { (newDoc, prevDoc) ->
+			if (prevDoc != null) {
+				fix(newDoc)
+					.copy(attachments = prevDoc.attachments)
+					.let { attachmentModificationLogic.ensureValidAttachmentChanges(prevDoc, it, strict) }
+			} else {
+				fix(newDoc).also {
+					if (strict) strictCheckNewDocument(it)
 				}
 			}
-		)
+		}
+		emitAll(documentDAO.save(fixedDocuments))
+	}
+
 
 	override suspend fun updateAttachments(
 		currentDocument: Document,
@@ -125,7 +121,7 @@ class DocumentLogicImpl(
 	}
 
 	override fun unsafeModifyDocuments(documents: List<Document>): Flow<Document> = flow {
-		emitAll(documentDAO.save(documents))
+		emitAll(documentDAO.save(documents.map { fix(it) }))
 	}
 
 	override fun solveConflicts(ids: List<String>?): Flow<Document> {

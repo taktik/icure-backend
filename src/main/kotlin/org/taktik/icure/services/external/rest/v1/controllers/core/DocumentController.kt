@@ -18,6 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.core
 
+import java.io.Serializable
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -27,6 +28,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -34,12 +36,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.mono
-import org.slf4j.LoggerFactory
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.codec.multipart.FilePart
 import org.springframework.http.codec.multipart.Part
 import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -54,8 +56,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
-import org.taktik.commons.uti.UTI
-import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.objectstorage.DataAttachmentModificationLogic.DataAttachmentChange
 import org.taktik.icure.asynclogic.objectstorage.DocumentDataAttachmentLoader
@@ -64,7 +64,7 @@ import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.embed.DocumentType
 import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.security.CryptoUtils.isValidAesKey
-import org.taktik.icure.security.CryptoUtils.keyFromHexString
+import org.taktik.icure.security.CryptoUtils.tryKeyFromHexString
 import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
@@ -73,26 +73,24 @@ import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 @RestController
 @RequestMapping("/rest/v1/document")
 @Tag(name = "document")
 class DocumentController(
 	private val documentLogic: DocumentLogic,
-	private val sessionLogic: AsyncSessionLogic,
 	private val documentMapper: DocumentMapper,
 	private val delegationMapper: DelegationMapper,
 	private val stubMapper: StubMapper,
 	private val attachmentLoader: DocumentDataAttachmentLoader
 ) {
-	private val logger = LoggerFactory.getLogger(javaClass)
-
 	@Operation(summary = "Create a document", description = "Creates a document and returns an instance of created document afterward")
 	@PostMapping
-	fun createDocument(@RequestBody documentDto: DocumentDto) = mono {
+	fun createDocument(@RequestBody documentDto: DocumentDto): Mono<DocumentDto> = mono {
 		val document = documentMapper.map(documentDto)
-		val createdDocument = documentLogic.createDocument(document, sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, false)
+		val createdDocument = documentLogic.createDocument(document, false)
 			?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document creation failed")
 		documentMapper.map(createdDocument)
 	}
@@ -119,7 +117,7 @@ class DocumentController(
 	) = getDocumentAttachment(documentId, enckeys, fileName, response)
 
 	@Operation(summary = "Load a document's main attachment", responses = [ApiResponse(responseCode = "200", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
-	@GetMapping("/{documentId}/attachment}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+	@GetMapping("/{documentId}/attachment", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
 	fun getDocumentAttachment(
 		@PathVariable documentId: String,
 		@RequestParam(required = false) enckeys: String?,
@@ -127,17 +125,15 @@ class DocumentController(
 		response: ServerHttpResponse
 	) = response.writeWith(
 		flow {
-			val document = documentLogic.getDocument(documentId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
+			val document = documentLogic.getOr404(documentId)
 			val attachment =
 				if (enckeys.isNullOrBlank()) {
 					attachmentLoader.contentFlowOfNullable(document, Document::mainAttachment)
 				} else {
 					attachmentLoader.decryptMainAttachment(document, enckeys)?.let { flowOf(DefaultDataBufferFactory.sharedInstance.wrap(it)) }
 				} ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "AttachmentDto not found")
-			val uti = UTI.get(document.mainUti)
-			val mimeType = if (uti != null && uti.mimeTypes.size > 0) uti.mimeTypes[0] else "application/octet-stream"
 
-			response.headers["Content-Type"] = mimeType
+			response.headers["Content-Type"] = document.mainAttachment?.mimeType ?: "application/octet-stream"
 			response.headers["Content-Disposition"] = "attachment; filename=\"${fileName ?: document.name}\""
 
 			emitAll(attachment)
@@ -152,16 +148,13 @@ class DocumentController(
 		@Parameter(description = "Revision of the latest known version of the document. If provided the method will fail with a CONFLICT status code if the current version does not have this revision")
 		@RequestParam(required = false)
 		rev: String?
-	) = mono {
-		val document = documentLogic.getDocument(documentId)
-			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
+	): Mono<DocumentDto> = mono {
+		val document = documentLogic.getOr404(documentId)
 		checkRevision(rev, document)
-		documentMapper.map(
-			documentLogic.updateAttachments(
-				document,
-				mainAttachmentChange = DataAttachmentChange.Delete
-			) ?: document
-		)
+		documentLogic.updateAttachments(
+			document,
+			mainAttachmentChange = DataAttachmentChange.Delete
+		).let { documentMapper.map(checkNotNull(it) { "Failed to update attachment" }) }
 	}
 
 	@Operation(summary = "Creates or modifies a document's attachment", description = "Creates a document's attachment and returns the modified document instance afterward")
@@ -175,6 +168,9 @@ class DocumentController(
 		@RequestParam(required = false)
 		rev: String?,
 		@RequestParam(required = false)
+		@Parameter(description = "Utis for the attachment")
+		utis: List<String>?,
+		@RequestParam(required = false)
 		@Parameter(description = "Size of the attachment. If provided it can help to make the best decisions about where to store it")
 		size: Long?,
 		@Schema(type = "string", format = "binary")
@@ -182,7 +178,7 @@ class DocumentController(
 		payload: Flow<DataBuffer>,
 		@RequestHeader(name = HttpHeaders.CONTENT_LENGTH, required = false)
 		lengthHeader: Long?
-	) = doSetDocumentAttachment(documentId, enckeys, rev, size ?: lengthHeader?.takeIf { it > 0 }, payload)
+	): Mono<DocumentDto> = doSetDocumentAttachment(documentId, enckeys, rev, utis, size ?: lengthHeader?.takeIf { it > 0 }, payload)
 
 	@Operation(summary = "Create or modifies a document's attachment", description = "Creates a document attachment and returns the modified document instance afterward")
 	@PutMapping("/attachment", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
@@ -194,6 +190,9 @@ class DocumentController(
 		@Parameter(description = "Revision of the latest known version of the document. If provided the method will fail with a CONFLICT status code if the current version does not have this revision")
 		@RequestParam(required = false)
 		rev: String?,
+		@RequestParam(required = false)
+		@Parameter(description = "Utis for the attachment")
+		utis: List<String>?,
 		@Parameter(description = "Size of the attachment. If provided it can help to make the best decisions about where to store it")
 		@RequestParam(required = false)
 		size: Long?,
@@ -202,7 +201,7 @@ class DocumentController(
 		payload: Flow<DataBuffer>,
 		@RequestHeader(name = HttpHeaders.CONTENT_LENGTH, required = false)
 		lengthHeader: Long?
-	) = doSetDocumentAttachment(documentId, enckeys, rev, size ?: lengthHeader?.takeIf { it > 0 }, payload)
+	): Mono<DocumentDto> = doSetDocumentAttachment(documentId, enckeys, rev, utis, size ?: lengthHeader?.takeIf { it > 0 }, payload)
 
 	@Operation(summary = "Creates or modifies a document's attachment", description = "Creates a document attachment and returns the modified document instance afterward")
 	@PutMapping("/{documentId}/attachment/multipart", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
@@ -214,17 +213,29 @@ class DocumentController(
 		@Parameter(description = "Revision of the latest known version of the document. If provided the method will fail with a CONFLICT status code if the current version does not have this revision")
 		@RequestParam(required = false)
 		rev: String?,
+		@RequestParam(required = false)
+		@Parameter(description = "Utis for the attachment")
+		utis: List<String>?,
 		@Parameter(description = "Size of the attachment. If provided it can help to make the best decisions about where to store it")
 		@RequestParam(required = false)
 		size: Long?,
 		@RequestHeader(name = HttpHeaders.CONTENT_LENGTH, required = false)
 		lengthHeader: Long?,
+		/*TODO
+		 * If the content type of the part is not specified it will be forcefully interpreted as text: this means that if the user forgot to set the content type and it sends binary data
+		 * the stored data will not be equivalent to the data provided by the user.
+		 * This happened also with the previous implementation.
+		 * Possible solutions:
+		 * - Fail if no content type was given
+		 * - Always interpret as binary data
+		 */
 		@RequestPart("attachment")
 		payload: Part,
-	) = doSetDocumentAttachment(
+	): Mono<DocumentDto> = doSetDocumentAttachment(
 		documentId,
 		enckeys,
 		rev,
+		utis,
 		size ?: payload.headers().contentLength.takeIf { it > 0 } ?: lengthHeader?.takeIf { it > 0 },
 		payload.content().asFlow()
 	)
@@ -233,32 +244,35 @@ class DocumentController(
 		documentId: String,
 		enckeys: String?,
 		rev: String?,
+		utis: List<String>?,
 		size: Long?,
 		payload: Flow<DataBuffer>
-	) = mono {
+	): Mono<DocumentDto> = mono {
 		val validEncryptionKeys = enckeys
 			?.takeIf { it.isNotEmpty() }
 			?.split(',')
-			?.filter { sfk -> sfk.keyFromHexString().isValidAesKey() }
+			?.mapNotNull { sfk -> sfk.tryKeyFromHexString()?.takeIf { it.isValidAesKey() } }
+		if (enckeys != null && validEncryptionKeys.isNullOrEmpty()) throw ResponseStatusException(
+			HttpStatus.BAD_REQUEST,
+			"`enckeys` must contain at least a valid aes key"
+		)
 		val newPayload: Flow<DataBuffer> =
 			if (validEncryptionKeys?.isNotEmpty() == true)
 				// Encryption should never fail if the key is valid
-				CryptoUtils.encryptFlowAES(payload, validEncryptionKeys.first().keyFromHexString())
+				CryptoUtils.encryptFlowAES(payload, validEncryptionKeys.first())
 					.map { DefaultDataBufferFactory.sharedInstance.wrap(it) }
 			else
 				payload
-		val document = documentLogic.getDocument(documentId)
-			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
+		val document = documentLogic.getOr404(documentId)
 		checkRevision(rev, document)
-		documentLogic.updateAttachments(document, mainAttachmentChange = DataAttachmentChange.CreateOrUpdate(newPayload, size, null))
+		documentLogic.updateAttachments(document, mainAttachmentChange = DataAttachmentChange.CreateOrUpdate(newPayload, size, utis))
 			?.let { documentMapper.map(it) }
 	}
 
 	@Operation(summary = "Get a document", description = "Returns the document corresponding to the identifier passed in the request")
 	@GetMapping("/{documentId}")
-	fun getDocument(@PathVariable documentId: String) = mono {
-		val document = documentLogic.getDocument(documentId)
-			?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
+	fun getDocument(@PathVariable documentId: String): Mono<DocumentDto> = mono {
+		val document = documentLogic.getOr404(documentId)
 		documentMapper.map(document)
 	}
 
@@ -285,7 +299,7 @@ class DocumentController(
 
 	@Operation(summary = "Update a document", description = "Updates the document and returns an instance of the modified document afterward")
 	@PutMapping
-	fun modifyDocument(@RequestBody documentDto: DocumentDto) = mono {
+	fun modifyDocument(@RequestBody documentDto: DocumentDto): Mono<DocumentDto> = mono {
 		/*TODO
 		 * Original implementation weird behaviours:
 		 * - it was possible to remove the reference to the attachment (`attachmentId`) without actually deleting the attachment. New version
@@ -295,20 +309,19 @@ class DocumentController(
 		 *   - If the dto didn't provide an attachment id we would create a new document -> in new version every time we don't have a matching
 		 *     document id we create the new document as is.
 		 */
-		val prevDoc = documentLogic.getDocument(documentDto.id) /* Allow new document creation ?: throw ResponseStatusException(
-			HttpStatus.NOT_FOUND,
-			"There is no existing document with id ${documentDto.id}"
-		) */
+		val prevDoc = documentLogic.getDocument(documentDto.id)
 		val newDocument = documentMapper.map(documentDto)
-		if (prevDoc == null) {
-			documentLogic.createDocument(newDocument, sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, false)
-		} else if (prevDoc.mainAttachment?.let { prevMain -> newDocument.mainAttachment?.hasSameIdsAs(prevMain) != true } == true) {
-			documentLogic.modifyDocument(newDocument,  prevDoc, false)?.let {
-				documentLogic.updateAttachments(it, mainAttachmentChange = DataAttachmentChange.Delete)
+		(
+			if (prevDoc == null) {
+				documentLogic.createDocument(newDocument, false)
+			} else if (prevDoc.attachmentId != newDocument.attachmentId) {
+				documentLogic.modifyDocument(newDocument,  prevDoc, false)?.let {
+					documentLogic.updateAttachments(it, mainAttachmentChange = DataAttachmentChange.Delete)
+				}
+			} else {
+				documentLogic.modifyDocument(newDocument, prevDoc, false)
 			}
-		} else {
-			documentLogic.modifyDocument(newDocument, prevDoc, false)
-		}?.let {
+		)?.let {
 			documentMapper.map(it)
 		} ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
 	}
@@ -328,13 +341,12 @@ class DocumentController(
 		}
 		documentLogic.createOrModifyDocuments(
 			allNewDocuments.map { DocumentLogic.BatchUpdateDocumentInfo(it, previousDocumentsById[it.id]) },
-			sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!,
 			false
 		).map {
 			val prev = previousDocumentsById[it.id]
 			val curr = newDocumentsById.getValue(it.id)
-			if (prev != null && prev.mainAttachment?.let { prevMain -> curr.mainAttachment?.hasSameIdsAs(prevMain) != true } == true) {
-				// No support for batch attachment update (yet)
+			if (prev != null && prev.attachmentId != curr.attachmentId) {
+				// No support for batch attachment update of different documents
 				documentLogic.updateAttachments(it, mainAttachmentChange = DataAttachmentChange.Delete) ?: it
 			} else it
 		}.map {
@@ -396,10 +408,164 @@ class DocumentController(
 		emitAll(documentLogic.unsafeModifyDocuments(invoices.toList()).map { stubMapper.mapToStub(it) })
 	}.injectReactorContext()
 
+	@Operation(summary = "Creates or modifies a secondary attachment for a document", description = "Creates a secondary attachment for a document and returns the modified document instance afterward")
+	@PutMapping("/{documentId}/secondaryAttachments/{key}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+	fun setSecondaryAttachment(
+		@PathVariable
+		documentId: String,
+		@Parameter(description = "Key of the secondary attachment to update")
+		@PathVariable
+		key: String,
+		@Parameter(description = "Revision of the latest known version of the document. If the revision does not match the current version of the document the method will fail with CONFLICT status")
+		@RequestParam(required = true)
+		rev: String,
+		@RequestParam(required = false)
+		@Parameter(description = "Utis for the attachment")
+		utis: List<String>?,
+		@RequestParam(required = false)
+		@Parameter(description = "Size of the attachment. If provided it can help to make the best decisions about where to store it")
+		size: Long?,
+		@Schema(type = "string", format = "binary")
+		@RequestBody
+		payload: Flow<DataBuffer>,
+		@RequestHeader(name = HttpHeaders.CONTENT_LENGTH, required = false)
+		lengthHeader: Long?
+	): Mono<DocumentDto> = mono {
+		val attachmentSize = size ?: lengthHeader ?: throw ResponseStatusException(
+			HttpStatus.BAD_REQUEST,
+			"Attachment size must be specified either as a query parameter or as a content-length header"
+		)
+		documentLogic.updateAttachments(
+			documentLogic.getOr404(documentId).also { checkRevision(rev, it) },
+			secondaryAttachmentsChanges = mapOf(
+				key to DataAttachmentChange.CreateOrUpdate(
+					payload,
+					attachmentSize,
+					utis
+				)
+			)
+		).let { documentMapper.map(checkNotNull(it) { "Could not update document" }) }
+	}
+
+	@Operation(summary = "Retrieve a secondary attachment of a document", description = "Get the secondary attachment with the provided key for a document")
+	@GetMapping("/{documentId}/secondaryAttachments/{key}")
+	fun getSecondaryAttachment(
+		@PathVariable
+		documentId: String,
+		@Parameter(description = "Key of the secondary attachment to retrieve")
+		@PathVariable
+		key: String,
+		@RequestParam(required = false)
+		fileName: String?,
+		response: ServerHttpResponse
+	) = response.writeWith(
+		flow {
+			val document = documentLogic.getOr404(documentId)
+			val attachment = attachmentLoader.contentFlowOfNullable(document, key) ?: throw ResponseStatusException(
+				HttpStatus.NOT_FOUND,
+				"No secondary attachment with key $key for document $documentId"
+			)
+
+			response.headers["Content-Type"] = document.mainAttachment?.mimeType ?: "application/octet-stream"
+			response.headers["Content-Disposition"] = "attachment; filename=\"${fileName ?: document.name}\""
+
+			emitAll(attachment)
+		}.injectReactorContext()
+	)
+	@Operation(summary = "Deletes a secondary attachment of a document", description = "Delete the secondary attachment with the provided key for a document")
+	@DeleteMapping("/{documentId}/secondaryAttachments/{key}")
+	fun deleteSecondaryAttachment(
+		@PathVariable
+		documentId: String,
+		@Parameter(description = "Key of the secondary attachment to retrieve")
+		@PathVariable
+		key: String,
+		@Parameter(description = "Revision of the latest known version of the document. If the revision does not match the current version of the document the method will fail with CONFLICT status")
+		@RequestParam(required = true)
+		rev: String,
+	): Mono<DocumentDto> = mono {
+		documentLogic.updateAttachments(
+			documentLogic.getOr404(documentId).also { checkRevision(rev, it) },
+			secondaryAttachmentsChanges = mapOf(key to DataAttachmentChange.Delete)
+		).let { documentMapper.map(checkNotNull(it) { "Could not update document" }) }
+	}
+
+	// TODO bulk get secondary attachments?
+
+	@Operation(
+		summary = "Creates, modifies, or delete the attachments of a document",
+		description = "Batch operation to modify multiple attachments of a document at once"
+	)
+	@PutMapping("/{documentId}/attachments", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+	fun setDocumentAttachments(
+		@Parameter(description = "Id of the document to update")
+		@PathVariable
+		documentId: String,
+		@Parameter(description = "Revision of the latest known version of the document. If the revision does not match the current version of the document the method will fail with CONFLICT status")
+		@RequestParam(required = true)
+		rev: String,
+		@Parameter(description = "Describes the operations to execute with this update.")
+		@RequestPart("options", required = true)
+		options: BulkAttachmentUpdateOptions,
+		@Parameter(description = "New attachments (to create or update). The file name will be used as the attachment key. To update the main attachment use the document id")
+		@RequestPart("attachments", required = false)
+		attachments: Flux<FilePart>?
+	): Mono<DocumentDto> = mono {
+		val attachmentsByKey: Map<String, FilePart> = attachments?.asFlow()?.toList()?.let { partsList ->
+			partsList.associateBy { it.filename() }.also { partsMap ->
+				require(partsList.size == partsMap.size) {
+					"Duplicate keys for new attachments ${partsList.groupingBy { it.filename() }.eachCount().filter { it.value > 1 }.keys}"
+				}
+			}
+		} ?: emptyMap()
+		require(attachmentsByKey.keys.containsAll(options.updateAttachmentsMetadata.keys)) {
+			"Missing attachments for metadata: ${options.updateAttachmentsMetadata.keys - attachmentsByKey.keys}"
+		}
+		require(attachmentsByKey.isNotEmpty() || options.deleteAttachments.isNotEmpty()) { "Nothing to do" }
+		val document = documentLogic.getOr404(documentId)
+		checkRevision(rev, document)
+		val mainAttachmentChange = attachmentsByKey[document.mainAttachmentKey]?.let {
+			makeMultipartAttachmentUpdate("main attachment", it, options.updateAttachmentsMetadata[document.mainAttachmentKey])
+		} ?: DataAttachmentChange.Delete.takeIf { document.mainAttachmentKey in options.deleteAttachments }
+		val secondaryAttachmentsChanges = (options.deleteAttachments - document.mainAttachmentKey).associateWith { DataAttachmentChange.Delete } +
+			(attachmentsByKey - document.mainAttachmentKey).mapValues { (key, value) ->
+				makeMultipartAttachmentUpdate("secondary attachment $key", value, options.updateAttachmentsMetadata[key])
+			}
+		documentLogic.updateAttachments(document, mainAttachmentChange, secondaryAttachmentsChanges)
+			.let { documentMapper.map(checkNotNull(it) { "Could not update document" }) }
+	}
+
+	private fun makeMultipartAttachmentUpdate(name: String, part: FilePart, metadata: BulkAttachmentUpdateOptions.AttachmentMetadata?) =
+		DataAttachmentChange.CreateOrUpdate(
+			part.content().asFlow(),
+			metadata?.contentSize ?: part.headers().contentLength.takeIf { it > 0 } ?: throw ResponseStatusException(
+				HttpStatus.BAD_REQUEST,
+				"Missing size information for $name: you must provide it either as part of the metadata or as a Content-Length header."
+			),
+			metadata?.utis
+		)
+
 	private fun checkRevision(rev: String?, document: Document) {
 		if (rev != null && rev != document.rev) throw ResponseStatusException(
 			HttpStatus.CONFLICT,
 			"Obsolete document revision. The current revision is ${document.rev}"
 		)
+	}
+
+	private suspend fun DocumentLogic.getOr404(documentId: String) =
+		getDocument(documentId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "No document with id $documentId")
+
+	data class BulkAttachmentUpdateOptions(
+		@Schema(description = "Metadata for new attachments or attachments which will be updated, by key. The key for the main attachment is the document id.")
+		val updateAttachmentsMetadata: Map<String, AttachmentMetadata> = emptyMap(),
+		@Schema(description = "Keys of attachments to delete. The key for the main attachment is the document id.")
+		val deleteAttachments: Set<String> = emptySet()
+	) : Serializable {
+		data class AttachmentMetadata(
+			@Schema(description = "Size of the data attachment content. If not provided the corresponding content part must have a Content-Length header with the appropriate size.")
+			val contentSize: Long? = null,
+			@Schema(description = "The Uniform Type Identifiers (https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/understanding_utis/understand_utis_conc/understand_utis_conc.html#//apple_ref/doc/uid/TP40001319-CH202-CHDHIJDE) of the attachment. This is a list to allow representing a priority, but each UTI must be unique.")
+			val utis: List<String> = emptyList()
+		) : Serializable
 	}
 }

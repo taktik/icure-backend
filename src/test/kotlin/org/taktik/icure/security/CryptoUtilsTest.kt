@@ -16,6 +16,7 @@ import kotlinx.coroutines.runBlocking
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
+import org.taktik.icure.security.CryptoUtils.tryKeyFromHexString
 import org.taktik.icure.testutils.shouldContainExactly
 
 private const val AES_BLOCK_SIZE = 128
@@ -115,5 +116,18 @@ class CryptoUtilsTest : StringSpec({
 				}
 			}
 		}
+	}
+
+	"Try key from hex string should support uuid strings" {
+		"014abd20-d5b9-44f4-8e02-cb45b8afb783".tryKeyFromHexString() shouldContainExactly byteArrayOf(
+			1, 74, -67, 32, -43, -71, 68, -12, -114, 2, -53, 69, -72, -81, -73, -125
+		)
+	}
+
+
+	"Try key from hex string should support plain hex strings" {
+		"014abd20d5b944f48e02cb45b8afb783".tryKeyFromHexString() shouldContainExactly byteArrayOf(
+			1, 74, -67, 32, -43, -71, 68, -12, -114, 2, -53, 69, -72, -81, -73, -125
+		)
 	}
 })

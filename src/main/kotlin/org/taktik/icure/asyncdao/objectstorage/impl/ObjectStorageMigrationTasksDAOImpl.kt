@@ -40,7 +40,7 @@ class ObjectStorageMigrationTasksDAOImpl(
 
 	private val dbInstanceUrl = URI(couchDbProperties.url)
 
-	@View(name = BY_ENTITY_CLASS, map = "classpath:js/objectstoragemigrationtask/By_entityclass_map.js")
+	@View(name = BY_ENTITY_CLASS, map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.objectstorage.ObjectStorageMigrationTask' && !doc.deleted) emit(doc.entityClassName, doc._id) }")
 	override fun <T : HasDataAttachments<T>> findTasksForEntities(entityClass: Class<T>) = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 		val viewQuery = createQuery(client, BY_ENTITY_CLASS)
