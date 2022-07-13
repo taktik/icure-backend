@@ -32,7 +32,6 @@ import org.taktik.icure.asynclogic.objectstorage.testutils.FakeObjectStorageMigr
 import org.taktik.icure.asynclogic.objectstorage.testutils.FakeObjectStorageTasksDAO
 import org.taktik.icure.asynclogic.objectstorage.testutils.attachment1
 import org.taktik.icure.asynclogic.objectstorage.testutils.attachment2
-import org.taktik.icure.asynclogic.objectstorage.testutils.byteSizeDataBufferFlow
 import org.taktik.icure.asynclogic.objectstorage.testutils.bytes1
 import org.taktik.icure.asynclogic.objectstorage.testutils.bytes2
 import org.taktik.icure.asynclogic.objectstorage.testutils.document1
@@ -62,7 +61,7 @@ class IcureObjectStorageMigrationTest : StringSpec({
 	beforeEach {
 		resetTestLocalStorageDirectory()
 		documentDAO = mockk()
-		objectStorageClient = FakeObjectStorageClient()
+		objectStorageClient = FakeObjectStorageClient("documents")
 		storageTasksDAO = FakeObjectStorageTasksDAO()
 		migrationTasksDAO = FakeObjectStorageMigrationTasksDAO()
 		icureObjectStorage = DocumentObjectStorageImpl(

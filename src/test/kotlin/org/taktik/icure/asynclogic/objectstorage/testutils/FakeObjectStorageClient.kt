@@ -12,7 +12,7 @@ import org.taktik.icure.asynclogic.objectstorage.ObjectStorageClient
 import org.taktik.icure.entities.base.HasDataAttachments
 import org.taktik.icure.utils.toByteArray
 
-class FakeObjectStorageClient<T : HasDataAttachments<T>> : ObjectStorageClient<T> {
+class FakeObjectStorageClient<T : HasDataAttachments<T>>(override val entityGroupName: String) : ObjectStorageClient<T> {
 	var available = true
 
 	val eventsChannel = Channel<ObjectStoreEvent>(UNLIMITED)

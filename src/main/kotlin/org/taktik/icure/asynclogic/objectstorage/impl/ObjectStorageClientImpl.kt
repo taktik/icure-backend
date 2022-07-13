@@ -13,7 +13,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ClientHttpRequest
-import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserter
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
@@ -33,7 +32,7 @@ import reactor.core.publisher.Mono
 private class ObjectStorageClientImpl<T : HasDataAttachments<T>>(
 	private val sessionLogic: AsyncSessionLogic,
 	private val objectStorageProperties: ObjectStorageProperties,
-	private val entityPath: String
+	override val entityGroupName: String
 ) : ObjectStorageClient<T> {
 	companion object {
 		private val log = LoggerFactory.getLogger(ObjectStorageClientImpl::class.java)
@@ -64,7 +63,7 @@ private class ObjectStorageClientImpl<T : HasDataAttachments<T>>(
 				.retrieve()
 				.awaitBodilessEntity()
 		}.onFailure {
-			log.warn("Failed to upload attachment $attachmentId@$entityId:${entityPath}", it)
+			log.warn("Failed to upload attachment $attachmentId@$entityId:${entityGroupName}", it)
 		}.isSuccess
 
 	override fun get(entity: T, attachmentId: String): Flow<DataBuffer> = flow {
@@ -89,7 +88,7 @@ private class ObjectStorageClientImpl<T : HasDataAttachments<T>>(
 				}
 				.awaitFirst()
 		}.onFailure {
-			log.warn("Error while checking availability of attachment $attachmentId@${entity.id}:${entityPath}", it)
+			log.warn("Error while checking availability of attachment $attachmentId@${entity.id}:${entityGroupName}", it)
 		}.getOrNull() == true
 
 	// Deletion is actually handled by maintenance tasks
@@ -113,7 +112,7 @@ private class ObjectStorageClientImpl<T : HasDataAttachments<T>>(
 		}
 
 	private fun attachmentRoute(entityId: String, attachmentId: String): Array<String> =
-		arrayOf("rest", "v2", "objectstorage", entityPath, entityId, attachmentId)
+		arrayOf("rest", "v2", "objectstorage", entityGroupName, entityId, attachmentId)
 
 	private suspend fun authHeader() =
 		(sessionLogic.getCurrentSessionContext().getUserDetails() as? DatabaseUserDetails)

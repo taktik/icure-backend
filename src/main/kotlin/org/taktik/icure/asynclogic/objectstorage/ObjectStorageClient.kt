@@ -10,6 +10,11 @@ import org.taktik.icure.entities.base.HasDataAttachments
  */
 interface ObjectStorageClient<T : HasDataAttachments<T>> {
 	/**
+	 * Unique name of the type/group of entities for this client.
+	 */
+	val entityGroupName: String
+
+	/**
 	 * Stores an attachment in the attachment storage service.
 	 * @param entity entity which owns the attachment.
 	 * @param attachmentId id of the attachment.

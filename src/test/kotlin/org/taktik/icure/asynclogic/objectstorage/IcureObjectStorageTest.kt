@@ -46,7 +46,7 @@ class IcureObjectStorageTest : StringSpec({
 
 	beforeEach {
 		resetTestLocalStorageDirectory()
-		objectStorageClient = FakeObjectStorageClient()
+		objectStorageClient = FakeObjectStorageClient("documents")
 		storageTasksDAO = FakeObjectStorageTasksDAO()
 		icureObjectStorage = DocumentObjectStorageImpl(
 			storageTasksDAO,

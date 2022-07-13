@@ -135,5 +135,5 @@ class ICureTestApplication {
 	@Primary
 	@Bean
 	fun fakeDocumentObjectStorageClient(): DocumentObjectStorageClient =
-		object : DocumentObjectStorageClient, ObjectStorageClient<Document> by FakeObjectStorageClient() {}
+		object : DocumentObjectStorageClient, ObjectStorageClient<Document> by FakeObjectStorageClient("documents") {}
 }
