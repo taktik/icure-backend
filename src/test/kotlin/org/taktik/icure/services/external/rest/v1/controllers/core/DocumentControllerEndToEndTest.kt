@@ -33,11 +33,14 @@ import org.taktik.icure.asynclogic.objectstorage.testutils.javascriptUti
 import org.taktik.icure.asynclogic.objectstorage.testutils.jsonUti
 import org.taktik.icure.asynclogic.objectstorage.testutils.sampleUtis
 import org.taktik.icure.asynclogic.objectstorage.testutils.xmlUti
+import org.taktik.icure.entities.embed.DeletedAttachment
 import org.taktik.icure.properties.ObjectStorageProperties
 import org.taktik.icure.services.external.rest.shared.controllers.core.DocumentControllerEndToEndTestContext
 import org.taktik.icure.services.external.rest.shared.controllers.core.client
 import org.taktik.icure.services.external.rest.shared.controllers.core.documentControllerSharedEndToEndTests
 import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.DataAttachmentDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.DeletedAttachmentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentTypeDto
 import org.taktik.icure.services.external.rest.v1.mapper.DocumentMapper
 import org.taktik.icure.test.ICureTestApplication
@@ -113,6 +116,36 @@ class DocumentControllerEndToEndTest(
 
 			override fun DocumentDto.changeMainAttachmentUtis(): DocumentDto =
 				copy(mainUti = listOf(jsonUti, htmlUti, xmlUti, javascriptUti).random(random), otherUtis = emptySet())
+
+			override fun DocumentDto.changeAttachmentId(key: String?) =
+				document.let {
+					it.withUpdatedDataAttachment(
+						key ?: it.mainAttachmentKey,
+						it.dataAttachment(key)!!.let { att ->
+							att.copy(
+								couchDbAttachmentId = att.objectStoreAttachmentId,
+								objectStoreAttachmentId = att.couchDbAttachmentId
+							)
+						}
+					)
+				}.let { documentMapper.map(it) }
+
+			override fun DocumentDto.addDeletedAttachment() = copy(
+				deletedAttachments = deletedAttachments + DeletedAttachmentDto(
+					couchDbAttachmentId = "a",
+					key = "b",
+					deletionTime = System.currentTimeMillis()
+				)
+			)
+
+			override fun DocumentDto.addSecondaryAttachment() = copy(
+				secondaryAttachments = mapOf(
+					"someAttachment" to DataAttachmentDto(
+						couchDbAttachmentId = "123",
+						utis = sampleUtis
+					)
+				)
+			)
 
 			override val dataFactory = object : DataFactory<DocumentDto, DocumentController.BulkAttachmentUpdateOptions> {
 				override fun newDocumentNoAttachment(index: Int?) = DocumentDto(
@@ -262,6 +295,15 @@ private fun StringSpec.v1EndToEndTests(
 		}
 		updating.forEach { original ->
 			updatedById[original.id].shouldNotBeNull().document.mainAttachment.shouldNotBeNull()
+		}
+	}
+
+	"Creating a document with initial main attachments uti should be allowed and they should be used when updating the attachment content" {
+		val initial = createDocument(dataFactory.newDocumentNoAttachment().copy(mainUti = xmlUti))
+		val withAttachment = updateMainAttachment(initial.id, initial.rev, randomBigAttachment(), null)
+		withAttachment.document.mainAttachment.shouldNotBeNull().let {
+			it.shouldBeInObjectStore()
+			it.utis shouldBe listOf(xmlUti)
 		}
 	}
 }

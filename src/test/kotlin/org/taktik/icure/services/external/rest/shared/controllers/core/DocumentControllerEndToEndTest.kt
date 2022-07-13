@@ -50,7 +50,6 @@ fun <DTO : Any, METADTO : Any> StringSpec.documentControllerSharedEndToEndTests(
 	"Adding a new attachment to a document should work and allow to retrieve it later" {
 		listOf(randomSmallAttachment() to true, randomBigAttachment() to false).forEach { (attachmentBytes, inCouch) ->
 			listOf(null, key1, key2).forEach { attachmentKey ->
-				println(attachmentKey)
 				val dto = createDocument(dataFactory.newDocumentNoAttachment())
 				val dtoWithAttachment = updateAttachment(dto.document.id, attachmentKey, dto.document.rev, attachmentBytes, sampleUtis)
 				dtoWithAttachment.document.dataAttachment(attachmentKey).shouldNotBeNull().let {
@@ -268,5 +267,31 @@ fun <DTO : Any, METADTO : Any> StringSpec.documentControllerSharedEndToEndTests(
 		val newDtos = (6..10).map { i -> dataFactory.newDocumentNoAttachment(i) }
 		val newAndUpdated = bulkModify(updatedDtos + newDtos)
 		newAndUpdated.map { it.withoutDbUpdatedInfo }.toList() shouldContainExactlyInAnyOrder (updatedDtos + newDtos).map { it.withoutDbUpdatedInfo }
+	}
+
+	"Creation of a new document with initialized secondary attachments should not be allowed (BAD REQUEST)" {
+		shouldRespondErrorStatus(HttpStatus.BAD_REQUEST) {
+			createDocument(dataFactory.newDocumentNoAttachment().addSecondaryAttachment())
+		}
+	}
+
+	"Creation of a new document with initialized deleted attachments should not be allowed (BAD REQUEST)" {
+		shouldRespondErrorStatus(HttpStatus.BAD_REQUEST) {
+			createDocument(dataFactory.newDocumentNoAttachment().addDeletedAttachment())
+		}
+	}
+
+	"Direct modification of secondary attachments id information should not be allowed (BAD REQUEST)" {
+		val initial = createDocumentWithAttachment(dataFactory.newDocumentNoAttachment(), randomBigAttachment(), key1)
+		shouldRespondErrorStatus(HttpStatus.BAD_REQUEST) {
+			updateDocument(initial.changeAttachmentId(key1))
+		}
+	}
+
+	"Direct modification of deleted attachments should not be allowed (BAD REQUEST)" {
+		val initial = createDocument(dataFactory.newDocumentNoAttachment())
+		shouldRespondErrorStatus(HttpStatus.BAD_REQUEST) {
+			updateDocument(initial.addDeletedAttachment())
+		}
 	}
 }

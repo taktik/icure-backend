@@ -62,6 +62,12 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 
 	abstract fun DTO.changeMainAttachmentUtis(): DTO
 
+	abstract fun DTO.changeAttachmentId(key: String?): DTO
+
+	abstract fun DTO.addDeletedAttachment(): DTO
+
+	abstract fun DTO.addSecondaryAttachment(): DTO
+
 	interface DataFactory<DTO : Any, BAO : Any> {
 		/**
 		 * A dto to create a new document without any attachment-related information.
@@ -118,7 +124,7 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 		id: String,
 		rev: String?,
 		attachment: ByteArray,
-		utis: List<String>,
+		utis: List<String>?,
 		additionalParameters: Map<String, Any> = emptyMap()
 	) =
 		// Automatically sets also Content-length header

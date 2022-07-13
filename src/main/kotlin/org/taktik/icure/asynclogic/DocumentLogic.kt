@@ -27,11 +27,12 @@ import org.taktik.icure.entities.Document
 interface DocumentLogic : EntityPersister<Document, String> {
 	/**
 	 * Creates a new document.
-	 * When using this method in a strict way it is going to first verify that the document does not specify any attachment information,
-	 * throwing an [IllegalArgumentException] if it does.
-	 * When using this method in a lenient way there is no restriction on how the document can be created.
+	 * It is generally not allowed to specify information related to attachments on creation (throws
+	 * [IllegalArgumentException]), except for information related to the main attachment if [strict]
+	 * is set to false (for retro-compatibility).
+	 * It is never allowed to specify a non-empty value for deleted attachments.
 	 * @param document the document to create
-	 * @param strict specifies whether to behave in a strict or lenient way.
+	 * @param strict specifies whether to behave in a strict or lenient way for the main attachment.
 	 */
 	suspend fun createDocument(
 		document: Document,
@@ -43,15 +44,17 @@ interface DocumentLogic : EntityPersister<Document, String> {
 	fun getAttachment(documentId: String, attachmentId: String): Flow<ByteBuffer>
 
 	/**
-	 * Modifies a document, without changing any information on data attachments.
-	 * If the updatedDocument has data attachment ids information which is inconsistent with the current document
-	 * the method can have two different behaviours, depending on the value of [strict]:
-	 * - **strict**: throws an [IllegalArgumentException].
-	 * - **lenient**: updates all other values, leaving data attachment information unchanged.
+	 * Modifies a document ensuring there is no change to deleted attachments and ids of attachments.
+	 * If the updatedDocument changes the information on deleted attachments, or ids of attachments
+	 * (including deletion of existing attachments or addition of new attachments) the method will
+	 * fail with an [IllegalArgumentException]. The only exception to this is the main attachment (for
+	 * retro-compatibility): in case there is an attempt to modify the main attachment ids, and [strict]
+	 * is set to false the change will simply be ignored.
 	 * This method still allows updating non-id attachment information such as utis.
+	 * It is never allowed to modify deleted attachments.
 	 * @param updatedDocument the new version of the document
 	 * @param currentDocument the current document if already available, else null
-	 * @param strict specifies whether to behave in a strict or lenient way.
+	 * @param strict specifies whether to behave in a strict or lenient way for the main attachment.
 	 * @return the updated document.
 	 */
 	suspend fun modifyDocument(updatedDocument: Document, currentDocument: Document?, strict: Boolean): Document?

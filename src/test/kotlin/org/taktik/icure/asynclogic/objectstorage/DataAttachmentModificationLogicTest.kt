@@ -396,29 +396,44 @@ class DataAttachmentModificationLogicTest : StringSpec({
 		document.addDeletedAttachment().changeAttachmentId().addNewAttachment()
 	)
 
-	"Ensure valid attachment changes strict should allow any valid modifications" {
-		dataAttachmentModificationLogic.ensureValidAttachmentChanges(sampleWithAttachments, validUpdates, true) shouldBe validUpdates
+	"`ensureValidAttachmentChanges` with no lenient keys should allow any valid modifications" {
+		dataAttachmentModificationLogic.ensureValidAttachmentChanges(sampleWithAttachments, validUpdates, emptySet()) shouldBe validUpdates
 	}
 
-	"Ensure valid attachment changes changes strict fails on attachmentId modifications" {
+	"`ensureValidAttachmentChanges` with no lenient keys should fail on any invalid modifications" {
 		generateInvalidChanges(validUpdates).forAll {
 			shouldThrow<IllegalArgumentException> {
 				dataAttachmentModificationLogic.ensureValidAttachmentChanges(
 					sampleWithAttachments,
 					it,
-					true
+					emptySet()
 				)
 			}
 		}
 	}
 
-	"Ensure no attachment content changes lenient should filter out attachmentId modifications" {
+	"`ensureValidAttachmentChanges` with lenient keys should fail on any invalid modifications unrelated to lenient keys" {
 		generateInvalidChanges(validUpdates).forAll {
-			dataAttachmentModificationLogic.ensureValidAttachmentChanges(
-				sampleWithAttachments,
-				it,
-				false
-			) shouldBe validUpdates
+			shouldThrow<IllegalArgumentException> {
+				dataAttachmentModificationLogic.ensureValidAttachmentChanges(
+					sampleWithAttachments,
+					it,
+					setOf("nonExisting")
+				)
+			}
 		}
+	}
+
+	"`ensureValidAttachmentChanges` with lenient keys should filter out any invalid modifications on the lenient keys" {
+		dataAttachmentModificationLogic.ensureValidAttachmentChanges(
+			sampleWithAttachments,
+			validUpdates.changeAttachmentId(),
+			validUpdates.dataAttachments.keys
+		) shouldBe validUpdates
+		dataAttachmentModificationLogic.ensureValidAttachmentChanges(
+			sampleWithAttachments,
+			validUpdates.addNewAttachment(),
+			setOf(key4)
+		) shouldBe validUpdates
 	}
 })

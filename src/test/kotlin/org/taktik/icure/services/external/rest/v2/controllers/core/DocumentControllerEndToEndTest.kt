@@ -21,11 +21,14 @@ import org.taktik.icure.asynclogic.objectstorage.DocumentObjectStorageClient
 import org.taktik.icure.asynclogic.objectstorage.testutils.htmlUti
 import org.taktik.icure.asynclogic.objectstorage.testutils.javascriptUti
 import org.taktik.icure.asynclogic.objectstorage.testutils.jsonUti
+import org.taktik.icure.asynclogic.objectstorage.testutils.sampleUtis
 import org.taktik.icure.asynclogic.objectstorage.testutils.xmlUti
 import org.taktik.icure.properties.ObjectStorageProperties
 import org.taktik.icure.services.external.rest.shared.controllers.core.DocumentControllerEndToEndTestContext
 import org.taktik.icure.services.external.rest.shared.controllers.core.documentControllerSharedEndToEndTests
 import org.taktik.icure.services.external.rest.v2.dto.DocumentDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.DataAttachmentDto
+import org.taktik.icure.services.external.rest.v2.dto.embed.DeletedAttachmentDto
 import org.taktik.icure.services.external.rest.v2.dto.embed.DocumentTypeDto
 import org.taktik.icure.services.external.rest.v2.mapper.DocumentV2Mapper
 import org.taktik.icure.test.ICureTestApplication
@@ -97,6 +100,36 @@ class DocumentControllerEndToEndTest(
 			override fun DocumentDto.changeMainAttachmentUtis(): DocumentDto =
 				copy(mainUti = listOf(jsonUti, htmlUti, xmlUti, javascriptUti).random(random), otherUtis = emptySet())
 
+			override fun DocumentDto.changeAttachmentId(key: String?) =
+				document.let {
+					it.withUpdatedDataAttachment(
+						key ?: it.mainAttachmentKey,
+						it.dataAttachment(key)!!.let { att ->
+							att.copy(
+								couchDbAttachmentId = att.objectStoreAttachmentId,
+								objectStoreAttachmentId = att.couchDbAttachmentId
+							)
+						}
+					)
+				}.let { documentMapper.map(it) }
+
+			override fun DocumentDto.addDeletedAttachment() = copy(
+				deletedAttachments = deletedAttachments + DeletedAttachmentDto(
+					couchDbAttachmentId = "a",
+					key = "b",
+					deletionTime = System.currentTimeMillis()
+				)
+			)
+
+			override fun DocumentDto.addSecondaryAttachment() = copy(
+				secondaryAttachments = mapOf(
+					"someAttachment" to DataAttachmentDto(
+						couchDbAttachmentId = "123",
+						utis = sampleUtis
+					)
+				)
+			)
+
 			override val dataFactory = object : DataFactory<DocumentDto, DocumentController.BulkAttachmentUpdateOptions> {
 				override fun newDocumentNoAttachment(index: Int?) = DocumentDto(
 					UUID.randomUUID().toString(),
@@ -126,18 +159,23 @@ class DocumentControllerEndToEndTest(
 private fun StringSpec.v2EndToEndTests(
 	context: DocumentControllerEndToEndTestContext<DocumentDto, DocumentController.BulkAttachmentUpdateOptions>
 ): Unit = with (context) {
-	/*
-	"Creation of a document with initialized main attachment data should fail with BAD REQUEST" {
-
+	"Creation of a document with initialized main attachment information should not be allowed (BAD REQUEST)" {
+		shouldRespondErrorStatus(HttpStatus.BAD_REQUEST) {
+			createDocument(dataFactory.newDocumentNoAttachment().copy(mainUti = xmlUti))
+		}
+		shouldRespondErrorStatus(HttpStatus.BAD_REQUEST) {
+			createDocument(dataFactory.newDocumentNoAttachment().copy(attachmentId = "someId"))
+		}
 	}
 
-	"Update of a document with changes to main attachment data should fail with BAD REQUEST" {
-
+	"Update of a document with changes to main attachment ids should not be allowed (BAD REQUEST)" {
+		val dto = createDocumentWithAttachment(dataFactory.newDocumentNoAttachment(), randomBigAttachment(), null)
+		shouldRespondErrorStatus(HttpStatus.BAD_REQUEST) {
+			createDocument(dto.changeAttachmentId(null))
+		}
 	}
-	
-	 */
 
-	"Update of a non-existing document should fail with NOT FOUND" {
+	"Update of a non-existing document should fail (NOT FOUND)" {
 		shouldRespondErrorStatus(HttpStatus.NOT_FOUND) { updateDocument(dataFactory.newDocumentNoAttachment()) }
 	}
 }

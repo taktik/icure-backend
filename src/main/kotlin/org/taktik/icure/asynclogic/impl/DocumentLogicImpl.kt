@@ -41,8 +41,7 @@ class DocumentLogicImpl(
 ) : GenericLogicImpl<Document, DocumentDAO>(sessionLogic), DocumentLogic {
 
 	override suspend fun createDocument(document: Document, strict: Boolean) = fix(document) { fixedDocument ->
-		if (strict) strictCheckNewDocument(fixedDocument)
-		documentDAO.create(fixedDocument)
+		documentDAO.create(checkNewDocument(fixedDocument, strict))
 	}
 
 	override suspend fun getDocument(documentId: String): Document? {
@@ -67,7 +66,13 @@ class DocumentLogicImpl(
 		documentDAO.save(
 			newDoc
 				.copy(attachments = baseline.attachments)
-				.let { attachmentModificationLogic.ensureValidAttachmentChanges(baseline, it, strict) }
+				.let {
+					attachmentModificationLogic.ensureValidAttachmentChanges(
+						baseline,
+						it,
+						if (strict) emptySet() else setOf(updatedDocument.mainAttachmentKey)
+					)
+				}
 		)
 	}
 
@@ -76,11 +81,15 @@ class DocumentLogicImpl(
 			if (prevDoc != null) {
 				fix(newDoc)
 					.copy(attachments = prevDoc.attachments)
-					.let { attachmentModificationLogic.ensureValidAttachmentChanges(prevDoc, it, strict) }
+					.let {
+						attachmentModificationLogic.ensureValidAttachmentChanges(
+							prevDoc,
+							it,
+							if (strict) emptySet() else setOf(newDoc.mainAttachmentKey)
+						)
+					}
 			} else {
-				fix(newDoc).also {
-					if (strict) strictCheckNewDocument(it)
-				}
+				checkNewDocument(fix(newDoc), strict)
 			}
 		}
 		emitAll(documentDAO.save(fixedDocuments))
@@ -136,12 +145,21 @@ class DocumentLogicImpl(
 		return documentDAO
 	}
 
-	private fun strictCheckNewDocument(document: Document) {
-		require(document.dataAttachments.isEmpty()) {
-			"New document can't provide any attachment information."
+	private fun checkNewDocument(document: Document, strict: Boolean): Document {
+		require(document.secondaryAttachments.isEmpty()) {
+			"New document can't provide any secondary attachments information."
 		}
 		require(document.deletedAttachments.isEmpty()) {
 			"New document can't specify deleted attachments."
 		}
+		if (strict) {
+			require(document.mainAttachment == null && document.mainUti == null && document.otherUtis.isEmpty()) {
+				"New document can't specify any main attachment information"
+			}
+		}
+		require(document.objectStoreReference == null) {
+			"New document can't specify a value for the main attachment object store id."
+		}
+		return if (document.attachmentId != null) document.copy(attachmentId = null) else document
 	}
 }

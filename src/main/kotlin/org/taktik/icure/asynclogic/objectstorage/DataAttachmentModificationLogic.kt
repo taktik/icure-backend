@@ -15,25 +15,25 @@ interface DataAttachmentModificationLogic<T : HasDataAttachments<T>> {
 	 * the data attachment information: some changes to attachment information can only be
 	 * executed through [updateAttachments]. This prevents accidental loss of information.
 	 *
-	 * This method can be used in two modes, depending on the value of strict: if strict is
-	 * true invalid changes from the current entity to the new entity will cause the method
-	 * to throw an [IllegalArgumentException], if strict is false instead the method will
-	 * just ignore any invalid changes and remove them from the returned entity.
-	 *
 	 * The following changes are considered invalid:
-	 * - The new version of an entity specifies some attachments which do not exist in the
+	 * 1. The new version of an entity specifies some attachments which do not exist in the
 	 * current version.
-	 * - The new version changes the value of a [DataAttachment.couchDbAttachmentId] or
+	 * 2. The new version changes the value of a [DataAttachment.couchDbAttachmentId] or
 	 * [DataAttachment.objectStoreAttachmentId].
-	 * - Any change in the [HasDataAttachments.deletedAttachments]
+	 * 3. Any change in the [HasDataAttachments.deletedAttachments]
+	 *
+	 * In most cases if there is an invalid change this method will throw an [IllegalArgumentException],
+	 * however it is possible to specify to have a lenient behaviour for some attachments, in order to
+	 * preserve retro-compatibility. All invalid changes to attachment data that is mapped to a key
+	 * in [lenientKeys] will be simply ignored, without triggering an [IllegalArgumentException].
+	 *
 	 * @param currEntity the current value of the entity being updated
 	 * @param newEntity the new desired value for the entity
-	 * @param strict if true use the method in strict mode, else lenient
-	 * @return an updated version of newEntity which does not have any invalid change (if strict
-	 * and the method returns it will always be equivalent to newEntity)
-	 * @throws IllegalArgumentException if strict is true and there are any invalid changes
+	 * @param lenientKeys keys of attachments to exclude from the check.
+	 * @return an updated version of newEntity which does not have any invalid change.
+	 * @throws IllegalArgumentException if there are invalid changes not related to lenient keys.
 	 */
-	fun ensureValidAttachmentChanges(currEntity: T, newEntity: T, strict: Boolean): T
+	fun ensureValidAttachmentChanges(currEntity: T, newEntity: T, lenientKeys: Set<String>): T
 
 	/**
 	 * Updates an entity attachments, also performing any side-tasks necessary for the appropriate

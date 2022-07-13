@@ -25,7 +25,7 @@ private abstract class DataAttachmentModificationLogicImpl<T : HasDataAttachment
 	private val icureObjectStorage: IcureObjectStorage<T>,
 	private val objectStorageProperties: ObjectStorageProperties,
 ) : DataAttachmentModificationLogic<T> {
-	override fun ensureValidAttachmentChanges(currEntity: T, newEntity: T, strict: Boolean): T {
+	override fun ensureValidAttachmentChanges(currEntity: T, newEntity: T, lenientKeys: Set<String>): T {
 		check(currEntity.attachments == newEntity.attachments) {
 			"Couchdb attachments for new entity should have been updated to match current entity."
 		}
@@ -33,16 +33,13 @@ private abstract class DataAttachmentModificationLogicImpl<T : HasDataAttachment
 		val newAttachments = newEntity.dataAttachments
 		return newEntity.withDataAttachments(
 			(currentAttachments.keys + newAttachments.keys).mapNotNull { key ->
-				ensureNoContentChange(currentAttachments[key], newAttachments[key], strict, key)
+				ensureNoContentChange(currentAttachments[key], newAttachments[key], key !in lenientKeys, key)
 					?.let { key to it }
 			}.toMap()
-		).let {
-			if (it.deletedAttachments != currEntity.deletedAttachments) {
-				require(!strict) {
-					"Strict mode is enabled and new entity deleted attachments don't match current."
-				}
-				it.withDeletedAttachments(currEntity.deletedAttachments)
-			} else it
+		).also {
+			require(it.deletedAttachments == currEntity.deletedAttachments) {
+				"Deleted attachments information can't be changed manually."
+			}
 		}
 	}
 
@@ -57,7 +54,7 @@ private abstract class DataAttachmentModificationLogicImpl<T : HasDataAttachment
 				updatedAttachment
 			} else {
 				require(!strict) {
-					"Inconsistency between updated and current for attachment $attachmentKey with strict mode enabled: " +
+					"Inconsistency between updated and current for attachment $attachmentKey: " +
 						"expected ${currentAttachment.ids} but got ${updatedAttachment?.ids}"
 				}
 				updatedAttachment?.withIdsOf(currentAttachment) ?: currentAttachment
