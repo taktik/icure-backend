@@ -5,6 +5,7 @@ import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.base.HasDataAttachments
 import org.taktik.icure.entities.embed.DataAttachment
+import org.taktik.icure.exceptions.ObjectStoreException
 
 /**
  * Shared logic for the modification of entities which have [DataAttachment]s.
@@ -41,6 +42,8 @@ interface DataAttachmentModificationLogic<T : HasDataAttachments<T>> {
 	 * @param currEntity the current value of the entity which needs to be updated.
 	 * @param changes the changes to apply to the entity attachments.
 	 * @return the updated entity
+	 * @throws ObjectStoreException if one or more attachments must be stored using the object
+	 * storage service but this is not possible at the moment.
 	 */
 	suspend fun updateAttachments(currEntity: T, changes: Map<String, DataAttachmentChange>): T?
 

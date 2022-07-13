@@ -28,6 +28,7 @@ import org.taktik.icure.asynclogic.objectstorage.LocalObjectStorage
 import org.taktik.icure.asynclogic.objectstorage.ObjectStorageClient
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.base.HasDataAttachments
+import org.taktik.icure.exceptions.ObjectStoreException
 
 interface ScheduledIcureObjectStorage<T : HasDataAttachments<T>> : IcureObjectStorage<T>, InitializingBean, DisposableBean {
 	val hasScheduledStorageTasks: Boolean
@@ -61,11 +62,19 @@ private class IcureObjectStorageImpl<T : HasDataAttachments<T>>(
 		taskExecutorScope.cancel()
 	}
 
-	override suspend fun preStore(entity: T, attachmentId: String, content: ByteArray): Boolean =
-		localObjectStorage.store(entity, attachmentId, content)
+	override suspend fun preStore(entity: T, attachmentId: String, content: ByteArray) =
+		try {
+			localObjectStorage.store(entity, attachmentId, content)
+		} catch (e: Exception) {
+			throw ObjectStoreException("Could not store attachment to local cache", e)
+		}
 
-	override suspend fun preStore(entity: T, attachmentId: String, content: Flow<DataBuffer>): Boolean =
-		localObjectStorage.store(entity, attachmentId, content)
+	override suspend fun preStore(entity: T, attachmentId: String, content: Flow<DataBuffer>) =
+		try {
+			localObjectStorage.store(entity, attachmentId, content)
+		} catch (e: Exception) {
+			throw ObjectStoreException("Could not store attachment to local cache", e)
+		}
 
 	override suspend fun scheduleStoreAttachment(entity: T, attachmentId: String) =
 		scheduleNewStorageTask(entity, attachmentId, ObjectStorageTaskType.UPLOAD)

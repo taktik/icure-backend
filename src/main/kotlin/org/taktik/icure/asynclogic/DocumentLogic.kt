@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asynclogic.objectstorage.DataAttachmentModificationLogic.DataAttachmentChange
 import org.taktik.icure.entities.Document
+import org.taktik.icure.exceptions.ObjectStoreException
 
 interface DocumentLogic : EntityPersister<Document, String> {
 	/**
@@ -82,6 +83,8 @@ interface DocumentLogic : EntityPersister<Document, String> {
 	 * @param secondaryAttachmentsChanges specifies how to change the secondary attachments. Only secondary attachments specified
 	 * in this map will be changed, other attachments in the document will be ignored.
 	 * @return the updated document.
+	 * @throws ObjectStoreException if one or more attachments must be stored using the object
+	 * storage service but this is not possible at the moment.
 	 */
 	suspend fun updateAttachments(
 		currentDocument: Document,

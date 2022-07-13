@@ -51,7 +51,7 @@ private abstract class IcureObjectStorageMigrationImpl<T : HasDataAttachments<T>
 
 	override fun scheduleMigrateAttachment(entity: T, attachmentId: String) {
 		if (migrationTaskSet.add(entity.id to attachmentId)) taskExecutorScope.launch {
-			if (loadAttachment(entity, attachmentId)?.let { objectStorage.preStore(entity, attachmentId, it) } == true) {
+			if (tryPreStore(entity, attachmentId)) {
 				objectStorage.scheduleStoreAttachment(entity, attachmentId)
 				val task = ObjectStorageMigrationTask.of(entity, attachmentId)
 				objectStorageMigrationTasksDao.save(task)
@@ -73,6 +73,11 @@ private abstract class IcureObjectStorageMigrationImpl<T : HasDataAttachments<T>
 			}
 		}
 	}
+
+	private suspend fun tryPreStore(entity: T, attachmentId: String) =
+		loadAttachment(entity, attachmentId)
+			?.let { runCatching { objectStorage.preStore(entity, attachmentId, it) } }
+			?.isSuccess == true
 
 	// Attempts to execute migration task returns if the task completed (successfully performed migration or there is no need for it anymore) or should be retried later
 	private suspend fun tryMigration(task: ObjectStorageMigrationTask): Boolean = (

@@ -1,9 +1,5 @@
 package org.taktik.icure.asynclogic.objectstorage
 
-import java.io.File
-import java.io.RandomAccessFile
-import java.nio.file.Files
-import java.nio.file.Path
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.async
@@ -14,7 +10,6 @@ import kotlinx.coroutines.withTimeout
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.taktik.icure.asynclogic.objectstorage.impl.DocumentLocalObjectStorageImpl
 import org.taktik.icure.asynclogic.objectstorage.testutils.attachment1
-import org.taktik.icure.asynclogic.objectstorage.testutils.attachment2
 import org.taktik.icure.asynclogic.objectstorage.testutils.byteSizeDataBufferFlow
 import org.taktik.icure.asynclogic.objectstorage.testutils.bytes1
 import org.taktik.icure.asynclogic.objectstorage.testutils.bytes2
@@ -40,7 +35,7 @@ class LocalObjectStorageTest : StringSpec({
 	}
 
 	"Stored attachment should match original" {
-		fun cacheStore(f: suspend DocumentLocalObjectStorage.(document: Document, attachmentId: String, contentBytes: ByteArray) -> Boolean) = f
+		fun cacheStore(f: suspend DocumentLocalObjectStorage.(document: Document, attachmentId: String, contentBytes: ByteArray) -> Unit) = f
 		listOf(
 			cacheStore { document, attachmentId, contentBytes ->
 				store(document, attachmentId, contentBytes)
@@ -51,7 +46,7 @@ class LocalObjectStorageTest : StringSpec({
 			}
 		).forEach { doStore ->
 			sampleAttachments.forEach { (document, attachmentId, bytes) ->
-				cache.doStore(document, attachmentId, bytes) shouldBe true
+				cache.doStore(document, attachmentId, bytes)
 				cache.read(document, attachmentId)?.toByteArray(true) shouldContainExactly bytes
 			}
 			resetTestLocalStorageDirectory()
@@ -67,36 +62,42 @@ class LocalObjectStorageTest : StringSpec({
 		writingJob.isCompleted shouldBe false
 		delay(SLOW_BYTES_DELAY)
 		writingJob.isCompleted shouldBe false
-		withTimeout(SLOW_BYTES_DELAY) { writingJob.await() shouldBe true }
+		withTimeout(SLOW_BYTES_DELAY) { writingJob.await() }
 		cache.read(document1, attachment1)?.toByteArray(true) shouldContainExactly bytes1
 	}
 
 	"Storing the same attachment multiple times should not cause any errors" {
 		repeat(2) {
-			cache.store(document1, attachment1, bytes1) shouldBe true
+			cache.store(document1, attachment1, bytes1)
 			cache.read(document1, attachment1)?.toByteArray(true) shouldContainExactly bytes1
 		}
 	}
 
-	"In case of concurrent writes to the same file only one should be considered successful" {
+	"In case of concurrent writes to the same file other writes should join on the existing job" {
 		val dataFlow = flow {
 			delay(SLOW_BYTES_DELAY * 2)
 			emit(DefaultDataBufferFactory.sharedInstance.wrap(bytes1))
 		}
 		val writingJob = async { cache.store(document1, attachment1, dataFlow) }
 		delay(SLOW_BYTES_DELAY / 2)
+		// I'm doing illegal stuff for test purposes: same attachment id but different content (should never happen in real scenario)
+		val writingJob2 = async { cache.store(document1, attachment1, flowOf(DefaultDataBufferFactory.sharedInstance.wrap(bytes2))) }
+		val writingJob3 = async { cache.store(document1, attachment1, bytes3) }
+		delay(SLOW_BYTES_DELAY)
+		writingJob.isCompleted shouldBe false
+		writingJob2.isCompleted shouldBe false
+		writingJob3.isCompleted shouldBe false
 		withTimeout(SLOW_BYTES_DELAY) {
-			// I'm doing illegal stuff for test purposes: same attachment id but different content (should never happen in real scenario)
-			cache.store(document1, attachment1, flowOf(DefaultDataBufferFactory.sharedInstance.wrap(bytes2))) shouldBe false
-			cache.store(document1, attachment1, bytes3) shouldBe false
-			writingJob.isCompleted shouldBe false
+			writingJob.await()
+			writingJob2.await()
+			writingJob3.await()
 		}
-		writingJob.await() shouldBe true
 		cache.read(document1, attachment1)?.toByteArray(true) shouldContainExactly bytes1
 	}
 
-	"Storing flow should have stored the document to cache after collection is completed" {
+	"Storing flow should start attachment storing task on collection" {
 		cache.storing(document1, attachment1, bytes1.byteSizeDataBufferFlow()).toByteArray(true) shouldContainExactly bytes1
+		cache.store(document1, attachment1, bytes2) // Ensures the storage job completes, but if then we read bytes2 we know that the job was actually started by this -> error
 		cache.read(document1, attachment1)?.toByteArray(true) shouldContainExactly bytes1
 	}
 

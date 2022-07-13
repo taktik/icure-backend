@@ -39,6 +39,7 @@ import org.taktik.icure.asynclogic.objectstorage.testutils.smallAttachment
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.embed.DataAttachment
 import org.taktik.icure.entities.embed.DeletedAttachment
+import org.taktik.icure.exceptions.ObjectStoreException
 import org.taktik.icure.properties.ObjectStorageProperties
 import org.taktik.icure.testutils.shouldContainExactly
 import org.taktik.icure.utils.toByteArray
@@ -88,7 +89,6 @@ class DataAttachmentModificationLogicTest : StringSpec({
 			coEvery { icureObjectStorage.preStore(any(), any(), any<Flow<DataBuffer>>()) } answers {
 				firstArg<Document>().id shouldBe initialDocument.id
 				objectStoreData[secondArg()] = thirdArg()
-				true
 			}
 		}
 		expectedObjectStorageDeletions.forEach { (_, attachmentId) ->
@@ -201,23 +201,21 @@ class DataAttachmentModificationLogicTest : StringSpec({
 		verify()
 	}
 
-	"If a big attachment could not be pre-stored it should be stored in couch db" {
-		val verify = supportAttachmentUpdate(
-			sampleDocument,
-			expectedCouchDbCreations = mapOf(sampleDocument.mainAttachmentKey to (bigAttachment to sampleUtis))
-		)
-		coEvery { icureObjectStorage.preStore(any(), any(), any<Flow<DataBuffer>>()) } returns false
-		dataAttachmentModificationLogic.updateAttachments(
-			sampleDocument,
-			mapOf(
-				sampleDocument.mainAttachmentKey to DataAttachmentChange.CreateOrUpdate(
-					bigAttachment.byteSizeDataBufferFlow(),
-					bigAttachment.size.toLong(),
-					sampleUtis
+	"If a big attachment could not be pre-stored the update operation should fail without any changes" {
+		coEvery { icureObjectStorage.preStore(any(), any(), any<Flow<DataBuffer>>()) } throws ObjectStoreException("Could not pre-store")
+		shouldThrow<ObjectStoreException> {
+			dataAttachmentModificationLogic.updateAttachments(
+				sampleDocument,
+				mapOf(
+					sampleDocument.mainAttachmentKey to DataAttachmentChange.CreateOrUpdate(
+						bigAttachment.byteSizeDataBufferFlow(),
+						bigAttachment.size.toLong(),
+						sampleUtis
+					)
 				)
 			)
-		)
-		verify()
+		}
+		coVerify(exactly = 1) { icureObjectStorage.preStore(any(), any(), any<Flow<DataBuffer>>())}
 	}
 
 	"Updating attachments should support deletion of existing attachments" {

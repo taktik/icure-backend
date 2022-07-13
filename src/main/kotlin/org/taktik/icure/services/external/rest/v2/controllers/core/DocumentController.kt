@@ -60,6 +60,7 @@ import org.taktik.icure.asynclogic.objectstorage.DocumentDataAttachmentLoader
 import org.taktik.icure.asynclogic.objectstorage.contentFlowOfNullable
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.embed.DocumentType
+import org.taktik.icure.exceptions.ObjectStoreException
 import org.taktik.icure.services.external.rest.v2.dto.DocumentDto
 import org.taktik.icure.services.external.rest.v2.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v2.dto.ListOfIdsDto
@@ -168,7 +169,7 @@ class DocumentController(
 		}
 		val document = documentLogic.getOr404(documentId)
 		checkRevision(rev, document)
-		documentLogic.updateAttachments(
+		documentLogic.updateAttachmentsWrappingExceptions(
 			document,
 			mainAttachmentChange = DataAttachmentChange.CreateOrUpdate(payload, payloadSize, utis)
 		)?.let { documentV2Mapper.map(it) }
@@ -308,7 +309,7 @@ class DocumentController(
 			HttpStatus.BAD_REQUEST,
 			"Attachment size must be specified either as a query parameter or as a content-length header"
 		)
-		documentLogic.updateAttachments(
+		documentLogic.updateAttachmentsWrappingExceptions(
 			documentLogic.getOr404(documentId).also { checkRevision(rev, it) },
 			secondaryAttachmentsChanges = mapOf(
 				key to DataAttachmentChange.CreateOrUpdate(
@@ -402,7 +403,7 @@ class DocumentController(
 			(attachmentsByKey - document.mainAttachmentKey).mapValues { (key, value) ->
 				makeMultipartAttachmentUpdate("secondary attachment $key", value, options.updateAttachmentsMetadata[key])
 			}
-		documentLogic.updateAttachments(document, mainAttachmentChange, secondaryAttachmentsChanges)
+		documentLogic.updateAttachmentsWrappingExceptions(document, mainAttachmentChange, secondaryAttachmentsChanges)
 			.let { documentV2Mapper.map(checkNotNull(it) { "Could not update document" }) }
 	}
 
@@ -425,6 +426,20 @@ class DocumentController(
 			"Obsolete document revision. The current revision is ${document.rev}"
 		)
 	}
+
+	private suspend fun DocumentLogic.updateAttachmentsWrappingExceptions(
+		currentDocument: Document,
+		mainAttachmentChange: DataAttachmentChange? = null,
+		secondaryAttachmentsChanges: Map<String, DataAttachmentChange> = emptyMap()
+	): Document? =
+		try {
+			updateAttachments(currentDocument, mainAttachmentChange, secondaryAttachmentsChanges)
+		} catch (e: ObjectStoreException) {
+			throw ResponseStatusException(
+				HttpStatus.SERVICE_UNAVAILABLE,
+				"One or more attachments must be stored using the object storage service, but the service is currently unavailable."
+			)
+		}
 
 	data class BulkAttachmentUpdateOptions(
 		@Schema(description = "Metadata for new attachments or attachments which will be updated, by key. The key for the main attachment is the document id.")

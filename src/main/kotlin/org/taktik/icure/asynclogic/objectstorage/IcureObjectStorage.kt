@@ -5,6 +5,7 @@ import org.springframework.core.io.buffer.DataBuffer
 import java.io.IOException
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.base.HasDataAttachments
+import org.taktik.icure.exceptions.ObjectStoreException
 
 /**
  * Handles object storage for attachments. Depending on the implementation this may include caching,
@@ -16,20 +17,22 @@ interface IcureObjectStorage<T : HasDataAttachments<T>> {
 	 * @param entity entity which owns the attachment.
 	 * @param attachmentId id of the attachment.
 	 * @param content content of the attachment.
-	 * @return If the pre-storage was successful. If not the attachment can't be stored to the object storage service,
-	 * and should be stored as a couchdb attachment instead.
+	 * @throws ObjectStoreException if the task failed. This means that at the moment the attachment can't be stored to the
+	 * object storage service, but depending on the cause of the error it may be possible for this operation to succeed if
+	 * re-attempted in the future.
 	 */
-	suspend fun preStore(entity: T, attachmentId: String, content: ByteArray): Boolean
+	suspend fun preStore(entity: T, attachmentId: String, content: ByteArray)
 
 	/**
 	 * Performs the pre-storage task for an attachment.
 	 * @param entity entity which owns the attachment.
 	 * @param attachmentId id of the attachment.
 	 * @param content content of the attachment.
-	 * @return If the pre-storage was successful. If not the attachment can't be stored to the object storage service,
-	 * and should be stored as a couchdb attachment instead.
+	 * @throws ObjectStoreException if the task failed. This means that at the moment the attachment can't be stored to the
+	 * object storage service, but depending on the cause of the error it may be possible for this operation to succeed if
+	 * re-attempted in the future.
 	 */
-	suspend fun preStore(entity: T, attachmentId: String, content: Flow<DataBuffer>): Boolean
+	suspend fun preStore(entity: T, attachmentId: String, content: Flow<DataBuffer>)
 
 	/**
 	 * TODO support mime type?

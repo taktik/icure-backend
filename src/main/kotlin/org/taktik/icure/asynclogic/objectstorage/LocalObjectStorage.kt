@@ -13,22 +13,21 @@ import org.taktik.icure.entities.base.HasDataAttachments
  */
 interface LocalObjectStorage<T : HasDataAttachments<T>> {
 	/**
-	 * Store an attachment locally.
+	 * Store an attachment locally. Any errors will be propagated to the user.
 	 * @param entity entity which owns the attachment.
 	 * @param attachmentId id of the attachment
 	 * @param attachment content of the attachment
-	 * @return true if the attachment could be properly stored, false on errors
 	 */
-	suspend fun store(entity: T, attachmentId: String, attachment: ByteArray): Boolean
+	suspend fun store(entity: T, attachmentId: String, attachment: ByteArray)
 
 	/**
-	 * Store an attachment locally.
+	 * Store an attachment locally. Any errors will be propagated to the user.
 	 * @param entity entity which owns the attachment.
 	 * @param attachmentId id of the attachment
 	 * @param attachment content of the attachment
 	 * @return true if the attachment could be properly stored, false on errors
 	 */
-	suspend fun store(entity: T, attachmentId: String, attachment: Flow<DataBuffer>): Boolean
+	suspend fun store(entity: T, attachmentId: String, attachment: Flow<DataBuffer>)
 
 	/**
 	 * Marks an attachment for storing in cache. The attachment will be stored in cache only as the returned flow gets collected.

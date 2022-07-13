@@ -143,18 +143,20 @@ private abstract class DataAttachmentModificationLogicImpl<T : HasDataAttachment
 			 * if size is null we could actually buffer until we reach size limit or the end of the flow. If we reach size limit
 			 * we go to object storage, passing all the buffered data and the rest of the flow, else we create the couchdb attachment.
 			 */
-			tryCreateObjectStorageAttachment(entity, change, utis) ?: createCouchDbAttachment(change, utis)
+			createObjectStorageAttachment(entity, change, utis)
 		else
 			createCouchDbAttachment(change, utis)
 
-	private suspend fun tryCreateObjectStorageAttachment(
+	private suspend fun createObjectStorageAttachment(
 		entity: T,
 		change: DataAttachmentChange.CreateOrUpdate,
 		utis: List<String>
-	): Pair<DataAttachment, AttachmentTask>? = UUID.randomUUID().toString().let { attachmentId ->
-		DataAttachment(couchDbAttachmentId = null, objectStoreAttachmentId = attachmentId, utis = utis)
-			.takeIf { icureObjectStorage.preStore(entity, attachmentId, change.data) }
-			?.let { it to AttachmentTask.UploadObjectStorage(attachmentId) }
+	): Pair<DataAttachment, AttachmentTask> = UUID.randomUUID().toString().let { attachmentId ->
+		icureObjectStorage.preStore(entity, attachmentId, change.data)
+		Pair(
+			DataAttachment(couchDbAttachmentId = null, objectStoreAttachmentId = attachmentId, utis = utis),
+			AttachmentTask.UploadObjectStorage(attachmentId)
+		)
 	}
 
 	private suspend fun createCouchDbAttachment(

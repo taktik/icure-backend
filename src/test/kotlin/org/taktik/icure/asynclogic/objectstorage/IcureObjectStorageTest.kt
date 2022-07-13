@@ -21,6 +21,7 @@ import org.taktik.icure.asynclogic.objectstorage.testutils.FakeObjectStorageTask
 import org.taktik.icure.asynclogic.objectstorage.testutils.attachment1
 import org.taktik.icure.asynclogic.objectstorage.testutils.attachment2
 import org.taktik.icure.asynclogic.objectstorage.testutils.bytes1
+import org.taktik.icure.asynclogic.objectstorage.testutils.bytes2
 import org.taktik.icure.asynclogic.objectstorage.testutils.document1
 import org.taktik.icure.asynclogic.objectstorage.testutils.resetTestLocalStorageDirectory
 import org.taktik.icure.asynclogic.objectstorage.testutils.sampleAttachments
@@ -70,7 +71,7 @@ class IcureObjectStorageTest : StringSpec({
 	}
 
 	"Object storage should be able to store, read, and delete attachments in the service" {
-		sampleAttachments.forEach { icureObjectStorage.preStore(it.first, it.second, it.third) shouldBe true }
+		sampleAttachments.forEach { icureObjectStorage.preStore(it.first, it.second, it.third) }
 		shouldThrow<TimeoutCancellationException> { withTimeout(20) { objectStorageClient.eventsChannel.receive() } }
 		sampleAttachments.forEach { icureObjectStorage.scheduleStoreAttachment(it.first, it.second) }
 		withTimeout(STORAGE_TASK_TIMEOUT * sampleAttachments.size) {
@@ -98,6 +99,7 @@ class IcureObjectStorageTest : StringSpec({
 		objectStorageClient.available = true
 		icureObjectStorage.readAttachment(document1, attachment1).toByteArray(true) shouldContainExactly bytes1
 		objectStorageClient.available = false
+		localStorage.store(document1, attachment1, bytes2) // Ensures the storage job completes, but if then we read bytes2 we know that the job was actually started by this -> error
 		icureObjectStorage.readAttachment(document1, attachment1).toByteArray(true) shouldContainExactly bytes1
 	}
 
