@@ -1,8 +1,14 @@
 package org.taktik.icure.services.external.rest.v2.dto.embed
 
 import java.io.Serializable
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 import io.swagger.v3.oas.annotations.media.Schema
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class DeletedAttachmentDto(
 	@Schema(description = "If the attachment was stored as a couchdb attachment this holds the id of the attachment, else null.")
 	val couchDbAttachmentId: String? = null,

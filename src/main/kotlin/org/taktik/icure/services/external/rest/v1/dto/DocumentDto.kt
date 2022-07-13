@@ -27,7 +27,9 @@ import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.EncryptableDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.DataAttachmentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.DeletedAttachmentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentLocationDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentStatusDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentTypeDto
@@ -65,8 +67,8 @@ data class DocumentDto(
 	@Schema(description = "Id of the main attachment of this document, if stored using the object storage service") val objectStoreReference: String? = null,
 	@Schema(description = "The main Uniform Type Identifier for the main attachment (https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/understanding_utis/understand_utis_conc/understand_utis_conc.html#//apple_ref/doc/uid/TP40001319-CH202-CHDHIJDE)") val mainUti: String? = null,
 	@Schema(description = "Extra Uniform Type Identifiers for the main attachment") val otherUtis: Set<String> = emptySet(),
-	@Schema(description = "Secondary attachments for this document") val secondaryAttachments: Map<String, DataAttachment> = emptyMap(),
-	@Schema(description = "Information on past attachments for this document") val deletedAttachments: List<DeletedAttachment> = emptyList(),
+	@Schema(description = "Secondary attachments for this document") val secondaryAttachments: Map<String, DataAttachmentDto> = emptyMap(),
+	@Schema(description = "Information on past attachments for this document") val deletedAttachments: List<DeletedAttachmentDto> = emptyList(),
 
 	@Schema(type = "string", format = "byte") val encryptedAttachment: ByteArray? = null,
 	@Schema(type = "string", format = "byte") val decryptedAttachment: ByteArray? = null,

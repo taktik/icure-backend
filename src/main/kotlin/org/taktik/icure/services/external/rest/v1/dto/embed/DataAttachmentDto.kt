@@ -1,8 +1,14 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
 import java.io.Serializable
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 import io.swagger.v3.oas.annotations.media.Schema
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class DataAttachmentDto(
 	@Schema(description = "Id of the attachment, if stored as a couchdb attachment") val couchDbAttachmentId: String? = null,
 	@Schema(description = "Id of the attachment, if stored using the object storage service") val objectStoreAttachmentId: String? = null,
