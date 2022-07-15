@@ -47,6 +47,7 @@ data class DataAttachment(
 		const val DEFAULT_MIME_TYPE = "application/xml"
 	}
 
+	// TODO Storing cached attachment directly in the data attachment object so it is tied to the life-cycle of the document. Is this fine?
 	@JsonIgnore private var cachedBytes: ByteArray? = null
 
 	@get:JsonIgnore val ids: Pair<String?, String?> get() = couchDbAttachmentId to objectStoreAttachmentId

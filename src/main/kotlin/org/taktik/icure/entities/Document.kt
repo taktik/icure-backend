@@ -105,12 +105,14 @@ data class Document(
 	val version: String? = null,
 	val storedICureDocumentId: String? = null, //The ICureDocument (Form, Contact, ...) that has been used to generate the document
 	val externalUuid: String? = null,
+
 	val attachmentId: String? = null,
 	val objectStoreReference: String? = null,
 	val mainUti: String? = null,
 	val otherUtis: Set<String> = emptySet(),
 	val secondaryAttachments: Map<String, DataAttachment> = emptyMap(),
 	override val deletedAttachments: List<DeletedAttachment> = emptyList(),
+
 	override val secretForeignKeys: Set<String> = emptySet(),
 	override val cryptedForeignKeys: Map<String, Set<Delegation>> = emptyMap(),
 	override val delegations: Map<String, Set<Delegation>> = emptyMap(),
@@ -162,8 +164,14 @@ data class Document(
 		copy(deletedAttachments = newDeletedAttachments)
 
 	fun merge(other: Document) = Document(args = this.solveConflictsWith(other))
-	// TODO update conflict resolution
+
+	/*TODO
+	 * Previously conflict resolution worked based on attachment size, and it also checked the actual attachment bytes size.
+	 * Since now we don't directly have access to an attachment content in the document we don't consider it when we do conflict solving.
+	 */
 	fun solveConflictsWith(other: Document) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+		"size" to (this.size ?: other.size), // TODO this seems currently unused
+		"hash" to (this.hash ?: other.hash), // TODO this seems currently unused
 		"openingContactId" to (this.openingContactId ?: other.openingContactId),
 		"documentLocation" to (this.documentLocation ?: other.documentLocation),
 		"documentType" to (this.documentType ?: other.documentType),
@@ -173,20 +181,18 @@ data class Document(
 		"version" to (this.version ?: other.version),
 		"storedICureDocumentId" to (this.storedICureDocumentId ?: other.storedICureDocumentId),
 		"externalUuid" to (this.externalUuid ?: other.externalUuid),
-		"mainUti" to (this.mainUti ?: other.mainUti),
-		"otherUtis" to (other.otherUtis + this.otherUtis),
-		// TODO can check _attachments to decide
-	)/* + if (this.attachment != null && this.attachment.size >= (other.attachment?.size ?: 0)) {
-		mapOf(
-			"attachmentId" to this.attachmentId,
-			"attachment" to this.attachment
-		)
-	} else {
-		mapOf(
-			"attachmentId" to other.attachmentId,
-			"attachment" to other.attachment
-		)
-	}*/
+		"deletedAttachments" to this.solveDeletedAttachmentsConflicts(other),
+	) + this.solveDataAttachmentsConflicts(other).let { allDataAttachments ->
+		allDataAttachments[this.mainAttachmentKey].let { mainAttachment ->
+			mapOf(
+				"attachmentId" to mainAttachment?.couchDbAttachmentId,
+				"objectStoreReference" to mainAttachment?.objectStoreAttachmentId,
+				"mainUti" to mainUtiOf(mainAttachment),
+				"otherUtis" to otherUtisOf(mainAttachment),
+				"secondaryAttachments" to (allDataAttachments - this.mainAttachmentKey)
+			)
+		}
+	}
 
 	override fun withIdRev(id: String?, rev: String) =
 		if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
@@ -206,7 +212,13 @@ data class Document(
 		this.copy(
 			attachmentId = newMainAttachment?.couchDbAttachmentId,
 			objectStoreReference = newMainAttachment?.objectStoreAttachmentId,
-			mainUti = newMainAttachment?.utis?.firstOrNull(),
-			otherUtis = newMainAttachment?.utis?.drop(1)?.toSet() ?: emptySet(),
+			mainUti = mainUtiOf(newMainAttachment),
+			otherUtis = otherUtisOf(newMainAttachment),
 		)
+
+	private fun mainUtiOf(mainAttachment: DataAttachment?) =
+		mainAttachment?.utis?.firstOrNull()
+
+	private fun otherUtisOf(mainAttachment: DataAttachment?) =
+		mainAttachment?.utis?.drop(1)?.toSet() ?: emptySet()
 }
