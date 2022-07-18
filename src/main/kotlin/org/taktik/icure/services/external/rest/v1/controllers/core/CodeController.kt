@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -199,7 +198,6 @@ class CodeController(
 		return codeLogic.findCodeTypes(region, type)
 			.filter { tagTypeCandidates.contains(it) }
 			.injectReactorContext()
-
 	}
 
 	@Operation(summary = "Create a code", description = "Create a code entity. Fields Type, Code and Version are required.")

@@ -30,7 +30,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.collect.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emitAll
@@ -77,9 +76,8 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 				.singletonSupport(singletonSupport = SingletonSupport.DISABLED)
 				.strictNullChecks(strictNullChecks = false)
 				.build()
-			)
+		)
 	}
-
 
 	override fun getTagTypeCandidates(): List<String> {
 		return listOf("CD-ITEM", "CD-PARAMETER", "CD-CAREPATH", "CD-SEVERITY", "CD-URGENCY", "CD-GYNECOLOGY")
@@ -525,7 +523,6 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 		} catch (e: BulkUpdateConflictException) {
 			log.error("${e.conflicts.size} conflicts")
 		}
-
 	}
 
 	override fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Code>, sort: String?, desc: Boolean?) = flow<ViewQueryResultEvent> {

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.kotlin.SingletonSupport
 import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.taktik.icure.asynclogic.CodeLogic
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeMapper
 import org.taktik.icure.test.CodeBatchGenerator
 import org.taktik.icure.test.ICureTestApplication
@@ -68,7 +68,7 @@ class CodeLogicListCodeIdsByTypeCodeVersionIntervalTest @Autowired constructor(
 					assert(testBatchIds.contains(it))
 					acc + 1
 				}
-			assertEquals(testBatchIds.size-startIndex, idsCount)
+			assertEquals(testBatchIds.size - startIndex, idsCount)
 		}
 	}
 
@@ -82,15 +82,15 @@ class CodeLogicListCodeIdsByTypeCodeVersionIntervalTest @Autowired constructor(
 					assert(testBatchIds.contains(it))
 					acc + 1
 				}
-			assertEquals(endIndex+1, idsCount)
+			assertEquals(endIndex + 1, idsCount)
 		}
 	}
 
 	@Test
 	fun ifStartKeyAndEndKeyAreSpecifiedAllTheInBetweenCodesAreReturned() {
 		runBlocking {
-			val startIndex = nextInt(0, testBatchIds.size/2)
-			val endIndex = nextInt(testBatchIds.size/2, testBatchIds.size)
+			val startIndex = nextInt(0, testBatchIds.size / 2)
+			val endIndex = nextInt(testBatchIds.size / 2, testBatchIds.size)
 			val startCode = testBatch[testBatchIds[startIndex]]!!
 			val endCode = testBatch[testBatchIds[endIndex]]!!
 			val idsCount = codeLogic.listCodeIdsByTypeCodeVersionInterval(startCode.type, startCode.code, startCode.version, endCode.type, endCode.code, endCode.version)
@@ -98,7 +98,7 @@ class CodeLogicListCodeIdsByTypeCodeVersionIntervalTest @Autowired constructor(
 					assert(testBatchIds.contains(it))
 					acc + 1
 				}
-			assertEquals(endIndex+1-startIndex, idsCount)
+			assertEquals(endIndex + 1 - startIndex, idsCount)
 		}
 	}
 

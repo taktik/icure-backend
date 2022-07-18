@@ -14,7 +14,7 @@ import org.taktik.icure.services.external.rest.v2.dto.filter.AbstractFilterDto
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
-data class CodeIdsByTypeCodeVersionIntervalFilter (
+data class CodeIdsByTypeCodeVersionIntervalFilter(
 	override val desc: String? = null,
 	override val startType: String? = null,
 	override val startCode: String? = null,

@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
 import org.taktik.icure.asynclogic.impl.filter.Filters
-import org.taktik.icure.entities.base.Code
 import org.taktik.icure.domain.filter.code.CodeIdsByTypeCodeVersionIntervalFilter
+import org.taktik.icure.entities.base.Code
 
 @Service
 class CodeIdsByTypeCodeVersionIntervalFilter(private val codeLogic: CodeLogic) : Filter<String, Code, CodeIdsByTypeCodeVersionIntervalFilter> {
@@ -21,5 +21,4 @@ class CodeIdsByTypeCodeVersionIntervalFilter(private val codeLogic: CodeLogic) :
 			filter.endVersion
 		)
 	}
-
 }

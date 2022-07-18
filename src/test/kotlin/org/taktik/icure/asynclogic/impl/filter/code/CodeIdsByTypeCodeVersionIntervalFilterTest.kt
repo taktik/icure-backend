@@ -15,11 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.taktik.icure.asynclogic.CodeLogic
-import org.taktik.icure.test.ICureTestApplication
 import org.taktik.icure.asynclogic.impl.filter.Filters
+import org.taktik.icure.services.external.rest.v1.dto.filter.code.CodeIdsByTypeCodeVersionIntervalFilter
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeMapper
 import org.taktik.icure.test.CodeBatchGenerator
-import org.taktik.icure.services.external.rest.v1.dto.filter.code.CodeIdsByTypeCodeVersionIntervalFilter
+import org.taktik.icure.test.ICureTestApplication
 import org.taktik.icure.test.removeEntities
 
 @SpringBootTest(
@@ -33,7 +33,7 @@ class CodeIdsByTypeCodeVersionIntervalFilterTest @Autowired constructor(
 	private val filters: Filters,
 	private val codeLogic: CodeLogic,
 	private val codeMapper: CodeMapper
-){
+) {
 
 	private val testBatchSize = 1001
 	private val codeGenerator = CodeBatchGenerator()
@@ -126,5 +126,4 @@ class CodeIdsByTypeCodeVersionIntervalFilterTest @Autowired constructor(
 			assert(true)
 		}
 	}
-
 }
