@@ -392,9 +392,10 @@ class CodeDAOImpl(
 			endVersion ?: ComplexKey.emptyObject(),
 		)
 		emitAll(
-			client.queryView<String, String>(
+			client.queryView<Array<String>, String>(
 				createQuery(client, "by_type_code_version")
 					.includeDocs(false)
+					.reduce(false)
 					.startKey(from)
 					.endKey(to)
 			).mapNotNull { it.id }

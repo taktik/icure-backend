@@ -30,6 +30,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.collect.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emitAll
@@ -143,6 +144,10 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 
 	override fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?) = flow<String> {
 		emitAll(codeDAO.listCodeIdsByLabel(region, language, type, label))
+	}
+
+	override fun listCodeIdsByTypeCodeVersionInterval(startType: String?, startCode: String?, startVersion: String?, endType: String?, endCode: String?, endVersion: String?) = flow {
+		emitAll(codeDAO.listCodeIdsByTypeCodeVersionInterval(startType, startCode, startVersion, endType, endCode, endVersion))
 	}
 
 	override fun findCodesByQualifiedLinkId(region: String?, linkType: String, linkedId: String, pagination: PaginationOffset<List<String>>) = flow<ViewQueryResultEvent> {
