@@ -379,6 +379,28 @@ class CodeDAOImpl(
 		)
 	}
 
+	override fun listCodeIdsByTypeCodeVersionInterval(startType: String?, startCode: String?, startVersion: String?, endType: String?, endCode: String?, endVersion: String?): Flow<String> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val from = ComplexKey.of(
+			startType ?: "\u0000",
+			startCode ?: "\u0000",
+			startVersion ?: "\u0000",
+		)
+		val to = ComplexKey.of(
+			endType ?: ComplexKey.emptyObject(),
+			endCode ?: ComplexKey.emptyObject(),
+			endVersion ?: ComplexKey.emptyObject(),
+		)
+		emitAll(
+			client.queryView<String, String>(
+				createQuery(client, "by_type_code_version")
+					.includeDocs(false)
+					.startKey(from)
+					.endKey(to)
+			).mapNotNull { it.id }
+		)
+	}
+
 	override fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): Flow<String> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 		val from = ComplexKey.of(
