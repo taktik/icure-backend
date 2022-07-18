@@ -5,12 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.SingletonSupport
 import kotlinx.coroutines.flow.fold
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterAll
-import kotlinx.coroutines.flow.fold
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -36,7 +32,7 @@ class CodeLogicListCodeIdsByTypeCodeVersionIntervalTest @Autowired constructor(
 	private val codeMapper: CodeMapper
 ) {
 
-	private val testBatchSize = 1001
+	private val testBatchSize = 100
 	private val codeGenerator = CodeBatchGenerator()
 	private val testBatch = codeGenerator.createBatchOfUniqueCodes(testBatchSize).associateBy { it.id }
 	private val testBatchIds = testBatch.keys.toSortedSet().toList()
