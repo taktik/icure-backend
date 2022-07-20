@@ -124,7 +124,6 @@ class CodeIdsByTypeCodeVersionIntervalFilterTest @Autowired constructor(
 					.build()
 			)
 			removeEntities(testBatchIds, objectMapper)
-			assert(true)
 		}
 	}
 }

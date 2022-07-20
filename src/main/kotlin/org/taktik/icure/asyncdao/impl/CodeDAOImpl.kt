@@ -66,7 +66,9 @@ class CodeDAOImpl(
 	@Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager
 ) : CachedDAOImpl<Code>(Code::class.java, couchDbProperties, couchDbDispatcher, idGenerator, asyncCacheManager), CodeDAO {
 
-	val SMALLEST_CHAR = "\u0000"
+	companion object {
+		private const val SMALLEST_CHAR = "\u0000"
+	}
 
 	@View(name = "by_type_code_version", map = "classpath:js/code/By_type_code_version.js", reduce = "_count")
 	override fun listCodesBy(type: String?, code: String?, version: String?): Flow<Code> = flow {
