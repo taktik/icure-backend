@@ -38,7 +38,8 @@ class CodeIdsByTypeCodeVersionIntervalFilterTest @Autowired constructor(
 	private val testBatchSize = 1001
 	private val codeGenerator = CodeBatchGenerator()
 	private val testBatch = codeGenerator.createBatchOfUniqueCodes(testBatchSize).associateBy { it.id }
-	private val testBatchIds = testBatch.keys.toSortedSet().toList()
+	@OptIn(ExperimentalStdlibApi::class)
+	private val testBatchIds = testBatch.keys.toSortedSet(compareBy { it.lowercase() }).toList()
 
 	@BeforeAll
 	fun importTestCodeBatch() {
@@ -67,7 +68,7 @@ class CodeIdsByTypeCodeVersionIntervalFilterTest @Autowired constructor(
 		runBlocking {
 			val startIndex = Random.nextInt(0, testBatchIds.size)
 			val startCode = testBatch[testBatchIds[startIndex]]!!
-			val intervalFilter = CodeIdsByTypeCodeVersionIntervalFilter(null, startCode.type, startCode.code, startCode.version, null, null, null)
+			val intervalFilter = CodeIdsByTypeCodeVersionIntervalFilter(startType = startCode.type, startCode = startCode.code, startVersion = startCode.version)
 			val idsCount = filters.resolve(intervalFilter)
 				.fold(0) { acc, it ->
 					assert(testBatchIds.contains(it))
@@ -82,7 +83,7 @@ class CodeIdsByTypeCodeVersionIntervalFilterTest @Autowired constructor(
 		runBlocking {
 			val endIndex = Random.nextInt(0, testBatchIds.size)
 			val endCode = testBatch[testBatchIds[endIndex]]!!
-			val intervalFilter = CodeIdsByTypeCodeVersionIntervalFilter(null, null, null, null, endCode.type, endCode.code, endCode.version)
+			val intervalFilter = CodeIdsByTypeCodeVersionIntervalFilter(endType = endCode.type, endCode = endCode.code, endVersion = endCode.version)
 			val idsCount = filters.resolve(intervalFilter)
 				.fold(0) { acc, it ->
 					assert(testBatchIds.contains(it))

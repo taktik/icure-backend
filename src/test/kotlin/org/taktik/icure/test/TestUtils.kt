@@ -1,5 +1,6 @@
 package org.taktik.icure.test
 
+import kotlin.math.abs
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import kotlin.random.Random.Default.nextInt
@@ -19,6 +20,18 @@ private data class IdWithRev(@field:JsonProperty("_id") val id: String, @field:J
 private fun generateRandomString(length: Int, alphabet: List<Char>) = (1..length)
 	.map { _ -> alphabet[nextInt(0, alphabet.size)] }
 	.joinToString("")
+
+@OptIn(ExperimentalStdlibApi::class)
+fun generateInBetweenCode(firstCode: String, secondCode: String): String {
+	val firstCodeLower = firstCode.lowercase()
+	val secondCodeLower = secondCode.lowercase()
+	return firstCodeLower.zip(secondCodeLower).fold("") { acc, it ->
+		if ( it.first == it.second || abs(it.first.toInt() - it.second.toInt()) == 1 ) acc + it.first
+		else acc + ((it.first.toInt() + it.second.toInt())/2).toChar()
+	}
+
+
+}
 
 suspend fun removeEntities(ids: List<String>, objectMapper: ObjectMapper?) {
 	val auth = "Basic ${java.util.Base64.getEncoder().encodeToString("${System.getenv("ICURE_COUCHDB_USERNAME")}:${System.getenv("ICURE_COUCHDB_PASSWORD")}".toByteArray())}"
@@ -46,7 +59,7 @@ suspend fun removeEntities(ids: List<String>, objectMapper: ObjectMapper?) {
 
 class CodeBatchGenerator {
 
-	private val alphabet: List<Char> = ('a'..'z').toList() + ('0'..'9')
+	private val alphabet: List<Char> = ('a'..'z').toList() + ('A'..'Z') + ('0'..'9')
 	private val languages = listOf("en", "fr", "nl")
 	private val types = listOf("SNOMED", "LOINC", "TESTCODE", "DEEPSECRET")
 	private val regions = listOf("int", "fr", "be")

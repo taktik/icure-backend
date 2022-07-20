@@ -18,6 +18,7 @@ import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeMapper
 import org.taktik.icure.test.CodeBatchGenerator
 import org.taktik.icure.test.ICureTestApplication
+import org.taktik.icure.test.generateInBetweenCode
 import org.taktik.icure.test.removeEntities
 
 @SpringBootTest(
@@ -35,7 +36,8 @@ class CodeLogicListCodeIdsByTypeCodeVersionIntervalTest @Autowired constructor(
 	private val testBatchSize = 100
 	private val codeGenerator = CodeBatchGenerator()
 	private val testBatch = codeGenerator.createBatchOfUniqueCodes(testBatchSize).associateBy { it.id }
-	private val testBatchIds = testBatch.keys.toSortedSet().toList()
+	@OptIn(ExperimentalStdlibApi::class)
+	private val testBatchIds = testBatch.keys.toSortedSet(compareBy { it.lowercase() }).toList()
 
 	@BeforeAll
 	fun importTestCodeBatch() {
@@ -94,6 +96,40 @@ class CodeLogicListCodeIdsByTypeCodeVersionIntervalTest @Autowired constructor(
 			val startCode = testBatch[testBatchIds[startIndex]]!!
 			val endCode = testBatch[testBatchIds[endIndex]]!!
 			val idsCount = codeLogic.listCodeIdsByTypeCodeVersionInterval(startCode.type, startCode.code, startCode.version, endCode.type, endCode.code, endCode.version)
+				.fold(0) { acc, it ->
+					assert(testBatchIds.contains(it))
+					acc + 1
+				}
+			assertEquals(endIndex + 1 - startIndex, idsCount)
+		}
+	}
+
+	@Test
+	fun ifStartKeyAndEndKeyAreSpecifiedWithoutVersionAllTheInBetweenCodesAreReturned() {
+		runBlocking {
+			val startIndex = nextInt(0, testBatchIds.size / 2)
+			val endIndex = nextInt(testBatchIds.size / 2, testBatchIds.size)
+			val startCode = testBatch[testBatchIds[startIndex]]!!
+			val endCode = testBatch[testBatchIds[endIndex]]!!
+			val idsCount = codeLogic.listCodeIdsByTypeCodeVersionInterval(startCode.type, startCode.code, null, endCode.type, endCode.code, null)
+				.fold(0) { acc, it ->
+					assert(testBatchIds.contains(it))
+					acc + 1
+				}
+			assertEquals(endIndex + 1 - startIndex, idsCount)
+		}
+	}
+
+	@Test
+	fun ifStartKeyAndEndKeyAreSpecifiedButNonExistingAllTheInBetweenCodesAreReturned() {
+		runBlocking {
+			val startIndex = nextInt(1, testBatchIds.size / 2)
+			val endIndex = nextInt(testBatchIds.size / 2, testBatchIds.size-1)
+			val startCode = testBatch[testBatchIds[startIndex]]!!
+			val endCode = testBatch[testBatchIds[endIndex]]!!
+			val nonExistingStartCode = generateInBetweenCode(testBatch[testBatchIds[startIndex-1]]!!.code!!, startCode.code!!)
+			val nonExistingEndCode = generateInBetweenCode(endCode.code!!, testBatch[testBatchIds[endIndex+1]]!!.code!!)
+			val idsCount = codeLogic.listCodeIdsByTypeCodeVersionInterval(startCode.type, nonExistingStartCode, startCode.version, endCode.type, nonExistingEndCode, nonExistingEndCode)
 				.fold(0) { acc, it ->
 					assert(testBatchIds.contains(it))
 					acc + 1
