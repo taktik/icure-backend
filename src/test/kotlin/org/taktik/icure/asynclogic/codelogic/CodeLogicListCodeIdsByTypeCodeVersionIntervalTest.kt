@@ -1,5 +1,6 @@
 package org.taktik.icure.asynclogic.codelogic
 
+import java.sql.Struct
 import kotlin.random.Random.Default.nextInt
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -33,7 +34,7 @@ class CodeLogicListCodeIdsByTypeCodeVersionIntervalTest @Autowired constructor(
 	private val codeMapper: CodeMapper
 ) {
 
-	private val testBatchSize = 100
+	private val testBatchSize = 1001
 	private val codeGenerator = CodeBatchGenerator()
 	private val testBatch = codeGenerator.createBatchOfUniqueCodes(testBatchSize).associateBy { it.id }
 	@OptIn(ExperimentalStdlibApi::class)
@@ -125,11 +126,29 @@ class CodeLogicListCodeIdsByTypeCodeVersionIntervalTest @Autowired constructor(
 		runBlocking {
 			val startIndex = nextInt(1, testBatchIds.size / 2)
 			val endIndex = nextInt(testBatchIds.size / 2, testBatchIds.size-1)
+			val beforeStartCode = testBatch[testBatchIds[startIndex-1]]!!
 			val startCode = testBatch[testBatchIds[startIndex]]!!
+			val startTypeKey: String
+			val startCodeKey: String
+			if (startCode.type != beforeStartCode.type) {
+				startTypeKey = beforeStartCode.type!!
+				startCodeKey = beforeStartCode.code!!.fold("") {acc, it -> acc + (it.toInt() + 1).toChar()}
+			} else {
+				startTypeKey = startCode.type!!
+				startCodeKey = generateInBetweenCode(beforeStartCode.code!!, startCode.code!!)
+			}
+			val afterEndCode = testBatch[testBatchIds[endIndex + 1]]!!
 			val endCode = testBatch[testBatchIds[endIndex]]!!
-			val nonExistingStartCode = generateInBetweenCode(testBatch[testBatchIds[startIndex-1]]!!.code!!, startCode.code!!)
-			val nonExistingEndCode = generateInBetweenCode(endCode.code!!, testBatch[testBatchIds[endIndex+1]]!!.code!!)
-			val idsCount = codeLogic.listCodeIdsByTypeCodeVersionInterval(startCode.type, nonExistingStartCode, startCode.version, endCode.type, nonExistingEndCode, nonExistingEndCode)
+			val endTypeKey: String
+			val endCodeKey: String
+			if (endCode.type != afterEndCode.type) {
+				endTypeKey = endCode.type!!
+				endCodeKey = endCode.code!!.fold("") {acc, it -> acc + (it.toInt() + 1).toChar()}
+			} else {
+				endTypeKey = endCode.type!!
+				endCodeKey = generateInBetweenCode(endCode.code!!, afterEndCode.code!!)
+			}
+			val idsCount = codeLogic.listCodeIdsByTypeCodeVersionInterval(startTypeKey, startCodeKey, startCode.version, endTypeKey, endCodeKey, endCode.version)
 				.fold(0) { acc, it ->
 					assert(testBatchIds.contains(it))
 					acc + 1
