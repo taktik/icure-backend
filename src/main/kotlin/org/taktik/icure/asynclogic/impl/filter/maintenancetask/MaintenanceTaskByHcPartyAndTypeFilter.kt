@@ -25,7 +25,7 @@ class MaintenanceTaskByHcPartyAndTypeFilter(
 
 	override fun resolve(filter: MaintenanceTaskByHcPartyAndTypeFilter, context: Filters) = flow<String> {
 		try {
-			emitAll(maintenanceTaskLogic.listMaintenanceTasksByHcPartyAndType(filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic), filter.type, 0L, 99993112000000L))
+			emitAll(maintenanceTaskLogic.listMaintenanceTasksByHcPartyAndType(filter.healthcarePartyId ?: getLoggedHealthCarePartyId(sessionLogic), filter.type))
 		} catch (e: LoginException) {
 			throw IllegalArgumentException(e)
 		}

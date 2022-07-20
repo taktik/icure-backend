@@ -55,13 +55,18 @@ class MaintenanceTaskDAOImpl(
 	@View(name = "by_date", map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.MaintenanceTask' && !doc.deleted) emit(doc.created)}")
 	override fun listMaintenanceTasksAfterDate(date: Long) = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
-		emitAll(client.queryView<Long, Void>(createQuery(client, "by_date").startKey(999999999999L).endKey(date).descending(true).includeDocs(false)).map { it.id })
+		emitAll(client.queryView<Long, Void>(createQuery(client, "by_date").endKey(date).descending(true).includeDocs(false)).map { it.id })
 	}
 
 	@OptIn(ExperimentalCoroutinesApi::class)
-	@View(name = "by_type", map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.MaintenanceTask' && !doc.deleted && doc.type) emit([doc.type,doc.created])}")
-	override fun listMaintenanceTasksByHcPartyAndType(healthcarePartyId: String, type: String, startDate: Long, endDate: Long) = flow {
+	@View(name = "by_hcparty_type", map = "classpath:js/maintenancetask/By_hcparty_type_map.js")
+	override fun listMaintenanceTasksByHcPartyAndType(healthcarePartyId: String, type: String) = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
-		emitAll(client.queryView<ComplexKey, Void>(createQuery(client, "by_date").startKey(ComplexKey.of(type, startDate)).endKey(ComplexKey.of(type, endDate)).descending(true).includeDocs(false)).map { it.id })
+
+		val queryView = createQuery(client, "by_hcparty_type")
+			.keys(listOf(ComplexKey.of(healthcarePartyId, type)))
+			.includeDocs(false)
+
+		emitAll(client.queryView<ComplexKey, Void>(queryView).map { it.id })
 	}
 }
