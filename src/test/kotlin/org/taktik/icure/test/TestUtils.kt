@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import org.taktik.icure.services.external.rest.v1.dto.MaintenanceTaskDto
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.dto.UserDto
 import reactor.core.publisher.Mono
@@ -17,7 +18,7 @@ import reactor.netty.http.client.HttpClient
 @JsonIgnoreProperties(ignoreUnknown = true)
 private data class IdWithRev(@field:JsonProperty("_id") val id: String, @field:JsonProperty("_rev") val rev: String)
 
-private fun generateRandomString(length: Int, alphabet: List<Char>) = (1..length)
+fun generateRandomString(length: Int, alphabet: List<Char>) = (1..length)
 	.map { _ -> alphabet[nextInt(0, alphabet.size)] }
 	.joinToString("")
 
@@ -105,6 +106,7 @@ class CodeBatchGenerator {
 class UserGenerator {
 
 	private val alphabet: List<Char> = ('a'..'z').toList() + ('A'..'Z') + ('0'..'9')
+
 	fun generateRandomUsers(num: Int) = List(num) {
 		UserDto(
 			id = generateRandomString(20, alphabet),
