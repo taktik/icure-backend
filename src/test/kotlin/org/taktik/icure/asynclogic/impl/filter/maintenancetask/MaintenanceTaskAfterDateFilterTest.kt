@@ -1,16 +1,14 @@
 package org.taktik.icure.asynclogic.impl.filter.maintenancetask
 
-import kotlin.random.Random
 import kotlin.random.Random.Default.nextInt
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.SingletonSupport
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeAll
@@ -42,7 +40,7 @@ class MaintenanceTaskAfterDateFilterTest @Autowired constructor(
 	private val maintenanceTaskMapper: MaintenanceTaskMapper
 ) {
 
-	private val testBatch = 10
+	private val testBatch = 100
 	private val currentTimestamp = System.currentTimeMillis()
 	private val alphabet: List<Char> = ('a'..'z').toList() + ('A'..'Z') + ('0'..'9')
 	private var taskIds: List<String> = listOf()
@@ -77,13 +75,13 @@ class MaintenanceTaskAfterDateFilterTest @Autowired constructor(
 	fun onlyTasksCreatedAfterTheDateSpecifiedInTheFilterAreReturned() {
 		runBlocking {
 			val dateFilter = MaintenanceTaskAfterDateFilter(date = currentTimestamp)
-			val filteredTasksCount = filters.resolve(dateFilter).fold(0) { acc, taskId ->
-				val task = maintenanceTaskLogic.getEntity(taskId)
-				assertNotNull(task)
-				assertNotNull(task!!.created)
-				assert(task.created!! > currentTimestamp)
-				acc + 1
-			}
+			val filteredTasksCount = filters.resolve(dateFilter)
+				.let { ids -> maintenanceTaskLogic.getGenericDAO().getEntities(ids) }
+				.onEach {
+					assertNotNull(it)
+					assertNotNull(it.created)
+					assert(it.created!! > currentTimestamp)
+				}.count()
 			assertEquals(testBatch, filteredTasksCount)
 		}
 	}
