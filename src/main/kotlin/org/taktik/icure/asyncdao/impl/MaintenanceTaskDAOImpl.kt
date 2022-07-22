@@ -5,6 +5,7 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -60,11 +61,19 @@ class MaintenanceTaskDAOImpl(
 
 	@OptIn(ExperimentalCoroutinesApi::class)
 	@View(name = "by_hcparty_type", map = "classpath:js/maintenancetask/By_hcparty_type_map.js")
-	override fun listMaintenanceTasksByHcPartyAndType(healthcarePartyId: String, type: String) = flow {
+	override fun listMaintenanceTasksByHcPartyAndType(healthcarePartyId: String, type: String, startDate: Long?, endDate: Long?): Flow<String> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
 		val queryView = createQuery(client, "by_hcparty_type")
-			.keys(listOf(ComplexKey.of(healthcarePartyId, type)))
+			.startKey(
+				startDate?.let { ComplexKey.of(healthcarePartyId, type, startDate) } ?: ComplexKey.of(
+					healthcarePartyId,
+					type,
+					ComplexKey.emptyObject()
+				)
+			)
+			.endKey(endDate?.let { ComplexKey.of(healthcarePartyId, type, endDate) } ?: ComplexKey.of(healthcarePartyId, type))
+			.descending(true)
 			.includeDocs(false)
 
 		emitAll(client.queryView<ComplexKey, Void>(queryView).map { it.id })

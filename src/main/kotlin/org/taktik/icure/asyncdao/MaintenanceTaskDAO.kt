@@ -11,5 +11,5 @@ import org.taktik.icure.entities.embed.Identifier
 interface MaintenanceTaskDAO : GenericDAO<MaintenanceTask> {
 	fun listMaintenanceTasksByHcPartyAndIdentifier(healthcarePartyId: String, identifiers: List<Identifier>): Flow<String>
 	fun listMaintenanceTasksAfterDate(date: Long): Flow<String>
-	fun listMaintenanceTasksByHcPartyAndType(healthcarePartyId: String, type: String): Flow<String>
+	fun listMaintenanceTasksByHcPartyAndType(healthcarePartyId: String, type: String, startDate: Long? = null, endDate: Long? = null): Flow<String>
 }
