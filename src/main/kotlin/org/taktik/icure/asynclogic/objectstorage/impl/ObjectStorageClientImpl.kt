@@ -105,7 +105,7 @@ private class ObjectStorageClientImpl<T : HasDataAttachments<T>>(
 	): T =
 		uri(
 			DefaultUriBuilderFactory().builder()
-				.path(objectStorageProperties.icureCloudUrl)
+				.path(checkNotNull(objectStorageProperties.icureCloudUrl) { "Icure cloud url not set" })
 				.pathSegment(*attachmentRoute(documentId, attachmentId)).build()
 		).let { queryBuilder ->
 			authHeader()?.let { queryBuilder.header("Authorization", it) } ?: queryBuilder

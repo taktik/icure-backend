@@ -236,7 +236,6 @@ dependencies {
 	testImplementation(group = "io.kotest", name = "kotest-assertions-core", version = "4.4.3")
 	testImplementation(group = "io.kotest", name = "kotest-runner-junit5", version = "4.4.3")
 	testImplementation(group = "io.kotest.extensions", name = "kotest-extensions-spring", version = "1.0.1")
-	testImplementation(group = "io.mockk", name = "mockk", version = "1.11.0")
 }
 
 val outputDir = "${project.buildDir}/reports/ktlint/"

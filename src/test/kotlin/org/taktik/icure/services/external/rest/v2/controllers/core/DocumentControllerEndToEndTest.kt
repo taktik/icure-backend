@@ -42,10 +42,10 @@ private const val TEST_CACHE = "build/tests/icureCache"
 	classes = [ICureTestApplication::class],
 	properties = [
 		"spring.main.allow-bean-definition-overriding=true",
-		"icure.documentstorage.cacheLocation=$TEST_CACHE",
-		"icure.documentstorage.backlogToObjectStorage=true",
-		"icure.documentstorage.sizeLimit=1000",
-		"icure.documentstorage.migrationDelayMs=1000",
+		"icure.objectstorage.cacheLocation=$TEST_CACHE",
+		"icure.objectstorage.backlogToObjectStorage=true",
+		"icure.objectstorage.sizeLimit=1000",
+		"icure.objectstorage.migrationDelayMs=1000",
 	],
 	webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )

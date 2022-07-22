@@ -2,6 +2,7 @@ package org.taktik.icure.asynclogic.objectstorage.impl
 
 import java.io.IOException
 import java.io.RandomAccessFile
+import java.nio.channels.AsynchronousFileChannel
 import java.nio.channels.FileChannel
 import java.nio.file.Files
 import java.nio.file.Path
@@ -113,24 +114,31 @@ private class LocalObjectStorageImpl<T : HasDataAttachments<T>>(
 		}
 	}
 
-	override fun read(entity: T, attachmentId: String): Flow<DataBuffer>? =
-		unsafeRead(entity.id, attachmentId)
+	override fun read(entity: T, attachmentId: String, startPosition: Long): Flow<DataBuffer>? =
+		unsafeRead(entity.id, attachmentId, startPosition)
 
 
-	override fun unsafeRead(entityId: String, attachmentId: String): Flow<DataBuffer>? = try {
+	override fun unsafeRead(entityId: String, attachmentId: String, startPosition: Long): Flow<DataBuffer>? = try {
 		if (writeTasks.containsKey(entityId to attachmentId)) {
 			null
 		} else {
 			toFolderPath(entityId).resolve(attachmentId)
 				.takeIf { Files.isRegularFile(it) }
-				?.let { DataBufferUtils.read(it, DefaultDataBufferFactory.sharedInstance, 10000).asFlow() }
+				?.let {
+					DataBufferUtils.readAsynchronousFileChannel(
+						{ AsynchronousFileChannel.open(it) },
+						startPosition,
+						DefaultDataBufferFactory.sharedInstance,
+						10000
+					).asFlow()
+				}
 		}
 	} catch (e: IOException) {
 		null
 	}
 
 	private fun toFolderPath(documentId: String) = Paths.get(
-		objectStorageProperties.cacheLocation,
+		checkNotNull(objectStorageProperties.cacheLocation) { "Cache location not set" },
 		entityPath,
 		*(documentId.chunked(2).take(3) + documentId).toTypedArray()
 	)

@@ -41,19 +41,21 @@ interface LocalObjectStorage<T : HasDataAttachments<T>> {
 	/**
 	 * Load an attachment stored locally.
 	 * @param entity entity which owns the attachment.
-	 * @param attachmentId id of the attachment
+	 * @param attachmentId id of the attachment.
+	 * @param startPosition read the attachment bytes starting from this position (zero-based byte).
 	 * @return the attachment value or null if the attachment was not stored locally or could not be read.
 	 */
-	fun read(entity: T, attachmentId: String): Flow<DataBuffer>?
+	fun read(entity: T, attachmentId: String, startPosition: Long = 0): Flow<DataBuffer>?
 
 	/**
 	 * Load an attachment stored locally. Unsafe because instead of taking a full entity it just takes the id, which is more prone to
 	 * programming error, but is useful in cases where we only know the id.
 	 * @param entityId id of the entity which owns the attachment.
-	 * @param attachmentId id of the attachment
+	 * @param attachmentId id of the attachment.
+	 * @param startPosition read the attachment bytes starting from this position (zero-based byte).
 	 * @return the attachment value or null if the attachment was not stored locally or could not be read.
 	 */
-	fun unsafeRead(entityId: String, attachmentId: String): Flow<DataBuffer>?
+	fun unsafeRead(entityId: String, attachmentId: String, startPosition: Long = 0): Flow<DataBuffer>?
 }
 
 interface DocumentLocalObjectStorage : LocalObjectStorage<Document>

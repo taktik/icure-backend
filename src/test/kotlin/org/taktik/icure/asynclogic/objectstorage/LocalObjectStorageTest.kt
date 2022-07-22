@@ -1,5 +1,6 @@
 package org.taktik.icure.asynclogic.objectstorage
 
+import kotlin.random.Random
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.async
@@ -106,6 +107,15 @@ class LocalObjectStorageTest : StringSpec({
 		cache.store(document1, attachment1, bytes2)
 		storingFlow.toByteArray(true) shouldContainExactly bytes1
 		cache.read(document1, attachment1)?.toByteArray(true) shouldContainExactly bytes2
+	}
+
+	"Reading starting from a specific position should work as expected" {
+		val size = 100
+		val bytes = Random(System.currentTimeMillis()).nextBytes(100)
+		cache.store(document1, attachment1, bytes)
+		(0..size).forEach { i ->
+			cache.read(document1, attachment1, i.toLong())?.toByteArray(true) shouldContainExactly bytes.drop(i).toByteArray()
+		}
 	}
 
 	/*
