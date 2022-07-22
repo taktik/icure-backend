@@ -12,6 +12,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -76,8 +77,14 @@ class MaintenanceTaskAfterDateFilterTest @Autowired constructor(
 	fun onlyTasksCreatedAfterTheDateSpecifiedInTheFilterAreReturned() {
 		runBlocking {
 			val dateFilter = MaintenanceTaskAfterDateFilter(date = currentTimestamp)
-			val filteredTasks = filters.resolve(dateFilter).count()
-			assertEquals(testBatch, filteredTasks)
+			val filteredTasksCount = filters.resolve(dateFilter).fold(0) { acc, taskId ->
+				val task = maintenanceTaskLogic.getEntity(taskId)
+				assertNotNull(task)
+				assertNotNull(task!!.created)
+				assert(task.created!! > currentTimestamp)
+				acc + 1
+			}
+			assertEquals(testBatch, filteredTasksCount)
 		}
 	}
 
