@@ -76,9 +76,8 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 				.singletonSupport(singletonSupport = SingletonSupport.DISABLED)
 				.strictNullChecks(strictNullChecks = false)
 				.build()
-			)
+		)
 	}
-
 
 	override fun getTagTypeCandidates(): List<String> {
 		return listOf("CD-ITEM", "CD-PARAMETER", "CD-CAREPATH", "CD-SEVERITY", "CD-URGENCY", "CD-GYNECOLOGY")
@@ -143,6 +142,10 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 
 	override fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?) = flow<String> {
 		emitAll(codeDAO.listCodeIdsByLabel(region, language, type, label))
+	}
+
+	override fun listCodeIdsByTypeCodeVersionInterval(startType: String?, startCode: String?, startVersion: String?, endType: String?, endCode: String?, endVersion: String?) = flow {
+		emitAll(codeDAO.listCodeIdsByTypeCodeVersionInterval(startType, startCode, startVersion, endType, endCode, endVersion))
 	}
 
 	override fun findCodesByQualifiedLinkId(region: String?, linkType: String, linkedId: String, pagination: PaginationOffset<List<String>>) = flow<ViewQueryResultEvent> {
@@ -520,7 +523,6 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 		} catch (e: BulkUpdateConflictException) {
 			log.error("${e.conflicts.size} conflicts")
 		}
-
 	}
 
 	override fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Code>, sort: String?, desc: Boolean?) = flow<ViewQueryResultEvent> {

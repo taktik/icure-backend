@@ -66,6 +66,10 @@ class CodeDAOImpl(
 	@Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager
 ) : CachedDAOImpl<Code>(Code::class.java, couchDbProperties, couchDbDispatcher, idGenerator, asyncCacheManager), CodeDAO {
 
+	companion object {
+		private const val SMALLEST_CHAR = "\u0000"
+	}
+
 	@View(name = "by_type_code_version", map = "classpath:js/code/By_type_code_version.js", reduce = "_count")
 	override fun listCodesBy(type: String?, code: String?, version: String?): Flow<Code> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
@@ -117,10 +121,10 @@ class CodeDAOImpl(
 					.reduce(false)
 					.startKey(
 						ComplexKey.of(
-							region ?: "\u0000",
-							type ?: "\u0000",
-							code ?: "\u0000",
-							version ?: "\u0000"
+							region ?: SMALLEST_CHAR,
+							type ?: SMALLEST_CHAR,
+							code ?: SMALLEST_CHAR,
+							version ?: SMALLEST_CHAR
 						)
 					)
 					.endKey(
@@ -265,9 +269,9 @@ class CodeDAOImpl(
 	override fun findCodesByLabel(region: String?, language: String?, label: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
 		val sanitizedLabel = label?.let { StringUtils.sanitizeString(it) }
 		val from = ComplexKey.of(
-			region ?: "\u0000",
-			language ?: "\u0000",
-			sanitizedLabel ?: "\u0000"
+			region ?: SMALLEST_CHAR,
+			language ?: SMALLEST_CHAR,
+			sanitizedLabel ?: SMALLEST_CHAR
 		)
 
 		val to = ComplexKey.of(
@@ -284,10 +288,10 @@ class CodeDAOImpl(
 	override fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
 		val sanitizedLabel = label?.let { StringUtils.sanitizeString(it) }
 		val from = ComplexKey.of(
-			region ?: "\u0000",
-			language ?: "\u0000",
-			type ?: "\u0000",
-			sanitizedLabel ?: "\u0000"
+			region ?: SMALLEST_CHAR,
+			language ?: SMALLEST_CHAR,
+			type ?: SMALLEST_CHAR,
+			sanitizedLabel ?: SMALLEST_CHAR
 		)
 
 		val to = ComplexKey.of(
@@ -331,9 +335,9 @@ class CodeDAOImpl(
 		val sanitizedLabel = label?.let { StringUtils.sanitizeString(it) }
 		val from =
 			ComplexKey.of(
-				region ?: "\u0000",
-				language ?: "\u0000",
-				sanitizedLabel ?: "\u0000"
+				region ?: SMALLEST_CHAR,
+				language ?: SMALLEST_CHAR,
+				sanitizedLabel ?: SMALLEST_CHAR
 			)
 
 		val to = ComplexKey.of(
@@ -357,10 +361,10 @@ class CodeDAOImpl(
 		val sanitizedLabel = label?.let { StringUtils.sanitizeString(it) }
 		val from =
 			ComplexKey.of(
-				region ?: "\u0000",
-				language ?: "\u0000",
-				type ?: "\u0000",
-				sanitizedLabel ?: "\u0000"
+				region ?: SMALLEST_CHAR,
+				language ?: SMALLEST_CHAR,
+				type ?: SMALLEST_CHAR,
+				sanitizedLabel ?: SMALLEST_CHAR
 			)
 		val to = ComplexKey.of(
 			if (region == null) ComplexKey.emptyObject() else if (language == null) region + "\ufff0" else region,
@@ -373,6 +377,29 @@ class CodeDAOImpl(
 			client.queryView<String, String>(
 				createQuery(client, "by_language_type_label")
 					.includeDocs(false)
+					.startKey(from)
+					.endKey(to)
+			).mapNotNull { it.id }
+		)
+	}
+
+	override fun listCodeIdsByTypeCodeVersionInterval(startType: String?, startCode: String?, startVersion: String?, endType: String?, endCode: String?, endVersion: String?): Flow<String> = flow {
+		val client = couchDbDispatcher.getClient(dbInstanceUrl)
+		val from = ComplexKey.of(
+			startType ?: SMALLEST_CHAR,
+			startCode ?: SMALLEST_CHAR,
+			startVersion ?: SMALLEST_CHAR,
+		)
+		val to = ComplexKey.of(
+			endType ?: ComplexKey.emptyObject(),
+			endCode ?: ComplexKey.emptyObject(),
+			endVersion ?: ComplexKey.emptyObject(),
+		)
+		emitAll(
+			client.queryView<Array<String>, String>(
+				createQuery(client, "by_type_code_version")
+					.includeDocs(false)
+					.reduce(false)
 					.startKey(from)
 					.endKey(to)
 			).mapNotNull { it.id }
