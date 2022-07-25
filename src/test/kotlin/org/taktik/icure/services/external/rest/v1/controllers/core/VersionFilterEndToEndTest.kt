@@ -89,7 +89,7 @@ class VersionFilterEndToEndTest @Autowired constructor(
 	}
 
 	fun makeGetRequest(url: String): PaginatedList<CodeDto>? {
-		val auth = "Basic ${java.util.Base64.getEncoder().encodeToString("${System.getenv("ICURE_COUCHDB_TEST_USER")}:${System.getenv("ICURE_COUCHDB_TEST_PWD")}".toByteArray())}"
+		val auth = "Basic ${java.util.Base64.getEncoder().encodeToString("${System.getenv("ICURE_TEST_USER_NAME")}:${System.getenv("ICURE_TEST_USER_PASSWORD")}".toByteArray())}"
 		val client = HttpClient.create().headers { h ->
 			h.set("Authorization", auth) //
 			h.set("Content-type", "application/json")

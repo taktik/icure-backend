@@ -114,11 +114,11 @@ class ICureTestApplication {
 
 			// Creation of the test user
 			try {
-				userLogic.newUser(Users.Type.database, System.getenv("ICURE_COUCHDB_TEST_USER"), System.getenv("ICURE_COUCHDB_TEST_PWD"), "icure")// Creates a test user if it does not exist
+				userLogic.newUser(Users.Type.database, System.getenv("ICURE_TEST_USER_NAME"), System.getenv("ICURE_TEST_USER_PASSWORD"), "icure")// Creates a test user if it does not exist
 			} catch (e: DuplicateDocumentException) {
 				log.info("Test user already exists!")
 			} finally {
-				log.info("iCure test user\nusername: ${System.getenv("ICURE_COUCHDB_TEST_USER")}\npassword: ${System.getenv("ICURE_COUCHDB_TEST_PWD")}")
+				log.info("iCure test user\nusername: ${System.getenv("ICURE_TEST_USER_NAME")}\npassword: ${System.getenv("ICURE_TEST_USER_PASSWORD")}")
 			}
 		}
 	}

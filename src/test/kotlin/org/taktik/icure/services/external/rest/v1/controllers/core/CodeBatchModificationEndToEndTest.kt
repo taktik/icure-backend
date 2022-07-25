@@ -66,7 +66,7 @@ class CodeBatchModificationEndToEndTest @Autowired constructor(
 	}
 
 	fun createHttpClient(): HttpClient {
-		val auth = "Basic ${java.util.Base64.getEncoder().encodeToString("${System.getenv("ICURE_COUCHDB_TEST_USER")}:${System.getenv("ICURE_COUCHDB_TEST_PWD")}".toByteArray())}"
+		val auth = "Basic ${java.util.Base64.getEncoder().encodeToString("${System.getenv("ICURE_TEST_USER_NAME")}:${System.getenv("ICURE_TEST_USER_PASSWORD")}".toByteArray())}"
 		return HttpClient.create().headers { h ->
 			h.set("Authorization", auth) //
 			h.set("Content-type", "application/json")
