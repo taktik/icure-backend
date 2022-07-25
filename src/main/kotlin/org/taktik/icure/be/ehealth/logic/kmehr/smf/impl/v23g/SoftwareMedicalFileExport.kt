@@ -130,7 +130,7 @@ class SoftwareMedicalFileExport(
 	val contactMapper: ContactMapper,
 	val documentMapper: DocumentMapper,
 	val healthElementMapper: HealthElementMapper,
-	private val documentDataAttachmentLoader: DocumentDataAttachmentLoader
+	documentDataAttachmentLoader: DocumentDataAttachmentLoader
 ) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters, documentDataAttachmentLoader) {
 	private var hesByContactId: Map<String?, List<HealthElement>> = HashMap()
 	private var servicesByContactId: Map<String?, List<Service>> = HashMap()
@@ -1463,8 +1463,4 @@ class SoftwareMedicalFileExport(
 			}
 		}
 	}
-
-	// TODO do we also need to use secondary attachments here?
-	private suspend fun Document.attachment(): ByteArray? =
-		documentDataAttachmentLoader.contentBytesOfNullable(this, Document::mainAttachment)
 }

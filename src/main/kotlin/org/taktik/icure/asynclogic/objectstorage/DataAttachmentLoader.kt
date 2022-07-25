@@ -81,3 +81,23 @@ interface DocumentDataAttachmentLoader: DataAttachmentLoader<Document> {
 	): ByteArray? =
 		decryptAttachment(document, enckeys, Document::mainAttachment)
 }
+
+/**
+ * Supports access to the main attachment content of a document as a function of the document, reducing boilerplate code
+ * in usage places.
+ */
+interface DocumentDataAttachmentExtensions {
+	/**
+	 * The content of the main attachment of this document, if present. The function may require to load
+	 * the attachment the first time it is called on a specific document, but subsequent calls will use
+	 * the cached value.
+	 */
+	suspend fun Document.attachment(): ByteArray?
+
+	companion object {
+		operator fun invoke(loader: DocumentDataAttachmentLoader) = object : DocumentDataAttachmentExtensions {
+			override suspend fun Document.attachment(): ByteArray? =
+				loader.contentBytesOfNullable(this, Document::mainAttachment)
+		}
+	}
+}

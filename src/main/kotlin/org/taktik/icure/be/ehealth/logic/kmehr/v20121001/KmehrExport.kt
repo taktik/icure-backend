@@ -46,6 +46,7 @@ import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
+import org.taktik.icure.asynclogic.objectstorage.DocumentDataAttachmentExtensions
 import org.taktik.icure.asynclogic.objectstorage.DocumentDataAttachmentLoader
 import org.taktik.icure.asynclogic.objectstorage.contentBytesOfNullable
 import org.taktik.icure.be.ehealth.dto.kmehr.v20121001.Utils
@@ -146,8 +147,8 @@ open class KmehrExport(
 	val sessionLogic: AsyncSessionLogic,
 	val userLogic: UserLogic,
 	val filters: Filters,
-	private val documentDataAttachmentLoader: DocumentDataAttachmentLoader
-) {
+	documentDataAttachmentLoader: DocumentDataAttachmentLoader
+) : DocumentDataAttachmentExtensions by DocumentDataAttachmentExtensions(documentDataAttachmentLoader) {
 	val unitCodes = HashMap<String, Code>()
 
 	val STANDARD = "20110701"
@@ -821,10 +822,6 @@ open class KmehrExport(
 		}
 		return unitCodes[key]
 	}
-
-	// TODO do we also need to use secondary attachments here?
-	private suspend fun Document.attachment(): ByteArray? =
-		documentDataAttachmentLoader.contentBytesOfNullable(this, Document::mainAttachment)
 
 	companion object {
 		const val SMF_VERSION = "2.3"
