@@ -34,7 +34,7 @@ import reactor.netty.http.client.HttpClient
 )
 @ActiveProfiles("app")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CodeControllerEndToEndTest @Autowired constructor(
+class VersionFilterEndToEndTest @Autowired constructor(
 	private val codeLogic: CodeLogic
 ) {
 
