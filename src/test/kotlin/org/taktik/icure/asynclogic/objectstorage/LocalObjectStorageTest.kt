@@ -124,5 +124,5 @@ class LocalObjectStorageTest : StringSpec({
 	 *  - In case of caching errors storing flow should not leave a broken cache file
 	 */
 
-	//TODO when i have more implementations of local storage: Different types of local storage should not collide
+	//TODO when i have more implementations of local storage: Different types of local storage shBould not collide
 })

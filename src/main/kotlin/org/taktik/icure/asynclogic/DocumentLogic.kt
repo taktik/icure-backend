@@ -37,7 +37,7 @@ interface DocumentLogic : EntityPersister<Document, String> {
 	 */
 	suspend fun createDocument(
 		document: Document,
-		strict: Boolean
+		strict: Boolean = false
 	): Document?
 
 	suspend fun getDocument(documentId: String): Document?
@@ -58,7 +58,7 @@ interface DocumentLogic : EntityPersister<Document, String> {
 	 * @param strict specifies whether to behave in a strict or lenient way for the main attachment.
 	 * @return the updated document.
 	 */
-	suspend fun modifyDocument(updatedDocument: Document, currentDocument: Document?, strict: Boolean): Document?
+	suspend fun modifyDocument(updatedDocument: Document, currentDocument: Document? = null, strict: Boolean = false): Document?
 
 	/**
 	 * Create or modify multiple documents at once.
@@ -73,7 +73,7 @@ interface DocumentLogic : EntityPersister<Document, String> {
 	 */
 	fun createOrModifyDocuments(
 		documents: List<BatchUpdateDocumentInfo>,
-		strict: Boolean
+		strict: Boolean = false
 	): Flow<Document>
 
 	/**
@@ -97,12 +97,6 @@ interface DocumentLogic : EntityPersister<Document, String> {
 	fun listDocumentsWithoutDelegation(limit: Int): Flow<Document>
 	fun getDocuments(documentIds: List<String>): Flow<Document>
 
-	/**
-	 * Allows the modification of multiple documents at a time in an unsafe way: this means the method will not ensure that the document update will
-	 * not change any attachment information.
-	 */
-	fun unsafeModifyDocuments(documents: List<Document>): Flow<Document>
-
 	fun solveConflicts(ids: List<String>?): Flow<Document>
 	fun getGenericDAO(): DocumentDAO
 	suspend fun getDocumentsByExternalUuid(documentId: String): List<Document>
@@ -112,5 +106,5 @@ interface DocumentLogic : EntityPersister<Document, String> {
 	 * @property newDocument new value for a document.
 	 * @property previousDocument the current version of the document or null if [newDocument] is a completely new document which will be created.
 	 */
-	data class BatchUpdateDocumentInfo(val newDocument: Document, val previousDocument: Document?)
+	data class BatchUpdateDocumentInfo(val newDocument: Document, val previousDocument: Document? = null)
 }

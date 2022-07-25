@@ -106,7 +106,7 @@ abstract class GenericResultFormatLogicImpl(
 	}
 
 	@Throws(ParserConfigurationException::class, IOException::class, SAXException::class)
-	protected fun getXmlDocument(doc: Document, enckeys: List<String?>?): org.w3c.dom.Document {
+	protected fun getXmlDocument(doc: Document, enckeys: List<String>): org.w3c.dom.Document {
 		val dbFactory = DocumentBuilderFactory.newInstance()
 		val dBuilder = dbFactory.newDocumentBuilder()
 		return dBuilder.parse(
@@ -117,7 +117,7 @@ abstract class GenericResultFormatLogicImpl(
 	}
 
 	@Throws(IOException::class)
-	protected fun getBufferedReader(doc: Document, enckeys: List<String?>?): BufferedReader? {
+	protected fun getBufferedReader(doc: Document, enckeys: List<String>): BufferedReader? {
 		return decodeRawData(
 			runBlocking { documentDataAttachmentLoader.decryptMainAttachment(doc, enckeys) }
 		)?.let { BufferedReader(StringReader(it)) }

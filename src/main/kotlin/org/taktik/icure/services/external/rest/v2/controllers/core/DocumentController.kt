@@ -266,8 +266,9 @@ class DocumentController(
 	@Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
 	@PostMapping("/delegations")
 	fun setDocumentsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
+		val stubsById = stubs.associateBy { it.id }
 		val invoices = documentLogic.getDocuments(stubs.map { it.id }).map { document ->
-			stubs.find { s -> s.id == document.id }?.let { stub ->
+			stubsById.getValue(document.id).let { stub ->
 				document.copy(
 					delegations = document.delegations.mapValues { (s, dels) -> stub.delegations[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels } +
 						stub.delegations.filterKeys { k -> !document.delegations.containsKey(k) }.mapValues { (_, value) -> value.map { delegationV2Mapper.map(it) }.toSet() },
@@ -276,9 +277,9 @@ class DocumentController(
 					cryptedForeignKeys = document.cryptedForeignKeys.mapValues { (s, dels) -> stub.cryptedForeignKeys[s]?.map { delegationV2Mapper.map(it) }?.toSet() ?: dels } +
 						stub.cryptedForeignKeys.filterKeys { k -> !document.cryptedForeignKeys.containsKey(k) }.mapValues { (_, value) -> value.map { delegationV2Mapper.map(it) }.toSet() },
 				)
-			} ?: document
+			}.let { newDocument -> DocumentLogic.BatchUpdateDocumentInfo(newDocument, document) }
 		}
-		emitAll(documentLogic.unsafeModifyDocuments(invoices.toList()).map { stubV2Mapper.mapToStub(it) })
+		emitAll(documentLogic.createOrModifyDocuments(invoices.toList(), true).map { stubV2Mapper.mapToStub(it) })
 	}.injectReactorContext()
 
 

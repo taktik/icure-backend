@@ -65,7 +65,7 @@ interface DocumentDataAttachmentLoader: DataAttachmentLoader<Document> {
 
 	suspend fun decryptAttachment(
 		document: Document?,
-		enckeys: List<String?>?,
+		enckeys: List<String>,
 		retrieveAttachment: Document.() -> DataAttachment?
 	): ByteArray?
 
@@ -77,7 +77,7 @@ interface DocumentDataAttachmentLoader: DataAttachmentLoader<Document> {
 
 	suspend fun decryptMainAttachment(
 		document: Document?,
-		enckeys: List<String?>?
+		enckeys: List<String>
 	): ByteArray? =
 		decryptAttachment(document, enckeys, Document::mainAttachment)
 }

@@ -35,7 +35,7 @@ class ObjectStorageMigrationTasksDAOImpl(
 	ObjectStorageMigrationTasksDAO
 {
 	companion object {
-		private const val BY_ENTITY_CLASS = ""
+		private const val BY_ENTITY_CLASS = "by_entityclass"
 	}
 
 	private val dbInstanceUrl = URI(couchDbProperties.url)

@@ -125,10 +125,6 @@ class DocumentLogicImpl(
 		emitAll(documentDAO.listDocumentsWithNoDelegations(limit))
 	}
 
-	override fun unsafeModifyDocuments(documents: List<Document>): Flow<Document> = flow {
-		emitAll(documentDAO.save(documents.map { fix(it) }))
-	}
-
 	override fun solveConflicts(ids: List<String>?): Flow<Document> {
 		val documentsInConflict = ids?.asFlow()?.mapNotNull { documentDAO.get(it, Option.CONFLICTS) }
 			?: documentDAO.listConflicts().mapNotNull { documentDAO.get(it.id, Option.CONFLICTS) }

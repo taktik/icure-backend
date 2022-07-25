@@ -19,7 +19,6 @@ interface HasDataAttachments<T : HasDataAttachments<T>> : StoredDocument {
 	/**
 	 * History of all deleted attachments.
 	 */
-	// TODO do we actually want the history in all entities with data attachments?
 	val deletedAttachments: List<DeletedAttachment>
 
 	fun withUpdatedDataAttachment(key: String, newValue: DataAttachment?): T

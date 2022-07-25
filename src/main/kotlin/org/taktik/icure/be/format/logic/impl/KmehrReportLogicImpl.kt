@@ -191,7 +191,7 @@ class KmehrReportLogicImpl(
 		)
 	}
 
-	private fun extractMessage(doc: Document, enckeys: List<String>?) =
+	private fun extractMessage(doc: Document, enckeys: List<String>) =
 		try {
 			JAXBContext.newInstance(Kmehrmessage::class.java).createUnmarshaller().unmarshal(getBufferedReader(doc, enckeys)) as Kmehrmessage
 		} catch (e: Exception) {

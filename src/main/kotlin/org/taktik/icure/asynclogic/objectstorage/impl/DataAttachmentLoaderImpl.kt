@@ -78,15 +78,13 @@ class DocumentDataAttachmentLoaderImpl(
 	objectStorageProperties
 ) {
 	override suspend fun decryptAttachment(document: Document?, enckeys: String?, retrieveAttachment: Document.() -> DataAttachment?): ByteArray? =
-		decryptAttachment(document, if (enckeys.isNullOrBlank()) null else enckeys.split(','), retrieveAttachment)
+		decryptAttachment(document, if (enckeys.isNullOrBlank()) emptyList() else enckeys.split(','), retrieveAttachment)
 
-	override suspend fun decryptAttachment(document: Document?, enckeys: List<String?>?, retrieveAttachment: Document.() -> DataAttachment?): ByteArray? =
+	override suspend fun decryptAttachment(document: Document?, enckeys: List<String>, retrieveAttachment: Document.() -> DataAttachment?): ByteArray? =
 		contentBytesOfNullable(document, retrieveAttachment)?.let { content ->
-			enckeys
-				?.asSequence()
-				?.filterNotNull()
-				?.filter { sfk -> sfk.keyFromHexString().isValidAesKey() }
-				?.mapNotNull { sfk ->
+			enckeys.asSequence()
+				.filter { sfk -> sfk.keyFromHexString().isValidAesKey() }
+				.mapNotNull { sfk ->
 					try {
 						CryptoUtils.decryptAES(content, sfk.keyFromHexString())
 					} catch (_: GeneralSecurityException) {
@@ -97,7 +95,7 @@ class DocumentDataAttachmentLoaderImpl(
 						null
 					}
 				}
-				?.firstOrNull()
+				.firstOrNull()
 				?: content
 		}
 }

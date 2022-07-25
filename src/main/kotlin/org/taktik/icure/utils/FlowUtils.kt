@@ -78,29 +78,6 @@ fun <T : StoredDocument> Flow<T>.subsequentDistinctById(): Flow<T> = flow {
 	}
 }
 
-// TODO needs testing
-fun <K, T : ViewRow<K, *, *>, V> Flow<T>.subsequentGroupByKeyTo(valueCollector: (T) -> V): Flow<Pair<K?, List<V>>> = flow {
-	var first = true
-	var currKey: K? = null
-	var valuesForKey = mutableListOf<V>()
-	collect { curr ->
-		if (first) {
-			currKey = curr.key
-			first = false
-		}
-		if (curr.key != currKey) {
-			emit(Pair(currKey, valuesForKey))
-			currKey = curr.key
-			valuesForKey = mutableListOf(valueCollector(curr))
-		} else {
-			valuesForKey.add(valueCollector(curr))
-		}
-	}
-	if (!first) {
-		emit(Pair(currKey, valuesForKey))
-	}
-}
-
 @ExperimentalCoroutinesApi
 fun <T : Any> Flow<T>.injectReactorContext(): Flux<T> {
 	/*return Mono.deferContextual { Mono.just(it) }.flatMapMany { reactorCtx ->

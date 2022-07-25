@@ -305,20 +305,11 @@ class DocumentController(
 	@Operation(summary = "Update a document", description = "Updates the document and returns an instance of the modified document afterward")
 	@PutMapping
 	fun modifyDocument(@RequestBody documentDto: DocumentDto): Mono<DocumentDto> = mono {
-		/*TODO
-		 * Original implementation weird behaviours:
-		 * - it was possible to remove the reference to the attachment (`attachmentId`) without actually deleting the attachment. New version
-		 * still allows the user to delete the main attachment, but in this case it actually deletes the attachment from the database as well.
-		 * - before if the new document had an id which didn't match an existing document we had two possible behaviours:
-		 *   - If the dto provided an attachment id we would respond 500 -> won't happen in new version
-		 *   - If the dto didn't provide an attachment id we would create a new document -> in new version every time we don't have a matching
-		 *     document id we create the new document as is.
-		 */
 		val prevDoc = documentLogic.getDocument(documentDto.id)
 		val newDocument = documentMapper.map(documentDto)
 		(
 			if (prevDoc == null) {
-				documentLogic.createDocument(newDocument, false)
+				documentLogic.createDocument(newDocument.copy(rev = null), false)
 			} else if (prevDoc.attachmentId != newDocument.attachmentId) {
 				documentLogic.modifyDocument(newDocument,  prevDoc, false)?.let {
 					documentLogic.updateAttachments(it, mainAttachmentChange = DataAttachmentChange.Delete)
@@ -334,10 +325,6 @@ class DocumentController(
 	@Operation(summary = "Update a batch of documents", description = "Returns the modified documents.")
 	@PutMapping("/batch")
 	fun modifyDocuments(@RequestBody documentDtos: List<DocumentDto>): Flux<DocumentDto> = flow {
-		/*TODO
-		 * previously had very similar weird behaviours to existing modifyDocument, but in this case maybe allowing document
-		 * creation makes more sense: it may be necessary to allow it also in v2 controller.
-		 */
 		val previousDocumentsById = documentLogic.getDocuments(documentDtos.map { it.id }).toList().associateBy { it.id }
 		val allNewDocuments = documentDtos.map { documentMapper.map(it) }
 		val newDocumentsById = allNewDocuments.associateBy { it.id }
@@ -398,8 +385,9 @@ class DocumentController(
 	@Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
 	@PostMapping("/delegations")
 	fun setDocumentsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
+		val stubsById = stubs.associateBy { it.id }
 		val invoices = documentLogic.getDocuments(stubs.map { it.id }).map { document ->
-			stubs.find { s -> s.id == document.id }?.let { stub ->
+			stubsById.getValue(document.id).let { stub ->
 				document.copy(
 					delegations = document.delegations.mapValues { (s, dels) -> stub.delegations[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels } +
 						stub.delegations.filterKeys { k -> !document.delegations.containsKey(k) }.mapValues { (_, value) -> value.map { delegationMapper.map(it) }.toSet() },
@@ -408,9 +396,9 @@ class DocumentController(
 					cryptedForeignKeys = document.cryptedForeignKeys.mapValues { (s, dels) -> stub.cryptedForeignKeys[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels } +
 						stub.cryptedForeignKeys.filterKeys { k -> !document.cryptedForeignKeys.containsKey(k) }.mapValues { (_, value) -> value.map { delegationMapper.map(it) }.toSet() },
 				)
-			} ?: document
+			}.let { newDocument -> DocumentLogic.BatchUpdateDocumentInfo(newDocument, document) }
 		}
-		emitAll(documentLogic.unsafeModifyDocuments(invoices.toList()).map { stubMapper.mapToStub(it) })
+		emitAll(documentLogic.createOrModifyDocuments(invoices.toList(), true).map { stubMapper.mapToStub(it) })
 	}.injectReactorContext()
 
 	@Operation(summary = "Creates or modifies a secondary attachment for a document", description = "Creates a secondary attachment for a document and returns the modified document instance afterward")
@@ -494,8 +482,6 @@ class DocumentController(
 			secondaryAttachmentsChanges = mapOf(key to DataAttachmentChange.Delete)
 		).let { documentMapper.map(checkNotNull(it) { "Could not update document" }) }
 	}
-
-	// TODO bulk get attachments?
 
 	@Operation(
 		summary = "Creates, modifies, or delete the attachments of a document",
