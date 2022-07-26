@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -39,7 +40,7 @@ private abstract class IcureObjectStorageMigrationImpl<T : HasDataAttachments<T>
 	private val objectStorage: IcureObjectStorage<T>,
 	private val entityClass: Class<T>
 ) : ScheduledIcureObjectStorageMigration<T> {
-	private val taskExecutorScope = CoroutineScope(Dispatchers.Default)
+	private val taskExecutorScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 	private val migrationTaskSet = ConcurrentHashMap.newKeySet<Pair<String, String>>()
 
 	override fun destroy() {
