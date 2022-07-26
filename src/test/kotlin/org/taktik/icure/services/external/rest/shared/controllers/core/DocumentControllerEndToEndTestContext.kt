@@ -215,7 +215,7 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 					DataBuffer::class.java
 				).let { pb ->
 					if (includeSize) pb.header(HttpHeaders.CONTENT_LENGTH, it.value.size.toString()) else pb
-				}.filename(it.key)
+				}.contentType(MediaType.APPLICATION_OCTET_STREAM).filename(it.key)
 			}
 		}.build()
 		return client.put()
