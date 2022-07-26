@@ -250,7 +250,7 @@ private fun StringSpec.v1EndToEndTests(
 			}.build()
 		val updated = client.put()
 			.uriWithVars(
-				"http://127.0.0.1:$port/$controllerRoot/${doc.id}/attachment/multipart",
+				"http://$host:$port/$controllerRoot/${doc.id}/attachment/multipart",
 				mapOf(
 					"rev" to doc.rev,
 					"utis" to sampleUtis

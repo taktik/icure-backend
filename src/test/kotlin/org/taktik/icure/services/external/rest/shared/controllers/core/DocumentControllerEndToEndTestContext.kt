@@ -34,6 +34,8 @@ import reactor.core.publisher.Mono
 abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 	protected val random = Random(System.currentTimeMillis())
 
+	val host: String = System.getenv("ICURE_SERVICE_HOST")
+
 	abstract val port: Int
 
 	abstract val controllerRoot: String
@@ -87,7 +89,7 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 
 	suspend fun createDocument(dto: DTO): DTO =
 		client.post()
-			.uri("http://127.0.0.1:$port/$controllerRoot")
+			.uri("http://$host:$port/$controllerRoot")
 			.jsonContent()
 			.dtoBody(dto)
 			.retrieve()
@@ -100,7 +102,7 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 
 	suspend fun updateDocument(dto: DTO): DTO =
 		client.put()
-			.uri("http://127.0.0.1:$port/$controllerRoot")
+			.uri("http://$host:$port/$controllerRoot")
 			.jsonContent()
 			.dtoBody(dto)
 			.retrieve()
@@ -108,7 +110,7 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 
 	suspend fun bulkModify(dtos: List<DTO>): Flow<DTO> =
 		client.put()
-			.uri("http://127.0.0.1:$port/$controllerRoot/batch")
+			.uri("http://$host:$port/$controllerRoot/batch")
 			.jsonContent()
 			.dtosBody(dtos)
 			.retrieve()
@@ -116,7 +118,7 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 
 	suspend fun getDocument(id: String): DTO =
 		client.get()
-			.uri("http://127.0.0.1:$port/$controllerRoot/${id}")
+			.uri("http://$host:$port/$controllerRoot/${id}")
 			.retrieve()
 			.awaitDto()
 
@@ -130,7 +132,7 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 		// Automatically sets also Content-length header
 		client.put()
 			.uriWithVars(
-				"http://127.0.0.1:$port/$controllerRoot/${id}/attachment",
+				"http://$host:$port/$controllerRoot/${id}/attachment",
 				mapOf(
 					"rev" to rev,
 					"utis" to utis
@@ -143,14 +145,14 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 
 	fun getMainAttachment(id: String, additionalParameters: Map<String, Any> = emptyMap()) =
 		client.get()
-			.uriWithVars("http://127.0.0.1:$port/$controllerRoot/${id}/attachment", additionalParameters)
+			.uriWithVars("http://$host:$port/$controllerRoot/${id}/attachment", additionalParameters)
 			.retrieve()
 			.bodyToFlow<DataBuffer>()
 
 	suspend fun deleteMainAttachment(id: String, rev: String?) =
 		client.delete()
 			.uriWithVars(
-				"http://127.0.0.1:$port/$controllerRoot/${id}/attachment",
+				"http://$host:$port/$controllerRoot/${id}/attachment",
 				mapOf("rev" to rev)
 			)
 			.retrieve()
@@ -165,7 +167,7 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 	) =
 		client.put()
 			.uriWithVars(
-				"http://127.0.0.1:$port/$controllerRoot/${id}/secondaryAttachments/${key}",
+				"http://$host:$port/$controllerRoot/${id}/secondaryAttachments/${key}",
 				mapOf(
 					"rev" to rev,
 					"utis" to utis
@@ -178,14 +180,14 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 
 	fun getSecondaryAttachment(id: String, key: String) =
 		client.get()
-			.uri("http://127.0.0.1:$port/$controllerRoot/${id}/secondaryAttachments/${key}")
+			.uri("http://$host:$port/$controllerRoot/${id}/secondaryAttachments/${key}")
 			.retrieve()
 			.bodyToFlow<DataBuffer>()
 
 	suspend fun deleteSecondaryAttachment(id: String, key: String, rev: String?) =
 		client.delete()
 			.uriWithVars(
-				"http://127.0.0.1:$port/$controllerRoot/${id}/secondaryAttachments/${key}",
+				"http://$host:$port/$controllerRoot/${id}/secondaryAttachments/${key}",
 				mapOf("rev" to rev)
 			)
 			.retrieve()
@@ -217,7 +219,7 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 			}
 		}.build()
 		return client.put()
-			.uriWithVars("http://127.0.0.1:$port/$controllerRoot/$id/attachments", mapOf("rev" to rev))
+			.uriWithVars("http://$host:$port/$controllerRoot/$id/attachments", mapOf("rev" to rev))
 			.multipartContent()
 			.body(BodyInserters.fromMultipartData(multipartBody))
 			.retrieve()
