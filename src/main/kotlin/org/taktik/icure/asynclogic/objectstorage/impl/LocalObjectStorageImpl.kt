@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
@@ -49,7 +50,7 @@ private class LocalObjectStorageImpl<T : HasDataAttachments<T>>(
 	 * Scope for the execution of write tasks, this way if the coroutine which launched the job is cancelled any other coroutines which were
 	 * waiting on the job won't be affected.
 	 */
-	private val writeTasksScope = CoroutineScope(Dispatchers.IO)
+	private val writeTasksScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
 	override fun destroy() {
 		writeTasksScope.cancel()
