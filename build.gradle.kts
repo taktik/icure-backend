@@ -33,7 +33,7 @@ buildscript {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.32")
         classpath("org.jetbrains.kotlin:kotlin-allopen:1.4.32")
         classpath("com.taktik.gradle:gradle-plugin-docker-java:2.1.0")
-        classpath("com.taktik.gradle:gradle-plugin-git-version:2.0.1")
+        classpath("com.taktik.gradle:gradle-plugin-git-version:2.0.4")
     }
 }
 
