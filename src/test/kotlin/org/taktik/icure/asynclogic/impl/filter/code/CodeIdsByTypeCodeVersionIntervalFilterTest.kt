@@ -79,7 +79,7 @@ class CodeIdsByTypeCodeVersionIntervalFilterTest @Autowired constructor(
 	}
 
 	@Test
-	fun ifEndKeyIsSpecifiedOnlyResultsThatComeAfterAreReturned() {
+	fun ifEndKeyIsSpecifiedOnlyResultsThatComeBeforeAreReturned() {
 		runBlocking {
 			val endIndex = Random.nextInt(0, testBatchIds.size)
 			val endCode = testBatch[testBatchIds[endIndex]]!!
