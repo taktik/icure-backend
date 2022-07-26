@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.flowOf
 import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asynclogic.objectstorage.impl.DocumentDataAttachmentLoaderImpl
+import org.taktik.icure.asynclogic.objectstorage.testutils.MIGRATION_SIZE_LIMIT
 import org.taktik.icure.asynclogic.objectstorage.testutils.SIZE_LIMIT
 import org.taktik.icure.asynclogic.objectstorage.testutils.attachment1
 import org.taktik.icure.asynclogic.objectstorage.testutils.attachment2
@@ -21,6 +22,7 @@ import org.taktik.icure.asynclogic.objectstorage.testutils.byteSizeDataBufferFlo
 import org.taktik.icure.asynclogic.objectstorage.testutils.document1id
 import org.taktik.icure.asynclogic.objectstorage.testutils.key1
 import org.taktik.icure.asynclogic.objectstorage.testutils.key2
+import org.taktik.icure.asynclogic.objectstorage.testutils.migrationBigAttachment
 import org.taktik.icure.asynclogic.objectstorage.testutils.sampleUtis
 import org.taktik.icure.asynclogic.objectstorage.testutils.smallAttachment
 import org.taktik.icure.entities.Document
@@ -38,7 +40,7 @@ class DataAttachmentLoaderTest : StringSpec({
 		dao,
 		objectStorage,
 		objectStorageMigration,
-		ObjectStorageProperties(sizeLimit = SIZE_LIMIT, backlogToObjectStorage = true)
+		ObjectStorageProperties(sizeLimit = SIZE_LIMIT, migrationSizeLimit = MIGRATION_SIZE_LIMIT, backlogToObjectStorage = true)
 	)
 	lateinit var sampleDocument: Document // The data attachments can store the cached bytes.
 
@@ -84,16 +86,24 @@ class DataAttachmentLoaderTest : StringSpec({
 		loader.contentBytesOfNullable(sampleDocument, key1) shouldContainExactly bigAttachment
 	}
 
-	"Loading a big attachment stored in couch db should trigger a migration task" {
+	"Loading an attachment stored in couch db should trigger a migration task if its size is greater than the migration size limit" {
+		every { objectStorageMigration.isMigrating(sampleDocument, attachment1) } returns false
+		every { attachmentStub.contentLength } returns migrationBigAttachment.size.toLong()
+		every { objectStorage.tryReadCachedAttachment(sampleDocument, attachment1) } returns null
+		every { dao.getAttachment(sampleDocument.id, attachment1, null) } returns flowOf(ByteBuffer.wrap(migrationBigAttachment))
+		coEvery { objectStorageMigration.scheduleMigrateAttachment(sampleDocument, attachment1) } just Runs
+		loader.contentBytesOfNullable(sampleDocument, key1) shouldContainExactly migrationBigAttachment
+		coVerify(exactly = 1) {
+			objectStorageMigration.scheduleMigrateAttachment(sampleDocument, attachment1)
+		}
+	}
+
+	"Loading an attachment stored in couch db should not trigger a migration task if its size is smaller than the migration size limit, even if it is bigger than the size limit" {
 		every { objectStorageMigration.isMigrating(sampleDocument, attachment1) } returns false
 		every { attachmentStub.contentLength } returns bigAttachment.size.toLong()
 		every { objectStorage.tryReadCachedAttachment(sampleDocument, attachment1) } returns null
 		every { dao.getAttachment(sampleDocument.id, attachment1, null) } returns flowOf(ByteBuffer.wrap(bigAttachment))
-		coEvery { objectStorageMigration.scheduleMigrateAttachment(sampleDocument, attachment1) } just Runs
 		loader.contentBytesOfNullable(sampleDocument, key1) shouldContainExactly bigAttachment
-		coVerify(exactly = 1) {
-			objectStorageMigration.scheduleMigrateAttachment(sampleDocument, attachment1)
-		}
 	}
 
 	"Loading the attachment as a flow should not cache the content" {

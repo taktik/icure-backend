@@ -30,6 +30,9 @@ class DataAttachmentLoaderImpl<T : HasDataAttachments<T>>(
 	private val icureObjectStorageMigration: IcureObjectStorageMigration<T>,
 	private val objectStorageProperties: ObjectStorageProperties
 ): DataAttachmentLoader<T> {
+	private val migrationSizeLimit get() =
+		objectStorageProperties.migrationSizeLimit.coerceAtLeast(objectStorageProperties.sizeLimit)
+
 	override fun contentFlowOf(
 		target: T,
 		retrieveAttachment: T.() -> DataAttachment
@@ -60,9 +63,8 @@ class DataAttachmentLoaderImpl<T : HasDataAttachments<T>>(
 		dao.getAttachment(target.id, attachmentId).map { DefaultDataBufferFactory.sharedInstance.wrap(it) }
 
 	private fun shouldMigrate(target: T, attachmentId: String) =
-		// TODO maybe we want to have a bigger size limit for migration, to limit the amount of migration task actually executed
 		objectStorageProperties.backlogToObjectStorage
-			&& target.attachments?.get(attachmentId)?.let { it.contentLength >= objectStorageProperties.sizeLimit } == true
+			&& target.attachments?.get(attachmentId)?.let { it.contentLength >= migrationSizeLimit } == true
 }
 
 @Service

@@ -45,8 +45,10 @@ fun ByteArray.delayedBytesFlow(byteDelay: Long, maxDelays: Int) = flow {
 fun ByteArray.modify(amount: Byte) = map { (it + amount).toByte() }.toByteArray()
 
 const val SIZE_LIMIT = 10L
+const val MIGRATION_SIZE_LIMIT = 20L
 val smallAttachment by lazy { (1 .. SIZE_LIMIT / 2).map { it.toByte() }.toByteArray() }
 val bigAttachment by lazy { (1 .. SIZE_LIMIT * 3 / 2).map { it.toByte() }.toByteArray() }
+val migrationBigAttachment by lazy { (1 .. MIGRATION_SIZE_LIMIT * 3 / 2).map { it.toByte() }.toByteArray() }
 
 const val jsonUti = "public.json"
 const val htmlUti = "public.html"
