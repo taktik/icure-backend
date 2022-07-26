@@ -140,7 +140,7 @@ abstract class DocumentControllerEndToEndTestContext<DTO : Any, BAO: Any> {
 			.body<DataBuffer>(Mono.just(DefaultDataBufferFactory.sharedInstance.wrap(attachment)))
 			.retrieve()
 			.awaitDto()
-	
+
 	fun getMainAttachment(id: String, additionalParameters: Map<String, Any> = emptyMap()) =
 		client.get()
 			.uriWithVars("http://127.0.0.1:$port/$controllerRoot/${id}/attachment", additionalParameters)

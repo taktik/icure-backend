@@ -224,14 +224,6 @@ class DocumentController(
 		size: Long?,
 		@RequestHeader(name = HttpHeaders.CONTENT_LENGTH, required = false)
 		lengthHeader: Long?,
-		/*TODO
-		 * If the content type of the part is not specified it will be forcefully interpreted as text: this means that if the user forgot to set the content type and it sends binary data
-		 * the stored data will not be equivalent to the data provided by the user.
-		 * This happened also with the previous implementation.
-		 * Possible solutions:
-		 * - Fail if no content type was given
-		 * - Always interpret as binary data
-		 */
 		@RequestPart("attachment")
 		payload: Part,
 	): Mono<DocumentDto> = doSetDocumentAttachment(
@@ -240,7 +232,11 @@ class DocumentController(
 		rev,
 		utis,
 		size ?: payload.headers().contentLength.takeIf { it > 0 } ?: lengthHeader?.takeIf { it > 0 },
-		payload.content().asFlow()
+		payload.also {
+			require(it.headers().contentType != null) {
+				"attachment part must specify ${HttpHeaders.CONTENT_TYPE} header."
+			}
+		}.content().asFlow()
 	)
 
 	private fun doSetDocumentAttachment(
@@ -509,6 +505,9 @@ class DocumentController(
 				}
 			}
 		} ?: emptyMap()
+		require(attachmentsByKey.values.all { it.headers().contentType != null }) {
+			"Each attachment part must specify a ${HttpHeaders.CONTENT_TYPE} header."
+		}
 		require(attachmentsByKey.keys.containsAll(options.updateAttachmentsMetadata.keys)) {
 			"Missing attachments for metadata: ${options.updateAttachmentsMetadata.keys - attachmentsByKey.keys}"
 		}

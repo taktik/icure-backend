@@ -391,6 +391,9 @@ class DocumentController(
 				}
 			}
 		} ?: emptyMap()
+		require(attachmentsByKey.values.all { it.headers().contentType != null }) {
+			"Each attachment part must specify a ${HttpHeaders.CONTENT_TYPE} header."
+		}
 		require(attachmentsByKey.keys.containsAll(options.updateAttachmentsMetadata.keys)) {
 			"Missing attachments for metadata: ${options.updateAttachmentsMetadata.keys - attachmentsByKey.keys}"
 		}
