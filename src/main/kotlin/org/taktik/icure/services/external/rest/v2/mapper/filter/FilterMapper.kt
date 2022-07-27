@@ -223,6 +223,7 @@ abstract class FilterV2Mapper {
 	}
 
 	abstract fun map(filter: org.taktik.icure.domain.filter.impl.code.CodeByRegionTypeLabelLanguageFilter): CodeByRegionTypeLabelLanguageFilter
+	abstract fun map(filter: org.taktik.icure.domain.filter.impl.code.CodeIdsByTypeCodeVersionIntervalFilter): CodeIdsByTypeCodeVersionIntervalFilter
 	abstract fun map(filter: org.taktik.icure.domain.filter.impl.contact.ContactByHcPartyPatientTagCodeDateFilter): ContactByHcPartyPatientTagCodeDateFilter
 	abstract fun map(filter: org.taktik.icure.domain.filter.impl.contact.ContactByHcPartyTagCodeDateFilter): ContactByHcPartyTagCodeDateFilter
 	abstract fun map(filter: org.taktik.icure.domain.filter.impl.contact.ContactByServiceIdsFilter): ContactByServiceIdsFilter
@@ -271,6 +272,7 @@ abstract class FilterV2Mapper {
 	abstract fun map(filter: org.taktik.icure.domain.filter.impl.service.ServiceByIdsFilter): ServiceByIdsFilter
 	abstract fun map(filter: org.taktik.icure.domain.filter.impl.user.UserByIdsFilter): UserByIdsFilter
 	abstract fun map(filter: org.taktik.icure.domain.filter.impl.user.UserByNameEmailPhoneFilter): UserByNameEmailPhoneFilter
+	abstract fun map(filter: org.taktik.icure.domain.filter.impl.user.UsersByPatientIdFilter): UsersByPatientIdFilter
 
 	fun <O : Identifiable<String>> mapToDomain(filterDto: org.taktik.icure.domain.filter.impl.UnionFilter<O>): UnionFilter<O> {
 		val filters: List<AbstractFilterDto<O>> = filterDto.filters.map { map(it) as AbstractFilterDto<O> }
