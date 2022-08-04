@@ -179,12 +179,15 @@ open class KmehrExport(
 			}
 			cds?.let { this.cds.addAll(it) }
 			this.cds.addAll(
-				if (m.specialityCodes.size > 0) {
+				if (m.specialityCodes.isNotEmpty()) {
 					m.specialityCodes.map { CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = it.code } }
-				} else if (m.speciality ?: "" != "") {
+				} else if (!m.speciality.isNullOrBlank()) {
 					listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = m.speciality })
-				} else
+				}  else if (!m.firstName.isNullOrBlank() || !m.lastName.isNullOrBlank()) {
 					listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "persphysician" })
+				} else {
+					listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "orghospital" })
+				}
 			)
 
 			if (this.cds.filter { it.s == CDHCPARTYschemes.CD_HCPARTY }.any { it.value.startsWith("pers") }) {
