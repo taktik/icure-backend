@@ -183,7 +183,7 @@ open class KmehrExport(
 					m.specialityCodes.map { CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = it.code } }
 				} else if (!m.speciality.isNullOrBlank()) {
 					listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = m.speciality })
-				}  else if (!m.firstName.isNullOrBlank() || !m.lastName.isNullOrBlank()) {
+				}  else if (!m.lastName.isNullOrBlank() && !m.firstName.isNullOrBlank()) {
 					listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "persphysician" })
 				} else {
 					listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "orghospital" })
