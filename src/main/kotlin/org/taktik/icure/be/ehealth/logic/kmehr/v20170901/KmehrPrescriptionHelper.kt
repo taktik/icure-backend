@@ -339,7 +339,7 @@ object KmehrPrescriptionHelper {
 					CDDAYPERIODvalues.NIGHT.value() -> time = xmlDtf.newXMLGregorianCalendar("22:00:00")
 					CDDAYPERIODvalues.AFTERMEAL.value(), CDDAYPERIODvalues.BETWEENMEALS.value() -> throw IllegalArgumentException("$timeOfDay not supported: corresponds to multiple possible moments in a day")
 					else -> dayperiod = DayperiodType().apply {
-						cd = CDDAYPERIOD().apply { s = "CD-DAYPERIOD"; sv = "1.1"; value = CDDAYPERIODvalues.fromValue(timeOfDay) }
+						cd = CDDAYPERIOD().apply { s = "CD-DAYPERIOD"; sv = "1.1"; value = try { CDDAYPERIODvalues.fromValue(timeOfDay) } catch(_:java.lang.IllegalArgumentException) { CDDAYPERIODvalues.AFTERNOON } }
 					}
 				}
 			}
