@@ -291,7 +291,7 @@ class SoftwareMedicalFileExport(
 			}
 
 			if (contact == null) return@contactsLoop
-			var subContacts: List<SubContact> = if (config.soft.name == "Medispring") contact.subContacts.filter { subContact -> subContact.healthElementId == null && subContact.planOfActionId == null && subContact.formId != null } else contact.subContacts.toList()
+			var subContacts: List<SubContact> = if (config.soft?.name == "Medispring") contact.subContacts.filter { subContact -> subContact.healthElementId == null && subContact.planOfActionId == null && subContact.formId != null } else contact.subContacts.toList()
 			subContacts.forEachIndexed { index, subContact ->
 				folder.transactions.add(
 					TransactionType().apply {
