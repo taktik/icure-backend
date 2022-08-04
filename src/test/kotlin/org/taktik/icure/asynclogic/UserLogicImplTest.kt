@@ -1,5 +1,6 @@
 package org.taktik.icure.asynclogic
 
+import java.util.UUID
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,92 +17,91 @@ import org.taktik.icure.asynclogic.impl.UserLogicImpl
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.User
 import org.taktik.icure.properties.CouchDbProperties
-import java.util.UUID
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class UserLogicImplTest {
-    private val couchDbProperties = mockk<CouchDbProperties>(relaxed = true)
-    private val roleDAO = mockk<RoleDAO>(relaxed = true)
-    private val sessionLogic = mockk<AsyncSessionLogic>(relaxed = true)
-    private val filters = mockk<org.taktik.icure.asynclogic.impl.filter.Filters>(relaxed = true)
-    private val healthcarePartyLogic = mockk<HealthcarePartyLogic>(relaxed = true)
-    private val propertyLogic = mockk<PropertyLogic>(relaxed = true)
-    private val passwordEncoder = mockk<PasswordEncoder>(relaxed = true)
-    private val uuidGenerator = mockk<UUIDGenerator>(relaxed = true)
+	private val couchDbProperties = mockk<CouchDbProperties>(relaxed = true)
+	private val roleDAO = mockk<RoleDAO>(relaxed = true)
+	private val sessionLogic = mockk<AsyncSessionLogic>(relaxed = true)
+	private val filters = mockk<org.taktik.icure.asynclogic.impl.filter.Filters>(relaxed = true)
+	private val healthcarePartyLogic = mockk<HealthcarePartyLogic>(relaxed = true)
+	private val propertyLogic = mockk<PropertyLogic>(relaxed = true)
+	private val passwordEncoder = mockk<PasswordEncoder>(relaxed = true)
+	private val uuidGenerator = mockk<UUIDGenerator>(relaxed = true)
 
-    private val userDAO = mockk<UserDAO>()
-    private val userLogic: UserLogic = UserLogicImpl(couchDbProperties = couchDbProperties, roleDao = roleDAO, sessionLogic = sessionLogic, filters = filters, userDAO = userDAO, healthcarePartyLogic = healthcarePartyLogic, propertyLogic = propertyLogic, passwordEncoder = passwordEncoder, uuidGenerator = uuidGenerator)
+	private val userDAO = mockk<UserDAO>()
+	private val userLogic: UserLogic = UserLogicImpl(couchDbProperties = couchDbProperties, roleDao = roleDAO, sessionLogic = sessionLogic, filters = filters, userDAO = userDAO, healthcarePartyLogic = healthcarePartyLogic, propertyLogic = propertyLogic, passwordEncoder = passwordEncoder, uuidGenerator = uuidGenerator)
 
-    private val patientUser = mockk<ViewRowWithDoc<*, *, *>>{
-        every { (doc as User).patientId } returns UUID.randomUUID().toString()
-        every { (doc as User).healthcarePartyId } returns null
-    }
+	private val patientUser = mockk<ViewRowWithDoc<*, *, *>> {
+		every { (doc as User).patientId } returns UUID.randomUUID().toString()
+		every { (doc as User).healthcarePartyId } returns null
+	}
 
-    private val hcpUser = mockk<ViewRowWithDoc<*, *, *>>{
-        every { (doc as User).healthcarePartyId } returns UUID.randomUUID().toString()
-        every { (doc as User).patientId } returns null
-    }
+	private val hcpUser = mockk<ViewRowWithDoc<*, *, *>> {
+		every { (doc as User).healthcarePartyId } returns UUID.randomUUID().toString()
+		every { (doc as User).patientId } returns null
+	}
 
-    private val hcpAndPatientUser = mockk<ViewRowWithDoc<*, *, *>>{
-        every { (doc as User).healthcarePartyId } returns UUID.randomUUID().toString()
-        every { (doc as User).patientId } returns UUID.randomUUID().toString()
-    }
+	private val hcpAndPatientUser = mockk<ViewRowWithDoc<*, *, *>> {
+		every { (doc as User).healthcarePartyId } returns UUID.randomUUID().toString()
+		every { (doc as User).patientId } returns UUID.randomUUID().toString()
+	}
 
-    private val user = mockk<ViewRowWithDoc<*, *, *>>{
-        every { (doc as User).healthcarePartyId } returns null
-        every { (doc as User).patientId } returns null
-    }
+	private val user = mockk<ViewRowWithDoc<*, *, *>> {
+		every { (doc as User).healthcarePartyId } returns null
+		every { (doc as User).patientId } returns null
+	}
 
-    private val paginationOffset = PaginationOffset<String>(1000)
-    private val extendedLimit = (1000 * 1F).toInt()
+	private val paginationOffset = PaginationOffset<String>(1000)
+	private val extendedLimit = (1000 * 1F).toInt()
 
-    @Test
-    fun `listUser with skipPatients = false, user has only a patientId, Should be found`() {
-        val skipPatient = false
-        every { userDAO.findUsers(paginationOffset, extendedLimit, skipPatient) } returns flowOf(patientUser)
+	@Test
+	fun `listUser with skipPatients = false, user has only a patientId, Should be found`() {
+		val skipPatient = false
+		every { userDAO.findUsers(paginationOffset, extendedLimit, skipPatient) } returns flowOf(patientUser)
 
-        runBlocking {
-            assert(userLogic.listUsers(paginationOffset, skipPatient).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().single() === patientUser)
-        }
-    }
+		runBlocking {
+			assert(userLogic.listUsers(paginationOffset, skipPatient).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().single() === patientUser)
+		}
+	}
 
-    @Test
-    fun `listUser with skipPatients = true, user has only a patientId, Should not be found`() {
-        val skipPatient = true
-        every { userDAO.findUsers(paginationOffset, extendedLimit, skipPatient) } returns flowOf(patientUser)
+	@Test
+	fun `listUser with skipPatients = true, user has only a patientId, Should not be found`() {
+		val skipPatient = true
+		every { userDAO.findUsers(paginationOffset, extendedLimit, skipPatient) } returns flowOf(patientUser)
 
-        runBlocking {
-            assert(userLogic.listUsers(paginationOffset, skipPatient).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().isEmpty())
-        }
-    }
+		runBlocking {
+			assert(userLogic.listUsers(paginationOffset, skipPatient).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().isEmpty())
+		}
+	}
 
-    @Test
-    fun `listUser with skipPatients = true, user has only a hcpId, Should be found`() {
-        val skipPatient = true
-        every { userDAO.findUsers(paginationOffset, extendedLimit, skipPatient) } returns flowOf(hcpUser)
+	@Test
+	fun `listUser with skipPatients = true, user has only a hcpId, Should be found`() {
+		val skipPatient = true
+		every { userDAO.findUsers(paginationOffset, extendedLimit, skipPatient) } returns flowOf(hcpUser)
 
-        runBlocking {
-            assert(userLogic.listUsers(paginationOffset, skipPatient).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().single() === hcpUser)
-        }
-    }
+		runBlocking {
+			assert(userLogic.listUsers(paginationOffset, skipPatient).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().single() === hcpUser)
+		}
+	}
 
-    @Test
-    fun `listUser with skipPatients = true, user has a patientId AND a hcpId, Should be found`() {
-        val skipPatient = true
-        every { userDAO.findUsers(paginationOffset, extendedLimit, skipPatient) } returns flowOf(hcpAndPatientUser)
+	@Test
+	fun `listUser with skipPatients = true, user has a patientId AND a hcpId, Should be found`() {
+		val skipPatient = true
+		every { userDAO.findUsers(paginationOffset, extendedLimit, skipPatient) } returns flowOf(hcpAndPatientUser)
 
-        runBlocking {
-            assert(userLogic.listUsers(paginationOffset, skipPatient).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().single() === hcpAndPatientUser)
-        }
-    }
+		runBlocking {
+			assert(userLogic.listUsers(paginationOffset, skipPatient).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().single() === hcpAndPatientUser)
+		}
+	}
 
-    @Test
-    fun `listUser with skipPatients = true, user has no patientId AND no hcpId, Should be found`() {
-        val skipPatient = true
-        every { userDAO.findUsers(paginationOffset, extendedLimit, skipPatient) } returns flowOf(user)
+	@Test
+	fun `listUser with skipPatients = true, user has no patientId AND no hcpId, Should be found`() {
+		val skipPatient = true
+		every { userDAO.findUsers(paginationOffset, extendedLimit, skipPatient) } returns flowOf(user)
 
-        runBlocking {
-            assert(userLogic.listUsers(paginationOffset, skipPatient).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().single() === user)
-        }
-    }
+		runBlocking {
+			assert(userLogic.listUsers(paginationOffset, skipPatient).toList().filterIsInstance<ViewRowWithDoc<*, *, *>>().single() === user)
+		}
+	}
 }

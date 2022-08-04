@@ -13,7 +13,7 @@ import org.taktik.icure.entities.embed.Identifier
 
 interface MaintenanceTaskLogic : EntityPersister<MaintenanceTask, String> {
 	fun listMaintenanceTasksByHcPartyAndIdentifier(healthcarePartyId: String, identifiers: List<Identifier>): Flow<String>
-	fun listMaintenanceTasksByHcPartyAndType(healthcarePartyId: String, type: String, startDate: Long, endDate: Long): Flow<String>
+	fun listMaintenanceTasksByHcPartyAndType(healthcarePartyId: String, type: String, startDate: Long? = null, endDate: Long? = null): Flow<String>
 	fun listMaintenanceTasksAfterDate(date: Long): Flow<String>
 
 	fun getGenericDAO(): MaintenanceTaskDAO

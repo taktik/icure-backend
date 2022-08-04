@@ -8,8 +8,12 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -49,13 +53,15 @@ class MaintenanceTaskController(
 	@Operation(summary = "Creates a maintenanceTask")
 	@PostMapping
 	fun createMaintenanceTask(@RequestBody maintenanceTaskDto: MaintenanceTaskDto) = mono {
-		try {
-			val created = maintenanceTaskLogic.createEntities(listOf(maintenanceTaskMapper.map(maintenanceTaskDto)))
-			created.firstOrNull()?.let { maintenanceTaskMapper.map(it) }
-				?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "MaintenanceTask creation failed.")
-		} catch (e: Exception) {
-			throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "MaintenanceTask creation failed.")
-		}
+		maintenanceTaskLogic.createEntities(listOf(maintenanceTaskMapper.map(maintenanceTaskDto)))
+			.catch { e ->
+				if (e is Exception)
+					throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "MaintenanceTask creation failed.")
+			}
+			.firstOrNull()
+			?.let {
+				maintenanceTaskMapper.map(it)
+			} ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "MaintenanceTask creation failed.")
 	}
 
 	@Operation(summary = "Delete maintenanceTasks")

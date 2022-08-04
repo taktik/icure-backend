@@ -33,6 +33,7 @@ interface CodeDAO : GenericDAO<Code> {
 	fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
 	fun listCodeIdsByLabel(region: String?, language: String?, label: String?): Flow<String>
 	fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): Flow<String>
+	fun listCodeIdsByTypeCodeVersionInterval(startType: String?, startCode: String?, startVersion: String?, endType: String?, endCode: String?, endVersion: String?): Flow<String>
 	suspend fun isValid(codeType: String, codeCode: String, codeVersion: String?): Boolean
 	suspend fun getCodeByLabel(region: String, label: String, ofType: String, labelLang: List<String> = listOf("fr", "nl")): Code?
 	fun findCodesByQualifiedLinkId(region: String?, linkType: String, linkedId: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>

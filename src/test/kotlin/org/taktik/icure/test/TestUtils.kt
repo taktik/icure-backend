@@ -1,5 +1,6 @@
 package org.taktik.icure.test
 
+import kotlin.math.abs
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import kotlin.random.Random.Default.nextInt
@@ -8,12 +9,30 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import org.taktik.icure.services.external.rest.v1.dto.MaintenanceTaskDto
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
+import org.taktik.icure.services.external.rest.v1.dto.UserDto
 import reactor.core.publisher.Mono
 import reactor.netty.http.client.HttpClient
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 private data class IdWithRev(@field:JsonProperty("_id") val id: String, @field:JsonProperty("_rev") val rev: String)
+
+fun generateRandomString(length: Int, alphabet: List<Char>) = (1..length)
+	.map { _ -> alphabet[nextInt(0, alphabet.size)] }
+	.joinToString("")
+
+@OptIn(ExperimentalStdlibApi::class)
+fun generateInBetweenCode(firstCode: String, secondCode: String): String {
+	val firstCodeLower = firstCode.lowercase()
+	val secondCodeLower = secondCode.lowercase()
+	return firstCodeLower.zip(secondCodeLower).fold("") { acc, it ->
+		if ( it.first == it.second || abs(it.first.toInt() - it.second.toInt()) == 1 ) acc + it.first
+		else acc + ((it.first.toInt() + it.second.toInt())/2).toChar()
+	}
+
+
+}
 
 suspend fun removeEntities(ids: List<String>, objectMapper: ObjectMapper?) {
 	val auth = "Basic ${java.util.Base64.getEncoder().encodeToString("${System.getenv("ICURE_COUCHDB_USERNAME")}:${System.getenv("ICURE_COUCHDB_PASSWORD")}".toByteArray())}"
@@ -52,7 +71,6 @@ class CodeBatchGenerator {
 
 	fun createBatchOfUniqueCodes(size: Int) = (1..size)
 		.fold(listOf<CodeDto>()) { acc, _ ->
-
 			val lang = languages[nextInt(0, languages.size)]
 			val type = types[nextInt(0, types.size)]
 			val code = generateRandomString(20)
@@ -83,4 +101,17 @@ class CodeBatchGenerator {
 			if (modifySearchTerms && nextInt(0, 4) == 0) it.copy(searchTerms = mapOf(generateRandomString(10) to List(nextInt(1, 4)) { generateRandomString(10) }.toSet()))
 			else it
 		}
+}
+
+class UserGenerator {
+
+	private val alphabet: List<Char> = ('a'..'z').toList() + ('A'..'Z') + ('0'..'9')
+
+	fun generateRandomUsers(num: Int) = List(num) {
+		UserDto(
+			id = generateRandomString(20, alphabet),
+			patientId = generateRandomString(10, alphabet),
+			login = generateRandomString(5, alphabet) + '@' + generateRandomString(5, alphabet)
+		)
+	}
 }

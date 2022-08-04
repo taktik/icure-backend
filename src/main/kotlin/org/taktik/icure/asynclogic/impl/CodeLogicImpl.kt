@@ -188,6 +188,10 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 		emitAll(codeDAO.listCodeIdsByLabel(region, language, type, label))
 	}
 
+	override fun listCodeIdsByTypeCodeVersionInterval(startType: String?, startCode: String?, startVersion: String?, endType: String?, endCode: String?, endVersion: String?) = flow {
+		emitAll(codeDAO.listCodeIdsByTypeCodeVersionInterval(startType, startCode, startVersion, endType, endCode, endVersion))
+	}
+
 	override fun findCodesByQualifiedLinkId(region: String?, linkType: String, linkedId: String, pagination: PaginationOffset<List<String>>) = flow<ViewQueryResultEvent> {
 		emitAll(codeDAO.findCodesByQualifiedLinkId(region, linkType, linkedId, pagination))
 	}

@@ -33,7 +33,7 @@ class MaintenanceTaskLogicImpl(
 		emitAll(maintenanceTaskDAO.listMaintenanceTasksByHcPartyAndIdentifier(healthcarePartyId, identifiers))
 	}
 
-	override fun listMaintenanceTasksByHcPartyAndType(healthcarePartyId: String, type: String, startDate: Long, endDate: Long): Flow<String> = flow {
+	override fun listMaintenanceTasksByHcPartyAndType(healthcarePartyId: String, type: String, startDate: Long?, endDate: Long?): Flow<String> = flow {
 		emitAll(maintenanceTaskDAO.listMaintenanceTasksByHcPartyAndType(healthcarePartyId, type, startDate, endDate))
 	}
 
@@ -58,8 +58,11 @@ class MaintenanceTaskLogicImpl(
 			)
 		}
 
-
 	override fun getGenericDAO(): MaintenanceTaskDAO {
 		return maintenanceTaskDAO
+	}
+
+	override fun createEntities(entities: Collection<MaintenanceTask>) = flow {
+		emitAll( super.createEntities(entities.map { fix(it) }) )
 	}
 }

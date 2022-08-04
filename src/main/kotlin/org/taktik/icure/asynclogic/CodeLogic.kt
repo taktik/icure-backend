@@ -50,6 +50,7 @@ interface CodeLogic : EntityPersister<Code, String> {
 	fun findCodesByLabel(region: String?, language: String?, label: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
 	fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
 	fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): Flow<String>
+	fun listCodeIdsByTypeCodeVersionInterval(startType: String?, startCode: String?, startVersion: String?, endType: String?, endCode: String?, endVersion: String?): Flow<String>
 	fun findCodesByQualifiedLinkId(region: String?, linkType: String, linkedId: String, pagination: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
 	fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): Flow<String>
 	suspend fun <T : Enum<*>> importCodesFromEnum(e: Class<T>)
