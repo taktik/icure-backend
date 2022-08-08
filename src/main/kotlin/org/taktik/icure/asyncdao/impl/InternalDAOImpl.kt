@@ -84,7 +84,7 @@ open class InternalDAOImpl<T : StoredDocument>(override val entityClass: Class<T
 			log.debug(entityClass.simpleName + ".get: " + id + " [" + ArrayUtils.toString(options) + "]")
 		}
 		return try {
-			return rev?.let { client.get(id, entityClass, *options) } ?: client.get(id, entityClass, *options)
+			return rev?.let { client.get(id, it, entityClass, *options) } ?: client.get(id, entityClass, *options)
 		} catch (e: DocumentNotFoundException) {
 			log.warn("Document not found", e)
 			null

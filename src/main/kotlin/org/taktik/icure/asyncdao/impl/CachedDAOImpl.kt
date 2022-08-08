@@ -239,12 +239,10 @@ abstract class CachedDAOImpl<T : StoredDocument>(
 		}
 	}
 
-	override suspend fun purge(entities: Collection<T>) {
-		super.purge(entities)
-		for (entity in entities) {
-			evictFromCache(entity)
+	override suspend fun purge(entities: Collection<T>): Flow<DocIdentifier> =
+		super.purge(entities).onEach {
+			it.id?.let { id -> evictFromCache(id) }
 		}
-	}
 
 	override fun <K : Collection<T>> save(newEntity: Boolean?, entities: K) = flow {
 		val savedEntities = try {

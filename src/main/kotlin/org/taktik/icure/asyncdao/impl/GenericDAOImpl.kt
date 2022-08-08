@@ -253,6 +253,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(
 			log.debug("remove $entities")
 		}
 		try {
+			val entitiesById = entities.associateBy { it.id }
 			val bulkUpdateResults = client.bulkUpdate(
 				entities.map {
 					beforeDelete(it).let {
@@ -260,9 +261,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(
 					}
 				},
 				entityClass
-			).onEach { r ->
-				entities.firstOrNull { e -> r.id == e.id }?.let { afterDelete(it) }
-			}
+			).onEach { r -> entitiesById[r.id]?.let { afterDelete(it) } }
 			emitAll(bulkUpdateResults.map { DocIdentifier(it.id, it.rev) })
 		} catch (e: Exception) {
 			throw PersistenceException("failed to remove entities ", e)
@@ -291,17 +290,16 @@ abstract class GenericDAOImpl<T : StoredDocument>(
 		}
 	}
 
-	// This function is not reactive, but it doesn't seem to be used at all anyway...
-	override suspend fun purge(entities: Collection<T>) {
+	override suspend fun purge(entities: Collection<T>): Flow<DocIdentifier> = flow {
 		val client = couchDbDispatcher.getClient(dbInstanceUrl)
 		if (log.isDebugEnabled) {
 			log.debug("remove $entities")
 		}
 		try {
-			val bulkDeleteResults = client.bulkDelete(entities.map { beforeDelete(it) }).toList()
-			for (entity in entities) {
-				afterDelete(entity)
-			}
+			val entitiesById = entities.associateBy { it.id }
+			val bulkDeleteResults = client.bulkDelete(entities.map { beforeDelete(it) })
+				.onEach { r -> entitiesById[r.id]?.let { afterDelete(it) } }
+			emitAll(bulkDeleteResults.map { DocIdentifier(it.id, it.rev) })
 		} catch (e: Exception) {
 			throw PersistenceException("failed to remove entities ", e)
 		}

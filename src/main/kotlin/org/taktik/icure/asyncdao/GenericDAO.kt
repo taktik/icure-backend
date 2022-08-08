@@ -44,7 +44,7 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
 	suspend fun remove(entity: T): DocIdentifier
 	fun remove(entities: Collection<T>): Flow<DocIdentifier>
 	suspend fun purge(entity: T): DocIdentifier
-	suspend fun purge(entities: Collection<T>)
+	suspend fun purge(entities: Collection<T>): Flow<DocIdentifier>
 	fun unRemove(entities: Collection<T>): Flow<DocIdentifier>
 	suspend fun unRemove(entity: T): DocIdentifier
 	suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean = true, useVersioning: Boolean = true)
