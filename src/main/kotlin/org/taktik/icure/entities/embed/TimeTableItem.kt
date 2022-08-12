@@ -27,11 +27,12 @@ import com.github.pozo.KotlinBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class TimeTableItem(
-	val days: List<String> = emptyList(),
-	val hours: List<TimeTableHour> = emptyList(),
-	val recurrenceTypes: List<String> = emptyList(),
-	val calendarItemTypeId: String? = null,
+	val rrule: String,
+	@Deprecated("Will be replaced by rrule") val days: List<String> = emptyList(),
+	@Deprecated("Will be replaced by rrule") val hours: List<TimeTableHour> = emptyList(),
+	@Deprecated("Will be replaced by rrule") val recurrenceTypes: List<String> = emptyList(),
 
+	val calendarItemTypeId: String? = null,
 	@JsonProperty("isHomeVisit") val homeVisit: Boolean = false,
 	val placeId: String? = null,
 	val publicTimeTableItem: Boolean = false,
