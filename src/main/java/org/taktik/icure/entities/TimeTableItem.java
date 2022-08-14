@@ -37,6 +37,8 @@ public class TimeTableItem {
     private boolean homeVisit;
     private String placeId;
     private boolean unavailable;
+    private boolean acceptsNewPatient;
+    private boolean publicTimeTableItem;
 
     public List<String> getDays() {
         return days;
@@ -93,4 +95,12 @@ public class TimeTableItem {
     public void setUnavailable(boolean unavailable) {
         this.unavailable = unavailable;
     }
+
+    public boolean isAcceptsNewPatient () { return acceptsNewPatient;}
+
+    public void setAcceptsNewPatient (boolean acceptsNewPatient) { this.acceptsNewPatient = acceptsNewPatient;}
+
+    public boolean isPublicTimeTableItem () { return publicTimeTableItem;}
+
+    public void setPublicTimeTableItem (boolean publicTimeTableItem) { this.publicTimeTableItem = publicTimeTableItem;}
 }

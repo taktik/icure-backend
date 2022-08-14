@@ -511,8 +511,9 @@ class TarificationCodeImporter extends Importer {
 
     void populateValorisations(File root, LinkedHashMap<String, NomensoftTarification> tarifications, LinkedHashMap<String, NomenFeeCode> valTypes) {
         def cal = Calendar.instance
-        cal.set(YEAR,0,0, 0, 0, 0)
+        cal.set(cal.get(Calendar.YEAR),0,0, 0, 0, 0)
         cal.set(Calendar.MILLISECOND, 0)
+        cal.add(Calendar.YEAR, -1)
 
         def twoYearsAgo = cal.time - 1
         def notFounds = new HashSet()
@@ -641,8 +642,8 @@ class TarificationCodeImporter extends Importer {
             //println(JsonOutput.toJson(valTypes.values()))
 
             def farFutureCal = Calendar.instance
-            farFutureCal.set(2999,11,31, 0, 0, 0)
-            farFutureCal.set(Calendar.MILLISECOND, 0)
+            farFutureCal.set(3999,11,31, 23, 59, 59)
+            farFutureCal.set(Calendar.MILLISECOND, 999)
 
             [false, true].forEach { amb ->
                 println "Amb: $amb"
@@ -685,6 +686,10 @@ class TarificationCodeImporter extends Importer {
 
                             code.valorisations = new HashSet(map.valorisations.collect { val ->
                                 NomenFeeCode vt = valTypes[val.type]
+
+                                if (map.id == "449912") {
+                                    println("found")
+                                }
 
                                 if (vt) {
                                     return new Valorisation(
