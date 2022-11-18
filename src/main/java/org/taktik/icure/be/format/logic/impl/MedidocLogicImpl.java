@@ -164,6 +164,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 				if (full) {
 					Service s = new Service();
 					i = fillService(s, language, lines, i, demandDate);
+                    ri.setServices(Collections.singletonList(s));
 				}
 
 				l.add(ri);
